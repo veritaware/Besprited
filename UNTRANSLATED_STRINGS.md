@@ -4,12 +4,17 @@ This list contains string literals that are likely user-facing and should be int
 
 ## Summary
 
-- **Total user-facing strings found:** 195
+- **Total user-facing strings found:** 220+ (updated after review)
 - **Excluded internal strings:** 63 (serialization identifiers, enum values, debug messages, etc.)
+- **Update Note:** Added 25+ strings missed in initial analysis (Alert::show, MenuItem declarations, member initializations)
 
 ---
 
 ## Strings That Need Internationalization
+
+### Alert Messages (1 string)
+Alert dialog messages not using i18n():
+- `base/launcher.cpp:54`: "Problem<<Cannot open:<<%s<<%s||&Close" (Windows-specific file open error)
 
 ### Filter Names (5 strings)
 These are displayed in the UI when filters are applied:
@@ -31,33 +36,62 @@ Popup window and dialog titles:
 - `app/ui/font_popup.cpp`: "Fonts"
 - `app/ui/configure_timeline_popup.cpp`: "Timeline Settings"
 
-### UI Labels (15+ strings)
+### UI Labels (20+ strings)
 Text labels in various dialogs and UI elements:
 - `app/commands/cmd_mask_by_color.cpp`: "Color:", "Tolerance:"
 - `app/ui/status_bar.cpp`: "Frame:"
 - `app/ui/context_bar.cpp`: "Pick:", "Sample:", "Tolerance:", "Opacity:", "Spray:", "Freehand:"
 - `app/commands/cmd_about.cpp`: "Animated sprite editor & pixel art tool", "Authors:", "- Lead developer, graphics & maintainer", "- Default skin & graphics introduced in v0.8"
 - `app/commands/cmd_sprite_properties.cpp`: "(only for indexed images)"
+- `app/ui/color_popup.cpp:57`: "Transparent Color Selected" (m_maskLabel member)
+- `app/ui/devconsole_view.cpp:64`: "Welcome to Besprited Scripting Console\n(Experimental)" (m_textBox member)
+- `app/ui/devconsole_view.cpp:65`: ">" (m_label member, likely doesn't need i18n)
+- `app/ui/hex_color_entry.cpp`: "#" (m_label member, likely doesn't need i18n)
 
-### Buttons (10+ strings)
+### Buttons (15+ strings)
 Button labels throughout the UI:
 - `app/commands/cmd_mask_by_color.cpp`: "&OK", "&Cancel"
 - `app/commands/cmd_about.cpp`: "&Close"
 - `app/console.cpp`: "&Close", "C&lear"
-- `app/ui/status_bar.cpp`: "+"
-- `app/commands/filters/filter_window.cpp`: "&OK", "&Cancel"
-- `app/ui/color_bar.cpp`: "Remap"
+- `app/ui/status_bar.cpp`: "+" (New Frame button), "Disable Snap to Grid" (m_button member)
+- `app/commands/filters/filter_window.cpp`: "&OK", "&Cancel" (m_okButton, m_cancelButton members)
+- `app/ui/color_bar.cpp`: "Remap" (m_remapButton member)
+- `app/ui/data_recovery_view.cpp` (lines 46-47) - Conditional initialization:
+  - "Open" / "Open All" (m_openButton member)
+  - "Delete" / "Delete All" (m_deleteButton member)
 
-### Checkboxes (5 strings)
+### Checkboxes (6 strings)
 Checkbox labels:
 - `app/commands/cmd_mask_by_color.cpp`: "&Preview"
 - `app/ui/context_bar.cpp`: "Contiguous", "Pixel-perfect", "Auto Select Layer"
-- `app/commands/filters/filter_window.cpp`: "&Tiled"
+- `app/commands/filters/filter_window.cpp`: "&Tiled", "&Preview" (m_tiledCheck, m_showPreview members)
 
-### Menu Items (10+ strings)
+### Menu Items (30+ strings)
 Menu and context menu items:
 - `app/ui/editor/editor.cpp`: "Play Once", "Rewind on Stop"
 - `app/app_menus.cpp`: "WARNING!", "You should update your customized gui.xml file to the new version to get", "the latest commands available.", etc.
+- `app/ui/brush_popup.cpp` (lines 158-161):
+  - "Save Brush Here"
+  - "Locked"
+  - "Delete"
+  - "Delete All"
+- `app/ui/color_wheel.cpp` (lines 320-328) - Color harmony options:
+  - "Discrete"
+  - "Without Harmonies"
+  - "Complementary"
+  - "Monochromatic"
+  - "Analogous"
+  - "Split-Complementary"
+  - "Triadic"
+  - "Tetradic"
+  - "Square"
+- `app/ui/data_recovery_view.cpp` (lines 102-103):
+  - "Raw Images as Frames"
+  - "Raw Images as Layers"
+- `ui/entry.cpp` (lines 787-789) - Text entry context menu:
+  - "Cut"
+  - "Copy"
+  - "Paste"
 
 ### Combo Box Items (90+ strings)
 Dropdown menu options across many dialogs:
@@ -158,4 +192,34 @@ These strings were identified as internal and do NOT need internationalization:
 2. The excluded strings are used for serialization, APIs, or internal purposes and should remain as plain strings.
 3. Some combo box items contain technical color channel names (R, G, B, A, K) which may or may not need translation depending on localization policy.
 4. Status bar format strings include printf-style placeholders (%s, %d) which should be preserved in translations.
+
+---
+
+## Update History
+
+### Update 2026-04-15
+Added 25+ strings that were missed in the initial analysis:
+
+**New Categories/Strings Added:**
+1. **Alert::show calls** (1 string):
+   - `base/launcher.cpp`: Windows file open error message
+
+2. **MenuItem declarations** (18 strings):
+   - `app/ui/brush_popup.cpp`: 4 brush menu items
+   - `app/ui/color_wheel.cpp`: 9 color harmony menu items
+   - `app/ui/data_recovery_view.cpp`: 2 import options (already partially listed)
+   - `ui/entry.cpp`: 3 text entry context menu items (Cut, Copy, Paste)
+
+3. **Member variable initializations** (6+ strings):
+   - `app/ui/data_recovery_view.cpp`: m_openButton, m_deleteButton (conditional strings)
+   - `app/ui/color_popup.cpp`: m_maskLabel
+   - `app/ui/devconsole_view.cpp`: m_textBox welcome message, m_label
+   - `app/ui/status_bar.cpp`: m_button text
+   - `app/commands/filters/filter_window.cpp`: m_showPreview
+   - `app/ui/hex_color_entry.cpp`: m_label
+
+These patterns were identified through additional analysis focusing on:
+- Member variable initializations (`: m_variable("text")` pattern)
+- Local MenuItem/AppMenuItem declarations
+- Alert::show() calls without i18n() wrappers
 
