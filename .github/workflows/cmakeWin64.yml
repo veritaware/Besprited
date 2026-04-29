@@ -76,4 +76,4 @@ jobs:
       with:
         name: besprited-development-windows-x86_64
         path: |
-          build/bin/*
+          build/bin/

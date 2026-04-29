@@ -64,6 +64,21 @@ int app_main(int argc, char* argv[])
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
 #ifdef _WIN32
+  // Set the DLL search directory to the 'lib' subdirectory next to
+  // the executable, so that DLLs can be organized in a lib/ folder
+  // rather than alongside the application binary.
+  {
+    char exePath[MAX_PATH];
+    DWORD len = GetModuleFileNameA(nullptr, exePath, MAX_PATH);
+    if (len > 0 && len < MAX_PATH) {
+      std::string libPath(exePath);
+      auto sep = libPath.rfind('\\');
+      if (sep != std::string::npos) {
+        libPath = libPath.substr(0, sep + 1) + "lib";
+        SetDllDirectoryA(libPath.c_str());
+      }
+    }
+  }
   ::CoInitialize(NULL);
 #endif
 

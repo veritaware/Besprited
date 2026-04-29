@@ -4,6 +4,8 @@ set -euo pipefail
 # --- Configuration ---
 EXE="${1:-build/bin/besprited.exe}"
 DEST_DIR="$(dirname "$EXE")"
+LIB_DIR="$DEST_DIR/lib"
+mkdir -p "$LIB_DIR"
 
 # Ensure executable exists
 if [[ ! -f "$EXE" ]]; then
@@ -18,7 +20,7 @@ ldd "$EXE" | grep -iE '/ucrt64/' | while IFS= read -r line; do
   libpath=$(echo "$line" | sed -nE 's/.*=>[[:space:]]*([^[:space:]]+)[[:space:]]*\(.*/\1/p')
   
   if [[ -f "$libpath" ]]; then
-    cp -u "$libpath" "$DEST_DIR"/
+    cp -u "$libpath" "$LIB_DIR/"
   else
     echo "ERROR: Missing file: $libpath"
   fi
