@@ -85,9 +85,7 @@ async function main(exe) {
     if (!exe) {
         console.log('No exe given');
     } else try {
-        const libDir = path.join(path.dirname(exe), 'lib');
-        fs.mkdirSync(libDir, {recursive: true});
-        await copyDependencies(exe, libDir);
+        await copyDependencies(exe, path.dirname(exe));
     } catch (ex) {
         if (ex && ex.stderr) {
             console.error(`Running ${ex.file} ${ex.args.join(" ")}:\n${ex.error}`);
