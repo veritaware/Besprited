@@ -19,10 +19,15 @@ else()
 endif()
 
 add_library(duktape ${DUKTAPE_DIR}/duktape.c)
-add_library(script-lib
+set(SCRIPT_LIB_SOURCES
   duktape/engine.cpp
-  v8/engine.cpp
   cout_delegate.cpp)
+
+if(SCRIPT_ENGINE_V8)
+  list(APPEND SCRIPT_LIB_SOURCES v8/engine.cpp)
+endif()
+
+add_library(script-lib ${SCRIPT_LIB_SOURCES})
 
 if(UNIX)
   target_link_libraries(duktape m)
