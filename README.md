@@ -41,7 +41,11 @@ Feel free to contribute to the project! Check out the [contributing guidelines](
 Follow the [installation guide](INSTALL.md).
 
 ## Theming
-The app is compatible with LibreSprite themes you can find [here](https://libresprite.github.io/#!/resources). 
+The app is compatible with LibreSprite themes you can find [here](https://libresprite.github.io/#!/resources).
+
+## Scripting
+The LibreSprite script compatibility is disabled by default due to current V8 library versioning isue that breaks GitHub workflows.
+If you need to run LibreSprite JS scripts, compile the project with the `-DENABLE_V8_SCRIPT_ENGINE=ON`.
 
 ## License
 This program is distributed under the [GNU General Public License Version 2](LICENSE.txt).

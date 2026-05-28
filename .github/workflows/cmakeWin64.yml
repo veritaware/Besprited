@@ -33,7 +33,6 @@ jobs:
           mingw-w64-x86_64-SDL2
           mingw-w64-x86_64-SDL2_image
           mingw-w64-x86_64-tinyxml2
-          mingw-w64-x86_64-v8
           mingw-w64-x86_64-zlib
           mingw-w64-x86_64-libarchive
     - uses: actions/checkout@v3
@@ -63,9 +62,9 @@ jobs:
         mkdir build
         cd build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DUSE_V8_SANDBOX=ON -DRELEASE_TAG=ON ..
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON ..
         else
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DUSE_V8_SANDBOX=ON ..
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
         fi
         make -j 4
         cd ..
