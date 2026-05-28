@@ -45,7 +45,10 @@ The app is compatible with LibreSprite themes you can find [here](https://libres
 
 ## Scripting
 The LibreSprite script compatibility is disabled by default due to current V8 library versioning isue that breaks GitHub workflows.
-If you need to run LibreSprite JS scripts, compile the project with the `-DENABLE_V8_SCRIPT_ENGINE=ON`.
+
+If you need to run LibreSprite JS scripts, compile the project with the `-DENABLE_V8_SCRIPT_ENGINE=ON` and fix any potential V8-related errors in code (you might want to check [#50 changes](https://github.com/veritaware/Besprited/pull/50/changes)).
+
+For API guide check the [Scripting guide](SCRIPTING.md).
 
 ## License
 This program is distributed under the [GNU General Public License Version 2](LICENSE.txt).
