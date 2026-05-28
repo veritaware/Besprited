@@ -27,6 +27,7 @@
 #include <unordered_map>
 
 #include <v8.h>
+#include <v8-external.h>
 #include <libplatform/libplatform.h>
 
 using namespace script;
@@ -254,7 +255,7 @@ public:
     auto isolate = args.GetIsolate();
     v8::HandleScope handle_scope(isolate);
     auto data = args.Data().As<v8::External>();
-    auto& func = *reinterpret_cast<script::Function*>(data->Value());
+    auto& func = *reinterpret_cast<script::Function*>(data->Value(v8::kExternalPointerTypeTagDefault));
 
     for (int i = 0; i < args.Length(); i++) {
       func.arguments.push_back(getValue(isolate, args[i]));
@@ -274,7 +275,7 @@ public:
     auto isolate = m_engine.get<V8Engine>()->m_isolate;
     auto context = m_engine.get<V8Engine>()->context();
     for (auto& entry : functions) {
-      auto tpl = v8::FunctionTemplate::New(isolate, callFunc, v8::External::New(isolate, &entry.second));
+      auto tpl = v8::FunctionTemplate::New(isolate, callFunc, v8::External::New(isolate, &entry.second, v8::kExternalPointerTypeTagDefault));
       auto func = tpl->GetFunction(context).ToLocalChecked();
       Check(object->Set(context,
                   ToLocal(v8::String::NewFromUtf8(isolate, entry.first.c_str())),
@@ -287,10 +288,10 @@ public:
     auto context = m_engine.get<V8Engine>()->context();
 
     for (auto& entry : properties) {
-      auto getterTpl = v8::FunctionTemplate::New(isolate, callFunc, v8::External::New(isolate, &entry.second.getter));
+      auto getterTpl = v8::FunctionTemplate::New(isolate, callFunc, v8::External::New(isolate, &entry.second.getter, v8::kExternalPointerTypeTagDefault));
       auto getter = getterTpl->GetFunction(context).ToLocalChecked();
 
-      auto setterTpl = v8::FunctionTemplate::New(isolate, callFunc, v8::External::New(isolate, &entry.second.setter));
+      auto setterTpl = v8::FunctionTemplate::New(isolate, callFunc, v8::External::New(isolate, &entry.second.setter, v8::kExternalPointerTypeTagDefault));
       auto setter = setterTpl->GetFunction(context).ToLocalChecked();
 
       v8::PropertyDescriptor descriptor(getter, setter);
