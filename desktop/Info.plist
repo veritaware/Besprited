@@ -17,6 +17,9 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.veritaware.besprited</string>
 
+	<key>CFBundleExecutable</key>
+	<string>besprited</string>
+
  	<key>CFBundleIconFile</key>
 	<string>besprited.icns</string>
 
