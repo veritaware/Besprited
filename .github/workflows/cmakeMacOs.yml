@@ -38,7 +38,7 @@ jobs:
         ./configure
         make all -j4
         sudo make install
-    - name: Download & Lint Info.plist
+    - name: Lint Info.plist
       run: |
         plutil desktop/Info.plist
     - name: Check for git tag
