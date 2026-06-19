@@ -49,18 +49,6 @@ install_name_tool -add_rpath "@executable_path/../libs/" ./bundle/besprited.app/
 echo "Final RPATH entries:"
 otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH
 
-# Create an entitlements file to disable library validation for ad-hoc signed apps
-cat > ./bundle_entitlements.plist << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>com.apple.security.cs.disable-library-validation</key>
-    <true/>
-</dict>
-</plist>
-EOF
-
 # Debug: List what libraries we have
 echo "Libraries found:"
 ls -la ./bundle/besprited.app/Contents/libs/ || echo "No libs directory found"
@@ -70,7 +58,7 @@ echo "Checking V8 library RPATH entries:"
 if [ -f "./bundle/besprited.app/Contents/libs/libv8_libbase.dylib" ]; then
     echo "libv8_libbase.dylib RPATH entries:"
     otool -l ./bundle/besprited.app/Contents/libs/libv8_libbase.dylib | grep -A2 LC_RPATH || echo "No RPATH entries found"
-    
+
     # Clean up any RPATH entries in libv8_libbase.dylib
     V8BASE_RPATHS=$(otool -l ./bundle/besprited.app/Contents/libs/libv8_libbase.dylib | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
     for rpath in $V8BASE_RPATHS; do
@@ -81,7 +69,7 @@ fi
 if [ -f "./bundle/besprited.app/Contents/libs/libv8.dylib" ]; then
     echo "libv8.dylib RPATH entries:"
     otool -l ./bundle/besprited.app/Contents/libs/libv8.dylib | grep -A2 LC_RPATH || echo "No RPATH entries found"
-    
+
     # Clean up any RPATH entries in libv8.dylib
     V8_RPATHS=$(otool -l ./bundle/besprited.app/Contents/libs/libv8.dylib | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
     for rpath in $V8_RPATHS; do
@@ -104,33 +92,24 @@ for dylib in ./bundle/besprited.app/Contents/libs/*.dylib; do
     fi
 done
 
-# Remove all existing signatures completely
+# Remove all existing signatures before re-signing
 find ./bundle/besprited.app -type f \( -name "*.dylib" -o -name "besprited" \) -exec codesign --remove-signature {} \; 2>/dev/null || true
 
-# Method: Create a temporary signing script to ensure identical codesign parameters
-cat > ./sign_component.sh << 'EOF'
-#!/bin/bash
-COMPONENT="$1"
-echo "Signing: $COMPONENT"
-codesign --force --timestamp --options=runtime --entitlements ./bundle_entitlements.plist -s - "$COMPONENT"
-if [ $? -eq 0 ]; then
-    echo "✓ Successfully signed: $COMPONENT"
-else
-    echo "✗ Failed to sign: $COMPONENT"
-fi
-EOF
-chmod +x ./sign_component.sh
+# Ad-hoc sign without hardened runtime (--options=runtime triggers CS_RUNTIME which causes
+# macOS 27's code signing monitor to enforce strict page-level validation on every loaded
+# dylib — validation that ad-hoc signatures produced by older runners fail. Without
+# CS_RUNTIME, library validation is not kernel-enforced and all dylibs load freely.
+# This also allows V8's JIT, which requires writable+executable memory that hardened
+# runtime blocks.)
+find ./bundle/besprited.app/Contents/libs -name "*.dylib" | while read -r dylib; do
+    echo "Signing: $dylib"
+    codesign --force -s - "$dylib" && echo "✓ $dylib" || echo "✗ $dylib"
+done
 
-# Sign all dylib files first using the same exact process
-find ./bundle/besprited.app/Contents/libs -name "*.dylib" -exec ./sign_component.sh {} \;
+codesign --force -s - ./bundle/besprited.app/Contents/MacOS/besprited && \
+    echo "✓ Signed: besprited" || echo "✗ Failed: besprited"
 
-# Sign the main executable
-./sign_component.sh "./bundle/besprited.app/Contents/MacOS/besprited"
-
-# Sign the app bundle itself (without --deep since components are already signed)
-codesign --force --timestamp --options=runtime --entitlements ./bundle_entitlements.plist -s - ./bundle/besprited.app
-
-# Clean up
-rm ./bundle_entitlements.plist ./sign_component.sh
+codesign --force -s - ./bundle/besprited.app && \
+    echo "✓ Signed: besprited.app" || echo "✗ Failed: besprited.app"
 rm besprited.icns
 #hdiutil create -volname "Besprited" -srcfolder bundle -ov -format UDZO "besprited.dmg"
