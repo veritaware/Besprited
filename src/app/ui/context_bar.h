@@ -106,6 +106,7 @@ namespace app {
     class DropPixelsField;
     class AutoSelectLayerField;
     class SymmetryField;
+    class SymmetryOptionsField;
     class ZoomOptionsField;
 
     BrushTypeField* m_brushType;
@@ -137,6 +138,7 @@ namespace app {
     doc::BrushRef m_activeBrush;
     ui::Label* m_selectBoxHelp;
     SymmetryField* m_symmetry;
+    SymmetryOptionsField* m_symmetryOptions;
     ZoomOptionsField* m_zoomOptions;
     base::ScopedConnection m_sizeConn;
     base::ScopedConnection m_angleConn;
