@@ -3,6 +3,8 @@ name: Windows x86_64
 on:
   push:
     branches: [ trunk ]
+    tags:
+      - '*'
   pull_request:
     branches: [ trunk ]
 

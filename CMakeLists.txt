@@ -112,27 +112,6 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 ######################################################################
 # Check if current commit has a git tag (for release builds)
 
-option(RELEASE_TAG "Mark as release build (set VERSION to stable)" off)
-
-if(NOT RELEASE_TAG)
-  # Try to detect if current commit has a tag
-  find_package(Git QUIET)
-  if(GIT_FOUND)
-    execute_process(
-      COMMAND ${GIT_EXECUTABLE} describe --exact-match --tags
-      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-      OUTPUT_VARIABLE GIT_TAG
-      RESULT_VARIABLE GIT_TAG_RESULT
-      ERROR_QUIET
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-    if(GIT_TAG_RESULT EQUAL 0 AND GIT_TAG)
-      message(STATUS "Git tag found: ${GIT_TAG}")
-      set(RELEASE_TAG ON CACHE BOOL "Mark as release build (set VERSION to stable)" FORCE)
-    endif()
-  endif()
-endif()
-
 if(RELEASE_TAG)
   message(STATUS "Building as RELEASE version")
   add_definitions(-DRELEASE_TAG)

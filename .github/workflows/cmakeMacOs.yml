@@ -3,6 +3,8 @@ name: MacOS
 on:
   push:
     branches: [ trunk ]
+    tags:
+      - '*'
   pull_request:
     branches: [ trunk ]
 
