@@ -25,7 +25,7 @@
 	<url type="contribute">https://github.com/Veritaware/Besprited/blob/trunk/CONTRIBUTING.md</url>
 	<launchable type="desktop-id">besprited.desktop</launchable>
 	<releases>
-		<release date="2026-02-04" version="1.0-dev" />
+		<release date="2026-06-24" version="1.26.06" />
 	</releases>
 	<provides>
 		<binary>besprited</binary>
