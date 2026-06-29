@@ -37,8 +37,10 @@ jobs:
     - name: check for git tag
       id: check_tag
       run: |
-        if git describe --exact-match --tags 2>/dev/null; then
+        TAG=$(git describe --exact-match --tags 2>/dev/null) || true
+        if [ -n "$TAG" ]; then
           echo "has_tag=true" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
         else
           echo "has_tag=false" >> $GITHUB_OUTPUT
         fi
@@ -69,6 +71,6 @@ jobs:
       if: runner.arch == 'X64'
       uses: actions/upload-artifact@v4
       with:
-        name: besprited-development-linux-x86_64
+        name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-x86_64', steps.check_tag.outputs.tag) || 'besprited-linux-x86_64' }}
         path: Besprited-anylinux-x86_64.AppImage
         if-no-files-found: error

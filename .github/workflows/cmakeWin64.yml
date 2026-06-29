@@ -44,8 +44,10 @@ jobs:
       id: check_tag
       shell: bash
       run: |
-        if git describe --exact-match --tags 2>/dev/null; then
+        TAG=$(git describe --exact-match --tags 2>/dev/null) || true
+        if [ -n "$TAG" ]; then
           echo "has_tag=true" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
         else
           echo "has_tag=false" >> $GITHUB_OUTPUT
         fi
@@ -72,9 +74,15 @@ jobs:
         cd ..
         rm build/bin/gen.exe
         node package_win.js build/bin/besprited.exe
+    - name: Stage ZIP layout
+      shell: bash
+      run: |
+        mkdir -p dist/bin
+        cp -r build/bin/* dist/bin/
+        cp installer/Launcher.bat dist/
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: besprited-development-windows-x86_64
+        name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-windows-x86_64', steps.check_tag.outputs.tag) || 'besprited-windows-x86_64' }}
         path: |
-          build/bin/*
+          dist/**
