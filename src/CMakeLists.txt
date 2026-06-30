@@ -89,6 +89,7 @@ add_subdirectory(render)
 add_subdirectory(script)
 add_subdirectory(she)
 add_subdirectory(ui)
+add_subdirectory(evalmath)
 endif()
 
 ######################################################################
@@ -122,6 +123,7 @@ add_executable(besprited WIN32
 
 target_link_libraries(besprited ${KEEP_INJECTIONS_BEGIN}
   app-lib
+  evalmath-lib
   base-lib
   cfg-lib
   clip
@@ -169,6 +171,7 @@ add_custom_target(libresprite DEPENDS besprited)
 if(ENABLE_TESTS)
   include(FindTests)
 
+  find_tests(eval evalmath-lib)
   find_tests(base base-lib)
   find_tests(gfx gfx-lib)
   find_tests(doc doc-lib)

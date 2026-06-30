@@ -34,6 +34,7 @@
 #include "ui/theme.h"
 #include "ui/view.h"
 #include "ui/window.h"
+#include "evalmath/evalmath.h"
 
 #include <cctype>
 #include <climits>
@@ -142,12 +143,16 @@ void Widget::initTheme()
 
 int Widget::textInt() const
 {
-  return strtol(m_text.c_str(), NULL, 10);
+  //TODO display the error message (found in eval().error()) to the user somehow
+  long result = std::lround(evalmath::eval(m_text).value_or(0));
+  int int_result = static_cast<int>(std::clamp<long>(result, INT_MIN, INT_MAX));
+  return int_result;
 }
 
 double Widget::textDouble() const
 {
-  return strtod(m_text.c_str(), NULL);
+  //TODO display the error message (found in eval().error()) to the user somehow
+  return  evalmath::eval(m_text).value_or(0);
 }
 
 int Widget::textLength() const
