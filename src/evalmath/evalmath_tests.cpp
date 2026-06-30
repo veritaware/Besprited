@@ -1,5 +1,6 @@
 //This file is licensed under MIT-0
 //Copyright 2026 Ribbon-otter
+//It is the unit tests for evalmath, a simple math string interpeter
 #include <gtest/gtest.h>
 
 #include "evalmath.h"

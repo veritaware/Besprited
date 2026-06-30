@@ -1,5 +1,6 @@
 //This file is licensed under MIT-0
 //Copyright 2026 Ribbon-otter
+//It is the implementation half of evalmath, a simple math string interpeter
 #include <cassert>
 #include <expected>
 #include <string>
@@ -265,7 +266,7 @@ namespace evalmath {
                             
                         } else {
                             return std::format("missing operator between {} and {}",
-                                a.value_num, b.value_num);
+                                b.value_num, a.value_num);
                         }
                     }
                     if (a.type == token_type::END_OF_TEXT && b.type == token_type::OPERATOR) {
@@ -278,9 +279,16 @@ namespace evalmath {
                         && b.type == token_type::LEFT_PARENTHESES) {
                         return std::format("parentheses pair missing contents");
                     }
+
                     if (a.type == token_type::LEFT_PARENTHESES
                         && b.type == token_type::NUMBER) {
-                        return std::format("operator needed between left parentheses and number");
+                        return std::format("operator needed between {} and left parentheses", b.value_num);
+                    }
+                    //This is included for completeness
+                    //I am not sure it is possible for this error to be triggered.
+                    if (a.type == token_type::NUMBER
+                        && b.type == token_type::RIGHT_PARENTHESES) {
+                        return std::format("operator needed between right parentheses and {}", a.value_num);
                     }
                     if (stack.size() == 2
                         && a.type == token_type::RIGHT_PARENTHESES
