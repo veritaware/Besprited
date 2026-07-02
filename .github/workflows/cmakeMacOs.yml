@@ -17,7 +17,7 @@ jobs:
     runs-on: macos-latest
     if: ${{ !contains(github.event.head_commit.message, 'NO_SW_CHANGE') && !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
     - name: install deps
       run: |
         brew install gnutls freetype jpeg webp pixman sdl2 sdl2_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
@@ -108,11 +108,11 @@ jobs:
     - name: Put Dylibs
       run: |
         dylibbundler -od -b -ns -x ./bundle/besprited.app/Contents/MacOS/besprited -d ./bundle/besprited.app/Contents/libs/
-        
+
         # Check current RPATH entries after dylibbundler
         echo "RPATH entries after dylibbundler:"
         otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
-        
+
         # Clean up any duplicate RPATH entries from the main executable
         echo "Cleaning up RPATH entries from main executable..."
         otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq | while read -r rpath; do
@@ -121,15 +121,15 @@ jobs:
                 install_name_tool -delete_rpath "$rpath" ./bundle/besprited.app/Contents/MacOS/besprited 2>/dev/null || echo "Could not remove $rpath (may not exist)"
             fi
         done
-        
+
         # Add our RPATH cleanly
         echo "Adding single RPATH: @executable_path/../libs/"
         install_name_tool -add_rpath "@executable_path/../libs/" ./bundle/besprited.app/Contents/MacOS/besprited 2>/dev/null || echo "RPATH may already exist"
-        
+
         # Verify final RPATH
         echo "Final RPATH entries:"
         otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
-        
+
         # Clean up RPATH entries in ALL bundled libraries to be thorough
         echo "Cleaning RPATH entries from all bundled libraries:"
         find ./bundle/besprited.app/Contents/libs -name "*.dylib" -type f | while read -r dylib; do

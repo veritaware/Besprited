@@ -18,10 +18,10 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, 'NO_SW_CHANGE') && !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
     # install dependencies
     - name: update
       run: sudo apt-get update
