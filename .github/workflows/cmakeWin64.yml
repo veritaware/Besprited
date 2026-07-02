@@ -37,7 +37,7 @@ jobs:
           mingw-w64-x86_64-tinyxml2
           mingw-w64-x86_64-zlib
           mingw-w64-x86_64-libarchive
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         submodules: 'true'
     - name: Check for git tag
