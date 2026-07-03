@@ -123,7 +123,7 @@ add_executable(besprited WIN32
 
 target_link_libraries(besprited ${KEEP_INJECTIONS_BEGIN}
   app-lib
-  evalmath-lib
+  evalmath
   base-lib
   cfg-lib
   clip
