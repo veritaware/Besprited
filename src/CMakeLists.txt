@@ -89,7 +89,6 @@ add_subdirectory(render)
 add_subdirectory(script)
 add_subdirectory(she)
 add_subdirectory(ui)
-add_subdirectory(evalmath)
 endif()
 
 ######################################################################

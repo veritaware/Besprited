@@ -7,6 +7,6 @@
 [submodule "src/flic"]
 	path = src/flic
 	url = https://github.com/veritaware/flic-besprited.git
-[submodule "src/evalmath"]
-	path = src/evalmath
+[submodule "third_party/evalmath"]
+	path = third_party/evalmath
 	url = https://github.com/ribbon-otter/evalmath.git
