@@ -9,32 +9,22 @@ on:
     branches: [ trunk ]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
   build:
-    # The CMake configure and build commands are platform agnostic and should work equally
-    # well on Windows or Mac.  You can convert this to a matrix build if you need
-    # cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, 'NO_SW_CHANGE') && !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
     steps:
     - uses: actions/checkout@v6
-    # install dependencies
-    - name: update
-      run: sudo apt-get update
-    - name: boost
+      with:
+          submodules: 'true'
+    - name: Prepare environment and install dependencies
       run: |
+        sudo apt-get update
         sudo apt-get install g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev libfuse2
         pip install cmake
-    # build project
-    - name: git
-      run: git submodule update --init --recursive
-    - name: mkdir
-      run: mkdir build
-    - name: check for git tag
+    - name: Check for git tag
       id: check_tag
       run: |
         TAG=$(git describe --exact-match --tags 2>/dev/null) || true
@@ -52,22 +42,24 @@ jobs:
     - name: Update config.h with commit hash
       run: |
         sed -i 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
-    - name: cmake
+    - name: Generate Makefiles
       run: |
-        cd build
+        mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON ..
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON
         else
-          cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ..
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
         fi
-        ninja besprited
-    - name: appimage
+    - name: Build the binaries
       run: |
-        cd build/bin
+        ninja -C build besprited
+        rm build/bin/gen
+    - name: Package the AppImage
+      run: |
         export ARCH="$(uname -m)"
-        sh ../../package_linux.sh
-        mv ./Besprited-anylinux-$ARCH.AppImage ../../
-    - name: Archive production artifacts
+        sh packaging/package_linux.sh
+        mv build/bin/Besprited-anylinux-$ARCH.AppImage .
+    - name: Upload artifacts
       if: runner.arch == 'X64'
       uses: actions/upload-artifact@v4
       with:

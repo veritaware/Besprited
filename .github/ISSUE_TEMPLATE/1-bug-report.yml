@@ -18,16 +18,8 @@ body:
     id: bug-description
     attributes:
       label: Bug description
-      description: A clear and concise description of what the bug is
-      placeholder: e.g., "When I try to export a sprite sheet, the software crashes"
-    validations:
-      required: true
-  - type: textarea
-    id: steps-to-reproduce
-    attributes:
-      label: Steps to reproduce
-      description: Steps to reproduce the behaviour
-      placeholder: e.g., "1. Open Besprited\n2. Load a project\n3. Click on Export\n4. See error"
+      description: A clear and concise description of what the bug is and the steps to reproduce the behaviour
+      placeholder: e.g., "When I try to export a sprite sheet, the software crashes\n\n1. Open Besprited\n2. Load a project\n3. Click on Export\n4. See error"
     validations:
       required: true
   - type: textarea
@@ -37,7 +29,7 @@ body:
       description: A clear and concise description of what you expected to happen
       placeholder: e.g., "The sprite sheet should export without errors"
     validations:
-      required: true
+      required: false
   - type: input
     id: os
     attributes:
