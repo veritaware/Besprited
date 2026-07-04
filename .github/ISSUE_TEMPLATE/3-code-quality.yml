@@ -19,7 +19,7 @@ body:
       description: A clear and concise description of what you think is a better approach
       placeholder: e.g., "Refactor the function to use a configuration object instead of multiple parameters"
     validations:
-      required: true
+      required: false
   - type: textarea
     id: additional-context
     attributes:

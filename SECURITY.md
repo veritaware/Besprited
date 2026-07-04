@@ -1,11 +1,9 @@
 # Security Policy
-
 ## Supported Versions
 
-| Version | Supported          |
-|---------| ------------------ |
-| 1.26.x  | :white_check_mark: |
-
+| Version | Supported |
+|---------| --------- |
+| 1.26.06 | ✅        |
 
 ## Reporting a Vulnerability
 

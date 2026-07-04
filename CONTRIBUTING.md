@@ -7,8 +7,8 @@ We use the following branch structure to manage development:
   We periodically merge changes from LibreSprite into our `trunk` branch to stay up-to-date with their developments
   and our repo maintainers use this branch as a base to create any feature or bug fix branches that are shared with LibreSprite's codebase.
 
-### Note for repo collaborators:
-User branches for features and fixes created directly against the `veritaware:Besprited` repository should follow the naming convention:
+### Note for repo contributors:
+User branches for features and fixes created *directly* against the `veritaware:Besprited` repository should follow the naming convention:
 `username/short-description`, for example: `nidrax/v8-build-fix-windows`.
 
 ## Commit Messages and Pull Requests
