@@ -4,7 +4,7 @@
 <window text="Go to Frame" id="goto_frame">
   <grid columns="3">
     <label text="Frame number:" />
-    <entry expansive="true" maxsize="4" id="frame" magnet="true" />
+    <entry expansive="true" maxsize="16" id="frame" magnet="true" />
     <box cell_align="horizontal" />
 
     <separator horizontal="true" cell_hspan="3" />

@@ -4,7 +4,7 @@
 <window text="Palette Size" id="palette_size">
   <grid columns="3">
     <label text="Number of colors:" />
-    <entry expansive="true" maxsize="4" id="colors" magnet="true" />
+    <entry expansive="true" maxsize="16" id="colors" magnet="true" />
     <box cell_align="horizontal" />
 
     <separator horizontal="true" cell_hspan="3" />

@@ -6,7 +6,7 @@
     <grid columns="2">
 
       <label id="by_label" text="By:" />
-      <entry id="quantity" expansive="true" maxsize="4" magnet="true" suffix="px" />
+      <entry id="quantity" expansive="true" maxsize="16" magnet="true" suffix="px" />
 
       <hbox />
       <vbox>
