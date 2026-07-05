@@ -1,5 +1,8 @@
 # Contributing
 
+Before opening new issues and contributing any code to the project, read our
+[Code of Conduct](CODE_OF_CONDUCT.md) first.
+
 ## Branching Model
 We use the following branch structure to manage development:
 - `trunk`: This is the development branch for Besprited. All new features and bug fixes are merged here first.
@@ -7,7 +10,7 @@ We use the following branch structure to manage development:
   We periodically merge changes from LibreSprite into our `trunk` branch to stay up-to-date with their developments
   and our repo maintainers use this branch as a base to create any feature or bug fix branches that are shared with LibreSprite's codebase.
 
-### Note for repo contributors:
+#### Note for repo contributors:
 User branches for features and fixes created *directly* against the `veritaware:Besprited` repository should follow the naming convention:
 `username/short-description`, for example: `nidrax/v8-build-fix-windows`.
 
@@ -18,3 +21,9 @@ When committing changes, follow these guidelines:
 - If the commit or pull request closes an issue, include a reference to the issue number in the commit message or pull request description (e.g., "Fixes #123").
 - If the commit or pull requst does not introduce changes to the source code itself (e.g., documentation, helper scripts, issue templates, etc.)
   add the `NO_SW_CHANGE` line to the end of the commit message or pull request description body to skip GitHub build workflows.
+
+## Usage of AI
+We allow the use of LLMs to enhance your work, but at the same time we expect the code to still be clean
+and follow good coding practices and be properly marked as AI-co-authored.
+
+> For more extensive guidelines see: [AI_USAGE.md](AI_USAGE.md).

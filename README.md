@@ -14,6 +14,13 @@ Besprited is a free and open source program for creating and animating 2D sprite
 * Pixel precise tools like filled contour, polygon, shading mode, etc.
 * Several file types supported for your sprites and animations.
 
+\
+`Note:` this project makes use of AI tooling to some degree. You can read more about it in
+[AI_USAGE.md](AI_USAGE.md)
+
+Before creating issues or commenting on already open issues/PRs read our
+[Code of Conduct](CODE_OF_CONDUCT.md) first.
+
 ## Download
 Get the [latest release](https://github.com/Veritaware/Besprited/releases/latest) for Linux, macOS, Windows or Android.
 
