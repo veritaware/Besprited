@@ -143,16 +143,25 @@ void Widget::initTheme()
 
 int Widget::textInt() const
 {
-  //TODO display the error message (found in eval().error()) to the user somehow
-  long result = std::lround(evalmath::eval(m_text).value_or(0));
-  int int_result = static_cast<int>(std::clamp<long>(result, INT_MIN, INT_MAX));
-  return int_result;
+  auto val = evalmath::eval(m_text);
+  if(!val)
+  {
+    ui::Alert::show("Error evaluating expression  <<%s||&OK", val.error().c_str());
+    return 1;
+  }
+
+  return static_cast<int>(std::clamp<long>(val.value(), INT_MIN, INT_MAX));
 }
 
 double Widget::textDouble() const
 {
-  //TODO display the error message (found in eval().error()) to the user somehow
-  return  evalmath::eval(m_text).value_or(0);
+  auto val = evalmath::eval(m_text);
+  if(!val)
+  {
+    ui::Alert::show("Error evaluating expression  <<%s||&OK", val.error().c_str());
+    return 1.0;
+  }
+  return std::round(val.value() * 1000.0) / 1000.0;
 }
 
 int Widget::textLength() const
