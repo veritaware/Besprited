@@ -19,6 +19,7 @@
 #include "she/font.h"
 #include "she/surface.h"
 #include "she/system.h"
+#include "ui/alert.h"
 #include "ui/init_theme_event.h"
 #include "ui/intern.h"
 #include "ui/layout_io.h"
