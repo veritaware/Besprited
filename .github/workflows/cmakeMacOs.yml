@@ -21,6 +21,9 @@ jobs:
         submodules: 'true'
     - name: Prepare environment and install dependencies
       run: |
+        # macos-latest runner images come with this tap pre-added; Homebrew's
+        # tap-trust check then warns on every brew invocation since it's untrusted.
+        brew untap aws/tap || true
         brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl2 sdl2_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
         echo "Building andiInstalling GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
