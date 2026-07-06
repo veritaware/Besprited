@@ -3,8 +3,8 @@
 <gui>
   <grid columns="2" id="controls">
     <label text="Width:" />
-    <entry id="width" maxsize="4" cell_align="horizontal" />
+    <entry id="width" maxsize="16" cell_align="horizontal" />
     <label text="Height:" />
-    <entry id="height" maxsize="4" cell_align="horizontal" />
+    <entry id="height" maxsize="16" cell_align="horizontal" />
   </grid>
 </gui>

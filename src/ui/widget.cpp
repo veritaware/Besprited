@@ -19,6 +19,7 @@
 #include "she/font.h"
 #include "she/surface.h"
 #include "she/system.h"
+#include "ui/alert.h"
 #include "ui/init_theme_event.h"
 #include "ui/intern.h"
 #include "ui/layout_io.h"
@@ -34,6 +35,7 @@
 #include "ui/theme.h"
 #include "ui/view.h"
 #include "ui/window.h"
+#include "evalmath/evalmath.h"
 
 #include <cctype>
 #include <climits>
@@ -142,12 +144,25 @@ void Widget::initTheme()
 
 int Widget::textInt() const
 {
-  return strtol(m_text.c_str(), NULL, 10);
+  auto val = evalmath::eval(m_text);
+  if(!val)
+  {
+    ui::Alert::show("Error evaluating expression  <<%s||&OK", val.error().c_str());
+    return 1;
+  }
+
+  return static_cast<int>(std::clamp<long>(val.value(), INT_MIN, INT_MAX));
 }
 
 double Widget::textDouble() const
 {
-  return strtod(m_text.c_str(), NULL);
+  auto val = evalmath::eval(m_text);
+  if(!val)
+  {
+    ui::Alert::show("Error evaluating expression  <<%s||&OK", val.error().c_str());
+    return 1.0;
+  }
+  return std::round(val.value() * 1000.0) / 1000.0;
 }
 
 int Widget::textLength() const
