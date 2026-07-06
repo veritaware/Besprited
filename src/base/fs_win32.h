@@ -124,7 +124,7 @@ std::string get_app_path()
 std::string get_temp_path()
 {
   WCHAR buffer[MAX_PATH+1];
-  DWORD result = ::GetTempPathW(sizeof(buffer)/sizeof(WCHAR), buffer);
+  ::GetTempPathW(sizeof(buffer)/sizeof(WCHAR), buffer);
   return to_utf8(buffer);
 }
 

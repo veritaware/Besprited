@@ -32,7 +32,7 @@
 - (id)init
 {
   if (self = [super init]) {
-    result = NSFileHandlingPanelCancelButton;
+    result = NSModalResponseCancel;
   }
   return self;
 }
@@ -157,7 +157,7 @@ public:
     [helper performSelectorOnMainThread:@selector(runModal) withObject:nil waitUntilDone:YES];
 
     bool retValue;
-    if ([helper result] == NSFileHandlingPanelOKButton) {
+    if ([helper result] == NSModalResponseOK) {
       NSURL* url = [panel URL];
       m_filename = [[url path] UTF8String];
       retValue = true;

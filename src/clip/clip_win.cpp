@@ -19,7 +19,7 @@
 #include "clip_win_wic.h"
 
 #ifndef LCS_WINDOWS_COLOR_SPACE
-#define LCS_WINDOWS_COLOR_SPACE 'Win '
+#define LCS_WINDOWS_COLOR_SPACE 0x57696E20 // 'Win '
 #endif
 
 #ifndef CF_DIBV5

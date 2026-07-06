@@ -116,7 +116,6 @@ static unsigned int current_file_system_version = 0;
 
 // A more easy PIDLs interface (without using the SH* & IL* routines of W2K)
 #ifdef _WIN32
-  static bool is_sfgaof_folder(SFGAOF attrib);
   static void update_by_pidl(FileItem* fileitem, SFGAOF attrib);
   static LPITEMIDLIST concat_pidl(LPITEMIDLIST pidlHead, LPITEMIDLIST pidlTail);
   static UINT get_pidl_size(LPITEMIDLIST pidl);

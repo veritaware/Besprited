@@ -171,7 +171,7 @@ void Alert::processString(char* buf, std::vector<Widget*>& labels, std::vector<W
           button_widget->setMinSize(gfx::Size(60*guiscale(), 0));
           buttons.push_back(button_widget);
 
-          snprintf(buttonId, sizeof(buttonId), "button-%lu", buttons.size());
+          snprintf(buttonId, sizeof(buttonId), "button-%zu", buttons.size());
           button_widget->setId(buttonId);
           button_widget->Click.connect(base::Bind<void>(&Window::closeWindow, this, button_widget));
         }
