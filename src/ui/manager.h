@@ -103,7 +103,7 @@ namespace ui {
 
     // Check if a redraw was requested
     bool isRedrawRequested() const { return m_redrawRequested; }
-    
+
     // Get the dirty region
     const gfx::Region& getDirtyRegion() const { return m_dirtyRegion; }
 
@@ -193,7 +193,7 @@ namespace ui {
     // Frame-limited redraw mechanism
     bool m_redrawRequested;
     double m_lastFlipTime;
-    static constexpr double MIN_FRAME_INTERVAL = 1.0 / 120.0; // 120 FPS max
+    static constexpr double MIN_FRAME_INTERVAL = 1.0 / 720.0; // 720 FPS max
   };
 
 } // namespace ui
