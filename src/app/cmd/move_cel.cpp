@@ -44,6 +44,12 @@ MoveCel::MoveCel(
 {
 }
 
+// GCC false positive: destroying a shared_ptr<Image> here is misreported
+// as an out-of-bounds std::mutex access. See GCC PR 108088.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 void MoveCel::onExecute()
 {
   LayerImage* srcLayer = static_cast<LayerImage*>(m_srcLayer.layer());
@@ -127,6 +133,9 @@ void MoveCel::onExecute()
     }
   }
 }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
 void MoveCel::onFireNotifications()
 {

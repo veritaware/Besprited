@@ -512,6 +512,12 @@ void KeyboardShortcuts::importFile(const std::string& filename, KeySource source
   importFile(xmlKey, source);
 }
 
+// GCC false positive: destroying a shared_ptr<tinyxml2::XMLDocument> here is
+// misreported as an out-of-bounds std::mutex access. See GCC PR 108088.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 void KeyboardShortcuts::exportFile(const std::string& filename)
 {
   XmlDocumentRef doc(new tinyxml2::XMLDocument());
@@ -539,6 +545,9 @@ void KeyboardShortcuts::exportFile(const std::string& filename)
   doc->InsertEndChild(&keyboard);
   save_xml(doc, filename);
 }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
 void KeyboardShortcuts::exportKeys(tinyxml2::XMLElement& parent, KeyType type)
 {

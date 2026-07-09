@@ -71,6 +71,12 @@ protected:
   /**
    * [working thread]
    */
+  // GCC false positive: destroying a shared_ptr<Image> here is misreported
+  // as an out-of-bounds std::mutex access. See GCC PR 108088.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
   virtual void onJob()
   {
     Transaction transaction(m_writer.context(), "Sprite Size");
@@ -154,6 +160,9 @@ protected:
     // commit changes
     transaction.commit();
   }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
 };
 

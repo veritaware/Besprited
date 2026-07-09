@@ -23,6 +23,12 @@
 namespace app {
 namespace cmd {
 
+// GCC false positive: destroying a shared_ptr<Image> here is misreported
+// as an out-of-bounds std::mutex access. See GCC PR 108088.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
 FlipMaskedCel::FlipMaskedCel(std::shared_ptr<Cel> cel, doc::algorithm::FlipType flipType)
 {
   app::Document* doc = static_cast<app::Document*>(cel->document());
@@ -47,6 +53,9 @@ FlipMaskedCel::FlipMaskedCel(std::shared_ptr<Cel> cel, doc::algorithm::FlipType 
                           gfx::Clip(x1, y1, x1, y1, x2-x1+1, y2-y1+1)));
   }
 }
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic pop
+#endif
 
 } // namespace cmd
 } // namespace app
