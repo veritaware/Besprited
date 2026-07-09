@@ -18,9 +18,11 @@
 
 #include "clip_win_wic.h"
 
-#ifndef LCS_WINDOWS_COLOR_SPACE
+// MinGW's <wingdi.h> defines this via the multi-character literal 'Win ',
+// which trips -Wmultichar. Always override it with the equivalent numeric
+// value instead of only filling it in when undefined.
+#undef LCS_WINDOWS_COLOR_SPACE
 #define LCS_WINDOWS_COLOR_SPACE 0x57696E20 // 'Win '
-#endif
 
 #ifndef CF_DIBV5
 #define CF_DIBV5            17
