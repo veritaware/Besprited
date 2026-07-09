@@ -1,21 +1,23 @@
 # Note regarding AI usage in this project
 This fork, at least currently, is mostly a single-man project. AI tools are used extensivelly
-within it for research, searching through the codebase and analysis (since the code is inherited
+within it for research, searching through and analysing the codebase (since the code is inherited
 from another project and it will take some time for a single person to understand the it fully),
-as well as to writing additional tools, make small code edits and write minor features to speed up
-the workflow. That being said, this is not a vibe-coded bullshit maintained by someone without
-any programming knowledge that lets agents run loose and commit whatever garbage they produce.
-All AI-generated code is heavily scrutinised and human-reviewed before being allowed in the trunk.
-We hate low quality slop as most of sane developers do, we don't trust clankers implicitly.
-We consider it a tool to enhance developers' work, but not something that should replace
-critical thinking and professional insight.
+as well as for writing additional tools, translations and minor features to speed up the workflow.
+That being said, this is not a vibe-coded bullshit maintained by someone without any programming
+knowledge that lets agents run loose and commit whatever garbage they produce. All AI-generated
+code is heavily scrutinised and human-reviewed before being allowed in the trunk. We hate low
+quality slop as most of sane developers do, we don't trust clankers blindly. We consider it just a
+mindless tool for doing repetitive and trivial work allowing the actual human developer to focus on
+interesting tasks and features – not something that should replace critical thinking and
+professional insight.
 
 If this is still unacceptable for you, then you might want to look for alternative open source
 pixel-art editors or contribute your own commits, so we don't have to rely on LLMs.
-Otherwise don't bother starting discussions about the topic. We're not going to waste our time
-dealing with Karens who don't contribute to open-source nor don't support them financially,
-yet they consider themselves entitled to tell actual developers how to run their projects and engage
-in unproductive, non-substantive ideological discussions based on their personal feelings.
+
+Please, don't bother starting discussions about the topic. We're not going to waste our time
+on unproductive, non-substantive ideological discussions based on their personal feelings,
+especially if it happens to be with people who don't contribute to open-source nor support
+those projects financially yet feel entitled to harrass the developers for their choice of tools.
 
 ## AI co-authored code contribution guidelines
 To contribute code to this repo you must first, and foremost, know programming and understand
