@@ -1,5 +1,6 @@
-# LibreSprite
-# Copyright (C) 2001-2016  David Capello
+# Besprited
+# Copyright (C) 2001-2016 David Capello
+# Copyright (C) 2026      Veritaware
 
 include_directories(.)
 
