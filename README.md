@@ -51,9 +51,7 @@ Follow the [installation guide](INSTALL.md).
 The app is compatible with LibreSprite themes you can find [here](https://libresprite.github.io/#!/resources).
 
 ## Scripting
-The LibreSprite script compatibility is disabled by default due to current V8 library versioning isue that breaks GitHub workflows.
-
-If you need to run LibreSprite JS scripts, compile the project with the `-DENABLE_V8_SCRIPT_ENGINE=ON` and fix any potential V8-related errors in code (you might want to check [#50 changes](https://github.com/veritaware/Besprited/pull/50/changes)).
+Scripting is powered by [QuickJS-ng](https://github.com/quickjs-ng/quickjs), a small, portable, dependency-free JS engine vendored as a submodule, so it always builds the same way on every platform.
 
 For API guide check the [Scripting guide](SCRIPTING.md).
 

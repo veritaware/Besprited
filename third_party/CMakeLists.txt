@@ -10,6 +10,7 @@ endif(MSVC)
 add_subdirectory(simpleini)
 add_subdirectory(modp_b64)
 add_subdirectory(evalmath)
+add_subdirectory(quickjs)
 
 # Disable observable tests
 set(OBSERVABLE_TESTS OFF CACHE BOOL "Compile observable tests")
