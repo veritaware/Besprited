@@ -144,7 +144,8 @@ std::string get_app_path()
 #elif defined(ANDROID)
   return _AndroidDataDir + "/";
 #else  /* linux */
-  readlink("/proc/self/exe", &path[0], path.size());
+  ssize_t nread = readlink("/proc/self/exe", &path[0], path.size());
+  (void)nread;
 #endif
 
   return std::string(&path[0]);

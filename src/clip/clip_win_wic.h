@@ -122,9 +122,9 @@ bool write_png_on_stream(const image& image,
     buf.resize(spec.width * spec.height);
     uint32_t* dst = (uint32_t*)&buf[0];
     uint32_t* src = (uint32_t*)image.data();
-    for (int y=0; y<spec.height; ++y) {
+    for (unsigned long y=0; y<spec.height; ++y) {
       auto src_line_start = src;
-      for (int x=0; x<spec.width; ++x) {
+      for (unsigned long x=0; x<spec.width; ++x) {
         uint32_t c = *src;
         *dst = ((((c & spec.red_mask  ) >> spec.red_shift  ) << 16) |
                 (((c & spec.green_mask) >> spec.green_shift) <<  8) |

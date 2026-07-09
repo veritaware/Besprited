@@ -107,7 +107,7 @@ public:
       DWORD err = CommDlgExtendedError();
       if (err) {
         std::vector<char> buf(1024);
-        sprintf(&buf[0], "Error using GetOpen/SaveFileName Win32 API. Code: %d", err);
+        sprintf(&buf[0], "Error using GetOpen/SaveFileName Win32 API. Code: %lu", err);
         she::error_message(&buf[0]);
       }
     }

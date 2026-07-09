@@ -20,7 +20,7 @@ string get_pretty_memory_size(size_t memsize)
   char buf[256];
 
   if (memsize < 1000) {
-    snprintf(buf, sizeof(buf), "%lu bytes", memsize);
+    snprintf(buf, sizeof(buf), "%zu bytes", memsize);
   }
   else if (memsize < 1000*1000) {
     snprintf(buf, sizeof(buf), "%0.1fK", memsize/1024.0f);

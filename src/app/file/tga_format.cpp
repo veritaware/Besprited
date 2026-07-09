@@ -71,7 +71,8 @@ static void rle_tga_read(unsigned char *address, int w, int type, FILE *f)
       count++;
       c += count;
       if (type == 1) {
-        fread(address, 1, count, f);
+        size_t nread = fread(address, 1, count, f);
+        (void)nread;
         address += count;
       }
       else {
@@ -98,7 +99,8 @@ static void rle_tga_read32(uint32_t* address, int w, FILE *f)
     if (count & 0x80) {
       count = (count & 0x7F) + 1;
       c += count;
-      fread(value, 1, 4, f);
+      size_t nread = fread(value, 1, 4, f);
+      (void)nread;
       while (count--)
         *(address++) = rgba(value[2], value[1], value[0], value[3]);
     }
@@ -106,7 +108,8 @@ static void rle_tga_read32(uint32_t* address, int w, FILE *f)
       count++;
       c += count;
       while (count--) {
-        fread(value, 1, 4, f);
+        size_t nread = fread(value, 1, 4, f);
+        (void)nread;
         *(address++) = rgba(value[2], value[1], value[0], value[3]);
       }
     }
@@ -127,7 +130,8 @@ static void rle_tga_read24(uint32_t* address, int w, FILE *f)
     if (count & 0x80) {
       count = (count & 0x7F) + 1;
       c += count;
-      fread(value, 1, 3, f);
+      size_t nread = fread(value, 1, 3, f);
+      (void)nread;
       while (count--)
         *(address++) = rgba(value[2], value[1], value[0], 255);
     }
@@ -135,7 +139,8 @@ static void rle_tga_read24(uint32_t* address, int w, FILE *f)
       count++;
       c += count;
       while (count--) {
-        fread(value, 1, 3, f);
+        size_t nread = fread(value, 1, 3, f);
+        (void)nread;
         *(address++) = rgba(value[2], value[1], value[0], 255);
       }
     }
@@ -208,7 +213,8 @@ bool TgaFormat::onLoad(FileOp* fop)
   bpp = fgetc(f);
   descriptor_bits = fgetc(f);
 
-  fread(image_id, 1, id_length, f);
+  size_t nread = fread(image_id, 1, id_length, f);
+  (void)nread;
 
   if (palette_type == 1) {
     for (i=0; i<palette_colors; i++) {
@@ -309,8 +315,10 @@ bool TgaFormat::onLoad(FileOp* fop)
       case 3:
         if (compressed)
           rle_tga_read(image->getPixelAddress(0, yc), image_width, image_type, f);
-        else if (image_type == 1)
-          fread(image->getPixelAddress(0, yc), 1, image_width, f);
+        else if (image_type == 1) {
+          size_t nread = fread(image->getPixelAddress(0, yc), 1, image_width, f);
+          (void)nread;
+        }
         else {
           for (x=0; x<image_width; x++)
             put_pixel_fast<GrayscaleTraits>(image, x, yc, graya(fgetc(f), 255));
@@ -324,7 +332,8 @@ bool TgaFormat::onLoad(FileOp* fop)
           }
           else {
             for (x=0; x<image_width; x++) {
-              fread(rgb, 1, 4, f);
+              size_t nread = fread(rgb, 1, 4, f);
+              (void)nread;
               put_pixel_fast<RgbTraits>(image, x, yc, rgba(rgb[2], rgb[1], rgb[0], rgb[3]));
             }
           }
@@ -335,7 +344,8 @@ bool TgaFormat::onLoad(FileOp* fop)
           }
           else {
             for (x=0; x<image_width; x++) {
-              fread(rgb, 1, 3, f);
+              size_t nread = fread(rgb, 1, 3, f);
+              (void)nread;
               put_pixel_fast<RgbTraits>(image, x, yc, rgba(rgb[2], rgb[1], rgb[0], 255));
             }
           }

@@ -89,7 +89,8 @@ public:
       fseek(handle.get(), 0, SEEK_SET);
       std::vector<unsigned char> data;
       data.resize(size);
-      fread(data.data(), size, 1, handle.get());
+      size_t nread = fread(data.data(), size, 1, handle.get());
+      (void)nread;
       set(std::string{data.begin(), data.end()}, key, domain);
     } catch(...) {
       return false;
