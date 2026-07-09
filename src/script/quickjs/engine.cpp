@@ -1,6 +1,5 @@
 // LibreSprite Scripting Library
-// Copyright (C) 2021-2026  LibreSprite contributors
-// Copyright (C) 2026       Veritaware
+// Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
