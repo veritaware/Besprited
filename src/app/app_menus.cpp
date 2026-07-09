@@ -1,6 +1,7 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
-// Copyright (C) 2021  LibreSprite contributors
+// Besprited
+// Copyright (C) 2001-2016 David Capello
+// Copyright (C) 2021 LibreSprite contributors
+// Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -127,11 +128,6 @@ void AppMenus::loadMenus(tinyxml2::XMLHandle& handle)
         .FirstChildElement("menus")
         .FirstChildElement("menu").ToElement();
     for (; xmlMenu; xmlMenu = xmlMenu->NextSiblingElement()) {
-#if !SCRIPT_ENGINE_V8
-        const char* id = xmlMenu->Attribute("id");
-        if (id && std::strcmp(id, "script_list") == 0)
-          continue;
-#endif
         auto menu = convertXmlelemToMenu(xmlMenu);
         if ( menu->id().empty()) {
             delete menu;
@@ -153,15 +149,6 @@ Menu* AppMenus::convertXmlelemToMenu(tinyxml2::XMLElement* elem)
 
   tinyxml2::XMLElement* child = elem->FirstChildElement();
   while (child) {
-#if !SCRIPT_ENGINE_V8
-    if (std::strcmp(child->Value(), "menu") == 0) {
-      const char* id = child->Attribute("id");
-      if (id && std::strcmp(id, "script_list") == 0) {
-        child = child->NextSiblingElement();
-        continue;
-      }
-    }
-#endif
     Widget* menuitem = convertXmlelemToMenuitem(child);
     if (menuitem)
       menu->addChild(menuitem);
