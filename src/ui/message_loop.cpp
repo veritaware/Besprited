@@ -1,6 +1,7 @@
 // UI Library
-// Aseprite    | Copyright (C) 2001-2013  David Capello
-// LibreSprite | Copyright (C) 2016-2026  LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2016-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -28,12 +29,12 @@ void MessageLoop::pumpMessages()
   } else {
     m_manager->collectGarbage();
   }
-  
+
   // Call flipDisplay from the central location if a redraw was requested
   if (m_manager->isRedrawRequested() || !m_manager->getDirtyRegion().isEmpty()) {
     m_manager->flipDisplay();
   }
-  
+
   she::instance()->sleep();
 }
 

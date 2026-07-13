@@ -1,6 +1,6 @@
-# Aseprite     | Copyright (C) 2001-2016  David Capello
-# LibreSprite  | Copyright (C)      2022  LibreSprite contributors
-# Besprited    | Copyright (C)      2026  Veritaware
+# Aseprite    | Copyright (C) 2001-2016 David Capello
+# LibreSprite | Copyright (C)      2022 LibreSprite contributors
+# Besprited   | Copyright (C)      2026 Veritaware
 
 cmake_minimum_required(VERSION 4.1)
 
@@ -363,12 +363,12 @@ endif()
 find_program(CLANG_TIDY_EXECUTABLE clang-tidy)
 if(CLANG_TIDY_EXECUTABLE)
   # Get list of source files
-  file(GLOB_RECURSE ALL_SOURCE_FILES 
+  file(GLOB_RECURSE ALL_SOURCE_FILES
     ${CMAKE_SOURCE_DIR}/src/*.cpp
     ${CMAKE_SOURCE_DIR}/src/*.cc
     ${CMAKE_SOURCE_DIR}/src/*.c
   )
-  
+
   add_custom_target(clang-tidy
     COMMAND ${CLANG_TIDY_EXECUTABLE}
       -p=${CMAKE_BINARY_DIR}

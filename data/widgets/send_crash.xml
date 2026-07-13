@@ -1,5 +1,6 @@
-<!-- Aseprite    | Copyright (C) 2014-2016  David Capello -->
-<!-- LibreSprite | Copyright (C) 2018       LibreSprite contributors -->
+<!-- Aseprite    | Copyright (C) 2014-2016 David Capello -->
+<!-- LibreSprite | Copyright (C) 2018      LibreSprite contributors -->
+<!-- Besprited   | Copyright (C) 2026      Veritaware -->
 <gui>
 <window text="Crash Report" id="send_crash">
   <vbox>

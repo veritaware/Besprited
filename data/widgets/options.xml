@@ -1,5 +1,5 @@
-<!-- LibreSprite -->
-<!-- Copyright (C) 2001-2016 by David Capello -->
+<!-- Aseprite  | Copyright (C) 2001-2016 David Capello -->
+<!-- Besprited | Copyright (C) 2026      Veritaware -->
 <gui>
   <window id="options" text="Preferences">
   <vbox>
@@ -192,7 +192,7 @@
         <!-- Experimental -->
         <vbox id="section_experimental">
           <separator text="User Interface" horizontal="true" />
-          
+
           <check id="native_file_dialog" text="Use native file dialog" />
           <check id="flash_layer" text="Flash layer when it is selected" />
         </vbox>

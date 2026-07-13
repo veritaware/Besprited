@@ -1,8 +1,9 @@
 # LibreSprite Desktop Integration Module
-# Copyright (C) 2016  Gabriel Rauter
-# Copyright (C) 2016  David Capello
-# Copyright (C) 2016  Matthias Mailänder
-# Copyright (C) 2023  Alexander Wilms
+# Copyright (C) 2016 Gabriel Rauter
+# Copyright (C) 2016 David Capello
+# Copyright (C) 2016 Matthias Mailänder
+# Copyright (C) 2023 Alexander Wilms
+# Copyright (C) 2026 Veritaware
 #
 # Licensed under the the MIT License (https://opensource.org/licenses/MIT).
 

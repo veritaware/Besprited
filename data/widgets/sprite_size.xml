@@ -1,5 +1,5 @@
-<!-- LibreSprite -->
-<!-- Copyright (C) 2001-2013 by David Capello -->
+<!-- Aseprite  | Copyright (C) 2001-2013 David Capello -->
+<!-- Besprited | Copyright (C) 2026      Veritaware -->
 <gui>
 <window text="Sprite Size" id="sprite_size">
   <box vertical="true">

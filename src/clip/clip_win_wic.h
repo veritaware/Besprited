@@ -1,5 +1,6 @@
 // Clip Library
-// Copyright (c) 2020-2022 David Capello
+// Copyright (C) 2020-2022 David Capello
+// Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.

@@ -1,5 +1,5 @@
-<!-- LibreSprite -->
-<!-- Copyright (C) 2001-2016 by David Capello -->
+<!-- Aseprite  | Copyright (C) 2001-2016 David Capello -->
+<!-- Besprited | Copyright (C) 2026      Veritaware -->
 <gui>
   <window id="import_sprite_sheet" text="Import Sprite Sheet">
   <grid columns="4">

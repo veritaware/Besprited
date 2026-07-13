@@ -1,6 +1,6 @@
-// LibreSprite
-// Copyright (C) 2015-2016  David Capello
-// Copyright (C) 2023 LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2016-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as

@@ -1,6 +1,6 @@
-<!-- LibreSprite -->
-<!-- Copyright (C) 2015 by David Capello -->
-<!-- Copyright (C) 2021 LibreSprite contributors -->
+<!-- Aseprite    | Copyright (C) 2015 David Capello -->
+<!-- LibreSprite | Copyright (C) 2021 LibreSprite contributors -->
+<!-- Besprited   | Copyright (C) 2026 Veritaware -->
 <gui>
 <window text="Insert Text" id="paste_text">
   <grid columns="2">
