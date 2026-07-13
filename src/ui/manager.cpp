@@ -1,6 +1,7 @@
 // UI Library
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2016-2026  LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2016-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -184,7 +185,7 @@ void Manager::flipDisplay()
   // consuming 100% CPU on too frequent document canvas redraws
   double currentTime = base::current_tick() / 1000.0; // Convert milliseconds to seconds
   double timeSinceLastFlip = currentTime - m_lastFlipTime;
-  
+
   if (timeSinceLastFlip < MIN_FRAME_INTERVAL) {
     // Not enough time has passed, skip this flip but keep the redraw request
     return;

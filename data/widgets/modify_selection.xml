@@ -1,5 +1,5 @@
-<!-- LibreSprite -->
-<!-- Copyright (C) 2015 by David Capello -->
+<!-- Aseprite  | Copyright (C) 2015 David Capello -->
+<!-- Besprited | Copyright (C) 2026 Veritaware -->
 <gui>
 <window id="modify_selection" text="Modify Selection">
   <vbox>

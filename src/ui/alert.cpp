@@ -1,5 +1,7 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2016-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.

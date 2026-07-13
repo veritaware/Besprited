@@ -1,7 +1,6 @@
-// Besprited
-// Copyright (C) 2001-2016 David Capello
-// Copyright (C) 2021 LibreSprite contributors
-// Copyright (C) 2026 Veritaware
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2016-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -64,7 +63,7 @@ void AppMenus::reload()
   LOG(" - Loading menus from \"%s\"...\n", path);
 
   loadMenus(handle);
-  
+
 
 #if _DEBUG
   // Add a warning element because the user is not using the last well-known gui.xml file.
@@ -196,7 +195,7 @@ Widget* AppMenus::convertXmlelemToMenuitem(tinyxml2::XMLElement* elem)
   menuitem->setI18N(elem->Attribute("text"));
 
   /* has it a ID? */
-  
+
   if (const char* id = elem->Attribute("id")) {
     m_identifiedWidgets[id] = menuitem;
   }

@@ -1,5 +1,6 @@
-# LibreSprite Desktop Integration Module
-# Copyright (C) 2016  Gabriel Rauter
+# Besprited Desktop Integration Module
+# Copyright (C) 2016 Gabriel Rauter
+# Copyright (C) 2026 Veritaware
 #
 # Licensed under the the MIT License (https://opensource.org/licenses/MIT).
 
