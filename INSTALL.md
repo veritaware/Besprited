@@ -19,18 +19,15 @@
 ## Platforms
 
 You can download installers from the [releases page](https://github.com/Veritaware/Besprited/releases).
+On linux platform, you will need to install `libfuse2` in order to run the AppImage.
 If you want to compile Besprited from source, continue reading.
 
-You should be able to compile Besprited on the following platforms:
-
-* Windows 10 + VS2015 Community Edition + Windows 10 SDK
-* Mac OS X 11.0 Big Sur + Xcode 7.3 + OS X 11.0 SDK
-* Linux + GCC 8.5 or higher with C++14 support
+You *should* be able to build the project on any relatively modern Linux, macOS or Windows machine.
 
 To compile Besprited you will need:
 
-* [CMake](http://www.cmake.org/) (3.4 or greater)
-* [Ninja](https://ninja-build.org)
+* [CMake](http://www.cmake.org/) (4.1 or greater – you probably can get away with an older version if you edit it down in the CMakeLists, but we upped the version in the repo for the GitHub workflows reasons)
+* [Ninja](https://ninja-build.org) (actually optional as you can choose Unix makefiles / Xcode as CMake output, but Ninja speeds up the building process a bit)
 * [Msys2](https://www.msys2.org/) (Windows only)
 
 ## Get the source code
@@ -54,13 +51,18 @@ You'll need the following dependencies to compile Besprited:
 
 ### Linux dependencies
 
-Debian/Ubuntu:
+Debian/Ubuntu/Mint:
 
-    sudo apt-get install cmake g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev
+    sudo apt-get install g++ cmake git libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev
 
 Fedora:
 
-    sudo dnf install g++ cmake libcurl-devel freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL2-devel SDL2_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel
+    sudo dnf install g++ cmake git libcurl-devel freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL2-devel SDL2_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel
+
+Arch Linux:
+
+    sudo pacman -Syu base-devel cmake ninja git sdl3 sdl2-compat sdl2_image sdl2_ttf tinyxml2 freetype2 curl giflib gtest libjpeg-turbo pixman libpng zlib nodejs libarchive
+    
 
 ### Windows dependencies
 
