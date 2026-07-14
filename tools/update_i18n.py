@@ -10,8 +10,13 @@ from typing import Set
 import xml.etree.ElementTree as ETree
 
 
+def is_pure_numeric(value: str) -> bool:
+    """Return True if the string contains only digits (no other characters)."""
+    return value.isdigit()
+
+
 class I18nExtractor:
-    """Extracts i18n strings from C++ and XML files."""
+    """Extracts i18n strings from C++ and XML files. Literals that contain only digits are ignored."""
 
     def __init__(self, repo_root: Path):
         self.repo_root = repo_root
@@ -21,14 +26,15 @@ class I18nExtractor:
         self.languages_dir = repo_root / "data" / "languages"
         self.strings: Set[str] = set()
 
+
     def extract_from_cpp(self) -> Set[str]:
-        """Extract strings from app::i18n() calls in C++ files."""
+        """Extract strings from i18n() calls in C++ files."""
         strings = set()
 
-        # Pattern to match app::i18n("string") - direct string literals
+        # Pattern to match i18n("string") - direct string literals
         # This handles both single and double quotes, and escaped quotes
         direct_pattern = re.compile(
-            r'app::i18n\s*\(\s*"([^"\\]*(?:\\.[^"\\]*)*)"\s*[,)]',
+            r'(app::)?i18n\s*\(\s*"([^"\\]*(?:\\.[^"\\]*)*)"\s*[,)]',
             re.MULTILINE
         )
 
@@ -46,7 +52,7 @@ class I18nExtractor:
                     string_literal = match.group(1)
                     # Unescape the string
                     unescaped = string_literal.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t')
-                    if unescaped.strip():  # Only add non-empty strings
+                    if unescaped.strip() and not is_pure_numeric(unescaped):
                         strings.add(unescaped)
 
             except Exception as e:
@@ -54,6 +60,7 @@ class I18nExtractor:
 
         print(f"Found {len(strings)} strings in C++ files")
         return strings
+
 
     def extract_from_xml(self) -> Set[str]:
         """Extract text attributes from XML widget files and gui.xml."""
@@ -81,7 +88,7 @@ class I18nExtractor:
                         # Strip '&' characters as they are removed by Widget::setI18N()
                         # before using the text as an i18n key
                         text_without_ampersand = text_attr.replace('&', '')
-                        if text_without_ampersand.strip():  # Only add non-empty strings
+                        if text_without_ampersand.strip() and not is_pure_numeric(text_without_ampersand):
                             strings.add(text_without_ampersand)
 
             except Exception as e:
@@ -89,6 +96,7 @@ class I18nExtractor:
 
         print(f"Found {len(strings)} strings in XML files")
         return strings
+
 
     def extract_all(self) -> Set[str]:
         """Extract all strings from both C++ and XML files."""
@@ -99,6 +107,7 @@ class I18nExtractor:
         print(f"\nTotal unique strings to translate: {len(all_strings)}")
 
         return all_strings
+
 
     def update_language_files(self, strings: Set[str]) -> None:
         """Update all language JSON files with missing entries."""
