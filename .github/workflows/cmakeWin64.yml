@@ -91,3 +91,14 @@ jobs:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-windows-x86_64', steps.check_tag.outputs.tag) || 'besprited-windows-x86_64' }}
         path: |
           bundle/**
+    - name: Create self-extracting archive
+      if: steps.check_tag.outputs.has_tag == 'true'
+      shell: bash
+      run: |
+        node packaging/package_win.js sfx bundle "besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.exe"
+    - name: Upload self-extracting archive
+      if: steps.check_tag.outputs.has_tag == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64-sfx
+        path: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.exe
