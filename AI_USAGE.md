@@ -9,7 +9,8 @@ code is heavily scrutinised and human-reviewed before being allowed in the trunk
 quality slop as most of sane developers do, we don't trust clankers blindly. We consider it just a
 mindless tool for doing repetitive and trivial work allowing the actual human developer to focus on
 interesting tasks and features – not something that should replace critical thinking and
-professional insight.
+professional insight. In this regard the maintainer has a pretty
+[similar world view to Linus](https://lore.kernel.org/linux-media/CAHk-=wi4zC+Ze8e+p3tMv8TtG_80KzsZ1syL9anBtmEh5Z40vg@mail.gmail.com/).
 
 If this is still unacceptable for you, then you might want to look for alternative open source
 pixel-art editors or contribute your own commits, so we don't have to rely on LLMs.
