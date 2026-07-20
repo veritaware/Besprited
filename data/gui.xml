@@ -502,6 +502,14 @@
       <!-- Modifiers for two-or-more-points tools -->
       <key action="MoveOrigin" shortcut="Space" />
 
+      <!-- Hold and drag with the right mouse button to change the
+           brush size (X axis) and, when applicable, the ink opacity
+           (Y axis) -->
+      <key action="ChangeBrushSize" shortcut="Alt" />
+
+      <!-- Alternative: hold and drag with the left mouse button -->
+      <key action="ChangeBrushSizeAlt" shortcut="Alt+Ctrl" mac="Alt+Cmd" />
+
       <!-- Without default shortcuts -->
       <key action="LeftMouseButton" />
       <key action="RightMouseButton" />

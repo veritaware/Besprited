@@ -398,6 +398,7 @@ add_library(app-lib
   ui/document_view.cpp
   ui/drop_down_button.cpp
   ui/editor/brush_preview.cpp
+  ui/editor/change_brush_size_state.cpp
   ui/editor/drawing_state.cpp
   ui/editor/editor.cpp
   ui/editor/editor_observers.cpp
