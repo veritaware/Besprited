@@ -32,7 +32,7 @@ jobs:
           submodules: recursive
 
       - name: Install build dependencies
-        run: sudo apt-get update && sudo apt-get install -y ninja-build
+        run: sudo apt-get update && sudo apt-get install -y ninja-build cmake build-essential
 
       - name: Run Claude Code
         id: claude
@@ -50,5 +50,5 @@ jobs:
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          claude_args: '--allowed-tools "Read,Write,Edit,Grep,Glob,WebSearch,WebFetch,Bash(gh pr *),Bash(ninja *),Bash(cmake -B build -G Ninja),Bash(cmake --build build),Bash(git log *),Bash(python3 *),Bash(clang-format -i),Bash(clang-tidy)"'
+          claude_args: '--allowed-tools "Read,Write,Edit,Grep,Glob,WebSearch,WebFetch,Bash(gh pr:*),Bash(ninja:*),Bash(cmake:*),Bash(git log:*),Bash(python3:*),Bash(clang-format:*),Bash(clang-tidy:*)"'
 
