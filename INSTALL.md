@@ -57,7 +57,7 @@ Debian/Ubuntu/Mint:
 
 Fedora:
 
-    sudo dnf install g++ cmake git libcurl-devel freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL2-devel SDL2_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel
+    sudo dnf install g++ cmake git libcurl-devel freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL2-devel SDL2_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel libXi-devel
 
 Arch Linux:
 
