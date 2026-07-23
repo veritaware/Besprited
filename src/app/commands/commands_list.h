@@ -1,6 +1,6 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
-// Copyright (C) 2021-2025  LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021-2025 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -42,6 +42,7 @@ FOR_EACH_COMMAND(DuplicateView)
 FOR_EACH_COMMAND(Exit)
 FOR_EACH_COMMAND(ExportSpriteSheet)
 FOR_EACH_COMMAND(Eyedropper)
+FOR_EACH_COMMAND(FitScreen)
 FOR_EACH_COMMAND(FlattenLayers)
 FOR_EACH_COMMAND(Flip)
 FOR_EACH_COMMAND(FrameProperties)
