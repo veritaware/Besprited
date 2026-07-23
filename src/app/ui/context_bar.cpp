@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,7 +16,9 @@
 #include "app/app_brushes.h"
 #include "app/app_menus.h"
 #include "app/color_utils.h"
+#include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/params.h"
 #include "app/document.h"
 #include "app/ini_file.h"
 #include "app/modules/gfx.h"
@@ -1317,6 +1320,48 @@ private:
   }
 };
 
+class ContextBar::ZoomOptionsField : public ButtonSet {
+public:
+  ZoomOptionsField() : ButtonSet(3) {
+    addItem("100%");
+    addItem("Center");
+    addItem("Fit Screen");
+    setOfferCapture(false);
+  }
+
+  void setupTooltips(TooltipManager* tooltipManager) {
+    tooltipManager->addTooltipFor(at(0), "Set zoom to 100%", BOTTOM);
+    tooltipManager->addTooltipFor(at(1), "Center view on sprite", BOTTOM);
+    tooltipManager->addTooltipFor(at(2), "Fit sprite in the screen", BOTTOM);
+  }
+
+protected:
+  void onItemChange(Item* item) override {
+    ButtonSet::onItemChange(item);
+
+    switch (selectedItem()) {
+      case 0: {
+        Params params;
+        params.set("percentage", "100");
+        UIContext::instance()->executeCommand(
+          CommandsModule::instance()->getCommandByName(CommandId::Zoom),
+          params);
+        UIContext::instance()->executeCommand(CommandId::ScrollCenter);
+        break;
+      }
+      case 1:
+        UIContext::instance()->executeCommand(CommandId::ScrollCenter);
+        break;
+      case 2:
+        UIContext::instance()->executeCommand(CommandId::FitScreen);
+        UIContext::instance()->executeCommand(CommandId::ScrollCenter);
+        break;
+    }
+
+    deselectItems();
+  }
+};
+
 ContextBar::ContextBar()
   : Box(HORIZONTAL)
 {
@@ -1379,6 +1424,9 @@ ContextBar::ContextBar()
   addChild(m_symmetry = new SymmetryField());
   m_symmetry->setVisible(Preferences::instance().symmetryMode.enabled());
 
+  addChild(m_zoomOptions = new ZoomOptionsField());
+  m_zoomOptions->setVisible(false);
+
   TooltipManager* tooltipManager = new TooltipManager();
   addChild(tooltipManager);
 
@@ -1401,6 +1449,7 @@ ContextBar::ContextBar()
   m_dropPixels->setupTooltips(tooltipManager);
   m_freehandAlgo->setupTooltips(tooltipManager);
   m_symmetry->setupTooltips(tooltipManager);
+  m_zoomOptions->setupTooltips(tooltipManager);
 
   App::instance()->activeToolManager()->addObserver(this);
 
@@ -1627,6 +1676,11 @@ void ContextBar::updateForTool(tools::Tool* tool)
     (tool->getController(0)->isFreehand() ||
      tool->getController(1)->isFreehand());
 
+  // True if the current tool is the zoom tool.
+  bool isZoom = tool &&
+    (tool->getInk(0)->isZoom() ||
+     tool->getInk(1)->isZoom());
+
   bool showOpacity =
     (supportOpacity) &&
     ((isPaint && (hasInkWithOpacity || hasImageBrush)) ||
@@ -1654,6 +1708,7 @@ void ContextBar::updateForTool(tools::Tool* tool)
   m_pivot->setVisible(true);
   m_dropPixels->setVisible(false);
   m_selectBoxHelp->setVisible(false);
+  m_zoomOptions->setVisible(isZoom);
 
   m_symmetry->setVisible(
     Preferences::instance().symmetryMode.enabled() &&

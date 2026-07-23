@@ -1,5 +1,6 @@
-# Aseprite     | Copyright (C) 2001-2016  David Capello
-# LibreSprite  | Copyright (C)      2021  LibreSprite contributors
+# Aseprite    | Copyright (C) 2001-2016 David Capello
+# LibreSprite | Copyright (C) 2021      LibreSprite contributors
+# Besprited   | Copyright (C) 2026      Veritaware
 
 # Generate a ui::Widget for each widget in a XML file
 file(GLOB widget_files ${CMAKE_SOURCE_DIR}/data/widgets/*.xml)
@@ -198,6 +199,7 @@ add_library(app-lib
   commands/cmd_exit.cpp
   commands/cmd_export_sprite_sheet.cpp
   commands/cmd_eyedropper.cpp
+  commands/cmd_fit_screen.cpp
   commands/cmd_flatten_layers.cpp
   commands/cmd_flip.cpp
   commands/cmd_frame_properties.cpp
