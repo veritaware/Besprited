@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2014 David Capello
+// Render Tests
+// Aseprite  | Copyright (C) 2001-2014 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -167,6 +168,14 @@ TEST(Render, CheckedBackground)
     1, 1, 1, 2,
     1, 1, 1, 2,
     2, 2, 2, 1);
+
+  render.setBgCheckedSize(gfx::Size(2, 3));
+  render.renderSprite(dst, doc->sprite(), frame_t(0));
+  EXPECT_4X4_PIXELS(dst,
+    1, 1, 2, 2,
+    1, 1, 2, 2,
+    1, 1, 2, 2,
+    2, 2, 1, 1);
 
   render.setBgCheckedSize(gfx::Size(1, 1));
   render.renderSprite(dst,

@@ -73,6 +73,8 @@ public:
     , m_curPref(&m_docPref)
     , m_checked_bg_color1(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
     , m_checked_bg_color2(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
+    , m_checked_bg_width(new IntEntry(1,256))
+    , m_checked_bg_height(new IntEntry(1,256))
     , m_pixelGridColor(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
     , m_gridColor(new ColorButton(app::Color::fromMask(), IMAGE_RGB))
     , m_cursorColor(new ColorButton(m_pref.editor.cursorColor(), IMAGE_RGB))
@@ -209,10 +211,24 @@ public:
     checkedBgSize()->addItem("8x8");
     checkedBgSize()->addItem("4x4");
     checkedBgSize()->addItem("2x2");
+    checkedBgSize()->addItem("Custom");
+
+    // Checked background width
+    m_checked_bg_width->setId("checked_bg_width");
+    m_checked_bg_width->setVisible(false);
+    checkedBgWidthPlaceholder()->addChild(m_checked_bg_width);
+
+    // Checked background height
+    m_checked_bg_height->setId("checked_bg_height");
+    m_checked_bg_height->setVisible(false);
+    checkedBgHeightPlaceholder()->addChild(m_checked_bg_height);
 
     // Checked background colors
     checkedBgColor1Box()->addChild(m_checked_bg_color1);
     checkedBgColor2Box()->addChild(m_checked_bg_color2);
+
+    // Checked background size changed
+    checkedBgSize()->Change.connect(base::Bind<void>(&OptionsWindow::onBgTypeChange, this));
 
     // Reset button
     reset()->Click.connect(base::Bind<void>(&OptionsWindow::onReset, this));
@@ -303,6 +319,8 @@ public:
     m_curPref->pixelGrid.opacity(pixelGridOpacity()->getValue());
     m_curPref->pixelGrid.autoOpacity(pixelGridAutoOpacity()->isSelected());
     m_curPref->bg.type(app::gen::BgType(checkedBgSize()->getSelectedItemIndex()));
+    m_curPref->bg.width(m_checked_bg_width->getValue());
+    m_curPref->bg.height(m_checked_bg_height->getValue());
     m_curPref->bg.zoom(checkedBgZoom()->isSelected());
     m_curPref->bg.color1(m_checked_bg_color1->getColor());
     m_curPref->bg.color2(m_checked_bg_color2->getColor());
@@ -388,6 +406,8 @@ private:
     pixelGridAutoOpacity()->setSelected(m_curPref->pixelGrid.autoOpacity());
 
     checkedBgSize()->setSelectedItemIndex(int(m_curPref->bg.type()));
+    m_checked_bg_width->setValue(m_curPref->bg.width());
+    m_checked_bg_height->setValue(m_curPref->bg.height());
     checkedBgZoom()->setSelected(m_curPref->bg.zoom());
     m_checked_bg_color1->setColor(m_curPref->bg.color1());
     m_checked_bg_color2->setColor(m_curPref->bg.color2());
@@ -408,6 +428,8 @@ private:
 
       checkedBgSize()->setSelectedItemIndex(int(pref.bg.type.defaultValue()));
       checkedBgZoom()->setSelected(pref.bg.zoom.defaultValue());
+      m_checked_bg_width->setValue(pref.bg.width.defaultValue());
+      m_checked_bg_height->setValue(pref.bg.height.defaultValue());
       m_checked_bg_color1->setColor(pref.bg.color1.defaultValue());
       m_checked_bg_color2->setColor(pref.bg.color2.defaultValue());
     }
@@ -425,6 +447,8 @@ private:
 
       checkedBgSize()->setSelectedItemIndex(int(pref.bg.type()));
       checkedBgZoom()->setSelected(pref.bg.zoom());
+      m_checked_bg_width->setValue(pref.bg.width());
+      m_checked_bg_height->setValue(pref.bg.height());
       m_checked_bg_color1->setColor(pref.bg.color1());
       m_checked_bg_color2->setColor(pref.bg.color2());
     }
@@ -509,6 +533,16 @@ private:
     layout();
   }
 
+  void onBgTypeChange() {
+    bool isCustom = static_cast<app::gen::BgType>(checkedBgSize()->getSelectedItemIndex())
+                    == app::gen::BgType::CUSTOM;
+
+    m_checked_bg_width->setVisible(isCustom);
+    m_checked_bg_height->setVisible(isCustom);
+
+    layout();
+  }
+
   static std::string userThemeFolder() {
     ResourceFinder rf;
     rf.includeDataDir("skins");
@@ -541,6 +575,8 @@ private:
   DocumentPreferences* m_curPref;
   ColorButton* m_checked_bg_color1;
   ColorButton* m_checked_bg_color2;
+  IntEntry* m_checked_bg_width;
+  IntEntry* m_checked_bg_height;
   ColorButton* m_pixelGridColor;
   ColorButton* m_gridColor;
   ColorButton* m_cursorColor;
