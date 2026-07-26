@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,9 +17,7 @@
 
 namespace app {
 
-AppRender::AppRender()
-{
-}
+AppRender::AppRender() = default;
 
 AppRender::AppRender(app::Document* doc, doc::PixelFormat pixelFormat)
 {
@@ -48,6 +46,10 @@ void AppRender::setupBackground(app::Document* doc, doc::PixelFormat pixelFormat
     case app::gen::BgType::CHECKED_2x2:
       bgType = render::BgType::CHECKED;
       tile = gfx::Size(2, 2);
+      break;
+    case app::gen::BgType::CUSTOM:
+      bgType = render::BgType::CHECKED;
+      tile = gfx::Size(docPref.bg.width(), docPref.bg.height());
       break;
     default:
       bgType = render::BgType::TRANSPARENT;

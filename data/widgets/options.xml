@@ -147,8 +147,10 @@
           <hbox>
             <label text="Size:" />
             <combobox id="checked_bg_size" expansive="true" />
+            <box horizontal="true" id="checked_bg_width_placeholder" /><!-- custom widget -->
+            <box horizontal="true" id="checked_bg_height_placeholder" /><!-- custom widget -->
+            <check text="Apply Zoom" id="checked_bg_zoom" />
           </hbox>
-          <check text="Apply Zoom" id="checked_bg_zoom" />
           <hbox>
             <label text="Colors:" />
             <box horizontal="true" id="checked_bg_color1_box" />
