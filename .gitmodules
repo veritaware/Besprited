@@ -3,7 +3,7 @@
 	url = https://github.com/aseprite/simpleini.git
 [submodule "src/flic"]
 	path = src/flic
-	url = https://github.com/veritaware/flic-besprited.git
+	url = https://github.com/veritaware/flic.git
 [submodule "third_party/evalmath"]
 	path = third_party/evalmath
 	url = https://github.com/veritaware/evalmath.git

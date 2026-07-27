@@ -57,7 +57,8 @@ bool QoiFormat::onLoad(FileOp* fop)
   }
   fop->sequenceSetHasAlpha(true);
   auto image = fop->sequenceImage(IMAGE_RGB, desc.width, desc.height);
-  memcpy(image->getPixelAddress(0, 0), decoded.get(), desc.width * desc.height * 4);
+  const size_t size = static_cast<size_t>(desc.width) * static_cast<size_t>(desc.height) * 4;
+  memcpy(image->getPixelAddress(0, 0), decoded.get(), size);
   return true;
 }
 

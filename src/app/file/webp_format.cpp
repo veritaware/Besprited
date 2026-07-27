@@ -118,7 +118,7 @@ bool WebPFormat::onLoad(FileOp* fop)
   config.output.colorspace = MODE_RGBA;
   config.output.u.RGBA.rgba = (uint8_t*)image->getPixelAddress(0, 0);
   config.output.u.RGBA.stride = config.input.width * sizeof(uint32_t);
-  config.output.u.RGBA.size = config.input.width * config.input.height * sizeof(uint32_t);
+  config.output.u.RGBA.size = static_cast<size_t>(config.input.width) * static_cast<size_t>(config.input.height) * sizeof(uint32_t);
   config.output.is_external_memory = 1;
 
   WebPIDecoder* idec = WebPIDecode(NULL, 0, &config);
