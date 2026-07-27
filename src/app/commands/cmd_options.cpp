@@ -540,7 +540,8 @@ private:
     m_checked_bg_width->setVisible(isCustom);
     m_checked_bg_height->setVisible(isCustom);
 
-    layout();
+    if (isVisible())
+      layout();
   }
 
   static std::string userThemeFolder() {
