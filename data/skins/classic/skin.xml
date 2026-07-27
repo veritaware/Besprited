@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Aseprite    | Copyright (C) 2001-2016  David Capello -->
-<!-- LibreSprite | Copyright (C) 2021       LibreSprite contributors -->
+<!-- Aseprite    | Copyright (C) 2001-2016 David Capello -->
+<!-- LibreSprite | Copyright (C) 2021      LibreSprite contributors -->
+<!-- Besprited   | Copyright (C) 2026      Veritaware -->
 <skin name="Default"
       author="Ilija Melentijevic &amp; David Capello"
       url="http://ilkke.blogspot.com/">
@@ -346,6 +347,10 @@
     <part id="timeline_right_link_active"       x="264" y="108" w="12" h="12" />
     <part id="timeline_gear"                    x="264" y="12" w="12" h="12" />
     <part id="timeline_gear_active"             x="264" y="24" w="12" h="12" />
+    <part id="timeline_new_layer_normal"        x="276" y="60" w="12" h="12" />
+    <part id="timeline_new_layer_active"        x="288" y="60" w="12" h="12" />
+    <part id="timeline_remove_layer_normal"     x="276" y="72" w="12" h="12" />
+    <part id="timeline_remove_layer_active"     x="288" y="72" w="12" h="12" />
     <part id="timeline_onionskin"               x="264" y="36" w="12" h="12" />
     <part id="timeline_onionskin_active"        x="264" y="48" w="12" h="12" />
     <part id="timeline_onionskin_range"         x="240" y="120" w1="3" w2="6" w3="3" h1="3" h2="6" h3="3" />
@@ -640,6 +645,28 @@
     </style>
     <style id="timeline_gear:clicked">
       <icon part="timeline_gear_active" />
+    </style>
+
+    <!-- timeline_new_layer -->
+    <style id="timeline_new_layer" base="timeline_box">
+      <icon part="timeline_new_layer_normal" align="center" valign="middle" />
+    </style>
+    <style id="timeline_new_layer:active">
+      <icon part="timeline_new_layer_active" />
+    </style>
+    <style id="timeline_new_layer:clicked">
+      <icon part="timeline_new_layer_active" />
+    </style>
+
+    <!-- timeline_remove_layer -->
+    <style id="timeline_remove_layer" base="timeline_box">
+      <icon part="timeline_remove_layer_normal" align="center" valign="middle" />
+    </style>
+    <style id="timeline_remove_layer:active">
+      <icon part="timeline_remove_layer_active" />
+    </style>
+    <style id="timeline_remove_layer:clicked">
+      <icon part="timeline_remove_layer_active" />
     </style>
 
     <!-- timeline_onionskin -->
