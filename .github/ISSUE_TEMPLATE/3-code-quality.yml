@@ -9,22 +9,14 @@ body:
     attributes:
       label: What's wrong with the code?
       description: A clear and concise description of the poor quality you've noticed
-      placeholder: e.g., "The function X has too many parameters and is hard to understand"
+      placeholder: e.g. "The function X has too many parameters and is hard to understand"
     validations:
       required: true
   - type: textarea
-    id: improvement-suggestion
+    id: ql-detection
     attributes:
-      label: How should it be improved?
-      description: A clear and concise description of what you think is a better approach
-      placeholder: e.g., "Refactor the function to use a configuration object instead of multiple parameters"
-    validations:
-      required: false
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: Additional context
-      description: Add any other context about the issue here
-      placeholder: e.g., "This code is in the file src/app/main.cpp"
+      label: How did you detect the issue?
+      description: Was the issue detected by some automated tooling / AI, or found manually?
+      placeholder: e.g. "Issue reported by GitHub CodeQL checker"
     validations:
       required: false

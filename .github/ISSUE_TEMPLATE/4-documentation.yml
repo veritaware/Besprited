@@ -11,22 +11,6 @@ body:
     attributes:
       label: Documentation issue
       description: Please describe what's wrong with the documentation (please no walls of text :P)
-      placeholder: e.g., "The installation guide is missing steps for macOS"
+      placeholder: e.g. "The installation guide is missing steps for macOS"
     validations:
       required: true
-  - type: textarea
-    id: suggested-improvement
-    attributes:
-      label: Suggested improvement
-      description: How do you think the documentation should be improved?
-      placeholder: e.g., "Add a section explaining how to install on macOS"
-    validations:
-      required: false
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: Additional context
-      description: Add any other context about the documentation issue here
-      placeholder: e.g., "This affected me when trying to set up the project"
-    validations:
-      required: false

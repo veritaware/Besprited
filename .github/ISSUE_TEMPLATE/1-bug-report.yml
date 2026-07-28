@@ -10,63 +10,23 @@ body:
     id: version
     attributes:
       label: Besprited version
-      description: Paste Besprited version between quotes down below. You'll find it in the bottom left corner when you open the software. If you're on a dev version, specify the commit hash
-      placeholder: e.g., "v1.2.3" or "abcdefg"
+      description: Paste Besprited version down below. You'll find it in the bottom left corner when you open the software. If you're on a dev version, please specify the commit hash
+      placeholder: e.g. "v1.2.3" or "4f7d0d7"
     validations:
       required: true
   - type: textarea
     id: bug-description
     attributes:
       label: Bug description
-      description: A clear and concise description of what the bug is and the steps to reproduce the behaviour
-      placeholder: e.g., "When I try to export a sprite sheet, the software crashes\n\n1. Open Besprited\n2. Load a project\n3. Click on Export\n4. See error"
+      description: A clear and concise description of what the bug is and the steps to reproduce the behaviour, additional screenshots or videos to help explain your problem etc.
+      placeholder: e.g. "When I try to export a sprite sheet, the software crashes\n\n1. Open Besprited\n2. Load a project\n3. Click on Export\n4. See error"
     validations:
       required: true
   - type: textarea
-    id: expected-behaviour
-    attributes:
-      label: Expected behaviour
-      description: A clear and concise description of what you expected to happen
-      placeholder: e.g., "The sprite sheet should export without errors"
-    validations:
-      required: false
-  - type: input
     id: os
     attributes:
-      label: Operative System
-      description: The operative system you're using (e.g., Windows 10, macOS 11.2, Ubuntu 20.04)
-      placeholder: e.g., "Windows 10"
-    validations:
-      required: false
-  - type: input
-    id: cpu
-    attributes:
-      label: CPU
-      description: The CPU model of your computer (e.g., Intel Core i7-9700K, AMD Ryzen 5 3600)
-      placeholder: e.g., "Intel Core i7-9700K"
-    validations:
-      required: false
-  - type: input
-    id: gpu
-    attributes:
-      label: GPU
-      description: The GPU model of your computer (e.g., NVIDIA GeForce RTX 2070, AMD Radeon RX 5700 XT). Only needed for graphical issues
-      placeholder: e.g., "NVIDIA GeForce RTX 2070"
-    validations:
-      required: false
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: Screenshots
-      description: Screenshots or videos to help explain your problem
-      placeholder: e.g., "![screenshot](url_to_screenshot)"
-    validations:
-      required: false
-  - type: textarea
-    id: additional-context
-    attributes:
-      label: Additional context
-      description: Add any other context about the problem here
-      placeholder: e.g., "I noticed this issue started happening after I updated to the latest version"
+      label: Environment info
+      description: Your operative system (version, distribution etc.), CPU and GPU model.
+      placeholder: e.g. "Windows 11\nIntel Core i7-9700K\nNVIDIA GeForce RTX 2070"
     validations:
       required: false
