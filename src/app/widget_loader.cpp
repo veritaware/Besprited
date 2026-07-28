@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -250,8 +250,10 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
       throw std::runtime_error("<entry> element found without 'maxsize' attribute");
   }
   else if (elem_name == "intentry") {
-    auto maxValue = strtol(elem->Attribute("max", ""), nullptr, 10);
-    auto minValue = strtol(elem->Attribute("min", ""), nullptr, 10);
+    const char* max = elem->Attribute("max");
+    const char* min = elem->Attribute("min");
+    auto maxValue = max != NULL ? strtol(max, NULL, 10): 0;
+    auto minValue = min != NULL ? strtol(min, NULL, 10): 0;
     const char* suffix = elem->Attribute("suffix");
     widget = new IntEntry(minValue, maxValue);
     if (suffix)

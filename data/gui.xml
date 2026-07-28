@@ -41,6 +41,10 @@
       <key command="Paste" shortcut="Shift+Ins" />
       <key command="Clear" shortcut="Del" />
       <key command="Clear" shortcut="Backspace" />
+      <key command="Fill" shortcut="Ctrl+F5" />
+      <key command="QuickFill" shortcut="F" />
+      <key command="Stroke" shortcut="Ctrl+F6" />
+      <key command="QuickStroke" shortcut="S" />
       <key command="Flip" shortcut="Shift+H">
         <param name="target" value="mask" />
         <param name="orientation" value="horizontal" />
@@ -543,6 +547,11 @@
         <item command="CopyMerged" text="Copy Mer&amp;ged" />
         <item command="Paste" text="&amp;Paste" />
         <item command="Clear" text="C&amp;lear" />
+        <separator />
+        <item command="Fill" text="&amp;Fill..." />
+        <item command="QuickFill" text="&amp;Quick Fill" />
+        <item command="Stroke" text="Str&amp;oke..." />
+        <item command="QuickStroke" text="Quick Str&amp;oke" />
         <separator />
         <menu text="R&amp;otate">
           <item command="Rotate" text="&amp;180">

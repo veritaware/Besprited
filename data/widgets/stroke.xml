@@ -1,0 +1,31 @@
+<!-- Besprited | Copyright (C) 2026 Veritaware -->
+<gui>
+<window id="stroke" text="Stroke">
+  <vbox>
+    <grid columns="2">
+
+      <label text="Color:" />
+      <colorpicker id="color" cell_align="horizontal" />
+
+      <label text="Opacity:" />
+      <slider id="opacity" min="0" max="255" />
+
+      <label text="Width:" />
+      <intentry id="width" min="1" max="255" suffix="px" />
+
+      <label text="Position:" />
+      <vbox>
+        <radio id="inside" text="Inside" group="1" />
+        <radio id="center" text="Center" group="1" />
+        <radio id="outside" text="Outside" group="1" />
+      </vbox>
+
+    </grid>
+    <separator horizontal="true" cell_hspan="2" />
+    <hbox homogeneous="true" cell_hspan="2" cell_align="right">
+      <button text="&amp;OK" closewindow="true" id="ok" magnet="true" minwidth="60" />
+      <button text="&amp;Cancel" closewindow="true" />
+    </hbox>
+  </vbox>
+</window>
+</gui>
