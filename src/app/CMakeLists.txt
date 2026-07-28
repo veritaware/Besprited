@@ -199,6 +199,7 @@ add_library(app-lib
   commands/cmd_exit.cpp
   commands/cmd_export_sprite_sheet.cpp
   commands/cmd_eyedropper.cpp
+  commands/cmd_fill.cpp
   commands/cmd_fit_screen.cpp
   commands/cmd_flatten_layers.cpp
   commands/cmd_flip.cpp
@@ -273,6 +274,7 @@ add_library(app-lib
   commands/cmd_show.cpp
   commands/cmd_sprite_properties.cpp
   commands/cmd_sprite_size.cpp
+  commands/cmd_stroke.cpp
   commands/cmd_switch_colors.cpp
   commands/cmd_symmetry_mode.cpp
   commands/cmd_tiled_mode.cpp

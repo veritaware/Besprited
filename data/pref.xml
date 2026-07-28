@@ -80,6 +80,11 @@
       <value id="VERTICAL" value="2" />
       <value id="BOTH" value="3" />
     </enum>
+    <enum id="StrokePosition">
+      <value id="INSIDE" value="0" />
+      <value id="OUTSIDE" value="1" />
+      <value id="CENTER" value="2" />
+    </enum>
   </types>
 
   <global>
@@ -171,6 +176,10 @@
       <option id="rotation_algorithm" type="app::tools::RotationAlgorithm" default="app::tools::RotationAlgorithm::DEFAULT" />
       <option id="modify_selection_quantity" type="int" default="1" />
       <option id="modify_selection_brush" type="BrushType" default="BrushType::CIRCLE" />
+      <option id="fill_opacity" type="int" default="255" />
+      <option id="stroke_opacity" type="int" default="255" />
+      <option id="stroke_width" type="int" default="1" />
+      <option id="stroke_position" type="StrokePosition" default="StrokePosition::INSIDE" />
     </section>
     <section id="quantization">
       <option id="with_alpha" type="bool" default="true" />
