@@ -6,6 +6,23 @@
       author="Ilija Melentijevic &amp; David Capello"
       url="http://ilkke.blogspot.com/">
 
+  <fonts>
+    <family id="main_font">
+      <font name="pixeloid-sans.ttf" size="9" />
+      <font name="noto-ar.ttf"       size="8" lang="ar" />
+      <font name="noto-jp.ttf"       size="8" lang="jp" />
+      <font name="noto-kr.ttf"       size="8" lang="kr" />
+      <font name="noto-zh.ttf"       size="8" lang="zh" />
+    </family>
+    <family id="mini_font">
+      <font name="tiny5.ttf"         size="8" />
+      <font name="noto-ar.ttf"       size="6" lang="ar" />
+      <font name="noto-jp.ttf"       size="6" lang="jp" />
+      <font name="noto-kr.ttf"       size="6" lang="kr" />
+      <font name="noto-zh.ttf"       size="6" lang="zh" />
+    </family>
+  </fonts>
+
   <dimensions>
     <dim id="scrollbar_size" value="12" />
     <dim id="mini_scrollbar_size" value="6" />

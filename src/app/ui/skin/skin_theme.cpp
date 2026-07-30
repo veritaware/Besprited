@@ -11,6 +11,7 @@
 #endif
 
 #include <algorithm>
+#include <cstring>
 #include <memory>
 #include <unordered_map>
 #include <optional>
@@ -262,18 +263,11 @@ namespace app::skin
       }
     };
 
+    FontList customMain, customMini;
+    loadFontFamiliesFromSkinXml(skinId, customMain, customMini);
+
     // ToDo: add the ability to set preferred font size in skin XML + application preferences
     {
-      FontList dataDirs {
-        std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".otf", 8),
-        std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".ttf", 8),
-        std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".png", 7),
-        std::make_pair("fonts/noto-" + getLanguage() + ".ttf", 8),
-        std::make_pair("skins/" + skinId + "/font.otf", 8),
-        std::make_pair("skins/" + skinId + "/font.ttf", 8),
-        std::make_pair("skins/" + skinId + "/font.png", 7),
-        std::make_pair("fonts/pixeloid-sans.ttf", 9),
-      };
       FontList fonts{};
 
       if (auto userFont = pref.theme.font(); !userFont.empty()) {
@@ -283,28 +277,29 @@ namespace app::skin
           fonts.emplace_back(rf.filename(), 8);
         }
       }
-      for (auto& [path, size] : dataDirs) {
-        findResources(path, size, fonts);
+
+      if (!customMain.empty()) {
+        fonts.insert(fonts.end(), customMain.begin(), customMain.end());
+      } else {
+        FontList dataDirs {
+          std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".otf", 8),
+          std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".ttf", 8),
+          std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".png", 7),
+          std::make_pair("fonts/noto-" + getLanguage() + ".ttf", 8),
+          std::make_pair("skins/" + skinId + "/font.otf", 8),
+          std::make_pair("skins/" + skinId + "/font.ttf", 8),
+          std::make_pair("skins/" + skinId + "/font.png", 7),
+          std::make_pair("fonts/pixeloid-sans.ttf", 9),
+        };
+        for (auto& [path, size] : dataDirs) {
+          findResources(path, size, fonts);
+        }
       }
 
       m_defaultFont = loadFont(fonts);
     }
 
     {
-      FontList dataDirs {
-        std::make_pair("skins/" + skinId + "/minifont-" + getLanguage() + ".otf", 6),
-        std::make_pair("skins/" + skinId + "/minifont-" + getLanguage() + ".ttf", 6),
-        std::make_pair("skins/" + skinId + "/minifont-" + getLanguage() + ".png", 6),
-        std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".otf", 6),
-        std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".ttf", 6),
-        std::make_pair("fonts/noto-" + getLanguage() + ".ttf", 6),
-        std::make_pair("skins/" + skinId + "/minifont.otf", 6),
-        std::make_pair("skins/" + skinId + "/minifont.ttf", 6),
-        std::make_pair("skins/" + skinId + "/minifont.png", 6),
-        std::make_pair("skins/" + skinId + "/font.otf", 6),
-        std::make_pair("skins/" + skinId + "/font.ttf", 6),
-        std::make_pair("fonts/tiny5.ttf", 8),
-      };
       FontList fonts;
       if (auto userFont = pref.theme.miniFont(); !userFont.empty()) {
         ResourceFinder rf;
@@ -313,8 +308,27 @@ namespace app::skin
           fonts.emplace_back(rf.filename(), 8);
         }
       }
-      for (auto& [path, size] : dataDirs) {
-        findResources(path, size, fonts);
+
+      if (!customMini.empty()) {
+        fonts.insert(fonts.end(), customMini.begin(), customMini.end());
+      } else {
+        FontList dataDirs {
+          std::make_pair("skins/" + skinId + "/minifont-" + getLanguage() + ".otf", 6),
+          std::make_pair("skins/" + skinId + "/minifont-" + getLanguage() + ".ttf", 6),
+          std::make_pair("skins/" + skinId + "/minifont-" + getLanguage() + ".png", 6),
+          std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".otf", 6),
+          std::make_pair("skins/" + skinId + "/font-" + getLanguage() + ".ttf", 6),
+          std::make_pair("fonts/noto-" + getLanguage() + ".ttf", 6),
+          std::make_pair("skins/" + skinId + "/minifont.otf", 6),
+          std::make_pair("skins/" + skinId + "/minifont.ttf", 6),
+          std::make_pair("skins/" + skinId + "/minifont.png", 6),
+          std::make_pair("skins/" + skinId + "/font.otf", 6),
+          std::make_pair("skins/" + skinId + "/font.ttf", 6),
+          std::make_pair("fonts/tiny5.ttf", 8),
+        };
+        for (auto& [path, size] : dataDirs) {
+          findResources(path, size, fonts);
+        }
       }
 
       m_miniFont = loadFont(fonts);
@@ -330,6 +344,127 @@ namespace app::skin
       }
     }
     return {};
+  }
+
+  namespace {
+
+    std::vector<std::string> splitCommaList(const std::string& value) {
+      std::vector<std::string> items;
+      size_t start = 0;
+      while (start <= value.size()) {
+        const size_t comma = value.find(',', start);
+        const size_t end = (comma == std::string::npos) ? value.size() : comma;
+        const size_t first = value.find_first_not_of(" \t", start);
+        if (first != std::string::npos && first < end) {
+          const size_t last = value.find_last_not_of(" \t", end - 1);
+          items.push_back(value.substr(first, last - first + 1));
+        }
+        if (comma == std::string::npos)
+          break;
+        start = comma + 1;
+      }
+      return items;
+    }
+
+    // Resolves a font's <name> attribute to a file: the skin's own
+    // directory takes precedence, falling back to the shared data/fonts
+    // directory so skins can reuse the bundled fonts without shipping them.
+    std::optional<std::string> findSkinFontFile(const std::string& skinId, const std::string& name) {
+      if (auto path = findFile("skins/" + skinId + "/" + name))
+        return path;
+      return findFile("fonts/" + name);
+    }
+
+    // Appends the font list for a <family> element: the entry whose `lang`
+    // list contains the active language goes first, then the language-less
+    // (default) entry, then any remaining entries so loadFont() still has
+    // fallbacks to try if the preferred file can't be loaded.
+    void collectFontFamily(const tinyxml2::XMLElement* family,
+                            const std::string& skinId,
+                            const std::string& lang,
+                            std::vector<std::pair<std::string, size_t>>& output) {
+      struct Entry {
+        std::string name;
+        size_t size;
+        std::vector<std::string> langs;
+      };
+      std::vector<Entry> entries;
+
+      for (const auto* font = family->FirstChildElement("font"); font;
+           font = font->NextSiblingElement("font")) {
+        const char* name = font->Attribute("name");
+        if (!name)
+          continue;
+        entries.push_back(Entry{
+          name,
+          static_cast<size_t>(strtoul(font->Attribute("size", "8"), nullptr, 10)),
+          splitCommaList(font->Attribute("lang", ""))
+        });
+      }
+
+      const Entry* chosen = nullptr;
+      const Entry* defaultEntry = nullptr;
+      for (const auto& entry : entries) {
+        if (!entry.langs.empty()) {
+          if (std::ranges::find(entry.langs, lang) != entry.langs.end()) {
+            chosen = &entry;
+            break;
+          }
+        } else if (!defaultEntry) {
+          defaultEntry = &entry;
+        }
+      }
+      if (!chosen)
+        chosen = defaultEntry;
+
+      auto addEntry = [&](const Entry* entry) {
+        if (!entry)
+          return;
+        if (auto path = findSkinFontFile(skinId, entry->name))
+          output.emplace_back(*path, entry->size);
+      };
+
+      addEntry(chosen);
+      for (const auto& entry : entries) {
+        if (&entry != chosen)
+          addEntry(&entry);
+      }
+    }
+
+  } // anonymous namespace
+
+  void SkinTheme::loadFontFamiliesFromSkinXml(const std::string& skinId,
+                                               std::vector<std::pair<std::string, size_t>>& mainFonts,
+                                               std::vector<std::pair<std::string, size_t>>& miniFonts) const
+  {
+    const auto filename = findFile("skins/" + skinId + "/skin.xml");
+    if (!filename)
+      return;
+
+    XmlDocumentRef doc;
+    try {
+      doc = open_xml(*filename);
+    } catch (const base::Exception&) {
+      return;
+    }
+
+    const tinyxml2::XMLElement* fonts = tinyxml2::XMLHandle(doc.get())
+                                        .FirstChildElement("skin")
+                                        .FirstChildElement("fonts").ToElement();
+    if (!fonts)
+      return;
+
+    const std::string lang = getLanguage();
+    for (const auto* family = fonts->FirstChildElement("family"); family;
+         family = family->NextSiblingElement("family")) {
+      const char* id = family->Attribute("id");
+      if (!id)
+        continue;
+      if (std::strcmp(id, "main_font") == 0)
+        collectFontFamily(family, skinId, lang, mainFonts);
+      else if (std::strcmp(id, "mini_font") == 0)
+        collectFontFamily(family, skinId, lang, miniFonts);
+    }
   }
 
   void SkinTheme::loadXml(const std::string& skinId)
