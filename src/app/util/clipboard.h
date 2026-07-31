@@ -1,5 +1,6 @@
 // Aseprite
 // Copyright (C) 2001-2016  David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,6 +11,8 @@
 #include "gfx/point.h"
 #include "gfx/size.h"
 #include "ui/base.h"
+
+#include <memory>
 
 namespace doc {
   class Image;
@@ -60,6 +63,11 @@ namespace app {
     // size in the clipboard, or return false in case that the clipboard
     // doesn't contain an image at all.
     bool get_image_size(gfx::Size& size);
+
+    // Returns true and fills "image" and "palette" with the clipboard's
+    // image and its palette, or returns false if the clipboard doesn't
+    // contain an image.
+    bool get_image(std::shared_ptr<Image>& image, std::shared_ptr<Palette>& palette);
 
     Palette* get_palette();
     const PalettePicks& get_palette_picks();
