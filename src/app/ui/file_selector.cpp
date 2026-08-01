@@ -414,9 +414,25 @@ std::string FileSelector::show(
     item->setValue(showExtensions);
     fileType()->addItem(item);
   }
-  // One file type for each supported image format
+  // One file type for each supported image format. Native formats (ase/aseprite)
+  // are kept at the top, the rest are sorted alphabetically for discoverability.
   std::vector<std::string> tokens;
   base::split_string(showExtensions, tokens, ",");
+  {
+    std::vector<std::string> pinned, rest;
+    for (const auto& tok : tokens) {
+      if (tok == "ase" || tok == "aseprite")
+        pinned.push_back(tok);
+      else
+        rest.push_back(tok);
+    }
+    std::sort(rest.begin(), rest.end(),
+              [](const std::string& a, const std::string& b) {
+                return base::string_to_lower(a) < base::string_to_lower(b);
+              });
+    tokens = std::move(pinned);
+    tokens.insert(tokens.end(), rest.begin(), rest.end());
+  }
   for (const auto& tok : tokens) {
     // If the default extension is empty, use the first filter
     if (m_defExtension.empty())
