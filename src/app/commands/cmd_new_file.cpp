@@ -1,5 +1,4 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
 // Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
@@ -104,7 +103,7 @@ void NewFileCommand::onExecute(Context* context)
   // that image as the sprite's first layer. Otherwise, hide both
   // controls since they wouldn't do anything.
   gfx::Size clipboardSize;
-  bool hasClipboardImage = clipboard::get_image_size(clipboardSize);
+  const bool hasClipboardImage = clipboard::get_image_size(clipboardSize);
   window.sizeFromClipboard()->setVisible(hasClipboardImage);
   window.pasteAsLayer()->setVisible(hasClipboardImage);
 
