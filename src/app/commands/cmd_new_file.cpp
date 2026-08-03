@@ -219,6 +219,15 @@ void NewFileCommand::onExecute(Context* context)
             }
 
             doc::copy_image(dstImage, srcImage.get());
+
+            // The pasted image becomes the sprite's background, so
+            // rename its layer and add a fresh empty layer above it
+            // for the user to draw on.
+            layerImage->setName("Background");
+
+            std::unique_ptr<LayerImage> topLayer(new LayerImage(sprite.get()));
+            topLayer->setName("Layer 1");
+            sprite->folder()->addLayer(topLayer.release());
           }
         }
       }
