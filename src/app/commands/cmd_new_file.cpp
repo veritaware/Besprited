@@ -188,6 +188,7 @@ void NewFileCommand::onExecute(Context* context)
 
       // Optionally paste the clipboard image into the new sprite as
       // its first layer.
+      Layer* newTopLayer = nullptr;
       if (hasClipboardImage && window.pasteAsLayer()->isSelected()) {
         std::shared_ptr<Image> clipImage;
         std::shared_ptr<Palette> clipPalette;
@@ -227,16 +228,28 @@ void NewFileCommand::onExecute(Context* context)
 
             std::unique_ptr<LayerImage> topLayer(new LayerImage(sprite.get()));
             topLayer->setName("Layer 1");
+            newTopLayer = topLayer.get();
             sprite->folder()->addLayer(topLayer.release());
           }
         }
       }
 
       // Show the sprite to the user
+      Sprite* spritePtr = sprite.get();
       std::unique_ptr<Document> doc(new Document(sprite.get()));
       sprite.release();
       snprintf(buf, sizeof(buf), "Sprite-%04d", ++_sprite_counter);
       doc->setFilename(buf);
+
+      // If we added an empty layer above the pasted clipboard image,
+      // make it the active layer instead of the "Background" layer
+      // below it. This must happen before setContext(), since that's
+      // what creates the editor view for the document.
+      if (newTopLayer) {
+        Preferences::instance().document(doc.get()).site.layer(
+          spritePtr->layerToIndex(newTopLayer));
+      }
+
       doc->setContext(context);
       doc.release();
     }
