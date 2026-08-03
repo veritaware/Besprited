@@ -110,7 +110,6 @@ const std::vector<FormatGroup> kFormatGroups = {
 // upper-cased name (e.g. "webp" -> "WebP").
 const std::map<std::string, std::string> kFormatNames = {
   { "webp", "WebP" },
-  { "aseprite-extension", "Aseprite Extension" },
   { "anim", "Pixly Animation" },
 };
 

@@ -1,4 +1,5 @@
 // LibreSprite | Copyright (C) 2023       LibreSprite contributors
+// Besprited   | Copyright (C) 2026       Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -40,7 +41,11 @@ class ExtensionFormat : public FileFormat {
   bool onSave(FileOp* fop) override {return false;}
 };
 
-static FileFormat::Regular<ExtensionFormat> ff{"extension"};
+// Disabled: this format appears to have diverged from Aseprite's current
+// upstream implementation. Re-enable once it's been verified/aligned, or
+// remove it (and this file) entirely if it's decided the feature isn't
+// worth keeping.
+// static FileFormat::Regular<ExtensionFormat> ff{"extension"};
 
 class Archive {
   std::shared_ptr<void> lib;
