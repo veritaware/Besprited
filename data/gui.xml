@@ -113,6 +113,7 @@
       <key command="ShowGrid" shortcut="Shift+G" />
       <key command="ShowPixelGrid" shortcut="Alt+Shift+G" />
       <key command="SnapToGrid" shortcut="Shift+S" />
+      <key command="TiledMode" shortcut="Shift+T"><param name="axis" value="both" /></key>
       <key command="SetLoopSection" shortcut="F2" />
       <key command="ShowOnionSkin" shortcut="F3" />
       <key command="Timeline" shortcut="Tab" label="TIME">
