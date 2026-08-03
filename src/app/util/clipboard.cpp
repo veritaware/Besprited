@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -157,6 +157,18 @@ static void set_clipboard_image(Image* image,
   clipboard_range.invalidate();
 }
 
+// Refreshes clipboard_image/clipboard_palette from the native (OS)
+// clipboard, if it currently holds a bitmap.
+static void load_native_clipboard_bitmap()
+{
+  Image* native_image = nullptr;
+  Mask* native_mask = nullptr;
+  std::shared_ptr<Palette> native_palette;
+  get_native_clipboard_bitmap(&native_image, &native_mask, native_palette);
+  if (native_image)
+    set_clipboard_image(native_image, native_mask, native_palette, false, false);
+}
+
 static bool copy_from_document(const Site& site, bool merged = false)
 {
   const app::Document* document = static_cast<const app::Document*>(site.document());
@@ -303,14 +315,7 @@ void paste()
 
     case clipboard::ClipboardImage: {
       // Get the image from the clipboard.
-      {
-        Image* native_image = nullptr;
-        Mask* native_mask = nullptr;
-        std::shared_ptr<Palette> native_palette;
-        get_native_clipboard_bitmap(&native_image, &native_mask, native_palette);
-        if (native_image)
-          set_clipboard_image(native_image, native_mask, native_palette, false, false);
-      }
+      load_native_clipboard_bitmap();
 
       if (!clipboard_image)
         return;
@@ -555,6 +560,21 @@ bool get_image_size(gfx::Size& size)
 #endif
 
   return false;
+}
+
+bool get_image(std::shared_ptr<Image>& image, std::shared_ptr<Palette>& palette)
+{
+  if (get_current_format() != ClipboardImage)
+    return false;
+
+  load_native_clipboard_bitmap();
+
+  if (!clipboard_image)
+    return false;
+
+  image = clipboard_image;
+  palette = clipboard_palette;
+  return true;
 }
 
 Palette* get_palette()

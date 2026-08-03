@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -28,6 +28,7 @@
 #include "doc/palette.h"
 #include "doc/primitives.h"
 #include "doc/sprite.h"
+#include "render/quantization.h"
 #include "ui/ui.h"
 
 #include "new_sprite.xml.h"
@@ -81,18 +82,12 @@ void NewFileCommand::onExecute(Context* context)
       format != IMAGE_GRAYSCALE) {
     format = IMAGE_INDEXED;
   }
+  // Default size is always the last size used by the user, regardless
+  // of what's currently in the clipboard.
   int w = pref.newFile.width();
   int h = pref.newFile.height();
   int bg = pref.newFile.backgroundColor();
   bg = MID(0, bg, 2);
-
-  // If the clipboard contains an image, we can show the size of the
-  // clipboard as default image size.
-  gfx::Size clipboardSize;
-  if (clipboard::get_image_size(clipboardSize)) {
-    w = clipboardSize.w;
-    h = clipboardSize.h;
-  }
 
   window.width()->setTextf("%d", MAX(1, w));
   window.height()->setTextf("%d", MAX(1, h));
@@ -102,6 +97,23 @@ void NewFileCommand::onExecute(Context* context)
 
   // Select background color
   window.bgColor()->setSelectedItem(bg);
+
+  // If the clipboard contains an image, offer the user a way to fill
+  // the size fields with the clipboard image's size, and to paste
+  // that image as the sprite's first layer. Otherwise, hide both
+  // controls since they wouldn't do anything.
+  gfx::Size clipboardSize;
+  const bool hasClipboardImage = clipboard::get_image_size(clipboardSize);
+  window.sizeFromClipboard()->setVisible(hasClipboardImage);
+  window.pasteAsLayer()->setVisible(hasClipboardImage);
+
+  if (hasClipboardImage) {
+    window.sizeFromClipboard()->Click.connect(
+      [&window, clipboardSize](ui::Event&) {
+        window.width()->setTextf("%d", MAX(1, clipboardSize.w));
+        window.height()->setTextf("%d", MAX(1, clipboardSize.h));
+      });
+  }
 
   // Open the window
   window.openWindowInForeground();
@@ -173,11 +185,70 @@ void NewFileCommand::onExecute(Context* context)
         }
       }
 
+      // Optionally paste the clipboard image into the new sprite as
+      // its first layer.
+      Layer* newTopLayer = nullptr;
+      if (hasClipboardImage && window.pasteAsLayer()->isSelected()) {
+        std::shared_ptr<Image> clipImage;
+        std::shared_ptr<Palette> clipPalette;
+
+        if (clipboard::get_image(clipImage, clipPalette)) {
+          Layer* layer = sprite->folder()->getFirstLayer();
+
+          if (layer && layer->isImage()) {
+            LayerImage* layerImage = static_cast<LayerImage*>(layer);
+            Image* dstImage = layerImage->cel(frame_t(0))->image();
+            Palette* dstPalette = sprite->palette(frame_t(0));
+
+            std::shared_ptr<Image> srcImage;
+            if (clipImage->pixelFormat() == sprite->pixelFormat() &&
+                // Indexed images can be copied directly only if both
+                // images have the same palette.
+                (clipImage->pixelFormat() != IMAGE_INDEXED ||
+                 clipPalette->countDiff(*dstPalette, nullptr, nullptr) == 0)) {
+              srcImage = clipImage;
+            }
+            else {
+              srcImage.reset(
+                render::convert_pixel_format(
+                  clipImage.get(), nullptr, sprite->pixelFormat(),
+                  DitheringMethod::NONE, sprite->rgbMap(frame_t(0)),
+                  clipPalette.get(),
+                  layerImage->isBackground(),
+                  0));
+            }
+
+            doc::copy_image(dstImage, srcImage.get());
+
+            // The pasted image becomes the sprite's background, so
+            // rename its layer and add a fresh empty layer above it
+            // for the user to draw on.
+            layerImage->setName("Background");
+
+            std::unique_ptr<LayerImage> topLayer(new LayerImage(sprite.get()));
+            topLayer->setName("Layer 1");
+            newTopLayer = topLayer.get();
+            sprite->folder()->addLayer(topLayer.release());
+          }
+        }
+      }
+
       // Show the sprite to the user
+      Sprite* spritePtr = sprite.get();
       std::unique_ptr<Document> doc(new Document(sprite.get()));
       sprite.release();
       snprintf(buf, sizeof(buf), "Sprite-%04d", ++_sprite_counter);
       doc->setFilename(buf);
+
+      // If we added an empty layer above the pasted clipboard image,
+      // make it the active layer instead of the "Background" layer
+      // below it. This must happen before setContext(), since that's
+      // what creates the editor view for the document.
+      if (newTopLayer) {
+        Preferences::instance().document(doc.get()).site.layer(
+          spritePtr->layerToIndex(newTopLayer));
+      }
+
       doc->setContext(context);
       doc.release();
     }

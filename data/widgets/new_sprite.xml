@@ -11,6 +11,10 @@
         <label text="Height:" />
         <entry id="height" maxsize="32" cell_align="horizontal" suffix="px" />
       </grid>
+      <box horizontal="true">
+        <box horizontal="true" expansive="true" />
+        <button id="size_from_clipboard" text="Size from Clipboard" />
+      </box>
 
       <separator text="Color Mode:" left="true" horizontal="true" />
       <buttonset columns="3" id="color_mode">
@@ -25,6 +29,8 @@
         <item text="&amp;White" icon="icon_white" />
         <item text="&amp;Black" icon="icon_black" />
       </buttonset>
+
+      <check id="paste_as_layer" text="Paste clipboard image as new layer" />
 
       <box horizontal="true">
         <box horizontal="true" expansive="true" />
