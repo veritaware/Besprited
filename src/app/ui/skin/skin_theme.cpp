@@ -395,10 +395,16 @@ namespace app::skin
         const char* name = font->Attribute("name");
         if (!name)
           continue;
+        // Note: tinyxml2's Attribute(name, value) two-arg overload does NOT
+        // mean "get with default" -- it returns the value only if it equals
+        // `value`, and null otherwise. So the default has to be applied by
+        // hand using the single-arg overload.
+        const char* size = font->Attribute("size");
+        const char* lang = font->Attribute("lang");
         entries.push_back(Entry{
           name,
-          static_cast<size_t>(strtoul(font->Attribute("size", "8"), nullptr, 10)),
-          splitCommaList(font->Attribute("lang", ""))
+          static_cast<size_t>(strtoul(size ? size : "8", nullptr, 10)),
+          splitCommaList(lang ? lang : "")
         });
       }
 
@@ -503,16 +509,25 @@ namespace app::skin
         known["Aseprite Mini"] = m_miniFont;
 
       for (;xmlDim; xmlDim = xmlDim->NextSiblingElement()) {
-        std::string id = xmlDim->Attribute("id");
-        std::string file = xmlDim->Attribute("file", "");
-        std::string name = xmlDim->Attribute("name", "");
-        std::string fontattr = xmlDim->Attribute("font", "");
+        // Note: tinyxml2's Attribute(name, value) two-arg overload does NOT
+        // mean "get with default" -- it returns the value only if it equals
+        // `value`, and null otherwise. So the default has to be applied by
+        // hand using the single-arg overload.
+        const char* idAttr = xmlDim->Attribute("id");
+        const char* fileAttr = xmlDim->Attribute("file");
+        const char* nameAttr = xmlDim->Attribute("name");
+        const char* fontAttr = xmlDim->Attribute("font");
+        std::string id = idAttr ? idAttr : "";
+        std::string file = fileAttr ? fileAttr : "";
+        std::string name = nameAttr ? nameAttr : "";
+        std::string fontattr = fontAttr ? fontAttr : "";
         std::string user;
         std::shared_ptr<she::Font> font{};
         if (auto it = known.find(fontattr); it != known.end()) {
           font = it->second;
         } else if (!file.empty()) {
-          uint32_t size = strtol(xmlDim->Attribute("size", "8"), nullptr, 10);
+          const char* sizeAttr = xmlDim->Attribute("size");
+          uint32_t size = strtol(sizeAttr ? sizeAttr : "8", nullptr, 10);
           font = loadFont({std::make_pair(file, size)});
           if (!font) {
             std::cerr << "Could not load font " << file << std::endl;
