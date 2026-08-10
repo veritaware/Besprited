@@ -120,4 +120,4 @@ as JS classes/globals; user-facing scripts live under `data/scripts/`.
 - **Copyright headers:** for every `.h`/`.hpp`/`.c`/`.cpp`/`.xml`/`CMakeLists.txt` file you modify, check
   the copyright header in the first ~10 lines and update/add the Besprited/Veritaware line to cover the
   current year, e.g. `// Besprited | Copyright (C) 2026 Veritaware` (check `src/app/app.cpp`, `data/gui.xml`,
-  `src/CMakeLists.txt` for formatting examples).
+  `src/CMakeLists.txt` for formatting examples). For exempt files list check `.github/copyright-exempt.txt`.

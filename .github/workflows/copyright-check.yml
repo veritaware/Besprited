@@ -34,10 +34,16 @@ jobs:
       run: |
         YEAR=$(date +%Y)
         PATTERN="[Cc]opyright[[:space:]]+\([Cc]\)[[:space:]]+[0-9]*-?${YEAR}[[:space:]]+Veritaware"
+        EXEMPT_FILE=".github/copyright-exempt.txt"
         FAILED=0
 
         for file in $CHANGED_FILES; do
           if [ ! -f "$file" ]; then
+            continue
+          fi
+
+          if [ -f "$EXEMPT_FILE" ] && grep -qxF "$file" "$EXEMPT_FILE"; then
+            echo "SKIP (exempt): $file"
             continue
           fi
 

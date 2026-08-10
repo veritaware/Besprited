@@ -118,6 +118,9 @@ namespace app::skin
   private:
     void loadSheet(const std::string& skinId);
     void loadFonts(const std::string& skinId);
+    void loadFontFamiliesFromSkinXml(const std::string& skinId,
+                                     std::vector<std::pair<std::string, size_t>>& mainFonts,
+                                     std::vector<std::pair<std::string, size_t>>& miniFonts) const;
     void loadXml(const std::string& skinId);
     void loadSkinXml(const std::string& filename);
     void loadThemeXml(const std::string& filename);

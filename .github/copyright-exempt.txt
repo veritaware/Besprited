@@ -1,0 +1,4 @@
+# Files exempt from the copyright header check (.github/workflows/copyright-check.yml).
+# One repo-relative path per line. Lines starting with # are comments.
+
+data/skins/default/skin.xml
