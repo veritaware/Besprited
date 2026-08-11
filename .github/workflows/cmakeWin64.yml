@@ -40,7 +40,7 @@ jobs:
           mingw-w64-x86_64-tinyxml2
           mingw-w64-x86_64-zlib
           mingw-w64-x86_64-libarchive
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         submodules: 'true'
     - name: Check for git tag
@@ -86,7 +86,7 @@ jobs:
         cp -r build/bin/* bundle/bin/
         cp packaging/Launcher.bat bundle/
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-windows-x86_64', steps.check_tag.outputs.tag) || 'besprited-windows-x86_64' }}
         path: |
@@ -98,7 +98,7 @@ jobs:
         node packaging/package_win.js sfx bundle "besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.exe"
     - name: Upload self-extracting archive
       if: steps.check_tag.outputs.has_tag == 'true'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64-sfx
         path: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.exe

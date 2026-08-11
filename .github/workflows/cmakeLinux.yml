@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, 'NO_SW_CHANGE') && !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
           submodules: 'true'
     - name: Prepare environment and install dependencies
@@ -61,7 +61,7 @@ jobs:
         mv build/bin/Besprited-anylinux-$ARCH.AppImage .
     - name: Upload artifacts
       if: runner.arch == 'X64'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-x86_64', steps.check_tag.outputs.tag) || 'besprited-linux-x86_64' }}
         path: Besprited-anylinux-x86_64.AppImage
