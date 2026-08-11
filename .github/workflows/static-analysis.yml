@@ -15,27 +15,27 @@ jobs:
     if: ${{ contains(github.event.head_commit.message, 'PERFORM_CA') || contains(github.event.pull_request.body, 'PERFORM_CA') }}
     permissions:
       contents: read
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v7
+
     - name: Install cppcheck
       run: sudo apt-get update && sudo apt-get install -y cppcheck
-    
+
     - name: Install dependencies
       run: |
         sudo apt-get install -y g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev
         pip install cmake
-    
+
     - name: Git submodules
       run: git submodule update --init --recursive
-    
+
     - name: Configure CMake
       run: mkdir build && cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 
     - name: Build the project (required to generate *.xml.h files)
       run: cd build && ninja besprited
-    
+
     - name: Run cppcheck
       run: cd build && cmake --build . --target cppcheck
       continue-on-error: true
@@ -45,27 +45,27 @@ jobs:
     if: ${{ contains(github.event.head_commit.message, 'PERFORM_CA') || contains(github.event.pull_request.body, 'PERFORM_CA') }}
     permissions:
       contents: read
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v7
+
     - name: Install clang-tidy
       run: sudo apt-get update && sudo apt-get install -y clang-tidy
-    
+
     - name: Install dependencies
       run: |
         sudo apt-get install -y g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev
         pip install cmake
-    
+
     - name: Git submodules
       run: git submodule update --init --recursive
-    
+
     - name: Configure CMake
       run: mkdir build && cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
 
     - name: Build the project (required to generate *.xml.h files)
       run: cd build && ninja besprited
-    
+
     - name: Run clang-tidy
       run: cd build && cmake --build . --target clang-tidy
       continue-on-error: true
@@ -75,34 +75,34 @@ jobs:
     if: ${{ contains(github.event.head_commit.message, 'PERFORM_CA') || contains(github.event.pull_request.body, 'PERFORM_CA') }}
     permissions:
       contents: read
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
+    - uses: actions/checkout@v7
+
     - name: Install GCC (ensure version with -fanalyzer support)
       run: |
         sudo apt-get update
         sudo apt-get install -y gcc-10 g++-10
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
-    
+
     - name: Verify GCC version
       run: gcc --version && g++ --version
-    
+
     - name: Install dependencies
       run: |
         sudo apt-get install -y libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev
         pip install cmake
-    
+
     - name: Git submodules
       run: git submodule update --init --recursive
-    
+
     - name: Configure CMake
       run: mkdir build && cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 
     - name: Build the project (required to generate *.xml.h files)
       run: cd build && ninja besprited
-    
+
     - name: Run GCC with -fanalyzer
       run: cd build && cmake --build . --target gcc-analyzer
       continue-on-error: true

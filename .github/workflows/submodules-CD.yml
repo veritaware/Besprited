@@ -8,22 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: checkout modules
         run: git submodule update --init --recursive
-          
+
       - name: create zip
         run: |
           git archive -o SOURCE+submodules.zip HEAD
           git submodule --quiet foreach 'cd $toplevel; zip -ru SOURCE+submodules.zip $sm_path'
-          
+
       - name: release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             SOURCE+submodules.zip
