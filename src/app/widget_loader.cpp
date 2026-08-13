@@ -271,7 +271,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
       numberEntry->setMaxTextSize(strtol(maxsize, NULL, 10));
     widget = numberEntry;
     if (suffix)
-      ((Entry*)widget)->setSuffix(suffix);
+      static_cast<Entry*>(widget)->setSuffix(suffix);
   }
   else if (elem_name == "grid") {
     const char *columns = elem->Attribute("columns");

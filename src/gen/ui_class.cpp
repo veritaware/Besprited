@@ -1,4 +1,4 @@
-// Aseprite Code Generator
+// UI Code Generator
 // Aseprite  | Copyright (c) 2014, 2015 David Capello
 // Besprited | Copyright (C) 2026      Veritaware
 //
