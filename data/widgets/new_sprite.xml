@@ -7,9 +7,9 @@
       <separator text="Size:" left="true" horizontal="true" />
       <grid columns="2">
         <label text="Width:" />
-        <entry id="width" maxsize="32" cell_align="horizontal" suffix="px" />
+        <numberentry id="width" min="1" max="65535" maxsize="32" cell_align="horizontal" suffix="px" />
         <label text="Height:" />
-        <entry id="height" maxsize="32" cell_align="horizontal" suffix="px" />
+        <numberentry id="height" min="1" max="65535" maxsize="32" cell_align="horizontal" suffix="px" />
       </grid>
       <box horizontal="true">
         <box horizontal="true" expansive="true" />
