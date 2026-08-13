@@ -259,6 +259,20 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
     if (suffix)
       ((Entry*)widget)->setSuffix(suffix);
   }
+  else if (elem_name == "numberentry") {
+    const char* max = elem->Attribute("max");
+    const char* min = elem->Attribute("min");
+    const char* maxsize = elem->Attribute("maxsize");
+    auto maxValue = max != NULL ? strtol(max, NULL, 10): 0;
+    auto minValue = min != NULL ? strtol(min, NULL, 10): 0;
+    const char* suffix = elem->Attribute("suffix");
+    auto numberEntry = new NumberEntry(minValue, maxValue);
+    if (maxsize != NULL)
+      numberEntry->setMaxTextSize(strtol(maxsize, NULL, 10));
+    widget = numberEntry;
+    if (suffix)
+      ((Entry*)widget)->setSuffix(suffix);
+  }
   else if (elem_name == "grid") {
     const char *columns = elem->Attribute("columns");
     bool same_width_columns = bool_attr_is_true(elem, "same_width_columns");

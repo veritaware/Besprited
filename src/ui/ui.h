@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -36,6 +37,7 @@
 #include "ui/message_loop.h"
 #include "ui/message_type.h"
 #include "ui/mouse_buttons.h"
+#include "ui/number_entry.h"
 #include "ui/overlay.h"
 #include "ui/overlay_manager.h"
 #include "ui/paint_event.h"

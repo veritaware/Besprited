@@ -1,5 +1,6 @@
 // Aseprite Code Generator
-// Copyright (c) 2014, 2015 David Capello
+// Aseprite  | Copyright (c) 2014, 2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -62,6 +63,7 @@ static std::string convert_type(const std::string& name)
   if (name == "dropdownbutton") return "app::DropDownButton";
   if (name == "entry") return "ui::Entry";
   if (name == "intentry") return "ui::IntEntry";
+  if (name == "numberentry") return "ui::NumberEntry";
   if (name == "grid") return "ui::Grid";
   if (name == "hbox") return "ui::HBox";
   if (name == "item" && parent == "buttonset") return "app::ButtonSet::Item";

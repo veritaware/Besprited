@@ -89,8 +89,8 @@ void NewFileCommand::onExecute(Context* context)
   int bg = pref.newFile.backgroundColor();
   bg = MID(0, bg, 2);
 
-  window.width()->setTextf("%d", MAX(1, w));
-  window.height()->setTextf("%d", MAX(1, h));
+  window.width()->setValue(MAX(1, w));
+  window.height()->setValue(MAX(1, h));
 
   // Select image-type
   window.colorMode()->setSelectedItem(format);
@@ -110,8 +110,8 @@ void NewFileCommand::onExecute(Context* context)
   if (hasClipboardImage) {
     window.sizeFromClipboard()->Click.connect(
       [&window, clipboardSize](ui::Event&) {
-        window.width()->setTextf("%d", MAX(1, clipboardSize.w));
-        window.height()->setTextf("%d", MAX(1, clipboardSize.h));
+        window.width()->setValue(MAX(1, clipboardSize.w));
+        window.height()->setValue(MAX(1, clipboardSize.h));
       });
   }
 
@@ -123,16 +123,14 @@ void NewFileCommand::onExecute(Context* context)
 
     // Get the options
     format = (doc::PixelFormat)window.colorMode()->selectedItem();
-    w = window.width()->textInt();
-    h = window.height()->textInt();
+    w = window.width()->getValue();
+    h = window.height()->getValue();
     bg = window.bgColor()->selectedItem();
 
     static_assert(IMAGE_RGB == 0, "RGB pixel format should be 0");
     static_assert(IMAGE_INDEXED == 2, "Indexed pixel format should be 2");
 
     format = MID(IMAGE_RGB, format, IMAGE_INDEXED);
-    w = MID(1, w, 65535);
-    h = MID(1, h, 65535);
     bg = MID(0, bg, 2);
 
     // Select the color

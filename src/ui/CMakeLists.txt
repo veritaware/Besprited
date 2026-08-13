@@ -1,5 +1,5 @@
-# ASEPRITE
-# Copyright (C) 2001-2016  David Capello
+# Aseprite  | Copyright (C) 2001-2016 David Capello
+# Besprited | Copyright (C) 2026      Veritaware
 
 
 # Debug C/C++ flags
@@ -42,6 +42,7 @@ add_library(ui-lib
   message.cpp
   message_loop.cpp
   move_region.cpp
+  number_entry.cpp
   overlay.cpp
   overlay_manager.cpp
   paint_event.cpp
