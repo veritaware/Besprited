@@ -50,4 +50,4 @@ jobs:
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          claude_args: '--allowed-tools "Read,Write,Edit,Grep,Glob,WebSearch,WebFetch,Bash(gh pr:*),Bash(ninja:*),Bash(cmake:*),Bash(git log:*),Bash(python3:*),Bash(clang-format:*),Bash(clang-tidy:*)"'
+          claude_args: '--allowed-tools "Read,Write,Edit,Grep,Glob,WebSearch,WebFetch,Bash(gh pr:*),Bash(ninja:*),Bash(cmake:*),Bash(git log:*),Bash(git fetch:*),Bash(git rebase:*),Bash(git reset --soft:*),Bash(python3:*),Bash(clang-format:*),Bash(clang-tidy:*)"'
