@@ -263,8 +263,8 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
     const char* max = elem->Attribute("max");
     const char* min = elem->Attribute("min");
     const char* maxsize = elem->Attribute("maxsize");
-    auto maxValue = max != NULL ? strtol(max, NULL, 10): 0;
-    auto minValue = min != NULL ? strtol(min, NULL, 10): 0;
+    auto maxValue = max != NULL ? strtol(max, NULL, 10) : 0;
+    auto minValue = min != NULL ? strtol(min, NULL, 10) : 0;
     const char* suffix = elem->Attribute("suffix");
     auto numberEntry = new NumberEntry(minValue, maxValue);
     if (maxsize != NULL)
