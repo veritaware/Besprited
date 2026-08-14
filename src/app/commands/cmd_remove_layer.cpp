@@ -1,5 +1,6 @@
 // Aseprite
 // Copyright (C) 2001-2016  David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -46,7 +47,6 @@ bool RemoveLayerCommand::onEnabled(Context* context)
   return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
                              ContextFlags::HasActiveSprite |
                              ContextFlags::HasActiveLayer |
-                             ContextFlags::ActiveLayerIsVisible |
                              ContextFlags::ActiveLayerIsEditable);
 }
 
@@ -58,9 +58,6 @@ void RemoveLayerCommand::onExecute(Context* context)
   Sprite* sprite(writer.sprite());
   Layer* layer(writer.layer());
   {
-    Transaction transaction(writer.context(), "Remove Layer");
-    DocumentApi api = document->getApi(transaction);
-
     // TODO the range of selected layer should be in doc::Site.
     auto range = App::instance()->timeline()->range();
     if (range.enabled()) {
@@ -69,9 +66,26 @@ void RemoveLayerCommand::onExecute(Context* context)
         return;
       }
 
+      bool anyHidden = false;
+      for (LayerIndex layer = range.layerEnd(); layer >= range.layerBegin(); --layer) {
+        if (!sprite->indexToLayer(layer)->isVisible()) {
+          anyHidden = true;
+          break;
+        }
+      }
+      if (anyHidden &&
+          ui::Alert::show("Warning"
+                           "<<One or more of the selected layers are hidden."
+                           "<<Do you really want to delete them?"
+                           "||&Yes||&No") != 1)
+        return;
+
+      Transaction transaction(writer.context(), "Remove Layer");
+      DocumentApi api = document->getApi(transaction);
       for (LayerIndex layer = range.layerEnd(); layer >= range.layerBegin(); --layer) {
         api.removeLayer(sprite->indexToLayer(layer));
       }
+      transaction.commit();
     }
     else {
       if (sprite->countLayers() == 1) {
@@ -79,11 +93,20 @@ void RemoveLayerCommand::onExecute(Context* context)
         return;
       }
 
-      layer_name = layer->name();
-      api.removeLayer(layer);
-    }
+      if (!layer->isVisible() &&
+          ui::Alert::show("Warning"
+                           "<<The layer \"%s\" is hidden."
+                           "<<Do you really want to delete it?"
+                           "||&Yes||&No", layer->name().c_str()) != 1)
+        return;
 
-    transaction.commit();
+      layer_name = layer->name();
+
+      Transaction transaction(writer.context(), "Remove Layer");
+      DocumentApi api = document->getApi(transaction);
+      api.removeLayer(layer);
+      transaction.commit();
+    }
   }
   update_screen_for_document(document);
 
