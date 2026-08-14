@@ -321,9 +321,10 @@ static JSValue returnValue(JSContext* ctx, const Value& value) {
     auto& buffer = value.buffer();
     JSValue arrayBuffer;
     if (buffer.canSteal()) {
-      arrayBuffer = JS_NewArrayBuffer(ctx, buffer.steal(), buffer.size(),
-        [](JSRuntime*, void* /*opaque*/, void* ptr) {
+      arrayBuffer = JS_NewArrayBuffer(ctx, buffer.steal(), buffer.size(), 0,
+        [](JSRuntime*, void* /*opaque*/, void* ptr, size_t) -> void* {
           delete[] static_cast<uint8_t*>(ptr);
+          return nullptr;
         }, nullptr, false);
     } else {
       arrayBuffer = JS_NewArrayBufferCopy(ctx, buffer.data(), buffer.size());
