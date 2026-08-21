@@ -1,7 +1,7 @@
 ![Besprited](docs/branding.png)
 
 ## Introduction
-[![Discord](docs/btn_discord.png)](https://discord.gg/bKYnjMsp62)
+[![Discord](docs/btn_discord.png)](https://discord.gg/Me7xdSq8ux)
 [![Ko-Fi](docs/btn_ko-fi.png)](https://ko-fi.com/veritaware)
 
 Besprited is a free and open source program for creating and animating 2D sprites.  It features:
