@@ -21,8 +21,9 @@ Besprited is a free and open source program for creating and animating 2D sprite
 Before creating issues or commenting on already open issues/PRs read our
 [Code of Conduct](CODE_OF_CONDUCT.md) first.
 
-## Download
-Get the [latest release](https://github.com/Veritaware/Besprited/releases/latest) for Linux, macOS, Windows or Android.
+## Download and install
+Get the [latest release](https://github.com/Veritaware/Besprited/releases/latest) for Linux, macOS, or Windows.
+Then follow the [Installation guide](INSTALL.md).
 
 ## History
 It all started with [Aseprite](https://www.aseprite.org), developed by [David Capello](https://github.com/dacap).
@@ -44,8 +45,8 @@ Because this project is BS. What other reason did you expect?
 ## Contributing
 Feel free to contribute to the project! Check out the [contributing guidelines](CONTRIBUTING.md) to get started.
 
-## Compiling
-Follow the [installation guide](INSTALL.md).
+## Compiling and building
+Follow the [Building the source](BUILDING.md) guide.
 
 ## Theming
 The app is compatible with LibreSprite themes you can find [here](https://libresprite.github.io/#!/resources).
