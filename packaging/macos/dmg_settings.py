@@ -23,14 +23,18 @@ symlinks = {'Applications': '/Applications'}
 # above does.
 background = 'packaging/macos_dmg_background.png'
 
-# packaging/macos_dmg_background.png has no separate @1x asset, so the window
-# is sized to the image's native 1280x800 pixels rather than relying on
-# dmgbuild/Finder to infer a @2x scale factor.
-window_rect = ((100, 100), (1280, 800))
-icon_size = 128
+# packaging/macos_dmg_background.png (640x400) is the @1x background; the
+# repo also ships packaging/macos_dmg_background@2x.png (1280x800, an exact
+# 2x pixel-doubled render of the same art) alongside it. dmgbuild's
+# @<scale>x naming convention makes it find that sibling automatically and
+# combine both into a HiDPI TIFF, so Finder opens a window sized to the @1x
+# image (crisp on both standard and Retina displays) instead of the much
+# larger window you'd get from handing it the @2x file alone.
+window_rect = ((100, 100), (640, 400))
+icon_size = 64
 icon_locations = {
-    appname: (260, 420),
-    'Applications': (1020, 420),
+    appname: (130, 210),
+    'Applications': (510, 210),
 }
 
 show_status_bar = False
