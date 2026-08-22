@@ -31,10 +31,10 @@ background = 'packaging/macos_dmg_background.png'
 # image (crisp on both standard and Retina displays) instead of the much
 # larger window you'd get from handing it the @2x file alone.
 window_rect = ((100, 100), (640, 400))
-icon_size = 64
+icon_size = 100
 icon_locations = {
-    appname: (130, 210),
-    'Applications': (510, 210),
+    appname: (128, 210),
+    'Applications': (512, 210),
 }
 
 show_status_bar = False

@@ -25,7 +25,7 @@ jobs:
         # tap-trust check then warns on every brew invocation since it's untrusted.
         brew untap aws/tap || true
         brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl2 sdl2_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
-        pip3 install dmgbuild
+        pip3 install --break-system-packages dmgbuild
         echo "Building and Installing GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
         curl -L https://sourceforge.net/projects/giflib/files/giflib-4.x/giflib-4.2.3.tar.gz/download --output giflib.tar.gz
@@ -185,7 +185,7 @@ jobs:
         # tap-trust check then warns on every brew invocation since it's untrusted.
         brew untap aws/tap || true
         brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl2 sdl2_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
-        pip3 install dmgbuild
+        pip3 install --break-system-packages dmgbuild
         echo "Building and Installing GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
         curl -L https://sourceforge.net/projects/giflib/files/giflib-4.x/giflib-4.2.3.tar.gz/download --output giflib.tar.gz
