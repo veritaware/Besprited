@@ -15,7 +15,13 @@ format = 'UDZO'
 files = [application]
 symlinks = {'Applications': '/Applications'}
 
-background = os.path.join(os.path.dirname(__file__), '..', 'macos_dmg_background.png')
+# dmgbuild execs this file without setting `__file__` in its namespace, so
+# the background path can't be derived from this script's own location.
+# Both callers (the CI workflow and packaging/package_macos.sh) always invoke
+# dmgbuild from the repo root with `-s packaging/macos/dmg_settings.py`, so a
+# path relative to the current working directory works the same way `app`
+# above does.
+background = 'packaging/macos_dmg_background.png'
 
 # packaging/macos_dmg_background.png has no separate @1x asset, so the window
 # is sized to the image's native 1280x800 pixels rather than relying on
