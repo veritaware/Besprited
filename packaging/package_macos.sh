@@ -112,4 +112,7 @@ codesign --force -s - ./bundle/besprited.app/Contents/MacOS/besprited && \
 codesign --force -s - ./bundle/besprited.app && \
     echo "✓ Signed: besprited.app" || echo "✗ Failed: besprited.app"
 rm besprited.icns
-#hdiutil create -volname "Besprited" -srcfolder bundle -ov -format UDZO "besprited.dmg"
+
+# Styled "drag to install" DMG (background image, Applications shortcut).
+# Requires dmgbuild: pip3 install dmgbuild
+dmgbuild -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
