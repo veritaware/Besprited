@@ -1,0 +1,10 @@
+paths:
+  - src
+  - data/scripts
+  - tools
+  - packaging
+paths-ignore:
+  - third_party/simpleini
+  - src/flic
+  - third_party/evalmath
+  - third_party/quickjs
