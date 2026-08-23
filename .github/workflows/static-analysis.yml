@@ -1,31 +1,25 @@
 name: Static Code Analysis
 
 on:
-  push:
-    branches: [ trunk ]
-  pull_request:
-    branches: [ trunk ]
+  workflow_dispatch:
 
 env:
   BUILD_TYPE: Debug
 
 jobs:
   cppcheck:
-    runs-on: ubuntu-latest
-    if: ${{ contains(github.event.head_commit.message, 'PERFORM_CA') || contains(github.event.pull_request.body, 'PERFORM_CA') }}
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
 
     steps:
     - uses: actions/checkout@v7
 
-    - name: Install cppcheck
-      run: sudo apt-get update && sudo apt-get install -y cppcheck
-
     - name: Install dependencies
-      run: |
-        sudo apt-get install -y g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev
-        pip install cmake
+      uses: ./.github/actions/install-deps
+
+    - name: Install cppcheck
+      run: sudo apt install -y cppcheck
 
     - name: Git submodules
       run: git submodule update --init --recursive
@@ -41,21 +35,18 @@ jobs:
       continue-on-error: true
 
   clang-tidy:
-    runs-on: ubuntu-latest
-    if: ${{ contains(github.event.head_commit.message, 'PERFORM_CA') || contains(github.event.pull_request.body, 'PERFORM_CA') }}
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
 
     steps:
     - uses: actions/checkout@v7
 
-    - name: Install clang-tidy
-      run: sudo apt-get update && sudo apt-get install -y clang-tidy
-
     - name: Install dependencies
-      run: |
-        sudo apt-get install -y g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev
-        pip install cmake
+      uses: ./.github/actions/install-deps
+
+    - name: Install clang-tidy
+      run: sudo apt install -y clang-tidy
 
     - name: Git submodules
       run: git submodule update --init --recursive
@@ -71,28 +62,15 @@ jobs:
       continue-on-error: true
 
   gcc-analyzer:
-    runs-on: ubuntu-latest
-    if: ${{ contains(github.event.head_commit.message, 'PERFORM_CA') || contains(github.event.pull_request.body, 'PERFORM_CA') }}
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
 
     steps:
     - uses: actions/checkout@v7
 
-    - name: Install GCC (ensure version with -fanalyzer support)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-10 g++-10
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-10 100
-
-    - name: Verify GCC version
-      run: gcc --version && g++ --version
-
     - name: Install dependencies
-      run: |
-        sudo apt-get install -y libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev
-        pip install cmake
+      uses: ./.github/actions/install-deps
 
     - name: Git submodules
       run: git submodule update --init --recursive

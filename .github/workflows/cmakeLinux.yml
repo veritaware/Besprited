@@ -19,11 +19,8 @@ jobs:
     - uses: actions/checkout@v7
       with:
           submodules: 'true'
-    - name: Prepare environment and install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev libfuse2
-        pip install cmake
+    - name: Install build dependencies
+      uses: ./.github/actions/install-deps
     - name: Check for git tag
       id: check_tag
       run: |

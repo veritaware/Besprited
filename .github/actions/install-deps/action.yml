@@ -1,0 +1,14 @@
+name: Install build dependencies
+description: >
+  Installs the apt packages and Python tooling needed to configure and build
+  Besprited on Linux (used by the CI, CodeQL, and static-analysis workflows).
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare environment and install dependencies
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev libfuse2
+        pip install cmake

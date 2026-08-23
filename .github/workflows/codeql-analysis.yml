@@ -1,14 +1,3 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
-#
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
-#
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
-#
 name: "CodeQL"
 
 on:
@@ -19,15 +8,17 @@ on:
     branches: [ trunk ]
   schedule:
     - cron: '30 21 * * 0'
+
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     if: ${{ !contains(github.event.head_commit.message, 'NO_SW_CHANGE') && !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
     permissions:
       actions: read
       contents: read
       security-events: write
+
     strategy:
       fail-fast: false
       matrix:
@@ -35,29 +26,26 @@ jobs:
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python' ]
         # Learn more:
         # https://docs.github.com/en/free-pro-team@latest/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#changing-the-languages-that-are-analyzed
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
-    # Initializes the CodeQL tools for scanning.
+
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
         config-file: ./.github/codeql/codeql-config.yml
     - uses: actions/checkout@v7
-    # install dependencies
-    - name: update
-      run: sudo apt-get update
-    - name: boost
-      run: |
-        sudo apt-get install g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libarchive-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev
-        pip install cmake
-    # build project
-    - name: git
+
+    - name: Install dependencies
+      uses: ./.github/actions/install-deps
+
+    - name: Git submodules
       run: git submodule update --init --recursive
-    - name: mkdir
-      run: mkdir build
-    - name: cmake
-      run: cd build && cmake -G Ninja .. && ninja besprited
+
+    - name: Configure CMake
+      run: mkdir build && cd build && cmake -G Ninja .. && ninja besprited
+
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
