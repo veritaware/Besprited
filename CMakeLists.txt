@@ -360,19 +360,42 @@ else()
 endif()
 
 # clang-tidy target
+# Checks are configured via the .clang-tidy file at the repo root; without it (or an
+# explicit -checks= argument) clang-tidy only enables clang-diagnostic-*, which it
+# refuses to run with ("Error: no checks enabled.").
 find_program(CLANG_TIDY_EXECUTABLE clang-tidy)
 if(CLANG_TIDY_EXECUTABLE)
-  # Get list of source files
-  file(GLOB_RECURSE ALL_SOURCE_FILES
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/*.cc
-    ${CMAKE_SOURCE_DIR}/src/*.c
-  )
+  set(CLANG_TIDY_EXTRA_ARGS "")
+  if(APPLE)
+    # A clang-tidy built outside of Xcode's toolchain (e.g. via Homebrew) doesn't
+    # inherit the implicit -isysroot that Apple's compiler driver injects, so it
+    # fails to find system headers like math.h unless we pass it explicitly.
+    set(CLANG_TIDY_SYSROOT "${CMAKE_OSX_SYSROOT}")
+    if(NOT CLANG_TIDY_SYSROOT)
+      execute_process(
+        COMMAND xcrun --sdk macosx --show-sdk-path
+        OUTPUT_VARIABLE CLANG_TIDY_SYSROOT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+    endif()
+    if(CLANG_TIDY_SYSROOT)
+      list(APPEND CLANG_TIDY_EXTRA_ARGS "--extra-arg=-isysroot${CLANG_TIDY_SYSROOT}")
+    endif()
+  endif()
 
+  # Source files come from compile_commands.json (via cmake/RunClangTidy.cmake), not a
+  # blind glob over src/*.cpp: a glob also picks up files that aren't part of this build
+  # configuration at all (she/win or she/gtk sources off-platform, *_tests.cpp when
+  # ENABLE_TESTS is off, etc.), and clang-tidy has no real compiler flags for those, so
+  # it fails them with spurious "file not found" errors instead of reporting findings.
   add_custom_target(clang-tidy
-    COMMAND ${CLANG_TIDY_EXECUTABLE}
-      -p=${CMAKE_BINARY_DIR}
-      ${ALL_SOURCE_FILES}
+    COMMAND ${CMAKE_COMMAND}
+      -DCLANG_TIDY_EXECUTABLE=${CLANG_TIDY_EXECUTABLE}
+      -DCOMPILE_COMMANDS_JSON=${CMAKE_BINARY_DIR}/compile_commands.json
+      -DBINARY_DIR=${CMAKE_BINARY_DIR}
+      -DSRC_DIR=${CMAKE_SOURCE_DIR}/src
+      "-DEXTRA_ARGS=${CLANG_TIDY_EXTRA_ARGS}"
+      -P ${CMAKE_SOURCE_DIR}/cmake/RunClangTidy.cmake
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy static analysis"
     VERBATIM

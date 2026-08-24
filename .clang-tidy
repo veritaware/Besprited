@@ -1,0 +1,20 @@
+---
+# Besprited | Copyright (C) 2026 Veritaware
+# Config for `cmake --build . --target clang-tidy` (see CMakeLists.txt).
+Checks: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-use-nodiscard,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-uppercase-literal-suffix,
+  -bugprone-easily-swappable-parameters
+WarningsAsErrors: ''
+HeaderFilterRegex: '^.*/src/.*'
+FormatStyle: none
