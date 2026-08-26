@@ -20,6 +20,7 @@
 #include <cctype>
 
 static const int kTimeoutToOpenSubmenu = 250;
+static const int kMenuAutoScrollInterval = 90;
 
 namespace ui {
 
@@ -134,6 +135,7 @@ Menu::Menu()
   , m_scrollable(false)
   , m_hasMoreBelow(false)
   , m_scrollTopIndex(0)
+  , m_autoScrollDirection(0)
 {
   initTheme();
 }
@@ -431,9 +433,17 @@ void Menu::layoutItems()
 }
 
 // Scrolls the menu by the given number of items (negative scrolls up).
+// Refuses to scroll past either end: up is bounded by m_scrollTopIndex
+// reaching 0, down is bounded by m_hasMoreBelow (computed by the last
+// layoutItems() call) so the last item can't be scrolled past into
+// trailing blank space.
 void Menu::scrollBy(int itemDelta)
 {
   if (!m_scrollable)
+    return;
+  if (itemDelta > 0 && !m_hasMoreBelow)
+    return;
+  if (itemDelta < 0 && m_scrollTopIndex <= 0)
     return;
 
   int n = (int)children().size();
@@ -444,6 +454,37 @@ void Menu::scrollBy(int itemDelta)
   m_scrollTopIndex = newTop;
   layoutItems();
   invalidate();
+}
+
+// Starts (or redirects) continuous scrolling while the mouse hovers
+// over a scroll arrow. direction is -1 (up) or 1 (down). Does nothing
+// (and stops any current auto-scroll) if that direction is already at
+// its bound.
+void Menu::startAutoScroll(int direction)
+{
+  if ((direction > 0 && !m_hasMoreBelow) ||
+      (direction < 0 && m_scrollTopIndex <= 0)) {
+    stopAutoScroll();
+    return;
+  }
+
+  if (m_autoScrollDirection == direction)
+    return;
+
+  m_autoScrollDirection = direction;
+
+  if (!m_scrollTimer)
+    m_scrollTimer.reset(new Timer(kMenuAutoScrollInterval, this));
+
+  scrollBy(direction);
+  m_scrollTimer->start();
+}
+
+void Menu::stopAutoScroll()
+{
+  m_autoScrollDirection = 0;
+  if (m_scrollTimer)
+    m_scrollTimer->stop();
 }
 
 // Scrolls, if needed, so that the given item (usually the newly
@@ -520,16 +561,19 @@ bool Menu::onProcessMessage(Message* msg)
         gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
 
         if (!m_scrollUpBounds.isEmpty() && m_scrollUpBounds.contains(mousePos)) {
-          if (msg->type() == kMouseDownMessage)
-            scrollBy(-1);
+          startAutoScroll(-1);
           return true;
         }
         if (!m_scrollDownBounds.isEmpty() && m_scrollDownBounds.contains(mousePos)) {
-          if (msg->type() == kMouseDownMessage)
-            scrollBy(1);
+          startAutoScroll(1);
           return true;
         }
+        stopAutoScroll();
       }
+      break;
+
+    case kMouseLeaveMessage:
+      stopAutoScroll();
       break;
 
     case kMouseWheelMessage:
@@ -539,6 +583,18 @@ bool Menu::onProcessMessage(Message* msg)
           scrollBy(wheelDelta.y > 0 ? 1 : -1);
           return true;
         }
+      }
+      break;
+
+    case kTimerMessage:
+      if (m_scrollTimer &&
+          static_cast<TimerMessage*>(msg)->timer() == m_scrollTimer.get()) {
+        if ((m_autoScrollDirection > 0 && !m_hasMoreBelow) ||
+            (m_autoScrollDirection < 0 && m_scrollTopIndex <= 0))
+          stopAutoScroll();
+        else
+          scrollBy(m_autoScrollDirection);
+        return true;
       }
       break;
 

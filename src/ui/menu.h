@@ -13,6 +13,8 @@
 #include "ui/separator.h"
 #include "ui/widget.h"
 
+#include <memory>
+
 namespace ui {
 
   class MenuItem;
@@ -62,6 +64,8 @@ namespace ui {
     void layoutItems();
     void scrollBy(int itemDelta);
     void ensureVisible(Widget* item);
+    void startAutoScroll(int direction);
+    void stopAutoScroll();
 
     MenuItem* m_menuitem;         // From where the menu was open
 
@@ -72,6 +76,11 @@ namespace ui {
     int m_scrollTopIndex;
     gfx::Rect m_scrollUpBounds;
     gfx::Rect m_scrollDownBounds;
+
+    // While the mouse hovers over one of the scroll arrows, this timer
+    // repeatedly scrolls the menu (-1 = up, 0 = not auto-scrolling, 1 = down).
+    std::unique_ptr<Timer> m_scrollTimer;
+    int m_autoScrollDirection;
 
     friend class MenuBox;
     friend class MenuItem;
