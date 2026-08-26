@@ -1,5 +1,6 @@
 // Aseprite Render Library
-// Copyright (c) 2001-2016 David Capello
+// Aseprite  | Copyright (c) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,6 +19,8 @@
 #include "doc/image_impl.h"
 #include "gfx/clip.h"
 #include "gfx/region.h"
+
+#include <memory>
 
 namespace render {
 
@@ -607,6 +610,13 @@ void Render::renderSprite(
     }
   }
 
+  // Checked background pattern, composited underneath the sprite (see
+  // below) instead of being baked into dstImage up front: if it were
+  // baked in now, every genuinely-transparent pixel would look opaque to
+  // the layers' blend functions, which use backdrop alpha to decide when
+  // to fall back to Normal blending (blend_funcs.cpp).
+  std::unique_ptr<Image> checkeredBg;
+
   // Draw checked background
   switch (m_bgType) {
 
@@ -615,13 +625,17 @@ void Render::renderSprite(
         fill_rect(dstImage, area.dstBounds(), bg_color);
       }
       else {
-        renderBackground(dstImage, area, zoom);
+        checkeredBg.reset(Image::create(dstImage->pixelFormat(),
+                                        dstImage->width(), dstImage->height()));
+        checkeredBg->clear(0);
+        renderBackground(checkeredBg.get(), area, zoom);
         if (bgLayer && bgLayer->isVisible() && rgba_geta(bg_color) > 0) {
-          blend_rect(dstImage, area.dst.x, area.dst.y,
+          blend_rect(checkeredBg.get(), area.dst.x, area.dst.y,
                      area.dst.x+area.size.w-1,
                      area.dst.y+area.size.h-1,
                      bg_color, 255);
         }
+        fill_rect(dstImage, area.dstBounds(), 0);
       }
       break;
 
@@ -671,6 +685,21 @@ void Render::renderSprite(
       255,
       m_previewBlendMode,
       zoom);
+  }
+
+  // Now that the sprite has been fully composited with its real,
+  // per-pixel alpha, drop the checkered pattern in behind it (display
+  // purposes only) so transparent pixels still show the checkerboard.
+  if (checkeredBg) {
+    CompositeImageFunc composeBg = get_image_composition(
+      checkeredBg->pixelFormat(), dstImage->pixelFormat(), Zoom(1, 1));
+    if (composeBg) {
+      composeBg(checkeredBg.get(), dstImage,
+                m_sprite->palette(frame),
+                gfx::Clip(area.dst, area.dstBounds()),
+                255, BlendMode::NORMAL, Zoom(1, 1));
+      dstImage->copy(checkeredBg.get(), gfx::Clip(area.dstBounds()));
+    }
   }
 }
 
