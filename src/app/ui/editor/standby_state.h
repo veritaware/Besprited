@@ -49,6 +49,7 @@ namespace app {
     // user wants to scroll".
     bool checkForScroll(Editor* editor, ui::MouseMessage* msg);
     bool checkForZoom(Editor* editor, ui::MouseMessage* msg);
+    bool checkForChangeBrushSize(Editor* editor, ui::MouseMessage* msg);
     void callEyedropper(Editor* editor);
 
     class Decorator : public EditorDecorator {

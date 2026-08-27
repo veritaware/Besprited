@@ -24,6 +24,7 @@
 #include "app/tools/pick_ink.h"
 #include "app/tools/tool.h"
 #include "app/ui/document_view.h"
+#include "app/ui/editor/change_brush_size_state.h"
 #include "app/ui/editor/drawing_state.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
@@ -156,6 +157,30 @@ bool StandbyState::checkForZoom(Editor* editor, MouseMessage* msg)
     return false;
 }
 
+bool StandbyState::checkForChangeBrushSize(Editor* editor, MouseMessage* msg)
+{
+  EditorCustomizationDelegate* customization = editor->getCustomizationDelegate();
+  if (!customization)
+    return false;
+
+  KeyAction action = customization->getPressedKeyAction(KeyContext::Any);
+
+  bool primary = (msg->right() &&
+                  (int(action & KeyAction::ChangeBrushSize) != 0));
+  bool alternative = (msg->left() &&
+                       (int(action & KeyAction::ChangeBrushSizeAlt) != 0));
+
+  if (primary || alternative) {
+    EditorStatePtr newState(new ChangeBrushSizeState());
+    editor->setState(newState);
+
+    newState->onMouseDown(editor, msg);
+    return true;
+  }
+
+  return false;
+}
+
 bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
 {
   if (editor->hasCapture())
@@ -170,6 +195,10 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
 
   // When an editor is clicked the current view is changed.
   context->setActiveView(editor->getDocumentView());
+
+  // Start brush size/opacity drag loop
+  if (checkForChangeBrushSize(editor, msg))
+    return true;
 
   // Start scroll loop
   if (checkForScroll(editor, msg) || checkForZoom(editor, msg))

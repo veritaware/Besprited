@@ -70,6 +70,8 @@ namespace app {
     SquareAspect              = 0x00001000,
     DrawFromCenter            = 0x00002000,
     ScaleFromCenter           = 0x00004000,
+    ChangeBrushSize           = 0x00008000,
+    ChangeBrushSizeAlt        = 0x00010000,
   };
 
   inline KeyAction operator&(KeyAction a, KeyAction b) {

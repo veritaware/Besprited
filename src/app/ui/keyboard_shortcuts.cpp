@@ -50,6 +50,8 @@ namespace {
     { "DrawFromCenter"      , "Draw From Center"   , app::KeyAction::DrawFromCenter },
     { "LeftMouseButton"     , "Trigger Left Mouse Button" , app::KeyAction::LeftMouseButton },
     { "RightMouseButton"    , "Trigger Right Mouse Button" , app::KeyAction::RightMouseButton },
+    { "ChangeBrushSize"     , "Change Brush Size (Right-click Drag)" , app::KeyAction::ChangeBrushSize },
+    { "ChangeBrushSizeAlt"  , "Change Brush Size (Left-click Drag, Alternative)" , app::KeyAction::ChangeBrushSizeAlt },
     { NULL                  , NULL                 , app::KeyAction::None }
   };
 
@@ -170,6 +172,12 @@ Key::Key(KeyAction action)
       m_keycontext = KeyContext::Any;
       break;
     case KeyAction::RightMouseButton:
+      m_keycontext = KeyContext::Any;
+      break;
+    case KeyAction::ChangeBrushSize:
+      m_keycontext = KeyContext::Any;
+      break;
+    case KeyAction::ChangeBrushSizeAlt:
       m_keycontext = KeyContext::Any;
       break;
   }
