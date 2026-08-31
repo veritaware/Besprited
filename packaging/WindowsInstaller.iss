@@ -51,7 +51,7 @@ Name: "korean";     MessagesFile: "compiler:Languages\Korean.isl"
 Name: "polish";     MessagesFile: "compiler:Languages\Polish.isl"
 Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 Name: "russian";    MessagesFile: "compiler:Languages\Russian.isl"
-Name: "chinese";    MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+Name: "chinese";    MessagesFile: "iss\languages\ChineseSimplified.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
