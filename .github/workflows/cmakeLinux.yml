@@ -43,9 +43,9 @@ jobs:
       run: |
         mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON -DWITH_DESKTOP_INTEGRATION=ON
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON -DWITH_DESKTOP_INTEGRATION=ON -DENABLE_PACKAGING=ON
         else
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DWITH_DESKTOP_INTEGRATION=ON
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DWITH_DESKTOP_INTEGRATION=ON -DENABLE_PACKAGING=ON
         fi
     - name: Build the binaries
       run: |
@@ -70,6 +70,26 @@ jobs:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-x86_64-tarball', steps.check_tag.outputs.tag) || 'besprited-linux-x86_64-tarball' }}
         path: ${{ steps.tarball.outputs.tarball }}
         if-no-files-found: error
+    - name: Package the .deb
+      id: deb
+      run: |
+        VERSION="${{ steps.check_tag.outputs.tag }}"
+        VERSION="${VERSION#v}"
+        [ -n "$VERSION" ] || VERSION="0.0.0"
+        cmake -S . -B build -DBESPRITED_PACKAGE_VERSION="$VERSION"
+        cpack -G DEB --config build/CPackConfig.cmake -B build
+        DEB=$(ls build/*.deb | head -n1)
+        dpkg --info "$DEB"
+        dpkg -c "$DEB"
+        mv "$DEB" .
+        echo "deb=$(basename "$DEB")" >> $GITHUB_OUTPUT
+    - name: Upload .deb artifact
+      if: runner.arch == 'X64' && steps.check_tag.outputs.has_tag == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: besprited-${{ steps.check_tag.outputs.tag }}-linux-amd64-deb
+        path: ${{ steps.deb.outputs.deb }}
+        if-no-files-found: error
     - name: Package the AppImage
       run: |
         export ARCH="$(uname -m)"
@@ -81,4 +101,54 @@ jobs:
       with:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-x86_64', steps.check_tag.outputs.tag) || 'besprited-linux-x86_64' }}
         path: Besprited-anylinux-x86_64.AppImage
+        if-no-files-found: error
+
+  # Build the .rpm inside an actual Fedora environment so the auto-detected
+  # Requires: and library layout match what a Fedora user would get.
+  package-rpm:
+    name: Package .rpm (Fedora)
+    runs-on: ubuntu-26.04
+    container: fedora:latest
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.event.head_commit.message, 'NO_SW_CHANGE') }}
+    steps:
+    - name: Install build dependencies
+      run: |
+        dnf install -y gcc-c++ cmake git ninja-build rpm-build \
+          libcurl-devel freetype-devel giflib-devel libjpeg-turbo-devel \
+          pixman-devel libpng-devel SDL2-devel SDL2_image-devel tinyxml2-devel \
+          zlib-devel nodejs-devel libarchive-devel libXi-devel libXcursor-devel
+    - uses: actions/checkout@v7
+      with:
+          submodules: 'true'
+    - name: Mark workspace as safe for git
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - name: Get short commit hash
+      id: commit
+      run: echo "short_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+    - name: Update config.h with commit hash
+      run: sed -i 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+    - name: Configure
+      run: |
+        VERSION="${GITHUB_REF_NAME#v}"
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON \
+          -DWITH_DESKTOP_INTEGRATION=ON -DENABLE_PACKAGING=ON \
+          -DBESPRITED_PACKAGE_VERSION="$VERSION"
+    - name: Build the binaries
+      run: |
+        ninja -C build besprited
+        rm build/bin/gen
+    - name: Package the .rpm
+      id: rpm
+      run: |
+        cpack -G RPM --config build/CPackConfig.cmake -B build
+        RPM=$(ls build/*.rpm | head -n1)
+        rpm -qip "$RPM"
+        rpm -qlp "$RPM"
+        mv "$RPM" .
+        echo "rpm=$(basename "$RPM")" >> $GITHUB_OUTPUT
+    - name: Upload .rpm artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: besprited-${{ github.ref_name }}-linux-x86_64-rpm
+        path: ${{ steps.rpm.outputs.rpm }}
         if-no-files-found: error

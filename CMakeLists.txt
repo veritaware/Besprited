@@ -42,6 +42,7 @@ option(WITH_QT_THUMBNAILER          "Enable kde5/qt5 thumnailer" off)
 option(ENABLE_MEMLEAK     "Enable memory-leaks detector (only for developers)" off)
 option(ENABLE_TESTS       "Enable the unit tests" off)
 option(FULLSCREEN_PLATFORM "Enable fullscreen by default" off)
+option(ENABLE_PACKAGING   "Configure CPack for .deb/.rpm package generation" off)
 
 option(USE_SDL2_BACKEND "Use SDL2 backend" on)
 
@@ -402,4 +403,76 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   message(STATUS "GCC compiler found: ${CMAKE_CXX_COMPILER}")
 else()
   message(STATUS "GCC compiler not found - target 'gcc-analyzer' will not be available")
+endif()
+
+######################################################################
+# Packaging (CPack)
+#
+# Only wired up when ENABLE_PACKAGING is set, so normal development builds are
+# unaffected. Reuses the existing install() rules; build with
+# -DWITH_DESKTOP_INTEGRATION=ON to also package the .desktop/icons/metainfo/mime
+# files. Produces a .deb (CPack "DEB" generator) and/or a .rpm ("RPM").
+
+if(ENABLE_PACKAGING)
+  # Version: passed explicitly by CI (the release tag, without a leading "v"),
+  # otherwise parsed from the release VERSION in src/config.h.
+  set(BESPRITED_PACKAGE_VERSION "" CACHE STRING "Version string for generated packages")
+  if(NOT BESPRITED_PACKAGE_VERSION)
+    file(READ "${CMAKE_SOURCE_DIR}/src/config.h" _besprited_config_h)
+    string(REGEX MATCH "VERSION \"([0-9]+\\.[0-9]+\\.[0-9]+)\"" _ "${_besprited_config_h}")
+    if(CMAKE_MATCH_1)
+      set(BESPRITED_PACKAGE_VERSION "${CMAKE_MATCH_1}")
+    else()
+      set(BESPRITED_PACKAGE_VERSION "0.0.0")
+    endif()
+    unset(_besprited_config_h)
+  endif()
+  message(STATUS "Packaging enabled - package version ${BESPRITED_PACKAGE_VERSION}")
+
+  set(CPACK_PACKAGE_NAME "besprited")
+  set(CPACK_PACKAGE_VENDOR "Veritaware")
+  set(CPACK_PACKAGE_VERSION "${BESPRITED_PACKAGE_VERSION}")
+  if(BESPRITED_PACKAGE_VERSION MATCHES "^([0-9]+)\\.([0-9]+)\\.([0-9]+)")
+    set(CPACK_PACKAGE_VERSION_MAJOR "${CMAKE_MATCH_1}")
+    set(CPACK_PACKAGE_VERSION_MINOR "${CMAKE_MATCH_2}")
+    set(CPACK_PACKAGE_VERSION_PATCH "${CMAKE_MATCH_3}")
+  endif()
+  set(CPACK_PACKAGE_CONTACT "Veritaware <https://github.com/Veritaware/Besprited/issues>")
+  set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Animated sprite editor & pixel art tool")
+  set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/Veritaware/Besprited")
+  set(CPACK_PACKAGE_DESCRIPTION
+      "Besprited is a free and open source program for creating and animating 2D sprites.")
+  set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
+  set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+  set(CPACK_STRIP_FILES ON)
+  set(CPACK_PACKAGE_FILE_NAME
+      "besprited-${CPACK_PACKAGE_VERSION}-${CMAKE_SYSTEM_PROCESSOR}")
+
+  # --- Debian/Ubuntu (.deb) ---
+  set(CPACK_DEBIAN_PACKAGE_SECTION "graphics")
+  set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
+  set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "${CPACK_PACKAGE_HOMEPAGE_URL}")
+  # Auto-resolve runtime Depends: from the linked shared libraries.
+  set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+  set(CPACK_DEBIAN_FILE_NAME "DEB-DEFAULT")
+
+  # --- Fedora/RHEL (.rpm) ---
+  set(CPACK_RPM_PACKAGE_LICENSE "GPLv2")
+  set(CPACK_RPM_PACKAGE_GROUP "Applications/Multimedia")
+  set(CPACK_RPM_PACKAGE_URL "${CPACK_PACKAGE_HOMEPAGE_URL}")
+  set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
+  # rpmbuild derives Requires: automatically by scanning the ELF NEEDED entries.
+  set(CPACK_RPM_PACKAGE_AUTOREQ ON)
+  # Don't let the package claim ownership of directories owned by the distro's
+  # own filesystem/hicolor-icon-theme/shared-mime-info packages.
+  set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+      /usr/share/applications
+      /usr/share/icons
+      /usr/share/icons/hicolor
+      /usr/share/metainfo
+      /usr/share/mime
+      /usr/share/mime/packages
+      /usr/share/thumbnailers)
+
+  include(CPack)
 endif()
