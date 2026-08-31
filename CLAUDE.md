@@ -108,7 +108,7 @@ as JS classes/globals; user-facing scripts live under `data/scripts/`.
 
 - Branches: `trunk` is the primary development branch (this repo's default). `ls-develop` tracks upstream
   LibreSprite's `master` for periodic merges; feature/fix branches meant to be shareable with LibreSprite
-  are usually based on `ls-develop`. Contributor branches (not repo maintainers) should be named
+  are usually based on `ls-develop`. Feature/PR branches should be named
   `username/short-description`.
 - Commit messages: imperative mood ("Fix bug", not "Fixed bug"), subject line ≤ 50 chars, reference closed
   issues (e.g. "Fixes #123"). For non-source changes (docs, workflows, issue templates, etc.), add a
