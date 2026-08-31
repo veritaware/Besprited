@@ -11,6 +11,9 @@ on:
 env:
   BUILD_TYPE: Release
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-26.04
@@ -74,14 +77,30 @@ jobs:
       run: |
         export ARCH="$(uname -m)"
         sh packaging/package_linux.sh
-        mv build/bin/Besprited-anylinux-$ARCH.AppImage .
+        if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
+          mv build/bin/Besprited-anylinux-$ARCH.AppImage \
+             ./Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage
+          echo "appimage=Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage" >> $GITHUB_OUTPUT
+        else
+          mv build/bin/Besprited-anylinux-$ARCH.AppImage .
+          echo "appimage=Besprited-anylinux-$ARCH.AppImage" >> $GITHUB_OUTPUT
+        fi
+      id: appimage
     - name: Upload artifacts
       if: runner.arch == 'X64'
       uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-x86_64', steps.check_tag.outputs.tag) || 'besprited-linux-x86_64' }}
-        path: Besprited-anylinux-x86_64.AppImage
+        path: ${{ steps.appimage.outputs.appimage }}
         if-no-files-found: error
+    - name: Attach binaries to the release
+      if: ${{ runner.arch == 'X64' && steps.check_tag.outputs.has_tag == 'true' }}
+      uses: softprops/action-gh-release@v3
+      with:
+        files: |
+          ${{ steps.tarball.outputs.tarball }}
+          ${{ steps.appimage.outputs.appimage }}
+        fail_on_unmatched_files: true
 
   # A .deb links against whatever library SONAMEs its build distro ships and
   # dpkg-shlibdeps pins the matching package names, so a single .deb can't span
@@ -146,6 +165,11 @@ jobs:
         name: besprited-${{ github.ref_name }}-${{ matrix.distro }}-deb
         path: ${{ steps.deb.outputs.deb }}
         if-no-files-found: error
+    - name: Attach .deb to the release
+      uses: softprops/action-gh-release@v3
+      with:
+        files: ${{ steps.deb.outputs.deb }}
+        fail_on_unmatched_files: true
 
   # Build the .rpm inside an actual Fedora environment so the auto-detected
   # Requires: and library layout match what a Fedora user would get.
@@ -196,3 +220,8 @@ jobs:
         name: besprited-${{ github.ref_name }}-linux-x86_64-rpm
         path: ${{ steps.rpm.outputs.rpm }}
         if-no-files-found: error
+    - name: Attach .rpm to the release
+      uses: softprops/action-gh-release@v3
+      with:
+        files: ${{ steps.rpm.outputs.rpm }}
+        fail_on_unmatched_files: true

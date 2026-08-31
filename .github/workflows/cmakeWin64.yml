@@ -11,6 +11,9 @@ on:
 env:
   BUILD_TYPE: Release
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -87,6 +90,14 @@ jobs:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-windows-x86_64', steps.check_tag.outputs.tag) || 'besprited-windows-x86_64' }}
         path: |
           build/bin/*
+    - name: Package the portable archive
+      if: steps.check_tag.outputs.has_tag == 'true'
+      shell: bash
+      run: |
+        ZIP="besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.zip"
+        (cd build/bin && 7z a -tzip -bso0 "$GITHUB_WORKSPACE/$ZIP" .)
+        echo "zip=$ZIP" >> $GITHUB_OUTPUT
+      id: portable
     - name: Build the installer
       if: steps.check_tag.outputs.has_tag == 'true'
       shell: bash
@@ -104,3 +115,11 @@ jobs:
         name: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64-installer
         path: packaging/besprited-*-windows-x86_64.exe
         if-no-files-found: error
+    - name: Attach binaries to the release
+      if: steps.check_tag.outputs.has_tag == 'true'
+      uses: softprops/action-gh-release@v3
+      with:
+        files: |
+          ${{ steps.portable.outputs.zip }}
+          packaging/besprited-*-windows-x86_64.exe
+        fail_on_unmatched_files: true

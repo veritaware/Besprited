@@ -11,6 +11,9 @@ on:
 env:
   BUILD_TYPE: Release
 
+permissions:
+  contents: write
+
 jobs:
   build-arm64:
     runs-on: macos-latest
@@ -165,12 +168,25 @@ jobs:
     - name: Create the DMG
       run: |
         dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+        if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
+          mv besprited.dmg "besprited-${{ steps.check_tag.outputs.tag }}-macos-silicon.dmg"
+          echo "dmg=besprited-${{ steps.check_tag.outputs.tag }}-macos-silicon.dmg" >> $GITHUB_OUTPUT
+        else
+          echo "dmg=besprited.dmg" >> $GITHUB_OUTPUT
+        fi
+      id: dmg
     - name: Upload Artifacts
       uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-macos-silicon', steps.check_tag.outputs.tag) || 'besprited-macos-silicon' }}
-        path: besprited.dmg
+        path: ${{ steps.dmg.outputs.dmg }}
         if-no-files-found: error
+    - name: Attach the DMG to the release
+      if: steps.check_tag.outputs.has_tag == 'true'
+      uses: softprops/action-gh-release@v3
+      with:
+        files: ${{ steps.dmg.outputs.dmg }}
+        fail_on_unmatched_files: true
 
   build-x86_64:
     runs-on: macos-15-intel
@@ -325,9 +341,22 @@ jobs:
     - name: Create the DMG
       run: |
         dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+        if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
+          mv besprited.dmg "besprited-${{ steps.check_tag.outputs.tag }}-macos-intel.dmg"
+          echo "dmg=besprited-${{ steps.check_tag.outputs.tag }}-macos-intel.dmg" >> $GITHUB_OUTPUT
+        else
+          echo "dmg=besprited.dmg" >> $GITHUB_OUTPUT
+        fi
+      id: dmg
     - name: Upload Artifacts
       uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-macos-intel', steps.check_tag.outputs.tag) || 'besprited-macos-intel' }}
-        path: besprited.dmg
+        path: ${{ steps.dmg.outputs.dmg }}
         if-no-files-found: error
+    - name: Attach the DMG to the release
+      if: steps.check_tag.outputs.has_tag == 'true'
+      uses: softprops/action-gh-release@v3
+      with:
+        files: ${{ steps.dmg.outputs.dmg }}
+        fail_on_unmatched_files: true

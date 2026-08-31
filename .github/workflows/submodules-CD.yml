@@ -5,6 +5,9 @@ on:
     tags:
       - '*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,11 +22,13 @@ jobs:
 
       - name: Create the ZIP package
         run: |
-          git archive -o "Source code + submodues.zip" HEAD
-          git submodule --quiet foreach 'cd $toplevel; zip -ru "Source code + submodues.zip" $sm_path'
+          ARCHIVE="besprited-${GITHUB_REF_NAME}-source-with-submodules.zip"
+          git archive -o "$ARCHIVE" HEAD
+          git submodule --quiet foreach 'cd "$toplevel" && zip -qruy "'"$PWD/$ARCHIVE"'" "$sm_path" -x "*/.git" "*/.git/*"'
+          echo "archive=$ARCHIVE" >> "$GITHUB_ENV"
 
       - name: Release the artifacts
         uses: softprops/action-gh-release@v3
         with:
-          files: |
-            "Source code + submodues.zip"
+          files: ${{ env.archive }}
+          fail_on_unmatched_files: true
