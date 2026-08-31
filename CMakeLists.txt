@@ -437,7 +437,7 @@ if(ENABLE_PACKAGING)
     set(CPACK_PACKAGE_VERSION_MINOR "${CMAKE_MATCH_2}")
     set(CPACK_PACKAGE_VERSION_PATCH "${CMAKE_MATCH_3}")
   endif()
-  set(CPACK_PACKAGE_CONTACT "Veritaware <https://github.com/Veritaware/Besprited/issues>")
+  set(CPACK_PACKAGE_CONTACT "Daniel Praźmo <d.prazmo@icloud.com>")
   set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Animated sprite editor & pixel art tool")
   set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/Veritaware/Besprited")
   set(CPACK_PACKAGE_DESCRIPTION
