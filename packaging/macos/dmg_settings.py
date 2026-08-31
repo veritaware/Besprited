@@ -15,6 +15,12 @@ format = 'UDZO'
 files = [application]
 symlinks = {'Applications': '/Applications'}
 
+# macOS CI runners occasionally still have a handle open on the mounted image
+# (Spotlight's mds/mdworker, or Finder) when dmgbuild tries to detach it right
+# after copying files in, causing "couldn't eject ... Resource busy". Retry
+# the detach instead of aborting the whole build.
+detach_retries = 5
+
 # dmgbuild execs this file without setting `__file__` in its namespace, so
 # the background path can't be derived from this script's own location.
 # Both callers (the CI workflow and packaging/package_macos.sh) always invoke
