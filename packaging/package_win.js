@@ -81,22 +81,7 @@ function copyDependencies(exe, target) {
     }
 }
 
-function createSelfExtractingArchive(srcDir, outputExe) {
-    const {execFileSync} = require('child_process');
-    execFileSync('7z', ['a', '-sfx7z.sfx', outputExe, path.join(srcDir, '*')], {stdio: 'inherit'});
-}
-
-async function main(args) {
-    if (args[0] === 'sfx') {
-        const [, srcDir, outputExe] = args;
-        if (!srcDir || !outputExe) {
-            console.log('Usage: package_win.js sfx <srcDir> <outputExe>');
-            return;
-        }
-        createSelfExtractingArchive(srcDir, outputExe);
-        return;
-    }
-    const exe = args[0];
+async function main(exe) {
     if (!exe) {
         console.log('No exe given');
     } else try {
@@ -110,4 +95,4 @@ async function main(args) {
     }
 }
 
-main(require('process').argv.slice(2));
+main(require('process').argv[2]);

@@ -79,26 +79,26 @@ jobs:
         make -C build -j 4
         rm build/bin/gen.exe
         node packaging/package_win.js build/bin/besprited.exe
-    - name: Prepare Application bundle
-      shell: bash
-      run: |
-        mkdir -p bundle/bin
-        cp -r build/bin/* bundle/bin/
-        cp packaging/Launcher.bat bundle/
-    - name: Upload Artifacts
+    - name: Upload portable archive
       uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-windows-x86_64', steps.check_tag.outputs.tag) || 'besprited-windows-x86_64' }}
         path: |
-          bundle/**
-    - name: Create self-extracting archive
+          build/bin/*
+    - name: Build the installer
       if: steps.check_tag.outputs.has_tag == 'true'
       shell: bash
       run: |
-        node packaging/package_win.js sfx bundle "besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.exe"
-    - name: Upload self-extracting archive
+        choco install innosetup --no-progress -y
+        VERSION="${{ steps.check_tag.outputs.tag }}"
+        VERSION="${VERSION#v}"
+        "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" \
+          "/DMyAppVersion=${VERSION}" \
+          packaging/WindowsInstaller.iss
+    - name: Upload installer
       if: steps.check_tag.outputs.has_tag == 'true'
       uses: actions/upload-artifact@v7
       with:
-        name: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64-sfx
-        path: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.exe
+        name: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64-installer
+        path: packaging/besprited-*-windows-x86_64.exe
+        if-no-files-found: error
