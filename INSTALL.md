@@ -1,199 +1,193 @@
-# Installation
+# Installing Besprited
+
+Prebuilt packages for every release are on the
+[releases page](https://github.com/Veritaware/Besprited/releases). Pick the
+download for your platform below. If you'd rather build from source, see
+[BUILDING.md](BUILDING.md).
 
 ## Table of contents
 
-* [Platforms](#platforms)
-* [Get the source code](#get-the-source-code)
-* [Dependencies](#dependencies)
-  * [Linux dependencies](#linux-dependencies)
-  * [Windows dependencies](#windows-dependencies)
-  * [MacOS dependencies](#macos-dependencies)
-* [Compiling](#compiling)
-  * [Linux details](#linux-details)
-  * [Windows details](#windows-details)
-  * [MacOS details](#macos-details)
-  * [Android details](#android-details)
-* [Installing](#installing)
-* [Static Code Analysis](#static-code-analysis)
+* [Windows](#windows)
+  * [Installer](#installer)
+  * [Portable archive](#portable-archive)
+* [macOS](#macos)
+* [Linux](#linux)
+  * [AppImage](#appimage)
+  * [Native packages (.deb / .rpm)](#native-packages-deb--rpm)
+  * [Portable .tar.gz](#portable-targz)
+  * [Creating a desktop entry by hand](#creating-a-desktop-entry-by-hand)
 
-## Platforms
+## Windows
 
-You can download installers from the [releases page](https://github.com/Veritaware/Besprited/releases).
+Two downloads are published for each release:
 
-On Linux you have several prebuilt options:
+| File | Use it when |
+| --- | --- |
+| `besprited-<version>-windows-x86_64-installer.exe` | You want a normal installed application. |
+| `besprited-<version>-windows-x86_64.zip` | You want a portable copy with no installer. |
 
-* **AppImage** – a single self-contained executable. You need `libfuse2` installed to run it.
-* **Native packages** – `.deb` for Debian/Ubuntu and `.rpm` for Fedora, with dependencies
-  resolved by the package manager. The `.deb` is built per distro release (its library
-  dependencies are release-specific), so pick the one matching your system –
-  `besprited_<version>_debian13_amd64.deb`, `..._ubuntu24.04_amd64.deb` (also covers Linux
-  Mint 22), `..._ubuntu26.04_amd64.deb` – and install it with
-  `sudo apt install ./besprited_<version>_<distro>_amd64.deb` or
-  `sudo dnf install ./besprited-<version>-1.x86_64.rpm`.
-* **`.tar.gz` package** – a portable FHS tree (`besprited-<version>-linux-<arch>.tar.gz`) with a
-  bundled installer. Extract it and run the install script from the extracted directory:
+### Installer
 
-      tar -xf besprited-*-linux-*.tar.gz
-      cd besprited-*-linux-*/          # or wherever you extracted it
+Run the installer and follow the wizard. It:
 
-      sudo ./install.sh                # system-wide, into /usr/local
-      ./install.sh --user              # per-user, into ~/.local (no sudo)
+* lets you choose the install location (defaults to a per-user directory, so no
+  administrator rights are required),
+* creates a Start Menu entry and, unless you opt out, a desktop shortcut,
+* registers the `.ase` file association,
+* can be removed later from *Settings → Apps* (or *Add/Remove Programs*).
 
-  Use `./uninstall.sh` (with the same `--user` / `--prefix` flag you installed with) to remove it.
-  The installer does not pull in system libraries – if it reports missing `.so` files after
-  installing, install the matching packages from the [Linux dependencies](#linux-dependencies)
-  section below.
+![Installer destination-location page](docs/install_win_1.jpg)
 
-If you want to compile Besprited from source, continue reading.
+![Installer additional-tasks page with the desktop-shortcut option](docs/install_win_2.jpg)
 
-You *should* be able to build the project on any relatively modern Linux, macOS or Windows machine.
+### Portable archive
 
-To compile Besprited you will need:
+Extract the ZIP anywhere you like — a USB stick, a folder in your home
+directory, wherever is convenient. The archive contains `besprited.exe`
+together with the DLLs it needs, all in one flat directory; there is no
+nested `bin\` folder and nothing to configure. Double-click `besprited.exe`
+to run it.
 
-* [CMake](http://www.cmake.org/) (4.1 or greater – you probably can get away with an older version if you edit it down in the CMakeLists, but we upped the version in the repo for the GitHub workflows reasons)
-* [Ninja](https://ninja-build.org) (actually optional as you can choose Unix makefiles / Xcode as CMake output, but Ninja speeds up the building process a bit)
-* [Msys2](https://www.msys2.org/) (Windows only)
+To get a Start Menu / desktop shortcut with the portable copy, right-click
+`besprited.exe`, choose *Send to → Desktop (create shortcut)*, or use the
+installer instead.
 
-## Get the source code
+## macOS
 
-Clone the repository and its submodules using the following command:
+Both Apple Silicon (M-series) and Intel Macs are supported. Intel support may
+be dropped in the future if GitHub stops providing Intel build runners.
 
-    git clone --recursive https://github.com/Veritaware/Besprited
+Download the archive for your Mac's architecture — `...-macos-silicon` for
+Apple Silicon, `...-macos-intel` for Intel — and unpack it. Double-click the
+extracted `besprited.dmg` to mount it.
 
-(You can use [Git for Windows](https://git-for-windows.github.io/) to
-clone the repository on Windows.)
+In the Finder window that opens, choose `Go` → `Applications` from the menu
+bar to open your Applications folder alongside it.
 
-To update an existing clone, use the following commands:
+![Finder Go menu with Applications selected](docs/install_mac_1.jpg)
 
-    cd Besprited
-    git pull
-    git submodule update --init --recursive
+Drag the `besprited` app onto the Applications folder.
 
-## Dependencies
+![Dragging besprited.app into Applications](docs/install_mac_2.jpg)
 
-You'll need the following dependencies to compile Besprited:
+Apple Developer signing certificates are a paid subscription, and this project
+isn't funded well enough to justify one, so the app is self-signed by our
+GitHub workflows. Because of that, macOS Gatekeeper puts the app in quarantine
+and refuses to open it until you clear that flag.
 
-### Linux dependencies
+Open Terminal and run:
 
-Debian/Ubuntu/Mint:
-
-    sudo apt-get install g++ cmake git libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev
-
-Fedora:
-
-    sudo dnf install g++ cmake git libcurl-devel freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL2-devel SDL2_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel libXi-devel
-
-Arch Linux:
-
-    sudo pacman -Syu base-devel cmake ninja git sdl3 sdl2-compat sdl2_image sdl2_ttf tinyxml2 freetype2 curl giflib gtest libjpeg-turbo pixman libpng zlib nodejs libarchive
-    
-
-### Windows dependencies
-
-To install the required dependencies with msys2, run the following in mingw32:
-
-    pacman -S base-devel mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-make mingw-w64-i686-curl mingw-w64-i686-freetype mingw-w64-i686-giflib mingw-w64-i686-libjpeg-turbo mingw-w64-i686-libpng mingw-w64-i686-libwebp mingw-w64-i686-pixman mingw-w64-i686-SDL2 mingw-w64-i686-SDL2_image mingw-w64-i686-tinyxml2 mingw-w64-i686-zlib mingw-w64-i686-libarchive
-
-### MacOS dependencies
-
-On MacOS you will need Mac OS X 11.0 SDK and the corresponding Xcode.
-In a terminal, install the dependencies using brew:
-
-    brew install gnutls freetype jpeg webp pixman sdl2 sdl2_image tinyxml2 libarchive ninja zlib xmlto dylibbundler cmake
-
-## Compiling
-
-First, create the `build` directory with the following commands:
-
-    cd Besprited
-    mkdir build
-    cd build
-
-Then following the platform-specific instructions for compiling below.
-
-The `build` directory will contain the results of the compilation process.
-If you want to build a fresh copy of Besprited, remove the `build` directory
-and recompile.
-
-### Linux details
-
-To compile Besprited, run the following commands:
-
-    cmake -G Ninja ..
-    ninja besprited
-
-### Windows details
-
-Run the following in mingw32.exe:
-
-    cmake -G Ninja ..
-
-### MacOS details
-
-To compile Besprited, run the following commands:
 ```
-    cmake \
-      -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk \
-      -G Ninja \
-      ..
-    ninja besprited
+cd /Applications
+sudo xattr -dr com.apple.quarantine besprited.app
 ```
-### Android details
 
-Before you can make an Android build, you must make a native build for your OS,
-so follow the appropriate instructions above. Once that is done, download
-https://github.com/LibreSprite/ls-android-deps as android/ in the Besprited
-directory. Now you can open the android subdirectory in Android Studio and build
-Besprited for Android.
+![Removing the quarantine attribute in Terminal](docs/install_mac_3.jpg)
 
+Besprited will now launch from Spotlight or Launchpad like any other app.
 
-## Installing
+## Linux
 
-Once you've finished compiling, you can install Besprited by running the
-following command from the `build` directory:
+Several formats are published for each release. Use whichever fits your
+distribution and preferences:
 
-    ninja install
+| Format | Best for |
+| --- | --- |
+| AppImage | Any distro; a single portable file, no installation. |
+| `.deb` / `.rpm` | Debian/Ubuntu/Mint and Fedora; dependencies handled by your package manager. |
+| `.tar.gz` | A portable filesystem tree with a bundled install script. |
 
-## Static Code Analysis
+### AppImage
 
-Besprited includes build targets for running static code analysis tools. These targets help maintain code quality by detecting potential bugs, security vulnerabilities, and code style issues.
+The AppImage (`Besprited-anylinux-x86_64.AppImage`) bundles the `besprited`
+executable together with the libraries it needs. To run it you must have
+`libfuse2` installed (most distributions still ship it as an optional package).
 
-### Available Analysis Targets
+Make it executable and launch it:
 
-From the `build` directory, you can run the following analysis targets:
+```
+chmod +x Besprited-anylinux-x86_64.AppImage
+./Besprited-anylinux-x86_64.AppImage
+```
 
-**cppcheck** - Runs cppcheck static analysis:
+AppImages run from any location. If you want it to show up in your application
+launcher, move it somewhere stable such as `$HOME/.local/bin` or
+`$HOME/Applications`, then either use a helper like
+[AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) / the
+[appimaged](https://github.com/probonopd/go-appimage/blob/master/src/appimaged/README.md)
+daemon, which register desktop entries automatically, or create one by hand
+(see [below](#creating-a-desktop-entry-by-hand)).
 
-    cmake --build . --target cppcheck
+![Besprited in the application launcher](docs/install_linux_launcher.jpg)
 
-Requires: [cppcheck](http://cppcheck.sourceforge.net/) to be installed on your system.
+### Native packages (.deb / .rpm)
 
-**clang-tidy** - Runs clang-tidy static analysis:
+These install Besprited system-wide and let your package manager pull in the
+runtime libraries.
 
-    cmake --build . --target clang-tidy
+Because a `.deb`'s library dependencies are tied to the distro release it was
+built on, one is published per supported release — pick the matching file:
 
-Requires: clang-tidy to be installed on your system.
+* `besprited_<version>_debian13_amd64.deb`
+* `besprited_<version>_ubuntu24.04_amd64.deb` (also covers Linux Mint 22)
+* `besprited_<version>_ubuntu26.04_amd64.deb`
 
-**gcc-analyzer** - Builds with GCC's `-fanalyzer` flag:
+```
+sudo apt install ./besprited_<version>_<distro>_amd64.deb
+```
 
-    cmake --build . --target gcc-analyzer
+Fedora users install the `.rpm`:
 
-Requires: GCC 10 or higher (which includes the `-fanalyzer` feature).
+```
+sudo dnf install ./besprited-<version>-1.x86_64.rpm
+```
 
-### Installing Analysis Tools
+Both register the desktop entry, icons and MIME associations, and can be
+removed with `apt remove besprited` / `dnf remove besprited`.
 
-**Linux (Debian/Ubuntu):**
+### Portable .tar.gz
 
-    sudo apt-get install cppcheck clang-tidy gcc-10 g++-10
+`besprited-<version>-linux-<arch>.tar.gz` is a portable
+[FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard) tree with a
+bundled installer. Extract it and run the install script from the extracted
+directory:
 
-**Linux (Fedora):**
+```
+tar -xf besprited-*-linux-*.tar.gz
+cd besprited-*-linux-*/
 
-    sudo dnf install cppcheck clang-tools-extra gcc
+sudo ./install.sh            # system-wide, into /usr/local
+./install.sh --user          # per-user, into ~/.local (no sudo)
+./install.sh --prefix DIR    # into a custom prefix
+```
 
-**MacOS:**
+Run `./uninstall.sh` with the same `--user` / `--prefix` option you installed
+with to remove it.
 
-    brew install cppcheck llvm gcc
+The bundled installer does **not** resolve system libraries. If it reports
+missing `.so` files after installing, install the matching packages listed
+under [Linux dependencies](BUILDING.md#linux-dependencies) in BUILDING.md.
 
-**Windows (MSYS2):**
+### Creating a desktop entry by hand
 
-    pacman -S mingw-w64-i686-cppcheck mingw-w64-i686-clang-tools-extra mingw-w64-i686-gcc
+If you're running the AppImage or an extracted `.tar.gz` and want a launcher
+entry without a helper tool, drop a file at
+`$HOME/.local/share/applications/besprited.desktop`:
+
+```
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Besprited
+GenericName=Sprite Editor
+Comment=Animated sprite editor & pixel art tool
+Exec=/home/youruser/.local/bin/Besprited-anylinux-x86_64.AppImage %U
+Icon=besprited
+Terminal=false
+Categories=Graphics;2DGraphics;RasterGraphics;
+```
+
+Point `Exec` at wherever you put the AppImage (or at the installed `besprited`
+binary). If the icon doesn't resolve, replace `Icon=besprited` with an
+absolute path to a PNG. Run `update-desktop-database ~/.local/share/applications`
+afterwards if your desktop doesn't pick it up immediately.
