@@ -77,7 +77,9 @@ jobs:
       shell: msys2 {0}
       run: |
         make -C build -j 4
-        rm build/bin/gen.exe
+        # Keep only the editor executable - drop gen.exe, qjs/qjsc, *_tests, etc.
+        # so they never end up in the portable ZIP or the installer.
+        find build/bin -maxdepth 1 -type f -name '*.exe' ! -name 'besprited.exe' -delete
         node packaging/package_win.js build/bin/besprited.exe
     - name: Upload portable archive
       uses: actions/upload-artifact@v7
