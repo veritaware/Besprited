@@ -20,9 +20,16 @@
 
 You can download installers from the [releases page](https://github.com/Veritaware/Besprited/releases).
 
-On Linux you have two prebuilt options:
+On Linux you have several prebuilt options:
 
 * **AppImage** – a single self-contained executable. You need `libfuse2` installed to run it.
+* **Native packages** – `.deb` for Debian/Ubuntu and `.rpm` for Fedora, with dependencies
+  resolved by the package manager. The `.deb` is built per distro release (its library
+  dependencies are release-specific), so pick the one matching your system –
+  `besprited_<version>_debian13_amd64.deb`, `..._ubuntu24.04_amd64.deb` (also covers Linux
+  Mint 22), `..._ubuntu26.04_amd64.deb` – and install it with
+  `sudo apt install ./besprited_<version>_<distro>_amd64.deb` or
+  `sudo dnf install ./besprited-<version>-1.x86_64.rpm`.
 * **`.tar.gz` package** – a portable FHS tree (`besprited-<version>-linux-<arch>.tar.gz`) with a
   bundled installer. Extract it and run the install script from the extracted directory:
 

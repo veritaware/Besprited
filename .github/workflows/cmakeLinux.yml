@@ -82,3 +82,117 @@ jobs:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-x86_64', steps.check_tag.outputs.tag) || 'besprited-linux-x86_64' }}
         path: Besprited-anylinux-x86_64.AppImage
         if-no-files-found: error
+
+  # A .deb links against whatever library SONAMEs its build distro ships and
+  # dpkg-shlibdeps pins the matching package names, so a single .deb can't span
+  # releases (e.g. libtinyxml2-10 vs -11, libjpeg.so.8 vs .so.62). Build one per
+  # target distro inside its own container.
+  package-deb:
+    name: Package .deb (${{ matrix.distro }})
+    runs-on: ubuntu-26.04
+    container: ${{ matrix.image }}
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.event.head_commit.message, 'NO_SW_CHANGE') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { image: 'debian:13',    distro: debian13 }
+          - { image: 'ubuntu:24.04', distro: ubuntu24.04 }
+          - { image: 'ubuntu:26.04', distro: ubuntu26.04 }
+    steps:
+    - name: Install build dependencies
+      run: |
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update
+        apt-get install -y --no-install-recommends \
+          g++ ninja-build git ca-certificates dpkg-dev file python3-pip \
+          libcurl4-gnutls-dev libfreetype-dev libgif-dev libjpeg-dev libpixman-1-dev \
+          libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libnode-dev \
+          zlib1g-dev libarchive-dev libx11-dev libxcursor-dev libxi-dev
+        # Distro CMake is < 4.1; the project needs >= 4.1 (matches the main job).
+        pip install --break-system-packages cmake
+    - uses: actions/checkout@v7
+      with:
+          submodules: 'true'
+    - name: Mark workspace as safe for git
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - name: Get short commit hash
+      id: commit
+      run: echo "short_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+    - name: Update config.h with commit hash
+      run: sed -i 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+    - name: Configure
+      run: |
+        VERSION="${GITHUB_REF_NAME#v}"
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON \
+          -DWITH_DESKTOP_INTEGRATION=ON -DENABLE_PACKAGING=ON \
+          -DBESPRITED_PACKAGE_VERSION="$VERSION"
+    - name: Build the binaries
+      run: |
+        ninja -C build besprited
+        rm build/bin/gen
+    - name: Package the .deb
+      id: deb
+      run: |
+        cpack -G DEB --config build/CPackConfig.cmake -B build
+        NAMED="besprited_${GITHUB_REF_NAME#v}_${{ matrix.distro }}_amd64.deb"
+        mv "$(ls build/*.deb | head -n1)" "$NAMED"
+        dpkg --info "$NAMED"
+        echo "Depends: $(dpkg-deb -f "$NAMED" Depends)"
+        echo "deb=$NAMED" >> $GITHUB_OUTPUT
+    - name: Upload .deb artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: besprited-${{ github.ref_name }}-${{ matrix.distro }}-deb
+        path: ${{ steps.deb.outputs.deb }}
+        if-no-files-found: error
+
+  # Build the .rpm inside an actual Fedora environment so the auto-detected
+  # Requires: and library layout match what a Fedora user would get.
+  package-rpm:
+    name: Package .rpm (Fedora)
+    runs-on: ubuntu-26.04
+    container: fedora:latest
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !contains(github.event.head_commit.message, 'NO_SW_CHANGE') }}
+    steps:
+    - name: Install build dependencies
+      run: |
+        dnf install -y gcc-c++ cmake git ninja-build rpm-build \
+          libcurl-devel freetype-devel giflib-devel libjpeg-turbo-devel \
+          pixman-devel libpng-devel SDL2-devel SDL2_image-devel tinyxml2-devel \
+          zlib-devel nodejs-devel libarchive-devel libXi-devel libXcursor-devel
+    - uses: actions/checkout@v7
+      with:
+          submodules: 'true'
+    - name: Mark workspace as safe for git
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - name: Get short commit hash
+      id: commit
+      run: echo "short_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+    - name: Update config.h with commit hash
+      run: sed -i 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+    - name: Configure
+      run: |
+        VERSION="${GITHUB_REF_NAME#v}"
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON \
+          -DWITH_DESKTOP_INTEGRATION=ON -DENABLE_PACKAGING=ON \
+          -DBESPRITED_PACKAGE_VERSION="$VERSION"
+    - name: Build the binaries
+      run: |
+        ninja -C build besprited
+        rm build/bin/gen
+    - name: Package the .rpm
+      id: rpm
+      run: |
+        cpack -G RPM --config build/CPackConfig.cmake -B build
+        RPM=$(ls build/*.rpm | head -n1)
+        rpm -qip "$RPM"
+        rpm -qlp "$RPM"
+        mv "$RPM" .
+        echo "rpm=$(basename "$RPM")" >> $GITHUB_OUTPUT
+    - name: Upload .rpm artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: besprited-${{ github.ref_name }}-linux-x86_64-rpm
+        path: ${{ steps.rpm.outputs.rpm }}
+        if-no-files-found: error
