@@ -442,6 +442,9 @@ if(ENABLE_PACKAGING)
   set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/Veritaware/Besprited")
   set(CPACK_PACKAGE_DESCRIPTION
       "Besprited is a free and open source program for creating and animating 2D sprites.")
+  # CPack's DEB/RPM generators don't fall back to CPACK_PACKAGE_DESCRIPTION.
+  set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION}")
+  set(CPACK_RPM_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION}")
   set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
   set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
   set(CPACK_STRIP_FILES ON)
