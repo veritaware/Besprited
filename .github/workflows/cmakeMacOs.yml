@@ -164,7 +164,7 @@ jobs:
           echo "Besprited app signed successfully" || echo "Failed to sign Besprited app"
     - name: Create the DMG
       run: |
-        dmgbuild -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+        dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
     - name: Upload Artifacts
       uses: actions/upload-artifact@v7
       with:
@@ -324,7 +324,7 @@ jobs:
           echo "Besprited app signed successfully" || echo "Failed to sign Besprited app"
     - name: Create the DMG
       run: |
-        dmgbuild -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+        dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
     - name: Upload Artifacts
       uses: actions/upload-artifact@v7
       with:

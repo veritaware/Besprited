@@ -115,4 +115,4 @@ rm besprited.icns
 
 # Styled "drag to install" DMG (background image, Applications shortcut).
 # Requires dmgbuild: pip3 install dmgbuild
-dmgbuild -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg

@@ -15,16 +15,21 @@ format = 'UDZO'
 files = [application]
 symlinks = {'Applications': '/Applications'}
 
+# Retry `hdiutil detach` a few times: on CI a background process (Spotlight
+# mds/mdworker, Finder) can still hold a handle on the freshly mounted image
+# when dmgbuild tries to eject it, making the eject fail with "Resource busy".
+detach_retries = 5
+
 # dmgbuild execs this file without setting `__file__` in its namespace, so
 # the background path can't be derived from this script's own location.
 # Both callers (the CI workflow and packaging/package_macos.sh) always invoke
 # dmgbuild from the repo root with `-s packaging/macos/dmg_settings.py`, so a
 # path relative to the current working directory works the same way `app`
 # above does.
-background = 'packaging/macos_dmg_background.png'
+background = 'packaging/macos/macos_dmg_background.png'
 
-# packaging/macos_dmg_background.png (640x400) is the @1x background; the
-# repo also ships packaging/macos_dmg_background@2x.png (1280x800, an exact
+# packaging/macos/macos_dmg_background.png (640x400) is the @1x background; the
+# repo also ships packaging/macos/macos_dmg_background@2x.png (1280x800, an exact
 # 2x pixel-doubled render of the same art) alongside it. dmgbuild's
 # @<scale>x naming convention makes it find that sibling automatically and
 # combine both into a HiDPI TIFF, so Finder opens a window sized to the @1x
