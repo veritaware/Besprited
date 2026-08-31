@@ -1,1 +1,0 @@
-start "" ".\bin\besprited.exe"
