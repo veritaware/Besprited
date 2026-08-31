@@ -320,7 +320,7 @@ if(APPLE)
 endif(APPLE)
 
 if(WITH_DESKTOP_INTEGRATION)
-  add_subdirectory(desktop)
+  add_subdirectory(packaging/desktop)
 endif()
 
 ######################################################################

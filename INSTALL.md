@@ -19,7 +19,24 @@
 ## Platforms
 
 You can download installers from the [releases page](https://github.com/Veritaware/Besprited/releases).
-On linux platform, you will need to install `libfuse2` in order to run the AppImage.
+
+On Linux you have two prebuilt options:
+
+* **AppImage** – a single self-contained executable. You need `libfuse2` installed to run it.
+* **`.tar.gz` package** – a portable FHS tree (`besprited-<version>-linux-<arch>.tar.gz`) with a
+  bundled installer. Extract it and run the install script from the extracted directory:
+
+      tar -xf besprited-*-linux-*.tar.gz
+      cd besprited-*-linux-*/          # or wherever you extracted it
+
+      sudo ./install.sh                # system-wide, into /usr/local
+      ./install.sh --user              # per-user, into ~/.local (no sudo)
+
+  Use `./uninstall.sh` (with the same `--user` / `--prefix` flag you installed with) to remove it.
+  The installer does not pull in system libraries – if it reports missing `.so` files after
+  installing, install the matching packages from the [Linux dependencies](#linux-dependencies)
+  section below.
+
 If you want to compile Besprited from source, continue reading.
 
 You *should* be able to build the project on any relatively modern Linux, macOS or Windows machine.

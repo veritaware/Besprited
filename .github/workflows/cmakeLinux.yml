@@ -43,14 +43,33 @@ jobs:
       run: |
         mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON -DWITH_DESKTOP_INTEGRATION=ON
         else
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DWITH_DESKTOP_INTEGRATION=ON
         fi
     - name: Build the binaries
       run: |
         ninja -C build besprited
         rm build/bin/gen
+    - name: Package the tarball
+      run: |
+        export ARCH="$(uname -m)"
+        if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
+          VERSION="${{ steps.check_tag.outputs.tag }}"
+        else
+          VERSION="${{ steps.commit.outputs.short_hash }}"
+        fi
+        sh packaging/package_linux_tarball.sh "$VERSION"
+        mv build/besprited-$VERSION-linux-$ARCH.tar.gz .
+        echo "tarball=besprited-$VERSION-linux-$ARCH.tar.gz" >> $GITHUB_OUTPUT
+      id: tarball
+    - name: Upload tarball artifact
+      if: runner.arch == 'X64'
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-x86_64-tarball', steps.check_tag.outputs.tag) || 'besprited-linux-x86_64-tarball' }}
+        path: ${{ steps.tarball.outputs.tarball }}
+        if-no-files-found: error
     - name: Package the AppImage
       run: |
         export ARCH="$(uname -m)"
