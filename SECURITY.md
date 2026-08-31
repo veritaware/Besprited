@@ -4,6 +4,7 @@
 | Version | Supported |
 |---------| --------- |
 | 1.26.06 | ✅        |
+| 1.26.09 | ✅        |
 
 ## Reporting a Vulnerability
 

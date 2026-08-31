@@ -94,7 +94,7 @@ jobs:
         choco install innosetup --no-progress -y
         VERSION="${{ steps.check_tag.outputs.tag }}"
         VERSION="${VERSION#v}"
-        "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" \
+        MSYS_NO_PATHCONV=1 "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" \
           "/DMyAppVersion=${VERSION}" \
           packaging/WindowsInstaller.iss
     - name: Upload installer

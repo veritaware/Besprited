@@ -32,7 +32,7 @@ dylibbundler -od -b -ns -x ./bundle/besprited.app/Contents/MacOS/besprited -d ./
 echo "RPATH entries after dylibbundler:"
 otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH
 
-# Clean up any duplicate RPATH entries from the main executable 
+# Clean up any duplicate RPATH entries from the main executable
 # Use otool to check current RPATHs and remove duplicates
 CURRENT_RPATHS=$(otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
 echo "Found RPATH entries: $CURRENT_RPATHS"

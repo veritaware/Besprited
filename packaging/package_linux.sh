@@ -29,7 +29,8 @@ chmod +x ./lib4bin
 # sharun, then tries to cp the directory as if it were the binary and fails.
 wget "https://github.com/VHSgunzo/sharun/releases/latest/download/sharun-$ARCH" -O ./sharun-tmp
 chmod +x ./sharun-tmp
-export SHARUN="$(pwd)/sharun-tmp"
+export SHARUN
+SHARUN="$(pwd)/sharun-tmp"
 
 # Use lib4bin's default static (ldd/patchelf) dependency scan instead of
 # strace mode (-e): strace mode actually executes besprited under Xvfb to
