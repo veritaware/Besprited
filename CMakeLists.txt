@@ -100,6 +100,7 @@ set(SIMPLEINI_DIR       ${CMAKE_SOURCE_DIR}/third_party/simpleini)
 set(QUICKJS_DIR         ${CMAKE_SOURCE_DIR}/third_party/quickjs)
 set(MODP_B64_DIR        ${CMAKE_SOURCE_DIR}/third_party/modp_b64)
 set(QOI_DIR             ${CMAKE_SOURCE_DIR}/third_party/qoi)
+set(DELTA_DIR           ${CMAKE_SOURCE_DIR}/third_party/delta)
 
 # Search in the "cmake" directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -216,6 +217,9 @@ endif()
 # simpleini
 include_directories(${SIMPLEINI_DIR})
 
+# delta
+include_directories(${DELTA_DIR})
+
 ######################################################################
 # Platform specific stuff
 
@@ -288,8 +292,10 @@ if(WIN32)
     kernel32 user32 gdi32 comdlg32 ole32 winmm
     shlwapi psapi wininet comctl32 dbghelp)
 
-  # Windows XP is the minimum supported platform.
-  add_definitions(-D_WIN32_WINNT=0x0501 -DWINVER=0x0501)
+  # Windows Vista is the minimum supported platform. The QuickJS
+  # scripting engine requires Vista+ Win32 threading APIs
+  # (InitOnceExecuteOnce, condition variables).
+  add_definitions(-D_WIN32_WINNT=0x0600 -DWINVER=0x0600)
 
   # We need Unicode support
   add_definitions(-DUNICODE -D_UNICODE)

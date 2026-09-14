@@ -1,5 +1,5 @@
 // Aseprite    | Copyright (C) 2001-2016 David Capello
-// LibreSprite | Copyright (C) 2016-2026 LibreSprite contributors
+// LibreSprite | Copyright (C) 2018-2026 LibreSprite contributors
 // Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
@@ -67,7 +67,6 @@
 #include "doc/site.h"
 #include "doc/sprite.h"
 #include "render/render.h"
-#include "script/engine.h"
 #include "script/engine_delegate.h"
 #include "she/display.h"
 #include "she/error.h"
@@ -511,7 +510,6 @@ void App::initialize(const AppOptions& options)
         // --script <filename>
         else if (opt == &options.script()) {
           script::EngineDelegate::setDefault("stdout");
-          script::Engine::setDefault("js");
           AppScripting engine;
           engine.evalFile(value.value());
         }
@@ -658,6 +656,10 @@ void App::run()
     app::SendCrash sendCrash;
     sendCrash.search();
 
+    // Pump the scripting engine (timers, promises, queued events) once
+    // per UI message-loop iteration.
+    app::AppScripting::startTickPump();
+
     // Run the GUI main message loop
     ui::Manager::getDefault()->run();
   }
@@ -665,7 +667,6 @@ void App::run()
   // Start shell to execute scripts.
   if (m_isShell) {
     script::EngineDelegate::setDefault("stdout");
-    script::Engine::setDefault("js");
     AppScripting engine;
     engine.printLastResult();
     Shell shell;
@@ -710,6 +711,11 @@ App::~App()
 
     // Remove LibreSprite handlers
     LOG("ASE: Uninstalling\n");
+
+    // Tear down the script engine (and any script-owned dialogs/widgets)
+    // before the ui::Manager, so their ui::Timer members are removed from
+    // the Timer registry before ~Manager runs Timer::checkNoTimers().
+    app::AppScripting::shutdown();
 
     // Delete file formats.
     FileFormatsManager::destroyInstance();

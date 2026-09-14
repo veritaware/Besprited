@@ -17,6 +17,8 @@ add_subdirectory(evalmath)
 set(QJS_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(quickjs)
 
+add_subdirectory(delta)
+
 # Disable observable tests
 set(OBSERVABLE_TESTS OFF CACHE BOOL "Compile observable tests")
 add_subdirectory(observable)
