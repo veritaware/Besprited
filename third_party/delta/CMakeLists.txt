@@ -1,6 +1,5 @@
 # cmake support for delta
-# Delta     | Copyright (C) 2026 Felipe Manga
-# Besprited | Copyright (C) 2026 Veritaware
+# Copyright (C) 2026 Felipe Manga
 
 add_library(delta
   JSON.cpp

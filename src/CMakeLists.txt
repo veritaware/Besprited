@@ -1,6 +1,6 @@
 # Aseprite    | Copyright (C) 2001-2016 David Capello
 # LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
-# Besprited   | Copyright (C)      2026 Veritaware
+# Besprited   | Copyright (C) 2026      Veritaware
 
 ######################################################################
 # Common definitions for all Aseprite libraries/projects

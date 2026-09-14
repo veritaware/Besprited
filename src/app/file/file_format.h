@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2015  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2015 David Capello
+// LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -12,21 +13,21 @@
 
 #include <vector>
 
-#define FILE_SUPPORT_LOAD               0x00000001
-#define FILE_SUPPORT_SAVE               0x00000002
-#define FILE_SUPPORT_RGB                0x00000004
-#define FILE_SUPPORT_RGBA               0x00000008
-#define FILE_SUPPORT_GRAY               0x00000010
-#define FILE_SUPPORT_GRAYA              0x00000020
-#define FILE_SUPPORT_INDEXED            0x00000040
-#define FILE_SUPPORT_LAYERS             0x00000080
-#define FILE_SUPPORT_FRAMES             0x00000100
-#define FILE_SUPPORT_PALETTES           0x00000200
-#define FILE_SUPPORT_SEQUENCES          0x00000400
-#define FILE_SUPPORT_GET_FORMAT_OPTIONS 0x00000800
-#define FILE_SUPPORT_FRAME_TAGS         0x00001000
-#define FILE_SUPPORT_BIG_PALETTES       0x00002000 // Palettes w/more than 256 colors
-#define FILE_SUPPORT_PALETTE_WITH_ALPHA 0x00004000
+#define FILE_SUPPORT_LOAD                  0x00000001
+#define FILE_SUPPORT_SAVE                  0x00000002
+#define FILE_SUPPORT_RGB                   0x00000004
+#define FILE_SUPPORT_RGBA                  0x00000008
+#define FILE_SUPPORT_GRAY                  0x00000010
+#define FILE_SUPPORT_GRAYA                 0x00000020
+#define FILE_SUPPORT_INDEXED               0x00000040
+#define FILE_SUPPORT_LAYERS                0x00000080
+#define FILE_SUPPORT_FRAMES                0x00000100
+#define FILE_SUPPORT_PALETTES              0x00000200
+#define FILE_SUPPORT_SEQUENCES             0x00000400
+#define FILE_SUPPORT_GET_FORMAT_OPTIONS    0x00000800
+#define FILE_SUPPORT_FRAME_TAGS            0x00001000
+#define FILE_SUPPORT_BIG_PALETTES          0x00002000 // Palettes w/more than 256 colors
+#define FILE_SUPPORT_PALETTE_WITH_ALPHA    0x00004000
 #define FILE_SUPPORT_PALETTE_WITH_ONEALPHA 0x00008000
 
 namespace app {
