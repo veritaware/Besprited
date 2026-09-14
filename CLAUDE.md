@@ -101,9 +101,21 @@ corresponding generated accessor rather than hand-writing lookup code.
 
 ### Scripting
 
-Scripting API is documented in `SCRIPTING.md`. The engine itself lives in `src/script/` (QuickJS-ng
-vendored under `src/script/quickjs` as a submodule) and exposes app objects (Sprite, Layer, Storage, etc.)
-as JS classes/globals; user-facing scripts live under `data/scripts/`.
+Scripting API is documented in `SCRIPTING.md`. The engine stack is:
+
+- `third_party/quickjs` — the QuickJS-ng submodule (Besprited deliberately keeps this instead of
+  LibreSprite's single-file `quickjs-amalgam`; delta links the `qjs` + `qjs-libc` targets).
+- `third_party/delta` — LibreSprite's vendored "delta" layer (`Interpreter`, `Extension`, `JSON::Value`,
+  `di.hpp`) that wraps QuickJS behind an engine-agnostic C++ API. `QuickJSInterpreter.cpp` carries a small
+  Besprited shim (`JS_NewStringLenBin`) for an API only the amalgam provides.
+- `src/script/` — just `value.h` (`script::Value` is an alias of `JSON::Value`) and the console
+  `EngineDelegate` interface.
+- `src/app/script/` — `AppScripting` (engine lifetime, event queue, tick pump) and `api/*_script.cpp`, one
+  delta `Extension` per exposed object (Sprite, Layer, Storage, ...), registered via
+  `di::provide<Extension, ...>` and picked up with `di::injectAll<Extension>()`.
+
+User-facing scripts live under `data/scripts/`. Script-engine tests live in `test/script/` (delta level)
+and `test/app/script_api_tests.cpp` (app API level).
 
 ## Contribution conventions
 

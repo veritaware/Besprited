@@ -63,15 +63,16 @@ function(find_tests dir)
     set(_needs_app_lib FALSE)
   endif()
 
-  # app-lib and script-lib both rely on static initializers (the FileFormat /
-  # command injection registry, and the Engine / InternalScriptObject / qjs
-  # EngineDelegate registrations respectively) that a normal static link
-  # would drop - a test that never calls a function from e.g.
-  # quickjs/engine.cpp.o gives the linker no reason to pull that object file
-  # out of the archive at all, silently dropping its registrations. Pull the
-  # whole archive in for any such lib this suite links against.
+  # app-lib and delta both rely on static initializers (the FileFormat /
+  # command / script Extension injection registries, and delta's
+  # di::provide<Interpreter, QuickJSInterpreter> "js" registration
+  # respectively) that a normal static link would drop - a test that never
+  # calls a function from e.g. QuickJSInterpreter.cpp.o gives the linker no
+  # reason to pull that object file out of the archive at all, silently
+  # dropping its registrations. Pull the whole archive in for any such lib
+  # this suite links against.
   set(prelibs "")
-  foreach(wholeArchiveLib app-lib script-lib)
+  foreach(wholeArchiveLib app-lib delta)
     if("${wholeArchiveLib}" IN_LIST deps)
       list(REMOVE_ITEM deps ${wholeArchiveLib})
       list(APPEND prelibs "$<LINK_LIBRARY:WHOLE_ARCHIVE,${wholeArchiveLib}>")
@@ -91,6 +92,7 @@ function(find_tests dir)
     add_test(NAME ${testname} COMMAND ${testname})
 
     target_include_directories(${testname} PRIVATE
+      ${CMAKE_SOURCE_DIR}
       ${CMAKE_SOURCE_DIR}/src
       ${CMAKE_SOURCE_DIR}/third_party
       ${CMAKE_SOURCE_DIR}/third_party/observable
@@ -142,7 +144,7 @@ set(MODULE_TEST_LIBS
   gfx-lib
   net-lib
   render-lib
-  script-lib
+  delta
   she
   ui-lib
   undo
@@ -156,12 +158,12 @@ set(MODULE_TEST_LIBS
   ${FREETYPE_LIBRARIES})
 
 # base / gfx / css / script do not touch the she layer - keep these lean and
-# let GTest::gtest_main own the entry point. script-lib pulls in qjs (and
-# base-lib for base/convert_to.cpp & friends) transitively.
+# let GTest::gtest_main own the entry point. delta (the scripting layer over
+# the quickjs-ng submodule) pulls in qjs / qjs-libc transitively.
 find_tests(base   base-lib)
 find_tests(gfx    gfx-lib)
 find_tests(css    css-lib)
-find_tests(script script-lib base-lib)
+find_tests(script delta)
 
 # doc / render / ui / app all reach the she layer (see MODULE_TEST_LIBS).
 find_tests(doc      ${MODULE_TEST_LIBS})

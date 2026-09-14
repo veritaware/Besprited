@@ -1,3 +1,9 @@
+// Delta     | Copyright (C) 2026 Felipe Manga
+// Besprited | Copyright (C) 2026 Veritaware
+//
+// This file is released under the terms of the MIT license.
+// Read docs/licenses/delta-LICENSE.txt for more information.
+
 #include "Interpreter.hpp"
 #include "Shared.hpp"
 #include "di.hpp"
@@ -15,6 +21,18 @@
 extern "C" {
 #include "quickjs.h"
 #include "quickjs-libc.h"
+}
+
+// LibreSprite's quickjs-amalgam patches in JS_NewStringLenBin(), which builds
+// a JS string straight from raw bytes (one char code per byte, no UTF-8
+// decoding). Stock quickjs-ng has no such entry point, so widen the bytes to
+// UTF-16 code units and use the public JS_NewStringUTF16() instead - the
+// resulting string is identical (char codes 0..255).
+static JSValue JS_NewStringLenBin(JSContext* ctx, const char* buf, size_t buf_len) {
+    std::vector<uint16_t> units(buf_len);
+    for (size_t i = 0; i < buf_len; ++i)
+        units[i] = static_cast<unsigned char>(buf[i]);
+    return JS_NewStringUTF16(ctx, units.data(), units.size());
 }
 
 static Shared<std::vector<std::pair<JSContext*, JSValue>>> deleteQueue;

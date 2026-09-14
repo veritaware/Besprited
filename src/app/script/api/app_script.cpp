@@ -85,12 +85,6 @@ public:
       return std::string{VERSION};
     };
 
-    addProperty("command", [this]{return m_command.get();})
-      .doc("read-only. Returns an object with functions for running commands.");
-
-    addProperty("version", []{return script::Value{VERSION};})
-      .doc("read-only. Returns Besprited's current version as a string.");
-
     clazz.addGetter("platform") = [](AppObject&) -> JSON::Value {
       #ifdef EMSCRIPTEN
       return std::string{"emscripten"};
