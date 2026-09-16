@@ -136,12 +136,12 @@ packaging step can be reproduced locally from a configured `build/` tree.
 
 ### Linux `.tar.gz`
 
-`packaging/package_linux_tarball.sh` stages the install tree and bundles the
+`packaging/linux/package_linux_tarball.sh` stages the install tree and bundles the
 `install.sh` / `uninstall.sh` helpers at the archive root:
 
     cmake -G Ninja -DWITH_DESKTOP_INTEGRATION=ON ..
     ninja besprited
-    ../packaging/package_linux_tarball.sh        # writes besprited-<version>-linux-<arch>.tar.gz
+    ../packaging/linux/package_linux_tarball.sh  # writes besprited-<version>-linux-<arch>.tar.gz
 
 ### Linux `.deb` / `.rpm`
 
@@ -157,17 +157,17 @@ auto-detected dependencies are correct):
 
 ### macOS `.dmg`
 
-`packaging/package_macos.sh` builds the `.app` bundle, bundles the dylibs,
+`packaging/macos/package_macos.sh` builds the `.app` bundle, bundles the dylibs,
 self-signs it and wraps it in a styled drag-to-install disk image (needs
 `dylibbundler` and `dmgbuild`).
 
 ### Windows
 
-`packaging/package_win.js` copies the runtime DLLs next to `besprited.exe`;
+`packaging/windows/package_win.js` copies the runtime DLLs next to `besprited.exe`;
 the portable archive is just those files zipped up. The installer is built
-from `packaging/WindowsInstaller.iss` with [Inno Setup](https://jrsoftware.org/isinfo.php):
+from `packaging/windows/WindowsInstaller.iss` with [Inno Setup](https://jrsoftware.org/isinfo.php):
 
-    ISCC.exe /DMyAppVersion=<version> packaging/WindowsInstaller.iss
+    ISCC.exe /DMyAppVersion=<version> packaging/windows/WindowsInstaller.iss
 
 ## Static Code Analysis
 

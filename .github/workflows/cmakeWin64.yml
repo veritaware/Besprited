@@ -54,6 +54,7 @@ jobs:
         if [ -n "$TAG" ]; then
           echo "has_tag=true" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
         else
           echo "has_tag=false" >> $GITHUB_OUTPUT
         fi
@@ -72,7 +73,9 @@ jobs:
       run: |
         mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
-          cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON ..
+          cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release \
+            -DRELEASE_TAG=ON \
+            -DRELEASE_VERSION="${{ steps.check_tag.outputs.version }}" ..
         else
           cmake -S . -B build -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
         fi
@@ -84,7 +87,7 @@ jobs:
         # and the *_tests binaries out of build/bin; this is a defensive sweep so
         # nothing but the editor can end up in the portable ZIP or the installer.
         find build/bin -maxdepth 1 -type f -name '*.exe' ! -name 'besprited.exe' -delete
-        node packaging/package_win.js build/bin/besprited.exe
+        node packaging/windows/package_win.js build/bin/besprited.exe
     - name: Upload portable archive
       uses: actions/upload-artifact@v7
       with:
@@ -104,17 +107,15 @@ jobs:
       shell: bash
       run: |
         choco install innosetup --no-progress -y
-        VERSION="${{ steps.check_tag.outputs.tag }}"
-        VERSION="${VERSION#v}"
         MSYS_NO_PATHCONV=1 "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" \
-          "/DMyAppVersion=${VERSION}" \
-          packaging/WindowsInstaller.iss
+          "/DMyAppVersion=${{ steps.check_tag.outputs.version }}" \
+          packaging/windows/WindowsInstaller.iss
     - name: Upload installer
       if: steps.check_tag.outputs.has_tag == 'true'
       uses: actions/upload-artifact@v7
       with:
         name: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64-installer
-        path: packaging/besprited-*-windows-x86_64.exe
+        path: packaging/windows/besprited-*-windows-x86_64.exe
         if-no-files-found: error
     - name: Attach binaries to the release
       if: steps.check_tag.outputs.has_tag == 'true'
@@ -122,5 +123,5 @@ jobs:
       with:
         files: |
           ${{ steps.portable.outputs.zip }}
-          packaging/besprited-*-windows-x86_64.exe
+          packaging/windows/besprited-*-windows-x86_64.exe
         fail_on_unmatched_files: true

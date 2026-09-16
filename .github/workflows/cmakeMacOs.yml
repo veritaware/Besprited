@@ -8,9 +8,6 @@ on:
   pull_request:
     branches: [ trunk ]
 
-env:
-  BUILD_TYPE: Release
-
 permissions:
   contents: write
 
@@ -22,6 +19,31 @@ jobs:
     - uses: actions/checkout@v7
       with:
         submodules: 'true'
+    - name: Check for git tag
+      id: check_tag
+      run: |
+        TAG=$(git describe --exact-match --tags 2>/dev/null) || true
+        if [ -n "$TAG" ]; then
+          echo "has_tag=true" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+        else
+          echo "has_tag=false" >> $GITHUB_OUTPUT
+        fi
+    - name: Get short commit hash
+      id: commit
+      run: |
+        SHORT_HASH=$(git rev-parse --short HEAD)
+        echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
+    - name: Prepare release version
+      run: |
+        sed -i '' "s/\"local build\"/\"${{ steps.commit.outputs.short_hash }}\"/g" src/config.h
+        if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
+          VER="${{ steps.check_tag.outputs.version }}"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER" packaging/macos/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER" packaging/macos/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleLongVersionString $VER" packaging/macos/Info.plist
+        fi
     - name: Prepare environment and install dependencies
       run: |
         # macos-latest runner images come with this tap pre-added; Homebrew's
@@ -44,31 +66,14 @@ jobs:
         make all -j4
         sudo make install
         cd ..
-        plutil packaging/desktop/Info.plist
-    - name: Check for git tag
-      id: check_tag
-      run: |
-        TAG=$(git describe --exact-match --tags 2>/dev/null) || true
-        if [ -n "$TAG" ]; then
-          echo "has_tag=true" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-        else
-          echo "has_tag=false" >> $GITHUB_OUTPUT
-        fi
-    - name: Get short commit hash
-      id: commit
-      run: |
-        SHORT_HASH=$(git rev-parse --short HEAD)
-        echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
-    - name: Update config.h with commit hash
-      run: |
-        sed -i '' 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+        plutil packaging/macos/Info.plist
     - name: Generate Makefiles
       run: |
         mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
             -DRELEASE_TAG=ON \
+            -DRELEASE_VERSION="${{ steps.check_tag.outputs.version }}" \
             -DCMAKE_OSX_ARCHITECTURES=arm64 \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3 \
             -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
@@ -110,7 +115,7 @@ jobs:
         cp build/bin/besprited bundle/besprited.app/Contents/MacOS/
         cp -r build/bin/data/ bundle/besprited.app/Contents/Resources/data/
         cp besprited.icns bundle/besprited.app/Contents/Resources/
-        cp packaging/desktop/Info.plist bundle/besprited.app/Contents/
+        cp packaging/macos/Info.plist bundle/besprited.app/Contents/
         chmod +x bundle/besprited.app/Contents/MacOS/besprited
     - name: Put in Dylibs
       run: |
@@ -197,6 +202,31 @@ jobs:
     - uses: actions/checkout@v7
       with:
         submodules: 'true'
+    - name: Check for git tag
+      id: check_tag
+      run: |
+        TAG=$(git describe --exact-match --tags 2>/dev/null) || true
+        if [ -n "$TAG" ]; then
+          echo "has_tag=true" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+        else
+          echo "has_tag=false" >> $GITHUB_OUTPUT
+        fi
+    - name: Get short commit hash
+      id: commit
+      run: |
+        SHORT_HASH=$(git rev-parse --short HEAD)
+        echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
+    - name: Prepare release version
+      run: |
+        sed -i '' "s/\"local build\"/\"${{ steps.commit.outputs.short_hash }}\"/g" src/config.h
+        if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
+          VER="${{ steps.check_tag.outputs.version }}"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VER" packaging/macos/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VER" packaging/macos/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleLongVersionString $VER" packaging/macos/Info.plist
+        fi
     - name: Prepare environment and install dependencies
       run: |
         # macos-latest runner images come with this tap pre-added; Homebrew's
@@ -219,31 +249,14 @@ jobs:
         make all -j4
         sudo make install
         cd ..
-        plutil packaging/desktop/Info.plist
-    - name: Check for git tag
-      id: check_tag
-      run: |
-        TAG=$(git describe --exact-match --tags 2>/dev/null) || true
-        if [ -n "$TAG" ]; then
-          echo "has_tag=true" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-        else
-          echo "has_tag=false" >> $GITHUB_OUTPUT
-        fi
-    - name: Get short commit hash
-      id: commit
-      run: |
-        SHORT_HASH=$(git rev-parse --short HEAD)
-        echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
-    - name: Update config.h with commit hash
-      run: |
-        sed -i '' 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+        plutil packaging/macos/Info.plist
     - name: Generate Makefiles
       run: |
         mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
             -DRELEASE_TAG=ON \
+            -DRELEASE_VERSION="${{ steps.check_tag.outputs.version }}" \
             -DCMAKE_OSX_ARCHITECTURES=x86_64 \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3 \
             -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
@@ -285,7 +298,7 @@ jobs:
         cp build/bin/besprited bundle/besprited.app/Contents/MacOS/
         cp -r build/bin/data/ bundle/besprited.app/Contents/Resources/data/
         cp besprited.icns bundle/besprited.app/Contents/Resources/
-        cp packaging/desktop/Info.plist bundle/besprited.app/Contents/
+        cp packaging/macos/Info.plist bundle/besprited.app/Contents/
         chmod +x bundle/besprited.app/Contents/MacOS/besprited
     - name: Put in Dylibs
       run: |

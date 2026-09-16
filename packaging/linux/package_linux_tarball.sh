@@ -8,7 +8,7 @@
 # plus install.sh / uninstall.sh at its root.
 #
 # Usage:
-#   sh packaging/package_linux_tarball.sh [VERSION]
+#   sh packaging/linux/package_linux_tarball.sh [VERSION]
 #
 # VERSION defaults to `git describe` (falls back to "dev"). The resulting file
 # is written to build/besprited-<version>-linux-<arch>.tar.gz.
@@ -34,8 +34,8 @@ mkdir -p "$stagedir"
 cmake --install "$builddir" --prefix "$stagedir/usr"
 
 # Bundle the self-install scripts at the archive root.
-cp "$rootdir/packaging/install.sh" "$stagedir/install.sh"
-cp "$rootdir/packaging/uninstall.sh" "$stagedir/uninstall.sh"
+cp "$rootdir/packaging/linux/install.sh" "$stagedir/install.sh"
+cp "$rootdir/packaging/linux/uninstall.sh" "$stagedir/uninstall.sh"
 chmod +x "$stagedir/install.sh" "$stagedir/uninstall.sh"
 
 tarball="besprited-$version-linux-$arch.tar.gz"

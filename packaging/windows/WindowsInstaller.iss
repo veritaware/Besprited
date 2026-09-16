@@ -24,18 +24,20 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
-LicenseFile=..\LICENSE.txt
+LicenseFile=..\..\LICENSE.txt
 ; Install for the current user only so no administrator elevation is required.
 PrivilegesRequired=lowest
 OutputDir=.
 OutputBaseFilename=besprited-v{#MyAppVersion}-windows-x86_64
-SetupIconFile=..\data\icons\ase.ico
+SetupIconFile=..\..\data\icons\ase.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-WizardImageFile=iss\wizardimg.bmp
-WizardSmallImageFile=iss\wizardsmall.bmp
+WizardImageFile=..\iss\wizardimg.bmp
+WizardSmallImageFile=..\iss\wizardsmall.bmp
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
 
 [Languages]
 Name: "english";    MessagesFile: "compiler:Default.isl"
@@ -43,23 +45,23 @@ Name: "arabic";     MessagesFile: "compiler:Languages\Arabic.isl"
 Name: "german";     MessagesFile: "compiler:Languages\German.isl"
 Name: "spanish";    MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "french";     MessagesFile: "compiler:Languages\French.isl"
-Name: "hindi";      MessagesFile: "iss\languages\Hindi.islu"
-Name: "indonesian"; MessagesFile: "iss\languages\Indonesian.isl"
+Name: "hindi";      MessagesFile: "..\iss\languages\Hindi.islu"
+Name: "indonesian"; MessagesFile: "..\iss\languages\Indonesian.isl"
 Name: "italian";    MessagesFile: "compiler:Languages\Italian.isl"
 Name: "japanese";   MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "korean";     MessagesFile: "compiler:Languages\Korean.isl"
 Name: "polish";     MessagesFile: "compiler:Languages\Polish.isl"
 Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
 Name: "russian";    MessagesFile: "compiler:Languages\Russian.isl"
-Name: "chinese";    MessagesFile: "iss\languages\ChineseSimplified.isl"
+Name: "chinese";    MessagesFile: "..\iss\languages\ChineseSimplified.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "..\build\bin\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\bin\*.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\build\bin\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\build\bin\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\build\bin\*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\build\bin\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]

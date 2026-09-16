@@ -31,6 +31,7 @@ jobs:
         if [ -n "$TAG" ]; then
           echo "has_tag=true" >> $GITHUB_OUTPUT
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
         else
           echo "has_tag=false" >> $GITHUB_OUTPUT
         fi
@@ -46,7 +47,8 @@ jobs:
       run: |
         mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON -DWITH_DESKTOP_INTEGRATION=ON
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON \
+            -DRELEASE_VERSION="${{ steps.check_tag.outputs.version }}" -DWITH_DESKTOP_INTEGRATION=ON
         else
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DWITH_DESKTOP_INTEGRATION=ON
         fi
@@ -62,7 +64,7 @@ jobs:
         else
           VERSION="${{ steps.commit.outputs.short_hash }}"
         fi
-        sh packaging/package_linux_tarball.sh "$VERSION"
+        sh packaging/linux/package_linux_tarball.sh "$VERSION"
         mv build/besprited-$VERSION-linux-$ARCH.tar.gz .
         echo "tarball=besprited-$VERSION-linux-$ARCH.tar.gz" >> $GITHUB_OUTPUT
       id: tarball
@@ -76,7 +78,7 @@ jobs:
     - name: Package the AppImage
       run: |
         export ARCH="$(uname -m)"
-        sh packaging/package_linux.sh
+        sh packaging/linux/package_linux.sh
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           mv build/bin/Besprited-anylinux-$ARCH.AppImage \
              ./Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage
@@ -144,6 +146,7 @@ jobs:
       run: |
         VERSION="${GITHUB_REF_NAME#v}"
         cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON \
+          -DRELEASE_VERSION="$VERSION" \
           -DWITH_DESKTOP_INTEGRATION=ON -DENABLE_PACKAGING=ON \
           -DBESPRITED_PACKAGE_VERSION="$VERSION"
     - name: Build the binaries
@@ -199,6 +202,7 @@ jobs:
       run: |
         VERSION="${GITHUB_REF_NAME#v}"
         cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON \
+          -DRELEASE_VERSION="$VERSION" \
           -DWITH_DESKTOP_INTEGRATION=ON -DENABLE_PACKAGING=ON \
           -DBESPRITED_PACKAGE_VERSION="$VERSION"
     - name: Build the binaries

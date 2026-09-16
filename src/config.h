@@ -29,7 +29,7 @@
 #ifndef RELEASE_TAG
     #define VERSION "1.26-dev (" COMMIT ")"
 #else
-    #define VERSION "1.26.09"
+    #define VERSION RELEASE_VERSION
 #endif
 #define PACKAGE_AND_VERSION PACKAGE " " VERSION
 

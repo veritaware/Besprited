@@ -108,12 +108,16 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 # Put libraries into "lib".
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
-######################################################################
-# Check if current commit has a git tag (for release builds)
-
+# Release builds from a git tag: the version is supplied by the workflow
+# (the tag is the single source of truth).
+option(RELEASE_TAG "Building a release from a git tag" OFF)
 if(RELEASE_TAG)
-  message(STATUS "Building as RELEASE version")
+  if(NOT DEFINED RELEASE_VERSION)
+    message(FATAL_ERROR "RELEASE_VERSION must be set when RELEASE_TAG is enabled")
+  endif()
+  message(STATUS "Building as RELEASE version ${RELEASE_VERSION}")
   add_definitions(-DRELEASE_TAG)
+  add_definitions(-DRELEASE_VERSION="${RELEASE_VERSION}")
 else()
   message(STATUS "Building as DEVELOPMENT version")
 endif()
@@ -428,8 +432,12 @@ endif()
 
 if(ENABLE_PACKAGING)
   # Version: passed explicitly by CI (the release tag, without a leading "v"),
-  # otherwise parsed from the release VERSION in src/config.h.
+  # otherwise the RELEASE_VERSION set via -DRELEASE_TAG=ON, otherwise parsed
+  # from the release VERSION in src/config.h.
   set(BESPRITED_PACKAGE_VERSION "" CACHE STRING "Version string for generated packages")
+  if(NOT BESPRITED_PACKAGE_VERSION AND DEFINED RELEASE_VERSION)
+    set(BESPRITED_PACKAGE_VERSION "${RELEASE_VERSION}")
+  endif()
   if(NOT BESPRITED_PACKAGE_VERSION)
     file(READ "${CMAKE_SOURCE_DIR}/src/config.h" _besprited_config_h)
     string(REGEX MATCH "VERSION \"([0-9]+\\.[0-9]+\\.[0-9]+)\"" _ "${_besprited_config_h}")
