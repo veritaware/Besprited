@@ -175,6 +175,11 @@ double Widget::evalText() const
     return onEvalFallback();
   }
 
+  if (!onEvalAcceptable(val.value())) {
+    onEvalError("value is not acceptable");
+    return onEvalFallback();
+  }
+
   return val.value();
 }
 

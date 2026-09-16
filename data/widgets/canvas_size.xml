@@ -1,5 +1,5 @@
-<!-- LibreSprite -->
-<!-- Copyright (C) 2001-2015 by David Capello -->
+<!-- Aseprite  | Copyright (C) 2001-2015 David Capello -->
+<!-- Besprited | Copyright (C) 2026      Veritaware -->
 <gui>
  <window text="Canvas Size" id="canvas_size">
   <vbox>
@@ -7,9 +7,9 @@
     <hbox>
       <grid columns="2">
         <label text="Width:" />
-        <entry text="0" id="width" maxsize="32" maxwidth="64" suffix="px" magnet="true" />
+        <entry text="0" id="width" maxsize="32" maxwidth="64" suffix="px" magnet="true" disallowNegative="true" />
         <label text="Height:" />
-        <entry text="0" id="height" maxsize="32" maxwidth="64" suffix="px" />
+        <entry text="0" id="height" maxsize="32" maxwidth="64" suffix="px" disallowNegative="true" />
         <hbox filler="true" cell_hspan="2" />
       </grid>
       <buttonset columns="3" id="dir">

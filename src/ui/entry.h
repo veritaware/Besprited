@@ -39,6 +39,14 @@ namespace ui {
     void setSuffix(const std::string& suffix);
     const std::string& getSuffix() { return m_suffix; }
 
+    // When set, a value that evaluates negative is treated the same as
+    // one that doesn't evaluate at all: restoreLastValidText() reverts it
+    // on focus loss instead of letting it through. Off by default, since
+    // plenty of fields (Canvas Size's borders, relative color sliders)
+    // legitimately take negative numbers.
+    bool disallowNegative() const { return m_disallowNegative; }
+    void setDisallowNegative(bool state) { m_disallowNegative = state; }
+
     // for themes
     void getEntryThemeInfo(int* scroll, int* caret, int* state,
                            int* selbeg, int* selend);
@@ -59,6 +67,7 @@ namespace ui {
     void restoreLastValidText();
 
     double onEvalFallback() const override;
+    bool onEvalAcceptable(double value) const override { return isAcceptableValue(value); }
 
     // New Events
     virtual void onChange();
@@ -92,6 +101,10 @@ namespace ui {
     bool isPosInSelection(int pos);
     void showEditPopupMenu(const gfx::Point& pt);
 
+    // Whether a text that evaluates to this value counts as valid text
+    // for restoreLastValidText()/onSetText() purposes.
+    bool isAcceptableValue(double value) const;
+
     Timer m_timer;
     std::size_t m_maxsize;
     int m_caret;
@@ -112,6 +125,8 @@ namespace ui {
     std::string m_validText;
     double m_validValue;
     bool m_hasValidText;
+
+    bool m_disallowNegative;
 
     std::string m_suffix;
   };

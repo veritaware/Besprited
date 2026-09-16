@@ -237,11 +237,15 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
 
     if (maxsize != NULL) {
       bool readonly = bool_attr_is_true(elem, "readonly");
+      bool disallowNegative = bool_attr_is_true(elem, "disallowNegative");
 
       widget = new Entry(strtol(maxsize, NULL, 10), "");
 
       if (readonly)
         ((Entry*)widget)->setReadOnly(true);
+
+      if (disallowNegative)
+        ((Entry*)widget)->setDisallowNegative(true);
 
       if (suffix)
         ((Entry*)widget)->setSuffix(suffix);
