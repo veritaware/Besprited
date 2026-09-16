@@ -59,6 +59,33 @@ void writeWholeFile(const std::string& path, const std::vector<uint8_t>& data)
   out.write(reinterpret_cast<const char*>(data.data()), data.size());
 }
 
+// Creates a 1x1 image layer holding "color" at frame 0 and appends it to
+// "parent" (which may be the sprite's root folder or a group folder).
+doc::LayerImage* addImageLayer(doc::Sprite* sprite, doc::LayerFolder* parent,
+                                const std::string& name, doc::color_t color)
+{
+  auto* layer = new doc::LayerImage(sprite);
+  layer->setName(name);
+
+  doc::ImageRef image(doc::Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
+  doc::put_pixel(image.get(), 0, 0, color);
+
+  auto cel = std::make_shared<doc::Cel>(doc::frame_t(0), image);
+  layer->addCel(cel);
+
+  parent->addLayer(layer);
+  return layer;
+}
+
+bool hasAnyFolder(doc::LayerFolder* folder)
+{
+  for (doc::Layer* child : folder->getLayersList()) {
+    if (child->isFolder())
+      return true;
+  }
+  return false;
+}
+
 } // namespace
 
 TEST(AseFormat, ColorProfileChunkIsToleratedNotTreatedAsAnUnsupportedChunkWarning)
@@ -257,6 +284,175 @@ TEST(AseFormat, ModeratelyLargeImageRoundTripsWithoutCorruption)
   EXPECT_EQ(1, loadedImage->getPixel(0, 0));
   EXPECT_EQ(3, loadedImage->getPixel(w - 1, h - 1));
   EXPECT_EQ(2, loadedImage->getPixel(w / 2, h / 2));
+
+  loaded->close();
+  delete loaded;
+}
+
+TEST(AseFormat, LayerGroupsAreFlattenedToTopLevelLayersOnLoad)
+{
+  // Besprited doesn't support layer groups, so on load (AseFormat::onPostLoad)
+  // any group must be flattened into top-level image layers, preserving both
+  // the original stacking order (Timeline::onPaint indexes m_layers assuming
+  // a flat list built from Sprite::indexToLayer, which must agree with
+  // Sprite::countLayers once groups are gone) and each layer's pixels.
+  //
+  // Stack (bottom to top): Base, G1{ A, B, G2{ C } }, Top - the "Top" layer
+  // after a 2-level-deep group in particular exercises the child_level
+  // ascend-by-more-than-one-level fix in ase_file_read_layer_chunk.
+  std::unique_ptr<she::System> sys(she::create_system());
+
+  app::Context ctx;
+  doc::Document* doc = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  doc->setFilename("ase_layer_groups_test.ase");
+
+  doc::Sprite* sprite = doc->sprite();
+  doc::LayerFolder* root = sprite->folder();
+
+  doc::Layer* base = root->getFirstLayer();
+  ASSERT_TRUE(base != NULL);
+  base->setName("Base");
+  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0, doc::rgba(10, 10, 10, 255));
+
+  auto* g1 = new doc::LayerFolder(sprite);
+  g1->setName("G1");
+  addImageLayer(sprite, g1, "A", doc::rgba(20, 20, 20, 255));
+  addImageLayer(sprite, g1, "B", doc::rgba(30, 30, 30, 255));
+
+  auto* g2 = new doc::LayerFolder(sprite);
+  g2->setName("G2");
+  addImageLayer(sprite, g2, "C", doc::rgba(40, 40, 40, 255));
+  g1->addLayer(g2);
+
+  root->addLayer(g1);
+  addImageLayer(sprite, root, "Top", doc::rgba(50, 50, 50, 255));
+
+  ASSERT_EQ(0, save_document(&ctx, doc));
+  doc->close();
+  delete doc;
+
+  app::Document* loaded = load_document(&ctx, "ase_layer_groups_test.ase");
+  ASSERT_NE(nullptr, loaded);
+
+  doc::LayerFolder* loadedRoot = loaded->sprite()->folder();
+  EXPECT_FALSE(hasAnyFolder(loadedRoot))
+    << "no group should survive AseFormat::onPostLoad's flattening";
+
+  ASSERT_EQ(5, loadedRoot->getLayersCount());
+
+  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(), loadedRoot->getLayerEnd());
+  const char* expectedNames[] = { "Base", "G1-A", "G1-B", "G1-G2-C", "Top" };
+  const doc::color_t expectedColors[] = {
+    doc::rgba(10, 10, 10, 255), doc::rgba(20, 20, 20, 255), doc::rgba(30, 30, 30, 255),
+    doc::rgba(40, 40, 40, 255), doc::rgba(50, 50, 50, 255)
+  };
+
+  for (int i = 0; i < 5; ++i) {
+    SCOPED_TRACE(i);
+    ASSERT_TRUE(layers[i]->isImage());
+    EXPECT_EQ(expectedNames[i], layers[i]->name());
+    EXPECT_EQ(expectedColors[i], doc::get_pixel(layers[i]->cel(doc::frame_t(0))->image(), 0, 0));
+
+    // The flat stacking order the timeline depends on: indexToLayer's
+    // depth-first walk must agree with the root's own child order once
+    // there are no more nested groups.
+    EXPECT_EQ(layers[i], loaded->sprite()->indexToLayer(doc::LayerIndex(i)));
+  }
+  EXPECT_EQ(doc::LayerIndex(5), loaded->sprite()->countLayers());
+
+  loaded->close();
+  delete loaded;
+}
+
+TEST(AseFormat, FileWithoutGroupsIsUntouchedByFlattening)
+{
+  // Guards against the ase_ungroup_all() rewrite (needed to preserve
+  // stacking order for files that do have groups) accidentally reordering
+  // or renaming layers in the common case where there are none.
+  std::unique_ptr<she::System> sys(she::create_system());
+
+  app::Context ctx;
+  doc::Document* doc = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  doc->setFilename("ase_no_groups_test.ase");
+
+  doc::Sprite* sprite = doc->sprite();
+  doc::LayerFolder* root = sprite->folder();
+
+  doc::Layer* base = root->getFirstLayer();
+  base->setName("Base");
+  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0, doc::rgba(10, 10, 10, 255));
+  addImageLayer(sprite, root, "Middle", doc::rgba(20, 20, 20, 255));
+  addImageLayer(sprite, root, "Top", doc::rgba(30, 30, 30, 255));
+
+  ASSERT_EQ(0, save_document(&ctx, doc));
+  doc->close();
+  delete doc;
+
+  app::Document* loaded = load_document(&ctx, "ase_no_groups_test.ase");
+  ASSERT_NE(nullptr, loaded);
+
+  doc::LayerFolder* loadedRoot = loaded->sprite()->folder();
+  ASSERT_EQ(3, loadedRoot->getLayersCount());
+
+  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(), loadedRoot->getLayerEnd());
+  const char* expectedNames[] = { "Base", "Middle", "Top" };
+  for (int i = 0; i < 3; ++i) {
+    SCOPED_TRACE(i);
+    EXPECT_EQ(expectedNames[i], layers[i]->name());
+  }
+
+  loaded->close();
+  delete loaded;
+}
+
+TEST(AseFormat, DeeplyNestedGroupDropIsReparentedToRootNotCrashing)
+{
+  // Regression coverage for ase_file_read_layer_chunk's child_level
+  // handling: a drop of more than one level (G1{G2{G3{X}}} followed by a
+  // top-level Y, i.e. child_level 3 -> 0) used to call parent()->parent()
+  // exactly once regardless of how far the level actually dropped, which
+  // mis-parents (or, for a deep enough file, NULL-derefs) the next layer.
+  std::unique_ptr<she::System> sys(she::create_system());
+
+  app::Context ctx;
+  doc::Document* doc = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  doc->setFilename("ase_deep_nested_groups_test.ase");
+
+  doc::Sprite* sprite = doc->sprite();
+  doc::LayerFolder* root = sprite->folder();
+
+  doc::Layer* base = root->getFirstLayer();
+  base->setName("Base");
+  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0, doc::rgba(1, 1, 1, 255));
+
+  auto* g1 = new doc::LayerFolder(sprite);
+  g1->setName("G1");
+  auto* g2 = new doc::LayerFolder(sprite);
+  g2->setName("G2");
+  auto* g3 = new doc::LayerFolder(sprite);
+  g3->setName("G3");
+  addImageLayer(sprite, g3, "X", doc::rgba(2, 2, 2, 255));
+  g2->addLayer(g3);
+  g1->addLayer(g2);
+  root->addLayer(g1);
+
+  addImageLayer(sprite, root, "Y", doc::rgba(3, 3, 3, 255));
+
+  ASSERT_EQ(0, save_document(&ctx, doc));
+  doc->close();
+  delete doc;
+
+  app::Document* loaded = load_document(&ctx, "ase_deep_nested_groups_test.ase");
+  ASSERT_NE(nullptr, loaded);
+
+  doc::LayerFolder* loadedRoot = loaded->sprite()->folder();
+  EXPECT_FALSE(hasAnyFolder(loadedRoot));
+  ASSERT_EQ(3, loadedRoot->getLayersCount());
+
+  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(), loadedRoot->getLayerEnd());
+  EXPECT_EQ("Base", layers[0]->name());
+  EXPECT_EQ("G1-G2-G3-X", layers[1]->name());
+  EXPECT_EQ("Y", layers[2]->name());
 
   loaded->close();
   delete loaded;
