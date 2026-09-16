@@ -418,6 +418,11 @@ namespace ui {
     // Entry keeps the last value it held that did evaluate.
     virtual double onEvalFallback() const { return 0.0; }
 
+    // Whether a value that did evaluate is one textInt()/textDouble()
+    // should hand back as-is. Plain widgets accept anything finite;
+    // Entry overrides this to reject negative values when configured to.
+    virtual bool onEvalAcceptable(double /*value*/) const { return true; }
+
   private:
     // Shared back end of textInt()/textDouble().
     double evalText() const;

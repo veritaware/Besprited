@@ -48,6 +48,7 @@ Entry::Entry(std::size_t maxsize, const char* format, ...)
   , m_got_focus_message(false)
   , m_validValue(0.0)
   , m_hasValidText(false)
+  , m_disallowNegative(false)
 {
   enableFlags(CTRL_RIGHT_CLICK);
 
@@ -487,7 +488,7 @@ void Entry::onSetText()
   // a window fills the field with when it is built counts too - waiting
   // until something reads the entry as a number would miss it, and reading
   // is up to the window.
-  if (auto val = evalmath::eval(text())) {
+  if (auto val = evalmath::eval(text()); val && isAcceptableValue(val.value())) {
     m_validText = text();
     m_validValue = val.value();
     m_hasValidText = true;
@@ -508,6 +509,11 @@ double Entry::onEvalFallback() const
   return m_hasValidText ? m_validValue : 0.0;
 }
 
+bool Entry::isAcceptableValue(double value) const
+{
+  return !m_disallowNegative || value >= 0.0;
+}
+
 void Entry::restoreLastValidText()
 {
   // Only fields something actually reads as a number (see
@@ -516,8 +522,10 @@ void Entry::restoreLastValidText()
   if (!isTextReadAsNumber() || !m_hasValidText)
     return;
 
-  // What's in the field still evaluates, so there is nothing to put right.
-  if (text() == m_validText || evalmath::eval(text()))
+  // What's in the field still evaluates to an acceptable value, so there
+  // is nothing to put right.
+  auto val = evalmath::eval(text());
+  if (text() == m_validText || (val && isAcceptableValue(val.value())))
     return;
 
   // It doesn't: the user left behind something half-typed, like the lone
