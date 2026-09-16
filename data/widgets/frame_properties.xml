@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- LibreSprite -->
-<!-- Copyright (C) 2001-2015 by David Capello -->
+<!-- Aseprite  | Copyright (C) 2001-2015 David Capello -->
+<!-- Besprited | Copyright (C) 2026      Veritaware -->
 <gui>
 <window text="Frame Properties" id="frame_properties">
   <grid columns="3">
@@ -9,7 +9,7 @@
     <box cell_align="horizontal" />
 
     <label text="Duration (milliseconds):" />
-    <entry maxsize="10" id="frlen" magnet="true" />
+    <numberentry maxsize="10" id="frlen" magnet="true" min="1" max="65535" />
     <box cell_align="horizontal" />
 
     <separator horizontal="true" cell_hspan="3" />

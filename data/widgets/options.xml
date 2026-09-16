@@ -168,7 +168,7 @@
           <separator text="Undo" horizontal="true" />
           <hbox>
             <label text="Undo Limit:" />
-            <entry id="undo_size_limit" maxsize="4" tooltip="Limit of memory to be used&#10;for undo information per sprite.&#10;Specified in megabytes." />
+            <numberentry id="undo_size_limit" maxsize="4" tooltip="Limit of memory to be used&#10;for undo information per sprite.&#10;Specified in megabytes." min="1" max="9999" />
             <label text="MB" />
           </hbox>
 

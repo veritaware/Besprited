@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -114,11 +114,11 @@ void FramePropertiesCommand::onExecute(Context* context)
   else
     window.frame()->setTextf("%d", (int)firstFrame+1);
 
-  window.frlen()->setTextf("%d", sprite->frameDuration(firstFrame));
+  window.frlen()->setValue(sprite->frameDuration(firstFrame));
 
   window.openWindowInForeground();
   if (window.closer() == window.ok()) {
-    int num = window.frlen()->textInt();
+    int num = window.frlen()->getValue();
 
     ContextWriter writer(reader);
     Transaction transaction(writer.context(), "Frame Duration");

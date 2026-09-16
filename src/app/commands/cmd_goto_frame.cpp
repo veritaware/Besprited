@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -152,13 +152,14 @@ protected:
     if (m_frame == 0) {
       app::gen::GotoFrame window;
 
-      window.frame()->setTextf("%d", editor->frame()+1);
+      window.frame()->setMax(editor->sprite()->lastFrame()+1);
+      window.frame()->setValue(editor->frame()+1);
 
       window.openWindowInForeground();
       if (window.closer() != window.ok())
         return editor->frame();
 
-      m_frame = window.frame()->textInt();
+      m_frame = window.frame()->getValue();
     }
 
     return MID(0, m_frame-1, editor->sprite()->lastFrame());

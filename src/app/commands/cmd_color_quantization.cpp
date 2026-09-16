@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -104,7 +104,7 @@ void ColorQuantizationCommand::onExecute(Context* context)
       window.newPalette()->setSelected(true);
       window.alphaChannel()->setSelected(
         App::instance()->preferences().quantization.withAlpha());
-      window.ncolors()->setText("256");
+      window.ncolors()->setValue(256);
 
       ColorBar::instance()->getPaletteView()->getSelectedEntries(entries);
       if (entries.picks() > 1) {
@@ -131,8 +131,7 @@ void ColorQuantizationCommand::onExecute(Context* context)
 
     bool createPal = false;
     if (window.newPalette()->isSelected()) {
-      int n = window.ncolors()->textInt();
-      n = MAX(1, n);
+      int n = window.ncolors()->getValue();
       entries = PalettePicks(n);
       entries.all();
       createPal = true;
