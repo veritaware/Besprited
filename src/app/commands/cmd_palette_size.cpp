@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,8 +19,6 @@
 #include "doc/sprite.h"
 
 #include "palette_size.xml.h"
-
-#include <climits>
 
 namespace app {
 
@@ -58,14 +56,14 @@ void PaletteSizeCommand::onExecute(Context* context)
   auto palette = sprite->palette(frame)->clone();
 
   app::gen::PaletteSize window;
-  window.colors()->setTextf("%d", palette->size());
+  window.colors()->setValue(palette->size());
   window.openWindowInForeground();
   if (window.closer() == window.ok()) {
-    int ncolors = window.colors()->textInt();
+    int ncolors = window.colors()->getValue();
     if (ncolors == palette->size())
       return;
 
-    palette->resize(MID(1, ncolors, INT_MAX));
+    palette->resize(ncolors);
 
     Transaction transaction(context, "Palette Size", ModifyDocument);
     transaction.execute(new cmd::SetPalette(sprite, frame, *palette));

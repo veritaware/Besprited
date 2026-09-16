@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C)      2021  LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C)      2021 LibreSprite contributors
+// Besprited   | Copyright (C)      2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -70,7 +71,7 @@ public:
     if (!m_face.empty())
       updateFontFaceButton();
 
-    fontSize()->setTextf("%d", size);
+    fontSize()->setValue(size);
     fontFace()->Click.connect(base::Bind<void>(&PasteTextWindow::onSelectFontFile, this));
     fontFace()->DropDownClick.connect(base::Bind<void>(&PasteTextWindow::onSelectSystemFont, this));
     fontColor()->setColor(color);
@@ -82,9 +83,7 @@ public:
   }
 
   int sizeValue() const {
-    int size = fontSize()->textInt();
-    size = MID(1, size, 5000);
-    return size;
+    return fontSize()->getValue();
   }
 
 private:
@@ -186,7 +185,6 @@ void PasteTextCommand::onExecute(Context* ctx)
   bool antialias = window.antialias()->isSelected();
   std::string faceName = window.faceValue();
   int size = window.sizeValue();
-  size = MID(1, size, 999);
   pref.textTool.fontFace(faceName);
   pref.textTool.fontSize(size);
   pref.textTool.antialias(antialias);

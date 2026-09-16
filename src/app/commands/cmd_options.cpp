@@ -242,7 +242,7 @@ public:
 #endif
 
     // Undo preferences
-    undoSizeLimit()->setTextf("%d", m_pref.undo.sizeLimit());
+    undoSizeLimit()->setValue(m_pref.undo.sizeLimit());
     undoGotoModified()->setSelected(m_pref.undo.gotoModified());
     undoAllowNonlinearHistory()->setSelected(m_pref.undo.allowNonlinearHistory());
 
@@ -325,11 +325,7 @@ public:
     m_curPref->bg.color1(m_checked_bg_color1->getColor());
     m_curPref->bg.color2(m_checked_bg_color2->getColor());
 
-    int undo_size_limit_value;
-    undo_size_limit_value = undoSizeLimit()->textInt();
-    undo_size_limit_value = MID(1, undo_size_limit_value, 9999);
-
-    m_pref.undo.sizeLimit(undo_size_limit_value);
+    m_pref.undo.sizeLimit(undoSizeLimit()->getValue());
     m_pref.undo.gotoModified(undoGotoModified()->isSelected());
     m_pref.undo.allowNonlinearHistory(undoAllowNonlinearHistory()->isSelected());
 

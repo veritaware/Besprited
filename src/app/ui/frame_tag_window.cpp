@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,8 +20,10 @@ FrameTagWindow::FrameTagWindow(const doc::Sprite* sprite, const doc::FrameTag* f
   : m_sprite(sprite)
 {
   name()->setText(frameTag->name());
-  from()->setTextf("%d", frameTag->fromFrame()+1);
-  to()->setTextf("%d", frameTag->toFrame()+1);
+  from()->setMax(sprite->lastFrame()+1);
+  to()->setMax(sprite->lastFrame()+1);
+  from()->setValue(frameTag->fromFrame()+1);
+  to()->setValue(frameTag->toFrame()+1);
   color()->setColor(app::Color::fromRgb(
       doc::rgba_getr(frameTag->color()),
       doc::rgba_getg(frameTag->color()),
@@ -53,8 +55,8 @@ void FrameTagWindow::rangeValue(doc::frame_t& from, doc::frame_t& to)
   doc::frame_t first = 0;
   doc::frame_t last = m_sprite->lastFrame();
 
-  from = this->from()->textInt()-1;
-  to   = this->to()->textInt()-1;
+  from = this->from()->getValue()-1;
+  to   = this->to()->getValue()-1;
   from = MID(first, from, last);
   to   = MID(from, to, last);
 }

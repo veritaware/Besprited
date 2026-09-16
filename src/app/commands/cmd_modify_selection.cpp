@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2015, 2016  David Capello
+// Aseprite  | Copyright (C) 2015-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -103,7 +103,7 @@ void ModifySelectionCommand::onExecute(Context* context)
     else
       window.byLabel()->setText(getActionName() + " By:");
 
-    window.quantity()->setTextf("%d", pref.selection.modifySelectionQuantity());
+    window.quantity()->setValue(pref.selection.modifySelectionQuantity());
 
     brush = (pref.selection.modifySelectionBrush() == app::gen::BrushType::CIRCLE
              ? doc::kCircleBrushType:
@@ -115,8 +115,7 @@ void ModifySelectionCommand::onExecute(Context* context)
     if (window.closer() != window.ok())
       return;
 
-    quantity = window.quantity()->textInt();
-    quantity = MID(1, quantity, 100);
+    quantity = window.quantity()->getValue();
 
     brush = (window.circle()->isSelected() ? doc::kCircleBrushType:
                                              doc::kSquareBrushType);

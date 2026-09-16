@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- LibreSprite -->
-<!-- Copyright (C) 2015 by David Capello -->
+<!-- Aseprite  | Copyright (C) 2015 David Capello -->
+<!-- Besprited | Copyright (C) 2026 Veritaware -->
 <gui>
 <window text="Frame Tag Properties" id="frame_tag_properties">
   <grid columns="2">
@@ -8,10 +8,10 @@
     <entry maxsize="256" id="name" magnet="true" />
 
     <label text="From:" />
-    <entry maxsize="10" id="from" />
+    <numberentry maxsize="10" id="from" min="1" max="9999" />
 
     <label text="To:" />
-    <entry maxsize="10" id="to" />
+    <numberentry maxsize="10" id="to" min="1" max="9999" />
 
     <label text="Color:" />
     <colorpicker id="color" />
