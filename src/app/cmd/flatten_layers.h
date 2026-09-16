@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,18 +10,18 @@
 #include "app/cmd/with_sprite.h"
 #include "app/cmd_sequence.h"
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class FlattenLayers : public CmdSequence
-                      , public WithSprite {
-  public:
-    FlattenLayers(Sprite* sprite);
+class FlattenLayers : public CmdSequence,
+                      public WithSprite
+{
+public:
+  explicit FlattenLayers(const Sprite* sprite);
 
-  protected:
-    void onExecute() override;
-  };
+protected:
+  void onExecute() override;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

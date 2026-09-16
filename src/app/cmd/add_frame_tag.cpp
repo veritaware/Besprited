@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,14 +15,14 @@
 #include "doc/frame_tag_io.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-AddFrameTag::AddFrameTag(Sprite* sprite, FrameTag* frameTag)
+AddFrameTag::AddFrameTag(const Sprite* sprite, const FrameTag* tag)
   : WithSprite(sprite)
-  , WithFrameTag(frameTag)
+  , WithFrameTag(tag)
   , m_size(0)
 {
 }
@@ -41,7 +41,7 @@ void AddFrameTag::onUndo()
   Sprite* sprite = this->sprite();
   FrameTag* frameTag = this->frameTag();
   write_frame_tag(m_stream, frameTag);
-  m_size = size_t(m_stream.tellp());
+  m_size = static_cast<size_t>(m_stream.tellp());
 
   sprite->frameTags().remove(frameTag);
   sprite->incrementVersion();
@@ -61,5 +61,4 @@ void AddFrameTag::onRedo()
   m_size = 0;
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,26 +11,24 @@
 #include "app/cmd/with_frame_tag.h"
 #include "doc/anidir.h"
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class SetFrameTagAniDir : public Cmd
-                          , public WithFrameTag {
-  public:
-    SetFrameTagAniDir(FrameTag* tag, doc::AniDir anidir);
+class SetFrameTagAniDir : public Cmd,
+                          public WithFrameTag
+{
+public:
+  SetFrameTagAniDir(const FrameTag* tag, AniDir anidir);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    size_t onMemSize() const override {
-      return sizeof(*this);
-    }
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this); }
 
-  private:
-    doc::AniDir m_oldAniDir;
-    doc::AniDir m_newAniDir;
-  };
+private:
+  AniDir m_oldAniDir;
+  AniDir m_newAniDir;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

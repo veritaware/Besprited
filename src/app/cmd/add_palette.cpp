@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,18 +15,18 @@
 #include "doc/palette.h"
 #include "doc/palette_io.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-AddPalette::AddPalette(Sprite* sprite, Palette& pal)
+AddPalette::AddPalette(const Sprite* sprite, const Palette& pal)
   : WithSprite(sprite)
   , m_size(0)
   , m_frame(pal.frame())
 {
   write_palette(m_stream, pal);
-  m_size = size_t(m_stream.tellp());
+  m_size = static_cast<size_t>(m_stream.tellp());
 }
 
 void AddPalette::onExecute()
@@ -34,7 +34,7 @@ void AddPalette::onExecute()
   m_stream.seekp(0);
 
   Sprite* sprite = this->sprite();
-  auto pal = read_palette(m_stream);
+  const auto pal = read_palette(m_stream);
 
   sprite->setPalette(*pal, true);
   sprite->incrementVersion();
@@ -48,5 +48,4 @@ void AddPalette::onUndo()
   sprite->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

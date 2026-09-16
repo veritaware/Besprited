@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,33 +14,32 @@
 
 #include <vector>
 
-namespace doc {
-  class Image;
+namespace doc
+{
+class Image;
 }
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class FlipImage : public Cmd
-                  , public WithImage {
-  public:
-    FlipImage(Image* image, const gfx::Rect& bounds,
-      doc::algorithm::FlipType flipType);
+class FlipImage : public Cmd,
+                  public WithImage
+{
+public:
+  FlipImage(const Image* image, const gfx::Rect& bounds,
+            algorithm::FlipType flipType);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    size_t onMemSize() const override {
-      return sizeof(*this);
-    }
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this); }
 
-  private:
-    void swap();
+private:
+  void swap() const;
 
-    gfx::Rect m_bounds;
-    doc::algorithm::FlipType m_flipType;
-  };
+  gfx::Rect m_bounds;
+  algorithm::FlipType m_flipType;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

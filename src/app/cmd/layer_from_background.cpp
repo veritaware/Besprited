@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,25 +16,25 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
-
-LayerFromBackground::LayerFromBackground(Layer* layer)
+namespace app::cmd
 {
-  ASSERT(layer != NULL);
+
+LayerFromBackground::LayerFromBackground(const Layer* layer)
+{
+  ASSERT(layer != nullptr);
   ASSERT(layer->isVisible());
   ASSERT(layer->isEditable());
   ASSERT(layer->isBackground());
-  ASSERT(layer->sprite() != NULL);
-  ASSERT(layer->sprite()->backgroundLayer() != NULL);
+  ASSERT(layer->sprite() != nullptr);
+  ASSERT(layer->sprite()->backgroundLayer() != nullptr);
 
   // Remove "Background" and "LockMove" flags
-  LayerFlags newFlags = LayerFlags(int(layer->flags())
-    & ~int(LayerFlags::BackgroundLayerFlags));
+  const auto newFlags = static_cast<LayerFlags>(
+      static_cast<int>(layer->flags()) &
+      ~static_cast<int>(LayerFlags::BackgroundLayerFlags));
 
-  add(new cmd::SetLayerFlags(layer, newFlags));
-  add(new cmd::SetLayerName(layer, "Layer 0"));
+  add(new SetLayerFlags(layer, newFlags));
+  add(new SetLayerName(layer, "Layer 0"));
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

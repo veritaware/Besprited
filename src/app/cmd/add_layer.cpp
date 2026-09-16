@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,12 +17,13 @@
 #include "doc/layer_io.h"
 #include "doc/subobjects_io.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-AddLayer::AddLayer(Layer* folder, Layer* newLayer, Layer* afterThis)
+AddLayer::AddLayer(const Layer* folder, const Layer* newLayer,
+                   const Layer* afterThis)
   : m_folder(folder)
   , m_newLayer(newLayer)
   , m_afterThis(afterThis)
@@ -45,7 +46,7 @@ void AddLayer::onUndo()
   Layer* layer = m_newLayer.layer();
 
   write_layer(m_stream, layer);
-  m_size = size_t(m_stream.tellp());
+  m_size = static_cast<size_t>(m_stream.tellp());
 
   removeLayer(folder, layer);
 }
@@ -66,8 +67,8 @@ void AddLayer::onRedo()
 
 void AddLayer::addLayer(Layer* folder, Layer* newLayer, Layer* afterThis)
 {
-  static_cast<LayerFolder*>(folder)->addLayer(newLayer);
-  static_cast<LayerFolder*>(folder)->stackLayer(newLayer, afterThis);
+  dynamic_cast<LayerFolder*>(folder)->addLayer(newLayer);
+  dynamic_cast<LayerFolder*>(folder)->stackLayer(newLayer, afterThis);
   folder->incrementVersion();
 
   Document* doc = folder->sprite()->document();
@@ -83,15 +84,16 @@ void AddLayer::removeLayer(Layer* folder, Layer* layer)
   DocumentEvent ev(doc);
   ev.sprite(layer->sprite());
   ev.layer(layer);
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onBeforeRemoveLayer, ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onBeforeRemoveLayer,
+                                       ev);
 
-  static_cast<LayerFolder*>(folder)->removeLayer(layer);
+  dynamic_cast<LayerFolder*>(folder)->removeLayer(layer);
   folder->incrementVersion();
 
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onAfterRemoveLayer, ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onAfterRemoveLayer,
+                                       ev);
 
   delete layer;
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

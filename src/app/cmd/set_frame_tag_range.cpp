@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,10 +13,11 @@
 
 #include "doc/frame_tag.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetFrameTagRange::SetFrameTagRange(FrameTag* tag, frame_t from, frame_t to)
+SetFrameTagRange::SetFrameTagRange(const FrameTag* tag, const frame_t from,
+                                   const frame_t to)
   : WithFrameTag(tag)
   , m_oldFrom(tag->fromFrame())
   , m_oldTo(tag->toFrame())
@@ -37,5 +38,4 @@ void SetFrameTagRange::onUndo()
   frameTag()->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

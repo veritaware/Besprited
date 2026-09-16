@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,10 +13,10 @@
 
 #include "doc/frame_tag.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetFrameTagAniDir::SetFrameTagAniDir(FrameTag* tag, doc::AniDir anidir)
+SetFrameTagAniDir::SetFrameTagAniDir(const FrameTag* tag, const AniDir anidir)
   : WithFrameTag(tag)
   , m_oldAniDir(tag->aniDir())
   , m_newAniDir(anidir)
@@ -35,5 +35,4 @@ void SetFrameTagAniDir::onUndo()
   frameTag()->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

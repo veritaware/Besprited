@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,12 +15,12 @@
 #include "doc/image.h"
 #include "doc/primitives.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-ClearImage::ClearImage(Image* image, color_t color)
+ClearImage::ClearImage(const Image* image, const color_t color)
   : WithImage(image)
   , m_color(color)
 {
@@ -47,5 +47,4 @@ void ClearImage::onUndo()
   image->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

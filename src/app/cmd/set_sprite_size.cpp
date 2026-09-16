@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,10 +15,11 @@
 #include "doc/document_event.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetSpriteSize::SetSpriteSize(Sprite* sprite, int newWidth, int newHeight)
+SetSpriteSize::SetSpriteSize(const Sprite* sprite, const int newWidth,
+                             const int newHeight)
   : WithSprite(sprite)
   , m_oldWidth(sprite->width())
   , m_oldHeight(sprite->height())
@@ -32,14 +33,14 @@ SetSpriteSize::SetSpriteSize(Sprite* sprite, int newWidth, int newHeight)
 void SetSpriteSize::onExecute()
 {
   Sprite* spr = sprite();
-  spr->setSize(m_newWidth, m_newHeight);
+  spr->setSize(static_cast<int>(m_newWidth), static_cast<int>(m_newHeight));
   spr->incrementVersion();
 }
 
 void SetSpriteSize::onUndo()
 {
   Sprite* spr = sprite();
-  spr->setSize(m_oldWidth, m_oldHeight);
+  spr->setSize(static_cast<int>(m_oldWidth), static_cast<int>(m_oldHeight));
   spr->incrementVersion();
 }
 
@@ -48,8 +49,8 @@ void SetSpriteSize::onFireNotifications()
   Sprite* sprite = this->sprite();
   DocumentEvent ev(sprite->document());
   ev.sprite(sprite);
-  sprite->document()->notifyObservers<DocumentEvent&>(&DocumentObserver::onSpriteSizeChanged, ev);
+  sprite->document()->notifyObservers<DocumentEvent&>(
+      &DocumentObserver::onSpriteSizeChanged, ev);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

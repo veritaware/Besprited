@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,15 +16,13 @@
 #include "app/cmd/trim_cel.h"
 #include "doc/cel.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-  PatchCel::PatchCel(std::shared_ptr<doc::Cel> dstCel,
-                   const doc::Image* patch,
-                   const gfx::Region& patchedRegion,
-                   const gfx::Point& patchPos)
+PatchCel::PatchCel(const std::shared_ptr<Cel>& dstCel, const Image* patch,
+                   const gfx::Region& patchedRegion, const gfx::Point& patchPos)
   : WithCel(dstCel)
   , m_patch(patch)
   , m_region(patchedRegion)
@@ -34,24 +32,17 @@ using namespace doc;
 
 void PatchCel::onExecute()
 {
-  auto cel = this->cel();
+  const auto cel = this->cel();
+
+  executeAndAdd(new CropCel(
+      cel, cel->bounds() | gfx::Rect(m_region.bounds()).offset(m_pos)));
 
   executeAndAdd(
-    new CropCel(cel,
-                cel->bounds() |
-                gfx::Rect(m_region.bounds()).offset(m_pos)));
+      new CopyRegion(cel->image(), m_patch, m_region, m_pos - cel->position()));
 
-  executeAndAdd(
-    new CopyRegion(cel->image(),
-                   m_patch,
-                   m_region,
-                   m_pos - cel->position()));
-
-  executeAndAdd(
-    new TrimCel(cel));
+  executeAndAdd(new TrimCel(cel));
 
   m_patch = nullptr;
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

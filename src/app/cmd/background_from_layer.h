@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,18 +10,17 @@
 #include "app/cmd/with_layer.h"
 #include "app/cmd_sequence.h"
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class BackgroundFromLayer : public CmdSequence
-                            , public WithLayer {
-  public:
-    BackgroundFromLayer(Layer* layer);
+class BackgroundFromLayer : public CmdSequence,
+                            public WithLayer
+{
+public:
+  explicit BackgroundFromLayer(const Layer* layer);
 
-  protected:
-    void onExecute() override;
-  };
-
-} // namespace cmd
-} // namespace app
+protected:
+  void onExecute() override;
+};
+} // namespace app::cmd

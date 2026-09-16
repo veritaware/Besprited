@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,14 +21,14 @@
 #include "doc/layer.h"
 #include "doc/subobjects_io.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
 using namespace doc;
 
-AddCel::AddCel(Layer* layer, std::shared_ptr<Cel> cel)
+AddCel::AddCel(const Layer* layer, const std::shared_ptr<Cel>& cel)
   : WithLayer(layer)
   , WithCel(cel)
   , m_size(0)
@@ -38,7 +38,7 @@ AddCel::AddCel(Layer* layer, std::shared_ptr<Cel> cel)
 void AddCel::onExecute()
 {
   Layer* layer = this->layer();
-  auto cel = this->cel();
+  const auto cel = this->cel();
 
   addCel(layer, cel);
 }
@@ -46,17 +46,19 @@ void AddCel::onExecute()
 void AddCel::onUndo()
 {
   Layer* layer = this->layer();
-  auto cel = this->cel();
+  const auto cel = this->cel();
 
   // Save the CelData only if the cel isn't linked
-  bool has_data = (cel->links() == 0);
-  write8(m_stream, has_data ? 1: 0);
-  if (has_data) {
+  const bool has_data = cel->links() == 0;
+  write8(m_stream, has_data ? 1 : 0);
+
+  if (has_data)
+  {
     write_image(m_stream, cel->image());
     write_celdata(m_stream, cel->data());
   }
   write_cel(m_stream, cel.get());
-  m_size = size_t(m_stream.tellp());
+  m_size = static_cast<size_t>(m_stream.tellp());
 
   removeCel(layer, cel);
 }
@@ -66,16 +68,16 @@ void AddCel::onRedo()
   Layer* layer = this->layer();
 
   SubObjectsFromSprite io(layer->sprite());
-  bool has_data = (read8(m_stream) != 0);
-  if (has_data) {
-    ImageRef image(read_image(m_stream));
+  if (read8(m_stream) != 0)
+  {
+    const ImageRef image(read_image(m_stream));
     io.addImageRef(image);
 
-    CelDataRef celdata(read_celdata(m_stream, &io));
-    io.addCelDataRef(celdata);
+    const CelDataRef cel_data(read_celdata(m_stream, &io));
+    io.addCelDataRef(cel_data);
   }
 
-  std::shared_ptr<Cel> cel{read_cel(m_stream, &io)};
+  const std::shared_ptr<Cel> cel{read_cel(m_stream, &io)};
   addCel(layer, cel);
 
   m_stream.str(std::string());
@@ -83,9 +85,9 @@ void AddCel::onRedo()
   m_size = 0;
 }
 
-void AddCel::addCel(Layer* layer, std::shared_ptr<Cel> cel)
+void AddCel::addCel(Layer* layer, const std::shared_ptr<Cel>& cel)
 {
-  static_cast<LayerImage*>(layer)->addCel(cel);
+  dynamic_cast<LayerImage*>(layer)->addCel(cel);
   layer->incrementVersion();
 
   Document* doc = cel->document();
@@ -96,7 +98,7 @@ void AddCel::addCel(Layer* layer, std::shared_ptr<Cel> cel)
   doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onAddCel, ev);
 }
 
-void AddCel::removeCel(Layer* layer, std::shared_ptr<Cel> cel)
+void AddCel::removeCel(Layer* layer, const std::shared_ptr<Cel>& cel)
 {
   Document* doc = cel->document();
   DocumentEvent ev(doc);
@@ -105,9 +107,8 @@ void AddCel::removeCel(Layer* layer, std::shared_ptr<Cel> cel)
   ev.cel(cel);
   doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onRemoveCel, ev);
 
-  static_cast<LayerImage*>(layer)->removeCel(cel);
+  dynamic_cast<LayerImage*>(layer)->removeCel(cel);
   layer->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

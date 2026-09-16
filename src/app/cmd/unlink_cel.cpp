@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,12 +15,12 @@
 #include "doc/image.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-UnlinkCel::UnlinkCel(std::shared_ptr<Cel> cel)
+UnlinkCel::UnlinkCel(const std::shared_ptr<Cel>& cel)
   : WithCel(cel)
   , m_newImageId(0)
   , m_oldCelDataId(cel->dataRef()->id())
@@ -31,20 +31,22 @@ UnlinkCel::UnlinkCel(std::shared_ptr<Cel> cel)
 
 void UnlinkCel::onExecute()
 {
-  auto cel = this->cel();
-  CelDataRef oldCelData = cel->sprite()->getCelDataRef(m_oldCelDataId);
+  const auto cel = this->cel();
+  const CelDataRef oldCelData = cel->sprite()->getCelDataRef(m_oldCelDataId);
   ASSERT(oldCelData);
 
-  ImageRef imgCopy(Image::createCopy(oldCelData->image()));
-  CelDataRef celDataCopy(new CelData(*oldCelData));
+  const ImageRef imgCopy(Image::createCopy(oldCelData->image()));
+  const CelDataRef celDataCopy(new CelData(*oldCelData));
   celDataCopy->setImage(imgCopy);
   celDataCopy->setUserData(oldCelData->userData());
 
-  if (m_newImageId) {
+  if (m_newImageId)
+  {
     imgCopy->setId(m_newImageId);
     celDataCopy->setId(m_newCelDataId);
   }
-  else {
+  else
+  {
     m_newImageId = imgCopy->id();
     m_newCelDataId = celDataCopy->id();
   }
@@ -55,13 +57,12 @@ void UnlinkCel::onExecute()
 
 void UnlinkCel::onUndo()
 {
-  auto cel = this->cel();
-  CelDataRef oldCelData = cel->sprite()->getCelDataRef(m_oldCelDataId);
+  const auto cel = this->cel();
+  const CelDataRef oldCelData = cel->sprite()->getCelDataRef(m_oldCelDataId);
   ASSERT(oldCelData);
 
   cel->setDataRef(oldCelData);
   cel->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

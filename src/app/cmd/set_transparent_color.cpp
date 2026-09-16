@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,10 +15,11 @@
 #include "doc/document_event.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetTransparentColor::SetTransparentColor(Sprite* sprite, color_t newMask)
+SetTransparentColor::SetTransparentColor(const Sprite* sprite,
+                                         const color_t newMask)
   : WithSprite(sprite)
   , m_oldMaskColor(sprite->transparentColor())
   , m_newMaskColor(newMask)
@@ -44,8 +45,8 @@ void SetTransparentColor::onFireNotifications()
   Sprite* sprite = this->sprite();
   DocumentEvent ev(sprite->document());
   ev.sprite(sprite);
-  sprite->document()->notifyObservers<DocumentEvent&>(&DocumentObserver::onSpriteTransparentColorChanged, ev);
+  sprite->document()->notifyObservers<DocumentEvent&>(
+      &DocumentObserver::onSpriteTransparentColorChanged, ev);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

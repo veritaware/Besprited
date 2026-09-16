@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,23 +13,21 @@
 
 #include "doc/layer.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-WithLayer::WithLayer(Layer* layer)
-  : m_layerId(layer ? layer->id(): 0)
+WithLayer::WithLayer(const Layer* layer)
+  : m_layerId(layer ? layer->id() : 0)
 {
 }
 
-Layer* WithLayer::layer()
+Layer* WithLayer::layer() const
 {
   if (m_layerId)
     return get<Layer>(m_layerId);
-  else
-    return nullptr;
+  return nullptr;
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

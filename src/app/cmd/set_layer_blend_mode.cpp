@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,10 +16,11 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetLayerBlendMode::SetLayerBlendMode(LayerImage* layer, BlendMode blendMode)
+SetLayerBlendMode::SetLayerBlendMode(const LayerImage* layer,
+                                     const BlendMode blendMode)
   : WithLayer(layer)
   , m_oldBlendMode(layer->blendMode())
   , m_newBlendMode(blendMode)
@@ -28,25 +29,25 @@ SetLayerBlendMode::SetLayerBlendMode(LayerImage* layer, BlendMode blendMode)
 
 void SetLayerBlendMode::onExecute()
 {
-  static_cast<LayerImage*>(layer())->setBlendMode(m_newBlendMode);
+  dynamic_cast<LayerImage*>(layer())->setBlendMode(m_newBlendMode);
   layer()->incrementVersion();
 }
 
 void SetLayerBlendMode::onUndo()
 {
-  static_cast<LayerImage*>(layer())->setBlendMode(m_oldBlendMode);
+  dynamic_cast<LayerImage*>(layer())->setBlendMode(m_oldBlendMode);
   layer()->incrementVersion();
 }
 
 void SetLayerBlendMode::onFireNotifications()
 {
   Layer* layer = this->layer();
-  doc::Document* doc = layer->sprite()->document();
+  Document* doc = layer->sprite()->document();
   DocumentEvent ev(doc);
   ev.sprite(layer->sprite());
   ev.layer(layer);
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerBlendModeChange, ev);
+  doc->notifyObservers<DocumentEvent&>(
+      &DocumentObserver::onLayerBlendModeChange, ev);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

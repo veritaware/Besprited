@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,33 +14,31 @@
 
 #include <memory>
 
-namespace doc {
-  class Sprite;
+namespace doc
+{
+class Sprite;
 }
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class AddFrame : public Cmd
-                 , public WithSprite {
-  public:
-    AddFrame(Sprite* sprite, frame_t frame);
+class AddFrame : public Cmd,
+                 public WithSprite
+{
+public:
+  AddFrame(const Sprite* sprite, frame_t frame);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    size_t onMemSize() const override {
-      return sizeof(*this) +
-        (m_addCel ? m_addCel->memSize() : 0);
-    }
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  [[nodiscard]] size_t onMemSize() const override
+  {
+    return sizeof(*this) + (m_addCel ? m_addCel->memSize() : 0);
+  }
 
-  private:
-    void moveFrames(Layer* layer, frame_t fromThis, frame_t delta);
-
-    frame_t m_newFrame;
-    std::unique_ptr<AddCel> m_addCel;
-  };
-
-} // namespace cmd
-} // namespace app
+private:
+  frame_t m_newFrame;
+  std::unique_ptr<AddCel> m_addCel;
+};
+} // namespace app::cmd

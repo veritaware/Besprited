@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,27 +11,25 @@
 #include "app/cmd/with_sprite.h"
 #include "doc/frame.h"
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class SetTotalFrames : public Cmd
-                       , public WithSprite {
-  public:
-    SetTotalFrames(Sprite* sprite, frame_t frames);
+class SetTotalFrames : public Cmd,
+                       public WithSprite
+{
+public:
+  SetTotalFrames(const Sprite* sprite, frame_t frames);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    void onFireNotifications() override;
-    size_t onMemSize() const override {
-      return sizeof(*this);
-    }
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  void onFireNotifications() override;
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this); }
 
-  private:
-    frame_t m_oldFrames;
-    frame_t m_newFrames;
-  };
+private:
+  frame_t m_oldFrames;
+  frame_t m_newFrames;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd
