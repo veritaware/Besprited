@@ -121,13 +121,17 @@ and `test/app/script_api_tests.cpp` (app API level).
 
 - Branches: `trunk` is the primary development branch (this repo's default). `ls-develop` tracks upstream
   LibreSprite's `master` for periodic merges; feature/fix branches meant to be shareable with LibreSprite
-  are usually based on `ls-develop`. Feature/PR branches should be named
+  are usually based on `ls-develop`. Feature/PR branches for Besprited should be named
   `username/short-description`.
+  \
+  Feature/PR branches meant upstream for LibreSprite should be named `username/ls/short-description`.
 - Commit messages: imperative mood ("Fix bug", not "Fixed bug"), subject line ≤ 50 chars, reference closed
   issues (e.g. "Fixes #123"). For non-source changes (docs, workflows, issue templates, etc.), add a
   trailing `NO_SW_CHANGE` line to skip GitHub build workflows.
 - AI-assisted contributions are allowed but must be reviewed/understood by the human submitting them, and
-  must be marked as AI-co-authored in the commit (e.g. `Co-authored-by: Claude <noreply@anthropic.com>`).
+  must be marked as AI-co-authored in the commit (e.g. `Co-authored-by: Claude <noreply@anthropic.com>`;
+  **does not apply to any contributions targeting LibreSprite – there the commit message should not contain
+  any `co-authored-by` lines**).
   See `AI_USAGE.md` for the full policy — unreviewed/low-quality AI output is grounds for immediate PR
   rejection.
 - **Copyright headers:** for every `.h`/`.hpp`/`.c`/`.cpp`/`.xml`/`CMakeLists.txt` file you modify, check
@@ -137,3 +141,8 @@ and `test/app/script_api_tests.cpp` (app API level).
   drop the `Besprited | ` prefix and use a bare `// Copyright (C) 2026 Veritaware` instead — the prefix
   exists only to line up multiple authors/years on separate lines. For exempt files list check
   `.github/copyright-exempt.txt`.
+  \
+  \
+  In case of changes tagreting LibreSprite repo, the header format should be adapted accordingly, e.g.
+  \
+  `// LibreSprite | Copyright (C) 2016-2026 LibreSprite contributors`.
