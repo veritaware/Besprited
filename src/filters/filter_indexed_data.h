@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,20 +7,23 @@
 
 #pragma once
 
-namespace doc {
-  class Palette;
-  class RgbMap;
+namespace doc
+{
+class Palette;
+class RgbMap;
 }
 
-namespace filters {
+namespace filters
+{
 
-  // Provides a Palette and a RgbMap to help a Filter which operate
-  // over an indexed image.
-  class FilterIndexedData {
-  public:
-    virtual ~FilterIndexedData() { }
-    virtual doc::Palette* getPalette() = 0;
-    virtual doc::RgbMap* getRgbMap() = 0;
-  };
+// Provides a Palette and a RgbMap to help a Filter which operate
+// over an indexed image.
+class FilterIndexedData
+{
+public:
+  virtual ~FilterIndexedData() {}
+  virtual doc::Palette* getPalette() = 0;
+  virtual doc::RgbMap* getRgbMap() = 0;
+};
 
 } // namespace filters

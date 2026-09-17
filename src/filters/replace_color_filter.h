@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,30 +9,32 @@
 
 #include "filters/filter.h"
 
-namespace filters {
+namespace filters
+{
 
-  class ReplaceColorFilter : public Filter {
-  public:
-    ReplaceColorFilter();
+class ReplaceColorFilter : public Filter
+{
+public:
+  ReplaceColorFilter();
 
-    void setFrom(int from);
-    void setTo(int to);
-    void setTolerance(int tolerance);
+  void setFrom(int from);
+  void setTo(int to);
+  void setTolerance(int tolerance);
 
-    int getFrom() const { return m_from; }
-    int getTo() const { return m_to; }
-    int getTolerance() const { return m_tolerance; }
+  int getFrom() const { return m_from; }
+  int getTo() const { return m_to; }
+  int getTolerance() const { return m_tolerance; }
 
-    // Filter implementation
-    const char* getName();
-    void applyToRgba(FilterManager* filterMgr);
-    void applyToGrayscale(FilterManager* filterMgr);
-    void applyToIndexed(FilterManager* filterMgr);
+  // Filter implementation
+  const char* getName();
+  void applyToRgba(FilterManager* filterMgr);
+  void applyToGrayscale(FilterManager* filterMgr);
+  void applyToIndexed(FilterManager* filterMgr);
 
-  private:
-    int m_from;
-    int m_to;
-    int m_tolerance;
-  };
+private:
+  int m_from;
+  int m_to;
+  int m_tolerance;
+};
 
 } // namespace filters

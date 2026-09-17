@@ -1,5 +1,6 @@
-// Aseprite Render Library
-// Copyright (c) 2001-2016 David Capello
+// Render Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -30,293 +31,320 @@
 #include <map>
 #include <vector>
 
-namespace render {
+namespace render
+{
 
 using namespace doc;
 using namespace gfx;
 
-std::shared_ptr<Palette> create_palette_from_sprite(
-  const Sprite* sprite,
-  frame_t fromFrame,
-  frame_t toFrame,
-  bool withAlpha,
-  Palette* oldPalette,
-  PaletteOptimizerDelegate* delegate)
+std::shared_ptr<Palette>
+create_palette_from_sprite(const Sprite* sprite, frame_t fromFrame,
+                           frame_t toFrame, bool withAlpha, Palette* oldPalette,
+                           PaletteOptimizerDelegate* delegate)
 {
   PaletteOptimizer optimizer;
 
   std::shared_ptr<Palette> palette;
 
-  if (oldPalette) {
+  if (oldPalette)
+  {
     palette = std::static_pointer_cast<Palette>(oldPalette->shared_from_this());
-  } else {
+  }
+  else
+  {
     palette = Palette::create(256);
     palette->setFrame(fromFrame);
   }
 
   // Add a flat image with the current sprite's frame rendered
-  std::shared_ptr<Image> flat_image {Image::create(IMAGE_RGB, sprite->width(), sprite->height())};
+  const std::shared_ptr<Image> flat_image{
+      Image::create(IMAGE_RGB, sprite->width(), sprite->height())};
 
   // Feed the optimizer with all rendered frames
   render::Render render;
-  for (frame_t frame=fromFrame; frame<=toFrame; ++frame) {
+  for (frame_t frame = fromFrame; frame <= toFrame; ++frame)
+  {
     render.renderSprite(flat_image.get(), sprite, frame);
     optimizer.feedWithImage(flat_image.get(), withAlpha);
 
-    if (delegate) {
+    if (delegate)
+    {
       if (!delegate->onPaletteOptimizerContinue())
         return nullptr;
 
       delegate->onPaletteOptimizerProgress(
-        double(frame-fromFrame+1) / double(toFrame-fromFrame+1));
+          static_cast<double>(frame - fromFrame + 1) /
+          static_cast<double>(toFrame - fromFrame + 1));
     }
   }
 
   // Generate an optimized palette
   optimizer.calculate(
-    *palette,
-    // Transparent color is needed if we have transparent layers
-    (sprite->backgroundLayer() &&
-     sprite->countLayers() == 1 ? -1: sprite->transparentColor()),
-    delegate);
+      *palette,
+      // Transparent color is needed if we have transparent layers
+      (sprite->backgroundLayer() && sprite->countLayers() == 1
+           ? -1
+           : sprite->transparentColor()),
+      delegate);
 
   return palette;
 }
 
-Image* convert_pixel_format(
-  const Image* image,
-  Image* new_image,
-  PixelFormat pixelFormat,
-  DitheringMethod ditheringMethod,
-  const RgbMap* rgbmap,
-  const Palette* palette,
-  bool is_background,
-  color_t new_mask_color)
+Image* convert_pixel_format(const Image* image, Image* new_image,
+                            PixelFormat pixelFormat,
+                            DitheringMethod ditheringMethod,
+                            const RgbMap* rgbmap, const Palette* palette,
+                            bool is_background, color_t new_mask_color)
 {
   if (!new_image)
     new_image = Image::create(pixelFormat, image->width(), image->height());
   new_image->setMaskColor(new_mask_color);
 
   // RGB -> Indexed with ordered dithering
-  if (image->pixelFormat() == IMAGE_RGB &&
-      pixelFormat == IMAGE_INDEXED &&
-      ditheringMethod == DitheringMethod::ORDERED) {
-    BayerMatrix<8> matrix;
+  if (image->pixelFormat() == IMAGE_RGB && pixelFormat == IMAGE_INDEXED &&
+      ditheringMethod == DitheringMethod::ORDERED)
+  {
+    const BayerMatrix<8> matrix;
     OrderedDither dither;
-    dither.ditherRgbImageToIndexed(matrix, image, new_image, 0, 0, rgbmap, palette);
+    dither.ditherRgbImageToIndexed(matrix, image, new_image, 0, 0, rgbmap,
+                                   palette);
     return new_image;
   }
 
   color_t c;
   int r, g, b, a;
 
-  switch (image->pixelFormat()) {
+  switch (image->pixelFormat())
+  {
 
-    case IMAGE_RGB: {
-      const LockImageBits<RgbTraits> srcBits(image);
-      LockImageBits<RgbTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
+  case IMAGE_RGB:
+  {
+    const LockImageBits<RgbTraits> srcBits(image);
+    LockImageBits<RgbTraits>::const_iterator src_it = srcBits.begin(),
+                                             src_end = srcBits.end();
 
-      switch (new_image->pixelFormat()) {
+    switch (new_image->pixelFormat())
+    {
 
-        // RGB -> RGB
-        case IMAGE_RGB:
-          new_image->copy(image, gfx::Clip(image->bounds()));
-          break;
+    // RGB -> RGB
+    case IMAGE_RGB:
+      new_image->copy(image, gfx::Clip(image->bounds()));
+      break;
 
-        // RGB -> Grayscale
-        case IMAGE_GRAYSCALE: {
-          LockImageBits<GrayscaleTraits> dstBits(new_image, Image::WriteLock);
-          LockImageBits<GrayscaleTraits>::iterator dst_it = dstBits.begin();
+    // RGB -> Grayscale
+    case IMAGE_GRAYSCALE:
+    {
+      LockImageBits<GrayscaleTraits> dstBits(new_image, Image::WriteLock);
+      LockImageBits<GrayscaleTraits>::iterator dst_it = dstBits.begin();
 #ifdef _DEBUG
-          LockImageBits<GrayscaleTraits>::iterator dst_end = dstBits.end();
+      LockImageBits<GrayscaleTraits>::iterator dst_end = dstBits.end();
 #endif
 
-          for (; src_it != src_end; ++src_it, ++dst_it) {
-            ASSERT(dst_it != dst_end);
-            c = *src_it;
+      for (; src_it != src_end; ++src_it, ++dst_it)
+      {
+        ASSERT(dst_it != dst_end);
+        c = *src_it;
 
-            g = 255 * Hsv(Rgb(rgba_getr(c),
-                              rgba_getg(c),
-                              rgba_getb(c))).valueInt() / 100;
+        g = 255 *
+            Hsv(Rgb(rgba_getr(c), rgba_getg(c), rgba_getb(c))).valueInt() / 100;
 
-            *dst_it = graya(g, rgba_geta(c));
-          }
-          ASSERT(dst_it == dst_end);
-          break;
-        }
-
-        // RGB -> Indexed
-        case IMAGE_INDEXED: {
-          LockImageBits<IndexedTraits> dstBits(new_image, Image::WriteLock);
-          LockImageBits<IndexedTraits>::iterator dst_it = dstBits.begin();
-#ifdef _DEBUG
-          LockImageBits<IndexedTraits>::iterator dst_end = dstBits.end();
-#endif
-
-          for (; src_it != src_end; ++src_it, ++dst_it) {
-            ASSERT(dst_it != dst_end);
-            c = *src_it;
-
-            r = rgba_getr(c);
-            g = rgba_getg(c);
-            b = rgba_getb(c);
-            a = rgba_geta(c);
-
-            if (a == 0)
-              *dst_it = new_mask_color;
-            else
-              *dst_it = rgbmap->mapColor(r, g, b, a);
-          }
-          ASSERT(dst_it == dst_end);
-          break;
-        }
+        *dst_it = graya(g, rgba_geta(c));
       }
+      ASSERT(dst_it == dst_end);
       break;
     }
 
-    case IMAGE_GRAYSCALE: {
-      const LockImageBits<GrayscaleTraits> srcBits(image);
-      LockImageBits<GrayscaleTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
-
-      switch (new_image->pixelFormat()) {
-
-        // Grayscale -> RGB
-        case IMAGE_RGB: {
-          LockImageBits<RgbTraits> dstBits(new_image, Image::WriteLock);
-          LockImageBits<RgbTraits>::iterator dst_it = dstBits.begin();
+    // RGB -> Indexed
+    case IMAGE_INDEXED:
+    {
+      LockImageBits<IndexedTraits> dstBits(new_image, Image::WriteLock);
+      LockImageBits<IndexedTraits>::iterator dst_it = dstBits.begin();
 #ifdef _DEBUG
-          LockImageBits<RgbTraits>::iterator dst_end = dstBits.end();
+      LockImageBits<IndexedTraits>::iterator dst_end = dstBits.end();
 #endif
 
-          for (; src_it != src_end; ++src_it, ++dst_it) {
-            ASSERT(dst_it != dst_end);
-            c = *src_it;
+      for (; src_it != src_end; ++src_it, ++dst_it)
+      {
+        ASSERT(dst_it != dst_end);
+        c = *src_it;
 
-            g = graya_getv(c);
+        r = rgba_getr(c);
+        g = rgba_getg(c);
+        b = rgba_getb(c);
+        a = rgba_geta(c);
 
-            *dst_it = rgba(g, g, g, graya_geta(c));
-          }
-          ASSERT(dst_it == dst_end);
-          break;
-        }
-
-        // Grayscale -> Grayscale
-        case IMAGE_GRAYSCALE:
-          new_image->copy(image, gfx::Clip(image->bounds()));
-          break;
-
-        // Grayscale -> Indexed
-        case IMAGE_INDEXED: {
-          LockImageBits<IndexedTraits> dstBits(new_image, Image::WriteLock);
-          LockImageBits<IndexedTraits>::iterator dst_it = dstBits.begin();
-#ifdef _DEBUG
-          LockImageBits<IndexedTraits>::iterator dst_end = dstBits.end();
-#endif
-
-          for (; src_it != src_end; ++src_it, ++dst_it) {
-            ASSERT(dst_it != dst_end);
-            c = *src_it;
-            a = graya_geta(c);
-            c = graya_getv(c);
-
-            if (a == 0)
-              *dst_it = new_mask_color;
-            else
-              *dst_it = rgbmap->mapColor(c, c, c, a);
-          }
-          ASSERT(dst_it == dst_end);
-          break;
-        }
+        if (a == 0)
+          *dst_it = new_mask_color;
+        else
+          *dst_it = rgbmap->mapColor(r, g, b, a);
       }
+      ASSERT(dst_it == dst_end);
+      break;
+    }
+    }
+    break;
+  }
+
+  case IMAGE_GRAYSCALE:
+  {
+    const LockImageBits<GrayscaleTraits> srcBits(image);
+    LockImageBits<GrayscaleTraits>::const_iterator src_it = srcBits.begin(),
+                                                   src_end = srcBits.end();
+
+    switch (new_image->pixelFormat())
+    {
+
+    // Grayscale -> RGB
+    case IMAGE_RGB:
+    {
+      LockImageBits<RgbTraits> dstBits(new_image, Image::WriteLock);
+      LockImageBits<RgbTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+      LockImageBits<RgbTraits>::iterator dst_end = dstBits.end();
+#endif
+
+      for (; src_it != src_end; ++src_it, ++dst_it)
+      {
+        ASSERT(dst_it != dst_end);
+        c = *src_it;
+
+        g = graya_getv(c);
+
+        *dst_it = rgba(g, g, g, graya_geta(c));
+      }
+      ASSERT(dst_it == dst_end);
       break;
     }
 
-    case IMAGE_INDEXED: {
-      const LockImageBits<IndexedTraits> srcBits(image);
-      LockImageBits<IndexedTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
+    // Grayscale -> Grayscale
+    case IMAGE_GRAYSCALE:
+      new_image->copy(image, gfx::Clip(image->bounds()));
+      break;
 
-      switch (new_image->pixelFormat()) {
-
-        // Indexed -> RGB
-        case IMAGE_RGB: {
-          LockImageBits<RgbTraits> dstBits(new_image, Image::WriteLock);
-          LockImageBits<RgbTraits>::iterator dst_it = dstBits.begin();
+    // Grayscale -> Indexed
+    case IMAGE_INDEXED:
+    {
+      LockImageBits<IndexedTraits> dstBits(new_image, Image::WriteLock);
+      LockImageBits<IndexedTraits>::iterator dst_it = dstBits.begin();
 #ifdef _DEBUG
-          LockImageBits<RgbTraits>::iterator dst_end = dstBits.end();
+      LockImageBits<IndexedTraits>::iterator dst_end = dstBits.end();
 #endif
 
-          for (; src_it != src_end; ++src_it, ++dst_it) {
-            ASSERT(dst_it != dst_end);
-            c = *src_it;
+      for (; src_it != src_end; ++src_it, ++dst_it)
+      {
+        ASSERT(dst_it != dst_end);
+        c = *src_it;
+        a = graya_geta(c);
+        c = graya_getv(c);
 
-            if (!is_background && c == image->maskColor())
-              *dst_it = rgba(0, 0, 0, 0);
-            else
-              *dst_it = palette->getEntry(c);
-          }
-          ASSERT(dst_it == dst_end);
-          break;
-        }
-
-        // Indexed -> Grayscale
-        case IMAGE_GRAYSCALE: {
-          LockImageBits<GrayscaleTraits> dstBits(new_image, Image::WriteLock);
-          LockImageBits<GrayscaleTraits>::iterator dst_it = dstBits.begin();
-#ifdef _DEBUG
-          LockImageBits<GrayscaleTraits>::iterator dst_end = dstBits.end();
-#endif
-
-          for (; src_it != src_end; ++src_it, ++dst_it) {
-            ASSERT(dst_it != dst_end);
-            c = *src_it;
-
-            if (!is_background && c == image->maskColor())
-              *dst_it = graya(0, 0);
-            else {
-              c = palette->getEntry(c);
-              r = rgba_getr(c);
-              g = rgba_getg(c);
-              b = rgba_getb(c);
-              a = rgba_geta(c);
-
-              g = 255 * Hsv(Rgb(r, g, b)).valueInt() / 100;
-              *dst_it = graya(g, a);
-            }
-          }
-          ASSERT(dst_it == dst_end);
-          break;
-        }
-
-        // Indexed -> Indexed
-        case IMAGE_INDEXED: {
-          LockImageBits<IndexedTraits> dstBits(new_image, Image::WriteLock);
-          LockImageBits<IndexedTraits>::iterator dst_it = dstBits.begin();
-#ifdef _DEBUG
-          LockImageBits<IndexedTraits>::iterator dst_end = dstBits.end();
-#endif
-
-          for (; src_it != src_end; ++src_it, ++dst_it) {
-            ASSERT(dst_it != dst_end);
-            c = *src_it;
-
-            if (!is_background && c == image->maskColor())
-              *dst_it = new_mask_color;
-            else {
-              c = palette->getEntry(c);
-              r = rgba_getr(c);
-              g = rgba_getg(c);
-              b = rgba_getb(c);
-              a = rgba_geta(c);
-              *dst_it = rgbmap->mapColor(r, g, b, a);
-            }
-          }
-          ASSERT(dst_it == dst_end);
-          break;
-        }
-
+        if (a == 0)
+          *dst_it = new_mask_color;
+        else
+          *dst_it = rgbmap->mapColor(c, c, c, a);
       }
+      ASSERT(dst_it == dst_end);
       break;
     }
+    }
+    break;
+  }
+
+  case IMAGE_INDEXED:
+  {
+    const LockImageBits<IndexedTraits> srcBits(image);
+    LockImageBits<IndexedTraits>::const_iterator src_it = srcBits.begin(),
+                                                 src_end = srcBits.end();
+
+    switch (new_image->pixelFormat())
+    {
+
+    // Indexed -> RGB
+    case IMAGE_RGB:
+    {
+      LockImageBits<RgbTraits> dstBits(new_image, Image::WriteLock);
+      LockImageBits<RgbTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+      LockImageBits<RgbTraits>::iterator dst_end = dstBits.end();
+#endif
+
+      for (; src_it != src_end; ++src_it, ++dst_it)
+      {
+        ASSERT(dst_it != dst_end);
+        c = *src_it;
+
+        if (!is_background && c == image->maskColor())
+          *dst_it = rgba(0, 0, 0, 0);
+        else
+          *dst_it = palette->getEntry(c);
+      }
+      ASSERT(dst_it == dst_end);
+      break;
+    }
+
+    // Indexed -> Grayscale
+    case IMAGE_GRAYSCALE:
+    {
+      LockImageBits<GrayscaleTraits> dstBits(new_image, Image::WriteLock);
+      LockImageBits<GrayscaleTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+      LockImageBits<GrayscaleTraits>::iterator dst_end = dstBits.end();
+#endif
+
+      for (; src_it != src_end; ++src_it, ++dst_it)
+      {
+        ASSERT(dst_it != dst_end);
+        c = *src_it;
+
+        if (!is_background && c == image->maskColor())
+          *dst_it = graya(0, 0);
+        else
+        {
+          c = palette->getEntry(c);
+          r = rgba_getr(c);
+          g = rgba_getg(c);
+          b = rgba_getb(c);
+          a = rgba_geta(c);
+
+          g = 255 * Hsv(Rgb(r, g, b)).valueInt() / 100;
+          *dst_it = graya(g, a);
+        }
+      }
+      ASSERT(dst_it == dst_end);
+      break;
+    }
+
+    // Indexed -> Indexed
+    case IMAGE_INDEXED:
+    {
+      LockImageBits<IndexedTraits> dstBits(new_image, Image::WriteLock);
+      LockImageBits<IndexedTraits>::iterator dst_it = dstBits.begin();
+#ifdef _DEBUG
+      LockImageBits<IndexedTraits>::iterator dst_end = dstBits.end();
+#endif
+
+      for (; src_it != src_end; ++src_it, ++dst_it)
+      {
+        ASSERT(dst_it != dst_end);
+        c = *src_it;
+
+        if (!is_background && c == image->maskColor())
+          *dst_it = new_mask_color;
+        else
+        {
+          c = palette->getEntry(c);
+          r = rgba_getr(c);
+          g = rgba_getg(c);
+          b = rgba_getb(c);
+          a = rgba_geta(c);
+          *dst_it = rgbmap->mapColor(r, g, b, a);
+        }
+      }
+      ASSERT(dst_it == dst_end);
+      break;
+    }
+    }
+    break;
+  }
   }
 
   return new_image;
@@ -331,50 +359,55 @@ void PaletteOptimizer::feedWithImage(Image* image, bool withAlpha)
   uint32_t color;
 
   ASSERT(image);
-  switch (image->pixelFormat()) {
+  switch (image->pixelFormat())
+  {
 
-    case IMAGE_RGB:
+  case IMAGE_RGB:
+  {
+    const LockImageBits<RgbTraits> bits(image);
+    LockImageBits<RgbTraits>::const_iterator it = bits.begin(),
+                                             end = bits.end();
+
+    for (; it != end; ++it)
+    {
+      color = *it;
+      if (rgba_geta(color) > 0)
       {
-        const LockImageBits<RgbTraits> bits(image);
-        LockImageBits<RgbTraits>::const_iterator it = bits.begin(), end = bits.end();
+        if (!withAlpha)
+          color |= rgba(0, 0, 0, 255);
 
-        for (; it != end; ++it) {
-          color = *it;
-          if (rgba_geta(color) > 0) {
-            if (!withAlpha)
-              color |= rgba(0, 0, 0, 255);
-
-            m_histogram.addSamples(color, 1);
-          }
-        }
+        m_histogram.addSamples(color, 1);
       }
-      break;
+    }
+  }
+  break;
 
-    case IMAGE_GRAYSCALE:
+  case IMAGE_GRAYSCALE:
+  {
+    const LockImageBits<RgbTraits> bits(image);
+    LockImageBits<RgbTraits>::const_iterator it = bits.begin(),
+                                             end = bits.end();
+
+    for (; it != end; ++it)
+    {
+      color = *it;
+
+      if (graya_geta(color) > 0)
       {
-        const LockImageBits<RgbTraits> bits(image);
-        LockImageBits<RgbTraits>::const_iterator it = bits.begin(), end = bits.end();
+        if (!withAlpha)
+          color = graya(graya_getv(color), 255);
 
-        for (; it != end; ++it) {
-          color = *it;
-
-          if (graya_geta(color) > 0) {
-            if (!withAlpha)
-              color = graya(graya_getv(color), 255);
-
-            m_histogram.addSamples(rgba(graya_getv(color),
-                                        graya_getv(color),
-                                        graya_getv(color),
-                                        graya_geta(color)), 1);
-          }
-        }
+        m_histogram.addSamples(rgba(graya_getv(color), graya_getv(color),
+                                    graya_getv(color), graya_geta(color)),
+                               1);
       }
-      break;
+    }
+  }
+  break;
 
-    case IMAGE_INDEXED:
-      ASSERT(false);
-      break;
-
+  case IMAGE_INDEXED:
+    ASSERT(false);
+    break;
   }
 }
 
@@ -388,9 +421,9 @@ void PaletteOptimizer::calculate(Palette& palette, int maskIndex,
 {
   bool addMask;
 
-  if ((palette.size() > 1) &&
-      (maskIndex >= 0 && maskIndex < palette.size())) {
-    palette.resize(palette.size()-1);
+  if ((palette.size() > 1) && (maskIndex >= 0 && maskIndex < palette.size()))
+  {
+    palette.resize(palette.size() - 1);
     addMask = true;
   }
   else
@@ -400,14 +433,15 @@ void PaletteOptimizer::calculate(Palette& palette, int maskIndex,
   // used, in other case the 0 indexed will be the mask color, so it
   // will not be used later in the color conversion (from RGB to
   // Indexed).
-  int usedColors = m_histogram.createOptimizedPalette(palette);
+  const int usedColors = m_histogram.createOptimizedPalette(palette);
 
-  if (addMask) {
-    palette.resize(usedColors+1);
+  if (addMask)
+  {
+    palette.resize(usedColors + 1);
 
     Remap remap(palette.size());
-    for (int i=0; i<usedColors; ++i)
-      remap.map(i, i + (i >= maskIndex ? 1: 0));
+    for (int i = 0; i < usedColors; ++i)
+      remap.map(i, i + (i >= maskIndex ? 1 : 0));
 
     palette.applyRemap(remap);
 

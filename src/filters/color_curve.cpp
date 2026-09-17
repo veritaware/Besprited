@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,7 +13,8 @@
 
 #include <algorithm>
 
-namespace filters {
+namespace filters
+{
 
 ColorCurve::ColorCurve(Type type)
   : m_type(type)
@@ -22,8 +23,10 @@ ColorCurve::ColorCurve(Type type)
 
 void ColorCurve::addPoint(const gfx::Point& point)
 {
-  for (iterator it = begin(), end = this->end(); it != end; ++it) {
-    if (it->x >= point.x) {
+  for (auto it = begin(), end = this->end(); it != end; ++it)
+  {
+    if (it->x >= point.x)
+    {
       m_points.insert(it, point);
       return;
     }
@@ -34,55 +37,65 @@ void ColorCurve::addPoint(const gfx::Point& point)
 
 void ColorCurve::removePoint(const gfx::Point& point)
 {
-  iterator it = std::find(begin(), end(), point);
+  const auto it = std::ranges::find(begin(), end(), point);
   if (it != end())
     m_points.erase(it);
 }
 
 void ColorCurve::getValues(int x1, int x2, std::vector<int>& values)
 {
-  int x, num_points = (int)m_points.size();
+  int x;
+  const int num_points = static_cast<int>(m_points.size());
 
-  if (num_points == 0) {
-    for (x=x1; x<=x2; x++)
-      values[x-x1] = 0;
+  if (num_points == 0)
+  {
+    for (x = x1; x <= x2; x++)
+      values[x - x1] = 0;
   }
-  else if (num_points == 1) {
-    for (x=x1; x<=x2; x++)
-      values[x-x1] = m_points[0].y;
+  else if (num_points == 1)
+  {
+    for (x = x1; x <= x2; x++)
+      values[x - x1] = m_points[0].y;
   }
-  else {
-    switch (m_type) {
+  else
+  {
+    switch (m_type)
+    {
 
-      case Linear: {
-        iterator it, begin = this->begin(), end = this->end();
+    case Linear:
+    {
+      iterator it, begin = this->begin(), end = this->end();
 
-        for (it = begin; it != end; ++it)
-          if (it->x >= x1)
-            break;
+      for (it = begin; it != end; ++it)
+        if (it->x >= x1)
+          break;
 
-        for (x=x1; x<=x2; x++) {
-          while ((it != end) && (x > it->x))
-            ++it;
+      for (x = x1; x <= x2; x++)
+      {
+        while ((it != end) && (x > it->x))
+          ++it;
 
-          if (it != end) {
-            if (it != begin) {
-              const gfx::Point& p = *(it-1);
-              const gfx::Point& n = *it;
+        if (it != end)
+        {
+          if (it != begin)
+          {
+            const gfx::Point& p = *(it - 1);
+            const gfx::Point& n = *it;
 
-              values[x-x1] = p.y + (n.y-p.y) * (x-p.x) / (n.x-p.x);
-            }
-            else {
-              values[x-x1] = it->y;
-            }
+            values[x - x1] = p.y + (n.y - p.y) * (x - p.x) / (n.x - p.x);
           }
-          else {
-            values[x-x1] = (end-1)->y;
+          else
+          {
+            values[x - x1] = it->y;
           }
         }
-        break;
+        else
+        {
+          values[x - x1] = (end - 1)->y;
+        }
       }
-
+      break;
+    }
     }
   }
 }
