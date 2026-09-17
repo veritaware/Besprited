@@ -1,5 +1,6 @@
-// Aseprite Config Library
-// Copyright (c) 2014-2016 David Capello
+// Config Library
+// Aseprite  | Copyright (C) 2014-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,11 +13,11 @@
 
 #include "base/file_handle.h"
 #include "base/log.h"
-#include "base/string.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "SimpleIni.h"
 
+// clang-format off
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #include "she/system.h"
@@ -106,102 +107,127 @@ void thread_init() {
   ), s_cfgdata.c_str());
 }
 #endif
+  // clang-format on
 
-namespace cfg {
+namespace cfg
+{
 
-class CfgFile::CfgFileImpl {
+class CfgFile::CfgFileImpl
+{
 public:
-  const std::string& filename() const {
-    return m_filename;
-  }
+  const std::string& filename() const { return m_filename; }
 
-  const char* getValue(const char* section, const char* name, const char* defaultValue) const {
+  const char* getValue(const char* section, const char* name,
+                       const char* defaultValue) const
+  {
     return m_ini.GetValue(section, name, defaultValue);
   }
 
-  bool getBoolValue(const char* section, const char* name, bool defaultValue) const {
+  bool getBoolValue(const char* section, const char* name,
+                    bool defaultValue) const
+  {
     return m_ini.GetBoolValue(section, name, defaultValue);
   }
 
-  int getIntValue(const char* section, const char* name, int defaultValue) const {
-    return m_ini.GetLongValue(section, name, defaultValue);
+  int getIntValue(const char* section, const char* name,
+                  int defaultValue) const
+  {
+    return static_cast<int>(m_ini.GetLongValue(section, name, defaultValue));
   }
 
-  double getDoubleValue(const char* section, const char* name, double defaultValue) const {
+  double getDoubleValue(const char* section, const char* name,
+                        double defaultValue) const
+  {
     return m_ini.GetDoubleValue(section, name, defaultValue);
   }
 
-  void setValue(const char* section, const char* name, const char* value) {
+  void setValue(const char* section, const char* name, const char* value)
+  {
     m_ini.SetValue(section, name, value);
   }
 
-  void setBoolValue(const char* section, const char* name, bool value) {
+  void setBoolValue(const char* section, const char* name, bool value)
+  {
     m_ini.SetBoolValue(section, name, value);
   }
 
-  void setIntValue(const char* section, const char* name, int value) {
+  void setIntValue(const char* section, const char* name, int value)
+  {
     m_ini.SetLongValue(section, name, value);
   }
 
-  void setDoubleValue(const char* section, const char* name, double value) {
+  void setDoubleValue(const char* section, const char* name, double value)
+  {
     m_ini.SetDoubleValue(section, name, value);
   }
 
-  void deleteValue(const char* section, const char* name) {
+  void deleteValue(const char* section, const char* name)
+  {
     m_ini.Delete(section, name, true);
   }
 
-  void load(const std::string& filename) {
+  void load(const std::string& filename)
+  {
     m_filename = filename;
 
-    base::FileHandle file(base::open_file(m_filename, "rb"));
-    if (file) {
-      SI_Error err = m_ini.LoadFile(file.get());
-      if (err != SI_OK)
-        LOG("Error '%d' loading configuration from '%s'.", err, m_filename.c_str());
-    } else {
+    const base::FileHandle file(base::open_file(m_filename, "rb"));
+    if (file)
+    {
+      if (const SI_Error err = m_ini.LoadFile(file.get()); err != SI_OK)
+        LOG("Error '%d' loading configuration from '%s'.", err,
+            m_filename.c_str());
+    }
+    else
+    {
       std::string data;
+      // clang-format off
 #ifdef __EMSCRIPTEN__
-      thread_init();
-      auto raw = (char*) EM_ASM_PTR({
+    thread_init();
+    auto raw = (char*) EM_ASM_PTR({
 	const value = self.storage.getItem(UTF8ToString($0));
 	if (value === undefined)
 	  return 0;
 	return stringToNewUTF8(value);
-      }, m_filename.c_str());
-      if (raw) {
+    }, m_filename.c_str());
+    if (raw) {
 	data = raw;
 	free(raw);
-      }
+    }
 #endif
+      // clang-format on
       if (!data.empty())
-	m_ini.LoadData(data);
+        m_ini.LoadData(data);
     }
   }
 
-  void save() {
+  void save()
+  {
     std::string data;
-    SI_Error err = m_ini.Save(data);
-    if (err != SI_OK) {
-      LOG("Error '%d' saving configuration into '%s'.", err, m_filename.c_str());
+    if (const SI_Error err = m_ini.Save(data); err != SI_OK)
+    {
+      LOG("Error '%d' saving configuration into '%s'.", err,
+          m_filename.c_str());
       return;
     }
 
+    // clang-format off
 #ifdef __EMSCRIPTEN__
-    thread_init();
-    auto cfgdata = (char*) EM_ASM_PTR({
-      self.storage.setItem(UTF8ToString($0), UTF8ToString($1));
-      return stringToNewUTF8(JSON.stringify(self.storage.data));
-    }, m_filename.c_str(), data.c_str());
-    if (cfgdata) {
+  thread_init();
+  auto cfgdata = (char*) EM_ASM_PTR({
+    self.storage.setItem(UTF8ToString($0), UTF8ToString($1));
+    return stringToNewUTF8(JSON.stringify(self.storage.data));
+  }, m_filename.c_str(), data.c_str());
+  if (cfgdata) {
 	s_cfgdata = cfgdata;
 	free(cfgdata);
 	cfgwrite();
-    }
+  }
 #endif
+    // clang-format on
 
-    if (base::FileHandle file = base::open_file(m_filename, "wb")) {
-	std::fwrite(data.c_str(), 1, data.size(), file.get());
+    if (const base::FileHandle file = base::open_file(m_filename, "wb"))
+    {
+      std::fwrite(data.c_str(), 1, data.size(), file.get());
     }
   }
 
@@ -225,27 +251,32 @@ const std::string& CfgFile::filename() const
   return m_impl->filename();
 }
 
-const char* CfgFile::getValue(const char* section, const char* name, const char* defaultValue) const
+const char* CfgFile::getValue(const char* section, const char* name,
+                              const char* defaultValue) const
 {
   return m_impl->getValue(section, name, defaultValue);
 }
 
-bool CfgFile::getBoolValue(const char* section, const char* name, bool defaultValue)
+bool CfgFile::getBoolValue(const char* section, const char* name,
+                           bool defaultValue) const
 {
   return m_impl->getBoolValue(section, name, defaultValue);
 }
 
-int CfgFile::getIntValue(const char* section, const char* name, int defaultValue)
+int CfgFile::getIntValue(const char* section, const char* name,
+                         int defaultValue) const
 {
   return m_impl->getIntValue(section, name, defaultValue);
 }
 
-double CfgFile::getDoubleValue(const char* section, const char* name, double defaultValue)
+double CfgFile::getDoubleValue(const char* section, const char* name,
+                               double defaultValue) const
 {
   return m_impl->getDoubleValue(section, name, defaultValue);
 }
 
-void CfgFile::setValue(const char* section, const char* name, const char* value)
+void CfgFile::setValue(const char* section, const char* name,
+                       const char* value)
 {
   m_impl->setValue(section, name, value);
 }
@@ -260,7 +291,8 @@ void CfgFile::setIntValue(const char* section, const char* name, int value)
   m_impl->setIntValue(section, name, value);
 }
 
-void CfgFile::setDoubleValue(const char* section, const char* name, double value)
+void CfgFile::setDoubleValue(const char* section, const char* name,
+                             double value)
 {
   m_impl->setDoubleValue(section, name, value);
 }

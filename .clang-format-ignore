@@ -1,0 +1,9 @@
+# Files clang-format must not reformat.
+# One repo-relative glob per line (matched relative to this file's directory).
+
+# cfg.cpp embeds raw Emscripten/JavaScript inside EM_ASM(...) macros, guarded
+# with // clang-format off/on. clang-format has a reproducible bug where
+# reformatting this file (even with the guards in place) mis-indents
+# everything after the guarded block by re-parsing the JS as malformed C++
+# brace/paren nesting. Keep this file hand-formatted instead.
+src/cfg/cfg.cpp
