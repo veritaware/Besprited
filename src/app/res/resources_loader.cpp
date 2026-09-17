@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2015  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2015 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,38 +23,46 @@
 
 #include "app/task_manager.h"
 
-namespace app {
-  void ResourcesLoader::load(Callback&& callback) {
-    auto fs = FileSystemModule::instance();
-    LockFS lock{fs};
-    std::size_t pending{};
-    std::deque<std::string> files;
+namespace app
+{
+void ResourcesLoader::load(Callback&& callback)
+{
+  auto fs = FileSystemModule::instance();
+  const LockFS lock{fs};
+  std::size_t pending{};
+  std::deque<std::string> files;
 
-    for (auto& path : resourcesLocation()) {
-        LOG("Loading resources from %s...\n", path.c_str());
-        if (path.empty())
-            return;
+  for (auto& path : resourcesLocation())
+  {
+    LOG("Loading resources from %s...\n", path.c_str());
+    if (path.empty())
+      return;
 
-        IFileItem* item = fs->getFileItemFromPath(path);
-        if (!item)
-            continue;
+    IFileItem* item = fs->getFileItemFromPath(path);
+    if (!item)
+      continue;
 
-        for (auto child : item->children()) {
-            if (child->isFolder())
-                continue;
-            files.push_back(child->fileName());
-            pending++;
-        }
+    for (auto child : item->children())
+    {
+      if (child->isFolder())
+        continue;
+      files.push_back(child->fileName());
+      pending++;
     }
+  }
 
-    if (!pending) {
-        callback({});
-        return;
-    }
+  if (!pending)
+  {
+    callback({});
+    return;
+  }
 
-    task = TaskManager::instance().addTask<Resource>(
-      [this, files = std::move(files)](std::atomic_bool& isAlive) mutable -> Resource {
-        if (!files.empty()) {
+  task = TaskManager::instance().addTask<Resource>(
+      [this,
+       files = std::move(files)](std::atomic_bool& isAlive) mutable -> Resource
+      {
+        if (!files.empty())
+        {
           auto next = files.front();
           files.pop_front();
           return loadResource(next);
@@ -62,5 +71,5 @@ namespace app {
         return {};
       },
       std::move(callback));
-  }
+}
 } // namespace app

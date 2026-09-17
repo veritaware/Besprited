@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,19 +14,15 @@
 #include "ui/base.h"
 #include "ui/graphics.h"
 
-namespace app {
-  using namespace doc;
+namespace app
+{
+using namespace doc;
 
-  void draw_color(ui::Graphics* g,
-                  const gfx::Rect& rc,
-                  const app::Color& color,
-                  const doc::ColorMode colorMode);
+void draw_color(ui::Graphics* g, const gfx::Rect& rc, const app::Color& color,
+                const doc::ColorMode colorMode);
 
-  void draw_color_button(ui::Graphics* g,
-                         const gfx::Rect& rc,
-                         const app::Color& color,
-                         const doc::ColorMode colorMode,
-                         const bool hot,
-                         const bool drag);
+void draw_color_button(ui::Graphics* g, const gfx::Rect& rc,
+                       const app::Color& color, const doc::ColorMode colorMode,
+                       const bool hot, const bool drag);
 
 } // namespace app

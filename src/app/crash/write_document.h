@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,12 +9,14 @@
 
 #include <string>
 
-namespace app {
+namespace app
+{
 class Document;
-namespace crash {
+namespace crash
+{
 
-  void write_document(const std::string& dir, app::Document* doc);
-  void delete_document_internals(app::Document* doc);
+void write_document(const std::string& dir, app::Document* doc);
+void delete_document_internals(app::Document* doc);
 
 } // namespace crash
 } // namespace app

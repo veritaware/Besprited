@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,15 +9,17 @@
 
 #include <string>
 
-namespace app {
+namespace app
+{
 
-  class Resource;
+class Resource;
 
-  class ResourcesLoaderDelegate {
-  public:
-    virtual ~ResourcesLoaderDelegate() { }
-    virtual std::string resourcesLocation() const = 0;
-    virtual Resource* loadResource(const std::string& filename) = 0;
-  };
+class ResourcesLoaderDelegate
+{
+public:
+  virtual ~ResourcesLoaderDelegate() {}
+  virtual std::string resourcesLocation() const = 0;
+  virtual Resource* loadResource(const std::string& filename) = 0;
+};
 
 } // namespace app

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,37 +15,41 @@
 
 #include <vector>
 
-namespace doc {
-  class Context;
+namespace doc
+{
+class Context;
 }
 
-namespace app {
+namespace app
+{
 class Document;
-namespace crash {
-  class Session;
+namespace crash
+{
+class Session;
 
-  class BackupObserver : public doc::ContextObserver
-                       , public doc::DocumentsObserver
-                       , public doc::DocumentObserver {
-  public:
-    BackupObserver(Session* session, doc::Context* ctx);
-    ~BackupObserver();
+class BackupObserver : public doc::ContextObserver,
+                       public doc::DocumentsObserver,
+                       public doc::DocumentObserver
+{
+public:
+  BackupObserver(Session* session, doc::Context* ctx);
+  ~BackupObserver();
 
-    void stop();
+  void stop();
 
-    void onAddDocument(doc::Document* document) override;
-    void onRemoveDocument(doc::Document* document) override;
+  void onAddDocument(doc::Document* document) override;
+  void onRemoveDocument(doc::Document* document) override;
 
-  private:
-    void backgroundThread();
+private:
+  void backgroundThread();
 
-    Session* m_session;
-    base::mutex m_mutex;
-    doc::Context* m_ctx;
-    std::vector<app::Document*> m_documents;
-    bool m_done;
-    base::thread m_thread;
-  };
+  Session* m_session;
+  base::mutex m_mutex;
+  doc::Context* m_ctx;
+  std::vector<app::Document*> m_documents;
+  bool m_done;
+  base::thread m_thread;
+};
 
 } // namespace crash
 } // namespace app

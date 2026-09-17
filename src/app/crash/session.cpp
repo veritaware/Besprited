@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -28,8 +28,10 @@
 #include "base/split_string.h"
 #include "base/string.h"
 
-namespace app {
-namespace crash {
+#include <utility>
+
+namespace app::crash
+{
 
 Session::Backup::Backup(const std::string& dir)
   : m_dir(dir)
@@ -39,25 +41,23 @@ Session::Backup::Backup(const std::string& dir)
 
   std::vector<char> buf(1024);
   snprintf(&buf[0], buf.size(), "%s Sprite %dx%d, %d %s: %s",
-    info.format == IMAGE_RGB ? "RGB":
-    info.format == IMAGE_GRAYSCALE ? "Grayscale":
-    info.format == IMAGE_INDEXED ? "Indexed":
-    info.format == IMAGE_BITMAP ? "Bitmap": "Unknown",
-    info.width, info.height, info.frames,
-    info.frames == 1 ? "frame": "frames",
-    info.filename.c_str());
+           info.format == IMAGE_RGB         ? "RGB"
+           : info.format == IMAGE_GRAYSCALE ? "Grayscale"
+           : info.format == IMAGE_INDEXED   ? "Indexed"
+           : info.format == IMAGE_BITMAP    ? "Bitmap"
+                                            : "Unknown",
+           info.width, info.height, info.frames,
+           info.frames == 1 ? "frame" : "frames", info.filename.c_str());
   m_desc = &buf[0];
 }
 
-Session::Session(const std::string& path)
+Session::Session(std::string path)
   : m_pid(0)
-  , m_path(path)
+  , m_path(std::move(path))
 {
 }
 
-Session::~Session()
-{
-}
+Session::~Session() = default;
 
 std::string Session::name() const
 {
@@ -65,8 +65,10 @@ std::string Session::name() const
   std::vector<std::string> parts;
   base::split_string(name, parts, "-");
 
-  if (parts.size() == 3) {
-    return "Session date: " + parts[0] + " time: " + parts[1] + " (PID " + parts[2] + ")";
+  if (parts.size() == 3)
+  {
+    return "Session date: " + parts[0] + " time: " + parts[1] + " (PID " +
+           parts[2] + ")";
   }
   else
     return name;
@@ -74,10 +76,13 @@ std::string Session::name() const
 
 const Session::Backups& Session::backups()
 {
-  if (m_backups.empty()) {
-    for (auto& item : base::list_files(m_path)) {
+  if (m_backups.empty())
+  {
+    for (auto& item : base::list_files(m_path))
+    {
       std::string docDir = base::join_path(m_path, item);
-      if (base::is_directory(docDir)) {
+      if (base::is_directory(docDir))
+      {
         m_backups.push_back(new Backup(docDir));
       }
     }
@@ -93,7 +98,8 @@ bool Session::isRunning()
 
 bool Session::isEmpty()
 {
-  for (auto& item : base::list_files(m_path)) {
+  for (auto& item : base::list_files(m_path))
+  {
     if (base::is_directory(base::join_path(m_path, item)))
       return false;
   }
@@ -113,7 +119,8 @@ void Session::create(base::pid pid)
 
 void Session::removeFromDisk()
 {
-  try {
+  try
+  {
     if (base::is_file(pidFilename()))
       base::delete_file(pidFilename());
 
@@ -122,10 +129,11 @@ void Session::removeFromDisk()
 
     base::remove_directory(m_path);
   }
-  catch (const std::exception& ex) {
+  catch (const std::exception& ex)
+  {
     (void)ex;
     TRACE("Session directory cannot be removed, it's not empty\nError: '%s'\n",
-      ex.what());
+          ex.what());
   }
 }
 
@@ -133,8 +141,8 @@ void Session::saveDocumentChanges(app::Document* doc)
 {
   DocumentReader reader(doc, 250);
   app::Context ctx;
-  std::string dir = base::join_path(m_path,
-    base::convert_to<std::string>(doc->id()));
+  std::string dir =
+      base::join_path(m_path, base::convert_to<std::string>(doc->id()));
   TRACE("DataRecovery: Saving document '%s'...\n", dir.c_str());
 
   if (!base::is_directory(dir))
@@ -146,31 +154,37 @@ void Session::saveDocumentChanges(app::Document* doc)
 
 void Session::removeDocument(app::Document* doc)
 {
-  try {
+  try
+  {
     delete_document_internals(doc);
 
     // Delete document backup directory
-    std::string dir = base::join_path(m_path,
-      base::convert_to<std::string>(doc->id()));
+    std::string dir =
+        base::join_path(m_path, base::convert_to<std::string>(doc->id()));
     if (base::is_directory(dir))
       deleteDirectory(dir);
   }
-  catch (const std::exception&) {
-    // TODO Log this error
+  catch (const std::exception& ex)
+  {
+    TRACE("Session document backup cannot be removed\nError: '%s'\n",
+          ex.what());
   }
 }
 
 void Session::restoreBackup(Backup* backup)
 {
   Console console;
-  try {
+  try
+  {
     app::Document* doc = read_document(backup->dir());
-    if (doc) {
+    if (doc)
+    {
       fixFilename(doc);
       UIContext::instance()->documents().add(doc);
     }
   }
-  catch (const std::exception& ex) {
+  catch (const std::exception& ex)
+  {
     Console::showException(ex);
   }
 }
@@ -178,21 +192,25 @@ void Session::restoreBackup(Backup* backup)
 void Session::restoreRawImages(Backup* backup, RawImagesAs as)
 {
   Console console;
-  try {
+  try
+  {
     app::Document* doc = read_document_with_raw_images(backup->dir(), as);
-    if (doc) {
+    if (doc)
+    {
       fixFilename(doc);
       UIContext::instance()->documents().add(doc);
     }
   }
-  catch (const std::exception& ex) {
+  catch (const std::exception& ex)
+  {
     Console::showException(ex);
   }
 }
 
 void Session::deleteBackup(Backup* backup)
 {
-  try {
+  try
+  {
     auto it = std::find(m_backups.begin(), m_backups.end(), backup);
     ASSERT(it != m_backups.end());
     if (it != m_backups.end())
@@ -201,7 +219,8 @@ void Session::deleteBackup(Backup* backup)
     if (base::is_directory(backup->dir()))
       deleteDirectory(backup->dir());
   }
-  catch (const std::exception& ex) {
+  catch (const std::exception& ex)
+  {
     Console::showException(ex);
   }
 }
@@ -212,7 +231,8 @@ void Session::loadPid()
     return;
 
   std::string pidfile = pidFilename();
-  if (base::is_file(pidfile)) {
+  if (base::is_file(pidfile))
+  {
     std::ifstream pf(FSTREAM_PATH(pidfile));
     if (pf)
       pf >> m_pid;
@@ -235,9 +255,11 @@ void Session::deleteDirectory(const std::string& dir)
   if (dir.empty())
     return;
 
-  for (auto& item : base::list_files(dir)) {
+  for (auto& item : base::list_files(dir))
+  {
     std::string objfn = base::join_path(dir, item);
-    if (base::is_file(objfn)) {
+    if (base::is_file(objfn))
+    {
       TRACE("DataRecovery: Deleting file '%s'\n", objfn.c_str());
       base::delete_file(objfn);
     }
@@ -255,11 +277,8 @@ void Session::fixFilename(app::Document* doc)
   if (!ext.empty())
     ext = "." + ext;
 
-  doc->setFilename(
-    base::join_path(
-      base::get_file_path(fn),
-      base::get_file_title(fn) + "-Recovered" + ext));
+  doc->setFilename(base::join_path(
+      base::get_file_path(fn), base::get_file_title(fn) + "-Recovered" + ext));
 }
 
-} // namespace crash
-} // namespace app
+} // namespace app::crash

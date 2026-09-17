@@ -1,4 +1,5 @@
-// LibreSprite | Copyright (C)      2024  LibreSprite contributors
+// LibreSprite | Copyright (C) 2024 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -6,20 +7,24 @@
 #include "app/pref/preferences.h"
 #include "app/resource_finder.h"
 #include "base/file_handle.h"
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 
-namespace app {
-    namespace {
-        std::string language;
-        bool languageLoaded = false;
-        std::unordered_map<std::string, std::string> translations;
-        std::unordered_set<std::string> languageMissing;
-    }
+namespace app
+{
+namespace
+{
+std::string language;
+bool languageLoaded = false;
+std::unordered_map<std::string, std::string> translations;
+std::unordered_set<std::string> languageMissing;
+} // namespace
 
-void loadLanguage(const std::string& language) {
+void loadLanguage(const std::string& language)
+{
   languageLoaded = true;
   translations.clear();
 
@@ -28,20 +33,23 @@ void loadLanguage(const std::string& language) {
   app::ResourceFinder rf;
   rf.includeDataDir(("languages/" + language + ".json").c_str());
   if (rf.findFirst())
-      file = base::open_file(rf.filename().c_str(), "rb");
+    file = base::open_file(rf.filename().c_str(), "rb");
 
-  if (!file) {
-      std::cout << "Could not load translations for language: " << language << std::endl;
-      return;
+  if (!file)
+  {
+    std::cout << "Could not load translations for language: " << language
+              << '\n';
+    return;
   }
 
-  enum class State {
-      start,
-      KeyOrClose,
-      InString,
-      AfterKey,
-      BeforeValue,
-      AfterValue,
+  enum class State : std::uint8_t
+  {
+    start,
+    KeyOrClose,
+    InString,
+    AfterKey,
+    BeforeValue,
+    AfterValue,
   } state = State::start;
   State nextState;
 
@@ -49,69 +57,93 @@ void loadLanguage(const std::string& language) {
   std::string acc, key;
   bool escape = false;
 
-  while (fread(&ch, 1, 1, file.get())) {
-    switch (state) {
+  while (fread(&ch, 1, 1, file.get()))
+  {
+    switch (state)
+    {
     case State::start:
-      if (ch <= ' ') continue;
-      if (ch == '{') {
+      if (ch <= ' ')
+        continue;
+      if (ch == '{')
+      {
         state = State::KeyOrClose;
         continue;
       }
-      std::cout << "Unexpected character: " << ch << std::endl;
+      std::cout << "Unexpected character: " << ch << '\n';
       return;
 
     case State::KeyOrClose:
-      if (ch <= ' ' || ch == ',') continue;
-      if (ch == '"') {
+      if (ch <= ' ' || ch == ',')
+        continue;
+      if (ch == '"')
+      {
         state = State::InString;
         nextState = State::AfterKey;
         continue;
       }
-      if (ch == '}') return;
-      std::cout << "Unexpected character: " << ch << std::endl;
+      if (ch == '}')
+        return;
+      std::cout << "Unexpected character: " << ch << '\n';
       return;
 
     case State::InString:
-      if (escape) {
+      if (escape)
+      {
         escape = false;
-        switch (ch) {
-        case 'n': acc += '\n'; break;
-        case 't': acc += '\t'; break;
-        case '"': acc += '"'; break;
-        case '\\': acc += '\\'; break;
-        default: acc += ch; break;
+        switch (ch)
+        {
+        case 'n':
+          acc += '\n';
+          break;
+        case 't':
+          acc += '\t';
+          break;
+        case '"':
+          acc += '"';
+          break;
+        case '\\':
+          acc += '\\';
+          break;
+        default:
+          acc += ch;
+          break;
         }
         continue;
       }
       escape = ch == '\\';
       if (escape)
-          continue;
-      if (ch == '"') {
-          state = nextState;
-          continue;
+        continue;
+      if (ch == '"')
+      {
+        state = nextState;
+        continue;
       }
       acc += ch;
       continue;
 
     case State::AfterKey:
-      if (ch <= ' ') continue;
-      if (ch == ':') {
+      if (ch <= ' ')
+        continue;
+      if (ch == ':')
+      {
         key = acc;
         acc.clear();
         state = State::BeforeValue;
         continue;
       }
-      std::cout << "Unexpected character: " << ch << std::endl;
+      std::cout << "Unexpected character: " << ch << '\n';
       return;
 
     case State::BeforeValue:
-      if (ch <= ' ') continue;
-      if (ch == '"') {
-          state = State::InString;
-          nextState = State::AfterValue;
-          continue;
+      if (ch <= ' ')
+        continue;
+      if (ch == '"')
+      {
+        state = State::InString;
+        nextState = State::AfterValue;
+        continue;
       }
-      std::cout << "Unexpected character: " << ch << std::endl;
+      std::cout << "Unexpected character: " << ch << '\n';
       return;
 
     case State::AfterValue:
@@ -127,31 +159,33 @@ std::string i18n(const std::string& key, const std::string& src)
 {
   if (key.empty())
     return src;
-  if (!languageLoaded) {
+  if (!languageLoaded)
+  {
     language = app::Preferences::instance().general.language();
     loadLanguage(language);
   }
   auto it = translations.find(key);
   if (it != translations.end())
-      return it->second;
-  #ifdef _DEBUG
-  if (!languageMissing.contains(key)) {
-      std::cout << "\"" << key << "\" : \"" << src << "\"," << std::endl;
-      languageMissing.insert(key);
+    return it->second;
+#ifdef _DEBUG
+  if (!languageMissing.contains(key))
+  {
+    std::cout << "\"" << key << "\" : \"" << src << "\"," << '\n';
+    languageMissing.insert(key);
   }
-  #endif
+#endif
   return src;
 }
 
 void setLanguage(const std::string& language)
 {
-    app::language = language;
-    languageLoaded = false;
-    languageMissing.clear();
+  app::language = language;
+  languageLoaded = false;
+  languageMissing.clear();
 }
 
 const std::string& getLanguage()
 {
-    return language;
+  return language;
 }
-}
+} // namespace app

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,29 +13,25 @@
 
 #include <string>
 
-namespace app {
+namespace app
+{
 class Document;
-namespace crash {
+namespace crash
+{
 
-  struct DocumentInfo {
-    doc::PixelFormat format;
-    int width;
-    int height;
-    doc::frame_t frames;
-    std::string filename;
+struct DocumentInfo
+{
+  doc::PixelFormat format = doc::IMAGE_RGB;
+  int width = 0;
+  int height = 0;
+  doc::frame_t frames = 0;
+  std::string filename;
+};
 
-    DocumentInfo() :
-      format(doc::IMAGE_RGB),
-      width(0),
-      height(0),
-      frames(0) {
-    }
-  };
-
-  bool read_document_info(const std::string& dir, DocumentInfo& info);
-  app::Document* read_document(const std::string& dir);
-  app::Document* read_document_with_raw_images(const std::string& dir,
-                                               RawImagesAs as);
+bool read_document_info(const std::string& dir, DocumentInfo& info);
+app::Document* read_document(const std::string& dir);
+app::Document* read_document_with_raw_images(const std::string& dir,
+                                             RawImagesAs as);
 
 } // namespace crash
 } // namespace app

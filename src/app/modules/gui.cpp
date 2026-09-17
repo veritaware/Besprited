@@ -51,27 +51,25 @@
 #include <list>
 #include <vector>
 
-namespace app {
+namespace app
+{
 
 using namespace gfx;
 using namespace ui;
 using namespace app::skin;
 
-static struct {
+static struct
+{
   int width;
   int height;
   int scale;
-} try_resolutions[] = { { 1024, 768, 1 },
-                        {  800, 600, 1 },
-                        {  640, 480, 1 },
-                        {  320, 240, 1 },
-                        {  320, 200, 1 },
-                        {    0,   0, 0 } };
+} try_resolutions[] = {{1024, 768, 1}, {800, 600, 1}, {640, 480, 1},
+                       {320, 240, 1},  {320, 200, 1}, {0, 0, 0}};
 
 //////////////////////////////////////////////////////////////////////
 
-class CustomizedGuiManager : public Manager
-                           , public LayoutIO
+class CustomizedGuiManager : public Manager,
+                             public LayoutIO
 {
 protected:
   bool onProcessMessage(Message* msg) override;
@@ -83,9 +81,9 @@ protected:
   void saveLayout(Widget* widget, const std::string& str) override;
 };
 
-static she::Display* main_display = NULL;
-static CustomizedGuiManager* manager = NULL;
-static Theme* gui_theme = NULL;
+static she::Display* main_display = nullptr;
+static CustomizedGuiManager* manager = nullptr;
+static Theme* gui_theme = nullptr;
 
 static ui::Timer* defered_invalid_timer = nullptr;
 static gfx::Region defered_invalid_region;
@@ -95,8 +93,7 @@ static void load_gui_config(int& w, int& h, bool& maximized,
                             std::string& windowLayout);
 static void save_gui_config();
 
-static bool create_main_display(bool gpuAccel,
-                                bool& maximized,
+static bool create_main_display(bool gpuAccel, bool& maximized,
                                 std::string& lastError)
 {
   int w, h;
@@ -108,33 +105,39 @@ static bool create_main_display(bool gpuAccel,
   int scale = Preferences::instance().general.screenScale();
   she::instance()->setGpuAcceleration(gpuAccel);
 
-  try {
-    if (w > 0 && h > 0) {
+  try
+  {
+    if (w > 0 && h > 0)
+    {
       main_display = she::instance()->createDisplay(
-        w, h, (scale == 0 ? 1 : MID(1, scale, 4)));
+          w, h, (scale == 0 ? 1 : MID(1, scale, 4)));
     }
   }
-  catch (const she::DisplayCreationException& e) {
+  catch (const she::DisplayCreationException& e)
+  {
     lastError = e.what();
   }
 
-  if (!main_display) {
-    for (int c=0; try_resolutions[c].width; ++c) {
-      try {
-        main_display =
-          she::instance()->createDisplay(
-            try_resolutions[c].width,
-            try_resolutions[c].height,
+  if (!main_display)
+  {
+    for (int c = 0; try_resolutions[c].width; ++c)
+    {
+      try
+      {
+        main_display = she::instance()->createDisplay(
+            try_resolutions[c].width, try_resolutions[c].height,
             (scale == 0 ? try_resolutions[c].scale : scale));
         break;
       }
-      catch (const she::DisplayCreationException& e) {
+      catch (const she::DisplayCreationException& e)
+      {
         lastError = e.what();
       }
     }
   }
 
-  if (main_display) {
+  if (main_display)
+  {
     // Change the scale value only in the first run (this will be
     // saved when the program is closed).
     if (scale == 0)
@@ -143,9 +146,11 @@ static bool create_main_display(bool gpuAccel,
     ResourceFinder rf;
     rf.includeDataDir("icons/ase64.png");
     if (rf.findFirst())
-        main_display->setIcon(she::instance()->loadRgbaSurface(rf.filename().c_str()));
+      main_display->setIcon(
+          she::instance()->loadRgbaSurface(rf.filename().c_str()));
 
-    if (!windowLayout.empty()) {
+    if (!windowLayout.empty())
+    {
       main_display->setLayout(windowLayout);
       if (main_display->isMinimized())
         main_display->maximize();
@@ -159,7 +164,8 @@ int guessUiScale(int screenH, int fallbackH)
 {
   if (screenH <= 0)
     screenH = fallbackH;
-  return MID(1, 1 + (screenH >= 720) + (screenH >= 1200) + (screenH >= 1800), 4);
+  return MID(1, 1 + (screenH >= 720) + (screenH >= 1200) + (screenH >= 1800),
+             4);
 }
 
 // Initializes GUI.
@@ -169,22 +175,28 @@ int init_module_gui()
   std::string lastError = "Unknown error";
   bool gpuAccel = Preferences::instance().general.gpuAcceleration();
 
-  if (!create_main_display(gpuAccel, maximized, lastError)) {
+  if (!create_main_display(gpuAccel, maximized, lastError))
+  {
     // If we've created the display with hardware acceleration,
     // now we try to do it without hardware acceleration.
-    if (gpuAccel &&
-        (int(she::instance()->capabilities()) &
-         int(she::Capabilities::GpuAccelerationSwitch)) == int(she::Capabilities::GpuAccelerationSwitch)) {
-      if (create_main_display(false, maximized, lastError)) {
+    if (gpuAccel && (int(she::instance()->capabilities()) &
+                     int(she::Capabilities::GpuAccelerationSwitch)) ==
+                        int(she::Capabilities::GpuAccelerationSwitch))
+    {
+      if (create_main_display(false, maximized, lastError))
+      {
         // Disable hardware acceleration
         Preferences::instance().general.gpuAcceleration(false);
       }
     }
   }
 
-  if (!main_display) {
+  if (!main_display)
+  {
     she::error_message(
-      ("Unable to create a user-interface display.\nDetails: "+lastError+"\n").c_str());
+        ("Unable to create a user-interface display.\nDetails: " + lastError +
+         "\n")
+            .c_str());
     return -1;
   }
 
@@ -197,19 +209,20 @@ int init_module_gui()
   // Setup the GUI theme for all widgets
   gui_theme = new SkinTheme();
   {
-      auto uiScale = Preferences::instance().experimental.uiScale();
-      if (uiScale < 1) {
-	  #ifdef EMSCRIPTEN
-	  uiScale = 2;
-	  #else
-	  // The initial window is only a small fallback size, so prefer the
-	  // real desktop height and only fall back to the window height when
-	  // it's unavailable.
-	  uiScale = guessUiScale(she::instance()->desktopSize().h, ui::display_h());
-	  #endif
-          Preferences::instance().experimental.uiScale(uiScale);
-      }
-      gui_theme->setScale(uiScale);
+    auto uiScale = Preferences::instance().experimental.uiScale();
+    if (uiScale < 1)
+    {
+#ifdef EMSCRIPTEN
+      uiScale = 2;
+#else
+      // The initial window is only a small fallback size, so prefer the
+      // real desktop height and only fall back to the window height when
+      // it's unavailable.
+      uiScale = guessUiScale(she::instance()->desktopSize().h, ui::display_h());
+#endif
+      Preferences::instance().experimental.uiScale(uiScale);
+    }
+    gui_theme->setScale(uiScale);
   }
   CurrentTheme::set(gui_theme);
 
@@ -230,7 +243,7 @@ void exit_module_gui()
   delete manager;
 
   // Now we can destroy theme
-  CurrentTheme::set(NULL);
+  CurrentTheme::set(nullptr);
   delete gui_theme;
 
   main_display->dispose();
@@ -250,7 +263,8 @@ static void load_gui_config(int& w, int& h, bool& maximized,
 static void save_gui_config()
 {
   she::Display* display = manager->getDisplay();
-  if (display) {
+  if (display)
+  {
     set_config_bool("GfxMode", "Maximized", display->isMaximized());
     set_config_int("GfxMode", "Width", display->originalWidth());
     set_config_int("GfxMode", "Height", display->originalHeight());
@@ -264,16 +278,19 @@ static void save_gui_config()
 void update_screen_for_document(const Document* document)
 {
   // Without document.
-  if (!document) {
+  if (!document)
+  {
     // Well, change to the default palette.
-    if (set_current_palette(NULL, false)) {
+    if (set_current_palette(nullptr, false))
+    {
       // If the palette changes, refresh the whole screen.
       if (manager)
         manager->invalidate();
     }
   }
   // With a document.
-  else {
+  else
+  {
     const_cast<Document*>(document)->notifyGeneralUpdate();
 
     // Update the tabs (maybe the modified status has been changed).
@@ -281,7 +298,7 @@ void update_screen_for_document(const Document* document)
   }
 }
 
-void load_window_pos(Widget* window, const char *section)
+void load_window_pos(Widget* window, const char* section)
 {
   // Default position
   Rect orig_pos = window->bounds();
@@ -293,13 +310,13 @@ void load_window_pos(Widget* window, const char *section)
   pos.w = MID(orig_pos.w, pos.w, ui::display_w());
   pos.h = MID(orig_pos.h, pos.h, ui::display_h());
 
-  pos.setOrigin(Point(MID(0, pos.x, ui::display_w()-pos.w),
-      MID(0, pos.y, ui::display_h()-pos.h)));
+  pos.setOrigin(Point(MID(0, pos.x, ui::display_w() - pos.w),
+                      MID(0, pos.y, ui::display_h() - pos.h)));
 
   window->setBounds(pos);
 }
 
-void save_window_pos(Widget* window, const char *section)
+void save_window_pos(Widget* window, const char* section)
 {
   set_config_rect(section, "WindowPos", window->bounds());
 }
@@ -336,7 +353,7 @@ void setup_bevels(Widget* widget, int b1, int b2, int b3, int b4)
 // Button style (convert radio or check buttons and draw it like
 // normal buttons)
 
-CheckBox* check_button_new(const char *text, int b1, int b2, int b3, int b4)
+CheckBox* check_button_new(const char* text, int b1, int b2, int b3, int b4)
 {
   CheckBox* widget = new CheckBox(text, kButtonWidget);
 
@@ -360,164 +377,191 @@ void defer_invalid_rect(const gfx::Rect& rc)
 // Manager event handler.
 bool CustomizedGuiManager::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kCloseDisplayMessage:
+  case kCloseDisplayMessage:
+  {
+    // Execute the "Exit" command.
+    Command* command =
+        CommandsModule::instance()->getCommandByName(CommandId::Exit);
+    UIContext::instance()->executeCommand(command);
+  }
+  break;
+
+  case kDropFilesMessage:
+  {
+    const DropFilesMessage::Files& files =
+        static_cast<DropFilesMessage*>(msg)->files();
+
+    // Open all files
+    Command* cmd_open_file =
+        CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+    Command* cmd_install_script =
+        CommandsModule::instance()->getCommandByName(CommandId::InstallScript);
+    Params params;
+
+    UIContext* ctx = UIContext::instance();
+
+    for (const auto& fn : files)
+    {
+      // If the document is already open, select it.
+      Document* doc =
+          static_cast<Document*>(ctx->documents().getByFileName(fn));
+      if (doc)
       {
-        // Execute the "Exit" command.
-        Command* command = CommandsModule::instance()->getCommandByName(CommandId::Exit);
-        UIContext::instance()->executeCommand(command);
-      }
-      break;
-
-    case kDropFilesMessage:
-      {
-        const DropFilesMessage::Files& files = static_cast<DropFilesMessage*>(msg)->files();
-
-        // Open all files
-        Command* cmd_open_file = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
-	Command* cmd_install_script = CommandsModule::instance()->getCommandByName(CommandId::InstallScript);
-        Params params;
-
-        UIContext* ctx = UIContext::instance();
-
-        for (const auto& fn : files) {
-          // If the document is already open, select it.
-          Document* doc = static_cast<Document*>(ctx->documents().getByFileName(fn));
-          if (doc) {
-            DocumentView* docView = ctx->getFirstDocumentView(doc);
-            if (docView)
-              ctx->setActiveView(docView);
-            else {
-              ASSERT(false);    // Must be some DocumentView available
-            }
-	    continue;
-          }
-
- 	  auto cmd = cmd_open_file;
-
- 	  auto extension = base::string_to_lower(base::get_file_extension(fn));
- 	  if (extension == "js") {
- 		  cmd = cmd_install_script;
- 	  }
-
-          // Load the file
-	  params.set("filename", fn.c_str());
-	  ctx->executeCommand(cmd, params);
+        DocumentView* docView = ctx->getFirstDocumentView(doc);
+        if (docView)
+          ctx->setActiveView(docView);
+        else
+        {
+          ASSERT(false); // Must be some DocumentView available
         }
+        continue;
       }
-      break;
 
-    case kKeyDownMessage: {
-#ifdef _DEBUG
-      // Left Shift+Ctrl+Q generates a crash (useful to test the anticrash feature)
-      if (msg->ctrlPressed() &&
-          msg->shiftPressed() &&
-          static_cast<KeyMessage*>(msg)->scancode() == kKeyQ) {
-        int* p = nullptr;
-        *p = 0;
+      auto cmd = cmd_open_file;
+
+      auto extension = base::string_to_lower(base::get_file_extension(fn));
+      if (extension == "js")
+      {
+        cmd = cmd_install_script;
       }
+
+      // Load the file
+      params.set("filename", fn.c_str());
+      ctx->executeCommand(cmd, params);
+    }
+  }
+  break;
+
+  case kKeyDownMessage:
+  {
+#ifdef _DEBUG
+    // Left Shift+Ctrl+Q generates a crash (useful to test the anticrash
+    // feature)
+    if (msg->ctrlPressed() && msg->shiftPressed() &&
+        static_cast<KeyMessage*>(msg)->scancode() == kKeyQ)
+    {
+      int* p = nullptr;
+      *p = 0;
+    }
 #endif
 
-      // Call base impl to check if there is a foreground window as
-      // top level that needs keys. (In this way we just do not
-      // process keyboard shortcuts for menus and tools).
-      if (Manager::onProcessMessage(msg))
-        return true;
+    // Call base impl to check if there is a foreground window as
+    // top level that needs keys. (In this way we just do not
+    // process keyboard shortcuts for menus and tools).
+    if (Manager::onProcessMessage(msg))
+      return true;
 
-      for (const Key* key : *KeyboardShortcuts::instance()) {
-        if (key->isPressed(msg)) {
-          // Cancel menu-bar loops (to close any popup menu)
-          App::instance()->mainWindow()->getMenuBar()->cancelMenuLoop();
+    for (const Key* key : *KeyboardShortcuts::instance())
+    {
+      if (key->isPressed(msg))
+      {
+        // Cancel menu-bar loops (to close any popup menu)
+        App::instance()->mainWindow()->getMenuBar()->cancelMenuLoop();
 
-          switch (key->type()) {
+        switch (key->type())
+        {
 
-            case KeyType::Tool: {
-              tools::Tool* current_tool = App::instance()->activeTool();
-              tools::Tool* select_this_tool = key->tool();
-              tools::ToolBox* toolbox = App::instance()->toolBox();
-              std::vector<tools::Tool*> possibles;
+        case KeyType::Tool:
+        {
+          tools::Tool* current_tool = App::instance()->activeTool();
+          tools::Tool* select_this_tool = key->tool();
+          tools::ToolBox* toolbox = App::instance()->toolBox();
+          std::vector<tools::Tool*> possibles;
 
-              // Collect all tools with the pressed keyboard-shortcut
-              for (tools::Tool* tool : *toolbox) {
-                Key* key = KeyboardShortcuts::instance()->tool(tool);
-                if (key && key->isPressed(msg))
-                  possibles.push_back(tool);
+          // Collect all tools with the pressed keyboard-shortcut
+          for (tools::Tool* tool : *toolbox)
+          {
+            Key* key = KeyboardShortcuts::instance()->tool(tool);
+            if (key && key->isPressed(msg))
+              possibles.push_back(tool);
+          }
+
+          if (possibles.size() >= 2)
+          {
+            bool done = false;
+
+            for (size_t i = 0; i < possibles.size(); ++i)
+            {
+              if (possibles[i] != current_tool &&
+                  ToolBar::instance()->isToolVisible(possibles[i]))
+              {
+                select_this_tool = possibles[i];
+                done = true;
+                break;
               }
-
-              if (possibles.size() >= 2) {
-                bool done = false;
-
-                for (size_t i=0; i<possibles.size(); ++i) {
-                  if (possibles[i] != current_tool &&
-                      ToolBar::instance()->isToolVisible(possibles[i])) {
-                    select_this_tool = possibles[i];
-                    done = true;
-                    break;
-                  }
-                }
-
-                if (!done) {
-                  for (size_t i=0; i<possibles.size(); ++i) {
-                    // If one of the possibilities is the current tool
-                    if (possibles[i] == current_tool) {
-                      // We select the next tool in the possibilities
-                      select_this_tool = possibles[(i+1) % possibles.size()];
-                      break;
-                    }
-                  }
-                }
-              }
-
-              ToolBar::instance()->selectTool(select_this_tool);
-              return true;
             }
 
-            case KeyType::Command: {
-              Command* command = key->command();
-
-              // Commands are executed only when the main window is
-              // the current window running at foreground.
-              for (auto childWidget : children()) {
-                Window* child = static_cast<Window*>(childWidget);
-
-                // There are a foreground window executing?
-                if (child->isForeground()) {
+            if (!done)
+            {
+              for (size_t i = 0; i < possibles.size(); ++i)
+              {
+                // If one of the possibilities is the current tool
+                if (possibles[i] == current_tool)
+                {
+                  // We select the next tool in the possibilities
+                  select_this_tool = possibles[(i + 1) % possibles.size()];
                   break;
                 }
-                // Is it the desktop and the top-window=
-                else if (child->isDesktop() && child == App::instance()->mainWindow()) {
-                  // OK, so we can execute the command represented
-                  // by the pressed-key in the message...
-                  UIContext::instance()->executeCommand(
-                    command, key->params());
-                  return true;
-                }
               }
+            }
+          }
+
+          ToolBar::instance()->selectTool(select_this_tool);
+          return true;
+        }
+
+        case KeyType::Command:
+        {
+          Command* command = key->command();
+
+          // Commands are executed only when the main window is
+          // the current window running at foreground.
+          for (auto childWidget : children())
+          {
+            Window* child = static_cast<Window*>(childWidget);
+
+            // There are a foreground window executing?
+            if (child->isForeground())
+            {
               break;
             }
-
-            case KeyType::Quicktool: {
-              // Do nothing, it is used in the editor through the
-              // KeyboardShortcuts::getCurrentQuicktool() function.
-              break;
+            // Is it the desktop and the top-window=
+            else if (child->isDesktop() &&
+                     child == App::instance()->mainWindow())
+            {
+              // OK, so we can execute the command represented
+              // by the pressed-key in the message...
+              UIContext::instance()->executeCommand(command, key->params());
+              return true;
             }
-
           }
           break;
         }
+
+        case KeyType::Quicktool:
+        {
+          // Do nothing, it is used in the editor through the
+          // KeyboardShortcuts::getCurrentQuicktool() function.
+          break;
+        }
+        }
+        break;
       }
-      break;
     }
+    break;
+  }
 
-    case kTimerMessage:
-      if (static_cast<TimerMessage*>(msg)->timer() == defered_invalid_timer) {
-        invalidateDisplayRegion(defered_invalid_region);
-        defered_invalid_region.clear();
-        defered_invalid_timer->stop();
-      }
-      break;
-
+  case kTimerMessage:
+    if (static_cast<TimerMessage*>(msg)->timer() == defered_invalid_timer)
+    {
+      invalidateDisplayRegion(defered_invalid_region);
+      defered_invalid_region.clear();
+      defered_invalid_timer->stop();
+    }
+    break;
   }
 
   return Manager::onProcessMessage(msg);
@@ -537,19 +581,19 @@ std::string CustomizedGuiManager::loadLayout(Widget* widget)
   std::string windowId = widget->window()->id();
   std::string widgetId = widget->id();
 
-  return get_config_string(("layout:"+windowId).c_str(), widgetId.c_str(), "");
+  return get_config_string(("layout:" + windowId).c_str(), widgetId.c_str(),
+                           "");
 }
 
 void CustomizedGuiManager::saveLayout(Widget* widget, const std::string& str)
 {
-  if (widget->window() == NULL)
+  if (widget->window() == nullptr)
     return;
 
   std::string windowId = widget->window()->id();
   std::string widgetId = widget->id();
 
-  set_config_string(("layout:"+windowId).c_str(),
-                    widgetId.c_str(),
+  set_config_string(("layout:" + windowId).c_str(), widgetId.c_str(),
                     str.c_str());
 }
 

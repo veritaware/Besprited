@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -12,31 +12,35 @@
 
 #include <vector>
 
-namespace doc {
-  class Context;
+namespace doc
+{
+class Context;
 }
 
-namespace app {
-namespace crash {
-  class BackupObserver;
+namespace app
+{
+namespace crash
+{
+class BackupObserver;
 
-  class DataRecovery {
-  public:
-    typedef std::vector<SessionPtr> Sessions;
+class DataRecovery
+{
+public:
+  typedef std::vector<SessionPtr> Sessions;
 
-    DataRecovery(doc::Context* context);
-    ~DataRecovery();
+  DataRecovery(doc::Context* context);
+  ~DataRecovery();
 
-    // Returns the list of sessions that can be recovered.
-    const Sessions& sessions() { return m_sessions; }
+  // Returns the list of sessions that can be recovered.
+  const Sessions& sessions() { return m_sessions; }
 
-  private:
-    Sessions m_sessions;
-    SessionPtr m_inProgress;
-    BackupObserver* m_backup;
+private:
+  Sessions m_sessions;
+  SessionPtr m_inProgress;
+  BackupObserver* m_backup;
 
-    DISABLE_COPYING(DataRecovery);
-  };
+  DISABLE_COPYING(DataRecovery);
+};
 
 } // namespace crash
 } // namespace app
