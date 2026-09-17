@@ -26,439 +26,443 @@
 #include <string>
 #include <string_view>
 
-#define ASSERT_VALID_WIDGET(widget) ASSERT((widget) != NULL)
+#define ASSERT_VALID_WIDGET(widget) ASSERT((widget) != nullptr)
 
-namespace she {
-  class Font;
+namespace she
+{
+class Font;
 }
 
-namespace ui {
+namespace ui
+{
 
-  class InitThemeEvent;
-  class LoadLayoutEvent;
-  class Manager;
-  class Message;
-  class MouseMessage;
-  class PaintEvent;
-  class SizeHintEvent;
-  class ResizeEvent;
-  class SaveLayoutEvent;
-  class Theme;
-  class Window;
+class InitThemeEvent;
+class LoadLayoutEvent;
+class Manager;
+class Message;
+class MouseMessage;
+class PaintEvent;
+class SizeHintEvent;
+class ResizeEvent;
+class SaveLayoutEvent;
+class Theme;
+class Window;
 
-  /* Widgets are the basic visual object in LibreSprite, such as menus and grids.
+/* Widgets are the basic visual object in LibreSprite, such as menus and grids.
 
-  Widgets are non-copyable */
-  class Widget : public WithHandle<Widget> {
-  public:
+Widgets are non-copyable */
+class Widget : public WithHandle<Widget>
+{
+public:
+  // ===============================================================
+  // CTOR & DTOR
+  // ===============================================================
 
-    // ===============================================================
-    // CTOR & DTOR
-    // ===============================================================
+  Widget(WidgetType type = kGenericWidget);
+  virtual ~Widget();
 
-    Widget(WidgetType type = kGenericWidget);
-    virtual ~Widget();
+  // Safe way to delete a widget when it is not in the manager message
+  // queue anymore.
+  void deferDelete();
 
-    // Safe way to delete a widget when it is not in the manager message
-    // queue anymore.
-    void deferDelete();
+  // Properties handler
 
+  using Properties = std::map<std::string, PropertyPtr>;
 
-    // Properties handler
+  PropertyPtr getProperty(const std::string& name) const;
+  void setProperty(PropertyPtr property);
 
-    typedef std::map<std::string, PropertyPtr> Properties;
+  const Properties& getProperties() const;
 
-    PropertyPtr getProperty(const std::string& name) const;
-    void setProperty(PropertyPtr property);
+  // Main properties.
 
-    const Properties& getProperties() const;
+  WidgetType type() const { return m_type; }
+  void setType(WidgetType type) { m_type = type; } // TODO remove this function
 
-    // Main properties.
+  const std::string& id() const { return m_id; }
+  void setId(const char* id) { m_id = id; }
 
-    WidgetType type() const { return m_type; }
-    void setType(WidgetType type) { m_type = type; } // TODO remove this function
+  int flags() const { return m_flags; }
+  bool hasFlags(int flags) const { return ((m_flags & flags) == flags); }
+  void enableFlags(int flags) { m_flags |= flags; }
+  void disableFlags(int flags) { m_flags &= ~flags; }
 
-    const std::string& id() const { return m_id; }
-    void setId(const char* id) { m_id = id; }
+  int align() const { return (m_flags & ALIGN_MASK); }
+  void setAlign(int align)
+  {
+    m_flags = ((m_flags & PROPERTIES_MASK) | (align & ALIGN_MASK));
+  }
 
-    int flags() const { return m_flags; }
-    bool hasFlags(int flags) const { return ((m_flags & flags) == flags); }
-    void enableFlags(int flags) { m_flags |= flags; }
-    void disableFlags(int flags) { m_flags &= ~flags; }
+  // Text property.
 
-    int align() const { return (m_flags & ALIGN_MASK); }
-    void setAlign(int align) {
-      m_flags = ((m_flags & PROPERTIES_MASK) |
-                 (align & ALIGN_MASK));
+  bool hasText() const { return hasFlags(HAS_TEXT); }
+
+  const std::string& text() const { return m_text; }
+
+  // Evaluate text() as a math expression. These are plain getters that
+  // callers poll freely - including on every keystroke, to drive a live
+  // preview - so they never report a parse failure to the user and never
+  // invent a value for one: text that doesn't evaluate yields the last
+  // value that did (see hasLastEvalText()), or 0 if there isn't one.
+  int textInt() const;
+  double textDouble() const;
+
+  int textLength() const;
+
+  // True once textInt()/textDouble() has been called on this widget at
+  // all, i.e. some code does read it as a number rather than as text.
+  bool isTextReadAsNumber() const { return m_textReadAsNumber; }
+
+  void setI18N();
+  void setI18N(std::string_view i18n);
+  void setText(const std::string& text);
+  void setTextf(const char* text, ...);
+  void setTextQuiet(const std::string& text);
+
+  int textWidth() const;
+  int textHeight() const;
+
+  gfx::Size textSize() const { return gfx::Size(textWidth(), textHeight()); }
+
+  // ===============================================================
+  // COMMON PROPERTIES
+  // ===============================================================
+
+  // True if this widget and all its ancestors are visible.
+  bool isVisible() const;
+  void setVisible(bool state);
+
+  // True if this widget can receive user input (is not disabled).
+  bool isEnabled() const;
+  void setEnabled(bool state);
+
+  // True if this widget is selected (pushed in case of a button, or
+  // checked in the case of a check-box).
+  bool isSelected() const;
+  void setSelected(bool state);
+
+  // True if this widget wants more space when it's inside a Box
+  // parent.
+  bool isExpansive() const;
+  void setExpansive(bool state);
+
+  // True if this is a decorative widget created by the current
+  // theme. Decorative widgets are arranged by the theme instead that
+  // the parent's widget.
+  bool isDecorative() const;
+  void setDecorative(bool state);
+
+  // True if this widget can receive the keyboard focus.
+  bool isFocusStop() const;
+  void setFocusStop(bool state);
+
+  // True if this widget wants the focus by default when it's shown by
+  // first time (e.g. when its parent window is opened).
+  void setFocusMagnet(bool state);
+  bool isFocusMagnet() const;
+
+  // ===============================================================
+  // LOOK & FEEL
+  // ===============================================================
+
+  std::shared_ptr<she::Font> font() const;
+  void resetFont(std::shared_ptr<she::Font> font = nullptr);
+
+  // Gets the background color of the widget.
+  gfx::Color bgColor() const
+  {
+    if (gfx::geta(m_bgColor) == 0 && m_parent)
+      return m_parent->bgColor();
+    else
+      return m_bgColor;
+  }
+
+  // Sets the background color of the widget
+  void setBgColor(gfx::Color color);
+
+  Theme* theme() const { return m_theme; }
+  void setTheme(Theme* theme);
+  void initTheme();
+
+  // ===============================================================
+  // PARENTS & CHILDREN
+  // ===============================================================
+
+  Window* window();
+  Widget* parent() { return m_parent; }
+  Manager* manager();
+
+  // Returns a list of parents, if "ascendant" is true the list is
+  // build from child to parents, else the list is from parent to
+  // children.
+  void getParents(bool ascendant, WidgetsList& parents);
+
+  // Returns a list of children.
+  const WidgetsList& children() const { return m_children; }
+
+  Widget* at(int index) { return m_children[index]; }
+
+  // Returns the first/last child or nullptr if it doesn't exist.
+  Widget* firstChild()
+  {
+    return (!m_children.empty() ? m_children.front() : nullptr);
+  }
+  Widget* lastChild()
+  {
+    return (!m_children.empty() ? m_children.back() : nullptr);
+  }
+
+  // Returns the next or previous siblings.
+  Widget* nextSibling();
+  Widget* previousSibling();
+
+  Widget* pick(const gfx::Point& pt, bool checkParentsVisibility = true);
+  bool hasChild(Widget* child);
+  bool hasAncestor(Widget* ancestor);
+  Widget* findChild(const char* id);
+
+  // Returns a widget in the same window that is located "sibling".
+  Widget* findSibling(const char* id);
+
+  // Finds a child with the specified ID and dynamic-casts it to type
+  // T.
+  template <class T> T* findChildT(const char* id)
+  {
+    return dynamic_cast<T*>(findChild(id));
+  }
+
+  template <class T> T* findFirstChildByType()
+  {
+    for (auto child : m_children)
+    {
+      if (T* specificChild = dynamic_cast<T*>(child))
+        return specificChild;
     }
-
-    // Text property.
-
-    bool hasText() const { return hasFlags(HAS_TEXT); }
-
-    const std::string& text() const { return m_text; }
-
-    // Evaluate text() as a math expression. These are plain getters that
-    // callers poll freely - including on every keystroke, to drive a live
-    // preview - so they never report a parse failure to the user and never
-    // invent a value for one: text that doesn't evaluate yields the last
-    // value that did (see hasLastEvalText()), or 0 if there isn't one.
-    int textInt() const;
-    double textDouble() const;
-
-    int textLength() const;
-
-    // True once textInt()/textDouble() has been called on this widget at
-    // all, i.e. some code does read it as a number rather than as text.
-    bool isTextReadAsNumber() const { return m_textReadAsNumber; }
-
-    void setI18N();
-    void setI18N(std::string_view i18n);
-    void setText(const std::string& text);
-    void setTextf(const char* text, ...);
-    void setTextQuiet(const std::string& text);
-
-    int textWidth() const;
-    int textHeight() const;
-
-    gfx::Size textSize() const {
-      return gfx::Size(textWidth(), textHeight());
-    }
-
-    // ===============================================================
-    // COMMON PROPERTIES
-    // ===============================================================
-
-    // True if this widget and all its ancestors are visible.
-    bool isVisible() const;
-    void setVisible(bool state);
-
-    // True if this widget can receive user input (is not disabled).
-    bool isEnabled() const;
-    void setEnabled(bool state);
-
-    // True if this widget is selected (pushed in case of a button, or
-    // checked in the case of a check-box).
-    bool isSelected() const;
-    void setSelected(bool state);
-
-    // True if this widget wants more space when it's inside a Box
-    // parent.
-    bool isExpansive() const;
-    void setExpansive(bool state);
-
-    // True if this is a decorative widget created by the current
-    // theme. Decorative widgets are arranged by the theme instead that
-    // the parent's widget.
-    bool isDecorative() const;
-    void setDecorative(bool state);
-
-    // True if this widget can receive the keyboard focus.
-    bool isFocusStop() const;
-    void setFocusStop(bool state);
-
-    // True if this widget wants the focus by default when it's shown by
-    // first time (e.g. when its parent window is opened).
-    void setFocusMagnet(bool state);
-    bool isFocusMagnet() const;
-
-    // ===============================================================
-    // LOOK & FEEL
-    // ===============================================================
-
-    std::shared_ptr<she::Font> font() const;
-    void resetFont(std::shared_ptr<she::Font> font = nullptr);
-
-    // Gets the background color of the widget.
-    gfx::Color bgColor() const {
-      if (gfx::geta(m_bgColor) == 0 && m_parent)
-        return m_parent->bgColor();
-      else
-        return m_bgColor;
-    }
-
-    // Sets the background color of the widget
-    void setBgColor(gfx::Color color);
-
-    Theme* theme() const { return m_theme; }
-    void setTheme(Theme* theme);
-    void initTheme();
-
-    // ===============================================================
-    // PARENTS & CHILDREN
-    // ===============================================================
-
-    Window* window();
-    Widget* parent() { return m_parent; }
-    Manager* manager();
-
-    // Returns a list of parents, if "ascendant" is true the list is
-    // build from child to parents, else the list is from parent to
-    // children.
-    void getParents(bool ascendant, WidgetsList& parents);
-
-    // Returns a list of children.
-    const WidgetsList& children() const { return m_children; }
-
-    Widget* at(int index) { return m_children[index]; }
-
-    // Returns the first/last child or NULL if it doesn't exist.
-    Widget* firstChild() {
-      return (!m_children.empty() ? m_children.front(): NULL);
-    }
-    Widget* lastChild() {
-      return (!m_children.empty() ? m_children.back(): NULL);
-    }
-
-    // Returns the next or previous siblings.
-    Widget* nextSibling();
-    Widget* previousSibling();
-
-    Widget* pick(const gfx::Point& pt, bool checkParentsVisibility = true);
-    bool hasChild(Widget* child);
-    bool hasAncestor(Widget* ancestor);
-    Widget* findChild(const char* id);
-
-    // Returns a widget in the same window that is located "sibling".
-    Widget* findSibling(const char* id);
-
-    // Finds a child with the specified ID and dynamic-casts it to type
-    // T.
-    template<class T>
-    T* findChildT(const char* id) {
-      return dynamic_cast<T*>(findChild(id));
-    }
-
-    template<class T>
-    T* findFirstChildByType() {
-      for (auto child : m_children) {
-        if (T* specificChild = dynamic_cast<T*>(child))
-          return specificChild;
-      }
-      return NULL;
-    }
-
-    void addChild(Widget* child);
-    void removeChild(Widget* child);
-    void removeAllChildren();
-    void replaceChild(Widget* oldChild, Widget* newChild);
-    void insertChild(int index, Widget* child);
-
-    // ===============================================================
-    // LAYOUT & CONSTRAINT
-    // ===============================================================
-
-    void layout();
-    void loadLayout();
-    void saveLayout();
-
-    void setDecorativeWidgetBounds();
-
-    // ===============================================================
-    // POSITION & GEOMETRY
-    // ===============================================================
-
-    gfx::Rect bounds() const { return m_bounds; }
-    gfx::Point origin() const { return m_bounds.origin(); }
-    gfx::Size size() const { return m_bounds.size(); }
-
-    gfx::Rect clientBounds() const {
-      return gfx::Rect(0, 0, m_bounds.w, m_bounds.h);
-    }
-
-    gfx::Rect childrenBounds() const;
-    gfx::Rect clientChildrenBounds() const;
-
-    // Sets the bounds of the widget generating a onResize() event.
-    void setBounds(const gfx::Rect& rc);
-
-    // Sets the bounds of the widget without generating any kind of
-    // event. This member function must be used if you override
-    // onResize() and want to change the size of the widget without
-    // generating recursive onResize() events.
-    void setBoundsQuietly(const gfx::Rect& rc);
-    void offsetWidgets(int dx, int dy);
-
-    const gfx::Size& minSize() const { return m_minSize; }
-    const gfx::Size& maxSize() const { return m_maxSize; }
-    void setMinSize(const gfx::Size& sz);
-    void setMaxSize(const gfx::Size& sz);
-
-    const gfx::Border& border() const { return m_border; }
-    void setBorder(const gfx::Border& border);
-
-    int childSpacing() const { return m_childSpacing; }
-    void setChildSpacing(int childSpacing);
-
-    void noBorderNoChildSpacing();
-
-    // Flags for getDrawableRegion()
-    enum DrawableRegionFlags {
-      kCutTopWindows = 1, // Cut areas where are windows on top.
-      kUseChildArea = 2,  // Use areas where are children.
-    };
-
-    void getRegion(gfx::Region& region);
-    void getDrawableRegion(gfx::Region& region, DrawableRegionFlags flags);
-
-    gfx::Point toClient(const gfx::Point& pt) const {
-      return pt - m_bounds.origin();
-    }
-    gfx::Rect toClient(const gfx::Rect& rc) const {
-      return gfx::Rect(rc).offset(-m_bounds.x, -m_bounds.y);
-    }
-
-    void getTextIconInfo(
-      gfx::Rect* box,
-      gfx::Rect* text = NULL,
-      gfx::Rect* icon = NULL,
-      int icon_align = 0, int icon_w = 0, int icon_h = 0);
-
-    // ===============================================================
-    // REFRESH ISSUES
-    // ===============================================================
-
-    bool isDoubleBuffered() const;
-    void setDoubleBuffered(bool doubleBuffered);
-
-    bool isTransparent() const;
-    void setTransparent(bool transparent);
-
-    void invalidate();
-    void invalidateRect(const gfx::Rect& rect);
-    void invalidateRegion(const gfx::Region& region);
-
-    // Returns the region to generate PaintMessages. It's cleared
-    // after flushRedraw() is called.
-    const gfx::Region& getUpdateRegion() const {
-      return m_updateRegion;
-    }
-
-    // Generates paint messages for the current update region.
-    void flushRedraw();
-
-    GraphicsPtr getGraphics(const gfx::Rect& clip);
-
-    // ===============================================================
-    // GUI MANAGER
-    // ===============================================================
-
-    bool sendMessage(Message* msg);
-    void closeWindow();
-
-    void broadcastMouseMessage(WidgetsList& targets);
-
-    // ===============================================================
-    // SIZE & POSITION
-    // ===============================================================
-
-    gfx::Size sizeHint();
-    gfx::Size sizeHint(const gfx::Size& fitIn);
-    void setSizeHint(const gfx::Size& fixedSize);
-    void setSizeHint(int fixedWidth, int fixedHeight);
-
-    // ===============================================================
-    // MOUSE, FOCUS & KEYBOARD
-    // ===============================================================
-
-    void requestFocus();
-    void releaseFocus();
-    void captureMouse();
-    void releaseMouse();
-
-    bool hasFocus();
-    bool hasMouse();
-    bool hasMouseOver();
-    bool hasCapture();
-
-    // Offer the capture to widgets of the given type. Returns true if
-    // the capture was passed to other widget.
-    bool offerCapture(ui::MouseMessage* mouseMsg, int widget_type);
-
-    // Returns lower-case letter that represet the mnemonic of the widget
-    // (the underscored character, i.e. the letter after & symbol).
-    int mnemonicChar() const;
-
-  protected:
-    // ===============================================================
-    // MESSAGE PROCESSING
-    // ===============================================================
-
-    virtual bool onProcessMessage(Message* msg);
-
-    // ===============================================================
-    // EVENTS
-    // ===============================================================
-
-    virtual void onInvalidateRegion(const gfx::Region& region);
-    virtual void onSizeHint(SizeHintEvent& ev);
-    virtual void onLoadLayout(LoadLayoutEvent& ev);
-    virtual void onSaveLayout(SaveLayoutEvent& ev);
-    virtual void onResize(ResizeEvent& ev);
-    virtual void onPaint(PaintEvent& ev);
-    virtual void onBroadcastMouseMessage(WidgetsList& targets);
-    virtual void onInitTheme(InitThemeEvent& ev);
-    virtual void onSetDecorativeWidgetBounds();
-    virtual void onEnable();
-    virtual void onDisable();
-    virtual void onSelect();
-    virtual void onDeselect();
-    virtual void onSetText();
-    virtual void onSetBgColor();
-
-    // Called by textInt()/textDouble() when text() can't be parsed as a
-    // math expression. Notification only - the caller uses
-    // onEvalFallback() regardless, so this must not block or show modal
-    // UI: it runs on every keystroke of a live-updating entry, and may run
-    // long after the window owning the widget has been closed.
-    virtual void onEvalError(const std::string& message) const;
-
-    // The value textInt()/textDouble() return when text() doesn't
-    // evaluate. Plain widgets have nothing better to offer than zero;
-    // Entry keeps the last value it held that did evaluate.
-    virtual double onEvalFallback() const { return 0.0; }
-
-    // Whether a value that did evaluate is one textInt()/textDouble()
-    // should hand back as-is. Plain widgets accept anything finite;
-    // Entry overrides this to reject negative values when configured to.
-    virtual bool onEvalAcceptable(double /*value*/) const { return true; }
-
-  private:
-    // Shared back end of textInt()/textDouble().
-    double evalText() const;
-
-    void removeChild(WidgetsList::iterator& it);
-    void paint(Graphics* graphics, const gfx::Region& drawRegion);
-    bool paintEvent(Graphics* graphics);
-
-    WidgetType m_type;           // Widget's type
-    std::string m_id;            // Widget's id
-    int m_flags;                 // Special boolean properties (see flags in ui/base.h)
-    Theme* m_theme;              // Widget's theme
-    std::string m_text;          // Widget text
-    std::string m_i18n;          // Text before translation
-
-    // Set by textInt()/textDouble(), so a widget can tell whether anything
-    // reads it as a number. Mutable because both are const getters.
-    mutable bool m_textReadAsNumber = false;
-    mutable std::shared_ptr<she::Font> m_font;   // Cached font returned by the theme
-    gfx::Color m_bgColor;        // Background color
-    gfx::Rect m_bounds;
-    gfx::Region m_updateRegion;   // Region to be redrawed.
-    WidgetsList m_children;       // Sub-widgets
-    Widget* m_parent;             // Who is the parent?
-    gfx::Size* m_sizeHint;
-    Properties m_properties;
-
-    // Widget size limits
-    gfx::Size m_minSize, m_maxSize;
-
-    gfx::Border m_border;       // Border separation with the parent
-    int m_childSpacing;         // Separation between children
-
-    DISABLE_COPYING(Widget);
+    return nullptr;
+  }
+
+  void addChild(Widget* child);
+  void removeChild(Widget* child);
+  void removeAllChildren();
+  void replaceChild(Widget* oldChild, Widget* newChild);
+  void insertChild(int index, Widget* child);
+
+  // ===============================================================
+  // LAYOUT & CONSTRAINT
+  // ===============================================================
+
+  void layout();
+  void loadLayout();
+  void saveLayout();
+
+  void setDecorativeWidgetBounds();
+
+  // ===============================================================
+  // POSITION & GEOMETRY
+  // ===============================================================
+
+  gfx::Rect bounds() const { return m_bounds; }
+  gfx::Point origin() const { return m_bounds.origin(); }
+  gfx::Size size() const { return m_bounds.size(); }
+
+  gfx::Rect clientBounds() const
+  {
+    return gfx::Rect(0, 0, m_bounds.w, m_bounds.h);
+  }
+
+  gfx::Rect childrenBounds() const;
+  gfx::Rect clientChildrenBounds() const;
+
+  // Sets the bounds of the widget generating a onResize() event.
+  void setBounds(const gfx::Rect& rc);
+
+  // Sets the bounds of the widget without generating any kind of
+  // event. This member function must be used if you override
+  // onResize() and want to change the size of the widget without
+  // generating recursive onResize() events.
+  void setBoundsQuietly(const gfx::Rect& rc);
+  void offsetWidgets(int dx, int dy);
+
+  const gfx::Size& minSize() const { return m_minSize; }
+  const gfx::Size& maxSize() const { return m_maxSize; }
+  void setMinSize(const gfx::Size& sz);
+  void setMaxSize(const gfx::Size& sz);
+
+  const gfx::Border& border() const { return m_border; }
+  void setBorder(const gfx::Border& border);
+
+  int childSpacing() const { return m_childSpacing; }
+  void setChildSpacing(int childSpacing);
+
+  void noBorderNoChildSpacing();
+
+  // Flags for getDrawableRegion()
+  enum DrawableRegionFlags
+  {
+    kCutTopWindows = 1, // Cut areas where are windows on top.
+    kUseChildArea = 2,  // Use areas where are children.
   };
 
-  WidgetType register_widget_type();
+  void getRegion(gfx::Region& region);
+  void getDrawableRegion(gfx::Region& region, DrawableRegionFlags flags);
+
+  gfx::Point toClient(const gfx::Point& pt) const
+  {
+    return pt - m_bounds.origin();
+  }
+  gfx::Rect toClient(const gfx::Rect& rc) const
+  {
+    return gfx::Rect(rc).offset(-m_bounds.x, -m_bounds.y);
+  }
+
+  void getTextIconInfo(gfx::Rect* box, gfx::Rect* text = nullptr,
+                       gfx::Rect* icon = nullptr, int icon_align = 0,
+                       int icon_w = 0, int icon_h = 0);
+
+  // ===============================================================
+  // REFRESH ISSUES
+  // ===============================================================
+
+  bool isDoubleBuffered() const;
+  void setDoubleBuffered(bool doubleBuffered);
+
+  bool isTransparent() const;
+  void setTransparent(bool transparent);
+
+  void invalidate();
+  void invalidateRect(const gfx::Rect& rect);
+  void invalidateRegion(const gfx::Region& region);
+
+  // Returns the region to generate PaintMessages. It's cleared
+  // after flushRedraw() is called.
+  const gfx::Region& getUpdateRegion() const { return m_updateRegion; }
+
+  // Generates paint messages for the current update region.
+  void flushRedraw();
+
+  GraphicsPtr getGraphics(const gfx::Rect& clip);
+
+  // ===============================================================
+  // GUI MANAGER
+  // ===============================================================
+
+  bool sendMessage(Message* msg);
+  void closeWindow();
+
+  void broadcastMouseMessage(WidgetsList& targets);
+
+  // ===============================================================
+  // SIZE & POSITION
+  // ===============================================================
+
+  gfx::Size sizeHint();
+  gfx::Size sizeHint(const gfx::Size& fitIn);
+  void setSizeHint(const gfx::Size& fixedSize);
+  void setSizeHint(int fixedWidth, int fixedHeight);
+
+  // ===============================================================
+  // MOUSE, FOCUS & KEYBOARD
+  // ===============================================================
+
+  void requestFocus();
+  void releaseFocus();
+  void captureMouse();
+  void releaseMouse();
+
+  bool hasFocus();
+  bool hasMouse();
+  bool hasMouseOver();
+  bool hasCapture();
+
+  // Offer the capture to widgets of the given type. Returns true if
+  // the capture was passed to other widget.
+  bool offerCapture(ui::MouseMessage* mouseMsg, int widget_type);
+
+  // Returns lower-case letter that represet the mnemonic of the widget
+  // (the underscored character, i.e. the letter after & symbol).
+  int mnemonicChar() const;
+
+protected:
+  // ===============================================================
+  // MESSAGE PROCESSING
+  // ===============================================================
+
+  virtual bool onProcessMessage(Message* msg);
+
+  // ===============================================================
+  // EVENTS
+  // ===============================================================
+
+  virtual void onInvalidateRegion(const gfx::Region& region);
+  virtual void onSizeHint(SizeHintEvent& ev);
+  virtual void onLoadLayout(LoadLayoutEvent& ev);
+  virtual void onSaveLayout(SaveLayoutEvent& ev);
+  virtual void onResize(ResizeEvent& ev);
+  virtual void onPaint(PaintEvent& ev);
+  virtual void onBroadcastMouseMessage(WidgetsList& targets);
+  virtual void onInitTheme(InitThemeEvent& ev);
+  virtual void onSetDecorativeWidgetBounds();
+  virtual void onEnable();
+  virtual void onDisable();
+  virtual void onSelect();
+  virtual void onDeselect();
+  virtual void onSetText();
+  virtual void onSetBgColor();
+
+  // Called by textInt()/textDouble() when text() can't be parsed as a
+  // math expression. Notification only - the caller uses
+  // onEvalFallback() regardless, so this must not block or show modal
+  // UI: it runs on every keystroke of a live-updating entry, and may run
+  // long after the window owning the widget has been closed.
+  virtual void onEvalError(const std::string& message) const;
+
+  // The value textInt()/textDouble() return when text() doesn't
+  // evaluate. Plain widgets have nothing better to offer than zero;
+  // Entry keeps the last value it held that did evaluate.
+  virtual double onEvalFallback() const { return 0.0; }
+
+  // Whether a value that did evaluate is one textInt()/textDouble()
+  // should hand back as-is. Plain widgets accept anything finite;
+  // Entry overrides this to reject negative values when configured to.
+  virtual bool onEvalAcceptable(double /*value*/) const { return true; }
+
+private:
+  // Shared back end of textInt()/textDouble().
+  double evalText() const;
+
+  void removeChild(WidgetsList::iterator& it);
+  void paint(Graphics* graphics, const gfx::Region& drawRegion);
+  bool paintEvent(Graphics* graphics);
+
+  WidgetType m_type;  // Widget's type
+  std::string m_id;   // Widget's id
+  int m_flags;        // Special boolean properties (see flags in ui/base.h)
+  Theme* m_theme;     // Widget's theme
+  std::string m_text; // Widget text
+  std::string m_i18n; // Text before translation
+
+  // Set by textInt()/textDouble(), so a widget can tell whether anything
+  // reads it as a number. Mutable because both are const getters.
+  mutable bool m_textReadAsNumber = false;
+  mutable std::shared_ptr<she::Font>
+      m_font;           // Cached font returned by the theme
+  gfx::Color m_bgColor; // Background color
+  gfx::Rect m_bounds;
+  gfx::Region m_updateRegion; // Region to be redrawed.
+  WidgetsList m_children;     // Sub-widgets
+  Widget* m_parent;           // Who is the parent?
+  gfx::Size* m_sizeHint;
+  Properties m_properties;
+
+  // Widget size limits
+  gfx::Size m_minSize, m_maxSize;
+
+  gfx::Border m_border; // Border separation with the parent
+  int m_childSpacing;   // Separation between children
+
+  DISABLE_COPYING(Widget);
+};
+
+WidgetType register_widget_type();
 
 } // namespace ui

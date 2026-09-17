@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2015  David Capello
-// LibreSprite | Copyright (C) 2021  LibreSprite contributors
+// Aseprite    | Copyright (C) 2015 David Capello
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,18 +10,22 @@
 #include "gfx/region.h"
 #include "ui/event.h"
 
-namespace ui {
+namespace ui
+{
 
-  class ScrollRegionEvent : public Event {
-  public:
-    ScrollRegionEvent(Widget* source, gfx::Region& region)
-      : Event(source), m_region(region) {
-    }
+class ScrollRegionEvent : public Event
+{
+public:
+  ScrollRegionEvent(Widget* source, gfx::Region& region)
+    : Event(source)
+    , m_region(region)
+  {
+  }
 
-    gfx::Region& region() { return m_region; }
+  gfx::Region& region() { return m_region; }
 
-  private:
-    gfx::Region& m_region;
-  };
+private:
+  gfx::Region& m_region;
+};
 
 } // namespace ui

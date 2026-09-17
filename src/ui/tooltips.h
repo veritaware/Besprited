@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,68 +13,78 @@
 #include "ui/window.h"
 
 #include <map>
+#include <memory>
+#include <utility>
 
-namespace ui {
+namespace ui
+{
 
-  class TipWindow;
+class TipWindow;
 
-  class TooltipManager : public Widget {
-  public:
-    TooltipManager();
-    ~TooltipManager();
+class TooltipManager : public Widget
+{
+public:
+  TooltipManager();
+  ~TooltipManager() override;
 
-    void addTooltipFor(Widget* widget, const std::string& text, int arrowAlign = 0);
-    void removeTooltipFor(Widget* widget);
+  void addTooltipFor(Widget* widget, const std::string& text,
+                     int arrowAlign = 0);
+  void removeTooltipFor(Widget* widget);
 
-  protected:
-    bool onProcessMessage(Message* msg) override;
+protected:
+  bool onProcessMessage(Message* msg) override;
 
-  private:
-    void onTick();
+private:
+  void onTick();
 
-    struct TipInfo {
-      std::string text;
-      int arrowAlign;
+  struct TipInfo
+  {
+    std::string text;
+    int arrowAlign;
 
-      TipInfo() { }
-      TipInfo(const std::string& text, int arrowAlign)
-        : text(text), arrowAlign(arrowAlign) {
-      }
-    };
-
-    typedef std::map<Widget*, TipInfo> Tips;
-    Tips m_tips;                      // All tips.
-    std::unique_ptr<TipWindow> m_tipWindow; // Frame to show tooltips.
-    std::unique_ptr<Timer> m_timer;         // Timer to control the tooltip delay.
-    struct {
-      Widget* widget;
-      TipInfo tipInfo;
-    } m_target;
+    TipInfo() = default;
+    TipInfo(std::string text, int arrowAlign)
+      : text(std::move(text))
+      , arrowAlign(arrowAlign)
+    {
+    }
   };
 
-  class TipWindow : public PopupWindow {
-  public:
-    TipWindow(const std::string& text = "");
+  using Tips = std::map<Widget*, TipInfo>;
+  Tips m_tips;                            // All tips.
+  std::unique_ptr<TipWindow> m_tipWindow; // Frame to show tooltips.
+  std::unique_ptr<Timer> m_timer;         // Timer to control the tooltip delay.
+  struct
+  {
+    Widget* widget;
+    TipInfo tipInfo;
+  } m_target;
+};
 
-    int arrowAlign() const { return m_arrowAlign; }
-    const gfx::Rect& target() const { return m_target; }
+class TipWindow : public PopupWindow
+{
+public:
+  TipWindow(const std::string& text = "");
 
-    void setCloseOnKeyDown(bool state);
+  int arrowAlign() const { return m_arrowAlign; }
+  const gfx::Rect& target() const { return m_target; }
 
-    // Returns false there is no enough screen space to show the
-    // window.
-    bool pointAt(int arrowAlign, const gfx::Rect& target);
+  void setCloseOnKeyDown(bool state);
 
-  protected:
-    bool onProcessMessage(Message* msg) override;
-    void onSizeHint(SizeHintEvent& ev) override;
-    void onInitTheme(InitThemeEvent& ev) override;
-    void onPaint(PaintEvent& ev) override;
+  // Returns false there is no enough screen space to show the
+  // window.
+  bool pointAt(int arrowAlign, const gfx::Rect& target);
 
-  private:
-    int m_arrowAlign;
-    gfx::Rect m_target;
-    bool m_closeOnKeyDown;
-  };
+protected:
+  bool onProcessMessage(Message* msg) override;
+  void onSizeHint(SizeHintEvent& ev) override;
+  void onInitTheme(InitThemeEvent& ev) override;
+  void onPaint(PaintEvent& ev) override;
+
+private:
+  int m_arrowAlign;
+  gfx::Rect m_target;
+  bool m_closeOnKeyDown;
+};
 
 } // namespace ui

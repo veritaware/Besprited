@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,7 +17,8 @@
 #include "ui/theme.h"
 #include "ui/view.h"
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
@@ -53,7 +55,8 @@ void ListItem::onSizeHint(SizeHintEvent& ev)
   else
     maxSize.w = maxSize.h = 0;
 
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     Size reqSize = child->sizeHint();
 
     maxSize.w = MAX(maxSize.w, reqSize.w);

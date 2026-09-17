@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,7 +17,8 @@
 
 #include <vector>
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
@@ -33,7 +35,8 @@ void move_region(Manager* manager, const Region& region, int dx, int dy)
   std::size_t nrects = region.size();
 
   // Blit directly screen to screen.
-  if (nrects == 1) {
+  if (nrects == 1)
+  {
     gfx::Rect rc = region[0];
     surface->scrollTo(rc, dx, dy);
 
@@ -41,12 +44,14 @@ void move_region(Manager* manager, const Region& region, int dx, int dy)
     Manager::getDefault()->dirtyRect(rc);
   }
   // Blit saving areas and copy them.
-  else if (nrects > 1) {
+  else if (nrects > 1)
+  {
     std::vector<she::Surface*> images(nrects);
-    Region::const_iterator it, begin=region.begin(), end=region.end();
+    Region::const_iterator it, begin = region.begin(), end = region.end();
     int c;
 
-    for (c=0, it=begin; it != end; ++it, ++c) {
+    for (c = 0, it = begin; it != end; ++it, ++c)
+    {
       const Rect& rc = *it;
       she::Surface* tmpSur = system->createSurface(rc.w, rc.h);
       {
@@ -56,8 +61,9 @@ void move_region(Manager* manager, const Region& region, int dx, int dy)
       images[c] = tmpSur;
     }
 
-    for (c=0, it=begin; it != end; ++it, ++c) {
-      gfx::Rect rc((*it).x+dx, (*it).y+dy, (*it).w, (*it).h);
+    for (c = 0, it = begin; it != end; ++it, ++c)
+    {
+      gfx::Rect rc((*it).x + dx, (*it).y + dy, (*it).w, (*it).h);
       she::Surface* tmpSur = images[c];
       {
         she::SurfaceLock tmpSurLock(tmpSur);

@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,8 +16,8 @@
 
 #include <list>
 
-namespace ui {
-namespace details {
+namespace ui::details
+{
 
 static std::list<Widget*>* widgets;
 
@@ -51,13 +52,15 @@ void resetFontAllWidgets()
 void reinitThemeForAllWidgets()
 {
   // Reinitialize the theme of each widget
-  for (auto widget : *widgets) {
+  for (auto widget : *widgets)
+  {
     widget->setTheme(CurrentTheme::get());
     widget->initTheme();
   }
 
   // Remap the windows
-  for (auto widget : *widgets) {
+  for (auto widget : *widgets)
+  {
     if (widget->type() == kWindowWidget)
       static_cast<Window*>(widget)->remapWindow();
   }
@@ -66,5 +69,4 @@ void reinitThemeForAllWidgets()
   Manager::getDefault()->invalidate();
 }
 
-} // namespace details
-} // namespace ui
+} // namespace ui::details

@@ -15,7 +15,8 @@
 #include "ui/manager.h"
 #include "she/system.h"
 
-namespace ui {
+namespace ui
+{
 
 MessageLoop::MessageLoop(Manager* manager)
   : m_manager(manager)
@@ -24,14 +25,18 @@ MessageLoop::MessageLoop(Manager* manager)
 
 void MessageLoop::pumpMessages()
 {
-  if (m_manager->generateMessages()) {
+  if (m_manager->generateMessages())
+  {
     m_manager->dispatchMessages();
-  } else {
+  }
+  else
+  {
     m_manager->collectGarbage();
   }
 
   // Call flipDisplay from the central location if a redraw was requested
-  if (m_manager->isRedrawRequested() || !m_manager->getDirtyRegion().isEmpty()) {
+  if (m_manager->isRedrawRequested() || !m_manager->getDirtyRegion().isEmpty())
+  {
     m_manager->flipDisplay();
   }
 

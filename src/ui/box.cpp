@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,7 +16,8 @@
 #include "ui/resize_event.h"
 #include "ui/theme.h"
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
@@ -28,45 +30,54 @@ Box::Box(int align)
 
 void Box::onSizeHint(SizeHintEvent& ev)
 {
-#define ADD_CHILD_SIZE(w, h) {                      \
-    if (align() & HOMOGENEOUS)                      \
-      prefSize.w = MAX(prefSize.w, childSize.w);    \
-    else                                            \
-      prefSize.w += childSize.w;                    \
-    prefSize.h = MAX(prefSize.h, childSize.h);      \
+#define ADD_CHILD_SIZE(w, h)                                                   \
+  {                                                                            \
+    if (align() & HOMOGENEOUS)                                                 \
+      prefSize.w = MAX(prefSize.w, childSize.w);                               \
+    else                                                                       \
+      prefSize.w += childSize.w;                                               \
+    prefSize.h = MAX(prefSize.h, childSize.h);                                 \
   }
 
-#define FINAL_ADJUSTMENT(w) {                            \
-    if (align() & HOMOGENEOUS)                           \
-      prefSize.w *= visibleChildren;                     \
-    prefSize.w += childSpacing() * (visibleChildren-1);  \
+#define FINAL_ADJUSTMENT(w)                                                    \
+  {                                                                            \
+    if (align() & HOMOGENEOUS)                                                 \
+      prefSize.w *= visibleChildren;                                           \
+    prefSize.w += childSpacing() * (visibleChildren - 1);                      \
   }
 
   int visibleChildren = 0;
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     if (!child->hasFlags(HIDDEN))
       ++visibleChildren;
   }
 
   Size prefSize(0, 0);
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     if (child->hasFlags(HIDDEN))
       continue;
 
     Size childSize = child->sizeHint();
-    if (align() & HORIZONTAL) {
+    if (align() & HORIZONTAL)
+    {
       ADD_CHILD_SIZE(w, h);
     }
-    else {
+    else
+    {
       ADD_CHILD_SIZE(h, w);
     }
   }
 
-  if (visibleChildren > 0) {
-    if (align() & HORIZONTAL) {
+  if (visibleChildren > 0)
+  {
+    if (align() & HORIZONTAL)
+    {
       FINAL_ADJUSTMENT(w);
     }
-    else {
+    else
+    {
       FINAL_ADJUSTMENT(h);
     }
   }
@@ -79,59 +90,67 @@ void Box::onSizeHint(SizeHintEvent& ev)
 
 void Box::onResize(ResizeEvent& ev)
 {
-#define LAYOUT_CHILDREN(x, w) {                                         \
-    availExtraSize = availSize.w - prefSize.w;                          \
-    availSize.w -= childSpacing() * (visibleChildren-1);                \
-    if (align() & HOMOGENEOUS)                                          \
-      homogeneousSize = availSize.w / visibleChildren;                  \
-                                                                        \
-    Rect childPos(childrenBounds());                                    \
-    int i = 0, j = 0;                                                   \
-    for (auto child : children()) {                                     \
-      if (child->hasFlags(HIDDEN))                                      \
-        continue;                                                       \
-                                                                        \
-      int size = 0;                                                     \
-                                                                        \
-      if (align() & HOMOGENEOUS) {                                      \
-        if (i < visibleChildren-1)                                      \
-          size = homogeneousSize;                                       \
-        else                                                            \
-          size = availSize.w;                                           \
-      }                                                                 \
-      else {                                                            \
-        size = child->sizeHint().w;                                     \
-                                                                        \
-        if (child->isExpansive()) {                                     \
-          int extraSize = (availExtraSize / (expansiveChildren-j));     \
-          size += extraSize;                                            \
-          availExtraSize -= extraSize;                                  \
-          if (++j == expansiveChildren)                                 \
-            size += availExtraSize;                                     \
-        }                                                               \
-      }                                                                 \
-                                                                        \
-      childPos.w = MAX(1, size);                                        \
-      child->setBounds(childPos);                                       \
-      childPos.x += size + childSpacing();                              \
-      availSize.w -= size;                                              \
-      ++i;                                                              \
-    }                                                                   \
+#define LAYOUT_CHILDREN(x, w)                                                  \
+  {                                                                            \
+    availExtraSize = availSize.w - prefSize.w;                                 \
+    availSize.w -= childSpacing() * (visibleChildren - 1);                     \
+    if (align() & HOMOGENEOUS)                                                 \
+      homogeneousSize = availSize.w / visibleChildren;                         \
+                                                                               \
+    Rect childPos(childrenBounds());                                           \
+    int i = 0, j = 0;                                                          \
+    for (auto child : children())                                              \
+    {                                                                          \
+      if (child->hasFlags(HIDDEN))                                             \
+        continue;                                                              \
+                                                                               \
+      int size = 0;                                                            \
+                                                                               \
+      if (align() & HOMOGENEOUS)                                               \
+      {                                                                        \
+        if (i < visibleChildren - 1)                                           \
+          size = homogeneousSize;                                              \
+        else                                                                   \
+          size = availSize.w;                                                  \
+      }                                                                        \
+      else                                                                     \
+      {                                                                        \
+        size = child->sizeHint().w;                                            \
+                                                                               \
+        if (child->isExpansive())                                              \
+        {                                                                      \
+          int extraSize = (availExtraSize / (expansiveChildren - j));          \
+          size += extraSize;                                                   \
+          availExtraSize -= extraSize;                                         \
+          if (++j == expansiveChildren)                                        \
+            size += availExtraSize;                                            \
+        }                                                                      \
+      }                                                                        \
+                                                                               \
+      childPos.w = MAX(1, size);                                               \
+      child->setBounds(childPos);                                              \
+      childPos.x += size + childSpacing();                                     \
+      availSize.w -= size;                                                     \
+      ++i;                                                                     \
+    }                                                                          \
   }
 
   setBoundsQuietly(ev.bounds());
 
   int visibleChildren = 0;
   int expansiveChildren = 0;
-  for (auto child : children()) {
-    if (!child->hasFlags(HIDDEN)) {
+  for (auto child : children())
+  {
+    if (!child->hasFlags(HIDDEN))
+    {
       ++visibleChildren;
       if (child->isExpansive())
         ++expansiveChildren;
     }
   }
 
-  if (visibleChildren > 0) {
+  if (visibleChildren > 0)
+  {
     Size prefSize(sizeHint());
     Size availSize(childrenBounds().size());
     int homogeneousSize = 0;
@@ -140,10 +159,12 @@ void Box::onResize(ResizeEvent& ev)
     prefSize.w -= border().width();
     prefSize.h -= border().height();
 
-    if (align() & HORIZONTAL) {
+    if (align() & HORIZONTAL)
+    {
       LAYOUT_CHILDREN(x, w);
     }
-    else {
+    else
+    {
       LAYOUT_CHILDREN(y, h);
     }
   }

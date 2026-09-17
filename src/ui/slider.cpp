@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -22,7 +23,8 @@
 #include <cstdio>
 #include <cstdlib>
 
-namespace ui {
+namespace ui
+{
 
 static int slider_press_x;
 static int slider_press_value;
@@ -63,16 +65,20 @@ void Slider::setValue(int value)
 
 void Slider::getSliderThemeInfo(int* min, int* max, int* value) const
 {
-  if (min) *min = m_min;
-  if (max) *max = m_max;
-  if (value) *value = m_value;
+  if (min)
+    *min = m_min;
+  if (max)
+    *max = m_max;
+  if (value)
+    *value = m_value;
 }
 
 std::string Slider::convertValueToText(int value) const
 {
   if (m_delegate)
     return m_delegate->onGetTextFromValue(value);
-  else {
+  else
+  {
     return std::to_string(value);
   }
 }
@@ -81,132 +87,154 @@ int Slider::convertTextToValue(const std::string& text) const
 {
   if (m_delegate)
     return m_delegate->onGetValueFromText(text);
-  else {
-    return std::strtol(text.c_str(), NULL, 10);
+  else
+  {
+    return std::strtol(text.c_str(), nullptr, 10);
   }
 }
 
 bool Slider::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kFocusEnterMessage:
-    case kFocusLeaveMessage:
-      if (isEnabled())
-        invalidate();
-      break;
+  case kFocusEnterMessage:
+  case kFocusLeaveMessage:
+    if (isEnabled())
+      invalidate();
+    break;
 
-    case kMouseDownMessage:
-      if (!isEnabled() || isReadOnly())
-        return true;
-
-      setSelected(true);
-      captureMouse();
-
-      {
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
-        slider_press_x = mousePos.x;
-        slider_press_value = m_value;
-        slider_press_left = static_cast<MouseMessage*>(msg)->left();
-      }
-
-      setupSliderCursor();
-
-      // Fall through
-
-    case kMouseMoveMessage:
-      if (hasCapture()) {
-        int value, accuracy, range;
-        gfx::Rect rc = childrenBounds();
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
-
-        range = m_max - m_min + 1;
-
-        // With left click
-        if (slider_press_left) {
-          value = m_min + range * (mousePos.x - rc.x) / rc.w;
-        }
-        // With right click
-        else {
-          accuracy = MID(1, rc.w / range, rc.w);
-
-          value = slider_press_value +
-            (mousePos.x - slider_press_x) / accuracy;
-        }
-
-        value = MID(m_min, value, m_max);
-
-        if (m_value != value) {
-          setValue(value);
-          onChange();
-        }
-
-        return true;
-      }
-      break;
-
-    case kMouseUpMessage:
-      if (hasCapture()) {
-        setSelected(false);
-        releaseMouse();
-        setupSliderCursor();
-
-        onSliderReleased();
-      }
-      break;
-
-    case kMouseEnterMessage:
-    case kMouseLeaveMessage:
-      // TODO theme stuff
-      if (isEnabled())
-        invalidate();
-      break;
-
-    case kKeyDownMessage:
-      if (hasFocus() && !isReadOnly()) {
-        int min = m_min;
-        int max = m_max;
-        int value = m_value;
-
-        switch (static_cast<KeyMessage*>(msg)->scancode()) {
-          case kKeyLeft:     value = MAX(value-1, min); break;
-          case kKeyRight:    value = MIN(value+1, max); break;
-          case kKeyPageDown: value = MAX(value-(max-min+1)/4, min); break;
-          case kKeyPageUp:   value = MIN(value+(max-min+1)/4, max); break;
-          case kKeyHome:     value = min; break;
-          case kKeyEnd:      value = max; break;
-          default:
-            goto not_used;
-        }
-
-        if (m_value != value) {
-          setValue(value);
-          onChange();
-        }
-
-        return true;
-      }
-      break;
-
-    case kMouseWheelMessage:
-      if (isEnabled() && !isReadOnly()) {
-        int value = m_value
-          + static_cast<MouseMessage*>(msg)->wheelDelta().x
-          - static_cast<MouseMessage*>(msg)->wheelDelta().y;
-
-        value = MID(m_min, value, m_max);
-
-        if (m_value != value) {
-          this->setValue(value);
-          onChange();
-        }
-        return true;
-      }
-      break;
-
-    case kSetCursorMessage:
-      setupSliderCursor();
+  case kMouseDownMessage:
+    if (!isEnabled() || isReadOnly())
       return true;
+
+    setSelected(true);
+    captureMouse();
+
+    {
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+      slider_press_x = mousePos.x;
+      slider_press_value = m_value;
+      slider_press_left = static_cast<MouseMessage*>(msg)->left();
+    }
+
+    setupSliderCursor();
+
+    // Fall through
+
+  case kMouseMoveMessage:
+    if (hasCapture())
+    {
+      int value, accuracy, range;
+      gfx::Rect rc = childrenBounds();
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+
+      range = m_max - m_min + 1;
+
+      // With left click
+      if (slider_press_left)
+      {
+        value = m_min + range * (mousePos.x - rc.x) / rc.w;
+      }
+      // With right click
+      else
+      {
+        accuracy = MID(1, rc.w / range, rc.w);
+
+        value = slider_press_value + (mousePos.x - slider_press_x) / accuracy;
+      }
+
+      value = MID(m_min, value, m_max);
+
+      if (m_value != value)
+      {
+        setValue(value);
+        onChange();
+      }
+
+      return true;
+    }
+    break;
+
+  case kMouseUpMessage:
+    if (hasCapture())
+    {
+      setSelected(false);
+      releaseMouse();
+      setupSliderCursor();
+
+      onSliderReleased();
+    }
+    break;
+
+  case kMouseEnterMessage:
+  case kMouseLeaveMessage:
+    // TODO theme stuff
+    if (isEnabled())
+      invalidate();
+    break;
+
+  case kKeyDownMessage:
+    if (hasFocus() && !isReadOnly())
+    {
+      int min = m_min;
+      int max = m_max;
+      int value = m_value;
+
+      switch (static_cast<KeyMessage*>(msg)->scancode())
+      {
+      case kKeyLeft:
+        value = MAX(value - 1, min);
+        break;
+      case kKeyRight:
+        value = MIN(value + 1, max);
+        break;
+      case kKeyPageDown:
+        value = MAX(value - (max - min + 1) / 4, min);
+        break;
+      case kKeyPageUp:
+        value = MIN(value + (max - min + 1) / 4, max);
+        break;
+      case kKeyHome:
+        value = min;
+        break;
+      case kKeyEnd:
+        value = max;
+        break;
+      default:
+        goto not_used;
+      }
+
+      if (m_value != value)
+      {
+        setValue(value);
+        onChange();
+      }
+
+      return true;
+    }
+    break;
+
+  case kMouseWheelMessage:
+    if (isEnabled() && !isReadOnly())
+    {
+      int value = m_value + static_cast<MouseMessage*>(msg)->wheelDelta().x -
+                  static_cast<MouseMessage*>(msg)->wheelDelta().y;
+
+      value = MID(m_min, value, m_max);
+
+      if (m_value != value)
+      {
+        this->setValue(value);
+        onChange();
+      }
+      return true;
+    }
+    break;
+
+  case kSetCursorMessage:
+    setupSliderCursor();
+    return true;
   }
 
 not_used:;
@@ -244,7 +272,8 @@ void Slider::onSliderReleased()
 
 void Slider::setupSliderCursor()
 {
-  if (hasCapture()) {
+  if (hasCapture())
+  {
     if (slider_press_left)
       set_mouse_cursor(kArrowCursor);
     else

@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,7 +12,8 @@
 #include "ui/paint_event.h"
 #include "ui/widget.h"
 
-namespace ui {
+namespace ui
+{
 
 PaintEvent::PaintEvent(Widget* source, Graphics* graphics)
   : Event(source)
@@ -20,9 +22,7 @@ PaintEvent::PaintEvent(Widget* source, Graphics* graphics)
 {
 }
 
-PaintEvent::~PaintEvent()
-{
-}
+PaintEvent::~PaintEvent() = default;
 
 Graphics* PaintEvent::graphics()
 {

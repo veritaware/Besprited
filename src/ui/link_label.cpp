@@ -1,9 +1,9 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
-
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -16,7 +16,10 @@
 #include "ui/system.h"
 #include "ui/theme.h"
 
-namespace ui {
+#include <utility>
+
+namespace ui
+{
 
 LinkLabel::LinkLabel(const std::string& urlOrText)
   : CustomLabel(urlOrText)
@@ -24,9 +27,9 @@ LinkLabel::LinkLabel(const std::string& urlOrText)
 {
 }
 
-LinkLabel::LinkLabel(const std::string& url, const std::string& text)
+LinkLabel::LinkLabel(std::string url, const std::string& text)
   : CustomLabel(text)
-  , m_url(url)
+  , m_url(std::move(url))
 {
 }
 
@@ -37,49 +40,54 @@ void LinkLabel::setUrl(const std::string& url)
 
 bool LinkLabel::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kSetCursorMessage:
-      // TODO theme stuff
-      if (isEnabled() && hasMouseOver()) {
-        set_mouse_cursor(kHandCursor);
-        return true;
-      }
-      break;
+  case kSetCursorMessage:
+    // TODO theme stuff
+    if (isEnabled() && hasMouseOver())
+    {
+      set_mouse_cursor(kHandCursor);
+      return true;
+    }
+    break;
 
-    case kMouseEnterMessage:
-    case kMouseLeaveMessage:
-      if (isEnabled()) {
-        if (hasCapture())
-          setSelected(msg->type() == kMouseEnterMessage);
+  case kMouseEnterMessage:
+  case kMouseLeaveMessage:
+    if (isEnabled())
+    {
+      if (hasCapture())
+        setSelected(msg->type() == kMouseEnterMessage);
 
-        invalidate();           // TODO theme specific
-      }
-      break;
+      invalidate(); // TODO theme specific
+    }
+    break;
 
-    case kMouseMoveMessage:
-      if (isEnabled() && hasCapture())
-        setSelected(hasMouseOver());
-      break;
+  case kMouseMoveMessage:
+    if (isEnabled() && hasCapture())
+      setSelected(hasMouseOver());
+    break;
 
-    case kMouseDownMessage:
-      if (isEnabled()) {
-        captureMouse();
-        setSelected(true);
-      }
-      break;
+  case kMouseDownMessage:
+    if (isEnabled())
+    {
+      captureMouse();
+      setSelected(true);
+    }
+    break;
 
-    case kMouseUpMessage:
-      if (hasCapture()) {
-        releaseMouse();
+  case kMouseUpMessage:
+    if (hasCapture())
+    {
+      releaseMouse();
 
-        setSelected(false);
-        invalidate();           // TODO theme specific
+      setSelected(false);
+      invalidate(); // TODO theme specific
 
-        if (hasMouseOver())
-          onClick();
-      }
-      break;
+      if (hasMouseOver())
+        onClick();
+    }
+    break;
   }
 
   return CustomLabel::onProcessMessage(msg);

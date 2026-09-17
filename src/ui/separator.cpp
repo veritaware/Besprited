@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,12 +16,13 @@
 #include "ui/size_hint_event.h"
 #include "ui/theme.h"
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
 Separator::Separator(const std::string& text, int align)
- : Widget(kSeparatorWidget)
+  : Widget(kSeparatorWidget)
 {
   setAlign(align);
   if (!text.empty())
@@ -38,13 +40,15 @@ void Separator::onSizeHint(SizeHintEvent& ev)
 {
   Size maxSize(0, 0);
 
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     Size reqSize = child->sizeHint();
     maxSize.w = MAX(maxSize.w, reqSize.w);
     maxSize.h = MAX(maxSize.h, reqSize.h);
   }
 
-  if (hasText()) {
+  if (hasText())
+  {
     maxSize.w = MAX(maxSize.w, textWidth());
     maxSize.h = MAX(maxSize.h, textHeight());
   }

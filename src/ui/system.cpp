@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -23,14 +24,15 @@
 #include "ui/theme.h"
 #include "ui/widget.h"
 
-namespace ui {
+namespace ui
+{
 
 // Current mouse cursor type.
 
 static CursorType mouse_cursor_type = kOutsideDisplay;
-static Cursor* mouse_cursor = NULL;
-static she::Display* mouse_display = NULL;
-static Overlay* mouse_cursor_overlay = NULL;
+static Cursor* mouse_cursor = nullptr;
+static she::Display* mouse_display = nullptr;
+static Overlay* mouse_cursor_overlay = nullptr;
 static bool use_native_mouse_cursor = false;
 
 // Mouse information (button and position).
@@ -44,25 +46,28 @@ static void update_mouse_overlay(Cursor* cursor)
 {
   mouse_cursor = cursor;
 
-  if (mouse_cursor && mouse_scares == 0) {
-    if (!mouse_cursor_overlay) {
-      mouse_cursor_overlay = new Overlay(
-        mouse_cursor->getSurface(),
-        get_mouse_position(),
-        Overlay::MouseZOrder);
+  if (mouse_cursor && mouse_scares == 0)
+  {
+    if (!mouse_cursor_overlay)
+    {
+      mouse_cursor_overlay =
+          new Overlay(mouse_cursor->getSurface(), get_mouse_position(),
+                      Overlay::MouseZOrder);
 
       OverlayManager::instance()->addOverlay(mouse_cursor_overlay);
     }
-    else {
+    else
+    {
       mouse_cursor_overlay->setSurface(mouse_cursor->getSurface());
       update_cursor_overlay();
     }
   }
-  else if (mouse_cursor_overlay) {
+  else if (mouse_cursor_overlay)
+  {
     OverlayManager::instance()->removeOverlay(mouse_cursor_overlay);
-    mouse_cursor_overlay->setSurface(NULL);
+    mouse_cursor_overlay->setSurface(nullptr);
     delete mouse_cursor_overlay;
-    mouse_cursor_overlay = NULL;
+    mouse_cursor_overlay = nullptr;
   }
 }
 
@@ -73,42 +78,65 @@ static void update_mouse_cursor()
   she::NativeCursor nativeCursor = she::kNoCursor;
   Cursor* cursor = nullptr;
 
-  if (use_native_mouse_cursor ||
-      mouse_cursor_type == kOutsideDisplay) {
-    switch (mouse_cursor_type) {
-      case ui::kOutsideDisplay:
-        nativeCursor = she::kArrowCursor;
-        break;
-      case ui::kNoCursor: break;
-      case ui::kArrowCursor:
-      case ui::kArrowPlusCursor:
-        nativeCursor = she::kArrowCursor;
-        break;
-      case ui::kForbiddenCursor:
-        nativeCursor = she::kForbiddenCursor;
-        break;
-      case ui::kHandCursor:
-        nativeCursor = she::kLinkCursor;
-        break;
-      case ui::kScrollCursor:
-      case ui::kMoveCursor:
-        nativeCursor = she::kMoveCursor;
-        break;
-      case ui::kSizeNSCursor: nativeCursor = she::kSizeNSCursor; break;
-      case ui::kSizeWECursor: nativeCursor = she::kSizeWECursor; break;
-      case ui::kSizeNCursor: nativeCursor = she::kSizeNCursor; break;
-      case ui::kSizeNECursor: nativeCursor = she::kSizeNECursor; break;
-      case ui::kSizeECursor: nativeCursor = she::kSizeECursor; break;
-      case ui::kSizeSECursor: nativeCursor = she::kSizeSECursor; break;
-      case ui::kSizeSCursor: nativeCursor = she::kSizeSCursor; break;
-      case ui::kSizeSWCursor: nativeCursor = she::kSizeSWCursor; break;
-      case ui::kSizeWCursor: nativeCursor = she::kSizeWCursor; break;
-      case ui::kSizeNWCursor: nativeCursor = she::kSizeNWCursor; break;
+  if (use_native_mouse_cursor || mouse_cursor_type == kOutsideDisplay)
+  {
+    switch (mouse_cursor_type)
+    {
+    case ui::kOutsideDisplay:
+      nativeCursor = she::kArrowCursor;
+      break;
+    case ui::kNoCursor:
+      break;
+    case ui::kArrowCursor:
+    case ui::kArrowPlusCursor:
+      nativeCursor = she::kArrowCursor;
+      break;
+    case ui::kForbiddenCursor:
+      nativeCursor = she::kForbiddenCursor;
+      break;
+    case ui::kHandCursor:
+      nativeCursor = she::kLinkCursor;
+      break;
+    case ui::kScrollCursor:
+    case ui::kMoveCursor:
+      nativeCursor = she::kMoveCursor;
+      break;
+    case ui::kSizeNSCursor:
+      nativeCursor = she::kSizeNSCursor;
+      break;
+    case ui::kSizeWECursor:
+      nativeCursor = she::kSizeWECursor;
+      break;
+    case ui::kSizeNCursor:
+      nativeCursor = she::kSizeNCursor;
+      break;
+    case ui::kSizeNECursor:
+      nativeCursor = she::kSizeNECursor;
+      break;
+    case ui::kSizeECursor:
+      nativeCursor = she::kSizeECursor;
+      break;
+    case ui::kSizeSECursor:
+      nativeCursor = she::kSizeSECursor;
+      break;
+    case ui::kSizeSCursor:
+      nativeCursor = she::kSizeSCursor;
+      break;
+    case ui::kSizeSWCursor:
+      nativeCursor = she::kSizeSWCursor;
+      break;
+    case ui::kSizeWCursor:
+      nativeCursor = she::kSizeWCursor;
+      break;
+    case ui::kSizeNWCursor:
+      nativeCursor = she::kSizeNWCursor;
+      break;
     }
   }
 
   // Set native cursor
-  if (mouse_display) {
+  if (mouse_display)
+  {
     bool ok = mouse_display->setNativeMouseCursor(nativeCursor);
 
     // It looks like the specific native cursor is not supported,
@@ -120,8 +148,8 @@ static void update_mouse_cursor()
 
   // Use a software cursor with the overlay.
   if (nativeCursor == she::kNoCursor &&
-      mouse_cursor_type != ui::kOutsideDisplay &&
-      CurrentTheme::get()) {
+      mouse_cursor_type != ui::kOutsideDisplay && CurrentTheme::get())
+  {
     cursor = CurrentTheme::get()->getCursor(mouse_cursor_type);
   }
 
@@ -141,12 +169,12 @@ UISystem::~UISystem()
   OverlayManager::destroyInstance();
 
   // finish theme
-  CurrentTheme::set(NULL);
+  CurrentTheme::set(nullptr);
 
   details::exitWidgets();
 
-  _internal_set_mouse_display(NULL);
-  update_mouse_overlay(NULL);
+  _internal_set_mouse_display(nullptr);
+  update_mouse_overlay(nullptr);
 }
 
 void _internal_set_mouse_display(she::Display* display)
@@ -155,7 +183,7 @@ void _internal_set_mouse_display(she::Display* display)
   set_mouse_cursor(kNoCursor);
   mouse_display = display;
   if (display)
-    set_mouse_cursor(cursor);  // Restore mouse cursor
+    set_mouse_cursor(cursor); // Restore mouse cursor
 }
 
 int display_w()
@@ -176,11 +204,12 @@ int display_h()
 
 void update_cursor_overlay()
 {
-  if (mouse_cursor_overlay != NULL && mouse_scares == 0) {
-    gfx::Point newPos =
-      get_mouse_position() - mouse_cursor->getFocus();
+  if (mouse_cursor_overlay != nullptr && mouse_scares == 0)
+  {
+    gfx::Point newPos = get_mouse_position() - mouse_cursor->getFocus();
 
-    if (newPos != mouse_cursor_overlay->position()) {
+    if (newPos != mouse_cursor_overlay->position())
+    {
       mouse_cursor_overlay->moveOverlay(newPos);
     }
   }
@@ -223,7 +252,7 @@ void show_mouse_cursor()
 
 void _internal_no_mouse_position()
 {
-  update_mouse_overlay(NULL);
+  update_mouse_overlay(nullptr);
 }
 
 void _internal_set_mouse_position(const gfx::Point& newPos)

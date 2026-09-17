@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,26 +13,30 @@
 #include "she/font.h"
 #include "ui/ui.h"
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
-class ComboBoxButton : public Button {
+class ComboBoxButton : public Button
+{
 public:
-  ComboBoxButton() : Button("") {
+  ComboBoxButton()
+    : Button("")
+  {
     setFocusStop(false);
   }
 
-  void onPaint(PaintEvent& ev) override {
-    theme()->paintComboBoxButton(ev);
-  }
+  void onPaint(PaintEvent& ev) override { theme()->paintComboBoxButton(ev); }
 };
 
-class ComboBoxEntry : public Entry {
+class ComboBoxEntry : public Entry
+{
 public:
   ComboBoxEntry(ComboBox* comboBox)
-    : Entry(256, ""),
-      m_comboBox(comboBox) {
+    : Entry(256, "")
+    , m_comboBox(comboBox)
+  {
   }
 
 protected:
@@ -42,13 +47,15 @@ private:
   ComboBox* m_comboBox;
 };
 
-class ComboBoxListBox : public ListBox {
+class ComboBoxListBox : public ListBox
+{
 public:
   ComboBoxListBox(ComboBox* comboBox)
     : m_comboBox(comboBox)
   {
-    for (ComboBox::ListItems::iterator
-           it = comboBox->begin(), end = comboBox->end(); it != end; ++it)
+    for (ComboBox::ListItems::iterator it = comboBox->begin(),
+                                       end = comboBox->end();
+         it != end; ++it)
       addChild(*it);
   }
 
@@ -64,7 +71,8 @@ protected:
   void onChange() override;
 
 private:
-  bool isValidItem(int index) const {
+  bool isValidItem(int index) const
+  {
     return (index >= 0 && index < m_comboBox->getItemCount());
   }
 
@@ -108,11 +116,13 @@ void ComboBox::setEditable(bool state)
 {
   m_editable = state;
 
-  if (state) {
+  if (state)
+  {
     m_entry->setReadOnly(false);
     m_entry->showCaret();
   }
-  else {
+  else
+  {
     m_entry->setReadOnly(true);
     m_entry->hideCaret();
   }
@@ -137,7 +147,7 @@ int ComboBox::addItem(ListItem* item)
   if (sel_first && !isEditable())
     setSelectedItemIndex(0);
 
-  return m_items.size()-1;
+  return m_items.size() - 1;
 }
 
 int ComboBox::addItem(const std::string& text)
@@ -201,20 +211,23 @@ int ComboBox::getItemCount() const
 
 ListItem* ComboBox::getItem(int itemIndex)
 {
-  if (itemIndex >= 0 && (std::size_t)itemIndex < m_items.size()) {
+  if (itemIndex >= 0 && (std::size_t)itemIndex < m_items.size())
+  {
     return m_items[itemIndex];
   }
   else
-    return NULL;
+    return nullptr;
 }
 
 const std::string& ComboBox::getItemText(int itemIndex) const
 {
-  if (itemIndex >= 0 && (std::size_t)itemIndex < m_items.size()) {
+  if (itemIndex >= 0 && (std::size_t)itemIndex < m_items.size())
+  {
     ListItem* item = m_items[itemIndex];
     return item->text();
   }
-  else {
+  else
+  {
     // Returns the text of the combo-box (it should be empty).
     ASSERT(text().empty());
     return text();
@@ -232,9 +245,11 @@ void ComboBox::setItemText(int itemIndex, const std::string& text)
 int ComboBox::findItemIndex(const std::string& text) const
 {
   int i = 0;
-  for (const ListItem* item : m_items) {
+  for (const ListItem* item : m_items)
+  {
     if ((m_casesensitive && item->text() == text) ||
-        (!m_casesensitive && item->text() == text)) {
+        (!m_casesensitive && item->text() == text))
+    {
       return i;
     }
     i++;
@@ -245,7 +260,8 @@ int ComboBox::findItemIndex(const std::string& text) const
 int ComboBox::findItemIndexByValue(const std::string& value) const
 {
   int i = 0;
-  for (const ListItem* item : m_items) {
+  for (const ListItem* item : m_items)
+  {
     if (item->getValue() == value)
       return i;
     i++;
@@ -255,7 +271,7 @@ int ComboBox::findItemIndexByValue(const std::string& value) const
 
 ListItem* ComboBox::getSelectedItem() const
 {
-  return (!m_items.empty() ? m_items[m_selected]: NULL);
+  return (!m_items.empty() ? m_items[m_selected] : nullptr);
 }
 
 void ComboBox::setSelectedItem(ListItem* item)
@@ -270,14 +286,14 @@ void ComboBox::setSelectedItem(ListItem* item)
 
 int ComboBox::getSelectedItemIndex() const
 {
-  return (!m_items.empty() ? m_selected: -1);
+  return (!m_items.empty() ? m_selected : -1);
 }
 
 void ComboBox::setSelectedItemIndex(int itemIndex)
 {
-  if (itemIndex >= 0 &&
-      (std::size_t)itemIndex < m_items.size() &&
-      m_selected != itemIndex) {
+  if (itemIndex >= 0 && (std::size_t)itemIndex < m_items.size() &&
+      m_selected != itemIndex)
+  {
     m_selected = itemIndex;
 
     ListItems::iterator it = m_items.begin() + itemIndex;
@@ -294,7 +310,8 @@ std::string ComboBox::getValue() const
 {
   if (isEditable())
     return m_entry->text();
-  else {
+  else
+  {
     int index = getSelectedItemIndex();
     if (index >= 0)
       return m_items[index]->getValue();
@@ -305,11 +322,13 @@ std::string ComboBox::getValue() const
 
 void ComboBox::setValue(const std::string& value)
 {
-  if (isEditable()) {
+  if (isEditable())
+  {
     m_entry->setText(value);
     m_entry->selectAllText();
   }
-  else {
+  else
+  {
     int index = findItemIndexByValue(value);
     if (index >= 0)
       setSelectedItemIndex(index);
@@ -328,53 +347,57 @@ Button* ComboBox::getButtonWidget()
 
 bool ComboBox::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kCloseMessage:
-      closeListBox();
-      break;
+  case kCloseMessage:
+    closeListBox();
+    break;
 
-    case kWinMoveMessage:
-      if (m_window)
-        m_window->moveWindow(getListBoxPos());
-      break;
+  case kWinMoveMessage:
+    if (m_window)
+      m_window->moveWindow(getListBoxPos());
+    break;
 
-    case kKeyDownMessage:
-      if (m_window) {
-        KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
-        KeyScancode scancode = keymsg->scancode();
+  case kKeyDownMessage:
+    if (m_window)
+    {
+      KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
+      KeyScancode scancode = keymsg->scancode();
 
-        // If the popup is opened
-        if (scancode == kKeyEsc) {
-          closeListBox();
-          return true;
-        }
+      // If the popup is opened
+      if (scancode == kKeyEsc)
+      {
+        closeListBox();
+        return true;
       }
-      break;
+    }
+    break;
 
-    case kMouseDownMessage:
-      if (m_window) {
-        if (!View::getView(m_listbox)->hasMouse()) {
-          closeListBox();
+  case kMouseDownMessage:
+    if (m_window)
+    {
+      if (!View::getView(m_listbox)->hasMouse())
+      {
+        closeListBox();
 
-          MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-          Widget* pick = manager()->pick(mouseMsg->position());
-          return (pick && pick->hasAncestor(this) ? true: false);
-        }
+        MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+        Widget* pick = manager()->pick(mouseMsg->position());
+        return (pick && pick->hasAncestor(this) ? true : false);
       }
-      break;
+    }
+    break;
 
-    case kFocusEnterMessage:
-      // Here we focus the entry field only if the combobox is
-      // editable and receives the focus in a direct way (e.g. when
-      // the window was just opened and the combobox is the first
-      // child or has the "focus magnet" flag enabled.)
-      if ((isEditable()) &&
-          (manager()->getFocus() == this)) {
-        m_entry->requestFocus();
-      }
-      break;
-
+  case kFocusEnterMessage:
+    // Here we focus the entry field only if the combobox is
+    // editable and receives the focus in a direct way (e.g. when
+    // the window was just opened and the combobox is the first
+    // child or has the "focus magnet" flag enabled.)
+    if ((isEditable()) && (manager()->getFocus() == this))
+    {
+      m_entry->requestFocus();
+    }
+    break;
   }
 
   return Widget::onProcessMessage(msg);
@@ -387,12 +410,12 @@ void ComboBox::onResize(ResizeEvent& ev)
 
   // Button
   Size buttonSize = m_button->sizeHint();
-  m_button->setBounds(Rect(bounds.x2() - buttonSize.w, bounds.y,
-                           buttonSize.w, bounds.h));
+  m_button->setBounds(
+      Rect(bounds.x2() - buttonSize.w, bounds.y, buttonSize.w, bounds.h));
 
   // Entry
-  m_entry->setBounds(Rect(bounds.x, bounds.y,
-                          bounds.w - buttonSize.w, bounds.h));
+  m_entry->setBounds(
+      Rect(bounds.x, bounds.y, bounds.w - buttonSize.w, bounds.h));
 }
 
 void ComboBox::onSizeHint(SizeHintEvent& ev)
@@ -402,11 +425,10 @@ void ComboBox::onSizeHint(SizeHintEvent& ev)
 
   // Get the text-length of every item and put in 'w' the maximum value
   ListItems::iterator it, end = m_items.end();
-  for (it = m_items.begin(); it != end; ++it) {
-    int item_w =
-      2*guiscale()+
-      font()->textLength((*it)->text().c_str())+
-      16*guiscale();
+  for (it = m_items.begin(); it != end; ++it)
+  {
+    int item_w = 2 * guiscale() + font()->textLength((*it)->text().c_str()) +
+                 16 * guiscale();
 
     reqSize.w = MAX(reqSize.w, item_w);
   }
@@ -419,96 +441,100 @@ void ComboBox::onSizeHint(SizeHintEvent& ev)
 
 bool ComboBoxEntry::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kKeyDownMessage:
-      if (hasFocus()) {
-        KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
-        KeyScancode scancode = keymsg->scancode();
+  case kKeyDownMessage:
+    if (hasFocus())
+    {
+      KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
+      KeyScancode scancode = keymsg->scancode();
 
-        // In a non-editable ComboBox
-        if (!m_comboBox->isEditable()) {
-          if (scancode == kKeySpace ||
-              scancode == kKeyEnter ||
-              scancode == kKeyEnterPad) {
-            m_comboBox->switchListBox();
-            return true;
-          }
-        }
-        // In a editable ComboBox
-        else {
-          if (scancode == kKeyUp ||
-              scancode == kKeyDown ||
-              scancode == kKeyPageUp ||
-              scancode == kKeyPageDown) {
-            if (m_comboBox->m_listbox &&
-                m_comboBox->m_listbox->isVisible()) {
-              m_comboBox->m_listbox->requestFocus();
-              m_comboBox->m_listbox->sendMessage(msg);
-              return true;
-            }
-          }
-        }
-      }
-      break;
-
-    case kMouseDownMessage:
-      if (m_comboBox->isClickOpen() &&
-          (!m_comboBox->isEditable() ||
-           !m_comboBox->m_items.empty())) {
-        m_comboBox->switchListBox();
-      }
-
-      if (m_comboBox->isEditable()) {
-        requestFocus();
-      }
-      else {
-        captureMouse();
-        return true;
-      }
-      break;
-
-    case kMouseUpMessage:
-      if (hasCapture())
-        releaseMouse();
-      break;
-
-    case kMouseMoveMessage:
-      if (hasCapture()) {
-        MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-        Widget* pick = manager()->pick(mouseMsg->position());
-        Widget* listbox = m_comboBox->m_listbox;
-
-        if (pick != NULL && (pick == listbox || pick->hasAncestor(listbox))) {
-          releaseMouse();
-
-          MouseMessage mouseMsg2(kMouseDownMessage,
-                                 mouseMsg->pointerType(),
-                                 mouseMsg->buttons(),
-                                 mouseMsg->modifiers(),
-                                 mouseMsg->position());
-          pick->sendMessage(&mouseMsg2);
+      // In a non-editable ComboBox
+      if (!m_comboBox->isEditable())
+      {
+        if (scancode == kKeySpace || scancode == kKeyEnter ||
+            scancode == kKeyEnterPad)
+        {
+          m_comboBox->switchListBox();
           return true;
         }
       }
-      break;
-
-    case kFocusEnterMessage: {
-      bool result = Entry::onProcessMessage(msg);
-      if (m_comboBox &&
-          m_comboBox->isEditable() &&
-          m_comboBox->m_listbox &&
-          m_comboBox->m_listbox->isVisible()) {
-        // In case that the ListBox is visible and the focus is
-        // obtained by the Entry field, we set the carret at the end
-        // of the text. We don't select the whole text so the user can
-        // delete the last caracters using backspace and complete the
-        // item name.
-        selectText(textLength(), textLength());
+      // In a editable ComboBox
+      else
+      {
+        if (scancode == kKeyUp || scancode == kKeyDown ||
+            scancode == kKeyPageUp || scancode == kKeyPageDown)
+        {
+          if (m_comboBox->m_listbox && m_comboBox->m_listbox->isVisible())
+          {
+            m_comboBox->m_listbox->requestFocus();
+            m_comboBox->m_listbox->sendMessage(msg);
+            return true;
+          }
+        }
       }
-      return result;
+    }
+    break;
+
+  case kMouseDownMessage:
+    if (m_comboBox->isClickOpen() &&
+        (!m_comboBox->isEditable() || !m_comboBox->m_items.empty()))
+    {
+      m_comboBox->switchListBox();
     }
 
+    if (m_comboBox->isEditable())
+    {
+      requestFocus();
+    }
+    else
+    {
+      captureMouse();
+      return true;
+    }
+    break;
+
+  case kMouseUpMessage:
+    if (hasCapture())
+      releaseMouse();
+    break;
+
+  case kMouseMoveMessage:
+    if (hasCapture())
+    {
+      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+      Widget* pick = manager()->pick(mouseMsg->position());
+      Widget* listbox = m_comboBox->m_listbox;
+
+      if (pick != nullptr && (pick == listbox || pick->hasAncestor(listbox)))
+      {
+        releaseMouse();
+
+        MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(),
+                               mouseMsg->buttons(), mouseMsg->modifiers(),
+                               mouseMsg->position());
+        pick->sendMessage(&mouseMsg2);
+        return true;
+      }
+    }
+    break;
+
+  case kFocusEnterMessage:
+  {
+    bool result = Entry::onProcessMessage(msg);
+    if (m_comboBox && m_comboBox->isEditable() && m_comboBox->m_listbox &&
+        m_comboBox->m_listbox->isVisible())
+    {
+      // In case that the ListBox is visible and the focus is
+      // obtained by the Entry field, we set the carret at the end
+      // of the text. We don't select the whole text so the user can
+      // delete the last caracters using backspace and complete the
+      // item name.
+      selectText(textLength(), textLength());
+    }
+    return result;
+  }
   }
 
   return Entry::onProcessMessage(msg);
@@ -521,32 +547,34 @@ void ComboBoxEntry::onPaint(PaintEvent& ev)
 
 bool ComboBoxListBox::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kMouseUpMessage:
-      m_comboBox->closeListBox();
-      return true;
+  case kMouseUpMessage:
+    m_comboBox->closeListBox();
+    return true;
 
-    case kKeyDownMessage:
-      if (hasFocus()) {
-        KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
-        KeyScancode scancode = keymsg->scancode();
+  case kKeyDownMessage:
+    if (hasFocus())
+    {
+      KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
+      KeyScancode scancode = keymsg->scancode();
 
-        if (scancode == kKeySpace ||
-            scancode == kKeyEnter ||
-            scancode == kKeyEnterPad) {
-          m_comboBox->closeListBox();
-          return true;
-        }
+      if (scancode == kKeySpace || scancode == kKeyEnter ||
+          scancode == kKeyEnterPad)
+      {
+        m_comboBox->closeListBox();
+        return true;
       }
-      break;
+    }
+    break;
 
-    case kFocusEnterMessage:
-      // If the ComboBox is editable, we prefer the focus in the Entry
-      // field (so the user can continue editing it).
-      if (m_comboBox->isEditable())
-        m_comboBox->getEntryWidget()->requestFocus();
-      break;
+  case kFocusEnterMessage:
+    // If the ComboBox is editable, we prefer the focus in the Entry
+    // field (so the user can continue editing it).
+    if (m_comboBox->isEditable())
+      m_comboBox->getEntryWidget()->requestFocus();
+    break;
   }
 
   return ListBox::onProcessMessage(msg);
@@ -581,11 +609,10 @@ void ComboBox::openListBox()
 
   Widget* viewport = view->viewport();
   int size = getItemCount();
-  viewport->setMinSize
-    (gfx::Size(
+  viewport->setMinSize(gfx::Size(
       m_button->bounds().x2() - m_entry->bounds().x - view->border().width(),
-      +(2*guiscale()+m_listbox->textHeight())*MID(1, size, 16)+
-      +viewport->border().height()));
+      +(2 * guiscale() + m_listbox->textHeight()) * MID(1, size, 16) +
+          +viewport->border().height()));
 
   m_window->addChild(view);
   view->attachToView(m_listbox);
@@ -611,11 +638,12 @@ void ComboBox::openListBox()
 
 void ComboBox::closeListBox()
 {
-  if (m_window) {
+  if (m_window)
+  {
     m_listbox->clean();
 
     m_window->closeWindow(this);
-    delete m_window;            // window, frame
+    delete m_window; // window, frame
     m_window = nullptr;
     m_listbox = nullptr;
 
@@ -637,10 +665,9 @@ void ComboBox::switchListBox()
 
 gfx::Rect ComboBox::getListBoxPos() const
 {
-  gfx::Rect rc(gfx::Point(m_entry->bounds().x,
-                          m_entry->bounds().y2()),
+  gfx::Rect rc(gfx::Point(m_entry->bounds().x, m_entry->bounds().y2()),
                gfx::Point(m_button->bounds().x2(),
-                          m_entry->bounds().y2()+m_window->bounds().h));
+                          m_entry->bounds().y2() + m_window->bounds().h));
 
   if (rc.y2() > ui::display_h())
     rc.offset(0, -(rc.h + m_entry->bounds().h));

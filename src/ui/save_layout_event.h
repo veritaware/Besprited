@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,21 +10,24 @@
 #include "ui/event.h"
 #include <iosfwd>
 
-namespace ui {
+namespace ui
+{
 
-  class Widget;
+class Widget;
 
-  class SaveLayoutEvent : public Event {
-  public:
-    SaveLayoutEvent(Widget* source, std::ostream& stream)
-      : Event(source)
-      , m_stream(stream) {
-    }
+class SaveLayoutEvent : public Event
+{
+public:
+  SaveLayoutEvent(Widget* source, std::ostream& stream)
+    : Event(source)
+    , m_stream(stream)
+  {
+  }
 
-    std::ostream& stream() { return m_stream; }
+  std::ostream& stream() { return m_stream; }
 
-  private:
-    std::ostream& m_stream;
-  };
+private:
+  std::ostream& m_stream;
+};
 
 } // namespace ui

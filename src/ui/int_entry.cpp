@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -24,19 +25,21 @@
 
 #include <cmath>
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
 IntEntry::IntEntry(int min, int max, SliderDelegate* sliderDelegate)
-  : Entry(int(std::ceil(std::log10((double)max)))+1, "")
+  : Entry(int(std::ceil(std::log10((double)max))) + 1, "")
   , m_min(min)
   , m_max(max)
   , m_slider(m_min, m_max, m_min, sliderDelegate)
-  , m_popupWindow(NULL)
+  , m_popupWindow(nullptr)
   , m_changeFromSlider(false)
 {
-  m_slider.setFocusStop(false); // In this way the IntEntry doesn't lost the focus
+  m_slider.setFocusStop(
+      false); // In this way the IntEntry doesn't lost the focus
   m_slider.setTransparent(true);
   m_slider.Change.connect(&IntEntry::onChangeSlider, this);
 }
@@ -66,64 +69,69 @@ void IntEntry::setValue(int value)
 
 bool IntEntry::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    // Reset value if it's out of bounds when focus is lost
-    case kFocusLeaveMessage:
-      setValue(MID(m_min, getValue(), m_max));
-      deselectText();
-      break;
+  // Reset value if it's out of bounds when focus is lost
+  case kFocusLeaveMessage:
+    setValue(MID(m_min, getValue(), m_max));
+    deselectText();
+    break;
 
-    case kMouseDownMessage:
-      requestFocus();
-      captureMouse();
+  case kMouseDownMessage:
+    requestFocus();
+    captureMouse();
 
-      openPopup();
-      selectAllText();
+    openPopup();
+    selectAllText();
+    return true;
+
+  case kMouseMoveMessage:
+    if (hasCapture())
+    {
+      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+      Widget* pick = manager()->pick(mouseMsg->position());
+      if (pick == &m_slider)
+      {
+        releaseMouse();
+
+        MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(),
+                               mouseMsg->buttons(), mouseMsg->modifiers(),
+                               mouseMsg->position());
+        m_slider.sendMessage(&mouseMsg2);
+      }
+    }
+    break;
+
+  case kMouseWheelMessage:
+    if (isEnabled())
+    {
+      int oldValue = getValue();
+      int newValue = oldValue +
+                     static_cast<MouseMessage*>(msg)->wheelDelta().x -
+                     static_cast<MouseMessage*>(msg)->wheelDelta().y;
+      newValue = MID(m_min, newValue, m_max);
+      if (newValue != oldValue)
+      {
+        setValue(newValue);
+        selectAllText();
+      }
       return true;
+    }
+    break;
 
-    case kMouseMoveMessage:
-      if (hasCapture()) {
-        MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-        Widget* pick = manager()->pick(mouseMsg->position());
-        if (pick == &m_slider) {
-          releaseMouse();
-
-          MouseMessage mouseMsg2(kMouseDownMessage,
-                                 mouseMsg->pointerType(),
-                                 mouseMsg->buttons(),
-                                 mouseMsg->modifiers(),
-                                 mouseMsg->position());
-          m_slider.sendMessage(&mouseMsg2);
-        }
+  case kKeyDownMessage:
+    if (hasFocus() && !isReadOnly())
+    {
+      KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
+      int chr = keymsg->unicodeChar();
+      if (chr < '0' || chr > '9')
+      {
+        // By-pass Entry::onProcessMessage()
+        return Widget::onProcessMessage(msg);
       }
-      break;
-
-    case kMouseWheelMessage:
-      if (isEnabled()) {
-        int oldValue = getValue();
-        int newValue = oldValue
-          + static_cast<MouseMessage*>(msg)->wheelDelta().x
-          - static_cast<MouseMessage*>(msg)->wheelDelta().y;
-        newValue = MID(m_min, newValue, m_max);
-        if (newValue != oldValue) {
-          setValue(newValue);
-          selectAllText();
-        }
-        return true;
-      }
-      break;
-
-    case kKeyDownMessage:
-      if (hasFocus() && !isReadOnly()) {
-        KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
-        int chr = keymsg->unicodeChar();
-        if (chr < '0' || chr > '9') {
-          // By-pass Entry::onProcessMessage()
-          return Widget::onProcessMessage(msg);
-        }
-      }
-      break;
+    }
+    break;
   }
   return Entry::onProcessMessage(msg);
 }
@@ -160,17 +168,18 @@ void IntEntry::openPopup()
   Rect rc = bounds();
   int sliderH = m_slider.sizeHint().h;
 
-  if (rc.y+rc.h+sliderH < ui::display_h())
+  if (rc.y + rc.h + sliderH < ui::display_h())
     rc.y += rc.h;
   else
     rc.y -= sliderH;
 
   rc.h = sliderH;
-  rc.w = 128*guiscale();
-  if (rc.x+rc.w > ui::display_w())
+  rc.w = 128 * guiscale();
+  if (rc.x + rc.w > ui::display_w())
     rc.x = rc.x - rc.w + bounds().w;
 
-  m_popupWindow = new PopupWindow("", PopupWindow::ClickBehavior::CloseOnClickInOtherWindow);
+  m_popupWindow = new PopupWindow(
+      "", PopupWindow::ClickBehavior::CloseOnClickInOtherWindow);
   m_popupWindow->setAutoRemap(false);
   m_popupWindow->setTransparent(true);
   m_popupWindow->setBgColor(gfx::ColorNone);
@@ -187,12 +196,13 @@ void IntEntry::openPopup()
 
 void IntEntry::closePopup()
 {
-  if (m_popupWindow) {
+  if (m_popupWindow)
+  {
     removeSlider();
 
-    m_popupWindow->closeWindow(NULL);
+    m_popupWindow->closeWindow(nullptr);
     delete m_popupWindow;
-    m_popupWindow = NULL;
+    m_popupWindow = nullptr;
   }
 }
 
@@ -213,8 +223,8 @@ void IntEntry::onPopupClose(CloseEvent& ev)
 
 void IntEntry::removeSlider()
 {
-  if (m_popupWindow &&
-      m_slider.parent() == m_popupWindow) {
+  if (m_popupWindow && m_slider.parent() == m_popupWindow)
+  {
     m_popupWindow->removeChild(&m_slider);
   }
 }

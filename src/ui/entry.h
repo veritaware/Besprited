@@ -11,124 +11,130 @@
 #include "ui/timer.h"
 #include "ui/widget.h"
 
-namespace ui {
+namespace ui
+{
 
-  class MouseMessage;
+class MouseMessage;
 
-  class Entry : public Widget {
-  public:
-    Entry(std::size_t maxsize, const char *format, ...);
-    ~Entry();
+class Entry : public Widget
+{
+public:
+  Entry(std::size_t maxsize, const char* format, ...);
+  ~Entry() override;
 
-    bool isPassword() const;
-    bool isReadOnly() const;
-    virtual bool showsKeyboard() const {return true;}
-    void setReadOnly(bool state);
-    void setPassword(bool state);
-    void setMaxTextSize(std::size_t maxsize) {m_maxsize = maxsize;}
-    std::size_t maxTextSize() {return m_maxsize;}
+  bool isPassword() const;
+  bool isReadOnly() const;
+  virtual bool showsKeyboard() const { return true; }
+  void setReadOnly(bool state);
+  void setPassword(bool state);
+  void setMaxTextSize(std::size_t maxsize) { m_maxsize = maxsize; }
+  std::size_t maxTextSize() { return m_maxsize; }
 
-    void showCaret();
-    void hideCaret();
+  void showCaret();
+  void hideCaret();
 
-    void setCaretPos(int pos);
-    void selectText(int from, int to);
-    void selectAllText();
-    void deselectText();
+  void setCaretPos(int pos);
+  void selectText(int from, int to);
+  void selectAllText();
+  void deselectText();
 
-    void setSuffix(const std::string& suffix);
-    const std::string& getSuffix() { return m_suffix; }
+  void setSuffix(const std::string& suffix);
+  const std::string& getSuffix() { return m_suffix; }
 
-    // When set, a value that evaluates negative is treated the same as
-    // one that doesn't evaluate at all: restoreLastValidText() reverts it
-    // on focus loss instead of letting it through. Off by default, since
-    // plenty of fields (Canvas Size's borders, relative color sliders)
-    // legitimately take negative numbers.
-    bool disallowNegative() const { return m_disallowNegative; }
-    void setDisallowNegative(bool state) { m_disallowNegative = state; }
+  // When set, a value that evaluates negative is treated the same as
+  // one that doesn't evaluate at all: restoreLastValidText() reverts it
+  // on focus loss instead of letting it through. Off by default, since
+  // plenty of fields (Canvas Size's borders, relative color sliders)
+  // legitimately take negative numbers.
+  bool disallowNegative() const { return m_disallowNegative; }
+  void setDisallowNegative(bool state) { m_disallowNegative = state; }
 
-    // for themes
-    void getEntryThemeInfo(int* scroll, int* caret, int* state,
-                           int* selbeg, int* selend);
-    gfx::Rect getEntryTextBounds() const;
+  // for themes
+  void getEntryThemeInfo(int* scroll, int* caret, int* state, int* selbeg,
+                         int* selend);
+  gfx::Rect getEntryTextBounds() const;
 
-    // Signals
-    base::Signal0<void> Change;
+  // Signals
+  base::Signal0<void> Change;
 
-  protected:
-    // Events
-    bool onProcessMessage(Message* msg) override;
-    void onSizeHint(SizeHintEvent& ev) override;
-    void onPaint(PaintEvent& ev) override;
-    void onSetText() override;
+protected:
+  // Events
+  bool onProcessMessage(Message* msg) override;
+  void onSizeHint(SizeHintEvent& ev) override;
+  void onPaint(PaintEvent& ev) override;
+  void onSetText() override;
 
-    // If this entry is read as a math expression and what it currently
-    // holds no longer evaluates, put back the last text that did.
-    void restoreLastValidText();
+  // If this entry is read as a math expression and what it currently
+  // holds no longer evaluates, put back the last text that did.
+  void restoreLastValidText();
 
-    double onEvalFallback() const override;
-    bool onEvalAcceptable(double value) const override { return isAcceptableValue(value); }
+  double onEvalFallback() const override;
+  bool onEvalAcceptable(double value) const override
+  {
+    return isAcceptableValue(value);
+  }
 
-    // New Events
-    virtual void onChange();
-    virtual gfx::Rect onGetEntryTextBounds() const;
+  // New Events
+  virtual void onChange();
+  virtual gfx::Rect onGetEntryTextBounds() const;
 
-  private:
-    enum class EntryCmd {
-      NoOp,
-      InsertChar,
-      ForwardChar,
-      ForwardWord,
-      BackwardChar,
-      BackwardWord,
-      BeginningOfLine,
-      EndOfLine,
-      DeleteForward,
-      DeleteBackward,
-      DeleteBackwardWord,
-      DeleteForwardToEndOfLine,
-      Cut,
-      Copy,
-      Paste,
-      SelectAll,
-    };
-
-    int getCaretFromMouse(MouseMessage* mousemsg);
-    void executeCmd(EntryCmd cmd, int ascii, bool shift_pressed);
-    void forwardWord();
-    void backwardWord();
-    int getAvailableTextLength();
-    bool isPosInSelection(int pos);
-    void showEditPopupMenu(const gfx::Point& pt);
-
-    // Whether a text that evaluates to this value counts as valid text
-    // for restoreLastValidText()/onSetText() purposes.
-    bool isAcceptableValue(double value) const;
-
-    Timer m_timer;
-    std::size_t m_maxsize;
-    int m_caret;
-    int m_scroll;
-    int m_select;
-    bool m_hidden;
-    bool m_state;             // show or not the text caret
-    bool m_readonly;
-    bool m_password;
-    bool m_recent_focused;
-    bool m_lock_selection;
-    bool m_got_focus_message;
-
-    // The last text this entry held that evaluated as a math expression,
-    // and what it evaluated to. Tracked on every text change - including
-    // the one that fills the field when its window is built - so it does
-    // not depend on when, or whether, anything reads the entry.
-    std::string m_validText;
-    double m_validValue;
-    bool m_hasValidText;
-
-    bool m_disallowNegative;
-
-    std::string m_suffix;
+private:
+  enum class EntryCmd
+  {
+    NoOp,
+    InsertChar,
+    ForwardChar,
+    ForwardWord,
+    BackwardChar,
+    BackwardWord,
+    BeginningOfLine,
+    EndOfLine,
+    DeleteForward,
+    DeleteBackward,
+    DeleteBackwardWord,
+    DeleteForwardToEndOfLine,
+    Cut,
+    Copy,
+    Paste,
+    SelectAll,
   };
+
+  int getCaretFromMouse(MouseMessage* mousemsg);
+  void executeCmd(EntryCmd cmd, int ascii, bool shift_pressed);
+  void forwardWord();
+  void backwardWord();
+  int getAvailableTextLength();
+  bool isPosInSelection(int pos);
+  void showEditPopupMenu(const gfx::Point& pt);
+
+  // Whether a text that evaluates to this value counts as valid text
+  // for restoreLastValidText()/onSetText() purposes.
+  bool isAcceptableValue(double value) const;
+
+  Timer m_timer;
+  std::size_t m_maxsize;
+  int m_caret;
+  int m_scroll;
+  int m_select;
+  bool m_hidden;
+  bool m_state; // show or not the text caret
+  bool m_readonly;
+  bool m_password;
+  bool m_recent_focused;
+  bool m_lock_selection;
+  bool m_got_focus_message;
+
+  // The last text this entry held that evaluated as a math expression,
+  // and what it evaluated to. Tracked on every text change - including
+  // the one that fills the field when its window is built - so it does
+  // not depend on when, or whether, anything reads the entry.
+  std::string m_validText;
+  double m_validValue;
+  bool m_hasValidText;
+
+  bool m_disallowNegative;
+
+  std::string m_suffix;
+};
 
 } // namespace ui

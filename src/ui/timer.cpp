@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,14 +19,15 @@
 #include <algorithm>
 #include <list>
 
-namespace ui {
+namespace ui
+{
 
-typedef std::list<Timer*> Timers;
+using Timers = std::list<Timer*>;
 
 static Timers timers; // Registered timers
 
 Timer::Timer(int interval, Widget* owner)
-  : m_owner(owner ? owner: Manager::getDefault())
+  : m_owner(owner ? owner : Manager::getDefault())
   , m_interval(interval)
   , m_running(false)
   , m_lastTick(0)
@@ -75,14 +77,19 @@ void Timer::onTick()
 void Timer::pollTimers()
 {
   // Generate messages for timers
-  if (!timers.empty()) {
+  if (!timers.empty())
+  {
     base::tick_t t = base::current_tick();
 
-    for (Timers::iterator it=timers.begin(), end=timers.end(); it != end; ++it) {
+    for (Timers::iterator it = timers.begin(), end = timers.end(); it != end;
+         ++it)
+    {
       Timer* timer = *it;
-      if (timer && timer->isRunning()) {
+      if (timer && timer->isRunning())
+      {
         int64_t count = ((t - timer->m_lastTick) / timer->m_interval);
-        if (count > 0) {
+        if (count > 0)
+        {
           timer->m_lastTick += count * timer->m_interval;
 
           ASSERT(timer->m_owner != nullptr);

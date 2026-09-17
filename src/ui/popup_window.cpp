@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,14 +16,14 @@
 #include "ui/theme.h"
 #include "ui/ui.h"
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
-PopupWindow::PopupWindow(const std::string& text,
-                         ClickBehavior clickBehavior,
+PopupWindow::PopupWindow(const std::string& text, ClickBehavior clickBehavior,
                          EnterBehavior enterBehavior)
-  : Window(text.empty() ? WithoutTitleBar: WithTitleBar, text)
+  : Window(text.empty() ? WithoutTitleBar : WithTitleBar, text)
   , m_clickBehavior(clickBehavior)
   , m_enterBehavior(enterBehavior)
   , m_filtering(false)
@@ -74,83 +75,88 @@ void PopupWindow::makeFixed()
 
 bool PopupWindow::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    // There are cases where startFilteringMessages() is called when a
-    // kCloseMessage for this same PopupWindow is enqueued. Processing
-    // the kOpenMessage we ensure that the popup will be filtering
-    // messages if it's needed when it's visible (as kCloseMessage and
-    // kOpenMessage must be enqueued in the correct order).
-    case kOpenMessage:
-      if (!isMoveable())
-        startFilteringMessages();
-      break;
+  // There are cases where startFilteringMessages() is called when a
+  // kCloseMessage for this same PopupWindow is enqueued. Processing
+  // the kOpenMessage we ensure that the popup will be filtering
+  // messages if it's needed when it's visible (as kCloseMessage and
+  // kOpenMessage must be enqueued in the correct order).
+  case kOpenMessage:
+    if (!isMoveable())
+      startFilteringMessages();
+    break;
 
-    case kCloseMessage:
-      stopFilteringMessages();
-      break;
+  case kCloseMessage:
+    stopFilteringMessages();
+    break;
 
-    case kMouseLeaveMessage:
-      if (m_hotRegion.isEmpty() && !isMoveable())
+  case kMouseLeaveMessage:
+    if (m_hotRegion.isEmpty() && !isMoveable())
+      closeWindow(nullptr);
+    break;
+
+  case kKeyDownMessage:
+    if (m_filtering)
+    {
+      KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
+      KeyScancode scancode = keymsg->scancode();
+
+      if (scancode == kKeyEsc)
         closeWindow(nullptr);
-      break;
 
-    case kKeyDownMessage:
-      if (m_filtering) {
-        KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
-        KeyScancode scancode = keymsg->scancode();
+      if (m_enterBehavior == EnterBehavior::CloseOnEnter &&
+          (scancode == kKeyEnter || scancode == kKeyEnterPad))
+      {
+        closeWindow(this);
+        return true;
+      }
+    }
+    break;
 
-        if (scancode == kKeyEsc)
+  case kMouseDownMessage:
+    if (m_filtering && manager()->getTopWindow() == this)
+    {
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+
+      switch (m_clickBehavior)
+      {
+
+      // If the user click outside the window, we have to close
+      // the tooltip window.
+      case ClickBehavior::CloseOnClickInOtherWindow:
+      {
+        Widget* picked = pick(mousePos);
+        if (!picked || picked->window() != this)
+        {
           closeWindow(nullptr);
-
-        if (m_enterBehavior == EnterBehavior::CloseOnEnter &&
-            (scancode == kKeyEnter ||
-             scancode == kKeyEnterPad)) {
-          closeWindow(this);
-          return true;
         }
+        break;
       }
-      break;
 
-    case kMouseDownMessage:
-      if (m_filtering &&
-          manager()->getTopWindow() == this) {
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
-
-        switch (m_clickBehavior) {
-
-          // If the user click outside the window, we have to close
-          // the tooltip window.
-          case ClickBehavior::CloseOnClickInOtherWindow: {
-            Widget* picked = pick(mousePos);
-            if (!picked || picked->window() != this) {
-              closeWindow(NULL);
-            }
-            break;
-          }
-
-          case ClickBehavior::CloseOnClickOutsideHotRegion:
-            if (!m_hotRegion.contains(mousePos)) {
-              closeWindow(NULL);
-            }
-            break;
-        }
-      }
-      break;
-
-    case kMouseMoveMessage:
-      if (!isMoveable() &&
-          !m_hotRegion.isEmpty() &&
-          manager()->getCapture() == NULL) {
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
-
-        // If the mouse is outside the hot-region we have to close the
-        // window.
+      case ClickBehavior::CloseOnClickOutsideHotRegion:
         if (!m_hotRegion.contains(mousePos))
-          closeWindow(NULL);
+        {
+          closeWindow(nullptr);
+        }
+        break;
       }
-      break;
+    }
+    break;
 
+  case kMouseMoveMessage:
+    if (!isMoveable() && !m_hotRegion.isEmpty() &&
+        manager()->getCapture() == nullptr)
+    {
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+
+      // If the mouse is outside the hot-region we have to close the
+      // window.
+      if (!m_hotRegion.contains(mousePos))
+        closeWindow(nullptr);
+    }
+    break;
   }
 
   return Window::onProcessMessage(msg);
@@ -163,18 +169,18 @@ void PopupWindow::onSizeHint(SizeHintEvent& ev)
   Size resultSize(0, 0);
 
   if (hasText())
-    resultSize = g.fitString(text(),
-                             (clientBounds() - border()).w,
-                             align());
+    resultSize = g.fitString(text(), (clientBounds() - border()).w, align());
 
   resultSize.w += border().width();
   resultSize.h += border().height();
 
-  if (!children().empty()) {
+  if (!children().empty())
+  {
     Size maxSize(0, 0);
     Size reqSize;
 
-    for (auto child : children()) {
+    for (auto child : children())
+    {
       reqSize = child->sizeHint();
 
       maxSize.w = MAX(maxSize.w, reqSize.w);
@@ -203,13 +209,12 @@ void PopupWindow::onInitTheme(InitThemeEvent& ev)
 void PopupWindow::onHitTest(HitTestEvent& ev)
 {
   Widget* picked = manager()->pick(ev.point());
-  if (picked) {
+  if (picked)
+  {
     WidgetType type = picked->type();
-    if ((type == kWindowWidget && picked == this) ||
-        type == kBoxWidget ||
-        type == kLabelWidget ||
-        type == kGridWidget ||
-        type == kSeparatorWidget) {
+    if ((type == kWindowWidget && picked == this) || type == kBoxWidget ||
+        type == kLabelWidget || type == kGridWidget || type == kSeparatorWidget)
+    {
       ev.setHit(HitTestCaption);
       return;
     }
@@ -219,7 +224,8 @@ void PopupWindow::onHitTest(HitTestEvent& ev)
 
 void PopupWindow::startFilteringMessages()
 {
-  if (!m_filtering) {
+  if (!m_filtering)
+  {
     m_filtering = true;
 
     Manager* manager = Manager::getDefault();
@@ -231,7 +237,8 @@ void PopupWindow::startFilteringMessages()
 
 void PopupWindow::stopFilteringMessages()
 {
-  if (m_filtering) {
+  if (m_filtering)
+  {
     m_filtering = false;
 
     Manager* manager = Manager::getDefault();
