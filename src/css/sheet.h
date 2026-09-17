@@ -1,5 +1,6 @@
-// Aseprite CSS Library
-// Copyright (C) 2013 David Capello
+// CSS Library
+// Aseprite  | Copyright (C) 2013 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,27 +14,29 @@
 #include <map>
 #include <string>
 
-namespace css {
+namespace css
+{
 
-  class CompoundStyle;
-  class Query;
-  class StatefulStyle;
+class CompoundStyle;
+class Query;
+class StatefulStyle;
 
-  class Sheet {
-  public:
-    Sheet();
+class Sheet
+{
+public:
+  Sheet();
 
-    void addRule(Rule* rule);
-    void addStyle(Style* style);
+  void addRule(Rule* rule);
+  void addStyle(Style* style);
 
-    const Style* getStyle(const std::string& name);
+  const Style* getStyle(const std::string& name);
 
-    Query query(const StatefulStyle& stateful);
-    CompoundStyle compoundStyle(const std::string& name);
+  Query query(const StatefulStyle& stateful);
+  CompoundStyle compoundStyle(const std::string& name);
 
-  private:
-    Rules m_rules;
-    Styles m_styles;
-  };
+private:
+  Rules m_rules;
+  Styles m_styles;
+};
 
 } // namespace css

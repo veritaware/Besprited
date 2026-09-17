@@ -1,5 +1,6 @@
-// Aseprite CSS Library
-// Copyright (C) 2013 David Capello
+// CSS Library
+// Aseprite  | Copyright (C) 2013 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,11 +13,14 @@
 
 #include "css/sheet.h"
 
-namespace css {
+#include <utility>
 
-CompoundStyle::CompoundStyle(Sheet* sheet, const std::string& name) :
-  m_sheet(sheet),
-  m_name(name)
+namespace css
+{
+
+CompoundStyle::CompoundStyle(Sheet* sheet, std::string name)
+  : m_sheet(sheet)
+  , m_name(std::move(name))
 {
   update();
 }
@@ -37,10 +41,8 @@ CompoundStyle::~CompoundStyle()
 
 void CompoundStyle::deleteQueries()
 {
-  for (QueriesMap::iterator it = m_queries.begin(), end = m_queries.end();
-       it != end; ++it) {
-    delete it->second;
-  }
+  for (const auto& entry : m_queries)
+    delete entry.second;
   m_queries.clear();
 }
 
@@ -51,16 +53,17 @@ const Value& CompoundStyle::operator[](const Rule& rule) const
 
 const Query& CompoundStyle::operator[](const States& states) const
 {
-  QueriesMap::const_iterator it = m_queries.find(states);
+  const auto it = m_queries.find(states);
 
   if (it != m_queries.end())
     return *it->second;
-  else {
+  else
+  {
     const Style* style = m_sheet->getStyle(m_name);
-    if (style == NULL)
+    if (style == nullptr)
       return m_normal;
 
-    Query* newQuery = new Query(m_sheet->query(StatefulStyle(*style, states)));
+    auto* newQuery = new Query(m_sheet->query(StatefulStyle(*style, states)));
     m_queries[states] = newQuery;
     return *newQuery;
   }
