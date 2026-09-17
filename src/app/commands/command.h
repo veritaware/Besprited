@@ -15,7 +15,7 @@ namespace app
 class Context;
 class Params;
 
-enum CommandFlags
+enum [[clang::flag_enum]] CommandFlags
 {
   CmdUIOnlyFlag = 0x00000001,
   CmdRecordableFlag = 0x00000002,

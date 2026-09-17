@@ -53,7 +53,7 @@ class SelectBoxState : public StandbyState,
   };
 
 public:
-  enum class Flags
+  enum class [[clang::flag_enum]] Flags
   {
     // Draw rulers at each edge of the current box
     Rulers = 1,

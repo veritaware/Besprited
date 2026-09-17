@@ -73,7 +73,7 @@ class Editor : public ui::Widget,
                public tools::ActiveToolObserver
 {
 public:
-  enum EditorFlags
+  enum [[clang::flag_enum]] EditorFlags
   {
     kNoneFlag = 0,
     kShowGrid = 1,

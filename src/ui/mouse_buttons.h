@@ -10,7 +10,7 @@
 namespace ui
 {
 
-enum MouseButtons
+enum [[clang::flag_enum]] MouseButtons
 {
   kButtonNone = 0,
   kButtonLeft = 1,

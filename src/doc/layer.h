@@ -29,7 +29,7 @@ class LayerFolder;
 //////////////////////////////////////////////////////////////////////
 // Layer class
 
-enum class LayerFlags
+enum class [[clang::flag_enum]] LayerFlags
 {
   Visible = 1,     // Can be read
   Editable = 2,    // Can be written

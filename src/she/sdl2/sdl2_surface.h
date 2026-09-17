@@ -24,7 +24,7 @@ class SDL2Surface
   : public GenericDrawTextSurface<GenericDrawColoredRgbaSurface<Surface>>
 {
 public:
-  enum DestroyFlag : std::uint8_t
+  enum [[clang::flag_enum]] DestroyFlag : std::uint8_t
   {
     None = 0,
     DeleteThis = 1,

@@ -10,7 +10,7 @@
 namespace she
 {
 
-enum class Capabilities
+enum class [[clang::flag_enum]] Capabilities
 {
   MultipleDisplays = 1,
   CanResizeDisplay = 2,

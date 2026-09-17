@@ -41,7 +41,7 @@ class SetMask;
 class PixelsMovement
 {
 public:
-  enum MoveModifier
+  enum [[clang::flag_enum]] MoveModifier
   {
     NormalMovement = 1,
     SnapToGridMovement = 2,

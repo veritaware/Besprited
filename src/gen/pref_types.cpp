@@ -222,8 +222,11 @@ void gen_pref_header(tinyxml2::XMLDocument* doc, const std::string& inputFn)
   {
     if (!elem->Attribute("id"))
       throw std::runtime_error("missing 'id' attr in <enum>");
+    const bool isFlags = (elem->Attribute("flags") &&
+                          std::string(elem->Attribute("flags")) == "true");
     std::cout << "\n"
-              << "  enum class " << elem->Attribute("id") << " {\n";
+              << "  enum class " << (isFlags ? "[[clang::flag_enum]] " : "")
+              << elem->Attribute("id") << " {\n";
 
     tinyxml2::XMLElement* child = elem->FirstChildElement("value");
     while (child)

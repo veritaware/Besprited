@@ -297,7 +297,7 @@ public:
   void noBorderNoChildSpacing();
 
   // Flags for getDrawableRegion()
-  enum DrawableRegionFlags
+  enum [[clang::flag_enum]] DrawableRegionFlags
   {
     kCutTopWindows = 1, // Cut areas where are windows on top.
     kUseChildArea = 2,  // Use areas where are children.

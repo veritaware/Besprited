@@ -19,7 +19,7 @@ namespace app
 class BrushSlot
 {
 public:
-  enum class Flags
+  enum class [[clang::flag_enum]] Flags
   {
     Locked = 0x0001,
     BrushType = 0x0002,

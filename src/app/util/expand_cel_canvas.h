@@ -41,7 +41,7 @@ using namespace doc;
 class ExpandCelCanvas
 {
 public:
-  enum Flags
+  enum [[clang::flag_enum]] Flags
   {
     None = 0,
     NeedsSource = 1,

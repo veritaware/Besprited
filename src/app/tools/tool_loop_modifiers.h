@@ -10,7 +10,7 @@
 namespace app::tools
 {
 
-enum class ToolLoopModifiers
+enum class [[clang::flag_enum]] ToolLoopModifiers
 {
   kNone = 0x00000000,
   kReplaceSelection = 0x00000001,

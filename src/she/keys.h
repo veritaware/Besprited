@@ -14,7 +14,7 @@
 namespace she
 {
 
-enum KeyModifiers
+enum [[clang::flag_enum]] KeyModifiers
 {
   kKeyNoneModifier = 0,
   kKeyShiftModifier = 1,

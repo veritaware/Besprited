@@ -10,7 +10,7 @@
 namespace filters
 {
 
-enum class TiledMode
+enum class [[clang::flag_enum]] TiledMode
 {
   NONE = 0,
   X_AXIS = 1,
