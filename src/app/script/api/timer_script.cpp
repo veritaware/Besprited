@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2024-2026  LibreSprite contributors
+// LibreSprite | Copyright (C) 2024-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,12 +20,14 @@
 #include <cstddef>
 #include <vector>
 
-class TimerExtension : public Extension {
+class TimerExtension : public Extension
+{
 public:
   static inline std::size_t nextID = 1;
 
   using Timepoint = std::chrono::time_point<std::chrono::steady_clock>;
-  struct Timer {
+  struct Timer
+  {
     std::size_t id;
     JSON::Value callback;
     bool repeating{false};
@@ -37,8 +39,10 @@ public:
 
   std::vector<Timer> timers;
 
-  TimerExtension() {
-    addFunction("setTimeout") = [this](JSON::Value& callback, double delay) {
+  TimerExtension()
+  {
+    addFunction("setTimeout") = [this](JSON::Value& callback, double delay)
+    {
       if (!callback.isFunction())
         return JSON::Value{0.0};
       if (delay < 0)
@@ -49,13 +53,13 @@ public:
       timer.time = std::chrono::steady_clock::now() +
                    std::chrono::milliseconds(static_cast<int64_t>(delay));
       timers.push_back(timer);
-      std::sort(timers.begin(), timers.end(), [](const Timer& a, const Timer& b) {
-        return a.time < b.time;
-      });
+      std::ranges::sort(timers, [](const Timer& a, const Timer& b)
+                        { return a.time < b.time; });
       return JSON::Value{static_cast<double>(timer.id)};
     };
 
-    addFunction("setInterval") = [this](JSON::Value& callback, double delay) {
+    addFunction("setInterval") = [this](JSON::Value& callback, double delay)
+    {
       if (!callback.isFunction())
         return JSON::Value{0.0};
       // Clamp to the tick granularity so a 0-delay interval cannot busy-loop
@@ -71,45 +75,48 @@ public:
       timer.time = timer.startTime +
                    std::chrono::milliseconds(static_cast<int64_t>(delay));
       timers.push_back(timer);
-      std::sort(timers.begin(), timers.end(), [](const Timer& a, const Timer& b) {
-        return a.time < b.time;
-      });
+      std::ranges::sort(timers, [](const Timer& a, const Timer& b)
+                        { return a.time < b.time; });
       return JSON::Value{static_cast<double>(timer.id)};
     };
 
-    addFunction("clearTimeout") = [this](double id) {
+    addFunction("clearTimeout") = [this](double id)
+    {
       auto uid = static_cast<std::size_t>(id);
-      auto it = std::remove_if(timers.begin(), timers.end(),
-                               [uid](const Timer& t) { return t.id == uid; });
-      if (it != timers.end())
-        timers.erase(it, timers.end());
+      const auto it = std::ranges::remove_if(timers, [uid](const Timer& t)
+                                             { return t.id == uid; });
+      timers.erase(it.begin(), it.end());
     };
 
-    addFunction("clearInterval") = [this](double id) {
+    addFunction("clearInterval") = [this](double id)
+    {
       auto uid = static_cast<std::size_t>(id);
-      auto it = std::remove_if(timers.begin(), timers.end(),
-                               [uid](const Timer& t) { return t.id == uid; });
-      if (it != timers.end())
-        timers.erase(it, timers.end());
+      const auto it = std::ranges::remove_if(timers, [uid](const Timer& t)
+                                             { return t.id == uid; });
+      timers.erase(it.begin(), it.end());
     };
   }
 
-  std::chrono::milliseconds tick() override {
+  std::chrono::milliseconds tick() override
+  {
     auto now = std::chrono::steady_clock::now();
-    while (!timers.empty() && timers.front().time <= now) {
+    while (!timers.empty() && timers.front().time <= now)
+    {
       Timer timer = std::move(timers.front());
       timers.erase(timers.begin());
-      if (timer.repeating) {
+      if (timer.repeating)
+      {
         timer.triggerCount++;
-        timer.time = timer.startTime + std::chrono::milliseconds(
-                        static_cast<int64_t>(timer.delay * (timer.triggerCount + 1)));
+        timer.time =
+            timer.startTime +
+            std::chrono::milliseconds(static_cast<int64_t>(
+                timer.delay * static_cast<double>(timer.triggerCount + 1)));
         // Guard against the busy-loop: never re-arm in the past.
         if (timer.time <= now)
           timer.time = now + std::chrono::milliseconds(1);
         timers.push_back(timer);
-        std::sort(timers.begin(), timers.end(), [](const Timer& a, const Timer& b) {
-          return a.time < b.time;
-        });
+        std::ranges::sort(timers, [](const Timer& a, const Timer& b)
+                          { return a.time < b.time; });
       }
       JSON::Array args;
       // A JS exception thrown by the callback is returned (not propagated)
@@ -122,12 +129,11 @@ public:
       return std::chrono::milliseconds(0);
     auto delta = timers.front().time - std::chrono::steady_clock::now();
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(delta);
-    return ms < std::chrono::milliseconds(1) ? std::chrono::milliseconds(1) : ms;
+    return ms < std::chrono::milliseconds(1) ? std::chrono::milliseconds(1)
+                                             : ms;
   }
 
-  bool keepAlive() override {
-    return !timers.empty();
-  }
+  bool keepAlive() override { return !timers.empty(); }
 };
 
 static di::provide<Extension, TimerExtension> timerExt{"timer"};

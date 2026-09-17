@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2021-2026  LibreSprite contributors
+// LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,37 +15,34 @@
 
 #include <memory>
 
-class CelExtension : public Extension {
+class CelExtension : public Extension
+{
 public:
-  CelExtension() {
+  CelExtension()
+  {
     auto& clazz = addClass<void, doc::Cel>("Cel");
-    clazz.setConstructor() = []() -> std::shared_ptr<void> {
-      throw std::runtime_error{"Cel cannot be constructed directly"};
-    };
+    clazz.setConstructor() = []() -> std::shared_ptr<void>
+    { throw std::runtime_error{"Cel cannot be constructed directly"}; };
 
-    clazz.addGetter("x") = [](doc::Cel& cel) -> JSON::Value {
-      return (double)cel.x();
-    };
-    clazz.addSetter("x") = [](doc::Cel& cel, JSON::Value& v) {
-      cel.setPosition(static_cast<int>(v), cel.y());
-    };
+    clazz.addGetter("x") = [](doc::Cel& cel) -> JSON::Value
+    { return (double)cel.x(); };
+    clazz.addSetter("x") = [](doc::Cel& cel, JSON::Value& v)
+    { cel.setPosition(static_cast<int>(v), cel.y()); };
 
-    clazz.addGetter("y") = [](doc::Cel& cel) -> JSON::Value {
-      return (double)cel.y();
-    };
-    clazz.addSetter("y") = [](doc::Cel& cel, JSON::Value& v) {
-      cel.setPosition(cel.x(), static_cast<int>(v));
-    };
+    clazz.addGetter("y") = [](doc::Cel& cel) -> JSON::Value
+    { return (double)cel.y(); };
+    clazz.addSetter("y") = [](doc::Cel& cel, JSON::Value& v)
+    { cel.setPosition(cel.x(), static_cast<int>(v)); };
 
-    clazz.addGetter("image") = [](doc::Cel& cel) -> JSON::Value {
-      return JSON::makeNative(script_api::wrap(cel.image()));
-    };
+    clazz.addGetter("image") = [](doc::Cel& cel) -> JSON::Value
+    { return JSON::makeNative(script_api::wrap(cel.image())); };
 
-    clazz.addGetter("frame") = [](doc::Cel& cel) -> JSON::Value {
-      return (double)cel.frame();
-    };
+    clazz.addGetter("frame") = [](doc::Cel& cel) -> JSON::Value
+    { return (double)cel.frame(); };
 
-    clazz.addMethod("setPosition") = [](doc::Cel& cel, double x, double y) -> JSON::Value {
+    clazz.addMethod("setPosition") = [](doc::Cel& cel, double x,
+                                        double y) -> JSON::Value
+    {
       cel.setPosition((int)x, (int)y);
       return {};
     };

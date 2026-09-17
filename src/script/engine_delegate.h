@@ -1,6 +1,7 @@
-// Aseprite Scripting Library
-// Copyright (c) 2015-2016 David Capello
-// Copyright (c) 2026 LibreSprite contributors
+// Scripting Library
+// Aseprite    | Copyright (C) 2015-2016 David Capello
+// LibreSprite | Copyright (C) 2026      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,12 +10,14 @@
 
 #include "base/injection.h"
 
-namespace script {
+namespace script
+{
 
-  class EngineDelegate : public Injectable<EngineDelegate> {
-  public:
-    virtual ~EngineDelegate() { }
-    virtual void onConsolePrint(const char* text) = 0;
-  };
+class EngineDelegate : public Injectable<EngineDelegate>
+{
+public:
+  virtual ~EngineDelegate() {}
+  virtual void onConsolePrint(const char* text) = 0;
+};
 
-}
+} // namespace script

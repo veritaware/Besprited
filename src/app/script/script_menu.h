@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2021  LibreSprite contributors
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,11 +9,13 @@
 
 #include "ui/menu.h"
 
-namespace app {
+namespace app
+{
 
-class ScriptMenu {
+class ScriptMenu
+{
 public:
   bool rebuildScriptsList(ui::Menu* menu);
 };
 
-}
+} // namespace app

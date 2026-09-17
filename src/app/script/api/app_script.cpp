@@ -30,34 +30,41 @@
 #include <memory>
 #include <string>
 
-class AppObject {
+class AppObject
+{
 public:
-  static app::Document* activeDocument() {
+  static app::Document* activeDocument()
+  {
     return app::UIContext::instance()->activeDocument();
   }
 };
 
-class AppExtension : public Extension {
+class AppExtension : public Extension
+{
 public:
-  AppExtension() {
+  AppExtension()
+  {
     auto& clazz = addClass<void, AppObject>("App");
-    clazz.setConstructor() = []() -> std::shared_ptr<AppObject> {
-      return std::make_shared<AppObject>();
-    };
+    clazz.setConstructor() = []() -> std::shared_ptr<AppObject>
+    { return std::make_shared<AppObject>(); };
 
-    clazz.addGetter("activeFrameNumber") = [](AppObject&) -> JSON::Value {
+    clazz.addGetter("activeFrameNumber") = [](AppObject&) -> JSON::Value
+    {
       if (!app::current_editor)
         return (double)0;
       return (double)app::current_editor->getSite().frame();
     };
 
-    clazz.addGetter("activeLayerNumber") = [](AppObject&) -> JSON::Value {
+    clazz.addGetter("activeLayerNumber") = [](AppObject&) -> JSON::Value
+    {
       if (!app::current_editor)
         return (double)0;
-      return (double)static_cast<int>(app::current_editor->getSite().layerIndex());
+      return (double)static_cast<int>(
+          app::current_editor->getSite().layerIndex());
     };
 
-    clazz.addGetter("activeImage") = [](AppObject&) -> JSON::Value {
+    clazz.addGetter("activeImage") = [](AppObject&) -> JSON::Value
+    {
       if (!app::current_editor)
         return JSON::Value{JSON::Special::Null};
       auto* img = app::current_editor->getSite().image();
@@ -68,43 +75,48 @@ public:
 
     // The `Sprite` proxy re-resolves the active document, so a fresh
     // SpriteSite behaves identically to the `sprite` global.
-    clazz.addGetter("activeSprite") = [](AppObject&) -> JSON::Value {
+    clazz.addGetter("activeSprite") = [](AppObject&) -> JSON::Value
+    {
       if (!AppObject::activeDocument())
         return JSON::Value{JSON::Special::Null};
       return JSON::makeNative(std::make_shared<script_api::SpriteSite>());
     };
 
-    clazz.addGetter("activeDocument") = [](AppObject&) -> JSON::Value {
+    clazz.addGetter("activeDocument") = [](AppObject&) -> JSON::Value
+    {
       auto* doc = AppObject::activeDocument();
       if (!doc)
         return JSON::Value{JSON::Special::Null};
       return JSON::makeNative(script_api::wrap<doc::Document>(doc));
     };
 
-    clazz.addGetter("version") = [](AppObject&) -> JSON::Value {
-      return std::string{VERSION};
-    };
+    clazz.addGetter("version") = [](AppObject&) -> JSON::Value
+    { return std::string{VERSION}; };
 
-    clazz.addGetter("platform") = [](AppObject&) -> JSON::Value {
-      #ifdef EMSCRIPTEN
+    clazz.addGetter("platform") = [](AppObject&) -> JSON::Value
+    {
+#ifdef EMSCRIPTEN
       return std::string{"emscripten"};
-      #elif defined(_WIN32)
+#elif defined(_WIN32)
       return std::string{"windows"};
-      #elif defined(__APPLE__)
+#elif defined(__APPLE__)
       return std::string{"macos"};
-      #elif defined(ANDROID)
+#elif defined(ANDROID)
       return std::string{"android"};
-      #else
+#else
       return std::string{"linux"};
-      #endif
+#endif
     };
 
-    clazz.addMethod("open") = [](AppObject&, const std::string& fn) -> JSON::Value {
+    clazz.addMethod("open") = [](AppObject&,
+                                 const std::string& fn) -> JSON::Value
+    {
       if (fn.empty())
         return JSON::Value{JSON::Special::Null};
       auto* ctx = app::UIContext::instance();
       auto* oldDoc = ctx->activeDocument();
-      auto* openCmd = app::CommandsModule::instance()->getCommandByName(app::CommandId::OpenFile);
+      auto* openCmd = app::CommandsModule::instance()->getCommandByName(
+          app::CommandId::OpenFile);
       app::Params params;
       params.set("filename", fn.c_str());
       ctx->executeCommand(openCmd, params);
@@ -114,11 +126,12 @@ public:
       return JSON::makeNative(script_api::wrap<doc::Document>(newDoc));
     };
 
-    clazz.addMethod("launch") = [](AppObject&, const std::string& cmd) -> JSON::Value {
-      return base::launcher::open_file(cmd);
-    };
+    clazz.addMethod("launch") = [](AppObject&,
+                                   const std::string& cmd) -> JSON::Value
+    { return base::launcher::open_file(cmd); };
 
-    clazz.addMethod("redraw") = [](AppObject&) -> JSON::Value {
+    clazz.addMethod("redraw") = [](AppObject&) -> JSON::Value
+    {
       ui::Manager::getDefault()->invalidate();
       return JSON::Value{JSON::Special::Undefined};
     };
@@ -128,14 +141,16 @@ public:
     // Requires the GUI (ui::Manager); in a headless --shell there is no UI
     // system, so creating the ui::Dialog would crash (null widget list) —
     // return null instead.
-    clazz.addMethod("createDialog") = [](AppObject&) -> JSON::Value {
+    clazz.addMethod("createDialog") = [](AppObject&) -> JSON::Value
+    {
       if (!ui::Manager::getDefault())
         return JSON::Value{JSON::Special::Null};
       return JSON::makeNative(std::make_shared<DialogObject>());
     };
   }
 
-  std::string init(const std::string&, JSON::Value&) override {
+  std::string init(const std::string&, JSON::Value&) override
+  {
     return R"(
       globalThis.app = new App();
       // Lazily expose the pixelColor / command globals as sub-objects (the

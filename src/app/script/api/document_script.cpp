@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2021-2026  LibreSprite contributors
+// LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,19 +22,20 @@
 // `document.sprite` returns the `Sprite` proxy (active-document semantics,
 // matching the `sprite` global) rather than a per-document snapshot
 
-class DocumentExtension : public Extension {
+class DocumentExtension : public Extension
+{
 public:
-  DocumentExtension() {
+  DocumentExtension()
+  {
     auto& clazz = addClass<void, doc::Document>("Document");
-    clazz.setConstructor() = []() -> std::shared_ptr<void> {
-      throw std::runtime_error{"Document cannot be constructed directly"};
-    };
+    clazz.setConstructor() = []() -> std::shared_ptr<void>
+    { throw std::runtime_error{"Document cannot be constructed directly"}; };
 
-    clazz.addGetter("sprite") = [](doc::Document&) -> JSON::Value {
-      return JSON::makeNative(std::make_shared<script_api::SpriteSite>());
-    };
+    clazz.addGetter("sprite") = [](doc::Document&) -> JSON::Value
+    { return JSON::makeNative(std::make_shared<script_api::SpriteSite>()); };
 
-    clazz.addMethod("close") = [](doc::Document& doc) -> JSON::Value {
+    clazz.addMethod("close") = [](doc::Document& doc) -> JSON::Value
+    {
       doc.close();
       return true;
     };

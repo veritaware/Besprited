@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2021-2026 LibreSprite contributors
+// LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,27 +21,33 @@
 #include "base/fs.h"
 #include "base/string.h"
 
-namespace app {
+namespace app
+{
 using namespace ui;
 
-void scanFolder(const std::string& scriptsDir, Command* cmd_run_script, Menu* parent) {
+void scanFolder(const std::string& scriptsDir, Command* cmd_run_script,
+                Menu* parent)
+{
   auto fs = FileSystemModule::instance();
   auto item = fs->getFileItemFromPath(base::fix_path_separators(scriptsDir));
   if (!item)
     return;
   Params params;
-  FileItemList list = item->children();
-  for (auto child : list) {
-    bool isFolder = child->isFolder();
-    std::string fullPath = child->fileName();
-    if (!isFolder && !app::AppScripting::scanScript(fullPath)) {
-        continue;
+  const FileItemList list = item->children();
+  for (auto child : list)
+  {
+    const bool isFolder = child->isFolder();
+    const std::string fullPath = child->fileName();
+    if (!isFolder && !app::AppScripting::scanScript(fullPath))
+    {
+      continue;
     }
     auto cmd = isFolder ? nullptr : cmd_run_script;
     params.set("filename", fullPath.c_str());
     auto menuitem = new AppMenuItem(child->displayName().c_str(), cmd, params);
     parent->addChild(menuitem);
-    if (isFolder) {
+    if (isFolder)
+    {
       auto menu = new Menu();
       scanFolder(fullPath, cmd_run_script, menu);
       menuitem->setSubmenu(menu);
@@ -58,33 +64,39 @@ bool ScriptMenu::rebuildScriptsList(Menu* menu)
   app::AppScripting::clearEventHooks();
 
   const WidgetsList& children = menu->children();
-  while (children.size() && children.back()->type() != kSeparatorWidget) {
+  while (children.size() && children.back()->type() != kSeparatorWidget)
+  {
     menu->removeChild(children.back());
   }
 
-  Command* cmd_run_script = CommandsModule::instance()->getCommandByName(CommandId::RunScript);
+  Command* cmd_run_script =
+      CommandsModule::instance()->getCommandByName(CommandId::RunScript);
   FileSystemModule* fs = FileSystemModule::instance();
 
   {
     ResourceFinder rf;
     rf.includeUserDir("scripts");
     auto scriptsDir = rf.getFirstOrCreateDefault();
-    try {
+    try
+    {
       if (!base::is_directory(scriptsDir))
         base::make_directory(scriptsDir);
-    } catch(...){
+    }
+    catch (...)
+    {
       LOG("Could not create scripts directory: %s", scriptsDir.c_str());
     }
   }
 
-  LockFS lock(fs);
+  const LockFS lock(fs);
   fs->refresh();
 
   ResourceFinder rf;
   rf.includeUserDir("scripts");
   rf.includeDataDir("scripts");
-  while (rf.next()) {
-    std::string scriptsDir = rf.filename();
+  while (rf.next())
+  {
+    const std::string& scriptsDir = rf.filename();
     if (!base::is_directory(scriptsDir))
       continue;
     scanFolder(scriptsDir, cmd_run_script, menu);
@@ -93,4 +105,4 @@ bool ScriptMenu::rebuildScriptsList(Menu* menu)
   return true;
 }
 
-}
+} // namespace app

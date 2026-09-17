@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -31,45 +31,49 @@
 #include <string>
 #include <vector>
 
-namespace app {
-  namespace tools {
-    class Tool;
-  }
+namespace app
+{
+namespace tools
+{
+class Tool;
+}
 
-  class Document;
+class Document;
 
-  typedef app::gen::ToolPref ToolPreferences;
-  typedef app::gen::DocPref DocumentPreferences;
+using ToolPreferences = app::gen::ToolPref;
+using DocumentPreferences = app::gen::DocPref;
 
-  class Preferences : public app::gen::GlobalPref
-                    , public doc::DocumentsObserver {
-  public:
-    static Preferences& instance();
+class Preferences : public app::gen::GlobalPref,
+                    public doc::DocumentsObserver
+{
+public:
+  static Preferences& instance();
 
-    Preferences();
-    ~Preferences();
+  Preferences();
+  ~Preferences();
 
-    void load();
-    void save();
+  void load();
+  void save();
 
-    ToolPreferences& tool(tools::Tool* tool);
-    DocumentPreferences& document(const app::Document* doc);
+  ToolPreferences& tool(tools::Tool* tool);
+  DocumentPreferences& document(const app::Document* doc);
 
-    // Remove one document explicitly (this can be used if the
-    // document used in Preferences::document() function wasn't member
-    // of UIContext.
-    void removeDocument(doc::Document* doc);
+  // Remove one document explicitly (this can be used if the
+  // document used in Preferences::document() function wasn't member
+  // of UIContext.
+  void removeDocument(doc::Document* doc);
 
-  protected:
-    void onRemoveDocument(doc::Document* doc) override;
+protected:
+  void onRemoveDocument(doc::Document* doc) override;
 
-  private:
-    std::string docConfigFileName(const app::Document* doc);
+private:
+  std::string docConfigFileName(const app::Document* doc);
 
-    void serializeDocPref(const app::Document* doc, app::DocumentPreferences* docPref, bool save);
+  void serializeDocPref(const app::Document* doc,
+                        app::DocumentPreferences* docPref, bool save);
 
-    std::map<std::string, app::ToolPreferences*> m_tools;
-    std::map<const app::Document*, app::DocumentPreferences*> m_docs;
-  };
+  std::map<std::string, app::ToolPreferences*> m_tools;
+  std::map<const app::Document*, app::DocumentPreferences*> m_docs;
+};
 
 } // namespace app

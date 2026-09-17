@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2021-2026  LibreSprite contributors
+// LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,64 +22,78 @@
 #include <memory>
 #include <stdexcept>
 
-namespace {
-  app::Document* activeDocument() {
-    auto* doc = app::UIContext::instance()->activeDocument();
-    if (!doc)
-      throw std::runtime_error{"No active document"};
-    return doc;
-  }
+namespace
+{
+app::Document* activeDocument()
+{
+  auto* doc = app::UIContext::instance()->activeDocument();
+  if (!doc)
+    throw std::runtime_error{"No active document"};
+  return doc;
+}
 } // namespace
 
-class SelectionExtension : public Extension {
+class SelectionExtension : public Extension
+{
 public:
-  SelectionExtension() {
+  SelectionExtension()
+  {
     using namespace script_api;
     auto& clazz = addClass<void, SelectionSite>("Selection");
-    clazz.setConstructor() = []() -> std::shared_ptr<SelectionSite> {
-      static std::shared_ptr<SelectionSite> site = std::make_shared<SelectionSite>();
+    clazz.setConstructor() = []() -> std::shared_ptr<SelectionSite>
+    {
+      static const std::shared_ptr<SelectionSite> site =
+          std::make_shared<SelectionSite>();
       return site;
     };
 
-    clazz.addMethod("select") = [](SelectionSite&, double x, double y, double w, double h) -> JSON::Value {
+    clazz.addMethod("select") = [](SelectionSite&, double x, double y, double w,
+                                   double h) -> JSON::Value
+    {
       auto* doc = activeDocument();
       doc::Mask newMask;
       if (w > 0 && h > 0)
         newMask.replace(gfx::Rect((int)x, (int)y, (int)w, (int)h));
-      app::Transaction tx(app::UIContext::instance(), "Script Execution", app::ModifyDocument);
+      app::Transaction tx(app::UIContext::instance(), "Script Execution",
+                          app::ModifyDocument);
       tx.execute(new app::cmd::SetMask(doc, &newMask));
       tx.commit();
       return {};
     };
 
-    clazz.addMethod("selectAll") = [](SelectionSite&) -> JSON::Value {
+    clazz.addMethod("selectAll") = [](SelectionSite&) -> JSON::Value
+    {
       auto* doc = activeDocument();
       doc::Mask newMask;
       newMask.replace(doc->sprite()->bounds());
-      app::Transaction tx(app::UIContext::instance(), "Script Execution", app::ModifyDocument);
+      app::Transaction tx(app::UIContext::instance(), "Script Execution",
+                          app::ModifyDocument);
       tx.execute(new app::cmd::SetMask(doc, &newMask));
       tx.commit();
       return {};
     };
 
-    clazz.addMethod("deselect") = [](SelectionSite&) -> JSON::Value {
+    clazz.addMethod("deselect") = [](SelectionSite&) -> JSON::Value
+    {
       auto* doc = activeDocument();
-      app::Transaction tx(app::UIContext::instance(), "Script Execution", app::ModifyDocument);
+      app::Transaction tx(app::UIContext::instance(), "Script Execution",
+                          app::ModifyDocument);
       tx.execute(new app::cmd::DeselectMask(doc));
       tx.commit();
       return {};
     };
 
-    clazz.addGetter("bounds") = [](SelectionSite&) -> JSON::Value {
+    clazz.addGetter("bounds") = [](SelectionSite&) -> JSON::Value
+    {
       auto* doc = activeDocument();
       if (!doc->isMaskVisible())
         return JSON::Value{JSON::Special::Null};
       gfx::Rect b = doc->mask()->bounds();
       return JSON::makeObject({
-        {"x", (double)b.x},
-        {"y", (double)b.y},
-        {"width", (double)b.w},
-        {"height", (double)b.h},
+          {"x", (double)b.x},
+          {"y", (double)b.y},
+          {"width", (double)b.w},
+          {"height", (double)b.h},
       });
     };
   }
