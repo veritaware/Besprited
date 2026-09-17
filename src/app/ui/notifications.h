@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,28 +10,31 @@
 #include "ui/button.h"
 #include "ui/menu.h"
 
-namespace app {
-  namespace skin {
-    class Style;
-  }
+namespace app
+{
+namespace skin
+{
+class Style;
+}
 
-  class INotificationDelegate;
+class INotificationDelegate;
 
-  class Notifications : public ui::Button {
-  public:
-    Notifications();
+class Notifications : public ui::Button
+{
+public:
+  Notifications();
 
-    void addLink(INotificationDelegate* del);
+  void addLink(INotificationDelegate* del);
 
-  protected:
-    void onSizeHint(ui::SizeHintEvent& ev) override;
-    void onPaint(ui::PaintEvent& ev) override;
-    void onClick(ui::Event& ev) override;
+protected:
+  void onSizeHint(ui::SizeHintEvent& ev) override;
+  void onPaint(ui::PaintEvent& ev) override;
+  void onClick(ui::Event& ev) override;
 
-  private:
-    skin::Style* m_flagStyle;
-    bool m_withNotifications;
-    ui::Menu m_popup;
-  };
+private:
+  skin::Style* m_flagStyle;
+  bool m_withNotifications;
+  ui::Menu m_popup;
+};
 
 } // namespace app

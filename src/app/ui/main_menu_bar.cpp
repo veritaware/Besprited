@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,15 +13,14 @@
 
 #include "app/app_menus.h"
 
-namespace app {
-
-MainMenuBar::MainMenuBar()
+namespace app
 {
-}
+
+MainMenuBar::MainMenuBar() = default;
 
 void MainMenuBar::reload()
 {
-  setMenu(NULL);
+  setMenu(nullptr);
 
   // Reload all menus.
   AppMenus::instance()->reload();

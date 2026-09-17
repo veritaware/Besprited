@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,8 +13,10 @@
 
 #include "ui/widget.h"
 
-namespace app {
-namespace skin {
+namespace app
+{
+namespace skin
+{
 
 const char* SkinProperty::Name = "SkinProperty";
 
@@ -29,16 +31,15 @@ SkinProperty::SkinProperty()
   m_lowerRight = 0;
 }
 
-SkinProperty::~SkinProperty()
-{
-}
+SkinProperty::~SkinProperty() = default;
 
 SkinPropertyPtr get_skin_property(ui::Widget* widget)
 {
   SkinPropertyPtr skinProp;
 
   skinProp = widget->getProperty(SkinProperty::Name);
-  if (!skinProp) {
+  if (!skinProp)
+  {
     skinProp.reset(new SkinProperty);
     widget->setProperty(skinProp);
   }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,15 +17,19 @@
 
 #include "user_data.xml.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-namespace {
+namespace
+{
 
-class UserDataPopup : public app::gen::UserData {
+class UserDataPopup : public app::gen::UserData
+{
 public:
-  UserDataPopup() {
+  UserDataPopup()
+  {
     makeFixed();
     setClickBehavior(ClickBehavior::CloseOnClickInOtherWindow);
     setEnterBehavior(EnterBehavior::CloseOnEnter);
@@ -38,8 +42,7 @@ public:
 
 } // anonymous namespace
 
-bool show_user_data_popup(const gfx::Rect& bounds,
-                          doc::UserData& userData)
+bool show_user_data_popup(const gfx::Rect& bounds, doc::UserData& userData)
 {
   UserDataPopup window;
 
@@ -48,28 +51,25 @@ bool show_user_data_popup(const gfx::Rect& bounds,
   doc::color_t color = userData.color();
   window.color()->setPixelFormat(IMAGE_RGB);
   window.color()->setColor(
-    app::Color::fromRgb(doc::rgba_getr(color),
-                        doc::rgba_getg(color),
-                        doc::rgba_getb(color),
-                        doc::rgba_geta(color)));
+      app::Color::fromRgb(doc::rgba_getr(color), doc::rgba_getg(color),
+                          doc::rgba_getb(color), doc::rgba_geta(color)));
 
   window.pointAt(TOP, bounds);
   window.openWindowInForeground();
 
   app::Color appColor = window.color()->getColor();
-  color = doc::rgba(appColor.getRed(),
-                    appColor.getGreen(),
-                    appColor.getBlue(),
+  color = doc::rgba(appColor.getRed(), appColor.getGreen(), appColor.getBlue(),
                     appColor.getAlpha());
 
-  if (userData.text() != window.text()->text() ||
-      userData.color() != color) {
+  if (userData.text() != window.text()->text() || userData.color() != color)
+  {
     userData.setText(window.text()->text());
     userData.setColor(color);
     return true;
   }
-  else {
-    return  false;
+  else
+  {
+    return false;
   }
 }
 

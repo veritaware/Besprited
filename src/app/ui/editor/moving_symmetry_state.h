@@ -12,30 +12,30 @@
 #include "app/ui/editor/standby_state.h"
 #include "app/ui/editor/symmetry_handles.h"
 
-namespace app {
-  class Editor;
+namespace app
+{
+class Editor;
 
-  class MovingSymmetryState : public StandbyState {
-  public:
-    MovingSymmetryState(Editor* editor, ui::MouseMessage* msg,
-                        Axis axis,
-                        Option<int>& xAxis,
-                        Option<int>& yAxis);
-    virtual ~MovingSymmetryState();
+class MovingSymmetryState : public StandbyState
+{
+public:
+  MovingSymmetryState(Editor* editor, ui::MouseMessage* msg, Axis axis,
+                      Option<int>& xAxis, Option<int>& yAxis);
+  virtual ~MovingSymmetryState();
 
-    virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onUpdateStatusBar(Editor* editor) override;
+  virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onUpdateStatusBar(Editor* editor) override;
 
-    virtual bool requireBrushPreview() override { return false; }
+  virtual bool requireBrushPreview() override { return false; }
 
-  private:
-    Axis m_symmetryAxis;
-    Option<int>& m_xAxis;
-    Option<int>& m_yAxis;
-    int m_xAxisStart;
-    int m_yAxisStart;
-    gfx::Point m_mouseStart;
-  };
+private:
+  Axis m_symmetryAxis;
+  Option<int>& m_xAxis;
+  Option<int>& m_yAxis;
+  int m_xAxisStart;
+  int m_yAxisStart;
+  gfx::Point m_mouseStart;
+};
 
 } // namespace app

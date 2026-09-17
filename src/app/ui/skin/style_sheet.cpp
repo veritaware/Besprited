@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,8 +18,10 @@
 
 #include "tinyxml2.h"
 
-namespace app {
-namespace skin {
+namespace app
+{
+namespace skin
+{
 
 css::Rule StyleSheet::m_backgroundColorRule("background-color");
 css::Rule StyleSheet::m_backgroundPartRule("background-part");
@@ -61,7 +63,8 @@ StyleSheet::~StyleSheet()
     delete it->second;
 
   // Destroy css::Styles
-  for (std::vector<css::Style*>::iterator it = m_cssStyles.begin(), end = m_cssStyles.end();
+  for (std::vector<css::Style*>::iterator it = m_cssStyles.begin(),
+                                          end = m_cssStyles.end();
        it != end; ++it)
     delete *it;
 
@@ -88,7 +91,8 @@ Style* StyleSheet::findStyle(const std::string& id)
 Style* StyleSheet::getStyle(const std::string& id)
 {
   Style* style = findStyle(id);
-  if (!style) {
+  if (!style)
+  {
     style = new Style(*m_sheet, id);
     m_styles[id] = style;
   }
@@ -100,7 +104,8 @@ Style* StyleSheet::getStyle(const std::string& id)
 SkinPartPtr StyleSheet::convertPart(const css::Value& value)
 {
   SkinPartPtr part;
-  if (value.type() == css::Value::String) {
+  if (value.type() == css::Value::String)
+  {
     const std::string& part_id = value.string();
     part = get_part_by_id(part_id);
     if (!part)
@@ -113,7 +118,8 @@ SkinPartPtr StyleSheet::convertPart(const css::Value& value)
 gfx::Color StyleSheet::convertColor(const css::Value& value)
 {
   gfx::Color color = gfx::ColorNone;
-  if (value.type() == css::Value::String) {
+  if (value.type() == css::Value::String)
+  {
     const std::string& color_id = value.string();
     color = get_color_by_id(color_id);
     if (color == gfx::ColorNone)
@@ -126,7 +132,8 @@ gfx::Color StyleSheet::convertColor(const css::Value& value)
 BackgroundRepeat StyleSheet::convertRepeat(const css::Value& value)
 {
   BackgroundRepeat repeat = BackgroundRepeat::NO_REPEAT;
-  if (value.type() == css::Value::String) {
+  if (value.type() == css::Value::String)
+  {
     const std::string& id = value.string();
     if (id == "repeat")
       repeat = BackgroundRepeat::REPEAT;

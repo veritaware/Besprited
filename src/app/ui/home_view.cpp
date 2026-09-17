@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -31,7 +32,8 @@
 #include "ui/textbox.h"
 #include "ui/view.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace app::skin;
@@ -48,7 +50,8 @@ HomeView::HomeView()
 
   newFile()->Click.connect(base::Bind(&HomeView::onNewFile, this));
   openFile()->Click.connect(base::Bind(&HomeView::onOpenFile, this));
-  recoverSprites()->Click.connect(base::Bind(&HomeView::onRecoverSprites, this));
+  recoverSprites()->Click.connect(
+      base::Bind(&HomeView::onRecoverSprites, this));
 
   filesView()->attachToView(m_files);
   foldersView()->attachToView(m_folders);
@@ -58,7 +61,8 @@ HomeView::HomeView()
 
 HomeView::~HomeView()
 {
-  if (m_dataRecoveryView) {
+  if (m_dataRecoveryView)
+  {
     if (m_dataRecoveryView->parent())
       App::instance()->workspace()->removeView(m_dataRecoveryView);
     delete m_dataRecoveryView;
@@ -102,36 +106,40 @@ void HomeView::onWorkspaceViewSelected()
 
 void HomeView::onNewFile()
 {
-  Command* command = CommandsModule::instance()->getCommandByName(CommandId::NewFile);
+  Command* command =
+      CommandsModule::instance()->getCommandByName(CommandId::NewFile);
   UIContext::instance()->executeCommand(command);
 }
 
 void HomeView::onOpenFile()
 {
-  Command* command = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+  Command* command =
+      CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
   UIContext::instance()->executeCommand(command);
 }
 
 void HomeView::onResize(ui::ResizeEvent& ev)
 {
-  headerPlaceholder()->setVisible(ev.bounds().h > 200*ui::guiscale());
-  foldersPlaceholder()->setVisible(ev.bounds().h > 150*ui::guiscale());
+  headerPlaceholder()->setVisible(ev.bounds().h > 200 * ui::guiscale());
+  foldersPlaceholder()->setVisible(ev.bounds().h > 150 * ui::guiscale());
 
   ui::Box::onResize(ev);
 }
 
 void HomeView::onRecoverSprites()
 {
-  if (!m_dataRecoveryView) {
+  if (!m_dataRecoveryView)
+  {
     m_dataRecoveryView = new DataRecoveryView(m_dataRecovery);
 
     // Hide the "Recover Lost Sprites" button when the
     // DataRecoveryView is empty.
     m_dataRecoveryView->Empty.connect(
-      [this]{
-        recoverSpritesPlaceholder()->setVisible(false);
-        layout();
-      });
+        [this]
+        {
+          recoverSpritesPlaceholder()->setVisible(false);
+          layout();
+        });
   }
 
   if (!m_dataRecoveryView->parent())

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,36 +11,42 @@
 #include "base/shared_ptr.h"
 #include "gfx/rect.h"
 
-namespace ui {
-  class Slider;
-  class Graphics;
+namespace ui
+{
+class Slider;
+class Graphics;
 }
 
-namespace app {
-  namespace skin {
+namespace app
+{
+namespace skin
+{
 
-    class ISliderBgPainter {
-    public:
-      virtual ~ISliderBgPainter() { }
-      virtual void paint(ui::Slider* slider, ui::Graphics* graphics, const gfx::Rect& rc) = 0;
-    };
+class ISliderBgPainter
+{
+public:
+  virtual ~ISliderBgPainter() {}
+  virtual void paint(ui::Slider* slider, ui::Graphics* graphics,
+                     const gfx::Rect& rc) = 0;
+};
 
-    class SkinSliderProperty : public ui::Property {
-    public:
-      static const char* Name;
+class SkinSliderProperty : public ui::Property
+{
+public:
+  static const char* Name;
 
-      // The given painter is deleted automatically when this
-      // property the destroyed.
-      SkinSliderProperty(ISliderBgPainter* painter);
-      ~SkinSliderProperty();
+  // The given painter is deleted automatically when this
+  // property the destroyed.
+  SkinSliderProperty(ISliderBgPainter* painter);
+  ~SkinSliderProperty();
 
-      ISliderBgPainter* getBgPainter() const;
+  ISliderBgPainter* getBgPainter() const;
 
-    private:
-      ISliderBgPainter* m_painter;
-    };
+private:
+  ISliderBgPainter* m_painter;
+};
 
-    typedef base::SharedPtr<SkinSliderProperty> SkinSliderPropertyPtr;
+using SkinSliderPropertyPtr = base::SharedPtr<SkinSliderProperty>;
 
-  } // namespace skin
+} // namespace skin
 } // namespace app

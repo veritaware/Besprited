@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,12 +22,14 @@
 
 #include <vector>
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace ui;
 
-PopupWindowPin::PopupWindowPin(const std::string& text, ClickBehavior clickBehavior)
+PopupWindowPin::PopupWindowPin(const std::string& text,
+                               ClickBehavior clickBehavior)
   : PopupWindow(text, clickBehavior)
   , m_pin("")
 {
@@ -35,18 +37,18 @@ PopupWindowPin::PopupWindowPin(const std::string& text, ClickBehavior clickBehav
 
   m_pin.Click.connect(&PopupWindowPin::onPinClick, this);
   m_pin.setIconInterface(
-    new ButtonIconImpl(theme->parts.unpinned(),
-                       theme->parts.pinned(),
-                       theme->parts.unpinned(),
-                       CENTER | MIDDLE));
+      new ButtonIconImpl(theme->parts.unpinned(), theme->parts.pinned(),
+                         theme->parts.unpinned(), CENTER | MIDDLE));
 }
 
 void PopupWindowPin::onPinClick(Event& ev)
 {
-  if (m_pin.isSelected()) {
+  if (m_pin.isSelected())
+  {
     makeFloating();
   }
-  else {
+  else
+  {
     gfx::Rect rc = bounds();
     rc.enlarge(8);
     setHotRegion(gfx::Region(rc));
@@ -56,17 +58,17 @@ void PopupWindowPin::onPinClick(Event& ev)
 
 bool PopupWindowPin::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kOpenMessage:
-      m_pin.setSelected(false);
-      makeFixed();
-      break;
+  case kOpenMessage:
+    m_pin.setSelected(false);
+    makeFixed();
+    break;
 
-    case kCloseMessage:
-      m_pin.setSelected(false);
-      break;
-
+  case kCloseMessage:
+    m_pin.setSelected(false);
+    break;
   }
 
   return PopupWindow::onProcessMessage(msg);
@@ -76,11 +78,11 @@ void PopupWindowPin::onHitTest(HitTestEvent& ev)
 {
   PopupWindow::onHitTest(ev);
 
-  if ((m_pin.isSelected()) &&
-      (ev.hit() == HitTestClient)) {
-    if (ev.point().x <= bounds().x+2)
+  if ((m_pin.isSelected()) && (ev.hit() == HitTestClient))
+  {
+    if (ev.point().x <= bounds().x + 2)
       ev.setHit(HitTestBorderW);
-    else if (ev.point().x >= bounds().x2()-3)
+    else if (ev.point().x >= bounds().x2() - 3)
       ev.setHit(HitTestBorderE);
     else
       ev.setHit(HitTestCaption);

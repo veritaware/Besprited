@@ -58,34 +58,23 @@
 #include <cmath>
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
 static CursorType rotated_size_cursors[] = {
-  kSizeECursor,
-  kSizeNECursor,
-  kSizeNCursor,
-  kSizeNWCursor,
-  kSizeWCursor,
-  kSizeSWCursor,
-  kSizeSCursor,
-  kSizeSECursor
-};
+    kSizeECursor, kSizeNECursor, kSizeNCursor, kSizeNWCursor,
+    kSizeWCursor, kSizeSWCursor, kSizeSCursor, kSizeSECursor};
 
 static CursorType rotated_rotate_cursors[] = {
-  kRotateECursor,
-  kRotateNECursor,
-  kRotateNCursor,
-  kRotateNWCursor,
-  kRotateWCursor,
-  kRotateSWCursor,
-  kRotateSCursor,
-  kRotateSECursor
-};
+    kRotateECursor, kRotateNECursor, kRotateNCursor, kRotateNWCursor,
+    kRotateWCursor, kRotateSWCursor, kRotateSCursor, kRotateSECursor};
 
 #ifdef _MSC_VER
-#pragma warning(disable:4355) // warning C4355: 'this' : used in base member initializer list
+#pragma warning(                                                               \
+    disable                                                                    \
+    : 4355) // warning C4355: 'this' : used in base member initializer list
 #endif
 
 StandbyState::StandbyState()
@@ -106,11 +95,11 @@ void StandbyState::onEnterState(Editor* editor)
   editor->setDecorator(m_decorator);
 
   m_pivotVisConn =
-    Preferences::instance().selection.pivotVisibility.AfterChange.connect(
-      base::Bind<void>(&StandbyState::onPivotChange, this, editor));
+      Preferences::instance().selection.pivotVisibility.AfterChange.connect(
+          base::Bind<void>(&StandbyState::onPivotChange, this, editor));
   m_pivotPosConn =
-    Preferences::instance().selection.pivotPosition.AfterChange.connect(
-      base::Bind<void>(&StandbyState::onPivotChange, this, editor));
+      Preferences::instance().selection.pivotPosition.AfterChange.connect(
+          base::Bind<void>(&StandbyState::onPivotChange, this, editor));
 }
 
 void StandbyState::onActiveToolChange(Editor* editor, tools::Tool* tool)
@@ -118,7 +107,8 @@ void StandbyState::onActiveToolChange(Editor* editor, tools::Tool* tool)
   // If the user change from a selection tool to a non-selection tool,
   // or viceversa, we've to show or hide the transformation handles.
   bool needDecorators = (tool && tool->getInk(0)->isSelection());
-  if (m_transformSelectionHandlesAreVisible != needDecorators) {
+  if (m_transformSelectionHandlesAreVisible != needDecorators)
+  {
     m_transformSelectionHandlesAreVisible = false;
     editor->invalidate();
   }
@@ -129,7 +119,8 @@ bool StandbyState::checkForScroll(Editor* editor, MouseMessage* msg)
   tools::Ink* clickedInk = editor->getCurrentEditorInk().get();
 
   // Start scroll loop
-  if (msg->middle() || clickedInk->isScrollMovement()) { // TODO msg->middle() should be customizable
+  if (msg->middle() || clickedInk->isScrollMovement())
+  { // TODO msg->middle() should be customizable
     EditorStatePtr newState(new ScrollingState());
     editor->setState(newState);
 
@@ -145,7 +136,8 @@ bool StandbyState::checkForZoom(Editor* editor, MouseMessage* msg)
   tools::Ink* clickedInk = editor->getCurrentEditorInk().get();
 
   // Start scroll loop
-  if (clickedInk->isZoom()) {
+  if (clickedInk->isZoom())
+  {
     EditorStatePtr newState(new ZoomingState());
     editor->setState(newState);
 
@@ -176,9 +168,11 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
     return true;
 
   // Move cel X,Y coordinates
-  if (clickedInk->isCelMovement()) {
+  if (clickedInk->isCelMovement())
+  {
     // Handle "Auto Select Layer"
-    if (editor->isAutoSelectLayer()) {
+    if (editor->isAutoSelectLayer())
+    {
       gfx::Point cursor = editor->screenToEditor(msg->position());
 
       ColorPicker picker;
@@ -193,35 +187,41 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
       bool rangeSingleCel = ((range.type() == DocumentRange::kCels) &&
                              (range.layers() == 1) && (range.frames() == 1));
 
-      if (layerChanged && (!rangeEnabled || rangeSingleCel)) {
+      if (layerChanged && (!rangeEnabled || rangeSingleCel))
+      {
         layer = picker.layer();
-        if (layer) {
+        if (layer)
+        {
           editor->setLayer(layer);
           editor->flashCurrentLayer();
         }
       }
     }
 
-    if ((layer) &&
-        (layer->type() == ObjectType::LayerImage)) {
+    if ((layer) && (layer->type() == ObjectType::LayerImage))
+    {
       // TODO we should be able to move the `Background' with tiled mode
-      if (layer->isBackground()) {
+      if (layer->isBackground())
+      {
         StatusBar::instance()->showTip(1000,
-          "The background layer cannot be moved");
+                                       "The background layer cannot be moved");
       }
-      else if (!layer->isVisible()) {
-        StatusBar::instance()->showTip(1000,
-          "Layer '%s' is hidden", layer->name().c_str());
+      else if (!layer->isVisible())
+      {
+        StatusBar::instance()->showTip(1000, "Layer '%s' is hidden",
+                                       layer->name().c_str());
       }
-      else if (!layer->isMovable() || !layer->isEditable()) {
-        StatusBar::instance()->showTip(1000,
-          "Layer '%s' is locked", layer->name().c_str());
+      else if (!layer->isMovable() || !layer->isEditable())
+      {
+        StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
+                                       layer->name().c_str());
       }
-      else if (!layer->cel(editor->frame())) {
-        StatusBar::instance()->showTip(1000,
-          "Cel is empty, nothing to move");
+      else if (!layer->cel(editor->frame()))
+      {
+        StatusBar::instance()->showTip(1000, "Cel is empty, nothing to move");
       }
-      else {
+      else
+      {
         // Change to MovingCelState
         editor->setState(EditorStatePtr(new MovingCelState(editor, msg)));
       }
@@ -231,31 +231,36 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
   }
 
   // Call the eyedropper command
-  if (clickedInk->isEyedropper()) {
+  if (clickedInk->isEyedropper())
+  {
     editor->captureMouse();
     callEyedropper(editor);
     return true;
   }
 
-  if (clickedInk->isSelection()) {
+  if (clickedInk->isSelection())
+  {
     // Transform selected pixels
-    if (editor->isActive() &&
-        document->isMaskVisible() &&
-        m_decorator->getTransformHandles(editor)) {
-      TransformHandles* transfHandles = m_decorator->getTransformHandles(editor);
+    if (editor->isActive() && document->isMaskVisible() &&
+        m_decorator->getTransformHandles(editor))
+    {
+      TransformHandles* transfHandles =
+          m_decorator->getTransformHandles(editor);
 
       // Get the handle covered by the mouse.
-      HandleType handle = transfHandles->getHandleAtPoint(editor,
-        msg->position(),
-        document->getTransformation());
+      HandleType handle = transfHandles->getHandleAtPoint(
+          editor, msg->position(), document->getTransformation());
 
-      if (handle != NoHandle) {
+      if (handle != NoHandle)
+      {
         int x, y, opacity;
         Image* image = site.image(&x, &y, &opacity);
-        if (layer && image) {
-          if (!layer->isEditable()) {
-            StatusBar::instance()->showTip(1000,
-              "Layer '%s' is locked", layer->name().c_str());
+        if (layer && image)
+        {
+          if (!layer->isEditable())
+          {
+            StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
+                                           layer->name().c_str());
             return true;
           }
 
@@ -267,10 +272,12 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
     }
 
     // Move selected pixels
-    if (layer && editor->isInsideSelection() && msg->left()) {
-      if (!layer->isEditable()) {
-        StatusBar::instance()->showTip(1000,
-          "Layer '%s' is locked", layer->name().c_str());
+    if (layer && editor->isInsideSelection() && msg->left())
+    {
+      if (!layer->isEditable())
+      {
+        StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
+                                       layer->name().c_str());
         return true;
       }
 
@@ -282,21 +289,25 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
 
   // Move symmetry
   SymmetryHandles handles;
-  if (m_decorator->getSymmetryHandles(editor, handles)) {
-    for (auto& handle : handles) {
-      if (handle.rect().contains(msg->position())) {
-        auto& symmetry = Preferences::instance().document(editor->document()).symmetry;
+  if (m_decorator->getSymmetryHandles(editor, handles))
+  {
+    for (auto& handle : handles)
+    {
+      if (handle.rect().contains(msg->position()))
+      {
+        auto& symmetry =
+            Preferences::instance().document(editor->document()).symmetry;
 
-        editor->setState(
-          EditorStatePtr(new MovingSymmetryState(editor, msg, handle.axis(),
-                                                  symmetry.xAxis, symmetry.yAxis)));
+        editor->setState(EditorStatePtr(new MovingSymmetryState(
+            editor, msg, handle.axis(), symmetry.xAxis, symmetry.yAxis)));
         return true;
       }
     }
   }
 
   // Start the Tool-Loop
-  if (layer) {
+  if (layer)
+  {
     // Disable layer edges to avoid showing the modified cel
     // information by ExpandCelCanvas (i.e. the cel origin is changed
     // to 0,0 coordinate.)
@@ -306,12 +317,12 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
       layerEdgesOption(false);
 
     tools::ToolLoop* toolLoop = create_tool_loop(editor, context);
-    if (toolLoop) {
+    if (toolLoop)
+    {
       EditorStatePtr newState(new DrawingState(toolLoop));
       editor->setState(newState);
 
-      static_cast<DrawingState*>(newState.get())
-        ->initToolLoop(editor, msg);
+      static_cast<DrawingState*>(newState.get())->initToolLoop(editor, msg);
     }
 
     // Restore layer edges
@@ -332,10 +343,11 @@ bool StandbyState::onMouseUp(Editor* editor, MouseMessage* msg)
 bool StandbyState::onMouseMove(Editor* editor, MouseMessage* msg)
 {
   // We control eyedropper tool from here. TODO move this to another place
-  if (msg->left() || msg->right()) {
+  if (msg->left() || msg->right())
+  {
     tools::Ink* clickedInk = editor->getCurrentEditorInk().get();
-    if (clickedInk->isEyedropper() &&
-        editor->hasCapture()) {
+    if (clickedInk->isEyedropper() && editor->hasCapture())
+    {
       callEyedropper(editor);
     }
   }
@@ -353,14 +365,17 @@ bool StandbyState::onDoubleClick(Editor* editor, MouseMessage* msg)
   tools::Ink* ink = editor->getCurrentEditorInk().get();
 
   // Select a tile with double-click
-  if (ink->isSelection()) {
+  if (ink->isSelection())
+  {
     Command* selectTileCmd =
-      CommandsModule::instance()->getCommandByName(CommandId::SelectTile);
+        CommandsModule::instance()->getCommandByName(CommandId::SelectTile);
 
     Params params;
-    if (int(editor->getToolLoopModifiers()) & int(tools::ToolLoopModifiers::kAddSelection))
+    if (int(editor->getToolLoopModifiers()) &
+        int(tools::ToolLoopModifiers::kAddSelection))
       params.set("mode", "add");
-    else if (int(editor->getToolLoopModifiers()) & int(tools::ToolLoopModifiers::kSubtractSelection))
+    else if (int(editor->getToolLoopModifiers()) &
+             int(tools::ToolLoopModifiers::kSubtractSelection))
       params.set("mode", "subtract");
 
     UIContext::instance()->executeCommand(selectTileCmd, params);
@@ -378,14 +393,19 @@ bool StandbyState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
   if (m_decorator->onSetCursor(ink, editor, mouseScreenPos))
     return true;
 
-  if (ink) {
+  if (ink)
+  {
     // If the current tool change selection (e.g. rectangular marquee, etc.)
-    if (ink->isSelection()) {
+    if (ink->isSelection())
+    {
       // Move pixels
-      if (editor->isInsideSelection()) {
-        EditorCustomizationDelegate* customization = editor->getCustomizationDelegate();
-        if ((customization) &&
-            int(customization->getPressedKeyAction(KeyContext::TranslatingSelection) & KeyAction::CopySelection))
+      if (editor->isInsideSelection())
+      {
+        EditorCustomizationDelegate* customization =
+            editor->getCustomizationDelegate();
+        if ((customization) && int(customization->getPressedKeyAction(
+                                       KeyContext::TranslatingSelection) &
+                                   KeyAction::CopySelection))
           editor->showMouseCursor(kArrowPlusCursor);
         else
           editor->showMouseCursor(kMoveCursor);
@@ -394,34 +414,41 @@ bool StandbyState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
         editor->showBrushPreview(mouseScreenPos);
       return true;
     }
-    else if (ink->isEyedropper()) {
+    else if (ink->isEyedropper())
+    {
       editor->showMouseCursor(kEyedropperCursor);
       return true;
     }
-    else if (ink->isZoom()) {
+    else if (ink->isZoom())
+    {
       editor->showMouseCursor(kMagnifierCursor);
       return true;
     }
-    else if (ink->isScrollMovement()) {
+    else if (ink->isScrollMovement())
+    {
       editor->showMouseCursor(kScrollCursor);
       return true;
     }
-    else if (ink->isCelMovement()) {
+    else if (ink->isCelMovement())
+    {
       editor->showMouseCursor(kMoveCursor);
       return true;
     }
-    else if (ink->isSlice()) {
+    else if (ink->isSlice())
+    {
       editor->showBrushPreview(mouseScreenPos);
       return true;
     }
   }
 
   // Draw
-  if (editor->canDraw()) {
+  if (editor->canDraw())
+  {
     editor->showBrushPreview(mouseScreenPos);
   }
   // Forbidden
-  else {
+  else
+  {
     editor->showMouseCursor(kForbiddenCursor);
   }
 
@@ -444,11 +471,13 @@ bool StandbyState::onUpdateStatusBar(Editor* editor)
   const Sprite* sprite = editor->sprite();
   gfx::Point spritePos = editor->screenToEditor(ui::get_mouse_position());
 
-  if (!sprite) {
+  if (!sprite)
+  {
     StatusBar::instance()->clearText();
   }
   // For eye-dropper
-  else if (ink->isEyedropper()) {
+  else if (ink->isEyedropper())
+  {
     EyedropperCommand cmd;
     app::Color color = Preferences::instance().colorBar.fgColor();
     cmd.pickSample(editor->getSite(), spritePos, color);
@@ -458,33 +487,32 @@ bool StandbyState::onUpdateStatusBar(Editor* editor)
 
     StatusBar::instance()->showColor(0, buf, color);
   }
-  else {
+  else
+  {
     Mask* mask =
-      (editor->document()->isMaskVisible() ?
-       editor->document()->mask(): NULL);
+        (editor->document()->isMaskVisible() ? editor->document()->mask()
+                                             : nullptr);
 
     char buf[1024];
-    snprintf(
-      buf, sizeof(buf), ":pos: %d %d :%s: %d %d",
-      spritePos.x, spritePos.y,
-      (mask ? "selsize": "size"),
-      (mask ? mask->bounds().w: sprite->width()),
-      (mask ? mask->bounds().h: sprite->height()));
+    snprintf(buf, sizeof(buf), ":pos: %d %d :%s: %d %d", spritePos.x,
+             spritePos.y, (mask ? "selsize" : "size"),
+             (mask ? mask->bounds().w : sprite->width()),
+             (mask ? mask->bounds().h : sprite->height()));
 
-    if (sprite->totalFrames() > 1) {
+    if (sprite->totalFrames() > 1)
+    {
       auto offset = std::strlen(buf);
-      snprintf(
-        buf+offset, sizeof(buf) - offset, " :frame: %d :clock: %d",
-        editor->frame()+1,
-        sprite->frameDuration(editor->frame()));
+      snprintf(buf + offset, sizeof(buf) - offset, " :frame: %d :clock: %d",
+               editor->frame() + 1, sprite->frameDuration(editor->frame()));
     }
 
-    if (editor->docPref().show.grid()) {
+    if (editor->docPref().show.grid())
+    {
       auto gb = editor->docPref().grid.bounds();
       int col = (spritePos.x - (gb.x % gb.w)) / gb.w;
       int row = (spritePos.y - (gb.y % gb.h)) / gb.h;
       auto offset = std::strlen(buf);
-      snprintf(buf+offset, sizeof(buf) - offset, " :grid: %d %d", col, row);
+      snprintf(buf + offset, sizeof(buf) - offset, " :grid: %d %d", col, row);
     }
 
     StatusBar::instance()->setStatusText(0, buf);
@@ -504,59 +532,70 @@ void StandbyState::startSelectionTransformation(Editor* editor,
                                                 const gfx::Point& move,
                                                 double angle)
 {
-  transformSelection(editor, NULL, NoHandle);
+  transformSelection(editor, nullptr, NoHandle);
 
-  if (MovingPixelsState* movingPixels = dynamic_cast<MovingPixelsState*>(editor->getState().get())) {
+  if (MovingPixelsState* movingPixels =
+          dynamic_cast<MovingPixelsState*>(editor->getState().get()))
+  {
     movingPixels->translate(move);
     if (std::fabs(angle) > 1e-5)
       movingPixels->rotate(angle);
   }
 }
 
-void StandbyState::transformSelection(Editor* editor, MouseMessage* msg, HandleType handle)
+void StandbyState::transformSelection(Editor* editor, MouseMessage* msg,
+                                      HandleType handle)
 {
   Document* document = editor->document();
 
-  for (auto docView : UIContext::instance()->getAllDocumentViews(document)) {
-    if (docView->editor()->isMovingPixels()) {
+  for (auto docView : UIContext::instance()->getAllDocumentViews(document))
+  {
+    if (docView->editor()->isMovingPixels())
+    {
       // TODO Transfer moving pixels state to this editor
       docView->editor()->dropMovingPixels();
     }
   }
 
-  try {
+  try
+  {
     // Clear brush preview, as the extra cel will be replaced with the
     // transformed image.
     editor->brushPreview().hide();
 
-    EditorCustomizationDelegate* customization = editor->getCustomizationDelegate();
+    EditorCustomizationDelegate* customization =
+        editor->getCustomizationDelegate();
     std::unique_ptr<Image> tmpImage(new_image_from_mask(editor->getSite()));
 
     PixelsMovementPtr pixelsMovement(
-      new PixelsMovement(UIContext::instance(),
-                         editor->getSite(),
-                         tmpImage.get(),
-                         document->mask(),
-                         "Transformation"));
+        new PixelsMovement(UIContext::instance(), editor->getSite(),
+                           tmpImage.get(), document->mask(), "Transformation"));
 
     // If the Ctrl key is pressed start dragging a copy of the selection
-    if ((customization) &&
-        int(customization->getPressedKeyAction(KeyContext::TranslatingSelection) & KeyAction::CopySelection))
+    if ((customization) && int(customization->getPressedKeyAction(
+                                   KeyContext::TranslatingSelection) &
+                               KeyAction::CopySelection))
       pixelsMovement->copyMask();
     else
       pixelsMovement->cutMask();
 
-    editor->setState(EditorStatePtr(new MovingPixelsState(editor, msg, pixelsMovement, handle)));
+    editor->setState(EditorStatePtr(
+        new MovingPixelsState(editor, msg, pixelsMovement, handle)));
   }
-  catch (const LockedDocumentException&) {
+  catch (const LockedDocumentException&)
+  {
     // Other editor is locking the document.
 
-    // TODO steal the PixelsMovement of the other editor and use it for this one.
-    StatusBar::instance()->showTip(1000, "The sprite is locked in other editor");
+    // TODO steal the PixelsMovement of the other editor and use it for this
+    // one.
+    StatusBar::instance()->showTip(1000,
+                                   "The sprite is locked in other editor");
     editor->showMouseCursor(kForbiddenCursor);
   }
-  catch (const std::bad_alloc&) {
-    StatusBar::instance()->showTip(1000, "Not enough memory to transform the selection");
+  catch (const std::bad_alloc&)
+  {
+    StatusBar::instance()->showTip(
+        1000, "Not enough memory to transform the selection");
     editor->showMouseCursor(kForbiddenCursor);
   }
 }
@@ -565,21 +604,22 @@ void StandbyState::callEyedropper(Editor* editor)
 {
   tools::Ink* clickedInk = editor->getCurrentEditorInk().get();
   Command* eyedropper_cmd =
-    CommandsModule::instance()->getCommandByName(CommandId::Eyedropper);
-  bool fg = (static_cast<tools::PickInk*>(clickedInk)->target() == tools::PickInk::Fg);
+      CommandsModule::instance()->getCommandByName(CommandId::Eyedropper);
+  bool fg = (static_cast<tools::PickInk*>(clickedInk)->target() ==
+             tools::PickInk::Fg);
 
   Params params;
-  params.set("target", fg ? "foreground": "background");
+  params.set("target", fg ? "foreground" : "background");
 
   UIContext::instance()->executeCommand(eyedropper_cmd, params);
 }
 
 void StandbyState::onPivotChange(Editor* editor)
 {
-  if (editor->isActive() &&
-      editor->editorFlags() & Editor::kShowMask &&
+  if (editor->isActive() && editor->editorFlags() & Editor::kShowMask &&
       editor->document()->isMaskVisible() &&
-      !editor->document()->mask()->isFrozen()) {
+      !editor->document()->mask()->isFrozen())
+  {
     editor->invalidate();
   }
 }
@@ -588,7 +628,7 @@ void StandbyState::onPivotChange(Editor* editor)
 // Decorator
 
 StandbyState::Decorator::Decorator(StandbyState* standbyState)
-  : m_transfHandles(NULL)
+  : m_transfHandles(nullptr)
   , m_standbyState(standbyState)
 {
 }
@@ -606,65 +646,107 @@ TransformHandles* StandbyState::Decorator::getTransformHandles(Editor* editor)
   return m_transfHandles;
 }
 
-bool StandbyState::Decorator::onSetCursor(tools::Ink* ink, Editor* editor, const gfx::Point& mouseScreenPos)
+bool StandbyState::Decorator::onSetCursor(tools::Ink* ink, Editor* editor,
+                                          const gfx::Point& mouseScreenPos)
 {
   if (!editor->isActive())
     return false;
 
-  if (ink && ink->isSelection() && editor->document()->isMaskVisible()) {
-    const Transformation transformation(m_standbyState->getTransformation(editor));
+  if (ink && ink->isSelection() && editor->document()->isMaskVisible())
+  {
+    const Transformation transformation(
+        m_standbyState->getTransformation(editor));
     TransformHandles* tr = getTransformHandles(editor);
-    HandleType handle = tr->getHandleAtPoint(
-      editor, mouseScreenPos, transformation);
+    HandleType handle =
+        tr->getHandleAtPoint(editor, mouseScreenPos, transformation);
 
     CursorType newCursor = kArrowCursor;
 
-    switch (handle) {
-      case ScaleNWHandle:         newCursor = kSizeNWCursor; break;
-      case ScaleNHandle:          newCursor = kSizeNCursor; break;
-      case ScaleNEHandle:         newCursor = kSizeNECursor; break;
-      case ScaleWHandle:          newCursor = kSizeWCursor; break;
-      case ScaleEHandle:          newCursor = kSizeECursor; break;
-      case ScaleSWHandle:         newCursor = kSizeSWCursor; break;
-      case ScaleSHandle:          newCursor = kSizeSCursor; break;
-      case ScaleSEHandle:         newCursor = kSizeSECursor; break;
-      case RotateNWHandle:        newCursor = kRotateNWCursor; break;
-      case RotateNHandle:         newCursor = kRotateNCursor; break;
-      case RotateNEHandle:        newCursor = kRotateNECursor; break;
-      case RotateWHandle:         newCursor = kRotateWCursor; break;
-      case RotateEHandle:         newCursor = kRotateECursor; break;
-      case RotateSWHandle:        newCursor = kRotateSWCursor; break;
-      case RotateSHandle:         newCursor = kRotateSCursor; break;
-      case RotateSEHandle:        newCursor = kRotateSECursor; break;
-      case PivotHandle:           newCursor = kHandCursor; break;
-      default:
-        return false;
+    switch (handle)
+    {
+    case ScaleNWHandle:
+      newCursor = kSizeNWCursor;
+      break;
+    case ScaleNHandle:
+      newCursor = kSizeNCursor;
+      break;
+    case ScaleNEHandle:
+      newCursor = kSizeNECursor;
+      break;
+    case ScaleWHandle:
+      newCursor = kSizeWCursor;
+      break;
+    case ScaleEHandle:
+      newCursor = kSizeECursor;
+      break;
+    case ScaleSWHandle:
+      newCursor = kSizeSWCursor;
+      break;
+    case ScaleSHandle:
+      newCursor = kSizeSCursor;
+      break;
+    case ScaleSEHandle:
+      newCursor = kSizeSECursor;
+      break;
+    case RotateNWHandle:
+      newCursor = kRotateNWCursor;
+      break;
+    case RotateNHandle:
+      newCursor = kRotateNCursor;
+      break;
+    case RotateNEHandle:
+      newCursor = kRotateNECursor;
+      break;
+    case RotateWHandle:
+      newCursor = kRotateWCursor;
+      break;
+    case RotateEHandle:
+      newCursor = kRotateECursor;
+      break;
+    case RotateSWHandle:
+      newCursor = kRotateSWCursor;
+      break;
+    case RotateSHandle:
+      newCursor = kRotateSCursor;
+      break;
+    case RotateSEHandle:
+      newCursor = kRotateSECursor;
+      break;
+    case PivotHandle:
+      newCursor = kHandCursor;
+      break;
+    default:
+      return false;
     }
 
     // Adjust the cursor depending the current transformation angle.
     fixmath::fixed angle = fixmath::ftofix(128.0 * transformation.angle() / PI);
     angle = fixmath::fixadd(angle, fixmath::itofix(16));
-    angle &= (255<<16);
+    angle &= (255 << 16);
     angle >>= 16;
     angle /= 32;
 
-    if (newCursor >= kSizeNCursor && newCursor <= kSizeNWCursor) {
-      size_t num = sizeof(rotated_size_cursors) / sizeof(rotated_size_cursors[0]);
+    if (newCursor >= kSizeNCursor && newCursor <= kSizeNWCursor)
+    {
+      size_t num =
+          sizeof(rotated_size_cursors) / sizeof(rotated_size_cursors[0]);
       size_t c;
-      for (c=num-1; c>0; --c)
+      for (c = num - 1; c > 0; --c)
         if (rotated_size_cursors[c] == newCursor)
           break;
 
-      newCursor = rotated_size_cursors[(c+angle) % num];
+      newCursor = rotated_size_cursors[(c + angle) % num];
     }
-    else if (newCursor >= kRotateNCursor && newCursor <= kRotateNWCursor) {
-      size_t num = sizeof(rotated_rotate_cursors) / sizeof(rotated_rotate_cursors[0]);
+    else if (newCursor >= kRotateNCursor && newCursor <= kRotateNWCursor)
+    {
+      size_t num =
+          sizeof(rotated_rotate_cursors) / sizeof(rotated_rotate_cursors[0]);
       size_t c;
-      for (c=num-1; c>0; --c)
+      for (c = num - 1; c > 0; --c)
         if (rotated_rotate_cursors[c] == newCursor)
           break;
 
-      newCursor = rotated_rotate_cursors[(c+angle) % num];
+      newCursor = rotated_rotate_cursors[(c + angle) % num];
     }
 
     editor->showMouseCursor(newCursor);
@@ -672,26 +754,30 @@ bool StandbyState::Decorator::onSetCursor(tools::Ink* ink, Editor* editor, const
   }
 
   SymmetryHandles handles;
-  if (getSymmetryHandles(editor, handles)) {
-    for (auto& handle : handles) {
-      if (handle.rect().contains(mouseScreenPos)) {
-        switch (handle.axis()) {
-          case Axis::HORIZONTAL:
-            editor->showMouseCursor(kSizeWECursor);
-            break;
-          case Axis::VERTICAL:
-            editor->showMouseCursor(kSizeNSCursor);
-            break;
-          case Axis::DIAGONAL_45:
-            editor->showMouseCursor(kSizeNECursor);
-            break;
-          case Axis::DIAGONAL_135:
-            editor->showMouseCursor(kSizeNWCursor);
-            break;
-          case Axis::ROTATIONAL_180:
-          case Axis::ROTATIONAL_90:
-            editor->showMouseCursor(kMoveCursor);
-            break;
+  if (getSymmetryHandles(editor, handles))
+  {
+    for (auto& handle : handles)
+    {
+      if (handle.rect().contains(mouseScreenPos))
+      {
+        switch (handle.axis())
+        {
+        case Axis::HORIZONTAL:
+          editor->showMouseCursor(kSizeWECursor);
+          break;
+        case Axis::VERTICAL:
+          editor->showMouseCursor(kSizeNSCursor);
+          break;
+        case Axis::DIAGONAL_45:
+          editor->showMouseCursor(kSizeNECursor);
+          break;
+        case Axis::DIAGONAL_135:
+          editor->showMouseCursor(kSizeNWCursor);
+          break;
+        case Axis::ROTATIONAL_180:
+        case Axis::ROTATIONAL_90:
+          editor->showMouseCursor(kMoveCursor);
+          break;
         }
         return true;
       }
@@ -710,16 +796,17 @@ void StandbyState::Decorator::postRenderDecorator(EditorPostRender* render)
   Editor* editor = render->getEditor();
 
   // Draw transformation handles (if the mask is visible and isn't frozen).
-  if (editor->isActive() &&
-      editor->editorFlags() & Editor::kShowMask &&
+  if (editor->isActive() && editor->editorFlags() & Editor::kShowMask &&
       editor->document()->isMaskVisible() &&
-      !editor->document()->mask()->isFrozen()) {
+      !editor->document()->mask()->isFrozen())
+  {
     // And draw only when the user has a selection tool as active tool.
     tools::Ink* ink = editor->getCurrentEditorInk().get();
 
-    if (ink->isSelection()) {
-      getTransformHandles(editor)->drawHandles(editor,
-        m_standbyState->getTransformation(editor));
+    if (ink->isSelection())
+    {
+      getTransformHandles(editor)->drawHandles(
+          editor, m_standbyState->getTransformation(editor));
 
       m_standbyState->m_transformSelectionHandlesAreVisible = true;
     }
@@ -727,7 +814,8 @@ void StandbyState::Decorator::postRenderDecorator(EditorPostRender* render)
 
   // Draw transformation handles (if the mask is visible and isn't frozen).
   SymmetryHandles handles;
-  if (StandbyState::Decorator::getSymmetryHandles(editor, handles)) {
+  if (StandbyState::Decorator::getSymmetryHandles(editor, handles))
+  {
     skin::SkinTheme* theme = static_cast<skin::SkinTheme*>(CurrentTheme::get());
     she::Surface* part = theme->parts.transformationHandle()->bitmap(0);
     ScreenGraphics g;
@@ -736,22 +824,26 @@ void StandbyState::Decorator::postRenderDecorator(EditorPostRender* render)
   }
 }
 
-void StandbyState::Decorator::getInvalidDecoratoredRegion(Editor* editor, gfx::Region& region)
+void StandbyState::Decorator::getInvalidDecoratoredRegion(Editor* editor,
+                                                          gfx::Region& region)
 {
   SymmetryHandles handles;
-  if (getSymmetryHandles(editor, handles)) {
+  if (getSymmetryHandles(editor, handles))
+  {
     for (auto& handle : handles)
       region.createUnion(region, gfx::Region(handle.rect()));
   }
 }
 
-bool StandbyState::Decorator::getSymmetryHandles(Editor* editor, SymmetryHandles& handles)
+bool StandbyState::Decorator::getSymmetryHandles(Editor* editor,
+                                                 SymmetryHandles& handles)
 {
   // Draw transformation handles (if the mask is visible and isn't frozen).
-  if (editor->isActive() &&
-      editor->editorFlags() & Editor::kShowSymmetryLine &&
-      Preferences::instance().symmetryMode.enabled()) {
-    const auto& symmetry = Preferences::instance().document(editor->document()).symmetry;
+  if (editor->isActive() && editor->editorFlags() & Editor::kShowSymmetryLine &&
+      Preferences::instance().symmetryMode.enabled())
+  {
+    const auto& symmetry =
+        Preferences::instance().document(editor->document()).symmetry;
     auto mode = (int)symmetry.mode();
 
     if (mode == (int)app::gen::SymmetryMode::NONE)
@@ -762,80 +854,104 @@ bool StandbyState::Decorator::getSymmetryHandles(Editor* editor, SymmetryHandles
     // Diagonal guide lines must never be clipped past the canvas edges
     // (unlike the viewport, which may extend well beyond the sprite).
     gfx::Rect diagonalClipRect =
-      editor->editorToScreen(spriteBounds).createIntersection(editorViewport);
+        editor->editorToScreen(spriteBounds).createIntersection(editorViewport);
     skin::SkinTheme* theme = static_cast<skin::SkinTheme*>(CurrentTheme::get());
     she::Surface* part = theme->parts.transformationHandle()->bitmap(0);
     gfx::Point pt1, pt2;
 
-    if (mode & (int)app::gen::SymmetryMode::HORIZONTAL) {
+    if (mode & (int)app::gen::SymmetryMode::HORIZONTAL)
+    {
       int pos = symmetry.xAxis();
       pt1 = gfx::Point(spriteBounds.x + pos, spriteBounds.y);
       pt1 = editor->editorToScreen(pt1);
-      pt2 = gfx::Point(spriteBounds.x+ pos, spriteBounds.y+spriteBounds.h);
+      pt2 = gfx::Point(spriteBounds.x + pos, spriteBounds.y + spriteBounds.h);
       pt2 = editor->editorToScreen(pt2);
-      pt1.y = std::max(pt1.y-part->height(), editorViewport.y);
-      pt2.y = std::min(pt2.y, editorViewport.point2().y-part->height());
-      pt1.x -= part->width()/2;
-      pt2.x -= part->width()/2;
+      pt1.y = std::max(pt1.y - part->height(), editorViewport.y);
+      pt2.y = std::min(pt2.y, editorViewport.point2().y - part->height());
+      pt1.x -= part->width() / 2;
+      pt2.x -= part->width() / 2;
 
       handles.push_back(
-        SymmetryHandle(gfx::Rect(pt1.x, pt1.y, part->width(), part->height()), Axis::HORIZONTAL));
+          SymmetryHandle(gfx::Rect(pt1.x, pt1.y, part->width(), part->height()),
+                         Axis::HORIZONTAL));
       handles.push_back(
-        SymmetryHandle(gfx::Rect(pt2.x, pt2.y, part->width(), part->height()), Axis::HORIZONTAL));
+          SymmetryHandle(gfx::Rect(pt2.x, pt2.y, part->width(), part->height()),
+                         Axis::HORIZONTAL));
     }
 
-    if (mode & (int)app::gen::SymmetryMode::VERTICAL) {
+    if (mode & (int)app::gen::SymmetryMode::VERTICAL)
+    {
       int pos = symmetry.yAxis();
       pt1 = gfx::Point(spriteBounds.x, spriteBounds.y + pos);
       pt1 = editor->editorToScreen(pt1);
-      pt2 = gfx::Point(spriteBounds.x+spriteBounds.w, spriteBounds.y + pos);
+      pt2 = gfx::Point(spriteBounds.x + spriteBounds.w, spriteBounds.y + pos);
       pt2 = editor->editorToScreen(pt2);
-      pt1.x = std::max(pt1.x-part->width(), editorViewport.x);
-      pt2.x = std::min(pt2.x, editorViewport.point2().x-part->width());
-      pt1.y -= part->height()/2;
-      pt2.y -= part->height()/2;
+      pt1.x = std::max(pt1.x - part->width(), editorViewport.x);
+      pt2.x = std::min(pt2.x, editorViewport.point2().x - part->width());
+      pt1.y -= part->height() / 2;
+      pt2.y -= part->height() / 2;
 
       handles.push_back(
-        SymmetryHandle(gfx::Rect(pt1.x, pt1.y, part->width(), part->height()), Axis::VERTICAL));
+          SymmetryHandle(gfx::Rect(pt1.x, pt1.y, part->width(), part->height()),
+                         Axis::VERTICAL));
       handles.push_back(
-        SymmetryHandle(gfx::Rect(pt2.x, pt2.y, part->width(), part->height()), Axis::VERTICAL));
+          SymmetryHandle(gfx::Rect(pt2.x, pt2.y, part->width(), part->height()),
+                         Axis::VERTICAL));
     }
 
     // Diagonal and rotational axes share the same draggable origin point
     // (xAxis, yAxis), so their guide lines always cross there.
-    gfx::Point origin = editor->editorToScreen(
-      gfx::Point(spriteBounds.x + symmetry.xAxis(), spriteBounds.y + symmetry.yAxis()));
+    gfx::Point origin = editor->editorToScreen(gfx::Point(
+        spriteBounds.x + symmetry.xAxis(), spriteBounds.y + symmetry.yAxis()));
 
-    if (mode & (int)app::gen::SymmetryMode::DIAGONAL_45) {
-      if (clip_diagonal_symmetry_line(origin, -1, diagonalClipRect, pt1, pt2)) {
-        handles.push_back(
-          SymmetryHandle(gfx::Rect(pt1.x-part->width()/2, pt1.y-part->height()/2, part->width(), part->height()), Axis::DIAGONAL_45));
-        handles.push_back(
-          SymmetryHandle(gfx::Rect(pt2.x-part->width()/2, pt2.y-part->height()/2, part->width(), part->height()), Axis::DIAGONAL_45));
+    if (mode & (int)app::gen::SymmetryMode::DIAGONAL_45)
+    {
+      if (clip_diagonal_symmetry_line(origin, -1, diagonalClipRect, pt1, pt2))
+      {
+        handles.push_back(SymmetryHandle(
+            gfx::Rect(pt1.x - part->width() / 2, pt1.y - part->height() / 2,
+                      part->width(), part->height()),
+            Axis::DIAGONAL_45));
+        handles.push_back(SymmetryHandle(
+            gfx::Rect(pt2.x - part->width() / 2, pt2.y - part->height() / 2,
+                      part->width(), part->height()),
+            Axis::DIAGONAL_45));
       }
     }
 
-    if (mode & (int)app::gen::SymmetryMode::DIAGONAL_135) {
-      if (clip_diagonal_symmetry_line(origin, +1, diagonalClipRect, pt1, pt2)) {
-        handles.push_back(
-          SymmetryHandle(gfx::Rect(pt1.x-part->width()/2, pt1.y-part->height()/2, part->width(), part->height()), Axis::DIAGONAL_135));
-        handles.push_back(
-          SymmetryHandle(gfx::Rect(pt2.x-part->width()/2, pt2.y-part->height()/2, part->width(), part->height()), Axis::DIAGONAL_135));
+    if (mode & (int)app::gen::SymmetryMode::DIAGONAL_135)
+    {
+      if (clip_diagonal_symmetry_line(origin, +1, diagonalClipRect, pt1, pt2))
+      {
+        handles.push_back(SymmetryHandle(
+            gfx::Rect(pt1.x - part->width() / 2, pt1.y - part->height() / 2,
+                      part->width(), part->height()),
+            Axis::DIAGONAL_135));
+        handles.push_back(SymmetryHandle(
+            gfx::Rect(pt2.x - part->width() / 2, pt2.y - part->height() / 2,
+                      part->width(), part->height()),
+            Axis::DIAGONAL_135));
       }
     }
 
-    if (mode & (int)app::gen::SymmetryMode::ROTATIONAL_180) {
-      handles.push_back(
-        SymmetryHandle(gfx::Rect(origin.x-part->width()/2, origin.y-part->height()/2, part->width(), part->height()), Axis::ROTATIONAL_180));
+    if (mode & (int)app::gen::SymmetryMode::ROTATIONAL_180)
+    {
+      handles.push_back(SymmetryHandle(gfx::Rect(origin.x - part->width() / 2,
+                                                 origin.y - part->height() / 2,
+                                                 part->width(), part->height()),
+                                       Axis::ROTATIONAL_180));
     }
 
     // Rotational-90's four quadrants all pivot around a single shared origin
     // point (unlike rotational-180's crosshair marker, both share the same
     // single-handle idea), so drag it as one handle rather than as separate
     // horizontal/vertical line handles.
-    if (mode & (int)app::gen::SymmetryMode::ROTATIONAL_90) {
-      handles.push_back(
-        SymmetryHandle(gfx::Rect(origin.x-part->width()/2, origin.y-part->height()/2, part->width(), part->height()), Axis::ROTATIONAL_90));
+    if (mode & (int)app::gen::SymmetryMode::ROTATIONAL_90)
+    {
+      handles.push_back(SymmetryHandle(gfx::Rect(origin.x - part->width() / 2,
+                                                 origin.y - part->height() / 2,
+                                                 part->width(), part->height()),
+                                       Axis::ROTATIONAL_90));
     }
 
     return true;

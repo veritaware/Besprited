@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -23,7 +23,8 @@
 #include "ui/resize_event.h"
 #include "ui/scroll_region_event.h"
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace ui;
@@ -52,8 +53,8 @@ EditorView::EditorView(EditorView::Type type)
   setupScrollbars();
 
   m_scrollSettingsConn =
-    Preferences::instance().editor.showScrollbars.AfterChange.connect(
-      base::Bind(&EditorView::setupScrollbars, this));
+      Preferences::instance().editor.showScrollbars.AfterChange.connect(
+          base::Bind(&EditorView::setupScrollbars, this));
 }
 
 void EditorView::onPaint(PaintEvent& ev)
@@ -62,57 +63,60 @@ void EditorView::onPaint(PaintEvent& ev)
   SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
   bool selected = false;
 
-  switch (m_type) {
+  switch (m_type)
+  {
 
-    // Only show the view selected if it is the current editor
-    case CurrentEditorMode:
-      selected = (editor()->isActive());
-      break;
+  // Only show the view selected if it is the current editor
+  case CurrentEditorMode:
+    selected = (editor()->isActive());
+    break;
 
-      // Always show selected
-    case AlwaysSelected:
-      selected = true;
-      break;
-
+    // Always show selected
+  case AlwaysSelected:
+    selected = true;
+    break;
   }
 
-  theme->drawRect(
-    g, clientBounds(),
-    (selected ?
-     theme->parts.editorSelected().get():
-     theme->parts.editorNormal().get()),
-    bgColor());
+  theme->drawRect(g, clientBounds(),
+                  (selected ? theme->parts.editorSelected().get()
+                            : theme->parts.editorNormal().get()),
+                  bgColor());
 }
 
 void EditorView::onResize(ResizeEvent& ev)
 {
   Editor* editor = this->editor();
   gfx::Point oldPos;
-  if (editor) {
-    switch (g_scrollUpdateMethod) {
-      case KeepOrigin:
-        oldPos = editor->editorToScreen(gfx::Point(0, 0));
-        break;
-      case KeepCenter:
-        oldPos = editor->screenToEditor(viewportBounds().center());
-        break;
+  if (editor)
+  {
+    switch (g_scrollUpdateMethod)
+    {
+    case KeepOrigin:
+      oldPos = editor->editorToScreen(gfx::Point(0, 0));
+      break;
+    case KeepCenter:
+      oldPos = editor->screenToEditor(viewportBounds().center());
+      break;
     }
   }
 
   View::onResize(ev);
 
-  if (editor) {
-    switch (g_scrollUpdateMethod) {
-      case KeepOrigin: {
-        // This keeps the same scroll position for the editor
-        gfx::Point newPos = editor->editorToScreen(gfx::Point(0, 0));
-        gfx::Point oldScroll = viewScroll();
-        editor->setEditorScroll(oldScroll + newPos - oldPos);
-        break;
-      }
-      case KeepCenter:
-        editor->centerInSpritePoint(oldPos);
-        break;
+  if (editor)
+  {
+    switch (g_scrollUpdateMethod)
+    {
+    case KeepOrigin:
+    {
+      // This keeps the same scroll position for the editor
+      gfx::Point newPos = editor->editorToScreen(gfx::Point(0, 0));
+      gfx::Point oldScroll = viewScroll();
+      editor->setEditorScroll(oldScroll + newPos - oldPos);
+      break;
+    }
+    case KeepCenter:
+      editor->centerInSpritePoint(oldPos);
+      break;
     }
   }
 }
@@ -120,7 +124,8 @@ void EditorView::onResize(ResizeEvent& ev)
 void EditorView::onSetViewScroll(const gfx::Point& pt)
 {
   Editor* editor = this->editor();
-  if (editor) {
+  if (editor)
+  {
     // We have to hide the brush preview to scroll (without this,
     // keyboard shortcuts to scroll when the brush preview is visible
     // will leave brush previews all over the screen).
@@ -136,7 +141,8 @@ void EditorView::onScrollRegion(ui::ScrollRegionEvent& ev)
   gfx::Region& region = ev.region();
   Editor* editor = this->editor();
   ASSERT(editor);
-  if (editor) {
+  if (editor)
+  {
     gfx::Region invalidRegion;
     editor->getInvalidDecoratoredRegion(invalidRegion);
     region.createSubtraction(region, invalidRegion);
@@ -148,7 +154,7 @@ void EditorView::onScrollChange()
   View::onScrollChange();
 
   Editor* editor = this->editor();
-  ASSERT(editor != NULL);
+  ASSERT(editor != nullptr);
   if (editor)
     editor->notifyScrollChanged();
 }
@@ -156,10 +162,12 @@ void EditorView::onScrollChange()
 void EditorView::setupScrollbars()
 {
   if (m_type == AlwaysSelected ||
-      !Preferences::instance().editor.showScrollbars()) {
+      !Preferences::instance().editor.showScrollbars())
+  {
     hideScrollBars();
   }
-  else {
+  else
+  {
     SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
     int barsize = theme->dimensions.miniScrollbarSize();
 

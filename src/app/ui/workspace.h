@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,80 +13,85 @@
 #include "base/signal.h"
 #include "ui/widget.h"
 
-namespace app {
-  class WorkspaceTabs;
+namespace app
+{
+class WorkspaceTabs;
 
-  class Workspace : public ui::Widget
-                  , public app::InputChainElement {
-  public:
-    typedef WorkspaceViews::iterator iterator;
+class Workspace : public ui::Widget,
+                  public app::InputChainElement
+{
+public:
+  using iterator = WorkspaceViews::iterator;
 
-    static ui::WidgetType Type();
+  static ui::WidgetType Type();
 
-    Workspace();
-    ~Workspace();
+  Workspace();
+  ~Workspace();
 
-    void setTabsBar(WorkspaceTabs* tabs);
+  void setTabsBar(WorkspaceTabs* tabs);
 
-    iterator begin() { return m_views.begin(); }
-    iterator end() { return m_views.end(); }
+  iterator begin() { return m_views.begin(); }
+  iterator end() { return m_views.end(); }
 
-    void addView(WorkspaceView* view, int pos = -1);
-    void addViewToPanel(WorkspacePanel* panel, WorkspaceView* view, bool from_drop, int pos);
-    void removeView(WorkspaceView* view);
+  void addView(WorkspaceView* view, int pos = -1);
+  void addViewToPanel(WorkspacePanel* panel, WorkspaceView* view,
+                      bool from_drop, int pos);
+  void removeView(WorkspaceView* view);
 
-    // Closes the given view. Returns false if the user cancels the
-    // operation.
-    bool closeView(WorkspaceView* view, bool quitting);
+  // Closes the given view. Returns false if the user cancels the
+  // operation.
+  bool closeView(WorkspaceView* view, bool quitting);
 
-    WorkspaceView* activeView();
-    void setActiveView(WorkspaceView* view);
-    void setMainPanelAsActive();
-    bool canSelectOtherTab() const;
-    void selectNextTab();
-    void selectPreviousTab();
-    void duplicateActiveView();
+  WorkspaceView* activeView();
+  void setActiveView(WorkspaceView* view);
+  void setMainPanelAsActive();
+  bool canSelectOtherTab() const;
+  void selectNextTab();
+  void selectPreviousTab();
+  void duplicateActiveView();
 
-    void updateTabs();
+  void updateTabs();
 
-    // Set the preview of what could happen if we drop the given
-    // "view" at the "pos"?
-    DropViewPreviewResult setDropViewPreview(const gfx::Point& pos,
-      WorkspaceView* view, WorkspaceTabs* tabs);
-    void removeDropViewPreview();
+  // Set the preview of what could happen if we drop the given
+  // "view" at the "pos"?
+  DropViewPreviewResult setDropViewPreview(const gfx::Point& pos,
+                                           WorkspaceView* view,
+                                           WorkspaceTabs* tabs);
+  void removeDropViewPreview();
 
-    // Returns true if the view was docked inside the workspace.
-    DropViewAtResult dropViewAt(const gfx::Point& pos, WorkspaceView* view, bool clone);
+  // Returns true if the view was docked inside the workspace.
+  DropViewAtResult dropViewAt(const gfx::Point& pos, WorkspaceView* view,
+                              bool clone);
 
-    // InputChainElement impl
-    void onNewInputPriority(InputChainElement* element) override;
-    bool onCanCut(Context* ctx) override;
-    bool onCanCopy(Context* ctx) override;
-    bool onCanPaste(Context* ctx) override;
-    bool onCanClear(Context* ctx) override;
-    bool onCut(Context* ctx) override;
-    bool onCopy(Context* ctx) override;
-    bool onPaste(Context* ctx) override;
-    bool onClear(Context* ctx) override;
-    void onCancel(Context* ctx) override;
+  // InputChainElement impl
+  void onNewInputPriority(InputChainElement* element) override;
+  bool onCanCut(Context* ctx) override;
+  bool onCanCopy(Context* ctx) override;
+  bool onCanPaste(Context* ctx) override;
+  bool onCanClear(Context* ctx) override;
+  bool onCut(Context* ctx) override;
+  bool onCopy(Context* ctx) override;
+  bool onPaste(Context* ctx) override;
+  bool onClear(Context* ctx) override;
+  void onCancel(Context* ctx) override;
 
-    base::Signal0<void> ActiveViewChanged;
+  base::Signal0<void> ActiveViewChanged;
 
-  protected:
-    void onPaint(ui::PaintEvent& ev) override;
-    void onResize(ui::ResizeEvent& ev) override;
+protected:
+  void onPaint(ui::PaintEvent& ev) override;
+  void onResize(ui::ResizeEvent& ev) override;
 
-  private:
-    WorkspacePanel* getViewPanel(WorkspaceView* view);
-    WorkspacePanel* getPanelAt(const gfx::Point& pos);
-    WorkspaceTabs* getTabsAt(const gfx::Point& pos);
+private:
+  WorkspacePanel* getViewPanel(WorkspaceView* view);
+  WorkspacePanel* getPanelAt(const gfx::Point& pos);
+  WorkspaceTabs* getTabsAt(const gfx::Point& pos);
 
-    WorkspacePanel m_mainPanel;
-    WorkspaceTabs* m_tabs;
-    WorkspaceViews m_views;
-    WorkspacePanel* m_activePanel;
-    WorkspacePanel* m_dropPreviewPanel;
-    WorkspaceTabs* m_dropPreviewTabs;
-  };
+  WorkspacePanel m_mainPanel;
+  WorkspaceTabs* m_tabs;
+  WorkspaceViews m_views;
+  WorkspacePanel* m_activePanel;
+  WorkspacePanel* m_dropPreviewPanel;
+  WorkspaceTabs* m_dropPreviewTabs;
+};
 
 } // namespace app

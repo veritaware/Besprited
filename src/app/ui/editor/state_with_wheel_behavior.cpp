@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,17 +22,21 @@
 #include "ui/message.h"
 #include "ui/theme.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-enum WHEEL_ACTION { WHEEL_NONE,
-                    WHEEL_ZOOM,
-                    WHEEL_VSCROLL,
-                    WHEEL_HSCROLL,
-                    WHEEL_FG,
-                    WHEEL_BG,
-                    WHEEL_FRAME };
+enum WHEEL_ACTION
+{
+  WHEEL_NONE,
+  WHEEL_ZOOM,
+  WHEEL_VSCROLL,
+  WHEEL_HSCROLL,
+  WHEEL_FG,
+  WHEEL_BG,
+  WHEEL_FRAME
+};
 
 bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
 {
@@ -42,7 +46,8 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
   bool scrollBigSteps = false;
 
   // Alt+mouse wheel changes the fg/bg colors
-  if (msg->altPressed()) {
+  if (msg->altPressed())
+  {
     if (msg->shiftPressed())
       wheelAction = WHEEL_BG;
     else
@@ -51,7 +56,9 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
   // Normal behavior: mouse wheel zooms If the message is from a
   // precise wheel i.e. a trackpad/touch-like device, we scroll by
   // default.
-  else if (Preferences::instance().editor.zoomWithWheel() && !msg->preciseWheel()) {
+  else if (Preferences::instance().editor.zoomWithWheel() &&
+           !msg->preciseWheel())
+  {
     if (msg->ctrlPressed())
       wheelAction = WHEEL_FRAME;
     else if (delta.x != 0 || msg->shiftPressed())
@@ -60,20 +67,25 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
       wheelAction = WHEEL_ZOOM;
   }
   // Zoom sliding two fingers
-  else if (Preferences::instance().editor.zoomWithSlide() && msg->preciseWheel()) {
+  else if (Preferences::instance().editor.zoomWithSlide() &&
+           msg->preciseWheel())
+  {
     if (msg->ctrlPressed())
       wheelAction = WHEEL_FRAME;
-    else if (std::abs(delta.x) > std::abs(delta.y)) {
+    else if (std::abs(delta.x) > std::abs(delta.y))
+    {
       delta.y = 0;
       dz = delta.x;
       wheelAction = WHEEL_HSCROLL;
     }
-    else if (msg->shiftPressed()) {
+    else if (msg->shiftPressed())
+    {
       delta.x = 0;
       dz = delta.y;
       wheelAction = WHEEL_VSCROLL;
     }
-    else {
+    else
+    {
       delta.x = 0;
       dz = delta.y;
       wheelAction = WHEEL_ZOOM;
@@ -81,7 +93,8 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
   }
   // For laptops, it's convenient to that Ctrl+wheel zoom (because
   // it's the "pinch" gesture).
-  else {
+  else
+  {
     if (msg->ctrlPressed())
       wheelAction = WHEEL_ZOOM;
     else if (delta.x != 0 || msg->shiftPressed())
@@ -90,114 +103,124 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
       wheelAction = WHEEL_VSCROLL;
   }
 
-  switch (wheelAction) {
+  switch (wheelAction)
+  {
 
-    case WHEEL_NONE:
-      // Do nothing
-      break;
+  case WHEEL_NONE:
+    // Do nothing
+    break;
 
-    case WHEEL_FG:
-      {
-        int lastIndex = get_current_palette()->size()-1;
-        int newIndex = ColorBar::instance()->getFgColor().getIndex() + int(dz);
-        newIndex = MID(0, newIndex, lastIndex);
-        ColorBar::instance()->setFgColor(app::Color::fromIndex(newIndex));
-      }
-      break;
+  case WHEEL_FG:
+  {
+    int lastIndex = get_current_palette()->size() - 1;
+    int newIndex = ColorBar::instance()->getFgColor().getIndex() + int(dz);
+    newIndex = MID(0, newIndex, lastIndex);
+    ColorBar::instance()->setFgColor(app::Color::fromIndex(newIndex));
+  }
+  break;
 
-    case WHEEL_BG:
-      {
-        int lastIndex = get_current_palette()->size()-1;
-        int newIndex = ColorBar::instance()->getBgColor().getIndex() + int(dz);
-        newIndex = MID(0, newIndex, lastIndex);
-        ColorBar::instance()->setBgColor(app::Color::fromIndex(newIndex));
-      }
-      break;
+  case WHEEL_BG:
+  {
+    int lastIndex = get_current_palette()->size() - 1;
+    int newIndex = ColorBar::instance()->getBgColor().getIndex() + int(dz);
+    newIndex = MID(0, newIndex, lastIndex);
+    ColorBar::instance()->setBgColor(app::Color::fromIndex(newIndex));
+  }
+  break;
 
-    case WHEEL_FRAME:
-      {
-        Command* command = CommandsModule::instance()->getCommandByName
-          ((dz < 0.0) ? CommandId::GotoNextFrame:
-                        CommandId::GotoPreviousFrame);
-        if (command)
-          UIContext::instance()->executeCommand(command);
-      }
-      break;
+  case WHEEL_FRAME:
+  {
+    Command* command = CommandsModule::instance()->getCommandByName(
+        (dz < 0.0) ? CommandId::GotoNextFrame : CommandId::GotoPreviousFrame);
+    if (command)
+      UIContext::instance()->executeCommand(command);
+  }
+  break;
 
-    case WHEEL_ZOOM: {
-      render::Zoom zoom = editor->zoom();
+  case WHEEL_ZOOM:
+  {
+    render::Zoom zoom = editor->zoom();
 
-      if (msg->preciseWheel()) {
-        dz /= 1.5;
-        if (dz < -1.0) dz = -1.0;
-        else if (dz > 1.0) dz = 1.0;
-      }
-
-      zoom = render::Zoom::fromLinearScale(zoom.linearScale() - int(dz));
-
-      setZoom(editor, zoom, msg->position());
-      break;
+    if (msg->preciseWheel())
+    {
+      dz /= 1.5;
+      if (dz < -1.0)
+        dz = -1.0;
+      else if (dz > 1.0)
+        dz = 1.0;
     }
 
-    case WHEEL_HSCROLL:
-    case WHEEL_VSCROLL: {
-      View* view = View::getView(editor);
-      gfx::Point scroll = view->viewScroll();
+    zoom = render::Zoom::fromLinearScale(zoom.linearScale() - int(dz));
 
-      if (!msg->preciseWheel()) {
-        gfx::Rect vp = view->viewportBounds();
+    setZoom(editor, zoom, msg->position());
+    break;
+  }
 
-        if (wheelAction == WHEEL_HSCROLL) {
-          delta.x = int(dz * vp.w);
-        }
-        else {
-          delta.y = int(dz * vp.h);
-        }
+  case WHEEL_HSCROLL:
+  case WHEEL_VSCROLL:
+  {
+    View* view = View::getView(editor);
+    gfx::Point scroll = view->viewScroll();
 
-        if (scrollBigSteps) {
-          delta /= 2;
-        }
-        else {
-          delta /= 10;
-        }
+    if (!msg->preciseWheel())
+    {
+      gfx::Rect vp = view->viewportBounds();
+
+      if (wheelAction == WHEEL_HSCROLL)
+      {
+        delta.x = int(dz * vp.w);
+      }
+      else
+      {
+        delta.y = int(dz * vp.h);
       }
 
-      if (Preferences::instance().editor.invertHorizontalScroll()) {
-        delta.x = -delta.x;
+      if (scrollBigSteps)
+      {
+        delta /= 2;
       }
-      if (Preferences::instance().editor.invertVerticalScroll()) {
-        delta.y = -delta.y;
+      else
+      {
+        delta /= 10;
       }
-
-      editor->setEditorScroll(scroll+delta);
-      break;
     }
 
+    if (Preferences::instance().editor.invertHorizontalScroll())
+    {
+      delta.x = -delta.x;
+    }
+    if (Preferences::instance().editor.invertVerticalScroll())
+    {
+      delta.y = -delta.y;
+    }
+
+    editor->setEditorScroll(scroll + delta);
+    break;
+  }
   }
 
   return true;
 }
 
-bool StateWithWheelBehavior::onTouchMagnify(Editor* editor, ui::TouchMessage* msg)
+bool StateWithWheelBehavior::onTouchMagnify(Editor* editor,
+                                            ui::TouchMessage* msg)
 {
   render::Zoom zoom = editor->zoom();
-  zoom = render::Zoom::fromScale(
-    zoom.internalScale() + zoom.internalScale() * msg->magnification());
+  zoom = render::Zoom::fromScale(zoom.internalScale() +
+                                 zoom.internalScale() * msg->magnification());
 
   setZoom(editor, zoom, msg->position());
   return true;
 }
 
-void StateWithWheelBehavior::setZoom(Editor* editor,
-                                     const render::Zoom& zoom,
+void StateWithWheelBehavior::setZoom(Editor* editor, const render::Zoom& zoom,
                                      const gfx::Point& mousePos)
 {
   bool center = Preferences::instance().editor.zoomFromCenterWithWheel();
 
   editor->setZoomAndCenterInMouse(
-    zoom, mousePos,
-    (center ? Editor::ZoomBehavior::CENTER:
-              Editor::ZoomBehavior::MOUSE));
+      zoom, mousePos,
+      (center ? Editor::ZoomBehavior::CENTER : Editor::ZoomBehavior::MOUSE));
 }
 
 } // namespace app

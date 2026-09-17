@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2023-2026 LibreSprite contributors
+// LibreSprite | Copyright (C) 2023-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,13 +20,20 @@
 #include "ui/widget.h"
 #include "ui/window.h"
 
-namespace ui {
-class Dialog : public ui::Window {
+namespace ui
+{
+class Dialog : public ui::Window
+{
 public:
-  Dialog() : ui::Window(ui::Window::WithTitleBar, "Script") {}
+  Dialog()
+    : ui::Window(ui::Window::WithTitleBar, "Script")
+  {
+  }
 
-  ~Dialog() {
-    if (m_grid) {
+  ~Dialog()
+  {
+    if (m_grid)
+    {
       // Detach the grid from the dialog so ~Widget (below) doesn't also try
       // to delete it (it's owned by the m_grid shared_ptr). Do NOT call
       // removeAllChildren() here: the grid still owns its child widgets (the
@@ -41,28 +48,32 @@ public:
     }
   }
 
-  void add(Widget* ui) {
+  void add(Widget* ui)
+  {
     if (!ui)
-        return;
+      return;
 
-    if(m_isInline && !m_children.empty()) m_children.back().push_back(ui);
-    else m_children.push_back({ui});
+    if (m_isInline && !m_children.empty())
+      m_children.back().push_back(ui);
+    else
+      m_children.push_back({ui});
 
     m_isInline = true;
   }
 
-  void addBreak() {
-      m_isInline = false;
-  }
+  void addBreak() { m_isInline = false; }
 
-  void build(){
+  void build()
+  {
     if (m_grid)
       return;
 
-    // LibreSprite has closed the window, remove corresponding ScriptObject (this)
-    Close.connect([this](ui::CloseEvent&){closeWindow(true, false);});
+    // LibreSprite has closed the window, remove corresponding ScriptObject
+    // (this)
+    Close.connect([this](ui::CloseEvent&) { closeWindow(true, false); });
 
-    if (m_grid) {
+    if (m_grid)
+    {
       m_grid->removeAllChildren();
       removeChild(m_grid.get());
       m_grid.reset();
@@ -75,10 +86,12 @@ public:
     m_grid = std::make_shared<ui::Grid>(maxColumns, false);
     addChild(m_grid.get());
 
-    for (auto& row : m_children) {
+    for (auto& row : m_children)
+    {
       auto size = row.size();
       auto span = 1 + (maxColumns - row.size());
-      for (size_t i = 0; i < size; ++i) {
+      for (size_t i = 0; i < size; ++i)
+      {
         m_grid->addChildInCell(row[i], span, 1, ui::HORIZONTAL | ui::VERTICAL);
         span = 1;
       }
@@ -89,21 +102,25 @@ public:
     openWindow();
   }
 
-    void onWindowResize() override {
-      script::Value event;
-      event.push_back(id() + "_resize");
-      event.push_back((double)size().w);
-      event.push_back((double)size().h);
-      app::AppScripting::raiseEvent(m_scriptFileName, event);
-    }
+  void onWindowResize() override
+  {
+    script::Value event;
+    event.push_back(id() + "_resize");
+    event.push_back((double)size().w);
+    event.push_back((double)size().h);
+    app::AppScripting::raiseEvent(m_scriptFileName, event);
+  }
 
-  void closeWindow(bool raiseEvent, bool notifyManager){
-    if (raiseEvent) {
+  void closeWindow(bool raiseEvent, bool notifyManager)
+  {
+    if (raiseEvent)
+    {
       script::Value event;
       event.push_back(id() + "_close");
       app::AppScripting::raiseEvent(m_scriptFileName, event);
     }
-    if (notifyManager) {
+    if (notifyManager)
+    {
       manager()->_closeWindow(this, true);
     }
   }
@@ -115,4 +132,4 @@ private:
   std::shared_ptr<ui::Grid> m_grid;
   std::unordered_map<std::string, ui::Widget*> m_namedWidgets;
 };
-}
+} // namespace ui

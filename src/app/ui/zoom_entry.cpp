@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -25,13 +25,14 @@
 #include <cstdio>
 #include <cstdlib>
 
-namespace app {
+namespace app
+{
 
 using namespace gfx;
 using namespace ui;
 
 ZoomEntry::ZoomEntry()
-  : IntEntry(0, render::Zoom::linearValues()-1, this)
+  : IntEntry(0, render::Zoom::linearValues() - 1, this)
 {
   setSuffix("%");
   setup_mini_look(this);

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,14 +7,20 @@
 
 #pragma once
 
-namespace app {
+namespace app
+{
 
-class ContextBarObserver {
+class ContextBarObserver
+{
 public:
-  enum DropAction { DropPixels, CancelDrag };
+  enum DropAction
+  {
+    DropPixels,
+    CancelDrag
+  };
 
-  virtual ~ContextBarObserver() { }
-  virtual void onDropPixels(DropAction action) { }
+  virtual ~ContextBarObserver() {}
+  virtual void onDropPixels(DropAction action) {}
 };
 
 } // namespace app

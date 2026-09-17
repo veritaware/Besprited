@@ -1,5 +1,6 @@
-// Aseprite    - Copyright (C) 2001-2016  David Capello
-// LibreSprite - Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -35,7 +36,8 @@
 #include "doc/site.h"
 #include "ui/system.h"
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
@@ -49,28 +51,25 @@ BrushPreview::BrushPreview(Editor* editor)
 {
 }
 
-BrushPreview::~BrushPreview()
-{
-}
+BrushPreview::~BrushPreview() = default;
 
 BrushRef BrushPreview::getCurrentBrush()
 {
-  return App::instance()
-    ->contextBar()
-    ->activeBrush(m_editor->getCurrentEditorTool());
+  return App::instance()->contextBar()->activeBrush(
+      m_editor->getCurrentEditorTool());
 }
 
 // static
 color_t BrushPreview::getBrushColor(Sprite* sprite, Layer* layer)
 {
   app::Color c = Preferences::instance().colorBar.fgColor();
-  ASSERT(sprite != NULL);
+  ASSERT(sprite != nullptr);
 
   // Avoid using invalid colors
   if (!c.isValid())
     return 0;
 
-  if (layer != NULL)
+  if (layer != nullptr)
     return color_utils::color_for_layer(c, layer);
   else
     return color_utils::color_for_image(c, sprite->pixelFormat());
@@ -100,7 +99,8 @@ void BrushPreview::show(const gfx::Point& screenPos)
   const auto& pref = Preferences::instance();
   app::Color app_cursor_color = pref.editor.cursorColor();
   gfx::Color ui_cursor_color = color_utils::color_for_ui(app_cursor_color);
-  m_blackAndWhiteNegative = (app_cursor_color.getType() == app::Color::MaskType);
+  m_blackAndWhiteNegative =
+      (app_cursor_color.getType() == app::Color::MaskType);
 
   // Cursor in the screen (view)
   m_screenPosition = screenPos;
@@ -111,7 +111,8 @@ void BrushPreview::show(const gfx::Point& screenPos)
   // Get the current tool
   tools::Ink* ink = m_editor->getCurrentEditorInk().get();
 
-  bool isFloodfill = m_editor->getCurrentEditorTool()->getPointShape(0)->isFloodFill();
+  bool isFloodfill =
+      m_editor->getCurrentEditorTool()->getPointShape(0)->isFloodFill();
 
   // Setup the cursor type depending on several factors (current tool,
   // foreground color, layer transparency, brush size, etc.).
@@ -119,43 +120,51 @@ void BrushPreview::show(const gfx::Point& screenPos)
   color_t brush_color = getBrushColor(sprite, layer);
   color_t mask_index = sprite->transparentColor();
 
-  if (ink->isSelection() || ink->isSlice()) {
+  if (ink->isSelection() || ink->isSlice())
+  {
     m_type = SELECTION_CROSS;
   }
-  else if (
-    (brush->type() == kImageBrushType ||
-     brush->size() > 1.0 / m_editor->zoom().scale()) &&
-    (// Use cursor bounds for inks that are effects (eraser, blur, etc.)
-     (ink->isEffect()) ||
-     // or when the brush color is transparent and we are not in the background layer
-     (!ink->isShading() &&
-      (layer && !layer->isBackground()) &&
-      ((sprite->pixelFormat() == IMAGE_INDEXED && brush_color == mask_index) ||
-       (sprite->pixelFormat() == IMAGE_RGB && rgba_geta(brush_color) == 0) ||
-       (sprite->pixelFormat() == IMAGE_GRAYSCALE && graya_geta(brush_color) == 0))))) {
+  else if ((brush->type() == kImageBrushType ||
+            brush->size() > 1.0 / m_editor->zoom().scale()) &&
+           ( // Use cursor bounds for inks that are effects (eraser, blur, etc.)
+               (ink->isEffect()) ||
+               // or when the brush color is transparent and we are not in the
+               // background layer
+               (!ink->isShading() && (layer && !layer->isBackground()) &&
+                ((sprite->pixelFormat() == IMAGE_INDEXED &&
+                  brush_color == mask_index) ||
+                 (sprite->pixelFormat() == IMAGE_RGB &&
+                  rgba_geta(brush_color) == 0) ||
+                 (sprite->pixelFormat() == IMAGE_GRAYSCALE &&
+                  graya_geta(brush_color) == 0)))))
+  {
     m_type = BRUSH_BOUNDARIES;
   }
-  else {
+  else
+  {
     m_type = CROSS;
   }
 
   bool usePreview = false;
 
   auto brushPreview = pref.editor.brushPreview();
-  if (!m_editor->docPref().show.brushPreview() || ui::get_pen_pressure() != 0.0f) {
+  if (!m_editor->docPref().show.brushPreview() ||
+      ui::get_pen_pressure() != 0.0f)
+  {
     brushPreview = app::gen::BrushPreview::NONE;
   }
 
-  switch (brushPreview) {
-    case app::gen::BrushPreview::NONE:
-      m_type = CROSS;
-      break;
-    case app::gen::BrushPreview::EDGES:
-      m_type = BRUSH_BOUNDARIES;
-      break;
-    case app::gen::BrushPreview::FULL:
-      usePreview = m_editor->getState()->requireBrushPreview();
-      break;
+  switch (brushPreview)
+  {
+  case app::gen::BrushPreview::NONE:
+    m_type = CROSS;
+    break;
+  case app::gen::BrushPreview::EDGES:
+    m_type = BRUSH_BOUNDARIES;
+    break;
+  case app::gen::BrushPreview::FULL:
+    usePreview = m_editor->getState()->requireBrushPreview();
+    break;
   }
 
   // For cursor type 'bounds' we have to generate cursor boundaries
@@ -163,8 +172,10 @@ void BrushPreview::show(const gfx::Point& screenPos)
     generateBoundaries();
 
   // Draw pixel/brush preview
-  if ((m_type & CROSS) && usePreview) {
-    gfx::Rect origBrushBounds = (isFloodfill ? gfx::Rect(0, 0, 1, 1): brush->bounds());
+  if ((m_type & CROSS) && usePreview)
+  {
+    gfx::Rect origBrushBounds =
+        (isFloodfill ? gfx::Rect(0, 0, 1, 1) : brush->bounds());
     gfx::Rect brushBounds = origBrushBounds;
     brushBounds.offset(spritePos);
 
@@ -173,29 +184,31 @@ void BrushPreview::show(const gfx::Point& screenPos)
     auto cel = site.cel();
 
     int t, opacity = 255;
-    if (cel) opacity = MUL_UN8(opacity, cel->opacity(), t);
-    if (layer) opacity = MUL_UN8(opacity, static_cast<LayerImage*>(layer)->opacity(), t);
+    if (cel)
+      opacity = MUL_UN8(opacity, cel->opacity(), t);
+    if (layer)
+      opacity = MUL_UN8(opacity, static_cast<LayerImage*>(layer)->opacity(), t);
 
     if (!m_extraCel)
       m_extraCel.reset(new ExtraCel);
     m_extraCel->create(document->sprite(), brushBounds, site.frame(), opacity);
     m_extraCel->setType(render::ExtraType::NONE);
-    m_extraCel->setBlendMode(
-      (layer ? static_cast<LayerImage*>(layer)->blendMode():
-               BlendMode::NORMAL));
+    m_extraCel->setBlendMode((layer
+                                  ? static_cast<LayerImage*>(layer)->blendMode()
+                                  : BlendMode::NORMAL));
 
     document->setExtraCel(m_extraCel);
 
     Image* extraImage = m_extraCel->image();
     extraImage->setMaskColor(mask_index);
     clear_image(extraImage,
-                (extraImage->pixelFormat() == IMAGE_INDEXED ? mask_index: 0));
+                (extraImage->pixelFormat() == IMAGE_INDEXED ? mask_index : 0));
 
-    if (layer) {
-      render::Render().renderLayer(
-        extraImage, layer, site.frame(),
-        gfx::Clip(0, 0, brushBounds),
-        BlendMode::SRC);
+    if (layer)
+    {
+      render::Render().renderLayer(extraImage, layer, site.frame(),
+                                   gfx::Clip(0, 0, brushBounds),
+                                   BlendMode::SRC);
 
       // This extra cel is a patch for the current layer/frame
       m_extraCel->setType(render::ExtraType::PATCH);
@@ -203,24 +216,21 @@ void BrushPreview::show(const gfx::Point& screenPos)
 
     {
       std::unique_ptr<tools::ToolLoop> loop(
-        create_tool_loop_preview(
-          m_editor, extraImage,
-          brushBounds.origin()));
-      if (loop) {
+          create_tool_loop_preview(m_editor, extraImage, brushBounds.origin()));
+      if (loop)
+      {
         loop->getInk()->prepareInk(loop.get());
         loop->getIntertwine()->prepareIntertwine();
         loop->getPointShape()->preparePointShape(loop.get());
         loop->getPointShape()->transformPoint(
-          loop.get(),
-          brushBounds.x-origBrushBounds.x,
-          brushBounds.y-origBrushBounds.y,
-          1.0f);
+            loop.get(), brushBounds.x - origBrushBounds.x,
+            brushBounds.y - origBrushBounds.y, 1.0f);
       }
     }
 
     document->notifySpritePixelsModified(
-      sprite, gfx::Region(m_lastBounds = brushBounds),
-      m_lastFrame = site.frame());
+        sprite, gfx::Region(m_lastBounds = brushBounds),
+        m_lastFrame = site.frame());
 
     m_withRealPreview = true;
   }
@@ -230,8 +240,10 @@ void BrushPreview::show(const gfx::Point& screenPos)
     ui::ScreenGraphics g;
     ui::SetClip clip(&g, gfx::Rect(0, 0, g.width(), g.height()));
 
-    forEachBrushPixel(&g, m_screenPosition, spritePos, ui_cursor_color, &BrushPreview::savePixelDelegate);
-    forEachBrushPixel(&g, m_screenPosition, spritePos, ui_cursor_color, &BrushPreview::drawPixelDelegate);
+    forEachBrushPixel(&g, m_screenPosition, spritePos, ui_cursor_color,
+                      &BrushPreview::savePixelDelegate);
+    forEachBrushPixel(&g, m_screenPosition, spritePos, ui_cursor_color,
+                      &BrushPreview::drawPixelDelegate);
   }
 
   // Cursor in the editor (model)
@@ -273,10 +285,11 @@ void BrushPreview::hide()
   }
 
   // Clean pixel/brush preview
-  if (m_withRealPreview) {
+  if (m_withRealPreview)
+  {
     document->setExtraCel(ExtraCelRef(nullptr));
-    document->notifySpritePixelsModified(
-      sprite, gfx::Region(m_lastBounds), m_lastFrame);
+    document->notifySpritePixelsModified(sprite, gfx::Region(m_lastBounds),
+                                         m_lastFrame);
 
     m_withRealPreview = false;
   }
@@ -288,7 +301,8 @@ void BrushPreview::hide()
 
 void BrushPreview::redraw()
 {
-  if (m_onScreen) {
+  if (m_onScreen)
+  {
     gfx::Point screenPos = m_screenPosition;
     hide();
     show(screenPos);
@@ -304,50 +318,50 @@ void BrushPreview::generateBoundaries()
 {
   BrushRef brush = getCurrentBrush();
 
-  if (m_brushBoundaries &&
-      m_brushGen == brush->gen())
+  if (m_brushBoundaries && m_brushGen == brush->gen())
     return;
 
   bool isOnePixel =
-    (m_editor->getCurrentEditorTool()->getPointShape(0)->isPixel() ||
-     m_editor->getCurrentEditorTool()->getPointShape(0)->isFloodFill());
+      (m_editor->getCurrentEditorTool()->getPointShape(0)->isPixel() ||
+       m_editor->getCurrentEditorTool()->getPointShape(0)->isFloodFill());
   Image* brushImage = brush->image();
-  int w = (isOnePixel ? 1: brushImage->width());
-  int h = (isOnePixel ? 1: brushImage->height());
+  int w = (isOnePixel ? 1 : brushImage->width());
+  int h = (isOnePixel ? 1 : brushImage->height());
 
   m_brushGen = brush->gen();
   m_brushWidth = w;
   m_brushHeight = h;
 
   ImageRef mask;
-  if (isOnePixel) {
+  if (isOnePixel)
+  {
     mask.reset(Image::create(IMAGE_BITMAP, w, w));
     mask->putPixel(0, 0, (color_t)1);
   }
-  else if (brushImage->pixelFormat() != IMAGE_BITMAP) {
+  else if (brushImage->pixelFormat() != IMAGE_BITMAP)
+  {
     mask.reset(Image::create(IMAGE_BITMAP, w, h));
 
     LockImageBits<BitmapTraits> bits(mask.get());
     auto pos = bits.begin();
-    for (int v=0; v<h; ++v) {
-      for (int u=0; u<w; ++u) {
+    for (int v = 0; v < h; ++v)
+    {
+      for (int u = 0; u < w; ++u)
+      {
         *pos = get_pixel(brushImage, u, v);
         ++pos;
       }
     }
   }
 
-  m_brushBoundaries.reset(
-    new MaskBoundaries(
-      (mask ? mask.get(): brushImage)));
+  m_brushBoundaries.reset(new MaskBoundaries((mask ? mask.get() : brushImage)));
 }
 
-void BrushPreview::forEachBrushPixel(
-  ui::Graphics* g,
-  const gfx::Point& screenPos,
-  const gfx::Point& spritePos,
-  gfx::Color color,
-  PixelDelegate pixelDelegate)
+void BrushPreview::forEachBrushPixel(ui::Graphics* g,
+                                     const gfx::Point& screenPos,
+                                     const gfx::Point& spritePos,
+                                     gfx::Color color,
+                                     PixelDelegate pixelDelegate)
 {
   m_savedPixelsIterator = 0;
 
@@ -368,28 +382,25 @@ void BrushPreview::forEachBrushPixel(
   m_savedPixelsLimit = m_savedPixelsIterator;
 }
 
-void BrushPreview::traceCrossPixels(
-  ui::Graphics* g,
-  const gfx::Point& pt, gfx::Color color,
-  PixelDelegate pixelDelegate)
+void BrushPreview::traceCrossPixels(ui::Graphics* g, const gfx::Point& pt,
+                                    gfx::Color color,
+                                    PixelDelegate pixelDelegate)
 {
-  static int cross[7*7] = {
-    0, 0, 0, 1, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0,
-    1, 1, 0, 0, 0, 1, 1,
-    0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0,
-    0, 0, 0, 1, 0, 0, 0,
+  static int cross[7 * 7] = {
+      0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
+      0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
   };
   gfx::Point out;
   int u, v;
 
-  for (v=0; v<7; v++) {
-    for (u=0; u<7; u++) {
-      if (cross[v*7+u]) {
-        out.x = pt.x-3+u;
-        out.y = pt.y-3+v;
+  for (v = 0; v < 7; v++)
+  {
+    for (u = 0; u < 7; u++)
+    {
+      if (cross[v * 7 + u])
+      {
+        out.x = pt.x - 3 + u;
+        out.y = pt.y - 3 + v;
         (this->*pixelDelegate)(g, out, color);
       }
     }
@@ -399,33 +410,32 @@ void BrushPreview::traceCrossPixels(
 //////////////////////////////////////////////////////////////////////
 // Old Thick Cross
 
-void BrushPreview::traceSelectionCrossPixels(
-  ui::Graphics* g,
-  const gfx::Point& pt, gfx::Color color,
-  int thickness, PixelDelegate pixelDelegate)
+void BrushPreview::traceSelectionCrossPixels(ui::Graphics* g,
+                                             const gfx::Point& pt,
+                                             gfx::Color color, int thickness,
+                                             PixelDelegate pixelDelegate)
 {
-  static int cross[6*6] = {
-    0, 0, 1, 1, 0, 0,
-    0, 0, 1, 1, 0, 0,
-    1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1,
-    0, 0, 1, 1, 0, 0,
-    0, 0, 1, 1, 0, 0,
+  static int cross[6 * 6] = {
+      0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0,
   };
   gfx::Point out, outpt = m_editor->editorToScreen(pt);
   int u, v;
-  int size = m_editor->zoom().apply(thickness/2);
+  int size = m_editor->zoom().apply(thickness / 2);
   int size2 = m_editor->zoom().apply(thickness);
-  if (size2 == 0) size2 = 1;
+  if (size2 == 0)
+    size2 = 1;
 
-  for (v=0; v<6; v++) {
-    for (u=0; u<6; u++) {
-      if (!cross[v*6+u])
+  for (v = 0; v < 6; v++)
+  {
+    for (u = 0; u < 6; u++)
+    {
+      if (!cross[v * 6 + u])
         continue;
 
       out = outpt;
-      out.x += ((u<3) ? u-size-3: u-size-3+size2);
-      out.y += ((v<3) ? v-size-3: v-size-3+size2);
+      out.x += ((u < 3) ? u - size - 3 : u - size - 3 + size2);
+      out.y += ((v < 3) ? v - size - 3 : v - size - 3 + size2);
 
       (this->*pixelDelegate)(g, out, color);
     }
@@ -435,39 +445,46 @@ void BrushPreview::traceSelectionCrossPixels(
 //////////////////////////////////////////////////////////////////////
 // Current Brush Bounds
 
-void BrushPreview::traceBrushBoundaries(ui::Graphics* g,
-                                        gfx::Point pos,
+void BrushPreview::traceBrushBoundaries(ui::Graphics* g, gfx::Point pos,
                                         gfx::Color color,
                                         PixelDelegate pixelDelegate)
 {
-  pos.x -= m_brushWidth/2;
-  pos.y -= m_brushHeight/2;
+  pos.x -= m_brushWidth / 2;
+  pos.y -= m_brushHeight / 2;
 
-  for (const auto& seg : *m_brushBoundaries) {
+  for (const auto& seg : *m_brushBoundaries)
+  {
     gfx::Rect bounds = seg.bounds();
     bounds.offset(pos);
     bounds = m_editor->editorToScreen(bounds);
 
-    if (seg.open()) {
-      if (seg.vertical()) --bounds.x;
-      else --bounds.y;
+    if (seg.open())
+    {
+      if (seg.vertical())
+        --bounds.x;
+      else
+        --bounds.y;
     }
 
     gfx::Point pt(bounds.x, bounds.y);
-    if (seg.vertical()) {
-      for (; pt.y<bounds.y+bounds.h; ++pt.y)
+    if (seg.vertical())
+    {
+      for (; pt.y < bounds.y + bounds.h; ++pt.y)
         (this->*pixelDelegate)(g, pt, color);
     }
-    else {
-      for (; pt.x<bounds.x+bounds.w; ++pt.x)
+    else
+    {
+      for (; pt.x < bounds.x + bounds.w; ++pt.x)
         (this->*pixelDelegate)(g, pt, color);
     }
   }
 }
 
-void BrushPreview::savePixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color)
+void BrushPreview::savePixelDelegate(ui::Graphics* g, const gfx::Point& pt,
+                                     gfx::Color color)
 {
-  if (m_clippingRegion.contains(pt)) {
+  if (m_clippingRegion.contains(pt))
+  {
     color_t c = g->getPixel(pt.x, pt.y);
 
     if (m_savedPixelsIterator < (int)m_savedPixels.size())
@@ -479,28 +496,36 @@ void BrushPreview::savePixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx:
   }
 }
 
-void BrushPreview::drawPixelDelegate(ui::Graphics* gfx, const gfx::Point& pt, gfx::Color color)
+void BrushPreview::drawPixelDelegate(ui::Graphics* gfx, const gfx::Point& pt,
+                                     gfx::Color color)
 {
   if (m_savedPixelsIterator < (int)m_savedPixels.size() &&
-      m_clippingRegion.contains(pt)) {
-    if (m_blackAndWhiteNegative) {
+      m_clippingRegion.contains(pt))
+  {
+    if (m_blackAndWhiteNegative)
+    {
       int c = m_savedPixels[m_savedPixelsIterator++];
       int r = gfx::getr(c);
       int g = gfx::getg(c);
       int b = gfx::getb(c);
 
-      gfx->putPixel(color_utils::blackandwhite_neg(gfx::rgba(r, g, b)), pt.x, pt.y);
+      gfx->putPixel(color_utils::blackandwhite_neg(gfx::rgba(r, g, b)), pt.x,
+                    pt.y);
     }
-    else {
+    else
+    {
       gfx->putPixel(color, pt.x, pt.y);
     }
   }
 }
 
-void BrushPreview::clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color)
+void BrushPreview::clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt,
+                                      gfx::Color color)
 {
-  if (m_savedPixelsIterator < (int)m_savedPixels.size()) {
-    if (m_oldClippingRegion.contains(pt)) {
+  if (m_savedPixelsIterator < (int)m_savedPixels.size())
+  {
+    if (m_oldClippingRegion.contains(pt))
+    {
       if (m_clippingRegion.contains(pt))
         g->putPixel(m_savedPixels[m_savedPixelsIterator], pt.x, pt.y);
       ++m_savedPixelsIterator;
@@ -508,7 +533,8 @@ void BrushPreview::clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx
   }
 
 #if _DEBUG
-  if (!(m_savedPixelsIterator <= m_savedPixelsLimit)) {
+  if (!(m_savedPixelsIterator <= m_savedPixelsLimit))
+  {
     TRACE("m_savedPixelsIterator <= m_savedPixelsLimit: %d <= %d failed\n",
           m_savedPixelsIterator, m_savedPixelsLimit);
   }

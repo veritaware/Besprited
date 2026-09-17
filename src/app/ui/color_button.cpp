@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -28,7 +28,8 @@
 #include "ui/size_hint_event.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace ui;
@@ -45,7 +46,7 @@ ColorButton::ColorButton(const app::Color& color, PixelFormat pixelFormat)
   : ButtonBase("", colorbutton_type(), kButtonWidget, kButtonWidget)
   , m_color(color)
   , m_pixelFormat(pixelFormat)
-  , m_window(NULL)
+  , m_window(nullptr)
   , m_dependOnLayer(false)
 {
   this->setFocusStop(true);
@@ -59,7 +60,7 @@ ColorButton::~ColorButton()
 {
   UIContext::instance()->removeObserver(this);
 
-  delete m_window;       // widget, window
+  delete m_window; // widget, window
 }
 
 PixelFormat ColorButton::pixelFormat() const
@@ -100,48 +101,53 @@ app::Color ColorButton::getColorByPosition(const gfx::Point& pos)
 
 bool ColorButton::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kCloseMessage:
-      if (m_window && m_window->isVisible())
-        m_window->closeWindow(NULL);
-      break;
+  case kCloseMessage:
+    if (m_window && m_window->isVisible())
+      m_window->closeWindow(nullptr);
+    break;
 
-    case kMouseEnterMessage:
-      StatusBar::instance()->showColor(0, "", m_color);
-      break;
+  case kMouseEnterMessage:
+    StatusBar::instance()->showColor(0, "", m_color);
+    break;
 
-    case kMouseLeaveMessage:
-      StatusBar::instance()->clearText();
-      break;
+  case kMouseLeaveMessage:
+    StatusBar::instance()->clearText();
+    break;
 
-    case kMouseMoveMessage:
-      if (hasCapture()) {
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
-        Widget* picked = manager()->pick(mousePos);
-        app::Color color = m_color;
+  case kMouseMoveMessage:
+    if (hasCapture())
+    {
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+      Widget* picked = manager()->pick(mousePos);
+      app::Color color = m_color;
 
-        if (picked && picked != this) {
-          // Pick a color from a IColorSource
-          if (IColorSource* colorSource = dynamic_cast<IColorSource*>(picked)) {
-            color = colorSource->getColorByPosition(mousePos);
-          }
-        }
-
-        // Did the color change?
-        if (color != m_color) {
-          setColor(color);
+      if (picked && picked != this)
+      {
+        // Pick a color from a IColorSource
+        if (IColorSource* colorSource = dynamic_cast<IColorSource*>(picked))
+        {
+          color = colorSource->getColorByPosition(mousePos);
         }
       }
-      break;
 
-    case kSetCursorMessage:
-      if (hasCapture()) {
-        ui::set_mouse_cursor(kEyedropperCursor);
-        return true;
+      // Did the color change?
+      if (color != m_color)
+      {
+        setColor(color);
       }
-      break;
+    }
+    break;
 
+  case kSetCursorMessage:
+    if (hasCapture())
+    {
+      ui::set_mouse_cursor(kEyedropperCursor);
+      return true;
+    }
+    break;
   }
 
   return ButtonBase::onProcessMessage(msg);
@@ -151,10 +157,9 @@ void ColorButton::onSizeHint(SizeHintEvent& ev)
 {
   gfx::Rect box;
   getTextIconInfo(&box);
-  box.w = 64*guiscale();
+  box.w = 64 * guiscale();
 
-  ev.setSizeHint(box.w + border().width(),
-                 box.h + border().height());
+  ev.setSizeHint(box.w + border().width(), box.h + border().height());
 }
 
 void ColorButton::onPaint(PaintEvent& ev)
@@ -172,49 +177,50 @@ void ColorButton::onPaint(PaintEvent& ev)
 
   // When the button is pushed, show the negative
   m_dependOnLayer = false;
-  if (isSelected()) {
-    color = app::Color::fromRgb(255-m_color.getRed(),
-                                255-m_color.getGreen(),
-                                255-m_color.getBlue());
+  if (isSelected())
+  {
+    color =
+        app::Color::fromRgb(255 - m_color.getRed(), 255 - m_color.getGreen(),
+                            255 - m_color.getBlue());
   }
   // When the button is not pressed, show the real color
-  else {
+  else
+  {
     color = m_color;
 
     // Show transparent color in indexed sprites as mask color when we
     // are in a transparent layer.
-    if (color.getType() == app::Color::IndexType &&
-        current_editor &&
+    if (color.getType() == app::Color::IndexType && current_editor &&
         current_editor->sprite() &&
-        current_editor->sprite()->pixelFormat() == IMAGE_INDEXED) {
+        current_editor->sprite()->pixelFormat() == IMAGE_INDEXED)
+    {
       m_dependOnLayer = true;
 
-      if (current_editor->sprite()->transparentColor() == static_cast<color_t>(color.getIndex()) &&
-          current_editor->layer() &&
-          !current_editor->layer()->isBackground()) {
+      if (current_editor->sprite()->transparentColor() ==
+              static_cast<color_t>(color.getIndex()) &&
+          current_editor->layer() && !current_editor->layer()->isBackground())
+      {
         color = app::Color::fromMask();
       }
     }
   }
 
-  draw_color_button(g, rc,
-                    color,
-                    (doc::ColorMode)m_pixelFormat,
-                    hasMouseOver(), false);
+  draw_color_button(g, rc, color, (doc::ColorMode)m_pixelFormat, hasMouseOver(),
+                    false);
 
   // Draw text
-  std::string str = m_color.toHumanReadableString(m_pixelFormat,
-    app::Color::ShortHumanReadableString);
+  std::string str = m_color.toHumanReadableString(
+      m_pixelFormat, app::Color::ShortHumanReadableString);
 
   setTextQuiet(str.c_str());
 
   gfx::Color textcolor = gfx::rgba(255, 255, 255);
   if (color.isValid())
     textcolor = color_utils::blackandwhite_neg(
-      gfx::rgba(color.getRed(), color.getGreen(), color.getBlue()));
+        gfx::rgba(color.getRed(), color.getGreen(), color.getBlue()));
 
   gfx::Rect textrc;
-  getTextIconInfo(NULL, &textrc);
+  getTextIconInfo(nullptr, &textrc);
   g->drawUIString(text(), textcolor, gfx::ColorNone, textrc.origin());
 }
 
@@ -223,11 +229,13 @@ void ColorButton::onClick(Event& ev)
   ButtonBase::onClick(ev);
 
   // If the popup window was not created or shown yet..
-  if (m_window == NULL || !m_window->isVisible()) {
+  if (m_window == nullptr || !m_window->isVisible())
+  {
     // Open it
     openSelectorDialog();
   }
-  else if (!m_window->isMoveable()) {
+  else if (!m_window->isMoveable())
+  {
     // If it is visible, close it
     closeSelectorDialog();
   }
@@ -237,7 +245,8 @@ void ColorButton::openSelectorDialog()
 {
   int x, y;
 
-  if (m_window == NULL) {
+  if (m_window == nullptr)
+  {
     m_window = new ColorPopup();
     m_window->ColorChange.connect(&ColorButton::onWindowColorChange, this);
   }
@@ -245,11 +254,11 @@ void ColorButton::openSelectorDialog()
   m_window->setColor(m_color, ColorPopup::ChangeType);
   m_window->openWindow();
 
-  x = MID(0, bounds().x, ui::display_w()-m_window->bounds().w);
-  if (bounds().y2() <= ui::display_h()-m_window->bounds().h)
+  x = MID(0, bounds().x, ui::display_w() - m_window->bounds().w);
+  if (bounds().y2() <= ui::display_h() - m_window->bounds().h)
     y = MAX(0, bounds().y2());
   else
-    y = MAX(0, bounds().y-m_window->bounds().h);
+    y = MAX(0, bounds().y - m_window->bounds().h);
 
   m_window->positionWindow(x, y);
 
@@ -265,8 +274,8 @@ void ColorButton::openSelectorDialog()
 
 void ColorButton::closeSelectorDialog()
 {
-  if (m_window != NULL)
-    m_window->closeWindow(NULL);
+  if (m_window != nullptr)
+    m_window->closeWindow(nullptr);
 }
 
 void ColorButton::onWindowColorChange(const app::Color& color)

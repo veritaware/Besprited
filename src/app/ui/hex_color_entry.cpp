@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,14 +16,14 @@
 #include "gfx/border.h"
 #include "ui/theme.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
 static inline bool is_hex_digit(char digit)
 {
-  return ((digit >= '0' && digit <= '9') ||
-          (digit >= 'a' && digit <= 'f') ||
+  return ((digit >= '0' && digit <= '9') || (digit >= 'a' && digit <= 'f') ||
           (digit >= 'A' && digit <= 'F'));
 }
 
@@ -39,15 +39,13 @@ HexColorEntry::HexColorEntry()
 
   initTheme();
 
-  setBorder(gfx::Border(2*guiscale(), 0, 0, 0));
+  setBorder(gfx::Border(2 * guiscale(), 0, 0, 0));
   setChildSpacing(0);
 }
 
 void HexColorEntry::setColor(const app::Color& color)
 {
-  m_entry.setTextf("%02x%02x%02x",
-                   color.getRed(),
-                   color.getGreen(),
+  m_entry.setTextf("%02x%02x%02x", color.getRed(), color.getGreen(),
                    color.getBlue());
 }
 
@@ -65,7 +63,7 @@ void HexColorEntry::onEntryChange()
     text.push_back('0');
 
   // Convert text (Base 16) to integer
-  int hex = std::strtol(text.c_str(), NULL, 16);
+  int hex = std::strtol(text.c_str(), nullptr, 16);
 
   r = (hex & 0xff0000) >> 16;
   g = (hex & 0xff00) >> 8;

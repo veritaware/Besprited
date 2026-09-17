@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,17 +20,14 @@
 #include "ui/system.h"
 #include "ui/view.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-ScrollingState::ScrollingState()
-{
-}
+ScrollingState::ScrollingState() = default;
 
-ScrollingState::~ScrollingState()
-{
-}
+ScrollingState::~ScrollingState() = default;
 
 bool ScrollingState::onMouseDown(Editor* editor, MouseMessage* msg)
 {
@@ -54,7 +51,8 @@ bool ScrollingState::onMouseMove(Editor* editor, MouseMessage* msg)
   gfx::Point newPos = msg->position();
 
 #ifdef _WIN32
-  if (newPos != editor->autoScroll(msg, AutoScroll::ScrollDir)) {
+  if (newPos != editor->autoScroll(msg, AutoScroll::ScrollDir))
+  {
     m_oldPos = newPos;
     return true;
   }
@@ -67,7 +65,8 @@ bool ScrollingState::onMouseMove(Editor* editor, MouseMessage* msg)
   return true;
 }
 
-bool ScrollingState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
+bool ScrollingState::onSetCursor(Editor* editor,
+                                 const gfx::Point& mouseScreenPos)
 {
   editor->showMouseCursor(kScrollCursor);
   return true;

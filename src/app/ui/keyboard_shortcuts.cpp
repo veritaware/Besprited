@@ -28,84 +28,100 @@
 
 #define XML_KEYBOARD_FILE_VERSION "1"
 
-namespace {
+namespace
+{
 
-  static struct {
-    const char* name;
-    const char* userfriendly;
-    app::KeyAction action;
-  } actions[] = {
-    { "CopySelection"       , "Copy Selection"     , app::KeyAction::CopySelection },
-    { "SnapToGrid"          , "Snap To Grid"       , app::KeyAction::SnapToGrid },
-    { "AngleSnap"           , "Angle Snap"         , app::KeyAction::AngleSnap },
-    { "MaintainAspectRatio" , "Maintain Aspect Ratio", app::KeyAction::MaintainAspectRatio },
-    { "ScaleFromCenter"     , "Scale From Center"   , app::KeyAction::ScaleFromCenter },
-    { "LockAxis"            , "Lock Axis"          , app::KeyAction::LockAxis },
-    { "AddSelection"        , "Add Selection"      , app::KeyAction::AddSelection },
-    { "SubtractSelection"   , "Subtract Selection" , app::KeyAction::SubtractSelection },
-    { "AutoSelectLayer"     , "Auto Select Layer"  , app::KeyAction::AutoSelectLayer },
-    { "StraightLineFromLastPoint", "Straight Line from Last Point", app::KeyAction::StraightLineFromLastPoint },
-    { "MoveOrigin"          , "Move Origin"      , app::KeyAction::MoveOrigin },
-    { "SquareAspect"        , "Square Aspect"      , app::KeyAction::SquareAspect },
-    { "DrawFromCenter"      , "Draw From Center"   , app::KeyAction::DrawFromCenter },
-    { "LeftMouseButton"     , "Trigger Left Mouse Button" , app::KeyAction::LeftMouseButton },
-    { "RightMouseButton"    , "Trigger Right Mouse Button" , app::KeyAction::RightMouseButton },
-    { NULL                  , NULL                 , app::KeyAction::None }
-  };
+static struct
+{
+  const char* name;
+  const char* userfriendly;
+  app::KeyAction action;
+} actions[] = {
+    {"CopySelection", "Copy Selection", app::KeyAction::CopySelection},
+    {"SnapToGrid", "Snap To Grid", app::KeyAction::SnapToGrid},
+    {"AngleSnap", "Angle Snap", app::KeyAction::AngleSnap},
+    {"MaintainAspectRatio", "Maintain Aspect Ratio",
+     app::KeyAction::MaintainAspectRatio},
+    {"ScaleFromCenter", "Scale From Center", app::KeyAction::ScaleFromCenter},
+    {"LockAxis", "Lock Axis", app::KeyAction::LockAxis},
+    {"AddSelection", "Add Selection", app::KeyAction::AddSelection},
+    {"SubtractSelection", "Subtract Selection",
+     app::KeyAction::SubtractSelection},
+    {"AutoSelectLayer", "Auto Select Layer", app::KeyAction::AutoSelectLayer},
+    {"StraightLineFromLastPoint", "Straight Line from Last Point",
+     app::KeyAction::StraightLineFromLastPoint},
+    {"MoveOrigin", "Move Origin", app::KeyAction::MoveOrigin},
+    {"SquareAspect", "Square Aspect", app::KeyAction::SquareAspect},
+    {"DrawFromCenter", "Draw From Center", app::KeyAction::DrawFromCenter},
+    {"LeftMouseButton", "Trigger Left Mouse Button",
+     app::KeyAction::LeftMouseButton},
+    {"RightMouseButton", "Trigger Right Mouse Button",
+     app::KeyAction::RightMouseButton},
+    {nullptr, nullptr, app::KeyAction::None}};
 
-  const char* get_shortcut(tinyxml2::XMLElement* elem)
-  {
-    const char* shortcut = NULL;
+const char* get_shortcut(tinyxml2::XMLElement* elem)
+{
+  const char* shortcut = nullptr;
 
 #ifdef _WIN32
-    if (!shortcut) shortcut = elem->Attribute("win");
+  if (!shortcut)
+    shortcut = elem->Attribute("win");
 #elif defined __APPLE__
-    if (!shortcut) shortcut = elem->Attribute("mac");
+  if (!shortcut)
+    shortcut = elem->Attribute("mac");
 #else
-    if (!shortcut) shortcut = elem->Attribute("linux");
+  if (!shortcut)
+    shortcut = elem->Attribute("linux");
 #endif
 
-    if (!shortcut)
-      shortcut = elem->Attribute("shortcut");
+  if (!shortcut)
+    shortcut = elem->Attribute("shortcut");
 
-    return shortcut;
-  }
+  return shortcut;
+}
 
-  std::string get_user_friendly_string_for_keyaction(app::KeyAction action)
+std::string get_user_friendly_string_for_keyaction(app::KeyAction action)
+{
+  for (int c = 0; actions[c].name; ++c)
   {
-    for (int c=0; actions[c].name; ++c) {
-      if (action == actions[c].action)
-        return actions[c].userfriendly;
-    }
-    return "";
+    if (action == actions[c].action)
+      return actions[c].userfriendly;
   }
+  return "";
+}
 
 } // anonymous namespace
 
-namespace base {
+namespace base
+{
 
-  template<> app::KeyAction convert_to(const std::string& from) {
-    app::KeyAction action = app::KeyAction::None;
+template <> app::KeyAction convert_to(const std::string& from)
+{
+  app::KeyAction action = app::KeyAction::None;
 
-    for (int c=0; actions[c].name; ++c) {
-      if (from == actions[c].name)
-        return actions[c].action;
-    }
-
-    return action;
+  for (int c = 0; actions[c].name; ++c)
+  {
+    if (from == actions[c].name)
+      return actions[c].action;
   }
 
-  template<> std::string convert_to(const app::KeyAction& from) {
-    for (int c=0; actions[c].name; ++c) {
-      if (from == actions[c].action)
-        return actions[c].name;
-    }
-    return "";
+  return action;
+}
+
+template <> std::string convert_to(const app::KeyAction& from)
+{
+  for (int c = 0; actions[c].name; ++c)
+  {
+    if (from == actions[c].action)
+      return actions[c].name;
   }
+  return "";
+}
 
 } // namespace base
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -135,50 +151,53 @@ Key::Key(KeyAction action)
   , m_keycontext(KeyContext::Any)
   , m_action(action)
 {
-  switch (action) {
-    case KeyAction::None:
-      m_keycontext = KeyContext::Any;
-      break;
-    case KeyAction::CopySelection:
-    case KeyAction::SnapToGrid:
-    case KeyAction::LockAxis:
-      m_keycontext = KeyContext::TranslatingSelection;
-      break;
-    case KeyAction::AngleSnap:
-      m_keycontext = KeyContext::RotatingSelection;
-      break;
-    case KeyAction::MaintainAspectRatio:
-    case KeyAction::ScaleFromCenter:
-      m_keycontext = KeyContext::ScalingSelection;
-      break;
-    case KeyAction::AddSelection:
-    case KeyAction::SubtractSelection:
-      m_keycontext = KeyContext::SelectionTool;
-      break;
-    case KeyAction::AutoSelectLayer:
-      m_keycontext = KeyContext::MoveTool;
-      break;
-    case KeyAction::StraightLineFromLastPoint:
-      m_keycontext = KeyContext::FreehandTool;
-      break;
-    case KeyAction::MoveOrigin:
-    case KeyAction::SquareAspect:
-    case KeyAction::DrawFromCenter:
-      m_keycontext = KeyContext::ShapeTool;
-      break;
-    case KeyAction::LeftMouseButton:
-      m_keycontext = KeyContext::Any;
-      break;
-    case KeyAction::RightMouseButton:
-      m_keycontext = KeyContext::Any;
-      break;
+  switch (action)
+  {
+  case KeyAction::None:
+    m_keycontext = KeyContext::Any;
+    break;
+  case KeyAction::CopySelection:
+  case KeyAction::SnapToGrid:
+  case KeyAction::LockAxis:
+    m_keycontext = KeyContext::TranslatingSelection;
+    break;
+  case KeyAction::AngleSnap:
+    m_keycontext = KeyContext::RotatingSelection;
+    break;
+  case KeyAction::MaintainAspectRatio:
+  case KeyAction::ScaleFromCenter:
+    m_keycontext = KeyContext::ScalingSelection;
+    break;
+  case KeyAction::AddSelection:
+  case KeyAction::SubtractSelection:
+    m_keycontext = KeyContext::SelectionTool;
+    break;
+  case KeyAction::AutoSelectLayer:
+    m_keycontext = KeyContext::MoveTool;
+    break;
+  case KeyAction::StraightLineFromLastPoint:
+    m_keycontext = KeyContext::FreehandTool;
+    break;
+  case KeyAction::MoveOrigin:
+  case KeyAction::SquareAspect:
+  case KeyAction::DrawFromCenter:
+    m_keycontext = KeyContext::ShapeTool;
+    break;
+  case KeyAction::LeftMouseButton:
+    m_keycontext = KeyContext::Any;
+    break;
+  case KeyAction::RightMouseButton:
+    m_keycontext = KeyContext::Any;
+    break;
   }
 }
 
 void Key::setLabel(const std::string& label, KeySource source, bool quiet)
 {
-  if (source == KeySource::UserDefined) {
-    if (label == m_label) {
+  if (source == KeySource::UserDefined)
+  {
+    if (label == m_label)
+    {
       if (hasUserLabel())
         TouchBar::removeTouch(*m_userLabel);
       m_userLabel.reset();
@@ -208,8 +227,10 @@ void Key::add(const ui::Accelerator& accel, KeySource source)
 {
   Accelerators* accels = &m_accels;
 
-  if (source == KeySource::UserDefined) {
-    if (!m_useUsers) {
+  if (source == KeySource::UserDefined)
+  {
+    if (!m_useUsers)
+    {
       m_useUsers = true;
       m_users = m_accels;
     }
@@ -217,7 +238,8 @@ void Key::add(const ui::Accelerator& accel, KeySource source)
   }
 
   // Remove the accelerator from other commands
-  if (source == KeySource::UserDefined) {
+  if (source == KeySource::UserDefined)
+  {
     KeyboardShortcuts::instance()->disableAccel(accel, m_keycontext);
     m_userRemoved.remove(accel);
   }
@@ -228,14 +250,16 @@ void Key::add(const ui::Accelerator& accel, KeySource source)
 
 bool Key::isPressed(Message* msg) const
 {
-  ASSERT(dynamic_cast<KeyMessage*>(msg) != NULL);
+  ASSERT(dynamic_cast<KeyMessage*>(msg) != nullptr);
 
-  for (const Accelerator& accel : accels()) {
+  for (const Accelerator& accel : accels())
+  {
     if (accel.isPressed(msg->modifiers(),
-          static_cast<KeyMessage*>(msg)->scancode(),
-          static_cast<KeyMessage*>(msg)->unicodeChar()) &&
+                        static_cast<KeyMessage*>(msg)->scancode(),
+                        static_cast<KeyMessage*>(msg)->unicodeChar()) &&
         (m_keycontext == KeyContext::Any ||
-         m_keycontext == KeyboardShortcuts::instance()->getCurrentKeyContext())) {
+         m_keycontext == KeyboardShortcuts::instance()->getCurrentKeyContext()))
+    {
       return true;
     }
   }
@@ -245,7 +269,8 @@ bool Key::isPressed(Message* msg) const
 
 bool Key::isPressed() const
 {
-  for (const Accelerator& accel : this->accels()) {
+  for (const Accelerator& accel : this->accels())
+  {
     if (accel.isPressed())
       return true;
   }
@@ -254,7 +279,8 @@ bool Key::isPressed() const
 
 bool Key::isLooselyPressed() const
 {
-  for (const Accelerator& accel : this->accels()) {
+  for (const Accelerator& accel : this->accels())
+  {
     if (accel.isLooselyPressed())
       return true;
   }
@@ -268,7 +294,8 @@ bool Key::hasAccel(const ui::Accelerator& accel) const
 
 void Key::disableAccel(const ui::Accelerator& accel)
 {
-  if (!m_useUsers) {
+  if (!m_useUsers)
+  {
     m_useUsers = true;
     m_users = m_accels;
   }
@@ -289,19 +316,21 @@ void Key::reset()
 
 std::string Key::triggerString() const
 {
-  switch (m_type) {
-    case KeyType::Command:
-      m_command->loadParams(m_params);
-      return m_command->friendlyName();
-    case KeyType::Tool:
-    case KeyType::Quicktool: {
-      std::string text = m_tool->getText();
-      if (m_type == KeyType::Quicktool)
-        text += " (quick)";
-      return text;
-    }
-    case KeyType::Action:
-      return get_user_friendly_string_for_keyaction(m_action);
+  switch (m_type)
+  {
+  case KeyType::Command:
+    m_command->loadParams(m_params);
+    return m_command->friendlyName();
+  case KeyType::Tool:
+  case KeyType::Quicktool:
+  {
+    std::string text = m_tool->getText();
+    if (m_type == KeyType::Quicktool)
+      text += " (quick)";
+    return text;
+  }
+  case KeyType::Action:
+    return get_user_friendly_string_for_keyaction(m_action);
   }
   return "Unknown";
 }
@@ -311,15 +340,13 @@ std::string Key::triggerString() const
 
 KeyboardShortcuts* KeyboardShortcuts::instance()
 {
-  static KeyboardShortcuts* singleton = NULL;
+  static KeyboardShortcuts* singleton = nullptr;
   if (!singleton)
     singleton = new KeyboardShortcuts();
   return singleton;
 }
 
-KeyboardShortcuts::KeyboardShortcuts()
-{
-}
+KeyboardShortcuts::KeyboardShortcuts() = default;
 
 KeyboardShortcuts::~KeyboardShortcuts()
 {
@@ -328,30 +355,36 @@ KeyboardShortcuts::~KeyboardShortcuts()
 
 void KeyboardShortcuts::clear()
 {
-  for (Key* key : m_keys) {
+  for (Key* key : m_keys)
+  {
     delete key;
   }
   m_keys.clear();
 }
 
-void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle, KeySource source) {
-  auto xmlKey = handle
-    .FirstChildElement("commands")
-    .FirstChildElement("key")
-    .ToElement();
-  while (xmlKey) {
+void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle,
+                                       KeySource source)
+{
+  auto xmlKey =
+      handle.FirstChildElement("commands").FirstChildElement("key").ToElement();
+  while (xmlKey)
+  {
     const char* command_name = xmlKey->Attribute("command");
     const char* label = xmlKey->Attribute("label");
     const char* command_key = get_shortcut(xmlKey);
     bool removed = bool_attr_is_true(xmlKey, "removed");
 
-    if (command_name) {
-      Command* command = CommandsModule::instance()->getCommandByName(command_name);
-      if (command) {
+    if (command_name)
+    {
+      Command* command =
+          CommandsModule::instance()->getCommandByName(command_name);
+      if (command)
+      {
         // Read context
         KeyContext keycontext = KeyContext::Any;
         const char* keycontextstr = xmlKey->Attribute("context");
-        if (keycontextstr) {
+        if (keycontextstr)
+        {
           if (strcmp(keycontextstr, "Selection") == 0)
             keycontext = KeyContext::SelectionTool;
           else if (strcmp(keycontextstr, "Normal") == 0)
@@ -362,7 +395,8 @@ void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle, KeySource so
         Params params;
 
         tinyxml2::XMLElement* xmlParam = xmlKey->FirstChildElement("param");
-        while (xmlParam) {
+        while (xmlParam)
+        {
           const char* param_name = xmlParam->Attribute("name");
           const char* param_value = xmlParam->Attribute("value");
 
@@ -374,22 +408,26 @@ void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle, KeySource so
 
         // add the keyboard shortcut to the command
         Key* key = this->command(command_name, params, keycontext);
-        if (key) {
+        if (key)
+        {
           if (label)
             key->setLabel(label, source, true);
-          if (command_key) {
+          if (command_key)
+          {
             Accelerator accel(command_key);
 
-            if (!removed) {
+            if (!removed)
+            {
               key->add(accel, source);
 
               // Add the shortcut to the menuitems with this command
               // (this is only visual, the
               // "CustomizedGuiManager::onProcessMessage" is the only
               // one that process keyboard shortcuts)
-              if (key->accels().size() == 1) {
+              if (key->accels().size() == 1)
+              {
                 AppMenus::instance()->applyShortcutToMenuitemsWithCommand(
-                  command, params, key);
+                    command, params, key);
               }
             }
             else
@@ -403,22 +441,27 @@ void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle, KeySource so
   }
 }
 
-void KeyboardShortcuts::importTools(tinyxml2::XMLHandle& handle, KeySource source) {
+void KeyboardShortcuts::importTools(tinyxml2::XMLHandle& handle,
+                                    KeySource source)
+{
   // Load keyboard shortcuts for tools
   // <gui><keyboard><tools><key>
-  auto xmlKey = handle
-    .FirstChildElement("tools")
-    .FirstChildElement("key").ToElement();
-  while (xmlKey) {
+  auto xmlKey =
+      handle.FirstChildElement("tools").FirstChildElement("key").ToElement();
+  while (xmlKey)
+  {
     const char* tool_id = xmlKey->Attribute("tool");
     const char* tool_key = get_shortcut(xmlKey);
     bool removed = bool_attr_is_true(xmlKey, "removed");
 
-    if (tool_id) {
+    if (tool_id)
+    {
       tools::Tool* tool = App::instance()->toolBox()->getToolById(tool_id);
-      if (tool) {
+      if (tool)
+      {
         Key* key = this->tool(tool);
-        if (key && tool_key) {
+        if (key && tool_key)
+        {
           LOG(" - Shortcut for tool `%s': <%s>\n", tool_id, tool_key);
           Accelerator accel(tool_key);
 
@@ -433,22 +476,28 @@ void KeyboardShortcuts::importTools(tinyxml2::XMLHandle& handle, KeySource sourc
   }
 }
 
-void KeyboardShortcuts::importQuickTools(tinyxml2::XMLHandle &handle, KeySource source) {
+void KeyboardShortcuts::importQuickTools(tinyxml2::XMLHandle& handle,
+                                         KeySource source)
+{
   // Load keyboard shortcuts for quicktools
   // <gui><keyboard><quicktools><key>
-  auto xmlKey = handle
-    .FirstChildElement("quicktools")
-    .FirstChildElement("key").ToElement();
-  while (xmlKey) {
+  auto xmlKey = handle.FirstChildElement("quicktools")
+                    .FirstChildElement("key")
+                    .ToElement();
+  while (xmlKey)
+  {
     const char* tool_id = xmlKey->Attribute("tool");
     const char* tool_key = get_shortcut(xmlKey);
     bool removed = bool_attr_is_true(xmlKey, "removed");
 
-    if (tool_id) {
+    if (tool_id)
+    {
       tools::Tool* tool = App::instance()->toolBox()->getToolById(tool_id);
-      if (tool) {
+      if (tool)
+      {
         Key* key = this->quicktool(tool);
-        if (key && tool_key) {
+        if (key && tool_key)
+        {
           LOG(" - Shortcut for quicktool `%s': <%s>\n", tool_id, tool_key);
           Accelerator accel(tool_key);
 
@@ -463,22 +512,27 @@ void KeyboardShortcuts::importQuickTools(tinyxml2::XMLHandle &handle, KeySource 
   }
 }
 
-void KeyboardShortcuts::importActions(tinyxml2::XMLHandle& handle, KeySource source) {
+void KeyboardShortcuts::importActions(tinyxml2::XMLHandle& handle,
+                                      KeySource source)
+{
   // Load special keyboard shortcuts for sprite editor customization
   // <gui><keyboard><spriteeditor>
-  auto xmlKey = handle
-    .FirstChildElement("actions")
-    .FirstChildElement("key").ToElement();
-  while (xmlKey) {
+  auto xmlKey =
+      handle.FirstChildElement("actions").FirstChildElement("key").ToElement();
+  while (xmlKey)
+  {
     const char* tool_action = xmlKey->Attribute("action");
     const char* tool_key = get_shortcut(xmlKey);
     bool removed = bool_attr_is_true(xmlKey, "removed");
 
-    if (tool_action) {
+    if (tool_action)
+    {
       KeyAction action = base::convert_to<KeyAction, std::string>(tool_action);
-      if (action != KeyAction::None) {
+      if (action != KeyAction::None)
+      {
         Key* key = this->action(action);
-        if (key && tool_key) {
+        if (key && tool_key)
+        {
           LOG(" - Shortcut for action '%s': <%s>\n", tool_action, tool_key);
           Accelerator accel(tool_key);
 
@@ -493,7 +547,8 @@ void KeyboardShortcuts::importActions(tinyxml2::XMLHandle& handle, KeySource sou
   }
 }
 
-void KeyboardShortcuts::importFile(tinyxml2::XMLElement* rootElement, KeySource source)
+void KeyboardShortcuts::importFile(tinyxml2::XMLElement* rootElement,
+                                   KeySource source)
 {
   // <keyboard><commands><key>
   tinyxml2::XMLHandle handle(rootElement);
@@ -504,11 +559,13 @@ void KeyboardShortcuts::importFile(tinyxml2::XMLElement* rootElement, KeySource 
   TouchBar::organize();
 }
 
-void KeyboardShortcuts::importFile(const std::string& filename, KeySource source)
+void KeyboardShortcuts::importFile(const std::string& filename,
+                                   KeySource source)
 {
   XmlDocumentRef doc = app::open_xml(filename);
   tinyxml2::XMLHandle handle(doc.get());
-  tinyxml2::XMLElement* xmlKey = handle.FirstChildElement("keyboard").ToElement();
+  tinyxml2::XMLElement* xmlKey =
+      handle.FirstChildElement("keyboard").ToElement();
 
   importFile(xmlKey, source);
 }
@@ -552,7 +609,8 @@ void KeyboardShortcuts::exportFile(const std::string& filename)
 
 void KeyboardShortcuts::exportKeys(tinyxml2::XMLElement& parent, KeyType type)
 {
-  for (Key* key : m_keys) {
+  for (Key* key : m_keys)
+  {
     // Save only user defined accelerators.
     if (key->type() != type)
       continue;
@@ -570,78 +628,85 @@ void KeyboardShortcuts::exportKeys(tinyxml2::XMLElement& parent, KeyType type)
   }
 }
 
-void KeyboardShortcuts::exportAccel(tinyxml2::XMLElement& parent, Key* key, const ui::Accelerator* accel, bool removed, bool& first)
+void KeyboardShortcuts::exportAccel(tinyxml2::XMLElement& parent, Key* key,
+                                    const ui::Accelerator* accel, bool removed,
+                                    bool& first)
 {
   auto doc = parent.GetDocument();
   auto& elem = *doc->NewElement("key");
 
-  switch (key->type()) {
+  switch (key->type())
+  {
 
-    case KeyType::Command: {
-      const char* keycontextStr = NULL;
+  case KeyType::Command:
+  {
+    const char* keycontextStr = nullptr;
 
-      elem.SetAttribute("command", key->command()->id().c_str());
+    elem.SetAttribute("command", key->command()->id().c_str());
 
-      switch (key->keycontext()) {
-        case KeyContext::Any:
-          // Without "context" attribute
-          break;
-        case KeyContext::Normal:
-          keycontextStr = "Normal";
-          break;
-        case KeyContext::SelectionTool:
-          keycontextStr = "Selection";
-          break;
-        case KeyContext::TranslatingSelection:
-          keycontextStr = "TranslatingSelection";
-          break;
-        case KeyContext::ScalingSelection:
-          keycontextStr = "ScalingSelection";
-          break;
-        case KeyContext::RotatingSelection:
-          keycontextStr = "RotatingSelection";
-          break;
-        case KeyContext::MoveTool:
-          keycontextStr = "MoveTool";
-          break;
-        case KeyContext::FreehandTool:
-          keycontextStr = "FreehandTool";
-          break;
-        case KeyContext::ShapeTool:
-          keycontextStr = "ShapeTool";
-          break;
-      }
-
-      if (keycontextStr)
-        elem.SetAttribute("context", keycontextStr);
-
-      for (const auto& param : key->params()) {
-        if (param.second.empty())
-          continue;
-
-        auto& paramElem = *doc->NewElement("param");
-        paramElem.SetAttribute("name", param.first.c_str());
-        paramElem.SetAttribute("value", param.second.c_str());
-        elem.InsertEndChild(&paramElem);
-      }
+    switch (key->keycontext())
+    {
+    case KeyContext::Any:
+      // Without "context" attribute
+      break;
+    case KeyContext::Normal:
+      keycontextStr = "Normal";
+      break;
+    case KeyContext::SelectionTool:
+      keycontextStr = "Selection";
+      break;
+    case KeyContext::TranslatingSelection:
+      keycontextStr = "TranslatingSelection";
+      break;
+    case KeyContext::ScalingSelection:
+      keycontextStr = "ScalingSelection";
+      break;
+    case KeyContext::RotatingSelection:
+      keycontextStr = "RotatingSelection";
+      break;
+    case KeyContext::MoveTool:
+      keycontextStr = "MoveTool";
+      break;
+    case KeyContext::FreehandTool:
+      keycontextStr = "FreehandTool";
+      break;
+    case KeyContext::ShapeTool:
+      keycontextStr = "ShapeTool";
       break;
     }
 
-    case KeyType::Tool:
-    case KeyType::Quicktool:
-      elem.SetAttribute("tool", key->tool()->getId().c_str());
-      break;
+    if (keycontextStr)
+      elem.SetAttribute("context", keycontextStr);
 
-    case KeyType::Action:
-      elem.SetAttribute("action",
-        base::convert_to<std::string>(key->action()).c_str());
-      break;
+    for (const auto& param : key->params())
+    {
+      if (param.second.empty())
+        continue;
+
+      auto& paramElem = *doc->NewElement("param");
+      paramElem.SetAttribute("name", param.first.c_str());
+      paramElem.SetAttribute("value", param.second.c_str());
+      elem.InsertEndChild(&paramElem);
+    }
+    break;
+  }
+
+  case KeyType::Tool:
+  case KeyType::Quicktool:
+    elem.SetAttribute("tool", key->tool()->getId().c_str());
+    break;
+
+  case KeyType::Action:
+    elem.SetAttribute("action",
+                      base::convert_to<std::string>(key->action()).c_str());
+    break;
   }
 
   if (accel)
     elem.SetAttribute("shortcut", accel->toString().c_str());
 
-  if (first && key->hasUserLabel()) {
+  if (first && key->hasUserLabel())
+  {
     elem.SetAttribute("label", key->label().c_str());
     first = false;
   }
@@ -658,17 +723,18 @@ void KeyboardShortcuts::reset()
     key->reset();
 }
 
-Key* KeyboardShortcuts::command(const char* commandName, const Params& params, KeyContext keyContext)
+Key* KeyboardShortcuts::command(const char* commandName, const Params& params,
+                                KeyContext keyContext)
 {
   Command* command = CommandsModule::instance()->getCommandByName(commandName);
   if (!command)
-    return NULL;
+    return nullptr;
 
-  for (Key* key : m_keys) {
-    if (key->type() == KeyType::Command &&
-        key->keycontext() == keyContext &&
-        key->command() == command &&
-        key->params() == params) {
+  for (Key* key : m_keys)
+  {
+    if (key->type() == KeyType::Command && key->keycontext() == keyContext &&
+        key->command() == command && key->params() == params)
+    {
       return key;
     }
   }
@@ -680,9 +746,10 @@ Key* KeyboardShortcuts::command(const char* commandName, const Params& params, K
 
 Key* KeyboardShortcuts::tool(tools::Tool* tool)
 {
-  for (Key* key : m_keys) {
-    if (key->type() == KeyType::Tool &&
-        key->tool() == tool) {
+  for (Key* key : m_keys)
+  {
+    if (key->type() == KeyType::Tool && key->tool() == tool)
+    {
       return key;
     }
   }
@@ -694,9 +761,10 @@ Key* KeyboardShortcuts::tool(tools::Tool* tool)
 
 Key* KeyboardShortcuts::quicktool(tools::Tool* tool)
 {
-  for (Key* key : m_keys) {
-    if (key->type() == KeyType::Quicktool &&
-        key->tool() == tool) {
+  for (Key* key : m_keys)
+  {
+    if (key->type() == KeyType::Quicktool && key->tool() == tool)
+    {
       return key;
     }
   }
@@ -708,9 +776,10 @@ Key* KeyboardShortcuts::quicktool(tools::Tool* tool)
 
 Key* KeyboardShortcuts::action(KeyAction action)
 {
-  for (Key* key : m_keys) {
-    if (key->type() == KeyType::Action &&
-        key->action() == action) {
+  for (Key* key : m_keys)
+  {
+    if (key->type() == KeyType::Action && key->action() == action)
+    {
       return key;
     }
   }
@@ -720,9 +789,11 @@ Key* KeyboardShortcuts::action(KeyAction action)
   return key;
 }
 
-void KeyboardShortcuts::disableAccel(const ui::Accelerator& accel, KeyContext keyContext)
+void KeyboardShortcuts::disableAccel(const ui::Accelerator& accel,
+                                     KeyContext keyContext)
 {
-  for (Key* key : m_keys) {
+  for (Key* key : m_keys)
+  {
     if (key->keycontext() == keyContext && key->hasAccel(accel))
       key->disableAccel(accel);
   }
@@ -732,20 +803,25 @@ KeyContext KeyboardShortcuts::getCurrentKeyContext()
 {
   Document* doc = UIContext::instance()->activeDocument();
 
-  if (doc &&
-      doc->isMaskVisible() &&
+  if (doc && doc->isMaskVisible() &&
       App::instance()->activeTool()->getInk(0)->isSelection())
     return KeyContext::SelectionTool;
   else
     return KeyContext::Normal;
 }
 
-bool KeyboardShortcuts::getCommandFromKeyMessage(Message* msg, Command** command, Params* params)
+bool KeyboardShortcuts::getCommandFromKeyMessage(Message* msg,
+                                                 Command** command,
+                                                 Params* params)
 {
-  for (Key* key : m_keys) {
-    if (key->type() == KeyType::Command && key->isPressed(msg)) {
-      if (command) *command = key->command();
-      if (params) *params = key->params();
+  for (Key* key : m_keys)
+  {
+    if (key->type() == KeyType::Command && key->isPressed(msg))
+    {
+      if (command)
+        *command = key->command();
+      if (params)
+        *params = key->params();
       return true;
     }
   }
@@ -754,35 +830,39 @@ bool KeyboardShortcuts::getCommandFromKeyMessage(Message* msg, Command** command
 
 tools::Tool* KeyboardShortcuts::getCurrentQuicktool(tools::Tool* currentTool)
 {
-  if (currentTool && currentTool->getInk(0)->isSelection()) {
+  if (currentTool && currentTool->getInk(0)->isSelection())
+  {
     Key* key = action(KeyAction::CopySelection);
     if (key && key->isPressed())
-      return NULL;
+      return nullptr;
   }
 
   tools::ToolBox* toolbox = App::instance()->toolBox();
 
   // Iterate over all tools
-  for (tools::Tool* tool : *toolbox) {
+  for (tools::Tool* tool : *toolbox)
+  {
     Key* key = quicktool(tool);
 
     // Collect all tools with the pressed keyboard-shortcut
-    if (key && key->isPressed()) {
+    if (key && key->isPressed())
+    {
       return tool;
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 KeyAction KeyboardShortcuts::getCurrentActionModifiers(KeyContext context)
 {
   KeyAction flags = KeyAction::None;
 
-  for (Key* key : m_keys) {
-    if (key->type() == KeyType::Action &&
-        key->keycontext() == context &&
-        key->isLooselyPressed()) {
+  for (Key* key : m_keys)
+  {
+    if (key->type() == KeyType::Action && key->keycontext() == context &&
+        key->isLooselyPressed())
+    {
       flags = static_cast<KeyAction>(int(flags) | int(key->action()));
     }
   }

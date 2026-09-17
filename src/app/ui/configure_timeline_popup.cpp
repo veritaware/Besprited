@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -33,7 +33,8 @@
 
 #include "timeline_conf.xml.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -42,20 +43,29 @@ ConfigureTimelinePopup::ConfigureTimelinePopup()
   , m_lockUpdates(false)
 {
   setAutoRemap(false);
-  setBorder(gfx::Border(4*guiscale()));
+  setBorder(gfx::Border(4 * guiscale()));
 
   m_box = new app::gen::TimelineConf();
   addChild(m_box);
 
-  m_box->merge()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onChangeType, this));
-  m_box->tint()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onChangeType, this));
-  m_box->opacity()->Change.connect(base::Bind<void>(&ConfigureTimelinePopup::onOpacity, this));
-  m_box->opacityStep()->Change.connect(base::Bind<void>(&ConfigureTimelinePopup::onOpacityStep, this));
-  m_box->resetOnionskin()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onResetOnionskin, this));
-  m_box->loopTag()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onLoopTagChange, this));
-  m_box->currentLayer()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onCurrentLayerChange, this));
-  m_box->behind()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onPositionChange, this));
-  m_box->infront()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onPositionChange, this));
+  m_box->merge()->Click.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onChangeType, this));
+  m_box->tint()->Click.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onChangeType, this));
+  m_box->opacity()->Change.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onOpacity, this));
+  m_box->opacityStep()->Change.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onOpacityStep, this));
+  m_box->resetOnionskin()->Click.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onResetOnionskin, this));
+  m_box->loopTag()->Click.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onLoopTagChange, this));
+  m_box->currentLayer()->Click.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onCurrentLayerChange, this));
+  m_box->behind()->Click.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onPositionChange, this));
+  m_box->infront()->Click.connect(
+      base::Bind<void>(&ConfigureTimelinePopup::onPositionChange, this));
 }
 
 app::Document* ConfigureTimelinePopup::doc()
@@ -73,47 +83,51 @@ void ConfigureTimelinePopup::updateWidgetsFromCurrentSettings()
   DocumentPreferences& docPref = this->docPref();
   base::ScopedValue<bool> lockUpdates(m_lockUpdates, true, false);
 
-  switch (docPref.onionskin.type()) {
-    case app::gen::OnionskinType::MERGE:
-      m_box->merge()->setSelected(true);
-      break;
-    case app::gen::OnionskinType::RED_BLUE_TINT:
-      m_box->tint()->setSelected(true);
-      break;
+  switch (docPref.onionskin.type())
+  {
+  case app::gen::OnionskinType::MERGE:
+    m_box->merge()->setSelected(true);
+    break;
+  case app::gen::OnionskinType::RED_BLUE_TINT:
+    m_box->tint()->setSelected(true);
+    break;
   }
   m_box->opacity()->setValue(docPref.onionskin.opacityBase());
   m_box->opacityStep()->setValue(docPref.onionskin.opacityStep());
   m_box->loopTag()->setSelected(docPref.onionskin.loopTag());
   m_box->currentLayer()->setSelected(docPref.onionskin.currentLayer());
 
-  switch (docPref.onionskin.type()) {
-    case app::gen::OnionskinType::MERGE:
-      m_box->merge()->setSelected(true);
-      break;
-    case app::gen::OnionskinType::RED_BLUE_TINT:
-      m_box->tint()->setSelected(true);
-      break;
+  switch (docPref.onionskin.type())
+  {
+  case app::gen::OnionskinType::MERGE:
+    m_box->merge()->setSelected(true);
+    break;
+  case app::gen::OnionskinType::RED_BLUE_TINT:
+    m_box->tint()->setSelected(true);
+    break;
   }
 
-  switch (docPref.onionskin.position()) {
-    case render::OnionskinPosition::BEHIND:
-      m_box->behind()->setSelected(true);
-      break;
-    case render::OnionskinPosition::INFRONT:
-      m_box->infront()->setSelected(true);
-      break;
+  switch (docPref.onionskin.position())
+  {
+  case render::OnionskinPosition::BEHIND:
+    m_box->behind()->setSelected(true);
+    break;
+  case render::OnionskinPosition::INFRONT:
+    m_box->infront()->setSelected(true);
+    break;
   }
 }
 
 bool ConfigureTimelinePopup::onProcessMessage(ui::Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kOpenMessage: {
-      updateWidgetsFromCurrentSettings();
-      break;
-
-    }
+  case kOpenMessage:
+  {
+    updateWidgetsFromCurrentSettings();
+    break;
+  }
   }
   return PopupWindow::onProcessMessage(msg);
 }
@@ -123,9 +137,9 @@ void ConfigureTimelinePopup::onChangeType()
   if (m_lockUpdates)
     return;
 
-  docPref().onionskin.type(m_box->merge()->isSelected() ?
-    app::gen::OnionskinType::MERGE:
-    app::gen::OnionskinType::RED_BLUE_TINT);
+  docPref().onionskin.type(m_box->merge()->isSelected()
+                               ? app::gen::OnionskinType::MERGE
+                               : app::gen::OnionskinType::RED_BLUE_TINT);
 }
 
 void ConfigureTimelinePopup::onOpacity()
@@ -170,9 +184,9 @@ void ConfigureTimelinePopup::onCurrentLayerChange()
 
 void ConfigureTimelinePopup::onPositionChange()
 {
-  docPref().onionskin.position(m_box->behind()->isSelected() ?
-                               render::OnionskinPosition::BEHIND:
-                               render::OnionskinPosition::INFRONT);
+  docPref().onionskin.position(m_box->behind()->isSelected()
+                                   ? render::OnionskinPosition::BEHIND
+                                   : render::OnionskinPosition::INFRONT);
 }
 
 } // namespace app

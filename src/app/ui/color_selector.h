@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,28 +13,30 @@
 #include "ui/mouse_buttons.h"
 #include "ui/widget.h"
 
-namespace app {
+namespace app
+{
 
-  class ColorSelector : public ui::Widget
-                      , public IColorSource {
-  public:
-    ColorSelector();
+class ColorSelector : public ui::Widget,
+                      public IColorSource
+{
+public:
+  ColorSelector();
 
-    void selectColor(const app::Color& color);
+  void selectColor(const app::Color& color);
 
-    // Signals
-    base::Signal2<void, const app::Color&, ui::MouseButtons> ColorChange;
+  // Signals
+  base::Signal2<void, const app::Color&, ui::MouseButtons> ColorChange;
 
-  protected:
-    void onSizeHint(ui::SizeHintEvent& ev) override;
-    bool onProcessMessage(ui::Message* msg) override;
+protected:
+  void onSizeHint(ui::SizeHintEvent& ev) override;
+  bool onProcessMessage(ui::Message* msg) override;
 
-    app::Color m_color;
+  app::Color m_color;
 
-    // Internal flag used to lock the modification of m_color.
-    // E.g. When the user picks a color harmony, we don't want to
-    // change the main color.
-    bool m_lockColor;
-  };
+  // Internal flag used to lock the modification of m_color.
+  // E.g. When the user picks a color harmony, we don't want to
+  // change the main color.
+  bool m_lockColor;
+};
 
 } // namespace app

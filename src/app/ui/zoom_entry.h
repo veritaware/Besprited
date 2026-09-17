@@ -11,23 +11,25 @@
 #include "ui/int_entry.h"
 #include "ui/slider.h"
 
-namespace app {
+namespace app
+{
 
-  class ZoomEntry final : public ui::IntEntry
-                        , public ui::SliderDelegate {
-  public:
-    ZoomEntry();
+class ZoomEntry final : public ui::IntEntry,
+                        public ui::SliderDelegate
+{
+public:
+  ZoomEntry();
 
-    void setZoom(const render::Zoom& zoom);
+  void setZoom(const render::Zoom& zoom);
 
-    base::Signal1<void, const render::Zoom&> ZoomChange;
+  base::Signal1<void, const render::Zoom&> ZoomChange;
 
-  private:
-    // SliderDelegate impl
-    std::string onGetTextFromValue(int value) override;
-    int onGetValueFromText(const std::string& text) override;
+private:
+  // SliderDelegate impl
+  std::string onGetTextFromValue(int value) override;
+  int onGetValueFromText(const std::string& text) override;
 
-    void onValueChange() override;
-  };
+  void onValueChange() override;
+};
 
 } // namespace app

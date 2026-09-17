@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,30 +10,33 @@
 #include "base/signal.h"
 #include "ui/box.h"
 
-namespace ui {
-  class Button;
-  class Event;
+namespace ui
+{
+class Button;
+class Event;
 }
 
-namespace app {
+namespace app
+{
 
-  class DropDownButton : public ui::HBox {
-  public:
-    DropDownButton(const char* text);
+class DropDownButton : public ui::HBox
+{
+public:
+  DropDownButton(const char* text);
 
-    ui::Button* mainButton() { return m_button; }
-    ui::Button* dropDown() { return m_dropDown; }
+  ui::Button* mainButton() { return m_button; }
+  ui::Button* dropDown() { return m_dropDown; }
 
-    base::Signal0<void> Click;
-    base::Signal0<void> DropDownClick;
+  base::Signal0<void> Click;
+  base::Signal0<void> DropDownClick;
 
-  protected:
-    void onButtonClick(ui::Event& ev);
-    void onDropDownButtonClick(ui::Event& ev);
+protected:
+  void onButtonClick(ui::Event& ev);
+  void onDropDownButtonClick(ui::Event& ev);
 
-  private:
-    ui::Button* m_button;
-    ui::Button* m_dropDown;
-  };
+private:
+  ui::Button* m_button;
+  ui::Button* m_dropDown;
+};
 
 } // namespace app

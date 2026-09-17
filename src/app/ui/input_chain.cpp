@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,7 +15,8 @@
 
 #include <algorithm>
 
-namespace app {
+namespace app
+{
 
 void InputChain::prioritize(InputChainElement* element)
 {
@@ -34,7 +35,8 @@ void InputChain::prioritize(InputChainElement* element)
 
 bool InputChain::canCut(Context* ctx)
 {
-  for (auto e : m_elements) {
+  for (auto e : m_elements)
+  {
     if (e->onCanCut(ctx))
       return true;
   }
@@ -43,7 +45,8 @@ bool InputChain::canCut(Context* ctx)
 
 bool InputChain::canCopy(Context* ctx)
 {
-  for (auto e : m_elements) {
+  for (auto e : m_elements)
+  {
     if (e->onCanCopy(ctx))
       return true;
   }
@@ -52,7 +55,8 @@ bool InputChain::canCopy(Context* ctx)
 
 bool InputChain::canPaste(Context* ctx)
 {
-  for (auto e : m_elements) {
+  for (auto e : m_elements)
+  {
     if (e->onCanPaste(ctx))
       return true;
   }
@@ -61,7 +65,8 @@ bool InputChain::canPaste(Context* ctx)
 
 bool InputChain::canClear(Context* ctx)
 {
-  for (auto e : m_elements) {
+  for (auto e : m_elements)
+  {
     if (e->onCanClear(ctx))
       return true;
   }
@@ -70,7 +75,8 @@ bool InputChain::canClear(Context* ctx)
 
 void InputChain::cut(Context* ctx)
 {
-  for (auto e : m_elements) {
+  for (auto e : m_elements)
+  {
     if (e->onCanCut(ctx) && e->onCut(ctx))
       break;
   }
@@ -78,7 +84,8 @@ void InputChain::cut(Context* ctx)
 
 void InputChain::copy(Context* ctx)
 {
-  for (auto e : m_elements) {
+  for (auto e : m_elements)
+  {
     if (e->onCanCopy(ctx) && e->onCopy(ctx))
       break;
   }
@@ -86,7 +93,8 @@ void InputChain::copy(Context* ctx)
 
 void InputChain::paste(Context* ctx)
 {
-  for (auto e : m_elements) {
+  for (auto e : m_elements)
+  {
     if (e->onCanPaste(ctx) && e->onPaste(ctx))
       break;
   }
@@ -94,7 +102,8 @@ void InputChain::paste(Context* ctx)
 
 void InputChain::clear(Context* ctx)
 {
-  for (auto e : m_elements) {
+  for (auto e : m_elements)
+  {
     if (e->onCanClear(ctx) && e->onClear(ctx))
       break;
   }

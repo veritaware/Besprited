@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -24,7 +24,8 @@
 #include "ui/message.h"
 #include "ui/system.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -41,28 +42,29 @@ PlayState::PlayState(bool playOnce)
   // Hook BeforeCommandExecution signal so we know if the user wants
   // to execute other command, so we can stop the animation.
   m_ctxConn = UIContext::instance()->BeforeCommandExecution.connect(
-    &PlayState::onBeforeCommandExecution, this);
+      &PlayState::onBeforeCommandExecution, this);
 }
 
 void PlayState::onEnterState(Editor* editor)
 {
   StateWithWheelBehavior::onEnterState(editor);
 
-  if (!m_editor) {
+  if (!m_editor)
+  {
     m_editor = editor;
     m_refFrame = editor->frame();
   }
 
   // Go to the first frame of the animation or active frame tag
-  if (m_playOnce) {
+  if (m_playOnce)
+  {
     frame_t frame = 0;
 
-    doc::FrameTag* tag = get_animation_tag(
-      m_editor->sprite(), m_refFrame);
-    if (tag) {
-      frame = (tag->aniDir() == AniDir::REVERSE ?
-               tag->toFrame():
-               tag->fromFrame());
+    doc::FrameTag* tag = get_animation_tag(m_editor->sprite(), m_refFrame);
+    if (tag)
+    {
+      frame = (tag->aniDir() == AniDir::REVERSE ? tag->toFrame()
+                                                : tag->fromFrame());
     }
 
     m_editor->setFrame(frame);
@@ -79,9 +81,11 @@ void PlayState::onEnterState(Editor* editor)
     m_playTimer.start();
 }
 
-EditorState::LeaveAction PlayState::onLeaveState(Editor* editor, EditorState* newState)
+EditorState::LeaveAction PlayState::onLeaveState(Editor* editor,
+                                                 EditorState* newState)
 {
-  if (!m_toScroll) {
+  if (!m_toScroll)
+  {
     if (m_playOnce || Preferences::instance().general.rewindOnStop())
       m_editor->setFrame(m_refFrame);
 
@@ -102,7 +106,8 @@ bool PlayState::onMouseDown(Editor* editor, MouseMessage* msg)
   context->setActiveView(editor->getDocumentView());
 
   // A click with right-button stops the animation
-  if (msg->buttons() == kButtonRight) {
+  if (msg->buttons() == kButtonRight)
+  {
     editor->stop();
     return true;
   }
@@ -151,37 +156,41 @@ void PlayState::onPlaybackTick()
   doc::Sprite* sprite = m_editor->sprite();
   doc::FrameTag* tag = get_animation_tag(sprite, m_refFrame);
 
-  while (m_nextFrameTime <= 0) {
+  while (m_nextFrameTime <= 0)
+  {
     doc::frame_t frame = m_editor->frame();
 
-    if (m_playOnce) {
+    if (m_playOnce)
+    {
       bool atEnd = false;
-      if (tag) {
-        switch (tag->aniDir()) {
-          case AniDir::FORWARD:
-            atEnd = (frame == tag->toFrame());
-            break;
-          case AniDir::REVERSE:
-            atEnd = (frame == tag->fromFrame());
-            break;
-          case AniDir::PING_PONG:
-            atEnd = (!m_pingPongForward &&
-                     frame == tag->fromFrame());
-            break;
+      if (tag)
+      {
+        switch (tag->aniDir())
+        {
+        case AniDir::FORWARD:
+          atEnd = (frame == tag->toFrame());
+          break;
+        case AniDir::REVERSE:
+          atEnd = (frame == tag->fromFrame());
+          break;
+        case AniDir::PING_PONG:
+          atEnd = (!m_pingPongForward && frame == tag->fromFrame());
+          break;
         }
       }
-      else {
+      else
+      {
         atEnd = (frame == sprite->lastFrame());
       }
-      if (atEnd) {
+      if (atEnd)
+      {
         m_editor->stop();
         return;
       }
     }
 
-    frame = calculate_next_frame(
-      sprite, frame, frame_t(1), tag,
-      m_pingPongForward);
+    frame =
+        calculate_next_frame(sprite, frame, frame_t(1), tag, m_pingPongForward);
 
     m_editor->setFrame(frame);
     m_nextFrameTime += getNextFrameTime();
@@ -213,7 +222,8 @@ void PlayState::onBeforeCommandExecution(CommandExecutionEvent& ev)
   // (zoom, scroll, etc.)
   if (ev.command()->id() == CommandId::PlayAnimation ||
       ev.command()->id() == CommandId::Zoom ||
-      ev.command()->id() == CommandId::Scroll) {
+      ev.command()->id() == CommandId::Scroll)
+  {
     return;
   }
 
@@ -222,9 +232,9 @@ void PlayState::onBeforeCommandExecution(CommandExecutionEvent& ev)
 
 double PlayState::getNextFrameTime()
 {
-  return
-    m_editor->sprite()->frameDuration(m_editor->frame())
-    / m_editor->getAnimationSpeedMultiplier(); // The "speed multiplier" is a "duration divider"
+  return m_editor->sprite()->frameDuration(m_editor->frame()) /
+         m_editor->getAnimationSpeedMultiplier(); // The "speed multiplier" is a
+                                                  // "duration divider"
 }
 
 } // namespace app

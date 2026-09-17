@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,24 +13,26 @@
 #include "ui/entry.h"
 #include "ui/label.h"
 
-namespace app {
+namespace app
+{
 
-  // Little widget to show a color in hexadecimal format (as HTML).
-  class HexColorEntry : public ui::Box {
-  public:
-    HexColorEntry();
+// Little widget to show a color in hexadecimal format (as HTML).
+class HexColorEntry : public ui::Box
+{
+public:
+  HexColorEntry();
 
-    void setColor(const app::Color& color);
+  void setColor(const app::Color& color);
 
-    // Signals
-    base::Signal1<void, const app::Color&> ColorChange;
+  // Signals
+  base::Signal1<void, const app::Color&> ColorChange;
 
-  protected:
-    void onEntryChange();
+protected:
+  void onEntryChange();
 
-  private:
-    ui::Label m_label;
-    ui::Entry m_entry;
-  };
+private:
+  ui::Label m_label;
+  ui::Entry m_entry;
+};
 
 } // namespace app

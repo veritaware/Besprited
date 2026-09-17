@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,31 +11,33 @@
 
 #include <vector>
 
-namespace app {
+namespace app
+{
 
-  // Stack of states in the editor. The top state is the current state
-  // of the editor.
-  class EditorStatesHistory {
-  public:
-    EditorStatesHistory();
-    ~EditorStatesHistory();
+// Stack of states in the editor. The top state is the current state
+// of the editor.
+class EditorStatesHistory
+{
+public:
+  EditorStatesHistory();
+  ~EditorStatesHistory();
 
-    // Gets the current state.
-    EditorStatePtr top();
+  // Gets the current state.
+  EditorStatePtr top();
 
-    // Adds a new state in the history.
-    void push(const EditorStatePtr& state);
+  // Adds a new state in the history.
+  void push(const EditorStatePtr& state);
 
-    // Removes a state from the history (you should keep a reference of
-    // the state with top() if you want to keep it in memory).
-    void pop();
+  // Removes a state from the history (you should keep a reference of
+  // the state with top() if you want to keep it in memory).
+  void pop();
 
-    // Deletes all the history.
-    void clear();
+  // Deletes all the history.
+  void clear();
 
-  private:
-    // Stack of states (the back of the vector is the top of the stack).
-    std::vector<EditorStatePtr> m_states;
-  };
+private:
+  // Stack of states (the back of the vector is the top of the stack).
+  std::vector<EditorStatePtr> m_states;
+};
 
 } // namespace app

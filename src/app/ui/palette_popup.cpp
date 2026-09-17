@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2015  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2015 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -23,7 +24,8 @@
 
 #include "palette_popup.xml.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -32,23 +34,26 @@ PalettePopup::PalettePopup()
   , m_popup(new gen::PalettePopup())
 {
   setAutoRemap(false);
-  setBorder(gfx::Border(4*guiscale()));
+  setBorder(gfx::Border(4 * guiscale()));
 
   addChild(m_popup);
 
-  m_popup->loadPal()->Click.connect(base::Bind<void>(&PalettePopup::onLoadPal, this));
-  m_popup->openFolder()->Click.connect(base::Bind<void>(&PalettePopup::onOpenFolder, this));
+  m_popup->loadPal()->Click.connect(
+      base::Bind<void>(&PalettePopup::onLoadPal, this));
+  m_popup->openFolder()->Click.connect(
+      base::Bind<void>(&PalettePopup::onOpenFolder, this));
 
   m_popup->view()->attachToView(&m_paletteListBox);
 
-  m_paletteListBox.DoubleClickItem.connect(base::Bind<void>(&PalettePopup::onLoadPal, this));
+  m_paletteListBox.DoubleClickItem.connect(
+      base::Bind<void>(&PalettePopup::onLoadPal, this));
   m_paletteListBox.PalChange.connect(&PalettePopup::onPalChange, this);
 }
 
 void PalettePopup::showPopup(const gfx::Rect& bounds)
 {
   m_popup->loadPal()->setEnabled(false);
-  m_paletteListBox.selectChild(NULL);
+  m_paletteListBox.selectChild(nullptr);
 
   moveWindow(bounds);
 
@@ -60,9 +65,8 @@ void PalettePopup::showPopup(const gfx::Rect& bounds)
 
 void PalettePopup::onPalChange(doc::Palette* palette)
 {
-  m_popup->loadPal()->setEnabled(
-    UIContext::instance()->activeDocument() &&
-    palette != NULL);
+  m_popup->loadPal()->setEnabled(UIContext::instance()->activeDocument() &&
+                                 palette != nullptr);
 }
 
 void PalettePopup::onLoadPal()
@@ -72,7 +76,7 @@ void PalettePopup::onLoadPal()
     return;
 
   SetPaletteCommand* cmd = static_cast<SetPaletteCommand*>(
-    CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
+      CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
   cmd->setPalette(palette);
   UIContext::instance()->executeCommand(cmd);
 }
@@ -82,7 +86,7 @@ void PalettePopup::onOpenFolder()
   inject<ResourcesLoader> loader{"palette"};
   auto paths = loader->resourcesLocation();
   if (!paths.empty())
-      launcher::open_folder(paths.back());
+    launcher::open_folder(paths.back());
 }
 
 } // namespace app

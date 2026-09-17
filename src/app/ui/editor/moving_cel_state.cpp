@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -29,7 +29,8 @@
 #include "doc/sprite.h"
 #include "ui/message.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -50,11 +51,13 @@ MovingCelState::MovingCelState(Editor* editor, MouseMessage* msg)
     range = DocumentRange(currentCel.get());
 
   // Record start positions of all cels in selected range
-  for (auto cel : get_unique_cels(writer.sprite(), range)) {
+  for (auto cel : get_unique_cels(writer.sprite(), range))
+  {
     Layer* layer = cel->layer();
     ASSERT(layer);
 
-    if (layer && layer->isMovable() && !layer->isBackground()) {
+    if (layer && layer->isMovable() && !layer->isBackground())
+    {
       m_celList.push_back(cel);
       m_celStarts.push_back(cel->position());
     }
@@ -66,15 +69,14 @@ MovingCelState::MovingCelState(Editor* editor, MouseMessage* msg)
 
   // Hide the mask (temporarily, until mouse-up event)
   m_maskVisible = document->isMaskVisible();
-  if (m_maskVisible) {
+  if (m_maskVisible)
+  {
     document->setMaskVisible(false);
     document->generateMaskBoundaries();
   }
 }
 
-MovingCelState::~MovingCelState()
-{
-}
+MovingCelState::~MovingCelState() = default;
 
 bool MovingCelState::onMouseUp(Editor* editor, MouseMessage* msg)
 {
@@ -82,9 +84,11 @@ bool MovingCelState::onMouseUp(Editor* editor, MouseMessage* msg)
 
   // Here we put back the cel into its original coordinate (so we can
   // add an undoer before).
-  if (m_celOffset != gfx::Point(0, 0)) {
+  if (m_celOffset != gfx::Point(0, 0))
+  {
     // Put the cels in the original position.
-    for (size_t i=0; i<m_celList.size(); ++i) {
+    for (size_t i = 0; i < m_celList.size(); ++i)
+    {
       auto cel = m_celList[i];
       const gfx::Point& celStart = m_celStarts[i];
 
@@ -92,15 +96,16 @@ bool MovingCelState::onMouseUp(Editor* editor, MouseMessage* msg)
     }
 
     // If the user didn't cancel the operation...
-    if (!m_canceled) {
+    if (!m_canceled)
+    {
       ContextWriter writer(m_reader);
       Transaction transaction(writer.context(), "Cel Movement", ModifyDocument);
       DocumentApi api = document->getApi(transaction);
 
       // And now we move the cel (or all selected range) to the new position.
-      for (auto cel : m_celList) {
-        api.setCelPosition(writer.sprite(), cel,
-                           cel->x() + m_celOffset.x,
+      for (auto cel : m_celList)
+      {
+        api.setCelPosition(writer.sprite(), cel, cel->x() + m_celOffset.x,
                            cel->y() + m_celOffset.y);
       }
 
@@ -120,7 +125,8 @@ bool MovingCelState::onMouseUp(Editor* editor, MouseMessage* msg)
   }
 
   // Restore the mask visibility.
-  if (m_maskVisible) {
+  if (m_maskVisible)
+  {
     document->setMaskVisible(m_maskVisible);
     document->generateMaskBoundaries();
   }
@@ -136,17 +142,22 @@ bool MovingCelState::onMouseMove(Editor* editor, MouseMessage* msg)
 
   m_celOffset = newCursorPos - m_cursorStart;
 
-  if (int(editor->getCustomizationDelegate()
-          ->getPressedKeyAction(KeyContext::TranslatingSelection) & KeyAction::LockAxis)) {
-    if (ABS(m_celOffset.x) < ABS(m_celOffset.y)) {
+  if (int(editor->getCustomizationDelegate()->getPressedKeyAction(
+              KeyContext::TranslatingSelection) &
+          KeyAction::LockAxis))
+  {
+    if (ABS(m_celOffset.x) < ABS(m_celOffset.y))
+    {
       m_celOffset.x = 0;
     }
-    else {
+    else
+    {
       m_celOffset.y = 0;
     }
   }
 
-  for (size_t i=0; i<m_celList.size(); ++i) {
+  for (size_t i = 0; i < m_celList.size(); ++i)
+  {
     auto cel = m_celList[i];
     const gfx::Point& celStart = m_celStarts[i];
 
@@ -162,13 +173,9 @@ bool MovingCelState::onMouseMove(Editor* editor, MouseMessage* msg)
 
 bool MovingCelState::onUpdateStatusBar(Editor* editor)
 {
-  StatusBar::instance()->setStatusText
-    (0,
-     ":pos: %3d %3d :offset: %3d %3d",
-     (int)m_cursorStart.x,
-     (int)m_cursorStart.y,
-     (int)m_celOffset.x,
-     (int)m_celOffset.y);
+  StatusBar::instance()->setStatusText(
+      0, ":pos: %3d %3d :offset: %3d %3d", (int)m_cursorStart.x,
+      (int)m_cursorStart.y, (int)m_celOffset.x, (int)m_celOffset.y);
 
   return true;
 }

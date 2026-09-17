@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,14 +9,16 @@
 
 #include "ui/view.h"
 
-namespace app {
+namespace app
+{
 
-  class FileListView : public ui::View {
-  public:
-    FileListView() { }
+class FileListView : public ui::View
+{
+public:
+  FileListView() {}
 
-  private:
-    void onScrollRegion(ui::ScrollRegionEvent& ev);
-  };
+private:
+  void onScrollRegion(ui::ScrollRegionEvent& ev);
+};
 
 } // namespace app

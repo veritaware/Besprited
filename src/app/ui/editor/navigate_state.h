@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,16 +9,18 @@
 
 #include "app/ui/editor/state_with_wheel_behavior.h"
 
-namespace app {
+namespace app
+{
 
-  class NavigateState : public StateWithWheelBehavior {
-  public:
-    NavigateState();
-    virtual bool onMouseDown(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onKeyDown(Editor* editor, ui::KeyMessage* msg) override;
-    virtual bool onKeyUp(Editor* editor, ui::KeyMessage* msg) override;
-  };
+class NavigateState : public StateWithWheelBehavior
+{
+public:
+  NavigateState();
+  virtual bool onMouseDown(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onKeyDown(Editor* editor, ui::KeyMessage* msg) override;
+  virtual bool onKeyUp(Editor* editor, ui::KeyMessage* msg) override;
+};
 
 } // namespace app

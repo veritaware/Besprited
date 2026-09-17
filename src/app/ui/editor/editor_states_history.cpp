@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,11 +11,10 @@
 
 #include "app/ui/editor/editor_states_history.h"
 
-namespace app {
-
-EditorStatesHistory::EditorStatesHistory()
+namespace app
 {
-}
+
+EditorStatesHistory::EditorStatesHistory() = default;
 
 EditorStatesHistory::~EditorStatesHistory()
 {
@@ -24,7 +23,7 @@ EditorStatesHistory::~EditorStatesHistory()
 
 EditorStatePtr EditorStatesHistory::top()
 {
-  return !m_states.empty() ? m_states.back(): nullptr;
+  return !m_states.empty() ? m_states.back() : nullptr;
 }
 
 void EditorStatesHistory::push(const EditorStatePtr& state)

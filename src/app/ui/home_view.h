@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,52 +14,55 @@
 
 #include "home_view.xml.h"
 
-namespace ui {
-  class View;
+namespace ui
+{
+class View;
 }
 
-namespace app {
+namespace app
+{
 
-  class DataRecoveryView;
-  class RecentFilesListBox;
-  class RecentFoldersListBox;
+class DataRecoveryView;
+class RecentFilesListBox;
+class RecentFoldersListBox;
 
-  namespace crash {
-    class DataRecovery;
-  }
+namespace crash
+{
+class DataRecovery;
+}
 
-  class HomeView : public app::gen::HomeView
-                 , public TabView
-                 , public WorkspaceView
-  {
-  public:
-    HomeView();
-    ~HomeView();
+class HomeView : public app::gen::HomeView,
+                 public TabView,
+                 public WorkspaceView
+{
+public:
+  HomeView();
+  ~HomeView();
 
-    void showDataRecovery(crash::DataRecovery* dataRecovery);
+  void showDataRecovery(crash::DataRecovery* dataRecovery);
 
-    // TabView implementation
-    std::string getTabText() override;
-    TabIcon getTabIcon() override;
+  // TabView implementation
+  std::string getTabText() override;
+  TabIcon getTabIcon() override;
 
-    // WorkspaceView implementation
-    ui::Widget* getContentWidget() override { return this; }
-    bool onCloseView(Workspace* workspace, bool quitting) override;
-    void onTabPopup(Workspace* workspace) override;
-    void onWorkspaceViewSelected() override;
+  // WorkspaceView implementation
+  ui::Widget* getContentWidget() override { return this; }
+  bool onCloseView(Workspace* workspace, bool quitting) override;
+  void onTabPopup(Workspace* workspace) override;
+  void onWorkspaceViewSelected() override;
 
-  protected:
-    void onResize(ui::ResizeEvent& ev) override;
+protected:
+  void onResize(ui::ResizeEvent& ev) override;
 
-  private:
-    void onNewFile();
-    void onOpenFile();
-    void onRecoverSprites();
+private:
+  void onNewFile();
+  void onOpenFile();
+  void onRecoverSprites();
 
-    RecentFilesListBox* m_files;
-    RecentFoldersListBox* m_folders;
-    crash::DataRecovery* m_dataRecovery;
-    DataRecoveryView* m_dataRecoveryView;
-  };
+  RecentFilesListBox* m_files;
+  RecentFoldersListBox* m_folders;
+  crash::DataRecovery* m_dataRecovery;
+  DataRecoveryView* m_dataRecoveryView;
+};
 
 } // namespace app

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -34,12 +34,14 @@
 #include "gfx/size.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace doc;
 
-enum {
+enum
+{
   INDEX_MODE,
   RGB_MODE,
   HSB_MODE,
@@ -52,7 +54,7 @@ ColorPopup::ColorPopup()
   , m_vbox(VERTICAL)
   , m_topBox(HORIZONTAL)
   , m_color(app::Color::fromMask())
-  , m_colorPalette(false, PaletteView::SelectOneColor, this, 7*guiscale())
+  , m_colorPalette(false, PaletteView::SelectOneColor, this, 7 * guiscale())
   , m_colorType(5)
   , m_maskLabel("Transparent Color Selected")
   , m_disableHexUpdate(false)
@@ -87,7 +89,8 @@ ColorPopup::ColorPopup()
   m_vbox.addChild(&m_maskLabel);
   addChild(&m_vbox);
 
-  m_colorType.ItemChange.connect(base::Bind<void>(&ColorPopup::onColorTypeClick, this));
+  m_colorType.ItemChange.connect(
+      base::Bind<void>(&ColorPopup::onColorTypeClick, this));
 
   m_rgbSliders.ColorChange.connect(&ColorPopup::onColorSlidersChange, this);
   m_hsvSliders.ColorChange.connect(&ColorPopup::onColorSlidersChange, this);
@@ -95,10 +98,10 @@ ColorPopup::ColorPopup()
   m_hexColorEntry.ColorChange.connect(&ColorPopup::onColorHexEntryChange, this);
 
   selectColorType(app::Color::RgbType);
-  setSizeHint(gfx::Size(300*guiscale(), sizeHint().h));
+  setSizeHint(gfx::Size(300 * guiscale(), sizeHint().h));
 
-  m_onPaletteChangeConn =
-    App::instance()->PaletteChange.connect(&ColorPopup::onPaletteChange, this);
+  m_onPaletteChangeConn = App::instance()->PaletteChange.connect(
+      &ColorPopup::onPaletteChange, this);
 
   initTheme();
 }
@@ -112,7 +115,8 @@ void ColorPopup::setColor(const app::Color& color, SetColorOptions options)
 {
   m_color = color;
 
-  if (color.getType() == app::Color::IndexType) {
+  if (color.getType() == app::Color::IndexType)
+  {
     m_colorPalette.deselect();
     m_colorPalette.selectColor(color.getIndex());
   }
@@ -159,29 +163,25 @@ void ColorPopup::onColorTypeClick()
 {
   app::Color newColor = getColor();
 
-  switch (m_colorType.selectedItem()) {
-    case INDEX_MODE:
-      newColor = app::Color::fromIndex(newColor.getIndex());
-      break;
-    case RGB_MODE:
-      newColor = app::Color::fromRgb(newColor.getRed(),
-                                     newColor.getGreen(),
-                                     newColor.getBlue(),
-                                     newColor.getAlpha());
-      break;
-    case HSB_MODE:
-      newColor = app::Color::fromHsv(newColor.getHue(),
-                                     newColor.getSaturation(),
-                                     newColor.getValue(),
-                                     newColor.getAlpha());
-      break;
-    case GRAY_MODE:
-      newColor = app::Color::fromGray(newColor.getGray(),
-                                      newColor.getAlpha());
-      break;
-    case MASK_MODE:
-      newColor = app::Color::fromMask();
-      break;
+  switch (m_colorType.selectedItem())
+  {
+  case INDEX_MODE:
+    newColor = app::Color::fromIndex(newColor.getIndex());
+    break;
+  case RGB_MODE:
+    newColor = app::Color::fromRgb(newColor.getRed(), newColor.getGreen(),
+                                   newColor.getBlue(), newColor.getAlpha());
+    break;
+  case HSB_MODE:
+    newColor = app::Color::fromHsv(newColor.getHue(), newColor.getSaturation(),
+                                   newColor.getValue(), newColor.getAlpha());
+    break;
+  case GRAY_MODE:
+    newColor = app::Color::fromGray(newColor.getGray(), newColor.getAlpha());
+    break;
+  case MASK_MODE:
+    newColor = app::Color::fromMask();
+    break;
   }
 
   setColorWithSignal(newColor);
@@ -203,7 +203,8 @@ void ColorPopup::findBestfitIndex(const app::Color& color)
 
   // Search for the closest color to the RGB values
   int i = get_current_palette()->findBestfit(r, g, b, a, 0);
-  if (i >= 0) {
+  if (i >= 0)
+  {
     m_colorPalette.deselect();
     m_colorPalette.selectColor(i);
   }
@@ -225,12 +226,23 @@ void ColorPopup::selectColorType(app::Color::Type type)
   m_graySlider.setVisible(type == app::Color::GrayType);
   m_maskLabel.setVisible(type == app::Color::MaskType);
 
-  switch (type) {
-    case app::Color::IndexType: m_colorType.setSelectedItem(INDEX_MODE); break;
-    case app::Color::RgbType:   m_colorType.setSelectedItem(RGB_MODE); break;
-    case app::Color::HsvType:   m_colorType.setSelectedItem(HSB_MODE); break;
-    case app::Color::GrayType:  m_colorType.setSelectedItem(GRAY_MODE); break;
-    case app::Color::MaskType:  m_colorType.setSelectedItem(MASK_MODE); break;
+  switch (type)
+  {
+  case app::Color::IndexType:
+    m_colorType.setSelectedItem(INDEX_MODE);
+    break;
+  case app::Color::RgbType:
+    m_colorType.setSelectedItem(RGB_MODE);
+    break;
+  case app::Color::HsvType:
+    m_colorType.setSelectedItem(HSB_MODE);
+    break;
+  case app::Color::GrayType:
+    m_colorType.setSelectedItem(GRAY_MODE);
+    break;
+  case app::Color::MaskType:
+    m_colorType.setSelectedItem(MASK_MODE);
+    break;
   }
 
   m_vbox.layout();
