@@ -1,5 +1,6 @@
-// Aseprite Gfx Library
-// Copyright (C) 2001-2013, 2015 David Capello
+// Gfx Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,14 +19,13 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace gfx {
+namespace gfx
+{
 
 inline Rect to_rect(const pixman_box32& extends)
 {
-  return Rect(
-    extends.x1, extends.y1,
-    extends.x2 - extends.x1,
-    extends.y2 - extends.y1);
+  return {extends.x1, extends.y1, extends.x2 - extends.x1,
+          extends.y2 - extends.y1};
 }
 
 Region::Region()
@@ -54,8 +54,10 @@ Region::~Region()
 
 Region& Region::operator=(const Rect& rect)
 {
-  if (!rect.isEmpty()) {
-    pixman_box32 box = { rect.x, rect.y, rect.x2(), rect.y2() };
+  if (!rect.isEmpty())
+  {
+    const pixman_box32 box{
+        .x1 = rect.x, .y1 = rect.y, .x2 = rect.x2(), .y2 = rect.y2()};
     pixman_region32_reset(&m_region, &box);
   }
   else
@@ -72,34 +74,34 @@ Region& Region::operator=(const Region& copy)
 Region::iterator Region::begin()
 {
   iterator it;
-  it.m_ptr = pixman_region32_rectangles(&m_region, NULL);
+  it.m_ptr = pixman_region32_rectangles(&m_region, nullptr);
   return it;
 }
 
 Region::iterator Region::end()
 {
   iterator it;
-  it.m_ptr = pixman_region32_rectangles(&m_region, NULL) + size();
+  it.m_ptr = pixman_region32_rectangles(&m_region, nullptr) + size();
   return it;
 }
 
 Region::const_iterator Region::begin() const
 {
   const_iterator it;
-  it.m_ptr = pixman_region32_rectangles(&m_region, NULL);
+  it.m_ptr = pixman_region32_rectangles(&m_region, nullptr);
   return it;
 }
 
 Region::const_iterator Region::end() const
 {
   const_iterator it;
-  it.m_ptr = pixman_region32_rectangles(&m_region, NULL) + size();
+  it.m_ptr = pixman_region32_rectangles(&m_region, nullptr) + size();
   return it;
 }
 
 bool Region::isEmpty() const
 {
-  return pixman_region32_not_empty(&m_region) ? false: true;
+  return pixman_region32_not_empty(&m_region) ? false : true;
 }
 
 Rect Region::bounds() const
@@ -147,30 +149,33 @@ Region& Region::createSubtraction(const Region& a, const Region& b)
 
 bool Region::contains(const PointT<int>& pt) const
 {
-  return pixman_region32_contains_point(&m_region, pt.x, pt.y, NULL) ? true: false;
+  return pixman_region32_contains_point(&m_region, pt.x, pt.y, nullptr) ? true
+                                                                        : false;
 }
 
 Region::Overlap Region::contains(const Rect& rect) const
 {
-  static_assert(
-    int(Out)   == int(PIXMAN_REGION_OUT) &&
-    int(In)    == int(PIXMAN_REGION_IN) &&
-    int(Part)  == int(PIXMAN_REGION_PART), "Pixman constants have changed");
+  static_assert(static_cast<int>(Out) == PIXMAN_REGION_OUT &&
+                    static_cast<int>(In) == PIXMAN_REGION_IN &&
+                    static_cast<int>(Part) == PIXMAN_REGION_PART,
+                "Pixman constants have changed");
 
-  pixman_box32 box = { rect.x, rect.y, rect.x2(), rect.y2() };
-  return (Region::Overlap)pixman_region32_contains_rectangle(&m_region, &box);
+  const pixman_box32 box{
+      .x1 = rect.x, .y1 = rect.y, .x2 = rect.x2(), .y2 = rect.y2()};
+  return static_cast<Region::Overlap>(
+      pixman_region32_contains_rectangle(&m_region, &box));
 }
 
 Rect Region::operator[](int i)
 {
-  assert(i >= 0 && i < (int)size());
-  return to_rect(pixman_region32_rectangles(&m_region, NULL)[i]);
+  assert(i >= 0 && i < static_cast<int>(size()));
+  return to_rect(pixman_region32_rectangles(&m_region, nullptr)[i]);
 }
 
 const Rect Region::operator[](int i) const
 {
-  assert(i >= 0 && i < (int)size());
-  return to_rect(pixman_region32_rectangles(&m_region, NULL)[i]);
+  assert(i >= 0 && i < static_cast<int>(size()));
+  return to_rect(pixman_region32_rectangles(&m_region, nullptr)[i]);
 }
 
 } // namespace gfx
