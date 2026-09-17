@@ -21,7 +21,8 @@ TEST(RemoveLayerGuards, WouldRemoveTheLastLayerOnlyWhenExactlyOneLayerIsLeft)
 {
   EXPECT_TRUE(wouldRemoveTheLastLayer(1));
   EXPECT_FALSE(wouldRemoveTheLastLayer(2));
-  EXPECT_FALSE(wouldRemoveTheLastLayer(0)) << "0 layers isn't the 'last layer' case";
+  EXPECT_FALSE(wouldRemoveTheLastLayer(0))
+      << "0 layers isn't the 'last layer' case";
 }
 
 TEST(RemoveLayerGuards, AnyLayerHiddenIsFalseWhenEveryLayerIsVisible)

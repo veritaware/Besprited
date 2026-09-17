@@ -19,17 +19,20 @@
 
 using namespace app;
 
-namespace {
+namespace
+{
 
 // Repeatedly pumps the TaskManager and sleeps briefly until `pred()` is
 // true or `timeout` elapses. Needed for anything that runs on one of
 // TaskManager's real background worker threads (addTask()), which
 // delayed() alone doesn't need.
-template<typename Pred>
-bool waitUntil(Pred&& pred, std::chrono::milliseconds timeout = std::chrono::seconds(3))
+template <typename Pred>
+bool waitUntil(Pred&& pred,
+               std::chrono::milliseconds timeout = std::chrono::seconds(3))
 {
   auto deadline = std::chrono::steady_clock::now() + timeout;
-  do {
+  do
+  {
     TaskManager::instance().pump();
     if (pred())
       return true;
@@ -38,9 +41,11 @@ bool waitUntil(Pred&& pred, std::chrono::milliseconds timeout = std::chrono::sec
   return pred();
 }
 
-class TaskManagerTest : public ::testing::Test {
+class TaskManagerTest : public ::testing::Test
+{
 protected:
-  void TearDown() override {
+  void TearDown() override
+  {
     // Each test gets a fresh TaskManager (and fresh background threads),
     // so state from one test can't leak into the next.
     TaskManager::cleanup();
@@ -71,12 +76,14 @@ TEST_F(TaskManagerTest, DelayedCallbacksQueuedDuringAPumpWaitForTheNextOne)
 {
   std::vector<int> order;
 
-  TaskManager::instance().delayed([&] {
-    order.push_back(1);
-    // Queuing another delayed task from inside a callback must not run it
-    // within this same pump() - see the maxTasks snapshot in onTick().
-    TaskManager::instance().delayed([&] { order.push_back(2); });
-  });
+  TaskManager::instance().delayed(
+      [&]
+      {
+        order.push_back(1);
+        // Queuing another delayed task from inside a callback must not run it
+        // within this same pump() - see the maxTasks snapshot in onTick().
+        TaskManager::instance().delayed([&] { order.push_back(2); });
+      });
 
   TaskManager::instance().pump();
   ASSERT_EQ(1u, order.size());
@@ -97,21 +104,25 @@ TEST_F(TaskManagerTest, AddTaskResultsAreDeliveredInProductionOrder)
   std::atomic<int> nextValue{0};
 
   TaskManager::instance().addTask<int>(
-    [&](std::atomic_bool& isAlive) -> int {
-      int v = nextValue.fetch_add(1);
-      if (v >= 4)
-        isAlive = false;
-      return v;
-    },
-    [&](int&& v) {
-      std::lock_guard<std::mutex> guard(mutex);
-      received.push_back(v);
-    });
+      [&](std::atomic_bool& isAlive) -> int
+      {
+        int v = nextValue.fetch_add(1);
+        if (v >= 4)
+          isAlive = false;
+        return v;
+      },
+      [&](int&& v)
+      {
+        std::lock_guard<std::mutex> guard(mutex);
+        received.push_back(v);
+      });
 
-  ASSERT_TRUE(waitUntil([&] {
-    std::lock_guard<std::mutex> guard(mutex);
-    return received.size() >= 5;
-  }));
+  ASSERT_TRUE(waitUntil(
+      [&]
+      {
+        std::lock_guard<std::mutex> guard(mutex);
+        return received.size() >= 5;
+      }));
 
   std::lock_guard<std::mutex> guard(mutex);
   ASSERT_EQ(5u, received.size());
@@ -124,10 +135,8 @@ TEST_F(TaskManagerTest, TaskHandleAbortFlipsIsAliveAndStopsFurtherWork)
   std::atomic<int> invocations{0};
 
   TaskHandle handle = TaskManager::instance().addTask<int>(
-    [&](std::atomic_bool&) -> int {
-      return invocations.fetch_add(1);
-    },
-    [&](int&&) {});
+      [&](std::atomic_bool&) -> int { return invocations.fetch_add(1); },
+      [&](int&&) {});
 
   // Let it run at least once so we know the worker thread picked it up.
   ASSERT_TRUE(waitUntil([&] { return invocations.load() > 0; }));
@@ -139,7 +148,8 @@ TEST_F(TaskManagerTest, TaskHandleAbortFlipsIsAliveAndStopsFurtherWork)
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   TaskManager::instance().pump();
 
-  EXPECT_LE(invocations.load(), countAtAbort + 1); // at most one in-flight iteration finishes
+  EXPECT_LE(invocations.load(),
+            countAtAbort + 1); // at most one in-flight iteration finishes
   EXPECT_TRUE(waitUntil([&] { return handle.done(); }));
 }
 
@@ -151,12 +161,13 @@ TEST_F(TaskManagerTest, TaskMonitorAbortsOnScopeExit)
   {
     TaskMonitor monitor;
     monitor = TaskManager::instance().addTask<int>(
-      [&](std::atomic_bool& isAlive) -> int {
-        invocations.fetch_add(1);
-        aliveFlagSeen = (bool)isAlive;
-        return 0;
-      },
-      [&](int&&) {});
+        [&](std::atomic_bool& isAlive) -> int
+        {
+          invocations.fetch_add(1);
+          aliveFlagSeen = (bool)isAlive;
+          return 0;
+        },
+        [&](int&&) {});
 
     ASSERT_TRUE(waitUntil([&] { return invocations.load() > 0; }));
   } // monitor destroyed here -> aborts the task
@@ -171,26 +182,25 @@ TEST_F(TaskManagerTest, TaskMonitorAbortsOnScopeExit)
 TEST_F(TaskManagerTest, AThrowingWorkerMarksTheTaskDone)
 {
   TaskHandle handle = TaskManager::instance().addTask<int>(
-    [](std::atomic_bool&) -> int {
-      throw std::runtime_error("boom");
-    },
-    [](int&&) {});
+      [](std::atomic_bool&) -> int { throw std::runtime_error("boom"); },
+      [](int&&) {});
 
   EXPECT_TRUE(waitUntil([&] { return handle.done(); }));
 }
 
-TEST_F(TaskManagerTest, SingleShotAddTaskOverloadRunsOnceAndCallsTheAborterOnAbort)
+TEST_F(TaskManagerTest,
+       SingleShotAddTaskOverloadRunsOnceAndCallsTheAborterOnAbort)
 {
   std::atomic<int> invocations{0};
   std::atomic_bool aborterCalled{false};
 
   TaskHandle handle = TaskManager::instance().addTask<int>(
-    [&]() -> int {
-      invocations.fetch_add(1);
-      return 42;
-    },
-    [](int&&) {},
-    [&] { aborterCalled = true; });
+      [&]() -> int
+      {
+        invocations.fetch_add(1);
+        return 42;
+      },
+      [](int&&) {}, [&] { aborterCalled = true; });
 
   ASSERT_TRUE(waitUntil([&] { return handle.done(); }));
   EXPECT_EQ(1, invocations.load());
@@ -206,12 +216,13 @@ TEST_F(TaskManagerTest, CleanupJoinsThreadsAndInstanceRecreatesAFreshManager)
 {
   std::atomic<int> invocations{0};
   TaskManager::instance().addTask<int>(
-    [&](std::atomic_bool& isAlive) -> int {
-      invocations.fetch_add(1);
-      isAlive = false;
-      return 0;
-    },
-    [](int&&) {});
+      [&](std::atomic_bool& isAlive) -> int
+      {
+        invocations.fetch_add(1);
+        isAlive = false;
+        return 0;
+      },
+      [](int&&) {});
 
   ASSERT_TRUE(waitUntil([&] { return invocations.load() > 0; }));
 

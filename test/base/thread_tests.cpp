@@ -11,7 +11,9 @@
 
 using namespace base;
 
-void nothing() { }
+void nothing()
+{
+}
 
 TEST(Thread, NotJoinable)
 {
@@ -30,16 +32,19 @@ TEST(Thread, Joinable)
 
 bool flag = false;
 
-void func0() {
+void func0()
+{
   flag = true;
 }
 
-void func1(int x) {
+void func1(int x)
+{
   flag = true;
   EXPECT_EQ(2, x);
 }
 
-void func2(int x, int y) {
+void func2(int x, int y)
+{
   flag = true;
   EXPECT_EQ(2, x);
   EXPECT_EQ(4, y);

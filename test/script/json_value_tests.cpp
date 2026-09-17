@@ -134,7 +134,8 @@ TEST(JsonValue, ObjectsAndArraysAreSharedByReferenceOnCopy)
 
 TEST(JsonValue, ByteArrayRoundTrip)
 {
-  auto bytes = std::make_shared<std::vector<uint8_t>>(std::vector<uint8_t>{1, 2, 3});
+  auto bytes =
+      std::make_shared<std::vector<uint8_t>>(std::vector<uint8_t>{1, 2, 3});
   Value v{bytes};
   EXPECT_TRUE(v.isByteArray());
   EXPECT_EQ("ByteArray", v.type());
@@ -149,7 +150,10 @@ TEST(JsonValue, ByteArrayRoundTrip)
 
 TEST(JsonValue, NativeRefRoundTripsTypedPointers)
 {
-  struct Thing { int n = 7; };
+  struct Thing
+  {
+    int n = 7;
+  };
   auto thing = std::make_shared<Thing>();
 
   Value v = JSON::makeNative(thing);
@@ -158,7 +162,9 @@ TEST(JsonValue, NativeRefRoundTripsTypedPointers)
   EXPECT_EQ(thing.get(), v.asNative<Thing>().get());
   EXPECT_EQ(7, static_cast<std::shared_ptr<Thing>>(v)->n);
 
-  struct Other {};
+  struct Other
+  {
+  };
   EXPECT_EQ(nullptr, v.asNative<Other>()); // type mismatch -> null
 
   std::shared_ptr<Thing> none;
@@ -167,16 +173,20 @@ TEST(JsonValue, NativeRefRoundTripsTypedPointers)
 
 TEST(JsonValue, FunctionsAreInvocable)
 {
-  Value fn{JSON::FunctionRef{[](const JSON::Array& args) -> Value {
-    return args.empty() ? Value{JSON::Special::Undefined}
-                        : Value{static_cast<double>(args.size()) + static_cast<double>(args[0])};
-  }, std::any{}}};
+  Value fn{JSON::FunctionRef{
+      [](const JSON::Array& args) -> Value
+      {
+        return args.empty() ? Value{JSON::Special::Undefined}
+                            : Value{static_cast<double>(args.size()) +
+                                    static_cast<double>(args[0])};
+      },
+      std::any{}}};
   ASSERT_TRUE(fn.isFunction());
   EXPECT_EQ("Function", fn.type());
 
   JSON::Array args;
-  args.push_back(10.0);
-  args.push_back(0.0);
+  args.emplace_back(10.0);
+  args.emplace_back(0.0);
   EXPECT_DOUBLE_EQ(12.0, fn(args).number());
 
   Value notAFunction{1.0};
@@ -207,7 +217,8 @@ TEST(JsonValue, SerializesToJsonAndParsesBack)
 
 TEST(JsonValue, ParsesNestedDocuments)
 {
-  Value v = JSON::parse(R"({"a": [1, 2, {"b": "c"}], "d": {"e": null, "f": false}})");
+  Value v =
+      JSON::parse(R"({"a": [1, 2, {"b": "c"}], "d": {"e": null, "f": false}})");
   ASSERT_TRUE(v.isObject());
   EXPECT_DOUBLE_EQ(2.0, v["a"][1].number());
   EXPECT_EQ("c", v["a"][2]["b"].string());
@@ -218,7 +229,8 @@ TEST(JsonValue, ParsesNestedDocuments)
 TEST(JsonValue, FunctionsAndUndefinedAreSkippedWhenSerializing)
 {
   Value v;
-  v["fn"] = JSON::FunctionRef{[](const JSON::Array&) -> Value { return {}; }, std::any{}};
+  v["fn"] = JSON::FunctionRef{[](const JSON::Array&) -> Value { return {}; },
+                              std::any{}};
   v["u"] = JSON::Special::Undefined;
   v["kept"] = 1.0;
 

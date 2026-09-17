@@ -7,20 +7,24 @@
 
 #include "base/with_handle.h"
 
-namespace {
+namespace
+{
 
 bool g_fooDestroyed = false;
 
-struct Foo : public WithHandle<Foo> {
+struct Foo : public WithHandle<Foo>
+{
   int value = 5;
   ~Foo() { g_fooDestroyed = true; }
 };
 
-struct SubFoo : public Foo {
+struct SubFoo : public Foo
+{
   int extra = 9;
 };
 
-struct Bar : public WithHandle<Bar> {
+struct Bar : public WithHandle<Bar>
+{
   int other = 1;
 };
 
@@ -66,7 +70,8 @@ TEST(WithHandle, GetReturnsNullOnTypeMismatch)
 TEST(WithHandle, GetWithDerivedCastsDownWhenTypeMatches)
 {
   auto* obj = new SubFoo();
-  Handle h = obj->handle(); // constructed against Foo (the WithHandle<Foo> base)
+  Handle h =
+      obj->handle(); // constructed against Foo (the WithHandle<Foo> base)
 
   SubFoo* back = h.get<Foo, SubFoo>();
   ASSERT_NE(nullptr, back);

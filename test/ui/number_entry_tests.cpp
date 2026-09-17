@@ -14,7 +14,8 @@
 
 using namespace ui;
 
-namespace {
+namespace
+{
 
 // NumberEntry only validates/clamps on kFocusLeaveMessage - simulate losing
 // focus without needing a live Manager to actually move focus around.
@@ -83,7 +84,8 @@ TEST(NumberEntry, FocusLeaveClampsAnEvaluatedResultToMinMax)
   EXPECT_EQ(0, entry.getValue());
 }
 
-TEST(NumberEntry, FocusLeaveSaturatesRatherThanOverflowsOnAResultOutsideIntRange)
+TEST(NumberEntry,
+     FocusLeaveSaturatesRatherThanOverflowsOnAResultOutsideIntRange)
 {
   // Distinct from the min/max clamp above: onProcessMessage() first clamps
   // the evaluated (long) result into [INT_MIN, INT_MAX] before narrowing it

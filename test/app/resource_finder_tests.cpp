@@ -15,13 +15,17 @@
 
 using namespace app;
 
-namespace {
+namespace
+{
 
 // Saves an environment variable's value on construction and restores it
 // (or removes it, if it was unset) on destruction.
-class ScopedEnvVar {
+class ScopedEnvVar
+{
 public:
-  ScopedEnvVar(const char* name, const char* value) : m_name(name) {
+  ScopedEnvVar(const char* name, const char* value)
+    : m_name(name)
+  {
     const char* prev = std::getenv(name);
     if (prev)
       m_prev = prev;
@@ -31,7 +35,8 @@ public:
       unsetenv(name);
   }
 
-  ~ScopedEnvVar() {
+  ~ScopedEnvVar()
+  {
     if (m_prev)
       setenv(m_name.c_str(), m_prev->c_str(), 1);
     else
@@ -43,7 +48,8 @@ private:
   std::optional<std::string> m_prev;
 };
 
-std::vector<std::string> collectPaths(ResourceFinder& rf) {
+std::vector<std::string> collectPaths(ResourceFinder& rf)
+{
   std::vector<std::string> paths;
   while (rf.next())
     paths.push_back(rf.filename());
@@ -106,7 +112,8 @@ TEST(ResourceFinder, IncludeDataDirCandidateOrderWithXdgSet)
   // 2) $BINDIR/data/filename
   EXPECT_TRUE(paths[1].ends_with("data/skin.png")) << paths[1];
   // 3) $BINDIR/../share/besprited/data/filename
-  EXPECT_TRUE(paths[2].ends_with("../share/besprited/data/skin.png")) << paths[2];
+  EXPECT_TRUE(paths[2].ends_with("../share/besprited/data/skin.png"))
+      << paths[2];
 }
 
 TEST(ResourceFinder, IncludeDataDirCandidateOrderWithoutXdg)
@@ -120,9 +127,11 @@ TEST(ResourceFinder, IncludeDataDirCandidateOrderWithoutXdg)
   auto paths = collectPaths(rf);
   ASSERT_EQ(3u, paths.size());
   // 1) $HOME/.config/besprited/data/filename
-  EXPECT_EQ("/tmp/besprited-test-home/.config/besprited/data/skin.png", paths[0]);
+  EXPECT_EQ("/tmp/besprited-test-home/.config/besprited/data/skin.png",
+            paths[0]);
   EXPECT_TRUE(paths[1].ends_with("data/skin.png")) << paths[1];
-  EXPECT_TRUE(paths[2].ends_with("../share/besprited/data/skin.png")) << paths[2];
+  EXPECT_TRUE(paths[2].ends_with("../share/besprited/data/skin.png"))
+      << paths[2];
 }
 
 #endif // !_WIN32 && !__APPLE__

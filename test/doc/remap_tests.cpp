@@ -21,9 +21,7 @@ TEST(Remap, ToMovePicks)
 {
   PalettePicks entries(20);
   std::fill(entries.begin(), entries.end(), false);
-  entries[6] =
-    entries[7] =
-    entries[14] = true;
+  entries[6] = entries[7] = entries[14] = true;
 
   Remap map = create_remap_to_move_picks(entries, 1);
 

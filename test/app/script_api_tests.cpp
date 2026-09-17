@@ -27,7 +27,8 @@
 
 using app::AppScripting;
 
-namespace {
+namespace
+{
 
 // Bridges the test's C++ side and JS. It is a regular script `Extension`,
 // picked up by AppScripting::initEngine() through di::injectAll<Extension>()
@@ -36,24 +37,30 @@ namespace {
 //     on it afterwards;
 //   - "native.image" hands a wrapped doc::Image (set by the test beforehand)
 //     to JS the same way app.activeImage does for the real active document.
-struct TestBridge {
+struct TestBridge
+{
   static inline JSON::Value captured;
   static inline doc::Image* image = nullptr;
 };
 
-class TestBridgeExtension : public Extension {
+class TestBridgeExtension : public Extension
+{
 public:
-  TestBridgeExtension() {
-    addFunction("__testCapture") = [](JSON::Value& v) -> JSON::Value {
+  TestBridgeExtension()
+  {
+    addFunction("__testCapture") = [](JSON::Value& v) -> JSON::Value
+    {
       TestBridge::captured = v;
       return {};
     };
-    addFunction("__testImage") = []() -> JSON::Value {
+    addFunction("__testImage") = []() -> JSON::Value
+    {
       return JSON::makeNative(script_api::wrap<doc::Image>(TestBridge::image));
     };
   }
 
-  std::string init(const std::string& language, JSON::Value&) override {
+  std::string init(const std::string& language, JSON::Value&) override
+  {
     if (language != "js")
       return "";
     return R"(
@@ -82,20 +89,21 @@ void ensureAppAndCommands()
   (void)commands;
 }
 
-class AppScriptApiTest : public ::testing::Test {
+class AppScriptApiTest : public ::testing::Test
+{
 protected:
-  static void SetUpTestSuite() {
-    ensureAppAndCommands();
-  }
+  static void SetUpTestSuite() { ensureAppAndCommands(); }
 
-  void SetUp() override {
+  void SetUp() override
+  {
     TestBridge::captured = JSON::Value{JSON::Special::Undefined};
     TestBridge::image = nullptr;
   }
 
   // The engine is process-wide (one interpreter behind AppScripting); each
   // eval is a REPL-style script eval, so `var`s persist across calls.
-  bool eval(const std::string& code) {
+  bool eval(const std::string& code)
+  {
     return AppScripting::eval(code, "script_api_tests");
   }
 
@@ -124,32 +132,33 @@ TEST_F(AppScriptApiTest, BridgeCapturesValuesFromJs)
 TEST_F(AppScriptApiTest, PixelColorRgbaRoundTripsThroughAllChannelAccessors)
 {
   ASSERT_TRUE(eval("native.capture(app.pixelColor.rgba(10, 20, 30, 200));"));
-  EXPECT_EQ(doc::rgba(10, 20, 30, 200), static_cast<doc::color_t>(captured().number()));
+  EXPECT_EQ(doc::rgba(10, 20, 30, 200),
+            static_cast<doc::color_t>(captured().number()));
 
-  ASSERT_TRUE(eval(
-    "var c = app.pixelColor.rgba(10, 20, 30, 200);"
-    "native.capture([app.pixelColor.rgbaR(c), app.pixelColor.rgbaG(c),"
-    "                app.pixelColor.rgbaB(c), app.pixelColor.rgbaA(c)].join(','));"));
+  ASSERT_TRUE(
+      eval("var c = app.pixelColor.rgba(10, 20, 30, 200);"
+           "native.capture([app.pixelColor.rgbaR(c), app.pixelColor.rgbaG(c),"
+           "                app.pixelColor.rgbaB(c), "
+           "app.pixelColor.rgbaA(c)].join(','));"));
   EXPECT_EQ("10,20,30,200", captured().string());
 }
 
 TEST_F(AppScriptApiTest, PixelColorGrayaRoundTrips)
 {
-  ASSERT_TRUE(eval(
-    "var g = app.pixelColor.graya(128, 64);"
-    "native.capture([app.pixelColor.grayaV(g), app.pixelColor.grayaA(g)].join(','));"));
+  ASSERT_TRUE(eval("var g = app.pixelColor.graya(128, 64);"
+                   "native.capture([app.pixelColor.grayaV(g), "
+                   "app.pixelColor.grayaA(g)].join(','));"));
   EXPECT_EQ("128,64", captured().string());
 }
 
 TEST_F(AppScriptApiTest, ColorModeConstantsMatchTheDocPixelFormatEnum)
 {
-  ASSERT_TRUE(eval(
-    "native.capture([ColorMode.RGB, ColorMode.GRAYSCALE, ColorMode.INDEXED, ColorMode.BITMAP].join(','));"));
-  std::string expected =
-    std::to_string(int(doc::IMAGE_RGB)) + "," +
-    std::to_string(int(doc::IMAGE_GRAYSCALE)) + "," +
-    std::to_string(int(doc::IMAGE_INDEXED)) + "," +
-    std::to_string(int(doc::IMAGE_BITMAP));
+  ASSERT_TRUE(eval("native.capture([ColorMode.RGB, ColorMode.GRAYSCALE, "
+                   "ColorMode.INDEXED, ColorMode.BITMAP].join(','));"));
+  std::string expected = std::to_string(int(doc::IMAGE_RGB)) + "," +
+                         std::to_string(int(doc::IMAGE_GRAYSCALE)) + "," +
+                         std::to_string(int(doc::IMAGE_INDEXED)) + "," +
+                         std::to_string(int(doc::IMAGE_BITMAP));
   EXPECT_EQ(expected, captured().string());
 }
 
@@ -164,7 +173,8 @@ TEST_F(AppScriptApiTest, AppVersionAndPlatformAreNonEmptyStrings)
 
 TEST_F(AppScriptApiTest, LegacyLsGlobalCarriesVersionAndPackage)
 {
-  ASSERT_TRUE(eval("native.capture(LS.version === app.version && typeof LS.package === 'string' && LS.package.length > 0);"));
+  ASSERT_TRUE(eval("native.capture(LS.version === app.version && typeof "
+                   "LS.package === 'string' && LS.package.length > 0);"));
   EXPECT_TRUE(captured().boolean());
 }
 
@@ -177,17 +187,19 @@ TEST_F(AppScriptApiTest, CommandSetParameterAndClearParametersAreChainable)
   // "clearParameters" (i.e. the same command object), so JS call chains
   // like app.command.setParameter(...).clearParameters() work without
   // throwing.
-  ASSERT_TRUE(eval(
-    "native.capture(typeof app.command.setParameter('a', 'b').clearParameters);"));
+  ASSERT_TRUE(eval("native.capture(typeof app.command.setParameter('a', "
+                   "'b').clearParameters);"));
   EXPECT_EQ("function", captured().string());
 
-  ASSERT_TRUE(eval("native.capture(app.command.setParameter('a', 'b') === app.command);"));
+  ASSERT_TRUE(eval(
+      "native.capture(app.command.setParameter('a', 'b') === app.command);"));
   EXPECT_TRUE(captured().boolean());
 }
 
 TEST_F(AppScriptApiTest, ConsoleLogIsAvailable)
 {
-  ASSERT_TRUE(eval("native.capture(typeof console.log + ',' + typeof console.assert);"));
+  ASSERT_TRUE(eval(
+      "native.capture(typeof console.log + ',' + typeof console.assert);"));
   EXPECT_EQ("function,function", captured().string());
   EXPECT_TRUE(eval("console.log('script_api_tests: console.log works');"));
 }
@@ -196,7 +208,8 @@ TEST_F(AppScriptApiTest, AppExposesTheDialogAndCommandEntryPoints)
 {
   // Only probe for presence: TEST_GUI's ui::Manager has no she::System /
   // display behind it, so actually building a dialog is off limits here.
-  ASSERT_TRUE(eval("native.capture([typeof app.createDialog, typeof app.command, typeof app.open].join(','));"));
+  ASSERT_TRUE(eval("native.capture([typeof app.createDialog, typeof "
+                   "app.command, typeof app.open].join(','));"));
   EXPECT_EQ("function,object,function", captured().string());
 }
 
@@ -206,16 +219,19 @@ TEST_F(AppScriptApiTest, ImageGetPixelPutPixelRoundTrip)
   doc::clear_image(img.get(), 0);
   TestBridge::image = img.get();
 
-  ASSERT_TRUE(eval(
-    "native.image.putPixel(1, 1, app.pixelColor.rgba(5, 6, 7, 255));"
-    "native.capture(native.image.getPixel(1, 1));"));
-  EXPECT_EQ(doc::rgba(5, 6, 7, 255), static_cast<doc::color_t>(captured().number()));
+  ASSERT_TRUE(
+      eval("native.image.putPixel(1, 1, app.pixelColor.rgba(5, 6, 7, 255));"
+           "native.capture(native.image.getPixel(1, 1));"));
+  EXPECT_EQ(doc::rgba(5, 6, 7, 255),
+            static_cast<doc::color_t>(captured().number()));
 
-  ASSERT_TRUE(eval("native.capture([native.image.width, native.image.height].join('x'));"));
+  ASSERT_TRUE(eval(
+      "native.capture([native.image.width, native.image.height].join('x'));"));
   EXPECT_EQ("4x4", captured().string());
 }
 
-TEST_F(AppScriptApiTest, ImagePutImageDataRejectsAWronglySizedBufferWithoutCorruptingTheImage)
+TEST_F(AppScriptApiTest,
+       ImagePutImageDataRejectsAWronglySizedBufferWithoutCorruptingTheImage)
 {
   std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 4, 4));
   doc::clear_image(img.get(), doc::rgba(1, 2, 3, 4));
@@ -255,8 +271,9 @@ TEST_F(AppScriptApiTest, ImageGetImageDataThenPutImageDataRoundTripsEveryPixel)
   EXPECT_EQ(doc::rgba(10, 11, 12, 255), img->getPixel(1, 1));
 
   // ...and the JS side can write it back too.
-  ASSERT_TRUE(eval("var data = native.image.getImageData(); native.image.clear(0);"
-                   "native.image.putImageData(data);"));
+  ASSERT_TRUE(
+      eval("var data = native.image.getImageData(); native.image.clear(0);"
+           "native.image.putImageData(data);"));
   EXPECT_EQ(doc::rgba(10, 11, 12, 255), img->getPixel(1, 1));
 }
 
@@ -277,15 +294,18 @@ TEST_F(AppScriptApiTest, ImageGetPNGDataReturnsABase64PngDataUri)
   const std::string prefix = "data:image/png;base64,";
   ASSERT_GT(uri.size(), prefix.size());
   EXPECT_EQ(prefix, uri.substr(0, prefix.size()));
-  EXPECT_GT(uri.size(), prefix.size() + 8) << "should carry actual encoded PNG data, not just the prefix";
+  EXPECT_GT(uri.size(), prefix.size() + 8)
+      << "should carry actual encoded PNG data, not just the prefix";
 }
 
 TEST_F(AppScriptApiTest, TimersFireFromTick)
 {
-  ASSERT_TRUE(eval("var fired = false; setTimeout(function() { fired = true; }, 1);"));
+  ASSERT_TRUE(
+      eval("var fired = false; setTimeout(function() { fired = true; }, 1);"));
   // The timer extension is driven by AppScripting::tick(); give the steady
   // clock a moment to pass the 1ms deadline.
-  for (int i = 0; i < 200; ++i) {
+  for (int i = 0; i < 200; ++i)
+  {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     AppScripting::tick();
     ASSERT_TRUE(eval("native.capture(fired);"));

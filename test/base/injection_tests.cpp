@@ -10,52 +10,61 @@
 #include <set>
 #include <string>
 
-namespace {
+namespace
+{
 
 // --- Regular vs Singleton policies -----------------------------------
 
 int g_stdoutAlive = 0;
 
-struct Logger : public Injectable<Logger> {
-  virtual ~Logger() = default;
+struct Logger : public Injectable<Logger>
+{
+  ~Logger() override = default;
   virtual std::string speak() = 0;
 };
 
-struct StdoutLogger : public Logger {
+struct StdoutLogger : public Logger
+{
   StdoutLogger() { ++g_stdoutAlive; }
   ~StdoutLogger() override { --g_stdoutAlive; }
   std::string speak() override { return "stdout"; }
 };
 Logger::Regular<StdoutLogger> g_regStdout{"stdout"};
 
-struct FileLogger : public Logger {
+struct FileLogger : public Logger
+{
   std::string speak() override { return "file"; }
 };
 Logger::Singleton<FileLogger> g_regFile{"file"};
 
 // --- Provides policy ----------------------------------------------------
 
-struct Account : public Injectable<Account> {
-  virtual ~Account() = default;
+struct Account : public Injectable<Account>
+{
+  ~Account() override = default;
   virtual int amount() = 0;
 };
 
-struct RealAccount : public Account {
+struct RealAccount : public Account
+{
   int amount() override { return 100; }
 };
 
 // --- setDefault / flags / getAll ----------------------------------------
 
-struct Thing : public Injectable<Thing> {
-  virtual ~Thing() = default;
+struct Thing : public Injectable<Thing>
+{
+  ~Thing() override = default;
   virtual std::string id() = 0;
 };
 
-struct ThingA : public Thing {
+struct ThingA : public Thing
+{
   std::string id() override { return "A"; }
 };
 
-struct ThingB : public Thing {
+struct ThingB : public Thing
+{
   std::string id() override { return "B"; }
 };
 
@@ -64,11 +73,13 @@ Thing::Regular<ThingB> g_regB{"b", {"flagB"}};
 
 // --- inject<>::get<Derived>() dynamic_cast --------------------------------
 
-struct Base2 : public Injectable<Base2> {
-  virtual ~Base2() = default;
+struct Base2 : public Injectable<Base2>
+{
+  ~Base2() override = default;
 };
 
-struct Derived2 : public Base2 {
+struct Derived2 : public Base2
+{
   int val = 3;
 };
 

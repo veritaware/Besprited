@@ -14,12 +14,14 @@
 
 using namespace ui;
 
-namespace {
+namespace
+{
 
 // Widget::textInt()/textDouble() report a parse failure through the
 // overridable onEvalError() hook - the default implementation does nothing,
 // so tests override it to observe that the failure was detected at all.
-class RecordingWidget : public Widget {
+class RecordingWidget : public Widget
+{
 public:
   mutable int errorCount = 0;
   mutable std::string lastError;
@@ -34,7 +36,8 @@ protected:
 
 // A widget that has something better to fall back on than zero, the way
 // ui::Entry does with the last text it held that evaluated.
-class FallbackWidget : public RecordingWidget {
+class FallbackWidget : public RecordingWidget
+{
 public:
   double fallback = 0.0;
 

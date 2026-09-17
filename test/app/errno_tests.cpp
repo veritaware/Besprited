@@ -7,7 +7,7 @@
 
 #include "tests.h"
 
-#include <errno.h>
+#include <cerrno>
 #include "base/thread.h"
 
 static void run_thread()

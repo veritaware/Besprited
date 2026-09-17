@@ -11,20 +11,21 @@
 
 using namespace css;
 
-namespace css {
+namespace css
+{
 
-  std::ostream& operator<<(std::ostream& os, const Value& value)
-  {
-    os << "(" << value.type();
+std::ostream& operator<<(std::ostream& os, const Value& value)
+{
+  os << "(" << value.type();
 
-    if (value.type() == Value::Number)
-      os << ", " << value.number() << " [" << value.unit() << "]";
-    else if (value.type() == Value::String)
-      os << ", " << value.string();
+  if (value.type() == Value::Number)
+    os << ", " << value.number() << " [" << value.unit() << "]";
+  else if (value.type() == Value::String)
+    os << ", " << value.string();
 
-    os << ")";
-    return os;
-  }
+  os << ")";
+  return os;
+}
 
 } // namespace css
 
@@ -212,8 +213,8 @@ TEST(Css, CompoundStyles)
   EXPECT_EQ(Value(3), compoundBase[hover][fg]);
   EXPECT_EQ(Value(4), compoundBase[focus][bg]);
   EXPECT_EQ(Value(2), compoundBase[focus][fg]);
-  EXPECT_EQ(Value(4), compoundBase[hover+focus][bg]);
-  EXPECT_EQ(Value(3), compoundBase[hover+focus][fg]);
+  EXPECT_EQ(Value(4), compoundBase[hover + focus][bg]);
+  EXPECT_EQ(Value(3), compoundBase[hover + focus][fg]);
 
   CompoundStyle compoundSub = sheet.compoundStyle("sub");
   EXPECT_EQ(Value(5), compoundSub[bg]);
@@ -222,8 +223,8 @@ TEST(Css, CompoundStyles)
   EXPECT_EQ(Value(3), compoundSub[hover][fg]);
   EXPECT_EQ(Value(4), compoundSub[focus][bg]);
   EXPECT_EQ(Value(6), compoundSub[focus][fg]);
-  EXPECT_EQ(Value(4), compoundSub[hover+focus][bg]);
-  EXPECT_EQ(Value(6), compoundSub[hover+focus][fg]);
+  EXPECT_EQ(Value(4), compoundSub[hover + focus][bg]);
+  EXPECT_EQ(Value(6), compoundSub[hover + focus][fg]);
 
   CompoundStyle compoundSub2 = sheet.compoundStyle("sub2");
   EXPECT_EQ(Value(5), compoundSub2[bg]);
@@ -232,8 +233,8 @@ TEST(Css, CompoundStyles)
   EXPECT_EQ(Value(3), compoundSub2[hover][fg]);
   EXPECT_EQ(Value(4), compoundSub2[focus][bg]);
   EXPECT_EQ(Value(6), compoundSub2[focus][fg]);
-  EXPECT_EQ(Value(4), compoundSub2[hover+focus][bg]);
-  EXPECT_EQ(Value(6), compoundSub2[hover+focus][fg]);
+  EXPECT_EQ(Value(4), compoundSub2[hover + focus][bg]);
+  EXPECT_EQ(Value(6), compoundSub2[hover + focus][fg]);
 
   CompoundStyle compoundSub3 = sheet.compoundStyle("sub3");
   EXPECT_EQ(Value(7), compoundSub3[bg]);
@@ -242,9 +243,9 @@ TEST(Css, CompoundStyles)
   EXPECT_EQ(Value(3), compoundSub3[hover][fg]);
   EXPECT_EQ(Value(4), compoundSub3[focus][bg]);
   EXPECT_EQ(Value(6), compoundSub3[focus][fg]);
-  EXPECT_EQ(Value(4), compoundSub3[hover+focus][bg]);
-  EXPECT_EQ(Value(6), compoundSub3[hover+focus][fg]);
-  EXPECT_EQ(Value(8), compoundSub3[focus+hover][fg]);
+  EXPECT_EQ(Value(4), compoundSub3[hover + focus][bg]);
+  EXPECT_EQ(Value(6), compoundSub3[hover + focus][fg]);
+  EXPECT_EQ(Value(8), compoundSub3[focus + hover][fg]);
 }
 
 int main(int argc, char** argv)

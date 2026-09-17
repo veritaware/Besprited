@@ -17,16 +17,16 @@
 using namespace gfx;
 using namespace std;
 
-namespace gfx {
+namespace gfx
+{
 
-  ostream& operator<<(ostream& os, const Rgb& rgb) {
-    return os << "("
-              << rgb.red() << ", "
-              << rgb.green() << ", "
-              << rgb.blue() << ")";
-  }
-
+ostream& operator<<(ostream& os, const Rgb& rgb)
+{
+  return os << "(" << rgb.red() << ", " << rgb.green() << ", " << rgb.blue()
+            << ")";
 }
+
+} // namespace gfx
 
 TEST(Rgb, Ctor)
 {
@@ -68,24 +68,25 @@ TEST(Rgb, MinComponent)
 
 TEST(Rgb, FromHsv)
 {
-  for (double hue = 0.0; hue <= 360.0; hue += 10.0) {
+  for (double hue = 0.0; hue <= 360.0; hue += 10.0)
+  {
     EXPECT_EQ(Rgb(255, 255, 255), Rgb(Hsv(hue, 0.000, 1.000)));
     EXPECT_EQ(Rgb(128, 128, 128), Rgb(Hsv(hue, 0.000, 0.500)));
-    EXPECT_EQ(Rgb(  0,   0,   0), Rgb(Hsv(hue, 0.000, 0.000)));
+    EXPECT_EQ(Rgb(0, 0, 0), Rgb(Hsv(hue, 0.000, 0.000)));
   }
 
-  EXPECT_EQ(Rgb(  3,   0,   0), Rgb(Hsv(  0.0, 1.000, 0.010)));
-  EXPECT_EQ(Rgb(252,   0,   0), Rgb(Hsv(  0.0, 1.000, 0.990)));
-  EXPECT_EQ(Rgb(255,   0,   0), Rgb(Hsv(  0.0, 1.000, 1.000)));
-  EXPECT_EQ(Rgb(191, 191,   0), Rgb(Hsv( 60.0, 1.000, 0.750)));
-  EXPECT_EQ(Rgb(  0, 128,   0), Rgb(Hsv(120.0, 1.000, 0.500)));
-  EXPECT_EQ(Rgb(  0, 255,   0), Rgb(Hsv(120.0, 1.000, 1.000)));
+  EXPECT_EQ(Rgb(3, 0, 0), Rgb(Hsv(0.0, 1.000, 0.010)));
+  EXPECT_EQ(Rgb(252, 0, 0), Rgb(Hsv(0.0, 1.000, 0.990)));
+  EXPECT_EQ(Rgb(255, 0, 0), Rgb(Hsv(0.0, 1.000, 1.000)));
+  EXPECT_EQ(Rgb(191, 191, 0), Rgb(Hsv(60.0, 1.000, 0.750)));
+  EXPECT_EQ(Rgb(0, 128, 0), Rgb(Hsv(120.0, 1.000, 0.500)));
+  EXPECT_EQ(Rgb(0, 255, 0), Rgb(Hsv(120.0, 1.000, 1.000)));
   EXPECT_EQ(Rgb(128, 255, 255), Rgb(Hsv(180.0, 0.500, 1.000)));
   EXPECT_EQ(Rgb(128, 128, 255), Rgb(Hsv(240.0, 0.500, 1.000)));
-  EXPECT_EQ(Rgb(  0,   0, 255), Rgb(Hsv(240.0, 1.000, 1.000)));
-  EXPECT_EQ(Rgb(191,  64, 191), Rgb(Hsv(300.0, 0.667, 0.750)));
-  EXPECT_EQ(Rgb(252,   0,   0), Rgb(Hsv(360.0, 1.000, 0.990)));
-  EXPECT_EQ(Rgb(255,   0,   0), Rgb(Hsv(360.0, 1.000, 1.000)));
+  EXPECT_EQ(Rgb(0, 0, 255), Rgb(Hsv(240.0, 1.000, 1.000)));
+  EXPECT_EQ(Rgb(191, 64, 191), Rgb(Hsv(300.0, 0.667, 0.750)));
+  EXPECT_EQ(Rgb(252, 0, 0), Rgb(Hsv(360.0, 1.000, 0.990)));
+  EXPECT_EQ(Rgb(255, 0, 0), Rgb(Hsv(360.0, 1.000, 1.000)));
 }
 
 int main(int argc, char** argv)

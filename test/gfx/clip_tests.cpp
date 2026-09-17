@@ -15,20 +15,17 @@
 
 using namespace gfx;
 
-namespace gfx {
+namespace gfx
+{
 
 inline std::ostream& operator<<(std::ostream& os, const Clip& area)
 {
-  return os << "("
-            << area.dst.x << ", "
-            << area.dst.y << ", "
-            << area.src.x << ", "
-            << area.src.y << ", "
-            << area.size.w << ", "
-            << area.size.h << ")";
+  return os << "(" << area.dst.x << ", " << area.dst.y << ", " << area.src.x
+            << ", " << area.src.y << ", " << area.size.w << ", " << area.size.h
+            << ")";
 }
 
-}
+} // namespace gfx
 
 TEST(ScaledClip, WithoutClip)
 {

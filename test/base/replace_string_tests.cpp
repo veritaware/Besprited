@@ -9,7 +9,9 @@
 
 #include "base/replace_string.h"
 
-inline std::string rs(const std::string& s, const std::string& a, const std::string& b) {
+inline std::string rs(const std::string& s, const std::string& a,
+                      const std::string& b)
+{
   std::string res = s;
   base::replace_string(res, a, b);
   return res;

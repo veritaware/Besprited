@@ -21,45 +21,58 @@
 #include <typeindex>
 #include <vector>
 
-namespace {
+namespace
+{
 
-struct Thing {
+struct Thing
+{
   int value = 0;
   static inline int liveCount = 0;
   Thing() { ++liveCount; }
   ~Thing() { --liveCount; }
 };
 
-class InterpreterTest : public ::testing::Test {
+class InterpreterTest : public ::testing::Test
+{
 protected:
   std::shared_ptr<Interpreter> engine;
   // Whatever JS last handed to the native "capture" API function.
   JSON::Value captured;
 
-  void SetUp() override {
+  void SetUp() override
+  {
     engine = di::inject<Interpreter>("js");
     ASSERT_TRUE(engine);
-    engine->addAPIFunction("capture", [this](JSON::Array& args) -> JSON::Value {
-      captured = args.empty() ? JSON::Value{JSON::Special::Undefined} : args[0];
-      return JSON::Value{JSON::Special::Undefined};
-    });
+    engine->addAPIFunction("capture",
+                           [this](JSON::Array& args) -> JSON::Value
+                           {
+                             captured =
+                                 args.empty()
+                                     ? JSON::Value{JSON::Special::Undefined}
+                                     : args[0];
+                             return JSON::Value{JSON::Special::Undefined};
+                           });
   }
 
-  JSON::Value run(const std::string& code) {
+  JSON::Value run(const std::string& code)
+  {
     return engine->eval(code, "test", Interpreter::EvalType::Script);
   }
 
   // Interpreter::ClassDef keeps a *reference* to the constructor callable
   // (the app's Extension objects own theirs), so it must outlive the
   // interpreter - hence a fixture member rather than a temporary.
-  Interpreter::ClassCtor thingCtor = [](JSON::Array& args) -> std::shared_ptr<void> {
+  Interpreter::ClassCtor thingCtor =
+      [](JSON::Array& args) -> std::shared_ptr<void>
+  {
     auto t = std::make_shared<Thing>();
     if (!args.empty())
       t->value = static_cast<int>(args[0].number());
     return t;
   };
 
-  Interpreter::ClassDef& addThingClass(Interpreter& target) {
+  Interpreter::ClassDef& addThingClass(Interpreter& target)
+  {
     return target.addClass("Thing", typeid(void), typeid(Thing), thingCtor);
   }
 };
@@ -95,13 +108,17 @@ TEST_F(InterpreterTest, SyntaxErrorThrowsARuntimeError)
 
 TEST_F(InterpreterTest, ThrowingScriptSurfacesTheMessageAndStack)
 {
-  try {
+  try
+  {
     run("function inner() { throw new Error('boom'); }\ninner();");
     FAIL() << "expected an exception";
-  } catch (const std::runtime_error& e) {
+  }
+  catch (const std::runtime_error& e)
+  {
     std::string what = e.what();
     EXPECT_NE(std::string::npos, what.find("boom"));
-    EXPECT_NE(std::string::npos, what.find("inner")) << "stack trace should name the throwing function";
+    EXPECT_NE(std::string::npos, what.find("inner"))
+        << "stack trace should name the throwing function";
   }
 }
 
@@ -113,9 +130,10 @@ TEST_F(InterpreterTest, EngineKeepsWorkingAfterAFailedEval)
 
 TEST_F(InterpreterTest, ModuleEvalRejectsOnATopLevelThrow)
 {
-  EXPECT_THROW(engine->eval("export const x = 1; throw new Error('module boom');",
-                            "mod.js", Interpreter::EvalType::Module),
-               std::runtime_error);
+  EXPECT_THROW(
+      engine->eval("export const x = 1; throw new Error('module boom');",
+                   "mod.js", Interpreter::EvalType::Module),
+      std::runtime_error);
   // ...and still runs a good module afterwards.
   EXPECT_NO_THROW(engine->eval("capture('from module');", "ok.js",
                                Interpreter::EvalType::Module));
@@ -124,7 +142,8 @@ TEST_F(InterpreterTest, ModuleEvalRejectsOnATopLevelThrow)
 
 TEST_F(InterpreterTest, BareImportSpecifiersResolveThroughModuleSearchPaths)
 {
-  auto dir = std::filesystem::path(::testing::TempDir()) / "delta_interpreter_tests";
+  auto dir =
+      std::filesystem::path(::testing::TempDir()) / "delta_interpreter_tests";
   std::filesystem::create_directories(dir);
   {
     std::ofstream out(dir / "answer.js");
@@ -132,13 +151,15 @@ TEST_F(InterpreterTest, BareImportSpecifiersResolveThroughModuleSearchPaths)
   }
   engine->addModuleSearchPath(dir.string());
 
-  ASSERT_NO_THROW(engine->eval("import { answer } from 'answer.js'; capture(answer);",
-                               (dir / "main.js").string(), Interpreter::EvalType::Module));
+  ASSERT_NO_THROW(
+      engine->eval("import { answer } from 'answer.js'; capture(answer);",
+                   (dir / "main.js").string(), Interpreter::EvalType::Module));
   EXPECT_DOUBLE_EQ(42.0, captured.number());
 
   // Extension-less specifiers get ".js" appended.
-  ASSERT_NO_THROW(engine->eval("import { answer } from 'answer'; capture(answer + 1);",
-                               (dir / "main2.js").string(), Interpreter::EvalType::Module));
+  ASSERT_NO_THROW(
+      engine->eval("import { answer } from 'answer'; capture(answer + 1);",
+                   (dir / "main2.js").string(), Interpreter::EvalType::Module));
   EXPECT_DOUBLE_EQ(43.0, captured.number());
 
   std::filesystem::remove_all(dir);
@@ -154,10 +175,12 @@ TEST_F(InterpreterTest, UnresolvableImportIsAnError)
 TEST_F(InterpreterTest, ApiFunctionReceivesHeterogeneousArguments)
 {
   std::vector<JSON::Value> got;
-  engine->addAPIFunction("take", [&](JSON::Array& args) -> JSON::Value {
-    got = args;
-    return JSON::Value{JSON::Special::Undefined};
-  });
+  engine->addAPIFunction("take",
+                         [&](JSON::Array& args) -> JSON::Value
+                         {
+                           got = args;
+                           return JSON::Value{JSON::Special::Undefined};
+                         });
 
   run("take(42, 'hi', 3.5, true, null, undefined);");
 
@@ -172,14 +195,16 @@ TEST_F(InterpreterTest, ApiFunctionReceivesHeterogeneousArguments)
 
 TEST_F(InterpreterTest, ApiFunctionReturnValuesReachJs)
 {
-  engine->addAPIFunction("give", [](JSON::Array&) -> JSON::Value {
-    JSON::Value obj;
-    obj["n"] = 7.0;
-    obj["s"] = "seven";
-    obj["list"].push_back(1.0);
-    obj["list"].push_back(2.0);
-    return obj;
-  });
+  engine->addAPIFunction("give",
+                         [](JSON::Array&) -> JSON::Value
+                         {
+                           JSON::Value obj;
+                           obj["n"] = 7.0;
+                           obj["s"] = "seven";
+                           obj["list"].push_back(1.0);
+                           obj["list"].push_back(2.0);
+                           return obj;
+                         });
 
   JSON::Value v = run("var o = give(); o.n + o.list.length + o.s.length;");
   EXPECT_DOUBLE_EQ(7.0 + 2.0 + 5.0, v.number());
@@ -206,10 +231,12 @@ TEST_F(InterpreterTest, Uint8ArrayRoundTripsAsAByteArray)
   EXPECT_EQ(1, captured.byteArray()[0]);
   EXPECT_EQ(255, captured.byteArray()[2]);
 
-  auto bytes = std::make_shared<std::vector<uint8_t>>(std::vector<uint8_t>{9, 8, 7});
+  auto bytes =
+      std::make_shared<std::vector<uint8_t>>(std::vector<uint8_t>{9, 8, 7});
   JSON::Value v{bytes};
   engine->addGlobalValue("bytes", v);
-  JSON::Value back = run("bytes instanceof Uint8Array && bytes.length === 3 && bytes[0] === 9 && bytes[2] === 7;");
+  JSON::Value back = run("bytes instanceof Uint8Array && bytes.length === 3 && "
+                         "bytes[0] === 9 && bytes[2] === 7;");
   EXPECT_TRUE(back.boolean());
 }
 
@@ -221,8 +248,8 @@ TEST_F(InterpreterTest, BinaryStringsMapEveryByteToOneCharCode)
   std::string raw{"\xff\x00\x41\x80", 4};
   JSON::Value bin{JSON::Value::String{raw, true}};
   engine->addGlobalValue("bin", bin);
-  JSON::Value v = run(
-    "[bin.length, bin.charCodeAt(0), bin.charCodeAt(1), bin.charCodeAt(2), bin.charCodeAt(3)].join(',');");
+  JSON::Value v = run("[bin.length, bin.charCodeAt(0), bin.charCodeAt(1), "
+                      "bin.charCodeAt(2), bin.charCodeAt(3)].join(',');");
   EXPECT_EQ("4,255,0,65,128", v.string());
 
   // ...whereas a regular string is decoded as UTF-8.
@@ -238,13 +265,14 @@ TEST_F(InterpreterTest, JsFunctionsPassedToNativeAreCallable)
   ASSERT_TRUE(captured.isFunction());
 
   JSON::Array args;
-  args.push_back(6.0);
-  args.push_back(7.0);
+  args.emplace_back(6.0);
+  args.emplace_back(7.0);
   JSON::Value result = captured(args);
   EXPECT_DOUBLE_EQ(42.0, result.number());
 }
 
-TEST_F(InterpreterTest, ExceptionsThrownByCalledJsFunctionsAreReportedNotPropagated)
+TEST_F(InterpreterTest,
+       ExceptionsThrownByCalledJsFunctionsAreReportedNotPropagated)
 {
   run("capture(function() { throw new Error('callback boom'); });");
   ASSERT_TRUE(captured.isFunction());
@@ -254,41 +282,39 @@ TEST_F(InterpreterTest, ExceptionsThrownByCalledJsFunctionsAreReportedNotPropaga
   ASSERT_NO_THROW(result = captured(args));
   ASSERT_TRUE(result.isObject());
   ASSERT_TRUE(result.object().contains("exception"));
-  EXPECT_NE(std::string::npos, result["exception"].string().find("callback boom"));
+  EXPECT_NE(std::string::npos,
+            result["exception"].string().find("callback boom"));
 }
 
 TEST_F(InterpreterTest, NativeClassesExposeConstructorMethodsAndProperties)
 {
   auto& cls = addThingClass(*engine);
-  cls.addMethod("double", [](void* self, JSON::Array&) -> JSON::Value {
-    return static_cast<double>(static_cast<Thing*>(self)->value * 2);
-  });
-  cls.addGetSet("value",
-    [](void* self) -> JSON::Value {
-      return static_cast<double>(static_cast<Thing*>(self)->value);
-    },
-    [](void* self, JSON::Value& v) {
-      static_cast<Thing*>(self)->value = static_cast<int>(v.number());
-    });
+  cls.addMethod(
+      "double", [](void* self, JSON::Array&) -> JSON::Value
+      { return static_cast<double>(static_cast<Thing*>(self)->value * 2); });
+  cls.addGetSet(
+      "value", [](void* self) -> JSON::Value
+      { return static_cast<double>(static_cast<Thing*>(self)->value); },
+      [](void* self, JSON::Value& v)
+      { static_cast<Thing*>(self)->value = static_cast<int>(v.number()); });
 
-  JSON::Value v = run("var t = new Thing(21); var d = t.double(); t.value = 5; [d, t.value].join(',');");
+  JSON::Value v = run("var t = new Thing(21); var d = t.double(); t.value = 5; "
+                      "[d, t.value].join(',');");
   EXPECT_EQ("42,5", v.string());
 }
 
 TEST_F(InterpreterTest, NativeInstancesReturnedFromApiFunctionsAreWrappedByType)
 {
   auto& cls = addThingClass(*engine);
-  cls.addGetSet("value",
-    [](void* self) -> JSON::Value {
-      return static_cast<double>(static_cast<Thing*>(self)->value);
-    },
-    nullptr);
+  cls.addGetSet(
+      "value", [](void* self) -> JSON::Value
+      { return static_cast<double>(static_cast<Thing*>(self)->value); },
+      nullptr);
 
   auto shared = std::make_shared<Thing>();
   shared->value = 99;
-  engine->addAPIFunction("getThing", [shared](JSON::Array&) -> JSON::Value {
-    return JSON::makeNative(shared);
-  });
+  engine->addAPIFunction("getThing", [shared](JSON::Array&) -> JSON::Value
+                         { return JSON::makeNative(shared); });
 
   EXPECT_DOUBLE_EQ(99.0, run("getThing().value;").number());
   // The same native pointer maps to the same JS wrapper.
@@ -306,11 +332,11 @@ TEST_F(InterpreterTest, NativeInstancesReturnedFromApiFunctionsAreWrappedByType)
 
 TEST_F(InterpreterTest, NativeExceptionsBecomeCatchableJsErrors)
 {
-  engine->addAPIFunction("explode", [](JSON::Array&) -> JSON::Value {
-    throw std::runtime_error{"native boom"};
-  });
+  engine->addAPIFunction("explode", [](JSON::Array&) -> JSON::Value
+                         { throw std::runtime_error{"native boom"}; });
 
-  JSON::Value v = run("var msg = 'none'; try { explode(); } catch (e) { msg = e.message; } msg;");
+  JSON::Value v = run("var msg = 'none'; try { explode(); } catch (e) { msg = "
+                      "e.message; } msg;");
   EXPECT_NE(std::string::npos, v.string().find("native boom"));
 }
 
@@ -319,8 +345,8 @@ TEST_F(InterpreterTest, MethodsCalledOnTheWrongThisThrowInsteadOfCrashing)
   auto& cls = addThingClass(*engine);
   cls.addMethod("poke", [](void*, JSON::Array&) -> JSON::Value { return 1.0; });
 
-  JSON::Value v = run(
-    "var ok = false; try { Thing.prototype.poke.call({}); } catch (e) { ok = true; } ok;");
+  JSON::Value v = run("var ok = false; try { Thing.prototype.poke.call({}); } "
+                      "catch (e) { ok = true; } ok;");
   EXPECT_TRUE(v.boolean());
 }
 
@@ -330,7 +356,8 @@ TEST_F(InterpreterTest, NativeObjectsAreReleasedWhenTheInterpreterIsDestroyed)
   {
     auto local = di::inject<Interpreter>("js");
     addThingClass(*local);
-    local->eval("var keep = [new Thing(), new Thing()];", "t", Interpreter::EvalType::Script);
+    local->eval("var keep = [new Thing(), new Thing()];", "t",
+                Interpreter::EvalType::Script);
     EXPECT_EQ(2, Thing::liveCount);
   }
   EXPECT_EQ(0, Thing::liveCount);
@@ -346,7 +373,8 @@ TEST_F(InterpreterTest, TickDrainsPendingJobs)
 {
   // A job queued from native code (outside eval) only runs on the next
   // tick().
-  run("capture(function() { Promise.resolve('ticked').then(function(v) { capture(v); }); });");
+  run("capture(function() { Promise.resolve('ticked').then(function(v) { "
+      "capture(v); }); });");
   ASSERT_TRUE(captured.isFunction());
   JSON::Value fn = captured;
   JSON::Array noArgs;

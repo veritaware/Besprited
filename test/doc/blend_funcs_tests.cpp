@@ -16,38 +16,22 @@
 
 using namespace doc;
 
-namespace {
+namespace
+{
 
 const BlendMode kSpecialRgbaModes[] = {
-  BlendMode::MULTIPLY,
-  BlendMode::SCREEN,
-  BlendMode::OVERLAY,
-  BlendMode::DARKEN,
-  BlendMode::LIGHTEN,
-  BlendMode::COLOR_DODGE,
-  BlendMode::COLOR_BURN,
-  BlendMode::HARD_LIGHT,
-  BlendMode::SOFT_LIGHT,
-  BlendMode::DIFFERENCE,
-  BlendMode::EXCLUSION,
-  BlendMode::HSL_HUE,
-  BlendMode::HSL_SATURATION,
-  BlendMode::HSL_COLOR,
-  BlendMode::HSL_LUMINOSITY,
+    BlendMode::MULTIPLY,       BlendMode::SCREEN,     BlendMode::OVERLAY,
+    BlendMode::DARKEN,         BlendMode::LIGHTEN,    BlendMode::COLOR_DODGE,
+    BlendMode::COLOR_BURN,     BlendMode::HARD_LIGHT, BlendMode::SOFT_LIGHT,
+    BlendMode::DIFFERENCE,     BlendMode::EXCLUSION,  BlendMode::HSL_HUE,
+    BlendMode::HSL_SATURATION, BlendMode::HSL_COLOR,  BlendMode::HSL_LUMINOSITY,
 };
 
 const BlendMode kSpecialGrayaModes[] = {
-  BlendMode::MULTIPLY,
-  BlendMode::SCREEN,
-  BlendMode::OVERLAY,
-  BlendMode::DARKEN,
-  BlendMode::LIGHTEN,
-  BlendMode::COLOR_DODGE,
-  BlendMode::COLOR_BURN,
-  BlendMode::HARD_LIGHT,
-  BlendMode::SOFT_LIGHT,
-  BlendMode::DIFFERENCE,
-  BlendMode::EXCLUSION,
+    BlendMode::MULTIPLY,   BlendMode::SCREEN,     BlendMode::OVERLAY,
+    BlendMode::DARKEN,     BlendMode::LIGHTEN,    BlendMode::COLOR_DODGE,
+    BlendMode::COLOR_BURN, BlendMode::HARD_LIGHT, BlendMode::SOFT_LIGHT,
+    BlendMode::DIFFERENCE, BlendMode::EXCLUSION,
 };
 
 } // anonymous namespace
@@ -57,7 +41,8 @@ TEST(BlendFuncs, RgbaSpecialModesFallBackToNormalOverTransparentBackdrop)
   const color_t backdrop = rgba(0, 0, 0, 0);
   const color_t src = rgba(200, 100, 50, 255);
 
-  for (BlendMode mode : kSpecialRgbaModes) {
+  for (BlendMode mode : kSpecialRgbaModes)
+  {
     BlendFunc blender = get_rgba_blender(mode);
     color_t expected = rgba_blender_normal(backdrop, src, 255);
     color_t actual = blender(backdrop, src, 255);
@@ -88,12 +73,14 @@ TEST(BlendFuncs, GrayaSpecialModesFallBackToNormalOverTransparentBackdrop)
   const color_t backdrop = graya(0, 0);
   const color_t src = graya(180, 255);
 
-  for (BlendMode mode : kSpecialGrayaModes) {
+  for (BlendMode mode : kSpecialGrayaModes)
+  {
     BlendFunc blender = get_graya_blender(mode);
     color_t expected = graya_blender_normal(backdrop, src, 255);
     color_t actual = blender(backdrop, src, 255);
     EXPECT_EQ(expected, actual) << "blend mode " << (int)mode;
-    EXPECT_EQ(graya_getv(src), graya_getv(actual)) << "blend mode " << (int)mode;
+    EXPECT_EQ(graya_getv(src), graya_getv(actual))
+        << "blend mode " << (int)mode;
   }
 }
 

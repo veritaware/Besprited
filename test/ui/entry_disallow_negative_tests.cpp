@@ -14,7 +14,8 @@
 
 using namespace ui;
 
-namespace {
+namespace
+{
 
 // Entry puts a half-typed expression (or, with disallowNegative, a
 // disallowed one) right on kFocusLeaveMessage - send one directly instead
@@ -27,14 +28,20 @@ void loseFocus(Entry& entry)
 
 // Stands in for a window that reads an entry as a number to refresh a live
 // preview.
-class PreviewReader {
+class PreviewReader
+{
 public:
-  explicit PreviewReader(Entry& entry) : m_entry(entry)
+  explicit PreviewReader(Entry& entry)
+    : m_entry(entry)
   {
-    m_entry.Change.connect([this]{ read(); });
+    m_entry.Change.connect([this] { read(); });
   }
 
-  void read() { value = m_entry.textInt(); ++reads; }
+  void read()
+  {
+    value = m_entry.textInt();
+    ++reads;
+  }
 
   int value = 0;
   int reads = 0;

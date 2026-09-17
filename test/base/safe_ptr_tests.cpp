@@ -9,17 +9,20 @@
 
 using namespace base;
 
-namespace {
+namespace
+{
 
 // A plain type using the manually-embedded safe_ptr pattern described in
 // safe_ptr.h's header comment.
-struct Manual {
+struct Manual
+{
   base::safe_ptr<Manual> ptr{this};
   int value = 42;
 };
 
 // A type with a virtual destructor, usable with base::make_safe().
-struct Virtual {
+struct Virtual
+{
   virtual ~Virtual() = default;
   int value = 7;
 };
@@ -153,17 +156,21 @@ TEST(SafePtr, SaveSafePtrOverwritesAStaleEntryAtAReusedAddress)
   ASSERT_FALSE(base::findSafePtr(first));
 
   void* reused = nullptr;
-  for (int attempt = 0; attempt < 64 && !reused; ++attempt) {
+  for (int attempt = 0; attempt < 64 && !reused; ++attempt)
+  {
     auto* candidate = base::make_safe<Virtual>().get();
-    if (static_cast<void*>(candidate) == static_cast<void*>(first)) {
+    if (static_cast<void*>(candidate) == static_cast<void*>(first))
+    {
       reused = candidate;
     }
-    else {
+    else
+    {
       delete candidate;
     }
   }
 
-  if (!reused) {
+  if (!reused)
+  {
     GTEST_SKIP() << "allocator never reused the freed address in 64 attempts";
     return;
   }

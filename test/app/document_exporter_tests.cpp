@@ -19,7 +19,8 @@
 using namespace app;
 using namespace doc;
 
-namespace {
+namespace
+{
 
 // Reads the whole file back into a string - exportSheet() only writes to a
 // std::cout/UIContext-driven stream when setDataFilename() is left empty, so
@@ -27,15 +28,17 @@ namespace {
 std::string readWholeFile(const std::string& path)
 {
   std::ifstream in(path, std::ios::binary);
-  return std::string(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+  return std::string(std::istreambuf_iterator<char>(in),
+                     std::istreambuf_iterator<char>());
 }
 
 // Every "frame" entry in the exporter's JSON is written as
 //   "<filename>": {\n    "frame": { "x": N, "y": N, "w": N, "h": N },\n
 // so a laid-out sample's exact bounds can be checked with one substring
 // lookup, no JSON parser needed.
-::testing::AssertionResult hasFrameBounds(const std::string& json, const std::string& filename,
-                                           int x, int y, int w, int h)
+::testing::AssertionResult hasFrameBounds(const std::string& json,
+                                          const std::string& filename, int x,
+                                          int y, int w, int h)
 {
   std::ostringstream expected;
   expected << "\"" << filename << "\": {\n"
@@ -44,12 +47,14 @@ std::string readWholeFile(const std::string& path)
   if (json.find(expected.str()) != std::string::npos)
     return ::testing::AssertionSuccess();
   return ::testing::AssertionFailure()
-    << "expected to find " << expected.str() << "in:\n" << json;
+         << "expected to find " << expected.str() << "in:\n"
+         << json;
 }
 
 } // namespace
 
-TEST(DocumentExporter, PerTagLayoutProducesOneRowPerTagWithCorrectInTextureBounds)
+TEST(DocumentExporter,
+     PerTagLayoutProducesOneRowPerTagWithCorrectInTextureBounds)
 {
   app::Context ctx;
   doc::Document* doc = ctx.documents().add(4, 4, doc::ColorMode::RGB);
@@ -105,12 +110,13 @@ TEST(DocumentExporter, PerTagLayoutProducesOneRowPerTagWithCorrectInTextureBound
   // all of them as duplicated and never positions them, so they keep their
   // SampleBounds-constructor default (0,0,<sprite size>) instead of a real
   // slot in the sheet.
-  for (int frame = 0; frame < 4; ++frame) {
+  for (int frame = 0; frame < 4; ++frame)
+  {
     std::ostringstream name;
     name << "spr " << frame << ".png";
     EXPECT_TRUE(hasFrameBounds(json, name.str(), 0, 0, 4, 4))
-      << "duplicated dummy sample for frame " << frame
-      << " should be left at its unpositioned default bounds";
+        << "duplicated dummy sample for frame " << frame
+        << " should be left at its unpositioned default bounds";
   }
 
   EXPECT_NE(std::string::npos, json.find("\"frameTags\": ["));
