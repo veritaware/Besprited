@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,7 +19,8 @@
 #include "doc/layer_io.h"
 #include "doc/sprite.h"
 
-namespace doc {
+namespace doc
+{
 
 using namespace doc;
 
@@ -37,7 +39,8 @@ void SubObjectsFromSprite::addImageRef(const ImageRef& image)
 ImageRef SubObjectsFromSprite::getImageRef(ObjectId imageId)
 {
   auto it = m_images.find(imageId);
-  if (it != m_images.end()) {
+  if (it != m_images.end())
+  {
     ImageRef image = it->second;
     ASSERT(image->id() == imageId);
     ASSERT(!m_sprite->getImageRef(imageId));
@@ -57,8 +60,9 @@ void SubObjectsFromSprite::addCelDataRef(const CelDataRef& celdata)
 CelDataRef SubObjectsFromSprite::getCelDataRef(ObjectId celdataId)
 {
   auto it = m_celdatas.find(celdataId);
-  if (it != m_celdatas.end()) {
-    CelDataRef celdata = it->second;
+  if (it != m_celdatas.end())
+  {
+    const CelDataRef celdata = it->second;
     ASSERT(celdata->id() == celdataId);
     ASSERT(!m_sprite->getCelDataRef(celdataId));
     return celdata;

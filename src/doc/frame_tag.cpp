@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,7 +14,8 @@
 #include "base/debug.h"
 #include "doc/frame_tags.h"
 
-namespace doc {
+namespace doc
+{
 
 FrameTag::FrameTag(frame_t from, frame_t to)
   : Object(ObjectType::FrameTag)
@@ -72,8 +74,7 @@ void FrameTag::setColor(color_t color)
 
 void FrameTag::setAniDir(AniDir aniDir)
 {
-  ASSERT(m_aniDir == AniDir::FORWARD ||
-         m_aniDir == AniDir::REVERSE ||
+  ASSERT(m_aniDir == AniDir::FORWARD || m_aniDir == AniDir::REVERSE ||
          m_aniDir == AniDir::PING_PONG);
 
   m_aniDir = aniDir;

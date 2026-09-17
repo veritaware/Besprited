@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,7 +18,8 @@
 #include <algorithm>
 #include <limits>
 
-namespace doc {
+namespace doc
+{
 
 using namespace gfx;
 
@@ -39,7 +41,7 @@ std::shared_ptr<Palette> Palette::remap(const Remap& remap)
 {
   auto palette = create(size());
   palette->setFrame(m_frame);
-  for (int i=0; i<size(); ++i)
+  for (int i = 0; i < size(); ++i)
     palette->setEntry(remap[i], getEntry(i));
   return palette;
 }
@@ -47,7 +49,7 @@ std::shared_ptr<Palette> Palette::remap(const Remap& remap)
 std::shared_ptr<Palette> Palette::createGrayscale()
 {
   auto graypal = Palette::create(256);
-  for (int c=0; c<256; c++)
+  for (int c = 0; c < 256; c++)
     graypal->setEntry(c, rgba(c, c, c, 255));
   return graypal;
 }
@@ -62,13 +64,13 @@ void Palette::resize(int ncolors)
 
 void Palette::addEntry(color_t color)
 {
-  resize(size()+1);
-  setEntry(size()-1, color);
+  resize(size() + 1);
+  setEntry(size() - 1, color);
 }
 
 bool Palette::hasAlpha() const
 {
-  for (int i=0; i<(int)m_colors.size(); ++i)
+  for (int i = 0; i < static_cast<int>(m_colors.size()); ++i)
     if (rgba_geta(getEntry(i)) < 255)
       return true;
   return false;
@@ -98,25 +100,34 @@ void Palette::copyColorsTo(Palette& dst) const
 int Palette::countDiff(const Palette& other, int* from, int* to) const
 {
   int c, diff = 0;
-  int min = MIN(this->m_colors.size(), other.m_colors.size());
-  int max = MAX(this->m_colors.size(), other.m_colors.size());
+  const int min = MIN(this->m_colors.size(), other.m_colors.size());
+  const int max = MAX(this->m_colors.size(), other.m_colors.size());
 
-  if (from) *from = -1;
-  if (to) *to = -1;
+  if (from)
+    *from = -1;
+  if (to)
+    *to = -1;
 
   // Compare palettes
-  for (c=0; c<min; ++c) {
-    if (this->m_colors[c] != other.m_colors[c]) {
-      if (from && *from < 0) *from = c;
-      if (to) *to = c;
+  for (c = 0; c < min; ++c)
+  {
+    if (this->m_colors[c] != other.m_colors[c])
+    {
+      if (from && *from < 0)
+        *from = c;
+      if (to)
+        *to = c;
       ++diff;
     }
   }
 
-  if (max != min) {
+  if (max != min)
+  {
     diff += max - min;
-    if (from && *from < 0) *from = min;
-    if (to) *to = max-1;
+    if (from && *from < 0)
+      *from = min;
+    if (to)
+      *to = max - 1;
   }
 
   return diff;
@@ -124,7 +135,7 @@ int Palette::countDiff(const Palette& other, int* from, int* to) const
 
 bool Palette::isBlack() const
 {
-  for (std::size_t c=0; c<m_colors.size(); ++c)
+  for (std::size_t c = 0; c < m_colors.size(); ++c)
     if (getEntry(c) != rgba(0, 0, 0, 255))
       return false;
 
@@ -165,11 +176,12 @@ void Palette::makeGradient(int from, int to)
   b2 = rgba_getb(getEntry(to));
   a2 = rgba_geta(getEntry(to));
 
-  for (i=from+1; i<to; ++i) {
-    r = r1 + (r2-r1) * (i-from) / n;
-    g = g1 + (g2-g1) * (i-from) / n;
-    b = b1 + (b2-b1) * (i-from) / n;
-    a = a1 + (a2-a1) * (i-from) / n;
+  for (i = from + 1; i < to; ++i)
+  {
+    r = r1 + (r2 - r1) * (i - from) / n;
+    g = g1 + (g2 - g1) * (i - from) / n;
+    b = b1 + (b2 - b1) * (i - from) / n;
+    a = a1 + (a2 - a1) * (i - from) / n;
 
     setEntry(i, rgba(r, g, b, a));
   }
@@ -177,7 +189,7 @@ void Palette::makeGradient(int from, int to)
 
 int Palette::findExactMatch(int r, int g, int b, int a, int mask_index) const
 {
-  for (int i=0; i<(int)m_colors.size(); ++i)
+  for (int i = 0; i < static_cast<int>(m_colors.size()); ++i)
     if (getEntry(i) == rgba(r, g, b, a) && i != mask_index)
       return i;
 
@@ -195,18 +207,19 @@ static uint32_t* col_diff_a;
 
 static void initBestfit()
 {
-  col_diff.resize(4*128, 0);
-  col_diff_g = &col_diff[128*0];
-  col_diff_r = &col_diff[128*1];
-  col_diff_b = &col_diff[128*2];
-  col_diff_a = &col_diff[128*3];
+  col_diff.resize(4 * 128, 0);
+  col_diff_g = &col_diff[128 * 0];
+  col_diff_r = &col_diff[128 * 1];
+  col_diff_b = &col_diff[128 * 2];
+  col_diff_a = &col_diff[128 * 3];
 
-  for (int i=1; i<64; ++i) {
-    int k = i * i;
-    col_diff_g[i] = col_diff_g[128-i] = k * 59 * 59;
-    col_diff_r[i] = col_diff_r[128-i] = k * 30 * 30;
-    col_diff_b[i] = col_diff_b[128-i] = k * 11 * 11;
-    col_diff_a[i] = col_diff_a[128-i] = k * 8 * 8;
+  for (int i = 1; i < 64; ++i)
+  {
+    const int k = i * i;
+    col_diff_g[i] = col_diff_g[128 - i] = k * 59 * 59;
+    col_diff_r[i] = col_diff_r[128 - i] = k * 30 * 30;
+    col_diff_b[i] = col_diff_b[128 - i] = k * 11 * 11;
+    col_diff_a[i] = col_diff_a[128 - i] = k * 8 * 8;
   }
 }
 
@@ -231,19 +244,24 @@ int Palette::findBestfit(int r, int g, int b, int a, int mask_index) const
 
   int bestfit = 0;
   int lowest = std::numeric_limits<int>::max();
-  int size = MIN(256, m_colors.size());
+  const int size = MIN(256, m_colors.size());
 
-  for (int i=0; i<size; ++i) {
-    color_t rgb = m_colors[i];
+  for (int i = 0; i < size; ++i)
+  {
+    const color_t rgb = m_colors[i];
 
-    int coldiff = col_diff_g[((rgba_getg(rgb)>>3) - g) & 127];
-    if (coldiff < lowest) {
-      coldiff += col_diff_r[(((rgba_getr(rgb)>>3) - r) & 127)];
-      if (coldiff < lowest) {
-        coldiff += col_diff_b[(((rgba_getb(rgb)>>3) - b) & 127)];
-        if (coldiff < lowest) {
-          coldiff += col_diff_a[(((rgba_geta(rgb)>>3) - a) & 127)];
-          if (coldiff < lowest && i != mask_index) {
+    int coldiff = col_diff_g[((rgba_getg(rgb) >> 3) - g) & 127];
+    if (coldiff < lowest)
+    {
+      coldiff += col_diff_r[(((rgba_getr(rgb) >> 3) - r) & 127)];
+      if (coldiff < lowest)
+      {
+        coldiff += col_diff_b[(((rgba_getb(rgb) >> 3) - b) & 127)];
+        if (coldiff < lowest)
+        {
+          coldiff += col_diff_a[(((rgba_geta(rgb) >> 3) - a) & 127)];
+          if (coldiff < lowest && i != mask_index)
+          {
             if (coldiff == 0)
               return i;
 
@@ -260,8 +278,8 @@ int Palette::findBestfit(int r, int g, int b, int a, int mask_index) const
 
 void Palette::applyRemap(const Remap& remap)
 {
-  Palette original(*this);
-  for (int i=0; i<size(); ++i)
+  const Palette original(*this);
+  for (int i = 0; i < size(); ++i)
     setEntry(remap[i], original.getEntry(i));
 }
 

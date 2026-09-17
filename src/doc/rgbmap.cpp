@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,18 +14,19 @@
 #include "doc/color_scales.h"
 #include "doc/palette.h"
 
-namespace doc {
+namespace doc
+{
 
-#define RSIZE   32
-#define GSIZE   32
-#define BSIZE   32
-#define ASIZE   8
-#define MAPSIZE (RSIZE*GSIZE*BSIZE*ASIZE)
+#define RSIZE 32
+#define GSIZE 32
+#define BSIZE 32
+#define ASIZE 8
+#define MAPSIZE (RSIZE * GSIZE * BSIZE * ASIZE)
 
 RgbMap::RgbMap()
   : Object(ObjectType::RgbMap)
   , m_map(MAPSIZE)
-  , m_palette(NULL)
+  , m_palette(nullptr)
   , m_modifications(0)
   , m_maskIndex(0)
 {
@@ -33,7 +35,7 @@ RgbMap::RgbMap()
 bool RgbMap::match(const Palette* palette) const
 {
   return (m_palette == palette &&
-    m_modifications == palette->getModifications());
+          m_modifications == palette->getModifications());
 }
 
 void RgbMap::regenerate(const Palette* palette, int mask_index)
@@ -49,12 +51,10 @@ void RgbMap::regenerate(const Palette* palette, int mask_index)
 
 int RgbMap::generateEntry(int i, int r, int g, int b, int a) const
 {
-  return m_map[i] =
-    m_palette->findBestfit(
-      scale_5bits_to_8bits(r>>3),
-      scale_5bits_to_8bits(g>>3),
-      scale_5bits_to_8bits(b>>3),
-      scale_3bits_to_8bits(a>>5), m_maskIndex);
+  return m_map[i] = m_palette->findBestfit(
+             scale_5bits_to_8bits(r >> 3), scale_5bits_to_8bits(g >> 3),
+             scale_5bits_to_8bits(b >> 3), scale_3bits_to_8bits(a >> 5),
+             m_maskIndex);
 }
 
 } // namespace doc

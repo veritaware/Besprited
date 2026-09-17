@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,10 +15,11 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace doc {
+namespace doc
+{
 
-CelsRange::CelsRange(const Sprite* sprite,
-  frame_t first, frame_t last, Flags flags)
+CelsRange::CelsRange(const Sprite* sprite, frame_t first, frame_t last,
+                     Flags flags)
   : m_begin(sprite, first, last, flags)
   , m_end()
 {
@@ -28,16 +30,19 @@ CelsRange::iterator::iterator()
 {
 }
 
-CelsRange::iterator::iterator(const Sprite* sprite, frame_t first, frame_t last, CelsRange::Flags flags)
+CelsRange::iterator::iterator(const Sprite* sprite, frame_t first, frame_t last,
+                              CelsRange::Flags flags)
   : m_cel(nullptr)
   , m_first(first)
   , m_last(last)
   , m_flags(flags)
 {
   // Get first cel
-  Layer* layer = sprite->layer(sprite->firstLayer());
-  while (layer && !m_cel) {
-    for (frame_t f=first; f<=last; ++f) {
+  const Layer* layer = sprite->layer(sprite->firstLayer());
+  while (layer && !m_cel)
+  {
+    for (frame_t f = first; f <= last; ++f)
+    {
       m_cel = layer->cel(f);
       if (m_cel)
         break;
@@ -55,16 +60,21 @@ CelsRange::iterator& CelsRange::iterator::operator++()
     return *this;
 
   // Get next cel
-  Layer* layer = m_cel->layer();
-  frame_t first = m_cel->frame()+1;
+  const Layer* layer = m_cel->layer();
+  frame_t first = m_cel->frame() + 1;
   m_cel = nullptr;
 
-  while (layer && !m_cel) {
-    for (frame_t f=first; f<=m_last; ++f) {
+  while (layer && !m_cel)
+  {
+    for (frame_t f = first; f <= m_last; ++f)
+    {
       m_cel = layer->cel(f);
-      if (m_cel) {
-        if (m_flags == CelsRange::UNIQUE) {
-          if (m_visited.find(m_cel->data()->id()) == m_visited.end()) {
+      if (m_cel)
+      {
+        if (m_flags == CelsRange::UNIQUE)
+        {
+          if (m_visited.find(m_cel->data()->id()) == m_visited.end())
+          {
             m_visited.insert(m_cel->data()->id());
             break;
           }

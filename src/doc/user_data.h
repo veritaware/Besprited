@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,36 +11,36 @@
 
 #include <string>
 
-namespace doc {
+namespace doc
+{
 
-  class UserData {
-  public:
-    UserData() : m_color(0) {
-    }
+class UserData
+{
+public:
+  UserData()
+    : m_color(0)
+  {
+  }
 
-    size_t size() const { return m_text.size(); }
-    bool isEmpty() const {
-      return m_text.empty() && !doc::rgba_geta(m_color);
-    }
+  size_t size() const { return m_text.size(); }
+  bool isEmpty() const { return m_text.empty() && !doc::rgba_geta(m_color); }
 
-    const std::string& text() const { return m_text; }
-    color_t color() const { return m_color; }
+  const std::string& text() const { return m_text; }
+  color_t color() const { return m_color; }
 
-    void setText(const std::string& text) { m_text = text; }
-    void setColor(color_t color) { m_color = color; }
+  void setText(const std::string& text) { m_text = text; }
+  void setColor(color_t color) { m_color = color; }
 
-    bool operator==(const UserData& other) const {
-      return (m_text == other.m_text &&
-              m_color == other.m_color);
-    }
+  bool operator==(const UserData& other) const
+  {
+    return (m_text == other.m_text && m_color == other.m_color);
+  }
 
-    bool operator!=(const UserData& other) const {
-      return !operator==(other);
-    }
+  bool operator!=(const UserData& other) const { return !operator==(other); }
 
-  private:
-    std::string m_text;
-    color_t m_color;
-  };
+private:
+  std::string m_text;
+  color_t m_color;
+};
 
 } // namespace doc

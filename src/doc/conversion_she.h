@@ -1,21 +1,24 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2014 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2014 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
 #pragma once
 
-namespace she {
-  class Surface;
+namespace she
+{
+class Surface;
 }
 
-namespace doc {
-  class Image;
-  class Palette;
+namespace doc
+{
+class Image;
+class Palette;
 
-  void convert_image_to_surface(const Image* image, const Palette* palette,
-    she::Surface* surface,
-    int src_x, int src_y, int dst_x, int dst_y, int w, int h);
+void convert_image_to_surface(const Image* image, const Palette* palette,
+                              she::Surface* surface, int src_x, int src_y,
+                              int dst_x, int dst_y, int w, int h);
 
 } // namespace doc

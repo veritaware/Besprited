@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,7 +17,8 @@
 
 #include <iostream>
 
-namespace doc {
+namespace doc
+{
 
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
@@ -35,4 +37,4 @@ UserData read_user_data(std::istream& is)
   return userData;
 }
 
-}
+} // namespace doc

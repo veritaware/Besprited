@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,12 +15,13 @@
 #include "doc/context.h"
 #include "doc/sprite.h"
 
-namespace doc {
+namespace doc
+{
 
 Document::Document()
   : Object(ObjectType::Document)
   , m_sprites(this)
-  , m_ctx(NULL)
+  , m_ctx(nullptr)
 {
 }
 
@@ -54,7 +56,7 @@ int Document::height() const
 
 ColorMode Document::colorMode() const
 {
-  return (ColorMode)sprite()->pixelFormat();
+  return static_cast<ColorMode>(sprite()->pixelFormat());
 }
 
 std::string Document::name() const
@@ -85,9 +87,10 @@ void Document::onContextChanged()
 
 void Document::removeFromContext()
 {
-  if (m_ctx) {
+  if (m_ctx)
+  {
     m_ctx->documents().remove(this);
-    m_ctx = NULL;
+    m_ctx = nullptr;
 
     onContextChanged();
   }

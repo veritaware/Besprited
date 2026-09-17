@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,7 +17,8 @@
 #include <iostream>
 #include <memory>
 
-namespace doc {
+namespace doc
+{
 
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
@@ -33,37 +35,41 @@ void write_mask(std::ostream& os, const Mask* mask)
 {
   const gfx::Rect& bounds = mask->bounds();
 
-  write16(os, bounds.x);                        // Xpos
-  write16(os, bounds.y);                        // Ypos
-  write16(os, mask->bitmap() ? bounds.w: 0);    // Width
-  write16(os, mask->bitmap() ? bounds.h: 0);    // Height
+  write16(os, bounds.x);                      // Xpos
+  write16(os, bounds.y);                      // Ypos
+  write16(os, mask->bitmap() ? bounds.w : 0); // Width
+  write16(os, mask->bitmap() ? bounds.h : 0); // Height
 
-  if (mask->bitmap()) {
-    int size = BitmapTraits::getRowStrideBytes(bounds.w);
+  if (mask->bitmap())
+  {
+    const int size = BitmapTraits::getRowStrideBytes(bounds.w);
 
-    for (int c=0; c<bounds.h; c++)
-      os.write((char*)mask->bitmap()->getPixelAddress(0, c), size);
+    for (int c = 0; c < bounds.h; c++)
+      os.write(reinterpret_cast<char*>(mask->bitmap()->getPixelAddress(0, c)),
+               size);
   }
 }
 
 Mask* read_mask(std::istream& is)
 {
-  int x = read16(is);           // Xpos
-  int y = read16(is);           // Ypos
-  int w = read16(is);           // Width
-  int h = read16(is);           // Height
+  const int x = read16(is); // Xpos
+  const int y = read16(is); // Ypos
+  const int w = read16(is); // Width
+  const int h = read16(is); // Height
 
-  std::unique_ptr<Mask> mask(new Mask());
+  std::unique_ptr<Mask> mask = std::make_unique<Mask>();
 
-  if (w > 0 && h > 0) {
-    int size = BitmapTraits::getRowStrideBytes(w);
+  if (w > 0 && h > 0)
+  {
+    const int size = BitmapTraits::getRowStrideBytes(w);
 
     mask->add(gfx::Rect(x, y, w, h));
-    for (int c=0; c<mask->bounds().h; c++)
-      is.read((char*)mask->bitmap()->getPixelAddress(0, c), size);
+    for (int c = 0; c < mask->bounds().h; c++)
+      is.read(reinterpret_cast<char*>(mask->bitmap()->getPixelAddress(0, c)),
+              size);
   }
 
   return mask.release();
 }
 
-}
+} // namespace doc

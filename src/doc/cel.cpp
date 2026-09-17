@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,11 +16,12 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace doc {
+namespace doc
+{
 
 Cel::Cel(frame_t frame, const ImageRef& image)
   : Object(ObjectType::Cel)
-  , m_layer(NULL)
+  , m_layer(nullptr)
   , m_frame(frame)
   , m_data(new CelData(image))
 {
@@ -27,7 +29,7 @@ Cel::Cel(frame_t frame, const ImageRef& image)
 
 Cel::Cel(frame_t frame, const CelDataRef& celData)
   : Object(ObjectType::Cel)
-  , m_layer(NULL)
+  , m_layer(nullptr)
   , m_frame(frame)
   , m_data(celData)
 {
@@ -36,7 +38,8 @@ Cel::Cel(frame_t frame, const CelDataRef& celData)
 // static
 std::shared_ptr<Cel> Cel::createCopy(std::shared_ptr<const Cel> other)
 {
-  auto cel = std::make_shared<Cel>(other->frame(), ImageRef(Image::createCopy(other->image())));
+  auto cel = std::make_shared<Cel>(other->frame(),
+                                   ImageRef(Image::createCopy(other->image())));
   cel->setPosition(other->position());
   cel->setOpacity(other->opacity());
   return cel;
@@ -81,7 +84,7 @@ Document* Cel::document() const
   if (m_layer && m_layer->sprite())
     return m_layer->sprite()->document();
   else
-    return NULL;
+    return nullptr;
 }
 
 Sprite* Cel::sprite() const
@@ -90,32 +93,35 @@ Sprite* Cel::sprite() const
   if (m_layer)
     return m_layer->sprite();
   else
-    return NULL;
+    return nullptr;
 }
 
 std::shared_ptr<Cel> Cel::link() const
 {
   ASSERT(m_data);
-  if (m_data.get() == NULL)
-    return NULL;
+  if (m_data.get() == nullptr)
+    return nullptr;
 
-  if (!m_data.unique()) {
-    for (frame_t fr=0; fr<m_frame; ++fr) {
+  if (!m_data.unique())
+  {
+    for (frame_t fr = 0; fr < m_frame; ++fr)
+    {
       auto possible = m_layer->cel(fr);
       if (possible && possible->dataRef().get() == m_data.get())
         return possible;
     }
   }
 
-  return NULL;
+  return nullptr;
 }
 
 std::size_t Cel::links() const
 {
   std::size_t links = 0;
 
-  Sprite* sprite = this->sprite();
-  for (frame_t fr=0; fr<sprite->totalFrames(); ++fr) {
+  const Sprite* sprite = this->sprite();
+  for (frame_t fr = 0; fr < sprite->totalFrames(); ++fr)
+  {
     auto cel = m_layer->cel(fr);
     if (cel && cel.get() != this && cel->dataRef().get() == m_data.get())
       ++links;
@@ -129,11 +135,9 @@ gfx::Rect Cel::bounds() const
   auto image = this->image();
   ASSERT(image);
   if (image)
-    return gfx::Rect(
-      position().x, position().y,
-      image->width(), image->height());
+    return {position().x, position().y, image->width(), image->height()};
   else
-    return gfx::Rect();
+    return {};
 }
 
 void Cel::setParentLayer(LayerImage* layer)

@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,30 +16,32 @@
 #include <vector>
 #include <iostream>
 
-namespace doc {
+namespace doc
+{
 
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
 
 void write_string(std::ostream& os, const std::string& str)
 {
-  write16(os, (uint16_t)str.size());
+  write16(os, static_cast<uint16_t>(str.size()));
   if (!str.empty())
     os.write(str.c_str(), str.size());
 }
 
 std::string read_string(std::istream& is)
 {
-  uint16_t length = read16(is);
-  std::vector<char> str(length+1);
-  if (length > 0) {
+  const uint16_t length = read16(is);
+  std::vector<char> str(length + 1);
+  if (length > 0)
+  {
     is.read(&str[0], length);
     str[length] = 0;
   }
   else
     str[0] = 0;
 
-  return std::string(&str[0]);
+  return {&str[0]};
 }
 
-}
+} // namespace doc

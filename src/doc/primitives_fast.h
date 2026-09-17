@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,54 +9,64 @@
 
 #include "doc/color.h"
 
-namespace doc {
-  class Image;
-  template<typename ImageTraits> class ImageImpl;
+namespace doc
+{
+class Image;
+template <typename ImageTraits> class ImageImpl;
 
-  template<class Traits>
-  inline typename Traits::address_t get_pixel_address_fast(const Image* image, int x, int y) {
-    ASSERT(x >= 0 && x < image->width());
-    ASSERT(y >= 0 && y < image->height());
+template <class Traits>
+inline typename Traits::address_t get_pixel_address_fast(const Image* image,
+                                                         int x, int y)
+{
+  ASSERT(x >= 0 && x < image->width());
+  ASSERT(y >= 0 && y < image->height());
 
-    return (((ImageImpl<Traits>*)image)->address(x, y));
-  }
+  return (((ImageImpl<Traits>*)image)->address(x, y));
+}
 
-  template<class Traits>
-  inline typename Traits::pixel_t get_pixel_fast(const Image* image, int x, int y) {
-    ASSERT(x >= 0 && x < image->width());
-    ASSERT(y >= 0 && y < image->height());
+template <class Traits>
+inline typename Traits::pixel_t get_pixel_fast(const Image* image, int x, int y)
+{
+  ASSERT(x >= 0 && x < image->width());
+  ASSERT(y >= 0 && y < image->height());
 
-    return *(((ImageImpl<Traits>*)image)->address(x, y));
-  }
+  return *(((ImageImpl<Traits>*)image)->address(x, y));
+}
 
-  template<class Traits>
-  inline void put_pixel_fast(Image* image, int x, int y, typename Traits::pixel_t color) {
-    ASSERT(x >= 0 && x < image->width());
-    ASSERT(y >= 0 && y < image->height());
+template <class Traits>
+inline void put_pixel_fast(Image* image, int x, int y,
+                           typename Traits::pixel_t color)
+{
+  ASSERT(x >= 0 && x < image->width());
+  ASSERT(y >= 0 && y < image->height());
 
-    *(((ImageImpl<Traits>*)image)->address(x, y)) = color;
-  }
+  *(((ImageImpl<Traits>*)image)->address(x, y)) = color;
+}
 
-  //////////////////////////////////////////////////////////////////////
-  // Bitmap specialization
+//////////////////////////////////////////////////////////////////////
+// Bitmap specialization
 
-  template<>
-  inline BitmapTraits::pixel_t get_pixel_fast<BitmapTraits>(const Image* image, int x, int y) {
-    ASSERT(x >= 0 && x < image->width());
-    ASSERT(y >= 0 && y < image->height());
+template <>
+inline BitmapTraits::pixel_t get_pixel_fast<BitmapTraits>(const Image* image,
+                                                          int x, int y)
+{
+  ASSERT(x >= 0 && x < image->width());
+  ASSERT(y >= 0 && y < image->height());
 
-    return (*image->getPixelAddress(x, y)) & (1 << (x % 8)) ? 1: 0;
-  }
+  return (*image->getPixelAddress(x, y)) & (1 << (x % 8)) ? 1 : 0;
+}
 
-  template<>
-  inline void put_pixel_fast<BitmapTraits>(Image* image, int x, int y, BitmapTraits::pixel_t color) {
-    ASSERT(x >= 0 && x < image->width());
-    ASSERT(y >= 0 && y < image->height());
+template <>
+inline void put_pixel_fast<BitmapTraits>(Image* image, int x, int y,
+                                         BitmapTraits::pixel_t color)
+{
+  ASSERT(x >= 0 && x < image->width());
+  ASSERT(y >= 0 && y < image->height());
 
-    if (color)
-      *image->getPixelAddress(x, y) |= (1 << (x % 8));
-    else
-      *image->getPixelAddress(x, y) &= ~(1 << (x % 8));
-  }
+  if (color)
+    *image->getPixelAddress(x, y) |= (1 << (x % 8));
+  else
+    *image->getPixelAddress(x, y) &= ~(1 << (x % 8));
+}
 
 } // namespace doc

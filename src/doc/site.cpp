@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,12 +16,12 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace doc {
+namespace doc
+{
 
 LayerIndex Site::layerIndex() const
 {
-  return (m_sprite && m_layer ?
-          m_sprite->layerToIndex(m_layer): LayerIndex());
+  return (m_sprite && m_layer ? m_sprite->layerToIndex(m_layer) : LayerIndex());
 }
 
 void Site::layerIndex(LayerIndex layerIndex)
@@ -31,7 +32,7 @@ void Site::layerIndex(LayerIndex layerIndex)
 
 Palette* Site::palette()
 {
-  return (m_sprite ? m_sprite->palette(m_frame): NULL);
+  return (m_sprite ? m_sprite->palette(m_frame) : nullptr);
 }
 
 std::shared_ptr<const Cel> Site::cel() const
@@ -39,7 +40,7 @@ std::shared_ptr<const Cel> Site::cel() const
   if (m_layer)
     return m_layer->cel(m_frame);
   else
-    return NULL;
+    return nullptr;
 }
 
 std::shared_ptr<Cel> Site::cel()
@@ -47,19 +48,24 @@ std::shared_ptr<Cel> Site::cel()
   if (m_layer)
     return m_layer->cel(m_frame);
   else
-    return NULL;
+    return nullptr;
 }
 
 Image* Site::image(int* x, int* y, int* opacity) const
 {
-  Image* image = NULL;
+  Image* image = nullptr;
 
-  if (m_sprite) {
-    if (auto cel = this->cel()) {
+  if (m_sprite)
+  {
+    if (auto cel = this->cel())
+    {
       image = cel->image();
-      if (x) *x = cel->x();
-      if (y) *y = cel->y();
-      if (opacity) *opacity = MID(0, cel->opacity(), 255);
+      if (x)
+        *x = cel->x();
+      if (y)
+        *y = cel->y();
+      if (opacity)
+        *opacity = MID(0, cel->opacity(), 255);
     }
   }
 
@@ -68,7 +74,7 @@ Image* Site::image(int* x, int* y, int* opacity) const
 
 Palette* Site::palette() const
 {
-  return (m_sprite ? m_sprite->palette(m_frame): NULL);
+  return (m_sprite ? m_sprite->palette(m_frame) : nullptr);
 }
 
 } // namespace doc

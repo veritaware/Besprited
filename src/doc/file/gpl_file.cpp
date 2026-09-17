@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -21,10 +22,10 @@
 #include <sstream>
 #include <string>
 
-namespace doc {
-namespace file {
+namespace doc::file
+{
 
-std::shared_ptr<Palette> load_gpl_file(const char *filename)
+std::shared_ptr<Palette> load_gpl_file(const char* filename)
 {
   std::ifstream f(FSTREAM_PATH(filename));
   if (f.bad())
@@ -40,7 +41,8 @@ std::shared_ptr<Palette> load_gpl_file(const char *filename)
 
   auto pal = Palette::create(0);
 
-  while (std::getline(f, line)) {
+  while (std::getline(f, line))
+  {
     // Trim line.
     base::trim_string(line, line);
 
@@ -58,7 +60,7 @@ std::shared_ptr<Palette> load_gpl_file(const char *filename)
     lineIn >> r >> g >> b;
 
     if (lineIn.fail())
-        continue;
+      continue;
 
     pal->addEntry(rgba(r, g, b, 255));
   }
@@ -66,23 +68,25 @@ std::shared_ptr<Palette> load_gpl_file(const char *filename)
   return pal;
 }
 
-bool save_gpl_file(const Palette& pal, const char *filename)
+bool save_gpl_file(const Palette& pal, const char* filename)
 {
   std::ofstream f(FSTREAM_PATH(filename));
-  if (f.bad()) return false;
+  if (f.bad())
+    return false;
 
   f << "GIMP Palette\n"
     << "#\n";
 
-  for (int i=0; i<pal.size(); ++i) {
-    uint32_t col = pal.getEntry(i);
-    f << std::setfill(' ') << std::setw(3) << ((int)rgba_getr(col)) << " "
-      << std::setfill(' ') << std::setw(3) << ((int)rgba_getg(col)) << " "
-      << std::setfill(' ') << std::setw(3) << ((int)rgba_getb(col)) << "\tUntitled\n";
+  for (int i = 0; i < pal.size(); ++i)
+  {
+    const uint32_t col = pal.getEntry(i);
+    f << std::setfill(' ') << std::setw(3) << (static_cast<int>(rgba_getr(col)))
+      << " " << std::setfill(' ') << std::setw(3)
+      << (static_cast<int>(rgba_getg(col))) << " " << std::setfill(' ')
+      << std::setw(3) << (static_cast<int>(rgba_getb(col))) << "\tUntitled\n";
   }
 
   return true;
 }
 
-} // namespace file
-} // namespace doc
+} // namespace doc::file

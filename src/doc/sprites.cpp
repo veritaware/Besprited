@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -20,7 +21,8 @@
 #include <algorithm>
 #include <memory>
 
-namespace doc {
+namespace doc
+{
 
 Sprites::Sprites(Document* doc)
   : m_doc(doc)
@@ -35,9 +37,8 @@ Sprites::~Sprites()
 
 Sprite* Sprites::add(int width, int height, ColorMode mode, int ncolors)
 {
-  std::unique_ptr<Sprite> spr(
-    doc::Sprite::createBasicSprite(
-      (doc::PixelFormat)mode, width, height, ncolors));
+  std::unique_ptr<Sprite> spr(doc::Sprite::createBasicSprite(
+      static_cast<doc::PixelFormat>(mode), width, height, ncolors));
 
   add(spr.get());
 
@@ -57,11 +58,12 @@ Sprite* Sprites::add(Sprite* spr)
 
 void Sprites::remove(Sprite* spr)
 {
-  iterator it = std::find(begin(), end(), spr);
+  auto it = std::find(begin(), end(), spr);
   ASSERT(it != end());
 
-  if (it != end()) {
-    (*it)->setDocument(NULL);
+  if (it != end())
+  {
+    (*it)->setDocument(nullptr);
     m_sprites.erase(it);
   }
 }
@@ -70,15 +72,16 @@ void Sprites::move(Sprite* spr, int index)
 {
   remove(spr);
 
-  m_sprites.insert(begin()+index, spr);
+  m_sprites.insert(begin() + index, spr);
 }
 
 void Sprites::deleteAll()
 {
   std::vector<Sprite*> copy = m_sprites;
 
-  for (iterator it = copy.begin(), end = copy.end(); it != end; ++it) {
-    Sprite* spr = *it;
+  for (auto it = copy.begin(), end = copy.end(); it != end; ++it)
+  {
+    const Sprite* spr = *it;
     delete spr;
   }
 

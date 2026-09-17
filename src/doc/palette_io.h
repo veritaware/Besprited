@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,11 +10,12 @@
 #include <iosfwd>
 #include <memory>
 
-namespace doc {
+namespace doc
+{
 
-  class Palette;
+class Palette;
 
-  void write_palette(std::ostream& os, const Palette& palette);
-  std::shared_ptr<Palette> read_palette(std::istream& is);
+void write_palette(std::ostream& os, const Palette& palette);
+std::shared_ptr<Palette> read_palette(std::istream& is);
 
 } // namespace doc

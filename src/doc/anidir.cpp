@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,14 +11,19 @@
 
 #include "doc/anidir.h"
 
-namespace doc {
+namespace doc
+{
 
 std::string convert_to_string(AniDir anidir)
 {
-  switch (anidir) {
-    case AniDir::FORWARD: return "forward";
-    case AniDir::REVERSE: return "reverse";
-    case AniDir::PING_PONG: return "pingpong";
+  switch (anidir)
+  {
+  case AniDir::FORWARD:
+    return "forward";
+  case AniDir::REVERSE:
+    return "reverse";
+  case AniDir::PING_PONG:
+    return "pingpong";
   }
   return "";
 }

@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,7 +14,8 @@
 #include "doc/image_iterator.h"
 #include "doc/image_traits.h"
 
-namespace doc {
+namespace doc
+{
 
 void copy_bitmaps(Image* dst, const Image* src, gfx::Clip area)
 {
@@ -21,15 +23,18 @@ void copy_bitmaps(Image* dst, const Image* src, gfx::Clip area)
     return;
 
   // Copy process
-  ImageConstIterator<BitmapTraits> src_it(src, area.srcBounds(), area.src.x, area.src.y);
-  ImageIterator<BitmapTraits> dst_it(dst, area.dstBounds(), area.dst.x, area.dst.y);
+  ImageConstIterator<BitmapTraits> src_it(src, area.srcBounds(), area.src.x,
+                                          area.src.y);
+  ImageIterator<BitmapTraits> dst_it(dst, area.dstBounds(), area.dst.x,
+                                     area.dst.y);
 
-  int end_x = area.dst.x+area.size.w;
+  const int end_x = area.dst.x + area.size.w;
 
-  for (int end_y=area.dst.y+area.size.h;
-       area.dst.y<end_y;
-       ++area.dst.y, ++area.src.y) {
-    for (int x=area.dst.x; x<end_x; ++x) {
+  for (const int end_y = area.dst.y + area.size.h; area.dst.y < end_y;
+       ++area.dst.y, ++area.src.y)
+  {
+    for (int x = area.dst.x; x < end_x; ++x)
+    {
       *dst_it = *src_it;
       ++src_it;
       ++dst_it;

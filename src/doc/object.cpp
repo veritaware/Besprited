@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,7 +17,8 @@
 
 #include <map>
 
-namespace doc {
+namespace doc
+{
 
 static base::mutex mutex;
 static ObjectId newId = 0;
@@ -32,7 +34,7 @@ Object::Object(ObjectType type)
 
 Object::Object(const Object& other)
   : m_type(other.m_type)
-  , m_id(0) // We don't copy the ID
+  , m_id(0)      // We don't copy the ID
   , m_version(0) // We don't copy the version
 {
 }
@@ -52,8 +54,9 @@ const ObjectId Object::id() const
 {
   // The first time the ID is request, we store the object in the
   // "objects" hash table.
-  if (!m_id) {
-    base::scoped_unlock hold(mutex);
+  if (!m_id)
+  {
+    const base::scoped_unlock hold(mutex);
     m_id = ++newId;
     objects.insert(std::make_pair(m_id, const_cast<Object*>(this)));
   }
@@ -62,9 +65,10 @@ const ObjectId Object::id() const
 
 void Object::setId(ObjectId id)
 {
-  base::scoped_unlock hold(mutex);
+  const base::scoped_unlock hold(mutex);
 
-  if (m_id) {
+  if (m_id)
+  {
     auto it = objects.find(m_id);
     ASSERT(it != objects.end());
     ASSERT(it->second == this);
@@ -74,7 +78,8 @@ void Object::setId(ObjectId id)
 
   m_id = id;
 
-  if (m_id) {
+  if (m_id)
+  {
     ASSERT(objects.find(m_id) == objects.end());
     objects.insert(std::make_pair(m_id, this));
   }
@@ -87,7 +92,7 @@ void Object::setVersion(ObjectVersion version)
 
 Object* get_object(ObjectId id)
 {
-  base::scoped_unlock hold(mutex);
+  const base::scoped_unlock hold(mutex);
   auto it = objects.find(id);
   if (it != objects.end())
     return it->second;

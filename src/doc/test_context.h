@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,43 +13,49 @@
 #include "doc/site.h"
 #include "doc/sprite.h"
 
-namespace doc {
+namespace doc
+{
 
-  template<typename Base>
-  class TestContextT : public Base {
-  public:
-    TestContextT() : m_activeDoc(nullptr) {
-    }
+template <typename Base> class TestContextT : public Base
+{
+public:
+  TestContextT()
+    : m_activeDoc(nullptr)
+  {
+  }
 
-  protected:
+protected:
+  void onGetActiveSite(Site* site) const override
+  {
+    Document* doc = m_activeDoc;
+    if (!doc)
+      return;
 
-    void onGetActiveSite(Site* site) const override {
-      Document* doc = m_activeDoc;
-      if (!doc)
-        return;
+    site->document(doc);
+    site->sprite(doc->sprite());
+    site->layer(doc->sprite()->folder()->getFirstLayer());
+    site->frame(0);
+  }
 
-      site->document(doc);
-      site->sprite(doc->sprite());
-      site->layer(doc->sprite()->folder()->getFirstLayer());
-      site->frame(0);
-    }
+  void onAddDocument(Document* doc) override
+  {
+    m_activeDoc = doc;
+    this->notifyActiveSiteChanged();
+  }
 
-    void onAddDocument(Document* doc) override {
-      m_activeDoc = doc;
+  void onRemoveDocument(Document* doc) override
+  {
+    if (m_activeDoc == doc)
+    {
+      m_activeDoc = nullptr;
       this->notifyActiveSiteChanged();
     }
+  }
 
-    void onRemoveDocument(Document* doc) override {
-      if (m_activeDoc == doc) {
-        m_activeDoc = nullptr;
-        this->notifyActiveSiteChanged();
-      }
-    }
+private:
+  Document* m_activeDoc;
+};
 
-  private:
-    Document* m_activeDoc;
-  };
-
-  typedef TestContextT<Context> TestContext;
+typedef TestContextT<Context> TestContext;
 
 } // namespace doc

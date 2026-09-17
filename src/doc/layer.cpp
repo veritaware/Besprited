@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,24 +19,22 @@
 #include <algorithm>
 #include <cstring>
 
-namespace doc {
+namespace doc
+{
 
 Layer::Layer(ObjectType type, Sprite* sprite)
   : WithUserData(type)
   , m_sprite(sprite)
-  , m_parent(NULL)
-  , m_flags(LayerFlags(
-      int(LayerFlags::Visible) |
-      int(LayerFlags::Editable)))
+  , m_parent(nullptr)
+  , m_flags(LayerFlags(static_cast<int>(LayerFlags::Visible) |
+                       static_cast<int>(LayerFlags::Editable)))
 {
   ASSERT(type == ObjectType::LayerImage || type == ObjectType::LayerFolder);
 
   setName("Layer");
 }
 
-Layer::~Layer()
-{
-}
+Layer::~Layer() = default;
 
 int Layer::getMemSize() const
 {
@@ -44,39 +43,40 @@ int Layer::getMemSize() const
 
 Layer* Layer::getPrevious() const
 {
-  if (m_parent != NULL) {
-    LayerConstIterator it =
-      std::find(m_parent->getLayerBegin(),
-                m_parent->getLayerEnd(), this);
+  if (m_parent != nullptr)
+  {
+    auto it =
+        std::find(m_parent->getLayerBegin(), m_parent->getLayerEnd(), this);
 
-    if (it != m_parent->getLayerEnd() &&
-        it != m_parent->getLayerBegin()) {
+    if (it != m_parent->getLayerEnd() && it != m_parent->getLayerBegin())
+    {
       it--;
       return *it;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 Layer* Layer::getNext() const
 {
-  if (m_parent != NULL) {
-    LayerConstIterator it =
-      std::find(m_parent->getLayerBegin(),
-                m_parent->getLayerEnd(), this);
+  if (m_parent != nullptr)
+  {
+    auto it =
+        std::find(m_parent->getLayerBegin(), m_parent->getLayerEnd(), this);
 
-    if (it != m_parent->getLayerEnd()) {
+    if (it != m_parent->getLayerEnd())
+    {
       it++;
       if (it != m_parent->getLayerEnd())
         return *it;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 std::shared_ptr<Cel> Layer::cel(frame_t frame) const
 {
-  return NULL;
+  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -97,10 +97,11 @@ LayerImage::~LayerImage()
 int LayerImage::getMemSize() const
 {
   int size = sizeof(LayerImage);
-  CelConstIterator it = getCelBegin();
-  CelConstIterator end = getCelEnd();
+  auto it = getCelBegin();
+  auto end = getCelEnd();
 
-  for (; it != end; ++it) {
+  for (; it != end; ++it)
+  {
     auto cel = *it;
     size += cel->getMemSize();
 
@@ -118,7 +119,7 @@ void LayerImage::destroyAllCels()
 
 std::shared_ptr<Cel> LayerImage::cel(frame_t frame) const
 {
-  CelConstIterator it = findCelIterator(frame);
+  auto it = findCelIterator(frame);
   if (it != getCelEnd())
     return *it;
   else
@@ -127,8 +128,8 @@ std::shared_ptr<Cel> LayerImage::cel(frame_t frame) const
 
 void LayerImage::getCels(CelList& cels) const
 {
-  CelConstIterator it = getCelBegin();
-  CelConstIterator end = getCelEnd();
+  auto it = getCelBegin();
+  auto end = getCelEnd();
 
   for (; it != end; ++it)
     cels.push_back(*it);
@@ -139,13 +140,13 @@ std::shared_ptr<Cel> LayerImage::getLastCel() const
   if (!m_cels.empty())
     return m_cels.back();
   else
-    return NULL;
+    return nullptr;
 }
 
 CelConstIterator LayerImage::findCelIterator(frame_t frame) const
 {
-  CelIterator it = const_cast<LayerImage*>(this)->findCelIterator(frame);
-  return CelConstIterator(it);
+  auto it = const_cast<LayerImage*>(this)->findCelIterator(frame);
+  return {it};
 }
 
 CelIterator LayerImage::findCelIterator(frame_t frame)
@@ -153,12 +154,10 @@ CelIterator LayerImage::findCelIterator(frame_t frame)
   auto first = getCelBegin();
   auto end = getCelEnd();
 
-  // Here we use a binary search to find the first cel equal to "frame" (or after frame)
-  first = std::lower_bound(
-    first, end, nullptr,
-    [frame](auto cel, auto) -> bool {
-      return cel->frame() < frame;
-    });
+  // Here we use a binary search to find the first cel equal to "frame" (or
+  // after frame)
+  first = std::lower_bound(first, end, nullptr, [frame](auto cel, auto) -> bool
+                           { return cel->frame() < frame; });
 
   // We return the iterator only if it's an exact match
   if (first != end && (*first)->frame() == frame)
@@ -173,11 +172,9 @@ CelIterator LayerImage::findFirstCelIteratorAfter(frame_t firstAfterFrame)
   auto end = getCelEnd();
 
   // Here we use a binary search to find the first cel after the given frame
-  first = std::lower_bound(
-    first, end, nullptr,
-    [firstAfterFrame](auto cel, auto) -> bool {
-      return cel->frame() <= firstAfterFrame;
-    });
+  first = std::lower_bound(first, end, nullptr,
+                           [firstAfterFrame](auto cel, auto) -> bool
+                           { return cel->frame() <= firstAfterFrame; });
 
   return first;
 }
@@ -190,7 +187,7 @@ void LayerImage::addCel(std::shared_ptr<Cel> cel)
   ASSERT(sprite());
   ASSERT(cel->image()->pixelFormat() == sprite()->pixelFormat());
 
-  CelIterator it = findFirstCelIteratorAfter(cel->frame());
+  auto it = findFirstCelIteratorAfter(cel->frame());
   m_cels.insert(it, cel);
 
   cel->setParentLayer(this);
@@ -202,12 +199,12 @@ void LayerImage::addCel(std::shared_ptr<Cel> cel)
 void LayerImage::removeCel(std::shared_ptr<Cel> cel)
 {
   ASSERT(cel);
-  CelIterator it = findCelIterator(cel->frame());
+  auto it = findCelIterator(cel->frame());
   ASSERT(it != m_cels.end());
 
   m_cels.erase(it);
 
-  cel->setParentLayer(NULL);
+  cel->setParentLayer(nullptr);
 }
 
 void LayerImage::moveCel(std::shared_ptr<Cel> cel, frame_t frame)
@@ -232,23 +229,27 @@ void LayerImage::configureAsBackground()
   switchFlags(LayerFlags::BackgroundLayerFlags, true);
   setName("Background");
 
-  sprite()->folder()->stackLayer(this, NULL);
+  sprite()->folder()->stackLayer(this, nullptr);
 }
 
 void LayerImage::displaceFrames(frame_t fromThis, frame_t delta)
 {
-  Sprite* sprite = this->sprite();
+  const Sprite* sprite = this->sprite();
 
-  if (delta > 0) {
-    for (frame_t c=sprite->lastFrame(); c>=fromThis; --c) {
+  if (delta > 0)
+  {
+    for (frame_t c = sprite->lastFrame(); c >= fromThis; --c)
+    {
       if (auto cel = this->cel(c))
-        moveCel(cel, c+delta);
+        moveCel(cel, c + delta);
     }
   }
-  else {
-    for (frame_t c=fromThis; c<=sprite->lastFrame(); ++c) {
+  else
+  {
+    for (frame_t c = fromThis; c <= sprite->lastFrame(); ++c)
+    {
       if (auto cel = this->cel(c))
-        moveCel(cel, c+delta);
+        moveCel(cel, c + delta);
     }
   }
 }
@@ -269,11 +270,12 @@ LayerFolder::~LayerFolder()
 
 void LayerFolder::destroyAllLayers()
 {
-  LayerIterator it = getLayerBegin();
-  LayerIterator end = getLayerEnd();
+  auto it = getLayerBegin();
+  auto end = getLayerEnd();
 
-  for (; it != end; ++it) {
-    Layer* layer = *it;
+  for (; it != end; ++it)
+  {
+    const Layer* layer = *it;
     delete layer;
   }
   m_layers.clear();
@@ -282,10 +284,11 @@ void LayerFolder::destroyAllLayers()
 int LayerFolder::getMemSize() const
 {
   int size = sizeof(LayerFolder);
-  LayerConstIterator it = getLayerBegin();
-  LayerConstIterator end = getLayerEnd();
+  auto it = getLayerBegin();
+  auto end = getLayerEnd();
 
-  for (; it != end; ++it) {
+  for (; it != end; ++it)
+  {
     const Layer* layer = *it;
     size += layer->getMemSize();
   }
@@ -295,8 +298,8 @@ int LayerFolder::getMemSize() const
 
 void LayerFolder::getCels(CelList& cels) const
 {
-  LayerConstIterator it = getLayerBegin();
-  LayerConstIterator end = getLayerEnd();
+  auto it = getLayerBegin();
+  auto end = getLayerEnd();
 
   for (; it != end; ++it)
     (*it)->getCels(cels);
@@ -310,11 +313,11 @@ void LayerFolder::addLayer(Layer* layer)
 
 void LayerFolder::removeLayer(Layer* layer)
 {
-  LayerIterator it = std::find(m_layers.begin(), m_layers.end(), layer);
+  auto it = std::find(m_layers.begin(), m_layers.end(), layer);
   ASSERT(it != m_layers.end());
   m_layers.erase(it);
 
-  layer->setParent(NULL);
+  layer->setParent(nullptr);
 }
 
 void LayerFolder::stackLayer(Layer* layer, Layer* after)
@@ -323,12 +326,13 @@ void LayerFolder::stackLayer(Layer* layer, Layer* after)
   if (layer == after)
     return;
 
-  LayerIterator it = std::find(m_layers.begin(), m_layers.end(), layer);
+  auto it = std::find(m_layers.begin(), m_layers.end(), layer);
   ASSERT(it != m_layers.end());
   m_layers.erase(it);
 
-  if (after) {
-    LayerIterator after_it = std::find(m_layers.begin(), m_layers.end(), after);
+  if (after)
+  {
+    auto after_it = std::find(m_layers.begin(), m_layers.end(), after);
     ASSERT(after_it != m_layers.end());
     after_it++;
     m_layers.insert(after_it, layer);

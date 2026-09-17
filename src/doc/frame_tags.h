@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,45 +14,47 @@
 #include <string>
 #include <vector>
 
-namespace doc {
+namespace doc
+{
 
-  class FrameTag;
-  class Sprite;
+class FrameTag;
+class Sprite;
 
-  class FrameTags {
-    typedef std::vector<FrameTag*> List;
+class FrameTags
+{
+  typedef std::vector<FrameTag*> List;
 
-  public:
-    typedef List::iterator iterator;
-    typedef List::const_iterator const_iterator;
+public:
+  typedef List::iterator iterator;
+  typedef List::const_iterator const_iterator;
 
-    FrameTags(Sprite* sprite);
-    ~FrameTags();
+  FrameTags(Sprite* sprite);
+  ~FrameTags();
 
-    Sprite* sprite() { return m_sprite; }
+  Sprite* sprite() { return m_sprite; }
 
-    void add(FrameTag* tag);
-    void remove(FrameTag* tag);
+  void add(FrameTag* tag);
+  void remove(FrameTag* tag);
 
-    FrameTag* getByName(const std::string& name) const;
-    FrameTag* getById(const ObjectId id) const;
+  FrameTag* getByName(const std::string& name) const;
+  FrameTag* getById(const ObjectId id) const;
 
-    iterator begin() { return m_tags.begin(); }
-    iterator end() { return m_tags.end(); }
-    const_iterator begin() const { return m_tags.begin(); }
-    const_iterator end() const { return m_tags.end(); }
+  iterator begin() { return m_tags.begin(); }
+  iterator end() { return m_tags.end(); }
+  const_iterator begin() const { return m_tags.begin(); }
+  const_iterator end() const { return m_tags.end(); }
 
-    std::size_t size() const { return m_tags.size(); }
-    bool empty() const { return m_tags.empty(); }
+  std::size_t size() const { return m_tags.size(); }
+  bool empty() const { return m_tags.empty(); }
 
-    FrameTag* innerTag(frame_t frame) const;
-    FrameTag* outerTag(frame_t frame) const;
+  FrameTag* innerTag(frame_t frame) const;
+  FrameTag* outerTag(frame_t frame) const;
 
-  private:
-    Sprite* m_sprite;
-    List m_tags;
+private:
+  Sprite* m_sprite;
+  List m_tags;
 
-    DISABLE_COPYING(FrameTags);
-  };
+  DISABLE_COPYING(FrameTags);
+};
 
 } // namespace doc

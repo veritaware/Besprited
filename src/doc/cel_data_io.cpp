@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,7 +19,8 @@
 #include <iostream>
 #include <memory>
 
-namespace doc {
+namespace doc
+{
 
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
@@ -26,8 +28,8 @@ using namespace base::serialization::little_endian;
 void write_celdata(std::ostream& os, const CelData* celdata)
 {
   write32(os, celdata->id());
-  write32(os, (int16_t)celdata->position().x);
-  write32(os, (int16_t)celdata->position().y);
+  write32(os, static_cast<int16_t>(celdata->position().x));
+  write32(os, static_cast<int16_t>(celdata->position().y));
   write8(os, celdata->opacity());
   write32(os, celdata->image()->id());
   write_user_data(os, celdata->userData());
@@ -35,18 +37,18 @@ void write_celdata(std::ostream& os, const CelData* celdata)
 
 CelData* read_celdata(std::istream& is, SubObjectsIO* subObjects, bool setId)
 {
-  ObjectId id = read32(is);
-  int x = read32(is);
-  int y = read32(is);
-  int opacity = read8(is);
-  ObjectId imageId = read32(is);
-  UserData userData = read_user_data(is);
+  const ObjectId id = read32(is);
+  const int x = read32(is);
+  const int y = read32(is);
+  const int opacity = read8(is);
+  const ObjectId imageId = read32(is);
+  const UserData userData = read_user_data(is);
 
-  ImageRef image(subObjects->getImageRef(imageId));
+  const ImageRef image(subObjects->getImageRef(imageId));
   if (!image)
     return nullptr;
 
-  std::unique_ptr<CelData> celdata(new CelData(image));
+  std::unique_ptr<CelData> celdata = std::make_unique<CelData>(image);
   celdata->setPosition(x, y);
   celdata->setOpacity(opacity);
   celdata->setUserData(userData);
@@ -55,4 +57,4 @@ CelData* read_celdata(std::istream& is, SubObjectsIO* subObjects, bool setId)
   return celdata.release();
 }
 
-}
+} // namespace doc

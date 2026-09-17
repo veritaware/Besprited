@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,11 +9,12 @@
 
 #include <iosfwd>
 
-namespace doc {
+namespace doc
+{
 
-  class UserData;
+class UserData;
 
-  void write_user_data(std::ostream& os, const UserData& userData);
-  UserData read_user_data(std::istream& is);
+void write_user_data(std::ostream& os, const UserData& userData);
+UserData read_user_data(std::istream& is);
 
 } // namespace doc
