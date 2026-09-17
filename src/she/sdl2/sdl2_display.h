@@ -1,5 +1,6 @@
 // SHE library
-// Copyright (C) 2021 LibreSprite contributors
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -80,4 +81,3 @@ namespace she {
     extern SDL2Display* unique_display;
 
 } // namespace she
-
