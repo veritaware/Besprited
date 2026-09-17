@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,14 +7,16 @@
 
 #pragma once
 
-namespace app {
-namespace tools {
+#include <cstdint>
 
-  enum class RotationAlgorithm {
-    DEFAULT = 0,
-    FAST = 0,
-    ROTSPRITE = 1,
-  };
+namespace app::tools
+{
 
-} // namespace tools
-} // namespace app
+enum class RotationAlgorithm : std::uint8_t
+{
+  DEFAULT = 0,
+  FAST = 0,
+  ROTSPRITE = 1,
+};
+
+} // namespace app::tools

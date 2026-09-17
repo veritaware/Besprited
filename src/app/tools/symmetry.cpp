@@ -17,11 +17,11 @@
 #include "app/tools/tool_loop.h"
 #include "doc/brush.h"
 
-namespace app {
-namespace tools {
+namespace app::tools
+{
 
-void HorizontalSymmetry::generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                                         ToolLoop* loop)
+void HorizontalSymmetry::generateStrokes(const Stroke& mainStroke,
+                                         Strokes& strokes, ToolLoop* loop)
 {
   int adjust = (loop->getBrush()->bounds().w % 2);
 
@@ -33,8 +33,8 @@ void HorizontalSymmetry::generateStrokes(const Stroke& mainStroke, Strokes& stro
   strokes.push_back(stroke2);
 }
 
-void VerticalSymmetry::generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                                       ToolLoop* loop)
+void VerticalSymmetry::generateStrokes(const Stroke& mainStroke,
+                                       Strokes& strokes, ToolLoop* loop)
 {
   int adjust = (loop->getBrush()->bounds().h % 2);
 
@@ -46,8 +46,8 @@ void VerticalSymmetry::generateStrokes(const Stroke& mainStroke, Strokes& stroke
   strokes.push_back(stroke2);
 }
 
-void Diagonal45Symmetry::generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                                         ToolLoop* loop)
+void Diagonal45Symmetry::generateStrokes(const Stroke& mainStroke,
+                                         Strokes& strokes, ToolLoop* loop)
 {
   strokes.push_back(mainStroke);
 
@@ -57,8 +57,8 @@ void Diagonal45Symmetry::generateStrokes(const Stroke& mainStroke, Strokes& stro
   strokes.push_back(stroke2);
 }
 
-void Diagonal135Symmetry::generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                                          ToolLoop* loop)
+void Diagonal135Symmetry::generateStrokes(const Stroke& mainStroke,
+                                          Strokes& strokes, ToolLoop* loop)
 {
   strokes.push_back(mainStroke);
 
@@ -68,8 +68,8 @@ void Diagonal135Symmetry::generateStrokes(const Stroke& mainStroke, Strokes& str
   strokes.push_back(stroke2);
 }
 
-void Rotational180Symmetry::generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                                          ToolLoop* loop)
+void Rotational180Symmetry::generateStrokes(const Stroke& mainStroke,
+                                            Strokes& strokes, ToolLoop* loop)
 {
   int adjustX = (loop->getBrush()->bounds().w % 2);
   int adjustY = (loop->getBrush()->bounds().h % 2);
@@ -78,21 +78,24 @@ void Rotational180Symmetry::generateStrokes(const Stroke& mainStroke, Strokes& s
 
   Stroke stroke2;
   for (const auto& pt : mainStroke)
-    stroke2.addPoint({m_x - (pt.x - m_x + adjustX), m_y - (pt.y - m_y + adjustY), pt.pressure});
+    stroke2.addPoint({m_x - (pt.x - m_x + adjustX),
+                      m_y - (pt.y - m_y + adjustY), pt.pressure});
   strokes.push_back(stroke2);
 }
 
-void Rotational90Symmetry::generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                                         ToolLoop* loop)
+void Rotational90Symmetry::generateStrokes(const Stroke& mainStroke,
+                                           Strokes& strokes, ToolLoop* loop)
 {
   strokes.push_back(mainStroke);
 
   // Each of the 3 companion strokes is the previous quadrant's stroke
   // rotated 90deg clockwise about (m_x, m_y): (dx,dy) -> (-dy,dx).
   Stroke prev = mainStroke;
-  for (int quadrant = 0; quadrant < 3; ++quadrant) {
+  for (int quadrant = 0; quadrant < 3; ++quadrant)
+  {
     Stroke stroke;
-    for (const auto& pt : prev) {
+    for (const auto& pt : prev)
+    {
       int dx = pt.x - m_x;
       int dy = pt.y - m_y;
       stroke.addPoint({m_x - dy, m_y + dx, pt.pressure});
@@ -102,14 +105,16 @@ void Rotational90Symmetry::generateStrokes(const Stroke& mainStroke, Strokes& st
   }
 }
 
-void CompositeSymmetry::generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                                        ToolLoop* loop)
+void CompositeSymmetry::generateStrokes(const Stroke& mainStroke,
+                                        Strokes& strokes, ToolLoop* loop)
 {
   strokes.push_back(mainStroke);
 
-  auto reflect = [&](Symmetry& axis) {
+  auto reflect = [&](Symmetry& axis)
+  {
     Strokes reflected;
-    for (const Stroke& stroke : strokes) {
+    for (const Stroke& stroke : strokes)
+    {
       Strokes tmp;
       axis.generateStrokes(stroke, tmp, loop);
       // Each of the axis classes above always pushes the input stroke
@@ -119,23 +124,26 @@ void CompositeSymmetry::generateStrokes(const Stroke& mainStroke, Strokes& strok
     strokes.insert(strokes.end(), reflected.begin(), reflected.end());
   };
 
-  if (m_flags & (int)app::gen::SymmetryMode::HORIZONTAL) {
+  if (m_flags & (int)app::gen::SymmetryMode::HORIZONTAL)
+  {
     HorizontalSymmetry axis(m_x);
     reflect(axis);
   }
-  if (m_flags & (int)app::gen::SymmetryMode::VERTICAL) {
+  if (m_flags & (int)app::gen::SymmetryMode::VERTICAL)
+  {
     VerticalSymmetry axis(m_y);
     reflect(axis);
   }
-  if (m_flags & (int)app::gen::SymmetryMode::DIAGONAL_45) {
+  if (m_flags & (int)app::gen::SymmetryMode::DIAGONAL_45)
+  {
     Diagonal45Symmetry axis(m_x, m_y);
     reflect(axis);
   }
-  if (m_flags & (int)app::gen::SymmetryMode::DIAGONAL_135) {
+  if (m_flags & (int)app::gen::SymmetryMode::DIAGONAL_135)
+  {
     Diagonal135Symmetry axis(m_x, m_y);
     reflect(axis);
   }
 }
 
-} // namespace tools
-} // namespace app
+} // namespace app::tools

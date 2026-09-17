@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,19 +9,36 @@
 
 #include "gfx/point.h"
 
-namespace app {
-namespace tools {
+namespace app
+{
+namespace tools
+{
 
 // Simple container of mouse events information.
-class Pointer {
+class Pointer
+{
 public:
-  enum Button { None, Left, Middle, Right };
+  enum Button
+  {
+    None,
+    Left,
+    Middle,
+    Right
+  };
 
   Pointer()
-    : m_point{0, 0}, m_button{None}, m_pressure{0} { }
+    : m_point{0, 0}
+    , m_button{None}
+    , m_pressure{0}
+  {
+  }
 
   Pointer(const gfx::Point& point, Button button, float pressure)
-    : m_point{point}, m_button{button}, m_pressure{pressure} { }
+    : m_point{point}
+    , m_button{button}
+    , m_pressure{pressure}
+  {
+  }
 
   const gfx::Point& point() const { return m_point; }
   Button button() const { return m_button; }

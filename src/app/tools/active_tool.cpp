@@ -1,5 +1,6 @@
-// Aseprite    - Copyright (C) 2016       David Capello
-// LibreSprite - Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2016 David Capello
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,21 +19,25 @@
 #include "app/tools/tool_box.h"
 #include "app/ui/color_bar.h"
 
-namespace app {
-namespace tools {
+namespace app::tools
+{
 
-class ActiveToolChangeTrigger {
+class ActiveToolChangeTrigger
+{
 public:
   ActiveToolChangeTrigger(ActiveToolManager* manager)
     : m_manager(manager)
-    , m_oldTool(manager->activeTool()) {
+    , m_oldTool(manager->activeTool())
+  {
   }
 
-  ~ActiveToolChangeTrigger() {
+  ~ActiveToolChangeTrigger()
+  {
     Tool* newTool = m_manager->activeTool();
-    if (m_oldTool != newTool) {
-      m_manager->notifyObservers(
-        &ActiveToolObserver::onActiveToolChange, newTool);
+    if (m_oldTool != newTool)
+    {
+      m_manager->notifyObservers(&ActiveToolObserver::onActiveToolChange,
+                                 newTool);
     }
   }
 
@@ -48,7 +53,8 @@ ActiveToolManager::ActiveToolManager(ToolBox* toolbox)
   , m_rightClickTool(nullptr)
   , m_rightClickInk(nullptr)
   , m_proximityTool(nullptr)
-  , m_selectedTool(m_toolbox->getToolById(WellKnownTools::Pencil)) // "pencil" is the active tool by default
+  , m_selectedTool(m_toolbox->getToolById(
+        WellKnownTools::Pencil)) // "pencil" is the active tool by default
 {
 }
 
@@ -74,36 +80,39 @@ std::shared_ptr<Ink> ActiveToolManager::activeInk() const
     return m_rightClickInk;
 
   Tool* tool = activeTool();
-  std::shared_ptr<Ink> ink = tool->getInk(m_rightClick ? 1: 0);
-  if (ink->isPaint() && !ink->isEffect()) {
+  std::shared_ptr<Ink> ink = tool->getInk(m_rightClick ? 1 : 0);
+  if (ink->isPaint() && !ink->isEffect())
+  {
     tools::InkType inkType = Preferences::instance().tool(tool).ink();
     const char* id = nullptr;
 
-    switch (inkType) {
+    switch (inkType)
+    {
 
-      case tools::InkType::SIMPLE: {
-        id = tools::WellKnownInks::Paint;
+    case tools::InkType::SIMPLE:
+    {
+      id = tools::WellKnownInks::Paint;
 
-        ColorBar* colorbar = ColorBar::instance();
-        app::Color color = (m_rightClick ? colorbar->getBgColor():
-                                           colorbar->getFgColor());
-        if (color.getAlpha() == 0)
-          id = tools::WellKnownInks::PaintCopy;
-        break;
-      }
-
-      case tools::InkType::ALPHA_COMPOSITING:
-        id = tools::WellKnownInks::Paint;
-        break;
-      case tools::InkType::COPY_COLOR:
+      ColorBar* colorbar = ColorBar::instance();
+      app::Color color =
+          (m_rightClick ? colorbar->getBgColor() : colorbar->getFgColor());
+      if (color.getAlpha() == 0)
         id = tools::WellKnownInks::PaintCopy;
-        break;
-      case tools::InkType::LOCK_ALPHA:
-        id = tools::WellKnownInks::PaintLockAlpha;
-        break;
-      case tools::InkType::SHADING:
-        id = tools::WellKnownInks::Shading;
-        break;
+      break;
+    }
+
+    case tools::InkType::ALPHA_COMPOSITING:
+      id = tools::WellKnownInks::Paint;
+      break;
+    case tools::InkType::COPY_COLOR:
+      id = tools::WellKnownInks::PaintCopy;
+      break;
+    case tools::InkType::LOCK_ALPHA:
+      id = tools::WellKnownInks::PaintLockAlpha;
+      break;
+    case tools::InkType::SHADING:
+      id = tools::WellKnownInks::Shading;
+      break;
     }
 
     if (id)
@@ -137,7 +146,8 @@ void ActiveToolManager::newQuickToolSelectedFromEditor(Tool* tool)
 
 void ActiveToolManager::regularTipProximity()
 {
-  if (m_proximityTool != nullptr) {
+  if (m_proximityTool != nullptr)
+  {
     ActiveToolChangeTrigger trigger(this);
     m_proximityTool = nullptr;
   }
@@ -146,7 +156,8 @@ void ActiveToolManager::regularTipProximity()
 void ActiveToolManager::eraserTipProximity()
 {
   Tool* eraser = m_toolbox->getToolById(WellKnownTools::Eraser);
-  if (m_proximityTool != eraser) {
+  if (m_proximityTool != eraser)
+  {
     ActiveToolChangeTrigger trigger(this);
     m_proximityTool = eraser;
   }
@@ -158,30 +169,34 @@ void ActiveToolManager::pressButton(const Pointer& pointer)
   Tool* tool = nullptr;
   std::shared_ptr<Ink> ink = nullptr;
 
-  if (pointer.button() == Pointer::Right) {
+  if (pointer.button() == Pointer::Right)
+  {
     m_rightClick = true;
 
-    if (isToolAffectedByRightClickMode(activeTool())) {
-      switch (Preferences::instance().editor.rightClickMode()) {
-        case app::gen::RightClickMode::PAINT_BGCOLOR:
-          // Do nothing, use the active tool
-          break;
-        case app::gen::RightClickMode::PICK_FGCOLOR:
-          tool = m_toolbox->getToolById(WellKnownTools::Eyedropper);
-          ink = m_toolbox->getInkById(tools::WellKnownInks::PickFg);
-          break;
-        case app::gen::RightClickMode::ERASE:
-          tool = m_toolbox->getToolById(WellKnownTools::Eraser);
-          ink = m_toolbox->getInkById(tools::WellKnownInks::Eraser);
-          break;
-        case app::gen::RightClickMode::SCROLL:
-          tool = m_toolbox->getToolById(WellKnownTools::Hand);
-          ink = m_toolbox->getInkById(tools::WellKnownInks::Scroll);
-          break;
+    if (isToolAffectedByRightClickMode(activeTool()))
+    {
+      switch (Preferences::instance().editor.rightClickMode())
+      {
+      case app::gen::RightClickMode::PAINT_BGCOLOR:
+        // Do nothing, use the active tool
+        break;
+      case app::gen::RightClickMode::PICK_FGCOLOR:
+        tool = m_toolbox->getToolById(WellKnownTools::Eyedropper);
+        ink = m_toolbox->getInkById(tools::WellKnownInks::PickFg);
+        break;
+      case app::gen::RightClickMode::ERASE:
+        tool = m_toolbox->getToolById(WellKnownTools::Eraser);
+        ink = m_toolbox->getInkById(tools::WellKnownInks::Eraser);
+        break;
+      case app::gen::RightClickMode::SCROLL:
+        tool = m_toolbox->getToolById(WellKnownTools::Hand);
+        ink = m_toolbox->getInkById(tools::WellKnownInks::Scroll);
+        break;
       }
     }
   }
-  else {
+  else
+  {
     m_rightClick = false;
   }
 
@@ -209,12 +224,11 @@ void ActiveToolManager::setSelectedTool(Tool* tool)
 // static
 bool ActiveToolManager::isToolAffectedByRightClickMode(Tool* tool)
 {
-  bool shadingMode = (Preferences::instance().tool(tool).ink() == InkType::SHADING);
-  return
-    ((tool->getInk(0)->isPaint() && !shadingMode) ||
-     (tool->getInk(0)->isEffect())) &&
-    (!tool->getInk(0)->isEraser());
+  bool shadingMode =
+      (Preferences::instance().tool(tool).ink() == InkType::SHADING);
+  return ((tool->getInk(0)->isPaint() && !shadingMode) ||
+          (tool->getInk(0)->isEffect())) &&
+         (!tool->getInk(0)->isEraser());
 }
 
-} // namespace tools
-} // namespace app
+} // namespace app::tools

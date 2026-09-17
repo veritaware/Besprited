@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,21 +7,24 @@
 
 #pragma once
 
-namespace app {
-namespace tools {
+namespace app
+{
+namespace tools
+{
 
-  class Tool;
+class Tool;
 
-  class ActiveToolObserver {
-  public:
-    virtual ~ActiveToolObserver() { }
+class ActiveToolObserver
+{
+public:
+  virtual ~ActiveToolObserver() {}
 
-    // Called when a new tool is active.
-    virtual void onActiveToolChange(tools::Tool* tool) { }
+  // Called when a new tool is active.
+  virtual void onActiveToolChange(tools::Tool* tool) {}
 
-    // Called when a new tool is selected in the tool box.
-    virtual void onSelectedToolChange(tools::Tool* tool) { }
-  };
+  // Called when a new tool is selected in the tool box.
+  virtual void onSelectedToolChange(tools::Tool* tool) {}
+};
 
 } // namespace tools
 } // namespace app

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,10 +14,15 @@
 
 #include <vector>
 
-namespace gfx { class Region; }
+namespace gfx
+{
+class Region;
+}
 
-namespace app {
-namespace tools {
+namespace app
+{
+namespace tools
+{
 
 class ToolLoop;
 
@@ -37,7 +42,8 @@ class ToolLoop;
 // 5. When the user release the mouse:
 //    - ToolLoopManager::releaseButton
 //
-class ToolLoopManager {
+class ToolLoopManager
+{
 public:
   // Contructs a manager for the ToolLoop delegate.
   ToolLoopManager(ToolLoop* toolLoop);
