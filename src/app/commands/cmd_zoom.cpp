@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,11 +20,18 @@
 #include "ui/manager.h"
 #include "ui/system.h"
 
-namespace app {
+namespace app
+{
 
-class ZoomCommand : public Command {
+class ZoomCommand : public Command
+{
 public:
-  enum Action { In, Out, Set };
+  enum Action
+  {
+    In,
+    Out,
+    Set
+  };
 
   ZoomCommand();
   Command* clone() const override { return new ZoomCommand(*this); }
@@ -41,9 +48,7 @@ private:
 };
 
 ZoomCommand::ZoomCommand()
-  : Command("Zoom",
-            "Zoom",
-            CmdUIOnlyFlag)
+  : Command("Zoom", "Zoom", CmdUIOnlyFlag)
   , m_zoom(1, 1)
 {
 }
@@ -51,21 +56,25 @@ ZoomCommand::ZoomCommand()
 void ZoomCommand::onLoadParams(const Params& params)
 {
   std::string action = params.get("action");
-  if (action == "in") m_action = In;
-  else if (action == "out") m_action = Out;
-  else if (action == "set") m_action = Set;
+  if (action == "in")
+    m_action = In;
+  else if (action == "out")
+    m_action = Out;
+  else if (action == "set")
+    m_action = Set;
 
   std::string percentage = params.get("percentage");
-  if (!percentage.empty()) {
-    m_zoom = render::Zoom::fromScale(
-      std::strtod(percentage.c_str(), NULL) / 100.0);
+  if (!percentage.empty())
+  {
+    m_zoom = render::Zoom::fromScale(std::strtod(percentage.c_str(), nullptr) /
+                                     100.0);
     m_action = Set;
   }
 }
 
 bool ZoomCommand::onEnabled(Context* context)
 {
-  return (current_editor != NULL);
+  return (current_editor != nullptr);
 }
 
 void ZoomCommand::onExecute(Context* context)
@@ -81,40 +90,42 @@ void ZoomCommand::onExecute(Context* context)
 
   render::Zoom zoom = editor->zoom();
 
-  switch (m_action) {
-    case In:
-      zoom.in();
-      break;
-    case Out:
-      zoom.out();
-      break;
-    case Set:
-      zoom = m_zoom;
-      break;
+  switch (m_action)
+  {
+  case In:
+    zoom.in();
+    break;
+  case Out:
+    zoom.out();
+    break;
+  case Set:
+    zoom = m_zoom;
+    break;
   }
 
   bool center = Preferences::instance().editor.zoomFromCenterWithKeys();
 
   editor->setZoomAndCenterInMouse(
-    zoom, mousePos,
-    (center ? Editor::ZoomBehavior::CENTER:
-              Editor::ZoomBehavior::MOUSE));
+      zoom, mousePos,
+      (center ? Editor::ZoomBehavior::CENTER : Editor::ZoomBehavior::MOUSE));
 }
 
 std::string ZoomCommand::onGetFriendlyName() const
 {
   std::string text = "Zoom";
 
-  switch (m_action) {
-    case In:
-      text += " in";
-      break;
-    case Out:
-      text += " out";
-      break;
-    case Set:
-      text += " " + base::convert_to<std::string>(int(100.0*m_zoom.scale())) + "%";
-      break;
+  switch (m_action)
+  {
+  case In:
+    text += " in";
+    break;
+  case Out:
+    text += " out";
+    break;
+  case Set:
+    text +=
+        " " + base::convert_to<std::string>(int(100.0 * m_zoom.scale())) + "%";
+    break;
   }
 
   return text;

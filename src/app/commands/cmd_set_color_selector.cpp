@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,9 +14,11 @@
 #include "app/commands/params.h"
 #include "app/ui/color_bar.h"
 
-namespace app {
+namespace app
+{
 
-class SetColorSelectorCommand : public Command {
+class SetColorSelectorCommand : public Command
+{
 public:
   SetColorSelectorCommand();
   Command* clone() const override { return new SetColorSelectorCommand(*this); }
@@ -28,14 +30,11 @@ protected:
   std::string onGetFriendlyName() const override;
 
 private:
-  ColorBar::ColorSelector m_type;
+  ColorBar::ColorSelector m_type = ColorBar::ColorSelector::SPECTRUM;
 };
 
 SetColorSelectorCommand::SetColorSelectorCommand()
-  : Command("SetColorSelector",
-            "Set Color Selector",
-            CmdUIOnlyFlag)
-  , m_type(ColorBar::ColorSelector::SPECTRUM)
+  : Command("SetColorSelector", "Set Color Selector", CmdUIOnlyFlag)
 {
 }
 
@@ -43,17 +42,20 @@ void SetColorSelectorCommand::onLoadParams(const Params& params)
 {
   std::string type = params.get("type");
 
-  if (type == "spectrum") {
+  if (type == "spectrum")
+  {
     m_type = ColorBar::ColorSelector::SPECTRUM;
   }
-  else if (type == "tint-shade-tone") {
+  else if (type == "tint-shade-tone")
+  {
     m_type = ColorBar::ColorSelector::TINT_SHADE_TONE;
   }
-  else if (type == "wheel" ||
-           type == "rgb-wheel") {
+  else if (type == "wheel" || type == "rgb-wheel")
+  {
     m_type = ColorBar::ColorSelector::RGB_WHEEL;
   }
-  else if (type == "ryb-wheel") {
+  else if (type == "ryb-wheel")
+  {
     m_type = ColorBar::ColorSelector::RYB_WHEEL;
   }
 }
@@ -72,22 +74,23 @@ std::string SetColorSelectorCommand::onGetFriendlyName() const
 {
   std::string result = "Set Color Selector: ";
 
-  switch (m_type) {
-    case ColorBar::ColorSelector::SPECTRUM:
-      result += "Color Spectrum";
-      break;
-    case ColorBar::ColorSelector::TINT_SHADE_TONE:
-      result += "Color Tint/Shade/Tone";
-      break;
-    case ColorBar::ColorSelector::RGB_WHEEL:
-      result += "RGB Color Wheel";
-      break;
-    case ColorBar::ColorSelector::RYB_WHEEL:
-      result += "RYB Color Wheel";
-      break;
-    default:
-      result += "Unknown";
-      break;
+  switch (m_type)
+  {
+  case ColorBar::ColorSelector::SPECTRUM:
+    result += "Color Spectrum";
+    break;
+  case ColorBar::ColorSelector::TINT_SHADE_TONE:
+    result += "Color Tint/Shade/Tone";
+    break;
+  case ColorBar::ColorSelector::RGB_WHEEL:
+    result += "RGB Color Wheel";
+    break;
+  case ColorBar::ColorSelector::RYB_WHEEL:
+    result += "RYB Color Wheel";
+    break;
+  default:
+    result += "Unknown";
+    break;
   }
 
   return result;

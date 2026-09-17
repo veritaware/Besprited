@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,9 +16,11 @@
 #include "app/tools/ink_type.h"
 #include "app/ui/context_bar.h"
 
-namespace app {
+namespace app
+{
 
-class SetInkTypeCommand : public Command {
+class SetInkTypeCommand : public Command
+{
 public:
   SetInkTypeCommand();
   Command* clone() const override { return new SetInkTypeCommand(*this); }
@@ -30,14 +32,11 @@ protected:
   std::string onGetFriendlyName() const override;
 
 private:
-  tools::InkType m_type;
+  tools::InkType m_type = tools::InkType::DEFAULT;
 };
 
 SetInkTypeCommand::SetInkTypeCommand()
-  : Command("SetInkType",
-            "Set Ink Type",
-            CmdUIOnlyFlag)
-  , m_type(tools::InkType::DEFAULT)
+  : Command("SetInkType", "Set Ink Type", CmdUIOnlyFlag)
 {
 }
 
@@ -66,9 +65,7 @@ bool SetInkTypeCommand::onChecked(Context* context)
 
 void SetInkTypeCommand::onExecute(Context* context)
 {
-  App::instance()
-    ->contextBar()
-    ->setInkType(m_type);
+  App::instance()->contextBar()->setInkType(m_type);
 }
 
 std::string SetInkTypeCommand::onGetFriendlyName() const

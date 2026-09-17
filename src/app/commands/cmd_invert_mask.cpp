@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,9 +22,11 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
-class InvertMaskCommand : public Command {
+class InvertMaskCommand : public Command
+{
 public:
   InvertMaskCommand();
   Command* clone() const override { return new InvertMaskCommand(*this); }
@@ -35,9 +37,7 @@ protected:
 };
 
 InvertMaskCommand::InvertMaskCommand()
-  : Command("InvertMask",
-            "Invert Mask",
-            CmdRecordableFlag)
+  : Command("InvertMask", "Invert Mask", CmdRecordableFlag)
 {
 }
 
@@ -57,39 +57,39 @@ void InvertMaskCommand::onExecute(Context* context)
   }
 
   // without mask?...
-  if (!hasMask) {
+  if (!hasMask)
+  {
     // so we select all
     Command* mask_all_cmd =
-      CommandsModule::instance()->getCommandByName(CommandId::MaskAll);
+        CommandsModule::instance()->getCommandByName(CommandId::MaskAll);
     context->executeCommand(mask_all_cmd);
   }
   // invert the current mask
-  else {
+  else
+  {
     ContextWriter writer(context);
     Document* document(writer.document());
     Sprite* sprite(writer.sprite());
 
     // Select all the sprite area
-    std::unique_ptr<Mask> mask(new Mask());
+    auto mask = std::make_unique<Mask>();
     mask->replace(sprite->bounds());
 
     // Remove in the new mask the current sprite marked region
     const gfx::Rect& maskBounds = document->mask()->bounds();
-    doc::fill_rect(mask->bitmap(),
-      maskBounds.x, maskBounds.y,
-      maskBounds.x + maskBounds.w-1,
-      maskBounds.y + maskBounds.h-1, 0);
+    doc::fill_rect(mask->bitmap(), maskBounds.x, maskBounds.y,
+                   maskBounds.x + maskBounds.w - 1,
+                   maskBounds.y + maskBounds.h - 1, 0);
 
     Mask* curMask = document->mask();
-    if (curMask->bitmap()) {
+    if (curMask->bitmap())
+    {
       // Copy the inverted region in the new mask (we just modify the
       // document's mask temporaly here)
       curMask->freeze();
       curMask->invert();
-      doc::copy_image(mask->bitmap(),
-        curMask->bitmap(),
-        curMask->bounds().x,
-        curMask->bounds().y);
+      doc::copy_image(mask->bitmap(), curMask->bitmap(), curMask->bounds().x,
+                      curMask->bounds().y);
       curMask->invert();
       curMask->unfreeze();
     }
@@ -98,7 +98,8 @@ void InvertMaskCommand::onExecute(Context* context)
     mask->intersect(sprite->bounds());
 
     // Set the new mask
-    Transaction transaction(writer.context(), "Mask Invert", DoesntModifyDocument);
+    Transaction transaction(writer.context(), "Mask Invert",
+                            DoesntModifyDocument);
     transaction.execute(new cmd::SetMask(document, mask.get()));
     transaction.commit();
 

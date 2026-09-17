@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -34,30 +34,30 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
-class SaveAsCopyDelegate : public FileSelectorDelegate {
+class SaveAsCopyDelegate : public FileSelectorDelegate
+{
 public:
   SaveAsCopyDelegate(double scale)
-    : m_resizeScale(scale) { }
-
-  bool hasResizeCombobox() override {
-    return true;
+    : m_resizeScale(scale)
+  {
   }
 
-  double getResizeScale() override {
-    return m_resizeScale;
-  }
+  bool hasResizeCombobox() override { return true; }
 
-  void setResizeScale(double scale) override {
-    m_resizeScale = scale;
-  }
+  double getResizeScale() override { return m_resizeScale; }
+
+  void setResizeScale(double scale) override { m_resizeScale = scale; }
 
 private:
   double m_resizeScale;
 };
 
-class SaveFileJob : public Job, public IFileOpProgress {
+class SaveFileJob : public Job,
+                    public IFileOpProgress
+{
 public:
   SaveFileJob(FileOp* fop)
     : Job("Saving file")
@@ -65,10 +65,12 @@ public:
   {
   }
 
-  void showProgressWindow() {
+  void showProgressWindow()
+  {
     startJob();
 
-    if (isCanceled()) {
+    if (isCanceled())
+    {
       m_fop->stop();
     }
 
@@ -76,40 +78,40 @@ public:
   }
 
 private:
-
   // Thread to do the hard work: save the file to the disk.
-  virtual void onJob() override {
-    try {
+  void onJob() override
+  {
+    try
+    {
       m_fop->operate(this);
     }
-    catch (const std::exception& e) {
+    catch (const std::exception& e)
+    {
       m_fop->setError("Error saving file:\n%s", e.what());
     }
     m_fop->done();
   }
 
-  virtual void ackFileOpProgress(double progress) override {
-    jobProgress(progress);
-  }
+  void ackFileOpProgress(double progress) override { jobProgress(progress); }
 
   FileOp* m_fop;
 };
 
 static bool save_document_in_background(const Context* context,
-                                        const Document* document, bool mark_as_saved,
+                                        const Document* document,
+                                        bool mark_as_saved,
                                         const std::string& fn_format)
 {
-  std::unique_ptr<FileOp> fop(
-    FileOp::createSaveDocumentOperation(
-      context, document,
-      document->filename().c_str(), fn_format.c_str()));
+  std::unique_ptr<FileOp> fop(FileOp::createSaveDocumentOperation(
+      context, document, document->filename().c_str(), fn_format.c_str()));
   if (!fop)
     return false;
 
   SaveFileJob job(fop.get());
   job.showProgressWindow();
 
-  if (fop->hasError()) {
+  if (fop->hasError())
+  {
     Console console;
     console.printf(fop->error().c_str());
 
@@ -120,26 +122,29 @@ static bool save_document_in_background(const Context* context,
   }
 
   // If the job was cancelled, mark the document as modified.
-  if (fop->isStop()) {
+  if (fop->isStop())
+  {
     const_cast<Document*>(document)->impossibleToBackToSavedState();
     return false;
   }
 
-  if (context->isUIAvailable()) {
+  if (context->isUIAvailable())
+  {
     App::instance()->recentFiles()->addRecentFile(document->filename().c_str());
     if (mark_as_saved)
       const_cast<Document*>(document)->markAsSaved();
 
-    StatusBar::instance()
-      ->setStatusText(2000, "File %s, saved.",
-        document->name().c_str());
+    StatusBar::instance()->setStatusText(2000, "File %s, saved.",
+                                         document->name().c_str());
   }
   return true;
 }
 
 //////////////////////////////////////////////////////////////////////
 
-SaveFileBaseCommand::SaveFileBaseCommand(const char* short_name, const char* friendly_name, CommandFlags flags)
+SaveFileBaseCommand::SaveFileBaseCommand(const char* short_name,
+                                         const char* friendly_name,
+                                         CommandFlags flags)
   : Command(short_name, friendly_name, flags)
 {
 }
@@ -157,8 +162,7 @@ bool SaveFileBaseCommand::onEnabled(Context* context)
   return context->checkFlags(ContextFlags::ActiveDocumentIsWritable);
 }
 
-bool SaveFileBaseCommand::saveAsDialog(Context* context,
-                                       const char* dlgTitle,
+bool SaveFileBaseCommand::saveAsDialog(Context* context, const char* dlgTitle,
                                        FileSelectorDelegate* delegate)
 {
   const Document* document = context->activeDocument();
@@ -170,24 +174,24 @@ bool SaveFileBaseCommand::saveAsDialog(Context* context,
   bool markAsSaved = (!saveCopyAs);
   double scale = 1.0;
 
-  if (!m_filename.empty()) {
+  if (!m_filename.empty())
+  {
     filename = m_filename;
   }
-  else {
+  else
+  {
     std::string exts = get_writable_extensions();
     filename = document->filename();
 
     std::string newfilename = app::show_file_selector(
-      dlgTitle, filename, exts,
-      FileSelectorType::Save,
-      delegate);
+        dlgTitle, filename, exts, FileSelectorType::Save, delegate);
 
     if (newfilename.empty())
       return false;
 
     filename = newfilename;
-    if (delegate &&
-        delegate->hasResizeCombobox()) {
+    if (delegate && delegate->hasResizeCombobox())
+    {
       scale = delegate->getResizeScale();
     }
   }
@@ -205,22 +209,29 @@ bool SaveFileBaseCommand::saveAsDialog(Context* context,
 
   // Apply scale
   bool undoResize = false;
-  if (scale != 1.0) {
-    Command* resizeCmd = CommandsModule::instance()->getCommandByName(CommandId::SpriteSize);
+  if (scale != 1.0)
+  {
+    Command* resizeCmd =
+        CommandsModule::instance()->getCommandByName(CommandId::SpriteSize);
     ASSERT(resizeCmd);
-    if (resizeCmd) {
+    if (resizeCmd)
+    {
       int width = document->sprite()->width();
       int height = document->sprite()->height();
       int newWidth = int(double(width) * scale);
       int newHeight = int(double(height) * scale);
-      if (newWidth < 1) newWidth = 1;
-      if (newHeight < 1) newHeight = 1;
-      if (width != newWidth || height != newHeight) {
+      if (newWidth < 1)
+        newWidth = 1;
+      if (newHeight < 1)
+        newHeight = 1;
+      if (width != newWidth || height != newHeight)
+      {
         Params params;
         params.set("use-ui", "false");
         params.set("width", base::convert_to<std::string>(newWidth).c_str());
         params.set("height", base::convert_to<std::string>(newHeight).c_str());
-        params.set("resize-method", "nearest-neighbor"); // TODO add algorithm in the UI?
+        params.set("resize-method",
+                   "nearest-neighbor"); // TODO add algorithm in the UI?
         context->executeCommand(resizeCmd, params);
         undoResize = true;
       }
@@ -229,12 +240,13 @@ bool SaveFileBaseCommand::saveAsDialog(Context* context,
 
   // Save the document
   bool success = save_document_in_background(
-    context, const_cast<Document*>(document),
-    markAsSaved, m_filenameFormat);
+      context, const_cast<Document*>(document), markAsSaved, m_filenameFormat);
 
   // Undo resize
-  if (undoResize) {
-    Command* undoCmd = CommandsModule::instance()->getCommandByName(CommandId::Undo);
+  if (undoResize)
+  {
+    Command* undoCmd =
+        CommandsModule::instance()->getCommandByName(CommandId::Undo);
     if (undoCmd)
       context->executeCommand(undoCmd);
   }
@@ -254,7 +266,8 @@ bool SaveFileBaseCommand::saveAsDialog(Context* context,
 
 //////////////////////////////////////////////////////////////////////
 
-class SaveFileCommand : public SaveFileBaseCommand {
+class SaveFileCommand : public SaveFileBaseCommand
+{
 public:
   SaveFileCommand();
   Command* clone() const override { return new SaveFileCommand(*this); }
@@ -276,23 +289,25 @@ void SaveFileCommand::onExecute(Context* context)
 
   // If the document is associated to a file in the file-system, we can
   // save it directly without user interaction.
-  if (document->isAssociatedToFile()) {
+  if (document->isAssociatedToFile())
+  {
     ContextWriter writer(context);
     Document* documentWriter = writer.document();
 
-    save_document_in_background(
-      context, documentWriter, true,
-      m_filenameFormat.c_str());
+    save_document_in_background(context, documentWriter, true,
+                                m_filenameFormat.c_str());
   }
   // If the document isn't associated to a file, we must to show the
   // save-as dialog to the user to select for first time the file-name
   // for this document.
-  else {
+  else
+  {
     saveAsDialog(context, "Save File");
   }
 }
 
-class SaveFileAsCommand : public SaveFileBaseCommand {
+class SaveFileAsCommand : public SaveFileBaseCommand
+{
 public:
   SaveFileAsCommand();
   Command* clone() const override { return new SaveFileAsCommand(*this); }
@@ -311,7 +326,8 @@ void SaveFileAsCommand::onExecute(Context* context)
   saveAsDialog(context, "Save As");
 }
 
-class SaveFileCopyAsCommand : public SaveFileBaseCommand {
+class SaveFileCopyAsCommand : public SaveFileBaseCommand
+{
 public:
   SaveFileCopyAsCommand();
   Command* clone() const override { return new SaveFileCopyAsCommand(*this); }
@@ -321,7 +337,8 @@ protected:
 };
 
 SaveFileCopyAsCommand::SaveFileCopyAsCommand()
-  : SaveFileBaseCommand("SaveFileCopyAs", "Save File Copy As", CmdRecordableFlag)
+  : SaveFileBaseCommand("SaveFileCopyAs", "Save File Copy As",
+                        CmdRecordableFlag)
 {
 }
 
@@ -335,18 +352,20 @@ void SaveFileCopyAsCommand::onExecute(Context* context)
   SaveAsCopyDelegate delegate(docPref.saveCopy.resizeScale());
 
   // Is a default output filename in the preferences?
-  if (!docPref.saveCopy.filename().empty()) {
+  if (!docPref.saveCopy.filename().empty())
+  {
     ContextWriter writer(context);
-    writer.document()->setFilename(
-      docPref.saveCopy.filename());
+    writer.document()->setFilename(docPref.saveCopy.filename());
   }
 
-  if (saveAsDialog(context, "Save Copy As", &delegate)) {
+  if (saveAsDialog(context, "Save Copy As", &delegate))
+  {
     docPref.saveCopy.filename(document->filename());
     docPref.saveCopy.resizeScale(delegate.getResizeScale());
 
-    if (auto shareCommand = app::CommandsModule::instance()->getCommandByName(CommandId::Share))
-	context->executeCommand(shareCommand);
+    if (auto shareCommand =
+            app::CommandsModule::instance()->getCommandByName(CommandId::Share))
+      context->executeCommand(shareCommand);
   }
 
   // Restore the file name.

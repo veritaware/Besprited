@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -37,22 +37,26 @@
 
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace filters;
 using namespace ui;
 
 static const char* ConfigSection = "ConvolutionMatrix";
 
-class ConvolutionMatrixWindow : public FilterWindow {
+class ConvolutionMatrixWindow : public FilterWindow
+{
 public:
-  ConvolutionMatrixWindow(ConvolutionMatrixFilter& filter, FilterManagerImpl& filterMgr, ConvolutionMatrixStock& stock)
+  ConvolutionMatrixWindow(ConvolutionMatrixFilter& filter,
+                          FilterManagerImpl& filterMgr,
+                          ConvolutionMatrixStock& stock)
     : FilterWindow("Convolution Matrix", ConfigSection, &filterMgr,
-                   WithChannelsSelector,
-                   WithTiledCheckBox,
+                   WithChannelsSelector, WithTiledCheckBox,
                    filter.getTiledMode())
     , m_filter(filter)
-    , m_controlsWidget(app::load_widget<Widget>("convolution_matrix.xml", "controls"))
+    , m_controlsWidget(
+          app::load_widget<Widget>("convolution_matrix.xml", "controls"))
     , m_stock(stock)
     , m_view(app::find_widget<View>(m_controlsWidget.get(), "view"))
     , m_stockListBox(app::find_widget<ListBox>(m_controlsWidget.get(), "stock"))
@@ -60,8 +64,10 @@ public:
   {
     getContainer()->addChild(m_controlsWidget.get());
 
-    m_reloadButton->Click.connect(&ConvolutionMatrixWindow::onReloadStock, this);
-    m_stockListBox->Change.connect(base::Bind<void>(&ConvolutionMatrixWindow::onMatrixChange, this));
+    m_reloadButton->Click.connect(&ConvolutionMatrixWindow::onReloadStock,
+                                  this);
+    m_stockListBox->Change.connect(
+        base::Bind<void>(&ConvolutionMatrixWindow::onMatrixChange, this));
 
     fillStockListBox();
   }
@@ -73,24 +79,28 @@ private:
     fillStockListBox();
   }
 
-  void setupTiledMode(TiledMode tiledMode)
+  void setupTiledMode(TiledMode tiledMode) override
   {
     m_filter.setTiledMode(tiledMode);
   }
 
   void fillStockListBox()
   {
-    const char* oldSelected = (m_filter.getMatrix() ? m_filter.getMatrix()->getName(): NULL);
+    const char* oldSelected =
+        (m_filter.getMatrix() ? m_filter.getMatrix()->getName() : nullptr);
 
     // Clean the list
-    while (!m_stockListBox->children().empty()) {
+    while (!m_stockListBox->children().empty())
+    {
       Widget* listitem = m_stockListBox->children().front();
       m_stockListBox->removeChild(listitem);
       delete listitem;
     }
 
-    for (ConvolutionMatrixStock::iterator it = m_stock.begin(), end = m_stock.end();
-         it != end; ++it) {
+    for (ConvolutionMatrixStock::iterator it = m_stock.begin(),
+                                          end = m_stock.end();
+         it != end; ++it)
+    {
       base::SharedPtr<ConvolutionMatrix> matrix = *it;
       ListItem* listitem = new ListItem(matrix->getName());
       m_stockListBox->addChild(listitem);
@@ -103,16 +113,20 @@ private:
   {
     Widget* select_this = UI_FIRST_WIDGET(m_stockListBox->children());
 
-    if (oldSelected) {
-      for (auto child : m_stockListBox->children()) {
-        if (child->text() == oldSelected) {
+    if (oldSelected)
+    {
+      for (auto child : m_stockListBox->children())
+      {
+        if (child->text() == oldSelected)
+        {
           select_this = child;
           break;
         }
       }
     }
 
-    if (select_this) {
+    if (select_this)
+    {
       select_this->setSelected(true);
       onMatrixChange();
     }
@@ -123,7 +137,8 @@ private:
   void onMatrixChange()
   {
     Widget* selected = m_stockListBox->getSelectedChild();
-    base::SharedPtr<ConvolutionMatrix> matrix = m_stock.getByName(selected->text().c_str());
+    base::SharedPtr<ConvolutionMatrix> matrix =
+        m_stock.getByName(selected->text().c_str());
     Target newTarget = matrix->getDefaultTarget();
 
     m_filter.setMatrix(matrix);
@@ -141,10 +156,14 @@ private:
   Button* m_reloadButton;
 };
 
-class ConvolutionMatrixCommand : public Command {
+class ConvolutionMatrixCommand : public Command
+{
 public:
   ConvolutionMatrixCommand();
-  Command* clone() const override { return new ConvolutionMatrixCommand(*this); }
+  Command* clone() const override
+  {
+    return new ConvolutionMatrixCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -152,9 +171,7 @@ protected:
 };
 
 ConvolutionMatrixCommand::ConvolutionMatrixCommand()
-  : Command("ConvolutionMatrix",
-            "Convolution Matrix",
-            CmdRecordableFlag)
+  : Command("ConvolutionMatrix", "Convolution Matrix", CmdRecordableFlag)
 {
 }
 
@@ -171,11 +188,11 @@ void ConvolutionMatrixCommand::onExecute(Context* context)
 
   // Get last used (selected) matrix
   base::SharedPtr<ConvolutionMatrix> matrix =
-    m_stock.getByName(get_config_string(ConfigSection, "Selected", ""));
+      m_stock.getByName(get_config_string(ConfigSection, "Selected", ""));
 
   // Create the filter and setup initial settings
-  DocumentPreferences& docPref = Preferences::instance()
-    .document(context->activeDocument());
+  DocumentPreferences& docPref =
+      Preferences::instance().document(context->activeDocument());
 
   ConvolutionMatrixFilter filter;
   filter.setTiledMode(docPref.tiled.mode());
@@ -185,9 +202,11 @@ void ConvolutionMatrixCommand::onExecute(Context* context)
   FilterManagerImpl filterMgr(context, &filter);
 
   ConvolutionMatrixWindow window(filter, filterMgr, m_stock);
-  if (window.doModal()) {
+  if (window.doModal())
+  {
     if (filter.getMatrix())
-      set_config_string(ConfigSection, "Selected", filter.getMatrix()->getName());
+      set_config_string(ConfigSection, "Selected",
+                        filter.getMatrix()->getName());
   }
 }
 

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,27 +19,35 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class GotoCommand : public Command {
+class GotoCommand : public Command
+{
 public:
-  GotoCommand(const char* short_name, const char* friendly_name, CommandFlags flags)
-    : Command(short_name, friendly_name, flags) {
+  GotoCommand(const char* short_name, const char* friendly_name,
+              CommandFlags flags)
+    : Command(short_name, friendly_name, flags)
+  {
   }
 
 protected:
-  void updateStatusBar(Site& site) {
-    if (site.layer() != NULL)
-      StatusBar::instance()
-        ->setStatusText(1000, "Layer `%s' selected",
-          site.layer()->name().c_str());
+  void updateStatusBar(Site& site)
+  {
+    if (site.layer() != nullptr)
+      StatusBar::instance()->setStatusText(1000, "Layer `%s' selected",
+                                           site.layer()->name().c_str());
   }
 };
 
-class GotoPreviousLayerCommand : public GotoCommand {
+class GotoPreviousLayerCommand : public GotoCommand
+{
 public:
   GotoPreviousLayerCommand();
-  Command* clone() const override { return new GotoPreviousLayerCommand(*this); }
+  Command* clone() const override
+  {
+    return new GotoPreviousLayerCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -47,16 +55,13 @@ protected:
 };
 
 GotoPreviousLayerCommand::GotoPreviousLayerCommand()
- : GotoCommand("GotoPreviousLayer",
-               "Go to Previous Layer",
-               CmdUIOnlyFlag)
+  : GotoCommand("GotoPreviousLayer", "Go to Previous Layer", CmdUIOnlyFlag)
 {
 }
 
 bool GotoPreviousLayerCommand::onEnabled(Context* context)
 {
-  return (current_editor != nullptr &&
-          current_editor->document());
+  return (current_editor != nullptr && current_editor->document());
 }
 
 void GotoPreviousLayerCommand::onExecute(Context* context)
@@ -66,7 +71,7 @@ void GotoPreviousLayerCommand::onExecute(Context* context)
   if (site.layerIndex() > 0)
     site.layerIndex(site.layerIndex().previous());
   else
-    site.layerIndex(LayerIndex(site.sprite()->countLayers()-1));
+    site.layerIndex(LayerIndex(site.sprite()->countLayers() - 1));
 
   // Flash the current layer
   current_editor->setLayer(site.layer());
@@ -75,7 +80,8 @@ void GotoPreviousLayerCommand::onExecute(Context* context)
   updateStatusBar(site);
 }
 
-class GotoNextLayerCommand : public GotoCommand {
+class GotoNextLayerCommand : public GotoCommand
+{
 public:
   GotoNextLayerCommand();
   Command* clone() const override { return new GotoNextLayerCommand(*this); }
@@ -86,23 +92,20 @@ protected:
 };
 
 GotoNextLayerCommand::GotoNextLayerCommand()
-  : GotoCommand("GotoNextLayer",
-                "Go to Next Layer",
-                CmdUIOnlyFlag)
+  : GotoCommand("GotoNextLayer", "Go to Next Layer", CmdUIOnlyFlag)
 {
 }
 
 bool GotoNextLayerCommand::onEnabled(Context* context)
 {
-  return (current_editor != nullptr &&
-          current_editor->document());
+  return (current_editor != nullptr && current_editor->document());
 }
 
 void GotoNextLayerCommand::onExecute(Context* context)
 {
   Site site = current_editor->getSite();
 
-  if (site.layerIndex() < site.sprite()->countLayers()-1)
+  if (site.layerIndex() < site.sprite()->countLayers() - 1)
     site.layerIndex(site.layerIndex().next());
   else
     site.layerIndex(LayerIndex(0));

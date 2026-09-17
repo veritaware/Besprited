@@ -21,22 +21,28 @@
 
 #include "goto_frame.xml.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace doc;
 
-class GotoCommandBase : public Command {
+class GotoCommandBase : public Command
+{
 protected:
   GotoCommandBase(const char* short_name, const char* friendly_name)
-    : Command(short_name, friendly_name, CmdRecordableFlag) { }
-
-  bool onEnabled(Context* context) override {
-    return (current_editor != NULL);
+    : Command(short_name, friendly_name, CmdRecordableFlag)
+  {
   }
 
-  void onExecute(Context* context) override {
-    ASSERT(current_editor != NULL);
+  bool onEnabled(Context* context) override
+  {
+    return (current_editor != nullptr);
+  }
+
+  void onExecute(Context* context) override
+  {
+    ASSERT(current_editor != nullptr);
 
     current_editor->setFrame(onGetFrame(current_editor));
   }
@@ -44,116 +50,153 @@ protected:
   virtual frame_t onGetFrame(Editor* editor) = 0;
 };
 
-class GotoFirstFrameCommand : public GotoCommandBase {
+class GotoFirstFrameCommand : public GotoCommandBase
+{
 public:
   GotoFirstFrameCommand()
-    : GotoCommandBase("GotoFirstFrame",
-                  "Go to First Frame") { }
+    : GotoCommandBase("GotoFirstFrame", "Go to First Frame")
+  {
+  }
   Command* clone() const override { return new GotoFirstFrameCommand(*this); }
 
 protected:
-  frame_t onGetFrame(Editor* editor) override {
-    return 0;
-  }
+  frame_t onGetFrame(Editor* editor) override { return 0; }
 };
 
-class GotoPreviousFrameCommand : public GotoCommandBase {
+class GotoPreviousFrameCommand : public GotoCommandBase
+{
 public:
   GotoPreviousFrameCommand()
-    : GotoCommandBase("GotoPreviousFrame",
-                  "Go to Previous Frame") { }
-  Command* clone() const override { return new GotoPreviousFrameCommand(*this); }
+    : GotoCommandBase("GotoPreviousFrame", "Go to Previous Frame")
+  {
+  }
+  Command* clone() const override
+  {
+    return new GotoPreviousFrameCommand(*this);
+  }
 
 protected:
-  frame_t onGetFrame(Editor* editor) override {
+  frame_t onGetFrame(Editor* editor) override
+  {
     frame_t frame = editor->frame();
     frame_t last = editor->sprite()->lastFrame();
 
-    return (frame > 0 ? frame-1: last);
+    return (frame > 0 ? frame - 1 : last);
   }
 };
 
-class GotoNextFrameCommand : public GotoCommandBase {
+class GotoNextFrameCommand : public GotoCommandBase
+{
 public:
-  GotoNextFrameCommand() : GotoCommandBase("GotoNextFrame",
-                                       "Go to Next Frame") { }
+  GotoNextFrameCommand()
+    : GotoCommandBase("GotoNextFrame", "Go to Next Frame")
+  {
+  }
   Command* clone() const override { return new GotoNextFrameCommand(*this); }
 
 protected:
-  frame_t onGetFrame(Editor* editor) override {
+  frame_t onGetFrame(Editor* editor) override
+  {
     frame_t frame = editor->frame();
     frame_t last = editor->sprite()->lastFrame();
 
-    return (frame < last ? frame+1: 0);
+    return (frame < last ? frame + 1 : 0);
   }
 };
 
-class GotoNextFrameWithSameTagCommand : public GotoCommandBase {
+class GotoNextFrameWithSameTagCommand : public GotoCommandBase
+{
 public:
-  GotoNextFrameWithSameTagCommand() : GotoCommandBase("GotoNextFrameWithSameTag",
-                                                  "Go to Next Frame with same tag") { }
-  Command* clone() const override { return new GotoNextFrameWithSameTagCommand(*this); }
+  GotoNextFrameWithSameTagCommand()
+    : GotoCommandBase("GotoNextFrameWithSameTag",
+                      "Go to Next Frame with same tag")
+  {
+  }
+  Command* clone() const override
+  {
+    return new GotoNextFrameWithSameTagCommand(*this);
+  }
 
 protected:
-  frame_t onGetFrame(Editor* editor) override {
+  frame_t onGetFrame(Editor* editor) override
+  {
     frame_t frame = editor->frame();
     FrameTag* tag = get_animation_tag(editor->sprite(), frame);
-    frame_t first = (tag ? tag->fromFrame(): 0);
-    frame_t last = (tag ? tag->toFrame(): editor->sprite()->lastFrame());
+    frame_t first = (tag ? tag->fromFrame() : 0);
+    frame_t last = (tag ? tag->toFrame() : editor->sprite()->lastFrame());
 
-    return (frame < last ? frame+1: first);
+    return (frame < last ? frame + 1 : first);
   }
 };
 
-class GotoPreviousFrameWithSameTagCommand : public GotoCommandBase {
+class GotoPreviousFrameWithSameTagCommand : public GotoCommandBase
+{
 public:
-  GotoPreviousFrameWithSameTagCommand() : GotoCommandBase("GotoPreviousFrameWithSameTag",
-                                                      "Go to Previous Frame with same tag") { }
-  Command* clone() const override { return new GotoPreviousFrameWithSameTagCommand(*this); }
+  GotoPreviousFrameWithSameTagCommand()
+    : GotoCommandBase("GotoPreviousFrameWithSameTag",
+                      "Go to Previous Frame with same tag")
+  {
+  }
+  Command* clone() const override
+  {
+    return new GotoPreviousFrameWithSameTagCommand(*this);
+  }
 
 protected:
-  frame_t onGetFrame(Editor* editor) override {
+  frame_t onGetFrame(Editor* editor) override
+  {
     frame_t frame = editor->frame();
     FrameTag* tag = get_animation_tag(editor->sprite(), frame);
-    frame_t first = (tag ? tag->fromFrame(): 0);
-    frame_t last = (tag ? tag->toFrame(): editor->sprite()->lastFrame());
+    frame_t first = (tag ? tag->fromFrame() : 0);
+    frame_t last = (tag ? tag->toFrame() : editor->sprite()->lastFrame());
 
-    return (frame > first ? frame-1: last);
+    return (frame > first ? frame - 1 : last);
   }
 };
 
-class GotoLastFrameCommand : public GotoCommandBase {
+class GotoLastFrameCommand : public GotoCommandBase
+{
 public:
-  GotoLastFrameCommand() : GotoCommandBase("GotoLastFrame",
-                                       "Go to Last Frame") { }
+  GotoLastFrameCommand()
+    : GotoCommandBase("GotoLastFrame", "Go to Last Frame")
+  {
+  }
   Command* clone() const override { return new GotoLastFrameCommand(*this); }
 
 protected:
-  frame_t onGetFrame(Editor* editor) override {
+  frame_t onGetFrame(Editor* editor) override
+  {
     return editor->sprite()->lastFrame();
   }
 };
 
-class GotoFrameCommand : public GotoCommandBase {
+class GotoFrameCommand : public GotoCommandBase
+{
 public:
-  GotoFrameCommand() : GotoCommandBase("GotoFrame",
-                                   "Go to Frame")
-                     , m_frame(0) { }
+  GotoFrameCommand()
+    : GotoCommandBase("GotoFrame", "Go to Frame")
+  {
+  }
   Command* clone() const override { return new GotoFrameCommand(*this); }
 
 protected:
-  void onLoadParams(const Params& params) override {
+  void onLoadParams(const Params& params) override
+  {
     std::string frame = params.get("frame");
-    if (!frame.empty()) m_frame = strtol(frame.c_str(), NULL, 10);
-    else m_frame = 0;
+    if (!frame.empty())
+      m_frame = strtol(frame.c_str(), nullptr, 10);
+    else
+      m_frame = 0;
   }
 
-  frame_t onGetFrame(Editor* editor) override {
-    if (m_frame == 0) {
+  frame_t onGetFrame(Editor* editor) override
+  {
+    if (m_frame == 0)
+    {
       app::gen::GotoFrame window;
 
-      window.frame()->setMax(editor->sprite()->lastFrame()+1);
-      window.frame()->setValue(editor->frame()+1);
+      window.frame()->setMax(editor->sprite()->lastFrame() + 1);
+      window.frame()->setValue(editor->frame() + 1);
 
       window.openWindowInForeground();
       if (window.closer() != window.ok())
@@ -162,13 +205,13 @@ protected:
       m_frame = window.frame()->getValue();
     }
 
-    return MID(0, m_frame-1, editor->sprite()->lastFrame());
+    return MID(0, m_frame - 1, editor->sprite()->lastFrame());
   }
 
 private:
   // The frame to go. 0 is "show the UI dialog", another value is the
   // frame (1 is the first name for the user).
-  int m_frame;
+  int m_frame = 0;
 };
 
 Command* CommandFactory::createGotoFirstFrameCommand()

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,9 +19,11 @@
 #include "doc/sprite.h"
 #include "ui/alert.h"
 
-namespace app {
+namespace app
+{
 
-class SaveMaskCommand : public Command {
+class SaveMaskCommand : public Command
+{
 public:
   SaveMaskCommand();
   Command* clone() const override { return new SaveMaskCommand(*this); }
@@ -32,9 +34,7 @@ protected:
 };
 
 SaveMaskCommand::SaveMaskCommand()
-  : Command("SaveMask",
-            "Save Mask",
-            CmdUIOnlyFlag)
+  : Command("SaveMask", "Save Mask", CmdUIOnlyFlag)
 {
 }
 
@@ -49,13 +49,14 @@ void SaveMaskCommand::onExecute(Context* context)
   const Document* document(reader.document());
   std::string filename = "default.msk";
 
-  filename = app::show_file_selector(
-    "Save .msk File", filename, "msk", FileSelectorType::Save);
+  filename = app::show_file_selector("Save .msk File", filename, "msk",
+                                     FileSelectorType::Save);
   if (filename.empty())
     return;
 
   if (save_msk_file(document->mask(), filename.c_str()) != 0)
-    ui::Alert::show("Error<<Error saving .msk file<<%s||&Close", filename.c_str());
+    ui::Alert::show("Error<<Error saving .msk file<<%s||&Close",
+                    filename.c_str());
 }
 
 Command* CommandFactory::createSaveMaskCommand()

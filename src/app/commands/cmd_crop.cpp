@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,9 +21,11 @@
 #include "doc/mask.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class CropSpriteCommand : public Command {
+class CropSpriteCommand : public Command
+{
 public:
   CropSpriteCommand();
   Command* clone() const override { return new CropSpriteCommand(*this); }
@@ -38,27 +40,28 @@ private:
 };
 
 CropSpriteCommand::CropSpriteCommand()
-  : Command("CropSprite",
-            "Crop Sprite",
-            CmdRecordableFlag)
+  : Command("CropSprite", "Crop Sprite", CmdRecordableFlag)
 {
 }
 
 void CropSpriteCommand::onLoadParams(const Params& params)
 {
   m_bounds = gfx::Rect(0, 0, 0, 0);
-  if (params.has_param("x")) m_bounds.x = params.get_as<int>("x");
-  if (params.has_param("y")) m_bounds.y = params.get_as<int>("y");
-  if (params.has_param("width")) m_bounds.w = params.get_as<int>("width");
-  if (params.has_param("height")) m_bounds.h = params.get_as<int>("height");
+  if (params.has_param("x"))
+    m_bounds.x = params.get_as<int>("x");
+  if (params.has_param("y"))
+    m_bounds.y = params.get_as<int>("y");
+  if (params.has_param("width"))
+    m_bounds.w = params.get_as<int>("width");
+  if (params.has_param("height"))
+    m_bounds.h = params.get_as<int>("height");
 }
 
 bool CropSpriteCommand::onEnabled(Context* context)
 {
-  return
-    context->checkFlags(
+  return context->checkFlags(
       ContextFlags::ActiveDocumentIsWritable |
-      (m_bounds.isEmpty() ? ContextFlags::HasVisibleMask: 0));
+      (m_bounds.isEmpty() ? ContextFlags::HasVisibleMask : 0));
 }
 
 void CropSpriteCommand::onExecute(Context* context)
@@ -82,7 +85,8 @@ void CropSpriteCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-class AutocropSpriteCommand : public Command {
+class AutocropSpriteCommand : public Command
+{
 public:
   AutocropSpriteCommand();
   Command* clone() const override { return new AutocropSpriteCommand(*this); }
@@ -93,9 +97,7 @@ protected:
 };
 
 AutocropSpriteCommand::AutocropSpriteCommand()
-  : Command("AutocropSprite",
-            "Trim Sprite",
-            CmdRecordableFlag)
+  : Command("AutocropSprite", "Trim Sprite", CmdRecordableFlag)
 {
 }
 

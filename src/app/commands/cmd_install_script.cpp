@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2025 LibreSprite Contributors
+// LibreSprite | Copyright (C) 2025 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -23,15 +23,18 @@
 
 #include <iostream>
 
-namespace app {
+namespace app
+{
 
-class InstallScriptCommand : public Command {
+class InstallScriptCommand : public Command
+{
 public:
   InstallScriptCommand();
   Command* clone() const override { return new InstallScriptCommand(*this); }
 
 protected:
-  bool onEnabled(Context* context) override {
+  bool onEnabled(Context* context) override
+  {
 #if defined(__EMSCRIPTEN__)
     return false;
 #endif
@@ -46,9 +49,7 @@ private:
 };
 
 InstallScriptCommand::InstallScriptCommand()
-  : Command("InstallScript",
-            "InstallScript",
-            CmdRecordableFlag)
+  : Command("InstallScript", "InstallScript", CmdRecordableFlag)
 {
 }
 
@@ -59,28 +60,35 @@ void InstallScriptCommand::onLoadParams(const Params& params)
 
 void InstallScriptCommand::onExecute(Context* ctx)
 {
-  std::cout << "Installing " << m_filename << std::endl;
+  std::cout << "Installing " << m_filename << "\n";
 
   bool useUserDir = true;
   {
     ResourceFinder rf;
     rf.includeUserDir("scripts");
     auto scriptsDir = rf.getFirstOrCreateDefault();
-    try {
+    try
+    {
       if (!base::is_directory(scriptsDir))
         base::make_directory(scriptsDir);
-    } catch(...){
+    }
+    catch (...)
+    {
       LOG("Could not create scripts directory: %s", scriptsDir.c_str());
       useUserDir = false;
     }
   }
 
   ResourceFinder rf;
-  auto destSearchPath = base::join_path("scripts", base::get_file_name(m_filename));
-  if (useUserDir) {
-      rf.includeUserDir(destSearchPath.c_str());
-  } else {
-      rf.includeDataDir(destSearchPath.c_str());
+  auto destSearchPath =
+      base::join_path("scripts", base::get_file_name(m_filename));
+  if (useUserDir)
+  {
+    rf.includeUserDir(destSearchPath.c_str());
+  }
+  else
+  {
+    rf.includeDataDir(destSearchPath.c_str());
   }
   auto dest = rf.getFirstOrCreateDefault();
 

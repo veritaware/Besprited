@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,29 +15,33 @@
 #include "app/document.h"
 #include "app/pref/preferences.h"
 
-namespace app {
+namespace app
+{
 
 using namespace gfx;
 
-class ShowOnionSkinCommand : public Command {
+class ShowOnionSkinCommand : public Command
+{
 public:
   ShowOnionSkinCommand()
-    : Command("ShowOnionSkin",
-              "Show Onion Skin",
-              CmdUIOnlyFlag)
+    : Command("ShowOnionSkin", "Show Onion Skin", CmdUIOnlyFlag)
   {
   }
 
   Command* clone() const override { return new ShowOnionSkinCommand(*this); }
 
 protected:
-  bool onChecked(Context* context) override {
-    DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
+  bool onChecked(Context* context) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(context->activeDocument());
     return docPref.onionskin.active();
   }
 
-  void onExecute(Context* context) override {
-    DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
+  void onExecute(Context* context) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(context->activeDocument());
     docPref.onionskin.active(!docPref.onionskin.active());
   }
 };

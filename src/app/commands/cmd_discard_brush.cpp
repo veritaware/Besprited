@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,9 +18,11 @@
 #include "app/ui_context.h"
 #include "app/util/new_image_from_mask.h"
 
-namespace app {
+namespace app
+{
 
-class DiscardBrushCommand : public Command {
+class DiscardBrushCommand : public Command
+{
 public:
   DiscardBrushCommand();
   Command* clone() const override { return new DiscardBrushCommand(*this); }
@@ -31,9 +33,7 @@ protected:
 };
 
 DiscardBrushCommand::DiscardBrushCommand()
-  : Command("DiscardBrush",
-            "Discard Brush",
-            CmdUIOnlyFlag)
+  : Command("DiscardBrush", "Discard Brush", CmdUIOnlyFlag)
 {
 }
 

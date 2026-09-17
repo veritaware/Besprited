@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2021  LibreSprite contributors
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,9 +20,11 @@
 
 #include <cstdio>
 
-namespace app {
+namespace app
+{
 
-class RescanScriptsCommand : public Command {
+class RescanScriptsCommand : public Command
+{
 public:
   RescanScriptsCommand();
   Command* clone() const override { return new RescanScriptsCommand(*this); }
@@ -32,15 +34,13 @@ protected:
 };
 
 RescanScriptsCommand::RescanScriptsCommand()
-  : Command("RescanScripts",
-            "Rescan Scripts",
-            CmdRecordableFlag)
+  : Command("RescanScripts", "Rescan Scripts", CmdRecordableFlag)
 {
 }
 
 void RescanScriptsCommand::onExecute(Context* context)
 {
-    app::AppMenus::instance()->rebuildScriptsList();
+  app::AppMenus::instance()->rebuildScriptsList();
 }
 
 Command* CommandFactory::createRescanScriptsCommand()

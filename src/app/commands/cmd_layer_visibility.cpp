@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,11 +15,13 @@
 #include "doc/image.h"
 #include "doc/layer.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class LayerVisibilityCommand : public Command {
+class LayerVisibilityCommand : public Command
+{
 public:
   LayerVisibilityCommand();
   Command* clone() const override { return new LayerVisibilityCommand(*this); }
@@ -31,9 +33,7 @@ protected:
 };
 
 LayerVisibilityCommand::LayerVisibilityCommand()
-  : Command("LayerVisibility",
-            "Layer Visibility",
-            CmdRecordableFlag)
+  : Command("LayerVisibility", "Layer Visibility", CmdRecordableFlag)
 {
 }
 

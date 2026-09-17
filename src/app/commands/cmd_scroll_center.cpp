@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,9 +15,11 @@
 #include "app/modules/editors.h"
 #include "app/ui/editor/editor.h"
 
-namespace app {
+namespace app
+{
 
-class ScrollCenterCommand : public Command {
+class ScrollCenterCommand : public Command
+{
 public:
   ScrollCenterCommand();
   Command* clone() const override { return new ScrollCenterCommand(*this); }
@@ -27,9 +29,7 @@ protected:
 };
 
 ScrollCenterCommand::ScrollCenterCommand()
-  : Command("ScrollCenter",
-            "Scroll to center of canvas",
-            CmdUIOnlyFlag)
+  : Command("ScrollCenter", "Scroll to center of canvas", CmdUIOnlyFlag)
 {
 }
 
@@ -43,4 +43,4 @@ Command* CommandFactory::createScrollCenterCommand()
   return new ScrollCenterCommand;
 }
 
-} //namespace app
+} // namespace app

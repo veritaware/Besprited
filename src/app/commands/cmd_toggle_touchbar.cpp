@@ -19,36 +19,38 @@
 #include "she/display.h"
 #include "app/ui/main_window.h"
 
-namespace app {
+namespace app
+{
 
-  class ToggleTouchbarCommand : public Command {
-  public:
-    Command* clone() const override { return new ToggleTouchbarCommand(*this); }
+class ToggleTouchbarCommand : public Command
+{
+public:
+  Command* clone() const override { return new ToggleTouchbarCommand(*this); }
 
-    ToggleTouchbarCommand()
-      : Command{"ToggleTouchbar", "Toggle Touchbar", CmdUIOnlyFlag}
-      {}
-
-  protected:
-
-    void onLoadParams(const Params& params) override {}
-
-    bool onEnabled(Context* context) override {
-      return true;
-    }
-
-    bool onChecked(Context* context) override {
-        return Preferences::instance().touchBar.visible();
-    }
-
-    void onExecute(Context* context) override{
-      App::instance()->mainWindow()->toggleTouchbar();
-    }
-  };
-
-  Command* CommandFactory::createToggleTouchbarCommand()
+  ToggleTouchbarCommand()
+    : Command{"ToggleTouchbar", "Toggle Touchbar", CmdUIOnlyFlag}
   {
-    return new ToggleTouchbarCommand;
   }
+
+protected:
+  void onLoadParams(const Params& params) override {}
+
+  bool onEnabled(Context* context) override { return true; }
+
+  bool onChecked(Context* context) override
+  {
+    return Preferences::instance().touchBar.visible();
+  }
+
+  void onExecute(Context* context) override
+  {
+    App::instance()->mainWindow()->toggleTouchbar();
+  }
+};
+
+Command* CommandFactory::createToggleTouchbarCommand()
+{
+  return new ToggleTouchbarCommand;
+}
 
 } // namespace app

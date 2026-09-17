@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,12 +18,17 @@
 #include "doc/sprite.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
-class LayerFromBackgroundCommand : public Command {
+class LayerFromBackgroundCommand : public Command
+{
 public:
   LayerFromBackgroundCommand();
-  Command* clone() const override { return new LayerFromBackgroundCommand(*this); }
+  Command* clone() const override
+  {
+    return new LayerFromBackgroundCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -31,21 +36,17 @@ protected:
 };
 
 LayerFromBackgroundCommand::LayerFromBackgroundCommand()
-  : Command("LayerFromBackground",
-            "Layer From Background",
-            CmdRecordableFlag)
+  : Command("LayerFromBackground", "Layer From Background", CmdRecordableFlag)
 {
 }
 
 bool LayerFromBackgroundCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite |
-                             ContextFlags::HasActiveLayer |
-                             ContextFlags::ActiveLayerIsVisible |
-                             ContextFlags::ActiveLayerIsEditable |
-                             ContextFlags::ActiveLayerIsImage |
-                             ContextFlags::ActiveLayerIsBackground);
+  return context->checkFlags(
+      ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite |
+      ContextFlags::HasActiveLayer | ContextFlags::ActiveLayerIsVisible |
+      ContextFlags::ActiveLayerIsEditable | ContextFlags::ActiveLayerIsImage |
+      ContextFlags::ActiveLayerIsBackground);
 }
 
 void LayerFromBackgroundCommand::onExecute(Context* context)

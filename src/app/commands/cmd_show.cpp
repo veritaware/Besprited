@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,144 +14,170 @@
 #include "app/modules/gui.h"
 #include "app/pref/preferences.h"
 
-namespace app {
+namespace app
+{
 
-class ShowExtrasCommand : public Command {
+class ShowExtrasCommand : public Command
+{
 public:
   ShowExtrasCommand()
-    : Command("ShowExtras",
-              "Show Extras",
-              CmdUIOnlyFlag) {
+    : Command("ShowExtras", "Show Extras", CmdUIOnlyFlag)
+  {
   }
 
   Command* clone() const override { return new ShowExtrasCommand(*this); }
 
 protected:
-  bool onChecked(Context* ctx) override {
+  bool onChecked(Context* ctx) override
+  {
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     return globPref.show.showExtras();
   }
 
-  void onExecute(Context* ctx) override {
+  void onExecute(Context* ctx) override
+  {
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.showExtras(!globPref.show.showExtras());
   }
 };
 
-class ShowLayerEdgesCommand : public Command {
+class ShowLayerEdgesCommand : public Command
+{
 public:
   ShowLayerEdgesCommand()
-    : Command("ShowLayerEdges",
-              "Show Layer Edges",
-              CmdUIOnlyFlag) {
+    : Command("ShowLayerEdges", "Show Layer Edges", CmdUIOnlyFlag)
+  {
   }
 
   Command* clone() const override { return new ShowLayerEdgesCommand(*this); }
 
 protected:
-  bool onChecked(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  bool onChecked(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     return docPref.show.layerEdges();
   }
 
-  void onExecute(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  void onExecute(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     docPref.show.layerEdges(!docPref.show.layerEdges());
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.layerEdges = docPref.show.layerEdges;
   }
 };
 
-class ShowGridCommand : public Command {
+class ShowGridCommand : public Command
+{
 public:
   ShowGridCommand()
-    : Command("ShowGrid",
-              "Show Grid",
-              CmdUIOnlyFlag) {
+    : Command("ShowGrid", "Show Grid", CmdUIOnlyFlag)
+  {
   }
 
   Command* clone() const override { return new ShowGridCommand(*this); }
 
 protected:
-  bool onChecked(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  bool onChecked(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     return docPref.show.grid();
   }
 
-  void onExecute(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  void onExecute(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     docPref.show.grid(!docPref.show.grid());
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.grid = docPref.show.grid;
   }
 };
 
-class ShowPixelGridCommand : public Command {
+class ShowPixelGridCommand : public Command
+{
 public:
   ShowPixelGridCommand()
-    : Command("ShowPixelGrid",
-              "Show Pixel Grid",
-              CmdUIOnlyFlag) {
+    : Command("ShowPixelGrid", "Show Pixel Grid", CmdUIOnlyFlag)
+  {
   }
 
   Command* clone() const override { return new ShowPixelGridCommand(*this); }
 
 protected:
-  bool onChecked(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  bool onChecked(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     return docPref.show.pixelGrid();
   }
 
-  void onExecute(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  void onExecute(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     docPref.show.pixelGrid(!docPref.show.pixelGrid());
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.pixelGrid = docPref.show.pixelGrid;
   }
 };
 
-class ShowSelectionEdgesCommand : public Command {
+class ShowSelectionEdgesCommand : public Command
+{
 public:
   ShowSelectionEdgesCommand()
-    : Command("ShowSelectionEdges",
-              "Show Selection Edges",
-              CmdUIOnlyFlag) {
+    : Command("ShowSelectionEdges", "Show Selection Edges", CmdUIOnlyFlag)
+  {
   }
 
-  Command* clone() const override { return new ShowSelectionEdgesCommand(*this); }
+  Command* clone() const override
+  {
+    return new ShowSelectionEdgesCommand(*this);
+  }
 
 protected:
-  bool onChecked(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  bool onChecked(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     return docPref.show.selectionEdges();
   }
 
-  void onExecute(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  void onExecute(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     docPref.show.selectionEdges(!docPref.show.selectionEdges());
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.selectionEdges = docPref.show.selectionEdges;
   }
 };
 
-class ShowBrushPreviewCommand : public Command {
+class ShowBrushPreviewCommand : public Command
+{
 public:
   ShowBrushPreviewCommand()
-    : Command("ShowBrushPreview",
-              "Show Brush Preview",
-              CmdUIOnlyFlag) {
+    : Command("ShowBrushPreview", "Show Brush Preview", CmdUIOnlyFlag)
+  {
   }
 
   Command* clone() const override { return new ShowBrushPreviewCommand(*this); }
 
 protected:
-  bool onChecked(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  bool onChecked(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     return docPref.show.brushPreview();
   }
 
-  void onExecute(Context* ctx) override {
-    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
+  void onExecute(Context* ctx) override
+  {
+    DocumentPreferences& docPref =
+        Preferences::instance().document(ctx->activeDocument());
     docPref.show.brushPreview(!docPref.show.brushPreview());
 
     // TODO we shouldn't need this, but it happens to be that the

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,11 +20,13 @@
 
 #include <cstdio>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class AdvancedModeCommand : public Command {
+class AdvancedModeCommand : public Command
+{
 public:
   AdvancedModeCommand();
   Command* clone() const override { return new AdvancedModeCommand(*this); }
@@ -34,9 +36,7 @@ protected:
 };
 
 AdvancedModeCommand::AdvancedModeCommand()
-  : Command("AdvancedMode",
-            "Advanced Mode",
-            CmdUIOnlyFlag)
+  : Command("AdvancedMode", "Advanced Mode", CmdUIOnlyFlag)
 {
 }
 
@@ -47,32 +47,36 @@ void AdvancedModeCommand::onExecute(Context* context)
   MainWindow::Mode oldMode = mainWindow->getMode();
   MainWindow::Mode newMode = oldMode;
 
-  switch (oldMode) {
-    case MainWindow::NormalMode:
-      newMode = MainWindow::ContextBarAndTimelineMode;
-      break;
-    case MainWindow::ContextBarAndTimelineMode:
-      newMode = MainWindow::EditorOnlyMode;
-      break;
-    case MainWindow::EditorOnlyMode:
-      newMode = MainWindow::NormalMode;
-      break;
+  switch (oldMode)
+  {
+  case MainWindow::NormalMode:
+    newMode = MainWindow::ContextBarAndTimelineMode;
+    break;
+  case MainWindow::ContextBarAndTimelineMode:
+    newMode = MainWindow::EditorOnlyMode;
+    break;
+  case MainWindow::EditorOnlyMode:
+    newMode = MainWindow::NormalMode;
+    break;
   }
 
   mainWindow->setMode(newMode);
 
   if (oldMode == MainWindow::NormalMode &&
-      get_config_bool("AdvancedMode", "Warning", true)) {
+      get_config_bool("AdvancedMode", "Warning", true))
+  {
     Key* key = KeyboardShortcuts::instance()->command(this->id().c_str());
-    if (!key->accels().empty()) {
+    if (!key->accels().empty())
+    {
       app::gen::AdvancedMode window;
 
       window.warningLabel()->setTextf("You can go back pressing \"%s\" key.",
-        key->accels().front().toString().c_str());
+                                      key->accels().front().toString().c_str());
 
       window.openWindowInForeground();
 
-      set_config_bool("AdvancedMode", "Warning", !window.donotShow()->isSelected());
+      set_config_bool("AdvancedMode", "Warning",
+                      !window.donotShow()->isSelected());
     }
   }
 }

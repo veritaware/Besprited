@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,7 +20,8 @@
 
 #include <set>
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
@@ -34,21 +35,23 @@ CelList get_unique_cels(Sprite* sprite, const DocumentRange& inrange)
 
   std::set<ObjectId> visited;
 
-  for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd(); ++layerIdx) {
+  for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd();
+       ++layerIdx)
+  {
     Layer* layer = sprite->indexToLayer(layerIdx);
     if (!layer || !layer->isImage())
       continue;
 
     LayerImage* layerImage = static_cast<LayerImage*>(layer);
-    for (frame_t frame = range.frameEnd(),
-           begin = range.frameBegin()-1;
-         frame != begin;
-         --frame) {
+    for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1;
+         frame != begin; --frame)
+    {
       auto cel = layerImage->cel(frame);
       if (!cel)
         continue;
 
-      if (visited.find(cel->data()->id()) == visited.end()) {
+      if (visited.find(cel->data()->id()) == visited.end())
+      {
         visited.insert(cel->data()->id());
         cels.push_back(cel);
       }

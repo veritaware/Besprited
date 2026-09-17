@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,7 +14,8 @@
 #include "app/console.h"
 #include "app/modules/i18n.h"
 
-namespace app {
+namespace app
+{
 
 Command::Command(const char* id, const char* friendlyName, CommandFlags flags)
   : m_id(id)
@@ -38,10 +39,12 @@ void Command::loadParams(const Params& params)
 
 bool Command::isEnabled(Context* context)
 {
-  try {
+  try
+  {
     return onEnabled(context);
   }
-  catch (...) {
+  catch (...)
+  {
     // TODO add a status-bar item
     return false;
   }
@@ -49,10 +52,12 @@ bool Command::isEnabled(Context* context)
 
 bool Command::isChecked(Context* context)
 {
-  try {
+  try
+  {
     return onChecked(context);
   }
-  catch (...) {
+  catch (...)
+  {
     // TODO add a status-bar item...
     return false;
   }

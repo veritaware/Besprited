@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,9 +17,11 @@
 #include "doc/mask.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class ReselectMaskCommand : public Command {
+class ReselectMaskCommand : public Command
+{
 public:
   ReselectMaskCommand();
   Command* clone() const override { return new ReselectMaskCommand(*this); }
@@ -30,9 +32,7 @@ protected:
 };
 
 ReselectMaskCommand::ReselectMaskCommand()
-  : Command("ReselectMask",
-            "Reselect Mask",
-            CmdRecordableFlag)
+  : Command("ReselectMask", "Reselect Mask", CmdRecordableFlag)
 {
 }
 
@@ -40,11 +40,10 @@ bool ReselectMaskCommand::onEnabled(Context* context)
 {
   ContextWriter writer(context);
   Document* document(writer.document());
-  return
-     document &&                      // The document does exist
-    !document->isMaskVisible() &&     // The mask is hidden
-     document->mask() &&           // The mask does exist
-    !document->mask()->isEmpty();  // But it is not empty
+  return document &&                   // The document does exist
+         !document->isMaskVisible() && // The mask is hidden
+         document->mask() &&           // The mask does exist
+         !document->mask()->isEmpty(); // But it is not empty
 }
 
 void ReselectMaskCommand::onExecute(Context* context)

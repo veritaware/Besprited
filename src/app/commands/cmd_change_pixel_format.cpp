@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,14 +21,20 @@
 #include "doc/image.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class ChangePixelFormatCommand : public Command {
+class ChangePixelFormatCommand : public Command
+{
   PixelFormat m_format;
   DitheringMethod m_dithering;
+
 public:
   ChangePixelFormatCommand();
-  Command* clone() const override { return new ChangePixelFormatCommand(*this); }
+  Command* clone() const override
+  {
+    return new ChangePixelFormatCommand(*this);
+  }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -38,9 +44,7 @@ protected:
 };
 
 ChangePixelFormatCommand::ChangePixelFormatCommand()
-  : Command("ChangePixelFormat",
-            "Change Pixel Format",
-            CmdUIOnlyFlag)
+  : Command("ChangePixelFormat", "Change Pixel Format", CmdUIOnlyFlag)
 {
   m_format = IMAGE_RGB;
   m_dithering = DitheringMethod::NONE;
@@ -49,9 +53,12 @@ ChangePixelFormatCommand::ChangePixelFormatCommand()
 void ChangePixelFormatCommand::onLoadParams(const Params& params)
 {
   std::string format = params.get("format");
-  if (format == "rgb") m_format = IMAGE_RGB;
-  else if (format == "grayscale") m_format = IMAGE_GRAYSCALE;
-  else if (format == "indexed") m_format = IMAGE_INDEXED;
+  if (format == "rgb")
+    m_format = IMAGE_RGB;
+  else if (format == "grayscale")
+    m_format = IMAGE_GRAYSCALE;
+  else if (format == "indexed")
+    m_format = IMAGE_INDEXED;
 
   std::string dithering = params.get("dithering");
   if (dithering == "ordered")
@@ -65,13 +72,11 @@ bool ChangePixelFormatCommand::onEnabled(Context* context)
   ContextWriter writer(context);
   Sprite* sprite(writer.sprite());
 
-  if (sprite != NULL &&
-      sprite->pixelFormat() == IMAGE_INDEXED &&
-      m_format == IMAGE_INDEXED &&
-      m_dithering == DitheringMethod::ORDERED)
+  if (sprite != nullptr && sprite->pixelFormat() == IMAGE_INDEXED &&
+      m_format == IMAGE_INDEXED && m_dithering == DitheringMethod::ORDERED)
     return false;
 
-  return sprite != NULL;
+  return sprite != nullptr;
 }
 
 bool ChangePixelFormatCommand::onChecked(Context* context)
@@ -79,15 +84,11 @@ bool ChangePixelFormatCommand::onChecked(Context* context)
   const ContextReader reader(context);
   const Sprite* sprite = reader.sprite();
 
-  if (sprite != NULL &&
-      sprite->pixelFormat() == IMAGE_INDEXED &&
-      m_format == IMAGE_INDEXED &&
-      m_dithering == DitheringMethod::ORDERED)
+  if (sprite != nullptr && sprite->pixelFormat() == IMAGE_INDEXED &&
+      m_format == IMAGE_INDEXED && m_dithering == DitheringMethod::ORDERED)
     return false;
 
-  return
-    sprite != NULL &&
-    sprite->pixelFormat() == m_format;
+  return sprite != nullptr && sprite->pixelFormat() == m_format;
 }
 
 void ChangePixelFormatCommand::onExecute(Context* context)

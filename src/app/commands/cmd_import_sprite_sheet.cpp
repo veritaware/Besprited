@@ -39,134 +39,134 @@
 
 #include "import_sprite_sheet.xml.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class ImportSpriteSheetWindow final : public app::gen::ImportSpriteSheet
-                              , public SelectBoxDelegate {
+class ImportSpriteSheetWindow final : public app::gen::ImportSpriteSheet,
+                                      public SelectBoxDelegate
+{
 public:
   ImportSpriteSheetWindow(Context* context)
     : m_context(context)
-    , m_document(NULL)
-    , m_editor(NULL)
-    , m_fileOpened(false)
-    , m_docPref(nullptr) {
+    , m_document(nullptr)
+    , m_editor(nullptr)
+  {
     import()->setEnabled(false);
 
-    static_assert(
-      (int)app::SpriteSheetType::Horizontal == 1 &&
-      (int)app::SpriteSheetType::Vertical == 2 &&
-      (int)app::SpriteSheetType::Rows == 3 &&
-      (int)app::SpriteSheetType::Columns == 4,
-      "SpriteSheetType enum changed");
+    static_assert((int)app::SpriteSheetType::Horizontal == 1 &&
+                      (int)app::SpriteSheetType::Vertical == 2 &&
+                      (int)app::SpriteSheetType::Rows == 3 &&
+                      (int)app::SpriteSheetType::Columns == 4,
+                  "SpriteSheetType enum changed");
 
     sheetType()->addItem("Horizontal Strip");
     sheetType()->addItem("Vertical Strip");
     sheetType()->addItem("By Rows");
     sheetType()->addItem("By Columns");
-    sheetType()->setSelectedItemIndex((int)app::SpriteSheetType::Rows-1);
+    sheetType()->setSelectedItemIndex((int)app::SpriteSheetType::Rows - 1);
 
-    sheetType()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onSheetTypeChange, this));
-    x()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
-    y()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
-    width()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
-    height()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
-    selectFile()->Click.connect(base::Bind<void>(&ImportSpriteSheetWindow::onSelectFile, this));
+    sheetType()->Change.connect(
+        base::Bind<void>(&ImportSpriteSheetWindow::onSheetTypeChange, this));
+    x()->Change.connect(
+        base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
+    y()->Change.connect(
+        base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
+    width()->Change.connect(
+        base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
+    height()->Change.connect(
+        base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
+    selectFile()->Click.connect(
+        base::Bind<void>(&ImportSpriteSheetWindow::onSelectFile, this));
 
     remapWindow();
     centerWindow();
     load_window_pos(this, "ImportSpriteSheet");
 
-    if (m_context->activeDocument()) {
+    if (m_context->activeDocument())
+    {
       selectActiveDocument();
       m_fileOpened = false;
     }
   }
 
-  ~ImportSpriteSheetWindow() {
-    releaseEditor();
+  ~ImportSpriteSheetWindow() override { releaseEditor(); }
+
+  SpriteSheetType sheetTypeValue() const
+  {
+    return (app::SpriteSheetType)(sheetType()->getSelectedItemIndex() + 1);
   }
 
-  SpriteSheetType sheetTypeValue() const {
-    return (app::SpriteSheetType)(sheetType()->getSelectedItemIndex()+1);
-  }
+  bool partialTilesValue() const { return partialTiles()->isSelected(); }
 
-  bool partialTilesValue() const {
-    return partialTiles()->isSelected();
-  }
+  bool ok() const { return closer() == import(); }
 
-  bool ok() const {
-    return closer() == import();
-  }
+  Document* document() const { return m_document; }
 
-  Document* document() const {
-    return m_document;
-  }
+  DocumentPreferences* docPref() const { return m_docPref; }
 
-  DocumentPreferences* docPref() const {
-    return m_docPref;
-  }
-
-  gfx::Rect frameBounds() const {
-    return m_rect;
-  }
+  gfx::Rect frameBounds() const { return m_rect; }
 
 protected:
+  void onSheetTypeChange() { updateGridState(); }
 
-  void onSheetTypeChange() {
-    updateGridState();
-  }
-
-  void onSelectFile() {
+  void onSelectFile()
+  {
     Document* oldActiveDocument = m_context->activeDocument();
-    Command* openFile = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+    Command* openFile =
+        CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
     Params params;
     params.set("filename", "");
     openFile->loadParams(params);
     openFile->execute(m_context);
 
     // The user have selected another document.
-    if (oldActiveDocument != m_context->activeDocument()) {
+    if (oldActiveDocument != m_context->activeDocument())
+    {
       selectActiveDocument();
       m_fileOpened = true;
     }
   }
 
-  gfx::Rect getRectFromEntries() {
+  gfx::Rect getRectFromEntries()
+  {
     int w = width()->textInt();
     int h = height()->textInt();
 
-    return gfx::Rect(
-      x()->textInt(),
-      y()->textInt(),
-      std::max<int>(1, w),
-      std::max<int>(1, h));
+    return gfx::Rect(x()->textInt(), y()->textInt(), std::max<int>(1, w),
+                     std::max<int>(1, h));
   }
 
-  void onEntriesChange() {
+  void onEntriesChange()
+  {
     m_rect = getRectFromEntries();
 
     // Redraw new rulers position
-    if (m_editor) {
+    if (m_editor)
+    {
       EditorStatePtr state = m_editor->getState();
-      if (SelectBoxState* boxState = dynamic_cast<SelectBoxState*>(state.get())) {
+      if (SelectBoxState* boxState = dynamic_cast<SelectBoxState*>(state.get()))
+      {
         boxState->setBoxBounds(m_rect);
         m_editor->invalidate();
       }
     }
   }
 
-  bool onProcessMessage(ui::Message* msg) override {
-    switch (msg->type()) {
-      case kCloseMessage:
-        save_window_pos(this, "ImportSpriteSheet");
-        break;
+  bool onProcessMessage(ui::Message* msg) override
+  {
+    switch (msg->type())
+    {
+    case kCloseMessage:
+      save_window_pos(this, "ImportSpriteSheet");
+      break;
     }
     return Window::onProcessMessage(msg);
   }
 
-  void onBroadcastMouseMessage(WidgetsList& targets) override {
+  void onBroadcastMouseMessage(WidgetsList& targets) override
+  {
     Window::onBroadcastMouseMessage(targets);
 
     // Add the editor as receptor of mouse events too.
@@ -175,7 +175,8 @@ protected:
   }
 
   // SelectBoxDelegate impleentation
-  void onChangeRectangle(const gfx::Rect& rect) override {
+  void onChangeRectangle(const gfx::Rect& rect) override
+  {
     m_rect = rect;
 
     x()->setTextf("%d", m_rect.x);
@@ -184,21 +185,25 @@ protected:
     height()->setTextf("%d", m_rect.h);
   }
 
-  std::string onGetContextBarHelp() override {
+  std::string onGetContextBarHelp() override
+  {
     return "Select bounds to identify sprite frames";
   }
 
 private:
-  void selectActiveDocument() {
+  void selectActiveDocument()
+  {
     Document* oldDocument = m_document;
     m_document = m_context->activeDocument();
 
     // If the user already have selected a file, we have to destroy
     // that file in order to select the new one.
-    if (oldDocument) {
+    if (oldDocument)
+    {
       releaseEditor();
 
-      if (m_fileOpened) {
+      if (m_fileOpened)
+      {
         DocumentDestroyer destroyer(m_context, oldDocument, 100);
         destroyer.destroyDocument();
       }
@@ -206,16 +211,19 @@ private:
 
     captureEditor();
 
-    import()->setEnabled(m_document ? true: false);
+    import()->setEnabled(m_document ? true : false);
 
-    if (m_document) {
+    if (m_document)
+    {
       m_docPref = &Preferences::instance().document(m_document);
 
-      if (m_docPref->importSpriteSheet.type() >= app::SpriteSheetType::Horizontal &&
+      if (m_docPref->importSpriteSheet.type() >=
+              app::SpriteSheetType::Horizontal &&
           m_docPref->importSpriteSheet.type() <= app::SpriteSheetType::Columns)
-        sheetType()->setSelectedItemIndex((int)m_docPref->importSpriteSheet.type()-1);
+        sheetType()->setSelectedItemIndex(
+            (int)m_docPref->importSpriteSheet.type() - 1);
       else
-        sheetType()->setSelectedItemIndex((int)app::SpriteSheetType::Rows-1);
+        sheetType()->setSelectedItemIndex((int)app::SpriteSheetType::Rows - 1);
 
       gfx::Rect defBounds = m_docPref->importSpriteSheet.bounds();
       if (defBounds.isEmpty())
@@ -227,50 +235,55 @@ private:
     }
   }
 
-  void captureEditor() {
-    ASSERT(m_editor == NULL);
+  void captureEditor()
+  {
+    ASSERT(m_editor == nullptr);
 
-    if (m_document && !m_editor) {
+    if (m_document && !m_editor)
+    {
       m_rect = getRectFromEntries();
       m_editor = current_editor;
-      m_editorState.reset(
-        new SelectBoxState(
+      m_editorState = std::make_shared<SelectBoxState>(
           this, m_rect,
-          SelectBoxState::Flags(
-            int(SelectBoxState::Flags::Rulers) |
-            int(SelectBoxState::Flags::Grid))));
+          SelectBoxState::Flags(int(SelectBoxState::Flags::Rulers) |
+                                int(SelectBoxState::Flags::Grid)));
 
       m_editor->setState(m_editorState);
       updateGridState();
     }
   }
 
-  void updateGridState() {
+  void updateGridState()
+  {
     if (!m_editorState)
       return;
 
     int flags = int(SelectBoxState::Flags::Rulers);
-    switch (sheetTypeValue()) {
-      case SpriteSheetType::Horizontal:
-        flags |= int(SelectBoxState::Flags::HGrid);
-        break;
-      case SpriteSheetType::Vertical:
-        flags |= int(SelectBoxState::Flags::VGrid);
-        break;
-      case SpriteSheetType::Rows:
-      case SpriteSheetType::Columns:
-        flags |= int(SelectBoxState::Flags::Grid);
-        break;
+    switch (sheetTypeValue())
+    {
+    case SpriteSheetType::Horizontal:
+      flags |= int(SelectBoxState::Flags::HGrid);
+      break;
+    case SpriteSheetType::Vertical:
+      flags |= int(SelectBoxState::Flags::VGrid);
+      break;
+    case SpriteSheetType::Rows:
+    case SpriteSheetType::Columns:
+      flags |= int(SelectBoxState::Flags::Grid);
+      break;
     }
 
-    static_cast<SelectBoxState*>(m_editorState.get())->setFlags(SelectBoxState::Flags(flags));
+    static_cast<SelectBoxState*>(m_editorState.get())
+        ->setFlags(SelectBoxState::Flags(flags));
     m_editor->invalidate();
   }
 
-  void releaseEditor() {
-    if (m_editor) {
+  void releaseEditor()
+  {
+    if (m_editor)
+    {
       m_editor->backToPreviousState();
-      m_editor = NULL;
+      m_editor = nullptr;
     }
   }
 
@@ -282,24 +295,26 @@ private:
 
   // True if the user has been opened the file (instead of selecting
   // the current document).
-  bool m_fileOpened;
+  bool m_fileOpened = false;
 
-  DocumentPreferences* m_docPref;
+  DocumentPreferences* m_docPref = nullptr;
 };
 
-class ImportSpriteSheetCommand : public Command {
+class ImportSpriteSheetCommand : public Command
+{
 public:
   ImportSpriteSheetCommand();
-  Command* clone() const override { return new ImportSpriteSheetCommand(*this); }
+  Command* clone() const override
+  {
+    return new ImportSpriteSheetCommand(*this);
+  }
 
 protected:
-  virtual void onExecute(Context* context) override;
+  void onExecute(Context* context) override;
 };
 
 ImportSpriteSheetCommand::ImportSpriteSheetCommand()
-  : Command("ImportSpriteSheet",
-            "Import Sprite Sheet",
-            CmdRecordableFlag)
+  : Command("ImportSpriteSheet", "Import Sprite Sheet", CmdRecordableFlag)
 {
 }
 
@@ -324,7 +339,8 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
   // The list of frames imported from the sheet
   std::vector<ImageRef> animation;
 
-  try {
+  try
+  {
     Sprite* sprite = document->sprite();
     frame_t currentFrame = context->activeSite().frame();
     render::Render render;
@@ -333,71 +349,89 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
     std::vector<gfx::Rect> tileRects;
     int widthStop = sprite->width();
     int heightStop = sprite->height();
-    if (partialTiles) {
-      widthStop += frameBounds.w-1;
-      heightStop += frameBounds.h-1;
+    if (partialTiles)
+    {
+      widthStop += frameBounds.w - 1;
+      heightStop += frameBounds.h - 1;
     }
 
-    switch (sheetType) {
-      case app::SpriteSheetType::Horizontal:
-        for (int x=frameBounds.x; x+frameBounds.w<=widthStop; x += frameBounds.w) {
-          tileRects.push_back(gfx::Rect(x, frameBounds.y, frameBounds.w, frameBounds.h));
+    switch (sheetType)
+    {
+    case app::SpriteSheetType::Horizontal:
+      for (int x = frameBounds.x; x + frameBounds.w <= widthStop;
+           x += frameBounds.w)
+      {
+        tileRects.push_back(
+            gfx::Rect(x, frameBounds.y, frameBounds.w, frameBounds.h));
+      }
+      break;
+    case app::SpriteSheetType::Vertical:
+      for (int y = frameBounds.y; y + frameBounds.h <= heightStop;
+           y += frameBounds.h)
+      {
+        tileRects.push_back(
+            gfx::Rect(frameBounds.x, y, frameBounds.w, frameBounds.h));
+      }
+      break;
+    case app::SpriteSheetType::Rows:
+      for (int y = frameBounds.y; y + frameBounds.h <= heightStop;
+           y += frameBounds.h)
+      {
+        for (int x = frameBounds.x; x + frameBounds.w <= widthStop;
+             x += frameBounds.w)
+        {
+          tileRects.push_back(gfx::Rect(x, y, frameBounds.w, frameBounds.h));
         }
-        break;
-      case app::SpriteSheetType::Vertical:
-        for (int y=frameBounds.y; y+frameBounds.h<=heightStop; y += frameBounds.h) {
-          tileRects.push_back(gfx::Rect(frameBounds.x, y, frameBounds.w, frameBounds.h));
+      }
+      break;
+    case app::SpriteSheetType::Columns:
+      for (int x = frameBounds.x; x + frameBounds.w <= sprite->width();
+           x += frameBounds.w)
+      {
+        for (int y = frameBounds.y; y + frameBounds.h <= sprite->height();
+             y += frameBounds.h)
+        {
+          tileRects.push_back(gfx::Rect(x, y, frameBounds.w, frameBounds.h));
         }
-        break;
-      case app::SpriteSheetType::Rows:
-        for (int y=frameBounds.y; y+frameBounds.h<=heightStop; y += frameBounds.h) {
-          for (int x=frameBounds.x; x+frameBounds.w<=widthStop; x += frameBounds.w) {
-            tileRects.push_back(gfx::Rect(x, y, frameBounds.w, frameBounds.h));
-          }
-        }
-        break;
-      case app::SpriteSheetType::Columns:
-        for (int x=frameBounds.x; x+frameBounds.w<=sprite->width(); x += frameBounds.w) {
-          for (int y=frameBounds.y; y+frameBounds.h<=sprite->height(); y += frameBounds.h) {
-            tileRects.push_back(gfx::Rect(x, y, frameBounds.w, frameBounds.h));
-          }
-        }
-        break;
+      }
+      break;
     }
 
     // As first step, we cut each tile and add them into "animation" list.
-    for (const auto& tileRect : tileRects) {
+    for (const auto& tileRect : tileRects)
+    {
       ImageRef resultImage(
-        Image::create(
-          sprite->pixelFormat(), tileRect.w, tileRect.h));
+          Image::create(sprite->pixelFormat(), tileRect.w, tileRect.h));
 
       // Render the portion of sheet.
-      render.renderSprite(
-        resultImage.get(), sprite, currentFrame,
-        gfx::Clip(0, 0, tileRect));
+      render.renderSprite(resultImage.get(), sprite, currentFrame,
+                          gfx::Clip(0, 0, tileRect));
 
       animation.push_back(resultImage);
     }
 
-    if (animation.size() == 0) {
+    if (animation.size() == 0)
+    {
       Alert::show("Import Sprite Sheet"
-        "<<The specified rectangle does not create any tile."
-        "<<Select a rectangle inside the sprite region."
-        "||&OK");
+                  "<<The specified rectangle does not create any tile."
+                  "<<Select a rectangle inside the sprite region."
+                  "||&OK");
       return;
     }
 
     // The following steps modify the sprite, so we wrap all
     // operations in a undo-transaction.
     ContextWriter writer(context);
-    Transaction transaction(writer.context(), "Import Sprite Sheet", ModifyDocument);
+    Transaction transaction(writer.context(), "Import Sprite Sheet",
+                            ModifyDocument);
     DocumentApi api = document->getApi(transaction);
 
     // Add the layer in the sprite.
     LayerImage* resultLayer = api.newLayer(sprite, "Sprite Sheet");
 
     // Add all frames+cels to the new layer
-    for (size_t i=0; i<animation.size(); ++i) {
+    for (size_t i = 0; i < animation.size(); ++i)
+    {
       // Create the cel.
       auto resultCel = std::make_shared<Cel>(frame_t(i), animation[i]);
 
@@ -409,9 +443,10 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
     LayerList layers = sprite->folder()->getLayersList();
 
     // Remove all other layers
-    for (LayerIterator it=layers.begin(), end=layers.end(); it!=end; ++it) {
-      if (*it != resultLayer)
-        api.removeLayer(*it);
+    for (auto* layer : layers)
+    {
+      if (layer != resultLayer)
+        api.removeLayer(layer);
     }
 
     // Change the number of frames
@@ -423,13 +458,15 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
     transaction.commit();
 
     ASSERT(docPref);
-    if (docPref) {
+    if (docPref)
+    {
       docPref->importSpriteSheet.type(sheetType);
       docPref->importSpriteSheet.bounds(frameBounds);
       docPref->importSpriteSheet.partialTiles(partialTiles);
     }
   }
-  catch (...) {
+  catch (...)
+  {
     throw;
   }
 

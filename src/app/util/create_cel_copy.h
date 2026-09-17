@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,15 +9,17 @@
 
 #include "doc/frame.h"
 
-namespace doc {
-  class Cel;
-  class Sprite;
+namespace doc
+{
+class Cel;
+class Sprite;
 }
 
-namespace app {
+namespace app
+{
 
-    std::shared_ptr<Cel> create_cel_copy(std::shared_ptr<const Cel> srcCel,
-                                         const Sprite* dstSprite,
-                                         const frame_t dstFrame);
+std::shared_ptr<Cel> create_cel_copy(std::shared_ptr<const Cel> srcCel,
+                                     const Sprite* dstSprite,
+                                     const frame_t dstFrame);
 
 } // namespace app

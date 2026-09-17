@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2015, 2016  David Capello
+// Aseprite  | Copyright (C) 2015, 2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -24,11 +24,13 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
-class SelectTileCommand : public Command {
+class SelectTileCommand : public Command
+{
 public:
   SelectTileCommand();
   Command* clone() const override { return new SelectTileCommand(*this); }
@@ -40,14 +42,11 @@ protected:
   std::string onGetFriendlyName() const override;
 
 private:
-  gen::SelectionMode m_mode;
+  gen::SelectionMode m_mode = gen::SelectionMode::DEFAULT;
 };
 
 SelectTileCommand::SelectTileCommand()
-  : Command("SelectTile",
-            "Select Tile",
-            CmdRecordableFlag)
-  , m_mode(gen::SelectionMode::DEFAULT)
+  : Command("SelectTile", "Select Tile", CmdRecordableFlag)
 {
 }
 
@@ -69,8 +68,7 @@ bool SelectTileCommand::onEnabled(Context* ctx)
 
 void SelectTileCommand::onExecute(Context* ctx)
 {
-  if (!current_editor ||
-      !current_editor->hasMouse())
+  if (!current_editor || !current_editor->hasMouse())
     return;
 
   // Lock sprite
@@ -78,7 +76,7 @@ void SelectTileCommand::onExecute(Context* ctx)
   Document* doc(writer.document());
   auto& docPref = Preferences::instance().document(doc);
 
-  std::unique_ptr<Mask> mask(new Mask());
+  auto mask = std::make_unique<Mask>();
 
   if (m_mode != gen::SelectionMode::DEFAULT)
     mask->copyFrom(doc->mask());
@@ -96,8 +94,7 @@ void SelectTileCommand::onExecute(Context* ctx)
   }
 
   // Set the new mask
-  Transaction transaction(writer.context(),
-                          "Select Tile",
+  Transaction transaction(writer.context(), "Select Tile",
                           DoesntModifyDocument);
   transaction.execute(new cmd::SetMask(doc, mask.get()));
   transaction.commit();
@@ -110,9 +107,14 @@ std::string SelectTileCommand::onGetFriendlyName() const
 {
   std::string text = "Select Tile";
 
-  switch (m_mode) {
-    case gen::SelectionMode::ADD: text += " (Add)"; break;
-    case gen::SelectionMode::SUBTRACT: text += " (Subtract)"; break;
+  switch (m_mode)
+  {
+  case gen::SelectionMode::ADD:
+    text += " (Add)";
+    break;
+  case gen::SelectionMode::SUBTRACT:
+    text += " (Subtract)";
+    break;
   }
 
   return text;

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,9 +17,11 @@
 #include "app/tools/tool.h"
 #include "app/tools/tool_box.h"
 
-namespace app {
+namespace app
+{
 
-class SetSameInkCommand : public Command {
+class SetSameInkCommand : public Command
+{
 public:
   SetSameInkCommand();
   Command* clone() const override { return new SetSameInkCommand(*this); }
@@ -30,9 +32,7 @@ protected:
 };
 
 SetSameInkCommand::SetSameInkCommand()
-  : Command("SetSameInk",
-            "Same Ink in All Tools",
-            CmdUIOnlyFlag)
+  : Command("SetSameInk", "Same Ink in All Tools", CmdUIOnlyFlag)
 {
 }
 
@@ -47,13 +47,16 @@ void SetSameInkCommand::onExecute(Context* context)
   bool newState = !pref.shared.shareInk();
   pref.shared.shareInk(newState);
 
-  if (newState) {
+  if (newState)
+  {
     tools::Tool* activeTool = App::instance()->activeTool();
     tools::InkType inkType = pref.tool(activeTool).ink();
     int opacity = pref.tool(activeTool).opacity();
 
-    for (tools::Tool* tool : *App::instance()->toolBox()) {
-      if (tool != activeTool) {
+    for (tools::Tool* tool : *App::instance()->toolBox())
+    {
+      if (tool != activeTool)
+      {
         pref.tool(tool).ink(inkType);
         pref.tool(tool).opacity(opacity);
       }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,9 +13,11 @@
 #include "app/commands/command.h"
 #include "app/ui/input_chain.h"
 
-namespace app {
+namespace app
+{
 
-class ClearCommand : public Command {
+class ClearCommand : public Command
+{
 public:
   ClearCommand();
   Command* clone() const override { return new ClearCommand(*this); }
@@ -26,9 +28,7 @@ protected:
 };
 
 ClearCommand::ClearCommand()
-  : Command("Clear",
-            "Clear",
-            CmdUIOnlyFlag)
+  : Command("Clear", "Clear", CmdUIOnlyFlag)
 {
 }
 

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,9 +15,11 @@
 #include "app/document.h"
 #include "app/launcher.h"
 
-namespace app {
+namespace app
+{
 
-class OpenWithAppCommand : public Command {
+class OpenWithAppCommand : public Command
+{
 public:
   OpenWithAppCommand();
   Command* clone() const override { return new OpenWithAppCommand(*this); }
@@ -28,18 +30,14 @@ protected:
 };
 
 OpenWithAppCommand::OpenWithAppCommand()
-  : Command("OpenWithApp",
-            "Open With Associated Application",
-            CmdUIOnlyFlag)
+  : Command("OpenWithApp", "Open With Associated Application", CmdUIOnlyFlag)
 {
 }
 
 bool OpenWithAppCommand::onEnabled(Context* context)
 {
   const ContextReader reader(context);
-  return
-    reader.document() &&
-    reader.document()->isAssociatedToFile();
+  return reader.document() && reader.document()->isAssociatedToFile();
 }
 
 void OpenWithAppCommand::onExecute(Context* context)

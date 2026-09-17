@@ -1,5 +1,6 @@
-// Aseprite    - Copyright (C) 2001-2015  David Capello
-// LibreSprite - Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2015 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,11 +15,13 @@
 #include "base/bind.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class AboutCommand : public Command {
+class AboutCommand : public Command
+{
 public:
   AboutCommand();
   Command* clone() const override { return new AboutCommand(*this); }
@@ -28,15 +31,14 @@ protected:
 };
 
 AboutCommand::AboutCommand()
-  : Command("About",
-            "About",
-            CmdUIOnlyFlag)
+  : Command("About", "About", CmdUIOnlyFlag)
 {
 }
 
 void AboutCommand::onExecute(Context* context)
 {
-  std::unique_ptr<Window> window(new Window(Window::WithTitleBar, "About " PACKAGE));
+  std::unique_ptr<Window> window(
+      new Window(Window::WithTitleBar, "About " PACKAGE));
   Box* box1 = new Box(VERTICAL);
   Grid* grid = new Grid(2, false);
   Label* title = new Label(PACKAGE_AND_VERSION);
@@ -47,15 +49,17 @@ void AboutCommand::onExecute(Context* context)
   authors_separator1->setI18N();
   Separator* authors_separator2 = new Separator("", HORIZONTAL);
   authors_separator2->setI18N();
-  Label *author1 = new LinkLabel("http://davidcapello.com/", "David Capello");
+  Label* author1 = new LinkLabel("http://davidcapello.com/", "David Capello");
   author1->setI18N();
-  Label *author1_desc = new Label("- Lead developer, graphics & maintainer");
+  Label* author1_desc = new Label("- Lead developer, graphics & maintainer");
   author1_desc->setI18N();
-  Label *author2 = new LinkLabel("http://ilkke.blogspot.com/", "Ilija Melentijevic");
+  Label* author2 =
+      new LinkLabel("http://ilkke.blogspot.com/", "Ilija Melentijevic");
   author2->setI18N();
-  Label *author2_desc = new Label("- Default skin & graphics introduced in v0.8");
+  Label* author2_desc =
+      new Label("- Default skin & graphics introduced in v0.8");
   author2_desc->setI18N();
-  Label *author3 = new LinkLabel(WEBSITE_CONTRIBUTORS, "Contributors");
+  Label* author3 = new LinkLabel(WEBSITE_CONTRIBUTORS, "Contributors");
   author3->setI18N();
   Box* bottom_box1 = new Box(HORIZONTAL);
   Box* bottom_box2 = new Box(HORIZONTAL);
@@ -91,13 +95,13 @@ void AboutCommand::onExecute(Context* context)
   window->addChild(box1);
 
   close_button->setBorder(
-    gfx::Border(
-      close_button->border().left() + 16*guiscale(),
-      close_button->border().top(),
-      close_button->border().right() + 16*guiscale(),
-      close_button->border().bottom()));
+      gfx::Border(close_button->border().left() + 16 * guiscale(),
+                  close_button->border().top(),
+                  close_button->border().right() + 16 * guiscale(),
+                  close_button->border().bottom()));
 
-  close_button->Click.connect(base::Bind<void>(&Window::closeWindow, window.get(), close_button));
+  close_button->Click.connect(
+      base::Bind<void>(&Window::closeWindow, window.get(), close_button));
 
   window->openWindowInForeground();
 }

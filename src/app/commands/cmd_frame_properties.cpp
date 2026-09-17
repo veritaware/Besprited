@@ -22,11 +22,13 @@
 
 #include "frame_properties.xml.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class FramePropertiesCommand : public Command {
+class FramePropertiesCommand : public Command
+{
 public:
   FramePropertiesCommand();
   Command* clone() const override { return new FramePropertiesCommand(*this); }
@@ -37,7 +39,8 @@ protected:
   void onExecute(Context* context) override;
 
 private:
-  enum Target {
+  enum Target
+  {
     ALL_FRAMES = -1,
     CURRENT_RANGE = 0,
     SPECIFIC_FRAME = 1
@@ -50,24 +53,25 @@ private:
 };
 
 FramePropertiesCommand::FramePropertiesCommand()
-  : Command("FrameProperties",
-            "Frame Properties",
-            CmdUIOnlyFlag)
+  : Command("FrameProperties", "Frame Properties", CmdUIOnlyFlag)
 {
 }
 
 void FramePropertiesCommand::onLoadParams(const Params& params)
 {
   std::string frame = params.get("frame");
-  if (frame == "all") {
+  if (frame == "all")
+  {
     m_target = ALL_FRAMES;
   }
-  else if (frame == "current") {
+  else if (frame == "current")
+  {
     m_target = CURRENT_RANGE;
   }
-  else {
+  else
+  {
     m_target = SPECIFIC_FRAME;
-    m_frame = frame_t(base::convert_to<int>(frame)-1);
+    m_frame = frame_t(base::convert_to<int>(frame) - 1);
   }
 }
 
@@ -85,39 +89,45 @@ void FramePropertiesCommand::onExecute(Context* context)
   frame_t firstFrame = 0;
   frame_t lastFrame = 0;
 
-  switch (m_target) {
+  switch (m_target)
+  {
 
-    case ALL_FRAMES:
-      lastFrame = sprite->lastFrame();
-      break;
+  case ALL_FRAMES:
+    lastFrame = sprite->lastFrame();
+    break;
 
-    case CURRENT_RANGE: {
-      // TODO the range of selected frames should be in doc::Site.
-      auto range = App::instance()->timeline()->range();
-      if (range.enabled()) {
-        firstFrame = range.frameBegin();
-        lastFrame = range.frameEnd();
-      }
-      else {
-        firstFrame = lastFrame = reader.frame();
-      }
-      break;
+  case CURRENT_RANGE:
+  {
+    // TODO the range of selected frames should be in doc::Site.
+    auto range = App::instance()->timeline()->range();
+    if (range.enabled())
+    {
+      firstFrame = range.frameBegin();
+      lastFrame = range.frameEnd();
     }
+    else
+    {
+      firstFrame = lastFrame = reader.frame();
+    }
+    break;
+  }
 
-    case SPECIFIC_FRAME:
-      firstFrame = lastFrame = m_frame;
-      break;
+  case SPECIFIC_FRAME:
+    firstFrame = lastFrame = m_frame;
+    break;
   }
 
   if (firstFrame != lastFrame)
-    window.frame()->setTextf("[%d...%d]", (int)firstFrame+1, (int)lastFrame+1);
+    window.frame()->setTextf("[%d...%d]", (int)firstFrame + 1,
+                             (int)lastFrame + 1);
   else
-    window.frame()->setTextf("%d", (int)firstFrame+1);
+    window.frame()->setTextf("%d", (int)firstFrame + 1);
 
   window.frlen()->setValue(sprite->frameDuration(firstFrame));
 
   window.openWindowInForeground();
-  if (window.closer() == window.ok()) {
+  if (window.closer() == window.ok())
+  {
     int num = window.frlen()->getValue();
 
     ContextWriter writer(reader);

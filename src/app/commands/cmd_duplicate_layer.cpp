@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -23,9 +23,11 @@
 #include "doc/sprite.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
-class DuplicateLayerCommand : public Command {
+class DuplicateLayerCommand : public Command
+{
 public:
   DuplicateLayerCommand();
   Command* clone() const override { return new DuplicateLayerCommand(*this); }
@@ -36,9 +38,7 @@ protected:
 };
 
 DuplicateLayerCommand::DuplicateLayerCommand()
-  : Command("DuplicateLayer",
-            "Duplicate Layer",
-            CmdRecordableFlag)
+  : Command("DuplicateLayer", "Duplicate Layer", CmdRecordableFlag)
 {
 }
 

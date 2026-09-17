@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -29,9 +29,11 @@
 #include "render/render.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
-class MergeDownLayerCommand : public Command {
+class MergeDownLayerCommand : public Command
+{
 public:
   MergeDownLayerCommand();
   Command* clone() const override { return new MergeDownLayerCommand(*this); }
@@ -42,9 +44,7 @@ protected:
 };
 
 MergeDownLayerCommand::MergeDownLayerCommand()
-  : Command("MergeDownLayer",
-            "Merge Down Layer",
-            CmdRecordableFlag)
+  : Command("MergeDownLayer", "Merge Down Layer", CmdRecordableFlag)
 {
 }
 
@@ -75,30 +75,33 @@ void MergeDownLayerCommand::onExecute(Context* context)
   LayerImage* src_layer = static_cast<LayerImage*>(writer.layer());
   Layer* dst_layer = src_layer->getPrevious();
 
-  for (frame_t frpos = 0; frpos<sprite->totalFrames(); ++frpos) {
+  for (frame_t frpos = 0; frpos < sprite->totalFrames(); ++frpos)
+  {
     // Get frames
     auto src_cel = src_layer->cel(frpos);
     auto dst_cel = dst_layer->cel(frpos);
 
     // Get images
     Image* src_image;
-    if (src_cel != NULL)
+    if (src_cel != nullptr)
       src_image = src_cel->image();
     else
-      src_image = NULL;
+      src_image = nullptr;
 
     ImageRef dst_image;
     if (dst_cel)
       dst_image = dst_cel->imageRef();
 
     // With source image?
-    if (src_image) {
+    if (src_image)
+    {
       int t;
       int opacity;
       opacity = MUL_UN8(src_cel->opacity(), src_layer->opacity(), t);
 
       // No destination image
-      if (!dst_image) {  // Only a transparent layer can have a null cel
+      if (!dst_image)
+      { // Only a transparent layer can have a null cel
         // Copy this cel to the destination layer...
 
         // Creating a copy of the image
@@ -112,49 +115,48 @@ void MergeDownLayerCommand::onExecute(Context* context)
         transaction.execute(new cmd::AddCel(dst_layer, dst_cel));
       }
       // With destination
-      else {
+      else
+      {
         gfx::Rect bounds;
 
         // Merge down in the background layer
-        if (dst_layer->isBackground()) {
+        if (dst_layer->isBackground())
+        {
           bounds = sprite->bounds();
         }
         // Merge down in a transparent layer
-        else {
+        else
+        {
           bounds = src_cel->bounds().createUnion(dst_cel->bounds());
         }
 
         doc::color_t bgcolor = app_get_color_to_clear_layer(dst_layer);
 
         ImageRef new_image(doc::crop_image(
-            dst_image.get(),
-            bounds.x-dst_cel->x(),
-            bounds.y-dst_cel->y(),
+            dst_image.get(), bounds.x - dst_cel->x(), bounds.y - dst_cel->y(),
             bounds.w, bounds.h, bgcolor));
 
         // Merge src_image in new_image
         render::composite_image(
-          new_image.get(), src_image,
-          sprite->palette(src_cel->frame()),
-          src_cel->x()-bounds.x,
-          src_cel->y()-bounds.y,
-          opacity,
-          src_layer->blendMode());
+            new_image.get(), src_image, sprite->palette(src_cel->frame()),
+            src_cel->x() - bounds.x, src_cel->y() - bounds.y, opacity,
+            src_layer->blendMode());
 
-        transaction.execute(new cmd::SetCelPosition(dst_cel,
-            bounds.x, bounds.y));
+        transaction.execute(
+            new cmd::SetCelPosition(dst_cel, bounds.x, bounds.y));
 
         if (dst_cel->links())
           transaction.execute(new cmd::UnlinkCel(dst_cel));
 
-        transaction.execute(new cmd::ReplaceImage(sprite,
-            dst_cel->imageRef(), new_image));
+        transaction.execute(
+            new cmd::ReplaceImage(sprite, dst_cel->imageRef(), new_image));
       }
     }
   }
 
   document->notifyLayerMergedDown(src_layer, dst_layer);
-  document->getApi(transaction).removeLayer(src_layer); // src_layer is deleted inside removeLayer()
+  document->getApi(transaction)
+      .removeLayer(src_layer); // src_layer is deleted inside removeLayer()
 
   transaction.commit();
   update_screen_for_document(document);

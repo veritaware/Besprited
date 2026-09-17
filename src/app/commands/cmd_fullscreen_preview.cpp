@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -33,16 +33,15 @@
 
 #include <cstring>
 
-#define PREVIEW_TILED           1
-#define PREVIEW_FIT_ON_SCREEN   2
-
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace doc;
 using namespace filters;
 
-class PreviewWindow : public Window {
+class PreviewWindow : public Window
+{
 public:
   PreviewWindow(Context* context, Editor* editor)
     : Window(DesktopWindow)
@@ -52,9 +51,10 @@ public:
     , m_sprite(editor->sprite())
     , m_pal(m_sprite->palette(editor->frame()))
     , m_zoom(editor->zoom())
-    , m_index_bg_color(-1)
     , m_doublebuf(Image::create(IMAGE_RGB, ui::display_w(), ui::display_h()))
-    , m_doublesur(she::instance()->createRgbaSurface(ui::display_w(), ui::display_h())) {
+    , m_doublesur(
+          she::instance()->createRgbaSurface(ui::display_w(), ui::display_h()))
+  {
     // Do not use DocumentWriter (do not lock the document) because we
     // will call other sub-commands (e.g. previous frame, next frame,
     // etc.).
@@ -80,111 +80,124 @@ public:
   }
 
 protected:
-  virtual bool onProcessMessage(Message* msg) override {
-    switch (msg->type()) {
+  bool onProcessMessage(Message* msg) override
+  {
+    switch (msg->type())
+    {
 
-      case kCloseMessage:
-        releaseMouse();
-        break;
+    case kCloseMessage:
+      releaseMouse();
+      break;
 
-      case kMouseMoveMessage: {
-        MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-        gfx::Point mousePos = mouseMsg->position();
+    case kMouseMoveMessage:
+    {
+      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+      gfx::Point mousePos = mouseMsg->position();
 
-        gfx::Rect bounds = this->bounds();
-        gfx::Border border;
-        if (bounds.w > 64*guiscale()) {
-          border.left(32*guiscale());
-          border.right(32*guiscale());
-        }
-        if (bounds.h > 64*guiscale()) {
-          border.top(32*guiscale());
-          border.bottom(32*guiscale());
-        }
+      gfx::Rect bounds = this->bounds();
+      gfx::Border border;
+      if (bounds.w > 64 * guiscale())
+      {
+        border.left(32 * guiscale());
+        border.right(32 * guiscale());
+      }
+      if (bounds.h > 64 * guiscale())
+      {
+        border.top(32 * guiscale());
+        border.bottom(32 * guiscale());
+      }
 
-        m_delta += mousePos - m_oldMousePos;
-        m_oldMousePos = mousePos;
+      m_delta += mousePos - m_oldMousePos;
+      m_oldMousePos = mousePos;
 
+      invalidate();
+      break;
+    }
+
+    case kMouseUpMessage:
+    {
+      closeWindow(this);
+      break;
+    }
+
+    case kKeyDownMessage:
+    {
+      KeyMessage* keyMsg = static_cast<KeyMessage*>(msg);
+      Command* command = nullptr;
+      Params params;
+      KeyboardShortcuts::instance()->getCommandFromKeyMessage(msg, &command,
+                                                              &params);
+
+      // Change frame
+      if (command != nullptr &&
+          (command->id() == CommandId::GotoFirstFrame ||
+           command->id() == CommandId::GotoPreviousFrame ||
+           command->id() == CommandId::GotoNextFrame ||
+           command->id() == CommandId::GotoLastFrame))
+      {
+        m_context->executeCommand(command, params);
         invalidate();
-        break;
+        m_render.reset(nullptr); // Re-render
       }
-
-      case kMouseUpMessage: {
-        closeWindow(this);
-        break;
-      }
-
-      case kKeyDownMessage: {
-        KeyMessage* keyMsg = static_cast<KeyMessage*>(msg);
-        Command* command = NULL;
-        Params params;
-        KeyboardShortcuts::instance()
-          ->getCommandFromKeyMessage(msg, &command, &params);
-
-        // Change frame
-        if (command != NULL &&
-            (command->id() == CommandId::GotoFirstFrame ||
-             command->id() == CommandId::GotoPreviousFrame ||
-             command->id() == CommandId::GotoNextFrame ||
-             command->id() == CommandId::GotoLastFrame)) {
-          m_context->executeCommand(command, params);
-          invalidate();
-          m_render.reset(NULL); // Re-render
-        }
 #if 0
         // Play the animation
-        else if (command != NULL &&
+        else if (command != nullptr &&
                  std::strcmp(command->short_name(), CommandId::PlayAnimation) == 0) {
           // TODO
         }
 #endif
-        // Change background color
-        else if (keyMsg->scancode() == kKeyPlusPad ||
-                 keyMsg->unicodeChar() == '+') {
-          if (m_index_bg_color == -1 ||
-            m_index_bg_color < m_pal->size()-1) {
-            ++m_index_bg_color;
+      // Change background color
+      else if (keyMsg->scancode() == kKeyPlusPad ||
+               keyMsg->unicodeChar() == '+')
+      {
+        if (m_index_bg_color == -1 || m_index_bg_color < m_pal->size() - 1)
+        {
+          ++m_index_bg_color;
 
-            invalidate();
-          }
+          invalidate();
         }
-        else if (keyMsg->scancode() == kKeyMinusPad ||
-                 keyMsg->unicodeChar() == '-') {
-          if (m_index_bg_color >= 0) {
-            --m_index_bg_color;     // can be -1 which is the checked background
+      }
+      else if (keyMsg->scancode() == kKeyMinusPad ||
+               keyMsg->unicodeChar() == '-')
+      {
+        if (m_index_bg_color >= 0)
+        {
+          --m_index_bg_color; // can be -1 which is the checked background
 
-            invalidate();
-          }
+          invalidate();
         }
-        else {
-          closeWindow(this);
-        }
-
-        return true;
+      }
+      else
+      {
+        closeWindow(this);
       }
 
-      case kSetCursorMessage:
-        ui::set_mouse_cursor(kNoCursor);
-        return true;
+      return true;
+    }
+
+    case kSetCursorMessage:
+      ui::set_mouse_cursor(kNoCursor);
+      return true;
     }
 
     return Window::onProcessMessage(msg);
   }
 
-  virtual void onPaint(PaintEvent& ev) override {
+  void onPaint(PaintEvent& ev) override
+  {
     Graphics* g = ev.graphics();
     AppRender& render = m_editor->renderEngine();
     render.disableOnionskin();
     render.setBgType(render::BgType::TRANSPARENT);
 
     // Render sprite and leave the result in 'm_render' variable
-    if (m_render == NULL) {
+    if (m_render == nullptr)
+    {
       ImageBufferPtr buf = Editor::getRenderImageBuffer();
-      m_render.reset(Image::create(IMAGE_RGB,
-          m_sprite->width(), m_sprite->height(), buf));
+      m_render.reset(
+          Image::create(IMAGE_RGB, m_sprite->width(), m_sprite->height(), buf));
 
-      render.renderSprite(
-        m_render.get(), m_sprite, m_editor->frame());
+      render.renderSprite(m_render.get(), m_sprite, m_editor->frame());
     }
 
     int x, y, w, h, u, v;
@@ -193,45 +206,54 @@ protected:
     w = m_zoom.apply(m_sprite->width());
     h = m_zoom.apply(m_sprite->height());
 
-    if (int(m_tiled) & int(TiledMode::X_AXIS)) x = SGN(x) * (ABS(x)%w);
-    if (int(m_tiled) & int(TiledMode::Y_AXIS)) y = SGN(y) * (ABS(y)%h);
+    if (int(m_tiled) & int(TiledMode::X_AXIS))
+      x = SGN(x) * (ABS(x) % w);
+    if (int(m_tiled) & int(TiledMode::Y_AXIS))
+      y = SGN(y) * (ABS(y) % h);
 
-    if (m_index_bg_color == -1) {
+    if (m_index_bg_color == -1)
+    {
       render.setupBackground(m_doc, m_doublebuf->pixelFormat());
       render.renderBackground(m_doublebuf.get(),
-        gfx::Clip(0, 0, -m_pos.x, -m_pos.y,
-          m_doublebuf->width(), m_doublebuf->height()), m_zoom);
+                              gfx::Clip(0, 0, -m_pos.x, -m_pos.y,
+                                        m_doublebuf->width(),
+                                        m_doublebuf->height()),
+                              m_zoom);
     }
-    else {
+    else
+    {
       doc::clear_image(m_doublebuf.get(), m_pal->getEntry(m_index_bg_color));
     }
 
-    switch (m_tiled) {
-      case TiledMode::NONE:
-        render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, x, y,
+    switch (m_tiled)
+    {
+    case TiledMode::NONE:
+      render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, x, y, m_zoom,
+                         255, BlendMode::NORMAL);
+      break;
+    case TiledMode::X_AXIS:
+      for (u = x - w; u < ui::display_w() + w; u += w)
+        render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, u, y,
                            m_zoom, 255, BlendMode::NORMAL);
-        break;
-      case TiledMode::X_AXIS:
-        for (u=x-w; u<ui::display_w()+w; u+=w)
-          render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, u, y,
+      break;
+    case TiledMode::Y_AXIS:
+      for (v = y - h; v < ui::display_h() + h; v += h)
+        render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, x, v,
+                           m_zoom, 255, BlendMode::NORMAL);
+      break;
+    case TiledMode::BOTH:
+      for (v = y - h; v < ui::display_h() + h; v += h)
+        for (u = x - w; u < ui::display_w() + w; u += w)
+          render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, u, v,
                              m_zoom, 255, BlendMode::NORMAL);
-        break;
-      case TiledMode::Y_AXIS:
-        for (v=y-h; v<ui::display_h()+h; v+=h)
-          render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, x, v,
-                             m_zoom, 255, BlendMode::NORMAL);
-        break;
-      case TiledMode::BOTH:
-        for (v=y-h; v<ui::display_h()+h; v+=h)
-          for (u=x-w; u<ui::display_w()+w; u+=w)
-            render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, u, v,
-                               m_zoom, 255, BlendMode::NORMAL);
-        break;
+      break;
     }
 
-    doc::convert_image_to_surface(m_doublebuf.get(), m_pal,
-      m_doublesur, 0, 0, 0, 0, m_doublebuf->width(), m_doublebuf->height());
-    g->blit(m_doublesur, 0, 0, 0, 0, m_doublesur->width(), m_doublesur->height());
+    doc::convert_image_to_surface(m_doublebuf.get(), m_pal, m_doublesur, 0, 0,
+                                  0, 0, m_doublebuf->width(),
+                                  m_doublebuf->height());
+    g->blit(m_doublesur, 0, 0, 0, 0, m_doublesur->width(),
+            m_doublesur->height());
   }
 
 private:
@@ -244,17 +266,21 @@ private:
   gfx::Point m_oldMousePos;
   gfx::Point m_delta;
   render::Zoom m_zoom;
-  int m_index_bg_color;
+  int m_index_bg_color = -1;
   std::unique_ptr<Image> m_render;
   std::unique_ptr<Image> m_doublebuf;
   she::ScopedHandle<she::Surface> m_doublesur;
   filters::TiledMode m_tiled;
 };
 
-class FullscreenPreviewCommand : public Command {
+class FullscreenPreviewCommand : public Command
+{
 public:
   FullscreenPreviewCommand();
-  Command* clone() const override { return new FullscreenPreviewCommand(*this); }
+  Command* clone() const override
+  {
+    return new FullscreenPreviewCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -262,9 +288,7 @@ protected:
 };
 
 FullscreenPreviewCommand::FullscreenPreviewCommand()
-  : Command("FullscreenPreview",
-            "Fullscreen Preview",
-            CmdUIOnlyFlag)
+  : Command("FullscreenPreview", "Fullscreen Preview", CmdUIOnlyFlag)
 {
 }
 

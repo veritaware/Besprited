@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,15 +17,18 @@
 #include "app/ui/main_window.h"
 #include "ui/alert.h"
 
-namespace app {
+namespace app
+{
 
-class ExitCommand : public Command {
+class ExitCommand : public Command
+{
 public:
   ExitCommand();
   Command* clone() const override { return new ExitCommand(*this); }
 
 protected:
-  bool onEnabled(Context* context) override {
+  bool onEnabled(Context* context) override
+  {
 #if defined(__EMSCRIPTEN__)
     return false;
 #endif
@@ -36,16 +39,16 @@ protected:
 };
 
 ExitCommand::ExitCommand()
-  : Command("Exit",
-            "Exit",
-            CmdUIOnlyFlag)
+  : Command("Exit", "Exit", CmdUIOnlyFlag)
 {
 }
 
 void ExitCommand::onExecute(Context* ctx)
 {
-  if (ctx->hasModifiedDocuments()) {
-    Command* closeAll = CommandsModule::instance()->getCommandByName(CommandId::CloseAllFiles);
+  if (ctx->hasModifiedDocuments())
+  {
+    Command* closeAll =
+        CommandsModule::instance()->getCommandByName(CommandId::CloseAllFiles);
     Params params;
     params.set("quitting", "1");
     ctx->executeCommand(closeAll, params);

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -34,12 +34,11 @@
 #include "doc/sprite.h"
 #include "gfx/size.h"
 
-namespace app {
+namespace app
+{
 
 FlipCommand::FlipCommand()
-  : Command("Flip",
-            "Flip",
-            CmdRecordableFlag)
+  : Command("Flip", "Flip", CmdRecordableFlag)
 {
   m_flipMask = false;
   m_flipType = doc::algorithm::FlipHorizontal;
@@ -51,8 +50,8 @@ void FlipCommand::onLoadParams(const Params& params)
   m_flipMask = (target == "mask");
 
   std::string orientation = params.get("orientation");
-  m_flipType = (orientation == "vertical" ? doc::algorithm::FlipVertical:
-                                            doc::algorithm::FlipHorizontal);
+  m_flipType = (orientation == "vertical" ? doc::algorithm::FlipVertical
+                                          : doc::algorithm::FlipHorizontal);
 }
 
 bool FlipCommand::onEnabled(Context* context)
@@ -68,33 +67,37 @@ void FlipCommand::onExecute(Context* context)
 
   {
     Transaction transaction(writer.context(),
-      m_flipMask ?
-      (m_flipType == doc::algorithm::FlipHorizontal ?
-        "Flip Horizontal":
-        "Flip Vertical"):
-      (m_flipType == doc::algorithm::FlipHorizontal ?
-        "Flip Canvas Horizontal":
-        "Flip Canvas Vertical"));
+                            m_flipMask
+                                ? (m_flipType == doc::algorithm::FlipHorizontal
+                                       ? "Flip Horizontal"
+                                       : "Flip Vertical")
+                                : (m_flipType == doc::algorithm::FlipHorizontal
+                                       ? "Flip Canvas Horizontal"
+                                       : "Flip Canvas Vertical"));
     DocumentApi api = document->getApi(transaction);
 
     CelList cels;
-    if (m_flipMask) {
+    if (m_flipMask)
+    {
       auto range = App::instance()->timeline()->range();
       if (range.enabled())
         cels = get_unique_cels(sprite, range);
       else if (writer.cel())
         cels.push_back(writer.cel());
     }
-    else {
+    else
+    {
       for (auto cel : sprite->uniqueCels())
         cels.push_back(cel);
     }
 
     Mask* mask = document->mask();
-    if (m_flipMask && document->isMaskVisible()) {
+    if (m_flipMask && document->isMaskVisible())
+    {
       Site site = *writer.site();
 
-      for (auto cel : cels) {
+      for (auto cel : cels)
+      {
         site.frame(cel->frame());
         site.layer(cel->layer());
 
@@ -105,7 +108,8 @@ void FlipCommand::onExecute(Context* context)
 
         // When the mask is inside the cel, we can try to flip the
         // pixels inside the image.
-        if (cel->bounds().contains(mask->bounds())) {
+        if (cel->bounds().contains(mask->bounds()))
+        {
           gfx::Rect flipBounds = mask->bounds();
           flipBounds.offset(-x, -y);
           flipBounds &= image->bounds();
@@ -122,43 +126,42 @@ void FlipCommand::onExecute(Context* context)
         }
         // When the mask is bigger than the cel bounds, we have to
         // expand the cel, make the flip, and shrink it again.
-        else {
+        else
+        {
           gfx::Rect flipBounds = (sprite->bounds() & mask->bounds());
           if (flipBounds.isEmpty())
             continue;
 
-          ExpandCelCanvas expand(
-            site, cel->layer(),
-            TiledMode::NONE, transaction,
-            ExpandCelCanvas::None);
+          ExpandCelCanvas expand(site, cel->layer(), TiledMode::NONE,
+                                 transaction, ExpandCelCanvas::None);
 
           expand.validateDestCanvas(gfx::Region(flipBounds));
 
           if (mask->bitmap() && !mask->isRectangular())
             doc::algorithm::flip_image_with_mask(
-              expand.getDestCanvas(), mask, m_flipType,
-              document->bgColor(cel->layer()));
+                expand.getDestCanvas(), mask, m_flipType,
+                document->bgColor(cel->layer()));
           else
-            doc::algorithm::flip_image(
-              expand.getDestCanvas(),
-              flipBounds, m_flipType);
+            doc::algorithm::flip_image(expand.getDestCanvas(), flipBounds,
+                                       m_flipType);
 
           expand.commit();
         }
       }
     }
-    else {
-      for (auto cel : cels) {
+    else
+    {
+      for (auto cel : cels)
+      {
         Image* image = cel->image();
 
-        api.setCelPosition
-          (sprite, cel,
-            (m_flipType == doc::algorithm::FlipHorizontal ?
-              sprite->width() - image->width() - cel->x():
-              cel->x()),
-            (m_flipType == doc::algorithm::FlipVertical ?
-              sprite->height() - image->height() - cel->y():
-              cel->y()));
+        api.setCelPosition(sprite, cel,
+                           (m_flipType == doc::algorithm::FlipHorizontal
+                                ? sprite->width() - image->width() - cel->x()
+                                : cel->x()),
+                           (m_flipType == doc::algorithm::FlipVertical
+                                ? sprite->height() - image->height() - cel->y()
+                                : cel->y()));
 
         api.flipImage(image, image->bounds(), m_flipType);
       }
@@ -166,21 +169,19 @@ void FlipCommand::onExecute(Context* context)
 
     // Flip the mask.
     Image* maskBitmap = mask->bitmap();
-    if (maskBitmap) {
+    if (maskBitmap)
+    {
       transaction.execute(new cmd::FlipMask(document, m_flipType));
 
       // Flip the mask position because the
       if (!m_flipMask)
-        transaction.execute(
-          new cmd::SetMaskPosition(
-            document,
-            gfx::Point(
-              (m_flipType == doc::algorithm::FlipHorizontal ?
-               sprite->width() - mask->bounds().x2():
-               mask->bounds().x),
-              (m_flipType == doc::algorithm::FlipVertical ?
-               sprite->height() - mask->bounds().y2():
-               mask->bounds().y))));
+        transaction.execute(new cmd::SetMaskPosition(
+            document, gfx::Point((m_flipType == doc::algorithm::FlipHorizontal
+                                      ? sprite->width() - mask->bounds().x2()
+                                      : mask->bounds().x),
+                                 (m_flipType == doc::algorithm::FlipVertical
+                                      ? sprite->height() - mask->bounds().y2()
+                                      : mask->bounds().y))));
 
       document->generateMaskBoundaries();
     }

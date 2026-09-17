@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -23,9 +23,11 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
-class LoadMaskCommand : public Command {
+class LoadMaskCommand : public Command
+{
   std::string m_filename;
 
 public:
@@ -39,9 +41,7 @@ protected:
 };
 
 LoadMaskCommand::LoadMaskCommand()
-  : Command("LoadMask",
-            "LoadMask",
-            CmdRecordableFlag)
+  : Command("LoadMask", "LoadMask", CmdRecordableFlag)
 {
   m_filename = "";
 }
@@ -62,10 +62,10 @@ void LoadMaskCommand::onExecute(Context* context)
 
   std::string filename = m_filename;
 
-  if (context->isUIAvailable()) {
-    filename = app::show_file_selector(
-      "Load .msk File", filename, "msk",
-      FileSelectorType::Open);
+  if (context->isUIAvailable())
+  {
+    filename = app::show_file_selector("Load .msk File", filename, "msk",
+                                       FileSelectorType::Open);
 
     if (filename.empty())
       return;
@@ -81,7 +81,8 @@ void LoadMaskCommand::onExecute(Context* context)
   {
     ContextWriter writer(reader);
     Document* document = writer.document();
-    Transaction transaction(writer.context(), "Mask Load", DoesntModifyDocument);
+    Transaction transaction(writer.context(), "Mask Load",
+                            DoesntModifyDocument);
     transaction.execute(new cmd::SetMask(document, mask.get()));
     transaction.commit();
 

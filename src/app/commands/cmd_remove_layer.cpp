@@ -24,7 +24,8 @@
 #include "ui/alert.h"
 #include "ui/widget.h"
 
-namespace app {
+namespace app
+{
 
 bool wouldRemoveAllLayers(int layersInRange, int totalLayers)
 {
@@ -38,14 +39,16 @@ bool wouldRemoveTheLastLayer(int totalLayers)
 
 bool anyLayerHidden(const std::vector<bool>& layerVisibility)
 {
-  for (bool visible : layerVisibility) {
+  for (bool visible : layerVisibility)
+  {
     if (!visible)
       return true;
   }
   return false;
 }
 
-class RemoveLayerCommand : public Command {
+class RemoveLayerCommand : public Command
+{
 public:
   RemoveLayerCommand();
   Command* clone() const override { return new RemoveLayerCommand(*this); }
@@ -56,18 +59,15 @@ protected:
 };
 
 RemoveLayerCommand::RemoveLayerCommand()
-  : Command("RemoveLayer",
-            "Remove Layer",
-            CmdRecordableFlag)
+  : Command("RemoveLayer", "Remove Layer", CmdRecordableFlag)
 {
 }
 
 bool RemoveLayerCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite |
-                             ContextFlags::HasActiveLayer |
-                             ContextFlags::ActiveLayerIsEditable);
+  return context->checkFlags(
+      ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite |
+      ContextFlags::HasActiveLayer | ContextFlags::ActiveLayerIsEditable);
 }
 
 void RemoveLayerCommand::onExecute(Context* context)
@@ -80,41 +80,50 @@ void RemoveLayerCommand::onExecute(Context* context)
   {
     // TODO the range of selected layer should be in doc::Site.
     auto range = App::instance()->timeline()->range();
-    if (range.enabled()) {
-      if (wouldRemoveAllLayers(range.layers(), sprite->countLayers())) {
+    if (range.enabled())
+    {
+      if (wouldRemoveAllLayers(range.layers(), sprite->countLayers()))
+      {
         ui::Alert::show("Error<<You cannot delete all layers.||&OK");
         return;
       }
 
       std::vector<bool> visibility;
-      for (LayerIndex layer = range.layerEnd(); layer >= range.layerBegin(); --layer) {
+      for (LayerIndex layer = range.layerEnd(); layer >= range.layerBegin();
+           --layer)
+      {
         visibility.push_back(sprite->indexToLayer(layer)->isVisible());
       }
       if (anyLayerHidden(visibility) &&
           ui::Alert::show("Warning"
-                           "<<One or more of the selected layers are hidden."
-                           "<<Do you really want to delete them?"
-                           "||&Yes||&No") != 1)
+                          "<<One or more of the selected layers are hidden."
+                          "<<Do you really want to delete them?"
+                          "||&Yes||&No") != 1)
         return;
 
       Transaction transaction(writer.context(), "Remove Layer");
       DocumentApi api = document->getApi(transaction);
-      for (LayerIndex layer = range.layerEnd(); layer >= range.layerBegin(); --layer) {
+      for (LayerIndex layer = range.layerEnd(); layer >= range.layerBegin();
+           --layer)
+      {
         api.removeLayer(sprite->indexToLayer(layer));
       }
       transaction.commit();
     }
-    else {
-      if (wouldRemoveTheLastLayer(sprite->countLayers())) {
+    else
+    {
+      if (wouldRemoveTheLastLayer(sprite->countLayers()))
+      {
         ui::Alert::show("Error<<You cannot delete the last layer.||&OK");
         return;
       }
 
       if (!layer->isVisible() &&
           ui::Alert::show("Warning"
-                           "<<The layer \"%s\" is hidden."
-                           "<<Do you really want to delete it?"
-                           "||&Yes||&No", layer->name().c_str()) != 1)
+                          "<<The layer \"%s\" is hidden."
+                          "<<Do you really want to delete it?"
+                          "||&Yes||&No",
+                          layer->name().c_str()) != 1)
         return;
 
       layer_name = layer->name();
@@ -129,7 +138,8 @@ void RemoveLayerCommand::onExecute(Context* context)
 
   StatusBar::instance()->invalidate();
   if (!layer_name.empty())
-    StatusBar::instance()->showTip(1000, "Layer `%s' removed", layer_name.c_str());
+    StatusBar::instance()->showTip(1000, "Layer `%s' removed",
+                                   layer_name.c_str());
   else
     StatusBar::instance()->showTip(1000, "Layers removed");
 }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,9 +17,11 @@
 #include "app/tools/freehand_algorithm.h"
 #include "app/tools/tool.h"
 
-namespace app {
+namespace app
+{
 
-class PixelPerfectModeCommand : public Command {
+class PixelPerfectModeCommand : public Command
+{
 public:
   PixelPerfectModeCommand();
   Command* clone() const override { return new PixelPerfectModeCommand(*this); }
@@ -31,9 +33,7 @@ protected:
 };
 
 PixelPerfectModeCommand::PixelPerfectModeCommand()
-  : Command("PixelPerfectMode",
-            "Switch Pixel Perfect Mode",
-            CmdUIOnlyFlag)
+  : Command("PixelPerfectMode", "Switch Pixel Perfect Mode", CmdUIOnlyFlag)
 {
 }
 
@@ -49,7 +49,8 @@ bool PixelPerfectModeCommand::onChecked(Context* ctx)
     return false;
 
   auto& toolPref = Preferences::instance().tool(tool);
-  return (toolPref.freehandAlgorithm() == tools::FreehandAlgorithm::PIXEL_PERFECT);
+  return (toolPref.freehandAlgorithm() ==
+          tools::FreehandAlgorithm::PIXEL_PERFECT);
 }
 
 void PixelPerfectModeCommand::onExecute(Context* ctx)
@@ -59,10 +60,10 @@ void PixelPerfectModeCommand::onExecute(Context* ctx)
     return;
 
   auto& toolPref = Preferences::instance().tool(tool);
-  toolPref.freehandAlgorithm(
-    toolPref.freehandAlgorithm() == tools::FreehandAlgorithm::DEFAULT ?
-    tools::FreehandAlgorithm::PIXEL_PERFECT:
-    tools::FreehandAlgorithm::DEFAULT);
+  toolPref.freehandAlgorithm(toolPref.freehandAlgorithm() ==
+                                     tools::FreehandAlgorithm::DEFAULT
+                                 ? tools::FreehandAlgorithm::PIXEL_PERFECT
+                                 : tools::FreehandAlgorithm::DEFAULT);
 }
 
 Command* CommandFactory::createPixelPerfectModeCommand()

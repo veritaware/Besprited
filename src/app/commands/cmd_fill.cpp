@@ -29,11 +29,13 @@
 
 #include "fill.xml.h"
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
-class FillWindow : public app::gen::Fill {
+class FillWindow : public app::gen::Fill
+{
 };
 
 // Fills the pixels of the active layer/cel that fall inside the current
@@ -71,9 +73,12 @@ void fill_mask(Context* context, const app::Color& color, int opacity,
     const LockImageBits<BitmapTraits> maskBits(mask->bitmap());
     auto it = maskBits.begin();
 
-    for (int v=0; v<maskBounds.h; ++v) {
-      for (int u=0; u<maskBounds.w; ++u, ++it) {
-        if (*it) {
+    for (int v = 0; v < maskBounds.h; ++v)
+    {
+      for (int u = 0; u < maskBounds.w; ++u, ++it)
+      {
+        if (*it)
+        {
           int x = maskBounds.x + u;
           int y = maskBounds.y + v;
           if (fillBounds.contains(x, y))
@@ -89,10 +94,14 @@ void fill_mask(Context* context, const app::Color& color, int opacity,
   update_screen_for_document(document);
 }
 
-class FillCommand : public Command {
+class FillCommand : public Command
+{
 public:
   FillCommand();
-  [[nodiscard]] Command* clone() const override { return new FillCommand(*this); }
+  [[nodiscard]] Command* clone() const override
+  {
+    return new FillCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -100,9 +109,7 @@ protected:
 };
 
 FillCommand::FillCommand()
-  : Command("Fill",
-            "Fill",
-            CmdRecordableFlag)
+  : Command("Fill", "Fill", CmdRecordableFlag)
 {
 }
 
@@ -141,10 +148,14 @@ Command* CommandFactory::createFillCommand()
   return new FillCommand;
 }
 
-class QuickFillCommand : public Command {
+class QuickFillCommand : public Command
+{
 public:
   QuickFillCommand();
-  [[nodiscard]] Command* clone() const override { return new QuickFillCommand(*this); }
+  [[nodiscard]] Command* clone() const override
+  {
+    return new QuickFillCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -152,9 +163,7 @@ protected:
 };
 
 QuickFillCommand::QuickFillCommand()
-  : Command("QuickFill",
-            "Quick Fill",
-            CmdRecordableFlag)
+  : Command("QuickFill", "Quick Fill", CmdRecordableFlag)
 {
 }
 

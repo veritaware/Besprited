@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,15 +20,14 @@
 #include "ui/alert.h"
 #include "ui/manager.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
 SetPaletteCommand::SetPaletteCommand()
-  : Command("SetPalette",
-            "Set Palette",
-            CmdRecordableFlag)
-  , m_palette(NULL)
+  : Command("SetPalette", "Set Palette", CmdRecordableFlag)
+  , m_palette(nullptr)
 {
 }
 
@@ -39,10 +38,12 @@ void SetPaletteCommand::onExecute(Context* context)
     return;
 
   ContextWriter writer(context);
-  if (writer.document()) {
+  if (writer.document())
+  {
     Transaction transaction(writer.context(), "Set Palette");
-    writer.document()->getApi(transaction)
-      .setPalette(writer.sprite(), writer.frame(), m_palette);
+    writer.document()
+        ->getApi(transaction)
+        .setPalette(writer.sprite(), writer.frame(), m_palette);
     transaction.commit();
   }
   set_current_palette(m_palette, false);

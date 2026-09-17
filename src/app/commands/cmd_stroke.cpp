@@ -32,11 +32,13 @@
 #include <algorithm>
 #include <vector>
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
-class StrokeWindow : public app::gen::Stroke {
+class StrokeWindow : public app::gen::Stroke
+{
 };
 
 // Paints a pixel-perfect (non anti-aliased) band of the given width along
@@ -63,20 +65,21 @@ void stroke_mask(Context* context, const app::Color& color, int opacity,
   // rOut is how far the stroke grows outside the selection edge, rIn is how
   // far it grows inside it (in the Chebyshev/square-neighborhood sense).
   int rOut, rIn;
-  switch (position) {
-    case app::gen::StrokePosition::OUTSIDE:
-      rOut = width;
-      rIn = 0;
-      break;
-    case app::gen::StrokePosition::CENTER:
-      rIn = width / 2;
-      rOut = width - rIn;
-      break;
-    case app::gen::StrokePosition::INSIDE:
-    default:
-      rOut = 0;
-      rIn = width;
-      break;
+  switch (position)
+  {
+  case app::gen::StrokePosition::OUTSIDE:
+    rOut = width;
+    rIn = 0;
+    break;
+  case app::gen::StrokePosition::CENTER:
+    rIn = width / 2;
+    rOut = width - rIn;
+    break;
+  case app::gen::StrokePosition::INSIDE:
+  default:
+    rOut = 0;
+    rIn = width;
+    break;
   }
 
   const int radius = std::max(rOut, rIn);
@@ -91,24 +94,29 @@ void stroke_mask(Context* context, const app::Color& color, int opacity,
   // do plain array look-ups instead of going through Mask::containsPoint()
   // (which re-checks bounds and calls into Image::getPixel() for every
   // neighbor we look at).
-  std::vector<bool> sel(static_cast<std::size_t>(workBounds.w) * workBounds.h, false);
-  auto selAt = [&](int x, int y) -> bool {
+  std::vector<bool> sel(static_cast<std::size_t>(workBounds.w) * workBounds.h,
+                        false);
+  auto selAt = [&](int x, int y) -> bool
+  {
     const int lx = x - workBounds.x;
     const int ly = y - workBounds.y;
     if (lx < 0 || ly < 0 || lx >= workBounds.w || ly >= workBounds.h)
       return false;
-    return sel[static_cast<std::size_t>(ly)*workBounds.w + lx];
+    return sel[static_cast<std::size_t>(ly) * workBounds.w + lx];
   };
   {
     const gfx::Rect& maskBounds = mask->bounds();
     const LockImageBits<BitmapTraits> maskBits(mask->bitmap());
     auto it = maskBits.begin();
-    for (int v=0; v<maskBounds.h; ++v) {
-      for (int u=0; u<maskBounds.w; ++u, ++it) {
-        if (*it) {
+    for (int v = 0; v < maskBounds.h; ++v)
+    {
+      for (int u = 0; u < maskBounds.w; ++u, ++it)
+      {
+        if (*it)
+        {
           int lx = maskBounds.x + u - workBounds.x;
           int ly = maskBounds.y + v - workBounds.y;
-          sel[static_cast<std::size_t>(ly)*workBounds.w + lx] = true;
+          sel[static_cast<std::size_t>(ly) * workBounds.w + lx] = true;
         }
       }
     }
@@ -128,20 +136,22 @@ void stroke_mask(Context* context, const app::Color& color, int opacity,
     // brute-force O(area * radius^2) neighborhood scan. It's not optimal,
     // but is good enough for the pixel-art canvas/stroke sizes this command
     // is meant for.
-    for (int y=paintBounds.y; y<paintBounds.y2(); ++y) {
-      for (int x=paintBounds.x; x<paintBounds.x2(); ++x) {
+    for (int y = paintBounds.y; y < paintBounds.y2(); ++y)
+    {
+      for (int x = paintBounds.x; x < paintBounds.x2(); ++x)
+      {
         bool outer = false;
-        for (int dy=-rOut; dy<=rOut && !outer; ++dy)
-          for (int dx=-rOut; dx<=rOut && !outer; ++dx)
-            if (selAt(x+dx, y+dy))
+        for (int dy = -rOut; dy <= rOut && !outer; ++dy)
+          for (int dx = -rOut; dx <= rOut && !outer; ++dx)
+            if (selAt(x + dx, y + dy))
               outer = true;
         if (!outer)
           continue;
 
         bool inner = true;
-        for (int dy=-rIn; dy<=rIn && inner; ++dy)
-          for (int dx=-rIn; dx<=rIn && inner; ++dx)
-            if (!selAt(x+dx, y+dy))
+        for (int dy = -rIn; dy <= rIn && inner; ++dy)
+          for (int dx = -rIn; dx <= rIn && inner; ++dx)
+            if (!selAt(x + dx, y + dy))
               inner = false;
 
         if (!inner)
@@ -156,10 +166,14 @@ void stroke_mask(Context* context, const app::Color& color, int opacity,
   update_screen_for_document(document);
 }
 
-class StrokeCommand : public Command {
+class StrokeCommand : public Command
+{
 public:
   StrokeCommand();
-  [[nodiscard]] Command* clone() const override { return new StrokeCommand(*this); }
+  [[nodiscard]] Command* clone() const override
+  {
+    return new StrokeCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -167,9 +181,7 @@ protected:
 };
 
 StrokeCommand::StrokeCommand()
-  : Command("Stroke",
-            "Stroke",
-            CmdRecordableFlag)
+  : Command("Stroke", "Stroke", CmdRecordableFlag)
 {
 }
 
@@ -205,9 +217,11 @@ void StrokeCommand::onExecute(Context* context)
   color = window.color()->getColor();
   opacity = window.opacity()->getValue();
   width = window.width()->getValue();
-  position = (window.center()->isSelected() ? app::gen::StrokePosition::CENTER:
-             (window.outside()->isSelected() ? app::gen::StrokePosition::OUTSIDE:
-                                               app::gen::StrokePosition::INSIDE));
+  position = (window.center()->isSelected()
+                  ? app::gen::StrokePosition::CENTER
+                  : (window.outside()->isSelected()
+                         ? app::gen::StrokePosition::OUTSIDE
+                         : app::gen::StrokePosition::INSIDE));
 
   pref.selection.strokeOpacity(opacity);
   pref.selection.strokeWidth(width);
@@ -221,10 +235,14 @@ Command* CommandFactory::createStrokeCommand()
   return new StrokeCommand;
 }
 
-class QuickStrokeCommand : public Command {
+class QuickStrokeCommand : public Command
+{
 public:
   QuickStrokeCommand();
-  [[nodiscard]] Command* clone() const override { return new QuickStrokeCommand(*this); }
+  [[nodiscard]] Command* clone() const override
+  {
+    return new QuickStrokeCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -232,9 +250,7 @@ protected:
 };
 
 QuickStrokeCommand::QuickStrokeCommand()
-  : Command("QuickStroke",
-            "Quick Stroke",
-            CmdRecordableFlag)
+  : Command("QuickStroke", "Quick Stroke", CmdRecordableFlag)
 {
 }
 
@@ -249,7 +265,7 @@ bool QuickStrokeCommand::onEnabled(Context* context)
 void QuickStrokeCommand::onExecute(Context* context)
 {
   stroke_mask(context, ColorBar::instance()->getFgColor(), 255, 1,
-             app::gen::StrokePosition::INSIDE, "Quick Stroke Selection");
+              app::gen::StrokePosition::INSIDE, "Quick Stroke Selection");
 }
 
 Command* CommandFactory::createQuickStrokeCommand()

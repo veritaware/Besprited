@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -25,14 +25,19 @@
 #include <cstdio>
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
-class NewSpriteFromSelectionCommand : public Command {
+class NewSpriteFromSelectionCommand : public Command
+{
 public:
   NewSpriteFromSelectionCommand();
-  Command* clone() const override { return new NewSpriteFromSelectionCommand(*this); }
+  Command* clone() const override
+  {
+    return new NewSpriteFromSelectionCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -40,8 +45,7 @@ protected:
 };
 
 NewSpriteFromSelectionCommand::NewSpriteFromSelectionCommand()
-  : Command("NewSpriteFromSelection",
-            "New Sprite From Selection",
+  : Command("NewSpriteFromSelection", "New Sprite From Selection",
             CmdUIOnlyFlag)
 {
 }
@@ -58,33 +62,29 @@ void NewSpriteFromSelectionCommand::onExecute(Context* context)
   const app::Document* doc = static_cast<const app::Document*>(site.document());
   const Sprite* sprite = site.sprite();
   const Mask* mask = doc->mask();
-  ImageRef image(
-    new_image_from_mask(site, mask));
+  ImageRef image(new_image_from_mask(site, mask));
   if (!image)
     return;
 
   Palette* palette = sprite->palette(site.frame());
 
-  std::unique_ptr<Sprite> dstSprite(
-    Sprite::createBasicSprite(image->pixelFormat(),
-                              image->width(),
-                              image->height(),
-                              palette->size()));
+  std::unique_ptr<Sprite> dstSprite(Sprite::createBasicSprite(
+      image->pixelFormat(), image->width(), image->height(), palette->size()));
 
   palette->copyColorsTo(*dstSprite->palette(frame_t(0)));
 
-  LayerImage* dstLayer = static_cast<LayerImage*>(dstSprite->folder()->getFirstLayer());
+  LayerImage* dstLayer =
+      static_cast<LayerImage*>(dstSprite->folder()->getFirstLayer());
   if (site.layer()->isBackground())
     dstLayer->configureAsBackground(); // Configure layer name as background
   dstLayer->setFlags(site.layer()->flags()); // Copy all flags
   copy_image(dstLayer->cel(frame_t(0))->image(), image.get());
 
-  std::unique_ptr<Document> dstDoc(new Document(dstSprite.release()));
+  auto dstDoc = std::make_unique<Document>(dstSprite.release());
   char buf[1024];
   std::snprintf(buf, sizeof(buf), "%s-%dx%d-%dx%d",
-               base::get_file_title(doc->filename()).c_str(),
-               mask->bounds().x, mask->bounds().y,
-               mask->bounds().w, mask->bounds().h);
+                base::get_file_title(doc->filename()).c_str(), mask->bounds().x,
+                mask->bounds().y, mask->bounds().w, mask->bounds().h);
   dstDoc->setFilename(buf);
   dstDoc->setContext(context);
   dstDoc.release();

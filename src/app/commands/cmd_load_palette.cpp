@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,11 +22,13 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class LoadPaletteCommand : public Command {
+class LoadPaletteCommand : public Command
+{
 public:
   LoadPaletteCommand();
   Command* clone() const override { return new LoadPaletteCommand(*this); }
@@ -40,9 +42,7 @@ private:
 };
 
 LoadPaletteCommand::LoadPaletteCommand()
-  : Command("LoadPalette",
-            "Load Palette",
-            CmdRecordableFlag)
+  : Command("LoadPalette", "Load Palette", CmdRecordableFlag)
 {
 }
 
@@ -55,24 +55,30 @@ void LoadPaletteCommand::onExecute(Context* context)
 {
   std::string filename;
 
-  if (!m_preset.empty()) {
+  if (!m_preset.empty())
+  {
     filename = get_preset_palette_filename(m_preset, ".ase");
     if (!base::is_file(filename))
       filename = get_preset_palette_filename(m_preset, ".gpl");
   }
-  else {
+  else
+  {
     std::string exts = get_readable_palette_extensions();
     filename = app::show_file_selector("Load Palette", "", exts,
                                        FileSelectorType::Open);
   }
 
-  if (!filename.empty()) {
+  if (!filename.empty())
+  {
     auto palette = load_palette(filename.c_str());
-    if (!palette) {
+    if (!palette)
+    {
       Alert::show("Error<<Loading palette file||&Close");
     }
-    else {
-      auto cmd = static_cast<SetPaletteCommand*>(CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
+    else
+    {
+      auto cmd = static_cast<SetPaletteCommand*>(
+          CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
       cmd->setPalette(palette.get());
       context->executeCommand(cmd);
     }

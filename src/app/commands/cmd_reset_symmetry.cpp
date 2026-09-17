@@ -18,9 +18,11 @@
 #include "doc/sprite.h"
 #include "ui/view.h"
 
-namespace app {
+namespace app
+{
 
-class ResetSymmetryCommand : public Command {
+class ResetSymmetryCommand : public Command
+{
 public:
   ResetSymmetryCommand();
   Command* clone() const override { return new ResetSymmetryCommand(*this); }
@@ -31,22 +33,24 @@ protected:
   void onExecute(Context* context) override;
 
 private:
-  enum class Target { Center, ViewCenter };
+  enum class Target
+  {
+    Center,
+    ViewCenter
+  };
 
-  Target m_target;
+  Target m_target = Target::Center;
 };
 
 ResetSymmetryCommand::ResetSymmetryCommand()
-  : Command("ResetSymmetry",
-            "Reset Symmetry",
-            CmdUIOnlyFlag)
-  , m_target(Target::Center)
+  : Command("ResetSymmetry", "Reset Symmetry", CmdUIOnlyFlag)
 {
 }
 
 void ResetSymmetryCommand::onLoadParams(const Params& params)
 {
-  m_target = (params.get("target") == "view" ? Target::ViewCenter : Target::Center);
+  m_target =
+      (params.get("target") == "view" ? Target::ViewCenter : Target::Center);
 }
 
 bool ResetSymmetryCommand::onEnabled(Context* context)
@@ -61,11 +65,12 @@ void ResetSymmetryCommand::onExecute(Context* context)
   const Document* doc = reader.document();
   const Sprite* sprite = reader.sprite();
 
-  gfx::Point pos(sprite->width()/2, sprite->height()/2);
+  gfx::Point pos(sprite->width() / 2, sprite->height() / 2);
 
-  if (m_target == Target::ViewCenter && current_editor) {
+  if (m_target == Target::ViewCenter && current_editor)
+  {
     pos = current_editor->screenToEditor(
-      ui::View::getView(current_editor)->viewportBounds().center());
+        ui::View::getView(current_editor)->viewportBounds().center());
     pos.x = MID(0, pos.x, sprite->width());
     pos.y = MID(0, pos.y, sprite->height());
   }

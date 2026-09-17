@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,9 +16,11 @@
 #include "app/ui/timeline.h"
 #include "app/document_range_ops.h"
 
-namespace app {
+namespace app
+{
 
-class ReverseFramesCommand : public Command {
+class ReverseFramesCommand : public Command
+{
 public:
   ReverseFramesCommand();
   Command* clone() const override { return new ReverseFramesCommand(*this); }
@@ -29,26 +31,23 @@ protected:
 };
 
 ReverseFramesCommand::ReverseFramesCommand()
-  : Command("ReverseFrames",
-            "Reverse Frames",
-            CmdUIOnlyFlag)
+  : Command("ReverseFrames", "Reverse Frames", CmdUIOnlyFlag)
 {
 }
 
 bool ReverseFramesCommand::onEnabled(Context* context)
 {
   auto range = App::instance()->timeline()->range();
-  return
-    context->checkFlags(ContextFlags::ActiveDocumentIsWritable) &&
-    range.enabled() &&
-    range.frames() >= 2;         // We need at least 2 frames to reverse
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable) &&
+         range.enabled() &&
+         range.frames() >= 2; // We need at least 2 frames to reverse
 }
 
 void ReverseFramesCommand::onExecute(Context* context)
 {
   auto range = App::instance()->timeline()->range();
   if (!range.enabled())
-    return;                     // Nothing to do
+    return; // Nothing to do
 
   Document* doc = context->activeDocument();
 

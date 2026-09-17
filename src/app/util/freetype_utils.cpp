@@ -23,18 +23,19 @@
 #include <memory>
 #include <stdexcept>
 
-namespace app {
+namespace app
+{
 
 doc::Image* render_text(const std::string& fontfile, int fontsize,
-                        const std::string& text,
-                        doc::color_t color,
+                        const std::string& text, doc::color_t color,
                         bool antialias)
 {
   std::unique_ptr<doc::Image> image(nullptr);
   ft::Lib ft;
 
   ft::Face face(ft.open(fontfile));
-  if (face.isValid()) {
+  if (face.isValid())
+  {
     // Set font size
     face.setSize(fontsize);
     face.setAntialias(antialias);
@@ -43,61 +44,68 @@ doc::Image* render_text(const std::string& fontfile, int fontsize,
     gfx::Rect bounds = face.calcTextBounds(text);
 
     // Render the image and copy it to the clipboard
-    if (!bounds.isEmpty()) {
+    if (!bounds.isEmpty())
+    {
       image.reset(doc::Image::create(doc::IMAGE_RGB, bounds.w, bounds.h));
       doc::clear_image(image.get(), 0);
 
       face.forEachGlyph(
-        text,
-        [&bounds, &image, color, antialias](const ft::Glyph& glyph) {
-          int t, yimg = - bounds.y + int(glyph.y + glyph.offsetY);
+          text,
+          [&bounds, &image, color, antialias](const ft::Glyph& glyph)
+          {
+            int t, yimg = -bounds.y + int(glyph.y + glyph.offsetY);
 
-          for (int v=0; v<int(glyph.bitmap->rows); ++v, ++yimg) {
-            const uint8_t* p = glyph.bitmap->buffer + v*glyph.bitmap->pitch;
-            int ximg = - bounds.x + int(glyph.x + glyph.bearingX);
-            int bit = 0;
+            for (int v = 0; v < int(glyph.bitmap->rows); ++v, ++yimg)
+            {
+              const uint8_t* p = glyph.bitmap->buffer + v * glyph.bitmap->pitch;
+              int ximg = -bounds.x + int(glyph.x + glyph.bearingX);
+              int bit = 0;
 
-            for (int u=0; u<int(glyph.bitmap->width); ++u, ++ximg) {
-              int alpha;
+              for (int u = 0; u < int(glyph.bitmap->width); ++u, ++ximg)
+              {
+                int alpha;
 
-              if (antialias) {
-                alpha = *(p++);
-              }
-              else {
-                alpha = ((*p) & (1 << (7 - (bit++))) ? 255: 0);
-                if (bit == 8) {
-                  bit = 0;
-                  ++p;
+                if (antialias)
+                {
+                  alpha = *(p++);
+                }
+                else
+                {
+                  alpha = ((*p) & (1 << (7 - (bit++))) ? 255 : 0);
+                  if (bit == 8)
+                  {
+                    bit = 0;
+                    ++p;
+                  }
+                }
+
+                int output_alpha = MUL_UN8(doc::rgba_geta(color), alpha, t);
+                if (output_alpha)
+                {
+                  doc::color_t output_color =
+                      doc::rgba(doc::rgba_getr(color), doc::rgba_getg(color),
+                                doc::rgba_getb(color), output_alpha);
+
+                  doc::put_pixel(image.get(), ximg, yimg,
+                                 doc::rgba_blender_normal(
+                                     doc::get_pixel(image.get(), ximg, yimg),
+                                     output_color));
                 }
               }
-
-              int output_alpha = MUL_UN8(doc::rgba_geta(color), alpha, t);
-              if (output_alpha) {
-                doc::color_t output_color =
-                  doc::rgba(doc::rgba_getr(color),
-                            doc::rgba_getg(color),
-                            doc::rgba_getb(color),
-                            output_alpha);
-
-                doc::put_pixel(
-                  image.get(), ximg, yimg,
-                  doc::rgba_blender_normal(
-                    doc::get_pixel(image.get(), ximg, yimg),
-                    output_color));
-              }
             }
-          }
-        });
+          });
     }
-    else {
+    else
+    {
       throw std::runtime_error("There is no text");
     }
   }
-  else {
+  else
+  {
     throw std::runtime_error("Error loading font face");
   }
 
-  return (image ? image.release(): nullptr);
+  return (image ? image.release() : nullptr);
 }
 
 } // namespace app

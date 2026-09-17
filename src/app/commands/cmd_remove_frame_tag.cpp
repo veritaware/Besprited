@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,9 +21,11 @@
 #include "base/convert_to.h"
 #include "doc/frame_tag.h"
 
-namespace app {
+namespace app
+{
 
-class RemoveFrameTagCommand : public Command {
+class RemoveFrameTagCommand : public Command
+{
 public:
   RemoveFrameTagCommand();
   Command* clone() const override { return new RemoveFrameTagCommand(*this); }
@@ -39,9 +41,7 @@ private:
 };
 
 RemoveFrameTagCommand::RemoveFrameTagCommand()
-  : Command("RemoveFrameTag",
-            "Remove Frame Tag",
-            CmdRecordableFlag)
+  : Command("RemoveFrameTag", "Remove Frame Tag", CmdRecordableFlag)
   , m_tagId(NullId)
 {
 }

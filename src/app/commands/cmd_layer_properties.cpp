@@ -34,11 +34,13 @@
 
 #include "layer_properties.xml.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class LayerPropertiesCommand : public Command {
+class LayerPropertiesCommand : public Command
+{
 public:
   LayerPropertiesCommand();
   Command* clone() const override { return new LayerPropertiesCommand(*this); }
@@ -51,14 +53,14 @@ protected:
 class LayerPropertiesWindow;
 static LayerPropertiesWindow* g_window = nullptr;
 
-class LayerPropertiesWindow : public app::gen::LayerProperties
-                            , public doc::ContextObserver
-                            , public doc::DocumentObserver {
+class LayerPropertiesWindow : public app::gen::LayerProperties,
+                              public doc::ContextObserver,
+                              public doc::DocumentObserver
+{
 public:
   LayerPropertiesWindow()
     : m_timer(250, this)
-    , m_layer(nullptr)
-    , m_selfUpdate(false) {
+  {
     name()->setMinSize(gfx::Size(128, 0));
     name()->setExpansive(true);
 
@@ -79,11 +81,16 @@ public:
     mode()->addItem("Color");
     mode()->addItem("Luminosity");
 
-    name()->Change.connect(base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
-    mode()->Change.connect(base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
-    opacity()->Change.connect(base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
-    m_timer.Tick.connect(base::Bind<void>(&LayerPropertiesWindow::onCommitChange, this));
-    userData()->Click.connect(base::Bind<void>(&LayerPropertiesWindow::onPopupUserData, this));
+    name()->Change.connect(
+        base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
+    mode()->Change.connect(
+        base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
+    opacity()->Change.connect(
+        base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
+    m_timer.Tick.connect(
+        base::Bind<void>(&LayerPropertiesWindow::onCommitChange, this));
+    userData()->Click.connect(
+        base::Bind<void>(&LayerPropertiesWindow::onPopupUserData, this));
 
     remapWindow();
     centerWindow();
@@ -92,12 +99,15 @@ public:
     UIContext::instance()->addObserver(this);
   }
 
-  ~LayerPropertiesWindow() {
+  ~LayerPropertiesWindow() override
+  {
     UIContext::instance()->removeObserver(this);
   }
 
-  void setLayer(LayerImage* layer) {
-    if (m_layer) {
+  void setLayer(LayerImage* layer)
+  {
+    if (m_layer)
+    {
       document()->removeObserver(this);
       m_layer = nullptr;
     }
@@ -112,8 +122,8 @@ public:
   }
 
 private:
-
-  app::Document* document() {
+  app::Document* document()
+  {
     ASSERT(m_layer);
     if (m_layer)
       return static_cast<app::Document*>(m_layer->sprite()->document());
@@ -121,55 +131,55 @@ private:
       return nullptr;
   }
 
-  std::string nameValue() const {
-    return name()->text();
-  }
+  std::string nameValue() const { return name()->text(); }
 
-  BlendMode blendModeValue() const {
+  BlendMode blendModeValue() const
+  {
     return (BlendMode)mode()->getSelectedItemIndex();
   }
 
-  int opacityValue() const {
-    return opacity()->getValue();
-  }
+  int opacityValue() const { return opacity()->getValue(); }
 
-  bool onProcessMessage(ui::Message* msg) override {
-    switch (msg->type()) {
+  bool onProcessMessage(ui::Message* msg) override
+  {
+    switch (msg->type())
+    {
 
-      case kKeyDownMessage:
-        if (name()->hasFocus() ||
-            opacity()->hasFocus() ||
-            mode()->hasFocus()) {
-          KeyScancode scancode = static_cast<KeyMessage*>(msg)->scancode();
-          if (scancode == kKeyEnter || scancode == kKeyEsc) {
-            onCommitChange();
-            closeWindow(this);
-            return true;
-          }
+    case kKeyDownMessage:
+      if (name()->hasFocus() || opacity()->hasFocus() || mode()->hasFocus())
+      {
+        KeyScancode scancode = static_cast<KeyMessage*>(msg)->scancode();
+        if (scancode == kKeyEnter || scancode == kKeyEsc)
+        {
+          onCommitChange();
+          closeWindow(this);
+          return true;
         }
-        break;
+      }
+      break;
 
-      case kCloseMessage:
-        // Save changes before we close the window
-        setLayer(nullptr);
-        save_window_pos(this, "LayerProperties");
+    case kCloseMessage:
+      // Save changes before we close the window
+      setLayer(nullptr);
+      save_window_pos(this, "LayerProperties");
 
-        deferDelete();
-        g_window = nullptr;
-        break;
-
+      deferDelete();
+      g_window = nullptr;
+      break;
     }
     return Window::onProcessMessage(msg);
   }
 
-  void onStartTimer() {
+  void onStartTimer()
+  {
     if (m_selfUpdate)
       return;
 
     m_timer.start();
   }
 
-  void onCommitChange() {
+  void onCommitChange()
+  {
     base::ScopedValue<bool> switchSelf(m_selfUpdate, true, false);
 
     m_timer.stop();
@@ -178,11 +188,12 @@ private:
     int newOpacity = opacityValue();
     BlendMode newBlendMode = blendModeValue();
 
-    if (newName != m_layer->name() ||
-        newOpacity != m_layer->opacity() ||
+    if (newName != m_layer->name() || newOpacity != m_layer->opacity() ||
         newBlendMode != m_layer->blendMode() ||
-        m_userData != m_layer->userData()) {
-      try {
+        m_userData != m_layer->userData())
+    {
+      try
+      {
         ContextWriter writer(UIContext::instance());
         Transaction transaction(writer.context(), "Set Layer Properties");
 
@@ -190,12 +201,15 @@ private:
           transaction.execute(new cmd::SetLayerName(writer.layer(), newName));
 
         if (newOpacity != m_layer->opacity())
-          transaction.execute(new cmd::SetLayerOpacity(static_cast<LayerImage*>(writer.layer()), newOpacity));
+          transaction.execute(new cmd::SetLayerOpacity(
+              static_cast<LayerImage*>(writer.layer()), newOpacity));
 
         if (newBlendMode != m_layer->blendMode())
-          transaction.execute(new cmd::SetLayerBlendMode(static_cast<LayerImage*>(writer.layer()), newBlendMode));
+          transaction.execute(new cmd::SetLayerBlendMode(
+              static_cast<LayerImage*>(writer.layer()), newBlendMode));
 
-        if (m_userData != m_layer->userData()) {
+        if (m_userData != m_layer->userData())
+        {
           transaction.execute(new cmd::SetUserData(writer.layer(), m_userData));
 
           // Redraw timeline because the layer's user data/color
@@ -205,7 +219,8 @@ private:
 
         transaction.commit();
       }
-      catch (const std::exception& e) {
+      catch (const std::exception& e)
+      {
         Console::showException(e);
       }
 
@@ -214,7 +229,8 @@ private:
   }
 
   // ContextObserver impl
-  void onActiveSiteChange(const Site& site) override {
+  void onActiveSiteChange(const Site& site) override
+  {
     if (isVisible())
       setLayer(dynamic_cast<LayerImage*>(const_cast<Layer*>(site.layer())));
     else if (m_layer)
@@ -222,31 +238,38 @@ private:
   }
 
   // DocumentObserver impl
-  void onLayerNameChange(DocumentEvent& ev) override {
+  void onLayerNameChange(DocumentEvent& ev) override
+  {
     if (m_layer == ev.layer())
       updateFromLayer();
   }
 
-  void onLayerOpacityChange(DocumentEvent& ev) override {
+  void onLayerOpacityChange(DocumentEvent& ev) override
+  {
     if (m_layer == ev.layer())
       updateFromLayer();
   }
 
-  void onLayerBlendModeChange(DocumentEvent& ev) override {
+  void onLayerBlendModeChange(DocumentEvent& ev) override
+  {
     if (m_layer == ev.layer())
       updateFromLayer();
   }
 
-  void onPopupUserData() {
-    if (m_layer) {
+  void onPopupUserData()
+  {
+    if (m_layer)
+    {
       m_userData = m_layer->userData();
-      if (show_user_data_popup(userData()->bounds(), m_userData)) {
+      if (show_user_data_popup(userData()->bounds(), m_userData))
+      {
         onCommitChange();
       }
     }
   }
 
-  void updateFromLayer() {
+  void updateFromLayer()
+  {
     if (m_selfUpdate)
       return;
 
@@ -254,7 +277,8 @@ private:
 
     base::ScopedValue<bool> switchSelf(m_selfUpdate, true, false);
 
-    if (m_layer) {
+    if (m_layer)
+    {
       name()->setText(m_layer->name().c_str());
       name()->setEnabled(true);
       mode()->setSelectedItemIndex((int)m_layer->blendMode());
@@ -263,7 +287,8 @@ private:
       opacity()->setEnabled(!m_layer->isBackground());
       m_userData = m_layer->userData();
     }
-    else {
+    else
+    {
       name()->setText("No Layer");
       name()->setEnabled(false);
       mode()->setEnabled(false);
@@ -273,15 +298,13 @@ private:
   }
 
   Timer m_timer;
-  LayerImage* m_layer;
-  bool m_selfUpdate;
+  LayerImage* m_layer = nullptr;
+  bool m_selfUpdate = false;
   UserData m_userData;
 };
 
 LayerPropertiesCommand::LayerPropertiesCommand()
-  : Command("LayerProperties",
-            "Layer Properties",
-            CmdRecordableFlag)
+  : Command("LayerProperties", "Layer Properties", CmdRecordableFlag)
 {
 }
 

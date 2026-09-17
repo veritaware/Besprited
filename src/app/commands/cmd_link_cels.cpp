@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,9 +21,11 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class LinkCelsCommand : public Command {
+class LinkCelsCommand : public Command
+{
 public:
   LinkCelsCommand();
   Command* clone() const override { return new LinkCelsCommand(*this); }
@@ -34,15 +36,14 @@ protected:
 };
 
 LinkCelsCommand::LinkCelsCommand()
-  : Command("LinkCels",
-            "Links Cels",
-            CmdRecordableFlag)
+  : Command("LinkCels", "Links Cels", CmdRecordableFlag)
 {
 }
 
 bool LinkCelsCommand::onEnabled(Context* context)
 {
-  if (context->checkFlags(ContextFlags::ActiveDocumentIsWritable)) {
+  if (context->checkFlags(ContextFlags::ActiveDocumentIsWritable))
+  {
     // TODO the range of selected frames should be in doc::Site.
     auto range = App::instance()->timeline()->range();
     return (range.enabled() && range.frames() > 1);
@@ -67,26 +68,29 @@ void LinkCelsCommand::onExecute(Context* context)
     frame_t begin = range.frameBegin();
     frame_t end = range.frameEnd();
 
-    for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd(); ++layerIdx) {
+    for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd();
+         ++layerIdx)
+    {
       Layer* layer = sprite->indexToLayer(layerIdx);
       if (!layer->isImage())
         continue;
 
-      if (!layer->isEditable()) {
+      if (!layer->isEditable())
+      {
         nonEditableLayers = true;
         continue;
       }
 
       LayerImage* layerImage = static_cast<LayerImage*>(layer);
-      for (frame_t frame=begin; frame < end+1; ++frame) {
-        if (auto cel = layerImage->cel(frame)) {
-          for (frame = cel->frame()+1;
-               frame < end+1; ++frame) {
-            transaction.execute(
-              new cmd::CopyCel(
-                layerImage, cel->frame(),
-                layerImage, frame,
-                true));         // true = force links
+      for (frame_t frame = begin; frame < end + 1; ++frame)
+      {
+        if (auto cel = layerImage->cel(frame))
+        {
+          for (frame = cel->frame() + 1; frame < end + 1; ++frame)
+          {
+            transaction.execute(new cmd::CopyCel(layerImage, cel->frame(),
+                                                 layerImage, frame,
+                                                 true)); // true = force links
           }
           break;
         }
@@ -97,8 +101,7 @@ void LinkCelsCommand::onExecute(Context* context)
   }
 
   if (nonEditableLayers)
-    StatusBar::instance()->showTip(1000,
-      "There are locked layers");
+    StatusBar::instance()->showTip(1000, "There are locked layers");
 
   update_screen_for_document(document);
 }

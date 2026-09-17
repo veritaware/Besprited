@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -31,9 +31,11 @@
 #include <cstdio>
 #include <memory>
 
-namespace app {
+namespace app
+{
 
-class OpenFileCommand : public Command {
+class OpenFileCommand : public Command
+{
 public:
   OpenFileCommand();
   Command* clone() const override { return new OpenFileCommand(*this); }
@@ -47,7 +49,8 @@ private:
   std::string m_folder;
 };
 
-class OpenFileJob : public Job, public IFileOpProgress
+class OpenFileJob : public Job,
+                    public IFileOpProgress
 {
 public:
   OpenFileJob(FileOp* fop)
@@ -56,7 +59,8 @@ public:
   {
   }
 
-  void showProgressWindow() {
+  void showProgressWindow()
+  {
     startJob();
 
     if (isCanceled())
@@ -67,11 +71,14 @@ public:
 
 private:
   // Thread to do the hard work: load the file from the disk.
-  virtual void onJob() override {
-    try {
+  void onJob() override
+  {
+    try
+    {
       m_fop->operate(this);
     }
-    catch (const std::exception& e) {
+    catch (const std::exception& e)
+    {
       m_fop->setError("Error loading file:\n%s", e.what());
     }
 
@@ -81,17 +88,13 @@ private:
     m_fop->done();
   }
 
-  virtual void ackFileOpProgress(double progress) override {
-    jobProgress(progress);
-  }
+  void ackFileOpProgress(double progress) override { jobProgress(progress); }
 
   FileOp* m_fop;
 };
 
 OpenFileCommand::OpenFileCommand()
-  : Command("OpenFile",
-            "Open Sprite",
-            CmdRecordableFlag)
+  : Command("OpenFile", "Open Sprite", CmdRecordableFlag)
 {
 }
 
@@ -106,34 +109,40 @@ void OpenFileCommand::onExecute(Context* context)
   Console console;
 
   // interactive
-  if (context->isUIAvailable() && m_filename.empty()) {
+  if (context->isUIAvailable() && m_filename.empty())
+  {
     std::string exts = get_readable_extensions();
 
     // Add backslash as show_file_selector() expected a filename as
     // initial path (and the file part is removed from the path).
-    if (!m_folder.empty() && !base::is_path_separator(m_folder[m_folder.size()-1]))
+    if (!m_folder.empty() &&
+        !base::is_path_separator(m_folder[m_folder.size() - 1]))
       m_folder.push_back(base::path_separator);
 
-    m_filename = app::show_file_selector("Open", m_folder, exts,
-      FileSelectorType::Open);
+    m_filename =
+        app::show_file_selector("Open", m_folder, exts, FileSelectorType::Open);
   }
 
-  if (!m_filename.empty()) {
-    std::unique_ptr<FileOp> fop(
-      FileOp::createLoadDocumentOperation(
+  if (!m_filename.empty())
+  {
+    std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(
         context, m_filename.c_str(), FILE_LOAD_SEQUENCE_ASK));
     bool unrecent = false;
 
-    if (fop) {
-      if (fop->hasError()) {
+    if (fop)
+    {
+      if (fop->hasError())
+      {
         console.printf(fop->error().c_str());
         unrecent = true;
       }
-      else {
+      else
+      {
         OpenFileJob task(fop.get());
         task.showProgressWindow();
 
-        // Post-load processing, it is called from the GUI because may require user intervention.
+        // Post-load processing, it is called from the GUI because may require
+        // user intervention.
         fop->postLoad();
 
         // Show any error
@@ -141,9 +150,11 @@ void OpenFileCommand::onExecute(Context* context)
           console.printf(fop->error().c_str());
 
         Document* document = fop->document();
-        if (document) {
+        if (document)
+        {
           if (context->isUIAvailable())
-            App::instance()->recentFiles()->addRecentFile(fop->filename().c_str());
+            App::instance()->recentFiles()->addRecentFile(
+                fop->filename().c_str());
 
           document->setContext(context);
         }
@@ -153,12 +164,14 @@ void OpenFileCommand::onExecute(Context* context)
 
       // The file was not found or was loaded loaded with errors,
       // so we can remove it from the recent-file list
-      if (unrecent) {
+      if (unrecent)
+      {
         if (context->isUIAvailable())
           App::instance()->recentFiles()->removeRecentFile(m_filename.c_str());
       }
     }
-    else {
+    else
+    {
       // Do nothing (the user cancelled or something like that)
     }
   }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,9 +14,11 @@
 #include "app/app.h"
 #include "app/ui/workspace.h"
 
-namespace app {
+namespace app
+{
 
-class GotoNextTabCommand : public Command {
+class GotoNextTabCommand : public Command
+{
 public:
   GotoNextTabCommand();
   Command* clone() const override { return new GotoNextTabCommand(*this); }
@@ -27,9 +29,7 @@ protected:
 };
 
 GotoNextTabCommand::GotoNextTabCommand()
-  : Command("GotoNextTab",
-            "Go to Next Tab",
-            CmdUIOnlyFlag)
+  : Command("GotoNextTab", "Go to Next Tab", CmdUIOnlyFlag)
 {
 }
 
@@ -43,7 +43,8 @@ void GotoNextTabCommand::onExecute(Context* context)
   App::instance()->workspace()->selectNextTab();
 }
 
-class GotoPreviousTabCommand : public Command {
+class GotoPreviousTabCommand : public Command
+{
 public:
   GotoPreviousTabCommand();
   Command* clone() const override { return new GotoPreviousTabCommand(*this); }
@@ -54,9 +55,7 @@ protected:
 };
 
 GotoPreviousTabCommand::GotoPreviousTabCommand()
-  : Command("GotoPreviousTab",
-            "Go to Previous tab",
-            CmdRecordableFlag)
+  : Command("GotoPreviousTab", "Go to Previous tab", CmdRecordableFlag)
 {
 }
 

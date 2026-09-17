@@ -37,9 +37,11 @@
 
 using namespace ui;
 
-namespace app {
+namespace app
+{
 
-class NewFileCommand : public Command {
+class NewFileCommand : public Command
+{
 public:
   NewFileCommand();
   Command* clone() const override { return new NewFileCommand(*this); }
@@ -51,9 +53,7 @@ protected:
 static int _sprite_counter = 0;
 
 NewFileCommand::NewFileCommand()
-  : Command("NewFile",
-            "New File",
-            CmdRecordableFlag)
+  : Command("NewFile", "New File", CmdRecordableFlag)
 {
 }
 
@@ -66,9 +66,9 @@ void NewFileCommand::onExecute(Context* context)
   int ncolors = get_default_palette()->size();
   char buf[1024];
   app::Color bg_table[] = {
-    app::Color::fromMask(),
-    app::Color::fromRgb(255, 255, 255),
-    app::Color::fromRgb(0, 0, 0),
+      app::Color::fromMask(),
+      app::Color::fromRgb(255, 255, 255),
+      app::Color::fromRgb(0, 0, 0),
   };
 
   // Load the window widget
@@ -77,9 +77,9 @@ void NewFileCommand::onExecute(Context* context)
   // Default values: Indexed, 320x240, Background color
   PixelFormat format = pref.newFile.colorMode();
   // Invalid format in config file.
-  if (format != IMAGE_RGB &&
-      format != IMAGE_INDEXED &&
-      format != IMAGE_GRAYSCALE) {
+  if (format != IMAGE_RGB && format != IMAGE_INDEXED &&
+      format != IMAGE_GRAYSCALE)
+  {
     format = IMAGE_INDEXED;
   }
   // Default size is always the last size used by the user, regardless
@@ -107,18 +107,21 @@ void NewFileCommand::onExecute(Context* context)
   window.sizeFromClipboard()->setVisible(hasClipboardImage);
   window.pasteAsLayer()->setVisible(hasClipboardImage);
 
-  if (hasClipboardImage) {
+  if (hasClipboardImage)
+  {
     window.sizeFromClipboard()->Click.connect(
-      [&window, clipboardSize](ui::Event&) {
-        window.width()->setValue(MAX(1, clipboardSize.w));
-        window.height()->setValue(MAX(1, clipboardSize.h));
-      });
+        [&window, clipboardSize](ui::Event&)
+        {
+          window.width()->setValue(MAX(1, clipboardSize.w));
+          window.height()->setValue(MAX(1, clipboardSize.h));
+        });
   }
 
   // Open the window
   window.openWindowInForeground();
 
-  if (window.closer() == window.okButton()) {
+  if (window.closer() == window.okButton())
+  {
     bool ok = false;
 
     // Get the options
@@ -136,12 +139,14 @@ void NewFileCommand::onExecute(Context* context)
     // Select the color
     app::Color color = app::Color::fromMask();
 
-    if (bg >= 0 && bg <= 3) {
+    if (bg >= 0 && bg <= 3)
+    {
       color = bg_table[bg];
       ok = true;
     }
 
-    if (ok) {
+    if (ok)
+    {
       // Save the configuration
       pref.newFile.width(w);
       pref.newFile.height(h);
@@ -149,20 +154,24 @@ void NewFileCommand::onExecute(Context* context)
       pref.newFile.backgroundColor(bg);
 
       // Create the new sprite
-      ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
+      ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE ||
+             format == IMAGE_INDEXED);
       ASSERT(w > 0 && h > 0);
 
-      std::unique_ptr<Sprite> sprite(Sprite::createBasicSprite(format, w, h, ncolors));
+      std::unique_ptr<Sprite> sprite(
+          Sprite::createBasicSprite(format, w, h, ncolors));
 
       if (sprite->pixelFormat() != IMAGE_GRAYSCALE)
         get_default_palette()->copyColorsTo(*sprite->palette(frame_t(0)));
 
       // If the background color isn't transparent, we have to
       // convert the `Layer 1' in a `Background'
-      if (color.getType() != app::Color::MaskType) {
+      if (color.getType() != app::Color::MaskType)
+      {
         Layer* layer = sprite->folder()->getFirstLayer();
 
-        if (layer && layer->isImage()) {
+        if (layer && layer->isImage())
+        {
           LayerImage* layerImage = static_cast<LayerImage*>(layer);
           layerImage->configureAsBackground();
 
@@ -173,11 +182,10 @@ void NewFileCommand::onExecute(Context* context)
           set_current_palette(get_default_palette(), false);
 
           doc::clear_image(image,
-            color_utils::color_for_target(color,
-              ColorTarget(
-                ColorTarget::BackgroundLayer,
-                sprite->pixelFormat(),
-                sprite->transparentColor())));
+                           color_utils::color_for_target(
+                               color, ColorTarget(ColorTarget::BackgroundLayer,
+                                                  sprite->pixelFormat(),
+                                                  sprite->transparentColor())));
 
           set_current_palette(oldPal.get(), false);
         }
@@ -186,14 +194,17 @@ void NewFileCommand::onExecute(Context* context)
       // Optionally paste the clipboard image into the new sprite as
       // its first layer.
       Layer* newTopLayer = nullptr;
-      if (hasClipboardImage && window.pasteAsLayer()->isSelected()) {
+      if (hasClipboardImage && window.pasteAsLayer()->isSelected())
+      {
         std::shared_ptr<Image> clipImage;
         std::shared_ptr<Palette> clipPalette;
 
-        if (clipboard::get_image(clipImage, clipPalette)) {
+        if (clipboard::get_image(clipImage, clipPalette))
+        {
           Layer* layer = sprite->folder()->getFirstLayer();
 
-          if (layer && layer->isImage()) {
+          if (layer && layer->isImage())
+          {
             LayerImage* layerImage = static_cast<LayerImage*>(layer);
             Image* dstImage = layerImage->cel(frame_t(0))->image();
             Palette* dstPalette = sprite->palette(frame_t(0));
@@ -203,17 +214,16 @@ void NewFileCommand::onExecute(Context* context)
                 // Indexed images can be copied directly only if both
                 // images have the same palette.
                 (clipImage->pixelFormat() != IMAGE_INDEXED ||
-                 clipPalette->countDiff(*dstPalette, nullptr, nullptr) == 0)) {
+                 clipPalette->countDiff(*dstPalette, nullptr, nullptr) == 0))
+            {
               srcImage = clipImage;
             }
-            else {
-              srcImage.reset(
-                render::convert_pixel_format(
+            else
+            {
+              srcImage.reset(render::convert_pixel_format(
                   clipImage.get(), nullptr, sprite->pixelFormat(),
                   DitheringMethod::NONE, sprite->rgbMap(frame_t(0)),
-                  clipPalette.get(),
-                  layerImage->isBackground(),
-                  0));
+                  clipPalette.get(), layerImage->isBackground(), 0));
             }
 
             doc::copy_image(dstImage, srcImage.get());
@@ -223,7 +233,7 @@ void NewFileCommand::onExecute(Context* context)
             // for the user to draw on.
             layerImage->setName("Background");
 
-            std::unique_ptr<LayerImage> topLayer(new LayerImage(sprite.get()));
+            auto topLayer = std::make_unique<LayerImage>(sprite.get());
             topLayer->setName("Layer 1");
             newTopLayer = topLayer.get();
             sprite->folder()->addLayer(topLayer.release());
@@ -233,7 +243,7 @@ void NewFileCommand::onExecute(Context* context)
 
       // Show the sprite to the user
       Sprite* spritePtr = sprite.get();
-      std::unique_ptr<Document> doc(new Document(sprite.get()));
+      auto doc = std::make_unique<Document>(sprite.get());
       sprite.release();
       snprintf(buf, sizeof(buf), "Sprite-%04d", ++_sprite_counter);
       doc->setFilename(buf);
@@ -242,9 +252,10 @@ void NewFileCommand::onExecute(Context* context)
       // make it the active layer instead of the "Background" layer
       // below it. This must happen before setContext(), since that's
       // what creates the editor view for the document.
-      if (newTopLayer) {
+      if (newTopLayer)
+      {
         Preferences::instance().document(doc.get()).site.layer(
-          spritePtr->layerToIndex(newTopLayer));
+            spritePtr->layerToIndex(newTopLayer));
       }
 
       doc->setContext(context);

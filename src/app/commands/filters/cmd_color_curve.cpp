@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -27,18 +27,19 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace filters;
 
 static std::unique_ptr<ColorCurve> the_curve;
 
-class ColorCurveWindow : public FilterWindow {
+class ColorCurveWindow : public FilterWindow
+{
 public:
   ColorCurveWindow(ColorCurveFilter& filter, FilterManagerImpl& filterMgr)
     : FilterWindow("Color Curve", "ColorCurve", &filterMgr,
-                   WithChannelsSelector,
-                   WithoutTiledCheckBox)
+                   WithChannelsSelector, WithoutTiledCheckBox)
     , m_filter(filter)
     , m_editor(filter.getCurve(), gfx::Rect(0, 0, 256, 256))
   {
@@ -52,7 +53,6 @@ public:
   }
 
 protected:
-
   void onCurveChange()
   {
     // The color curve in the filter is the same refereced by the
@@ -70,7 +70,8 @@ private:
   ColorCurveEditor m_editor;
 };
 
-class ColorCurveCommand : public Command {
+class ColorCurveCommand : public Command
+{
 public:
   ColorCurveCommand();
   Command* clone() const override { return new ColorCurveCommand(*this); }
@@ -81,9 +82,7 @@ protected:
 };
 
 ColorCurveCommand::ColorCurveCommand()
-  : Command("ColorCurve",
-            "Color Curve",
-            CmdRecordableFlag)
+  : Command("ColorCurve", "Color Curve", CmdRecordableFlag)
 {
 }
 
@@ -96,10 +95,11 @@ bool ColorCurveCommand::onEnabled(Context* context)
 void ColorCurveCommand::onExecute(Context* context)
 {
   // Default curve
-  if (!the_curve) {
+  if (!the_curve)
+  {
     // TODO load the curve?
 
-    the_curve.reset(new ColorCurve(ColorCurve::Linear));
+    the_curve = std::make_unique<ColorCurve>(ColorCurve::Linear);
     the_curve->addPoint(gfx::Point(0, 0));
     the_curve->addPoint(gfx::Point(255, 255));
   }
@@ -108,14 +108,13 @@ void ColorCurveCommand::onExecute(Context* context)
   filter.setCurve(the_curve.get());
 
   FilterManagerImpl filterMgr(context, &filter);
-  filterMgr.setTarget(TARGET_RED_CHANNEL |
-                      TARGET_GREEN_CHANNEL |
-                      TARGET_BLUE_CHANNEL |
-                      TARGET_GRAY_CHANNEL |
+  filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL |
+                      TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL |
                       TARGET_ALPHA_CHANNEL);
 
   ColorCurveWindow window(filter, filterMgr);
-  if (window.doModal()) {
+  if (window.doModal())
+  {
     // TODO save the curve?
   }
 }
