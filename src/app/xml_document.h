@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -12,13 +12,14 @@
 #include <memory>
 #include "tinyxml2.h"
 
-namespace app {
+namespace app
+{
 
-  typedef std::shared_ptr<tinyxml2::XMLDocument> XmlDocumentRef;
+typedef std::shared_ptr<tinyxml2::XMLDocument> XmlDocumentRef;
 
-  XmlDocumentRef open_xml(const std::string& filename);
-  void save_xml(XmlDocumentRef doc, const std::string& filename);
+XmlDocumentRef open_xml(const std::string& filename);
+void save_xml(XmlDocumentRef doc, const std::string& filename);
 
-  bool bool_attr_is_true(const tinyxml2::XMLElement* elem, const char* attrName);
+bool bool_attr_is_true(const tinyxml2::XMLElement* elem, const char* attrName);
 
 } // namespace app

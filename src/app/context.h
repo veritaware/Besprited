@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,67 +16,74 @@
 
 #include <vector>
 
-namespace app {
-  class Command;
-  class Document;
+namespace app
+{
+class Command;
+class Document;
 
-  class CommandPreconditionException : public base::Exception {
-  public:
-    CommandPreconditionException() throw()
-    : base::Exception("Cannot execute the command because its pre-conditions are false.") { }
-  };
+class CommandPreconditionException : public base::Exception
+{
+public:
+  CommandPreconditionException() throw()
+    : base::Exception(
+          "Cannot execute the command because its pre-conditions are false.")
+  {
+  }
+};
 
-  class CommandExecutionEvent {
-  public:
-    CommandExecutionEvent(Command* command)
-      : m_command(command), m_canceled(false) {
-    }
+class CommandExecutionEvent
+{
+public:
+  CommandExecutionEvent(Command* command)
+    : m_command(command)
+  {
+  }
 
-    Command* command() const { return m_command; }
+  Command* command() const { return m_command; }
 
-    // True if the command was canceled or simulated by an
-    // observer/signal slot.
-    bool isCanceled() const { return m_canceled; }
-    void cancel() {
-      m_canceled = true;
-    }
+  // True if the command was canceled or simulated by an
+  // observer/signal slot.
+  bool isCanceled() const { return m_canceled; }
+  void cancel() { m_canceled = true; }
 
-  private:
-    Command* m_command;
-    bool m_canceled;
-  };
+private:
+  Command* m_command;
+  bool m_canceled = false;
+};
 
-  class Context : public doc::Context {
-  public:
-    Context();
+class Context : public doc::Context
+{
+public:
+  Context();
 
-    virtual bool isUIAvailable() const     { return false; }
-    virtual bool isRecordingMacro() const  { return false; }
-    virtual bool isExecutingMacro() const  { return false; }
-    virtual bool isExecutingScript() const { return false; }
+  virtual bool isUIAvailable() const { return false; }
+  virtual bool isRecordingMacro() const { return false; }
+  virtual bool isExecutingMacro() const { return false; }
+  virtual bool isExecutingScript() const { return false; }
 
-    bool checkFlags(uint32_t flags) const { return m_flags.check(flags); }
-    void updateFlags() { m_flags.update(this); }
+  bool checkFlags(uint32_t flags) const { return m_flags.check(flags); }
+  void updateFlags() { m_flags.update(this); }
 
-    void sendDocumentToTop(doc::Document* document);
+  void sendDocumentToTop(doc::Document* document);
 
-    app::Document* activeDocument() const;
-    bool hasModifiedDocuments() const;
+  app::Document* activeDocument() const;
+  bool hasModifiedDocuments() const;
 
-    void executeCommand(const char* commandName);
-    virtual void executeCommand(Command* command, const Params& params = Params());
+  void executeCommand(const char* commandName);
+  virtual void executeCommand(Command* command,
+                              const Params& params = Params());
 
-    base::Signal1<void, CommandExecutionEvent&> BeforeCommandExecution;
-    base::Signal1<void, CommandExecutionEvent&> AfterCommandExecution;
+  base::Signal1<void, CommandExecutionEvent&> BeforeCommandExecution;
+  base::Signal1<void, CommandExecutionEvent&> AfterCommandExecution;
 
-  protected:
-    virtual void onCreateDocument(doc::CreateDocumentArgs* args) override;
+protected:
+  void onCreateDocument(doc::CreateDocumentArgs* args) override;
 
-  private:
-    // Last updated flags.
-    ContextFlags m_flags;
+private:
+  // Last updated flags.
+  ContextFlags m_flags;
 
-    DISABLE_COPYING(Context);
-  };
+  DISABLE_COPYING(Context);
+};
 
 } // namespace app

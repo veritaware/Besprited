@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,32 +11,30 @@
 
 #include <string>
 
-namespace app {
+namespace app
+{
 
-  // Singleton class to load and access "gui.xml" file.
-  class GuiXml {
-  public:
-    // Returns the GuiXml singleton. If it was not created yet, the
-    // gui.xml file will be loaded by the first time, which could
-    // generated an exception if there are errors in the XML file.
-    static GuiXml* instance();
+// Singleton class to load and access "gui.xml" file.
+class GuiXml
+{
+public:
+  // Returns the GuiXml singleton. If it was not created yet, the
+  // gui.xml file will be loaded by the first time, which could
+  // generated an exception if there are errors in the XML file.
+  static GuiXml* instance();
 
-    // Returns the tinyxml document instance.
-    XmlDocumentRef doc() {
-      return m_doc;
-    }
+  // Returns the tinyxml document instance.
+  XmlDocumentRef doc() { return m_doc; }
 
-    // Returns the name of the gui.xml file.
-    const char* filename() {
-      return m_doc->Value();
-    }
+  // Returns the name of the gui.xml file.
+  const char* filename() { return m_doc->Value(); }
 
-    std::string version();
+  std::string version();
 
-  private:
-    GuiXml();
+private:
+  GuiXml();
 
-    XmlDocumentRef m_doc;
-  };
+  XmlDocumentRef m_doc;
+};
 
 } // namespace app

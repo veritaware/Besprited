@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,18 +17,20 @@
 #include "app/document_undo.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
-Transaction::Transaction(Context* ctx, const std::string& label, Modification modification)
+Transaction::Transaction(Context* ctx, const std::string& label,
+                         Modification modification)
   : m_ctx(ctx)
-  , m_cmds(NULL)
+  , m_cmds(nullptr)
 {
   m_undo = m_ctx->activeDocument()->undoHistory();
-  m_cmds = new CmdTransaction(label,
-    modification == Modification::ModifyDocument,
-    m_undo->savedCounter());
+  m_cmds =
+      new CmdTransaction(label, modification == Modification::ModifyDocument,
+                         m_undo->savedCounter());
 
   // Here we are executing an empty CmdTransaction, just to save the
   // SpritePosition. Sub-cmds are executed then one by one, in
@@ -38,12 +40,14 @@ Transaction::Transaction(Context* ctx, const std::string& label, Modification mo
 
 Transaction::~Transaction()
 {
-  try {
+  try
+  {
     // If it isn't committed, we have to rollback all changes.
     if (m_cmds)
       rollback();
   }
-  catch (...) {
+  catch (...)
+  {
     // Just avoid throwing an exception in the dtor (just in case
     // rollback() failed).
 
@@ -57,7 +61,7 @@ void Transaction::commit()
 
   m_cmds->commit();
   m_undo->add(m_cmds);
-  m_cmds = NULL;
+  m_cmds = nullptr;
 }
 
 void Transaction::rollback()
@@ -67,23 +71,27 @@ void Transaction::rollback()
   m_cmds->undo();
 
   delete m_cmds;
-  m_cmds = NULL;
+  m_cmds = nullptr;
 }
 
 void Transaction::execute(Cmd* cmd)
 {
-  try {
+  try
+  {
     cmd->execute(m_ctx);
   }
-  catch (...) {
+  catch (...)
+  {
     delete cmd;
     throw;
   }
 
-  try {
+  try
+  {
     m_cmds->add(cmd);
   }
-  catch (...) {
+  catch (...)
+  {
     cmd->undo();
     delete cmd;
     throw;

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,15 +11,17 @@
 #include "base/disable_copying.h"
 #include "base/observable.h"
 
-namespace app {
+namespace app
+{
 
-  class Project : public base::Observable<ProjectObserver> {
-  public:
-    Project();
-    ~Project();
+class Project : public base::Observable<ProjectObserver>
+{
+public:
+  Project();
+  ~Project();
 
-  private:
-    DISABLE_COPYING(Project);
-  };
+private:
+  DISABLE_COPYING(Project);
+};
 
 } // namespace app

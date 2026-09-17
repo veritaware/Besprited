@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,19 +19,26 @@
 #include <cstring>
 #include <set>
 
-namespace {
+namespace
+{
 
-struct compare_path {
+struct compare_path
+{
   std::string a;
-  compare_path(const std::string& a) : a(a) { }
-  bool operator()(const std::string& b) const {
+  compare_path(const std::string& a)
+    : a(a)
+  {
+  }
+  bool operator()(const std::string& b) const
+  {
     return base::compare_filenames(a, b) == 0;
   }
 };
 
-}
+} // namespace
 
-namespace app {
+namespace app
+{
 
 RecentFiles::RecentFiles()
   : m_files(16)
@@ -39,21 +46,25 @@ RecentFiles::RecentFiles()
 {
   char buf[512];
 
-  for (int c=m_files.limit()-1; c>=0; c--) {
+  for (int c = m_files.limit() - 1; c >= 0; c--)
+  {
     snprintf(buf, sizeof(buf), "Filename%02d", c);
 
-    const char* filename = get_config_string("RecentFiles", buf, NULL);
-    if (filename && *filename && base::is_file(filename)) {
+    const char* filename = get_config_string("RecentFiles", buf, nullptr);
+    if (filename && *filename && base::is_file(filename))
+    {
       std::string fn = normalizePath(filename);
       m_files.addItem(fn, compare_path(fn));
     }
   }
 
-  for (int c=m_paths.limit()-1; c>=0; c--) {
+  for (int c = m_paths.limit() - 1; c >= 0; c--)
+  {
     snprintf(buf, sizeof(buf), "Path%02d", c);
 
-    const char* path = get_config_string("RecentPaths", buf, NULL);
-    if (path && *path) {
+    const char* path = get_config_string("RecentPaths", buf, nullptr);
+    if (path && *path)
+    {
       std::string p = normalizePath(path);
       m_paths.addItem(p, compare_path(p));
     }
@@ -65,14 +76,16 @@ RecentFiles::~RecentFiles()
   char buf[512];
 
   int c = 0;
-  for (auto const& filename : m_files) {
+  for (const auto& filename : m_files)
+  {
     snprintf(buf, sizeof(buf), "Filename%02d", c);
     set_config_string("RecentFiles", buf, filename.c_str());
     c++;
   }
 
   c = 0;
-  for (auto const& path : m_paths) {
+  for (const auto& path : m_paths)
+  {
     snprintf(buf, sizeof(buf), "Path%02d", c);
     set_config_string("RecentPaths", buf, path.c_str());
     c++;

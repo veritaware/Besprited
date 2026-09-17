@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -23,10 +23,11 @@
 #include <cassert>
 #include <stdexcept>
 
-namespace app {
+namespace app
+{
 
 DocumentUndo::DocumentUndo()
-  : m_ctx(NULL)
+  : m_ctx(nullptr)
   , m_savedCounter(0)
   , m_savedStateIsLost(false)
 {
@@ -43,7 +44,8 @@ void DocumentUndo::add(CmdTransaction* cmd)
 
   // A linear undo history is the default behavior
   if (!App::instance() ||
-      !App::instance()->preferences().undo.allowNonlinearHistory()) {
+      !App::instance()->preferences().undo.allowNonlinearHistory())
+  {
     clearRedo();
   }
 
@@ -118,7 +120,7 @@ SpritePosition DocumentUndo::nextUndoSpritePosition() const
   const undo::UndoState* state = nextUndo();
   if (state)
     return static_cast<const CmdTransaction*>(state->cmd())
-      ->spritePositionBeforeExecute();
+        ->spritePositionBeforeExecute();
   else
     return SpritePosition();
 }
@@ -128,7 +130,7 @@ SpritePosition DocumentUndo::nextRedoSpritePosition() const
   const undo::UndoState* state = nextRedo();
   if (state)
     return static_cast<const CmdTransaction*>(state->cmd())
-      ->spritePositionAfterExecute();
+        ->spritePositionAfterExecute();
   else
     return SpritePosition();
 }
@@ -139,7 +141,7 @@ Cmd* DocumentUndo::lastExecutedCmd() const
   if (state)
     return static_cast<Cmd*>(state->cmd());
   else
-    return NULL;
+    return nullptr;
 }
 
 void DocumentUndo::moveToState(const undo::UndoState* state)

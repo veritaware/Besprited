@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,34 +14,36 @@
 #include "app/modules/gui.h"
 #include "app/modules/palettes.h"
 
-namespace app {
+namespace app
+{
 
-struct Module {
-  const char *name;
+struct Module
+{
+  const char* name;
   int (*init)();
   void (*exit)();
   int reqs;
   bool installed;
 };
 
-static Module module[] =
-{
-#define DEF_MODULE(name, reqs) \
-  { #name, init_module_##name, exit_module_##name, (reqs), false }
+static Module module[] = {
+#define DEF_MODULE(name, reqs)                                                 \
+  {#name, init_module_##name, exit_module_##name, (reqs), false}
 
-  // This sorting is very important because last modules depend of
-  // first ones.
+    // This sorting is very important because last modules depend of
+    // first ones.
 
-  DEF_MODULE(palette,           0),
-  DEF_MODULE(gui,               REQUIRE_INTERFACE),
+    DEF_MODULE(palette, 0),
+    DEF_MODULE(gui, REQUIRE_INTERFACE),
 };
 
 static int modules = sizeof(module) / sizeof(Module);
 
 LegacyModules::LegacyModules(int requirements)
 {
-  for (int c=0; c<modules; c++)
-    if ((module[c].reqs & requirements) == module[c].reqs) {
+  for (int c = 0; c < modules; c++)
+    if ((module[c].reqs & requirements) == module[c].reqs)
+    {
       LOG("Installing module: %s\n", module[c].name);
 
       if ((*module[c].init)() < 0)
@@ -54,8 +56,9 @@ LegacyModules::LegacyModules(int requirements)
 
 LegacyModules::~LegacyModules()
 {
-  for (int c=modules-1; c>=0; c--)
-    if (module[c].installed) {
+  for (int c = modules - 1; c >= 0; c--)
+    if (module[c].installed)
+    {
       LOG("Unstalling module: %s\n", module[c].name);
       (*module[c].exit)();
       module[c].installed = false;

@@ -16,7 +16,8 @@
 #include "app/resource_finder.h"
 #include "base/log.h"
 
-namespace app {
+namespace app
+{
 
 LoggerModule::LoggerModule(bool createLogInDesktop)
 {

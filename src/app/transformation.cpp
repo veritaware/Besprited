@@ -1,5 +1,5 @@
-// Aseprite Gfx Library
-// Copyright (C) 2001-2016 David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,7 +15,8 @@
 
 #include <cmath>
 
-namespace app {
+namespace app
+{
 
 using namespace gfx;
 
@@ -34,8 +35,8 @@ Transformation::Transformation(const RectF& bounds)
   : m_bounds(bounds)
 {
   m_angle = 0.0;
-  m_pivot.x = bounds.x + bounds.w/2;
-  m_pivot.y = bounds.y + bounds.h/2;
+  m_pivot.x = bounds.x + bounds.w / 2;
+  m_pivot.y = bounds.y + bounds.h / 2;
 }
 
 void Transformation::transformBox(Corners& corners) const
@@ -46,7 +47,7 @@ void Transformation::transformBox(Corners& corners) const
   // critical at this point.
 
   corners = m_bounds;
-  for (std::size_t c=0; c<corners.size(); ++c)
+  for (std::size_t c = 0; c < corners.size(); ++c)
     corners[c] = Transformation::rotatePoint(corners[c], m_pivot, m_angle);
 }
 
@@ -58,20 +59,15 @@ void Transformation::displacePivotTo(const PointF& newPivot)
 
   // Rotate-back (-angle) the position of the rotated origin (corners[0])
   // using the new pivot.
-  PointF newBoundsOrigin =
-    rotatePoint(corners.leftTop(),
-                newPivot,
-                -m_angle);
+  PointF newBoundsOrigin = rotatePoint(corners.leftTop(), newPivot, -m_angle);
 
   // Change the new pivot.
   m_pivot = newPivot;
   m_bounds = RectF(newBoundsOrigin, m_bounds.size());
 }
 
-PointF Transformation::rotatePoint(
-  const PointF& point,
-  const PointF& pivot,
-  double angle)
+PointF Transformation::rotatePoint(const PointF& point, const PointF& pivot,
+                                   double angle)
 {
   using namespace fixmath;
 
@@ -83,8 +79,9 @@ PointF Transformation::rotatePoint(
   fixed dx = fixsub(ftofix(point.x), ftofix(pivot.x));
   fixed dy = fixsub(ftofix(point.y), ftofix(pivot.y));
   return PointF(
-    fixtof(fixadd(ftofix(pivot.x), fixsub(fixmul(dx, cos), fixmul(dy, sin)))),
-    fixtof(fixadd(ftofix(pivot.y), fixadd(fixmul(dy, cos), fixmul(dx, sin)))));
+      fixtof(fixadd(ftofix(pivot.x), fixsub(fixmul(dx, cos), fixmul(dy, sin)))),
+      fixtof(
+          fixadd(ftofix(pivot.y), fixadd(fixmul(dy, cos), fixmul(dx, sin)))));
 }
 
 RectF Transformation::transformedBounds() const
@@ -95,7 +92,7 @@ RectF Transformation::transformedBounds() const
 
   // Create a union of all corners
   RectF bounds;
-  for (int i=0; i<Corners::NUM_OF_CORNERS; ++i)
+  for (int i = 0; i < Corners::NUM_OF_CORNERS; ++i)
     bounds = bounds.createUnion(RectF(corners[i].x, corners[i].y, 1, 1));
 
   return bounds;

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,23 +21,26 @@
 
 static const int kMonitoringPeriod = 100;
 
-namespace app {
+namespace app
+{
 
 Job::Job(const char* jobName)
 {
-  m_mutex = NULL;
-  m_thread = NULL;
+  m_mutex = nullptr;
+  m_thread = nullptr;
   m_last_progress = 0.0;
   m_done_flag = false;
   m_canceled_flag = false;
 
   m_mutex = new base::mutex();
 
-  if (App::instance()->isGui()) {
+  if (App::instance()->isGui())
+  {
     m_alert_window = ui::Alert::create("%s<<Working...||&Cancel", jobName);
     m_alert_window->addProgress();
 
-    m_timer.reset(new ui::Timer(kMonitoringPeriod, m_alert_window.get()));
+    m_timer =
+        std::make_unique<ui::Timer>(kMonitoringPeriod, m_alert_window.get());
     m_timer->Tick.connect(&Job::onMonitoringTick, this);
     m_timer->start();
   }
@@ -45,12 +48,13 @@ Job::Job(const char* jobName)
 
 Job::~Job()
 {
-  if (App::instance()->isGui()) {
+  if (App::instance()->isGui())
+  {
     ASSERT(!m_timer->isRunning());
-    ASSERT(m_thread == NULL);
+    ASSERT(m_thread == nullptr);
 
     if (m_alert_window)
-      m_alert_window->closeWindow(NULL);
+      m_alert_window->closeWindow(nullptr);
   }
 
   if (m_mutex)
@@ -61,7 +65,8 @@ void Job::startJob()
 {
   m_thread = new base::thread(&Job::thread_proc, this);
 
-  if (m_alert_window) {
+  if (m_alert_window)
+  {
     m_alert_window->openWindowInForeground();
 
     // The job was canceled by the user?
@@ -73,12 +78,15 @@ void Job::startJob()
 
     // In case of error, take the "cancel" path (i.e. it's like the
     // user canceled the operation).
-    if (m_error) {
+    if (m_error)
+    {
       m_canceled_flag = true;
-      try {
+      try
+      {
         std::rethrow_exception(m_error);
       }
-      catch (const std::exception& ex) {
+      catch (const std::exception& ex)
+      {
         Console::showException(ex);
       }
     }
@@ -90,10 +98,11 @@ void Job::waitJob()
   if (m_timer && m_timer->isRunning())
     m_timer->stop();
 
-  if (m_thread) {
+  if (m_thread)
+  {
     m_thread->join();
     delete m_thread;
-    m_thread = NULL;
+    m_thread = nullptr;
   }
 }
 
@@ -115,9 +124,10 @@ void Job::onMonitoringTick()
   m_alert_window->setProgress(m_last_progress);
 
   // is job done? we can close the monitor
-  if (m_done_flag || m_canceled_flag) {
+  if (m_done_flag || m_canceled_flag)
+  {
     m_timer->stop();
-    m_alert_window->closeWindow(NULL);
+    m_alert_window->closeWindow(nullptr);
   }
 }
 
@@ -130,10 +140,12 @@ void Job::done()
 // Called to start the worker thread.
 void Job::thread_proc(Job* self)
 {
-  try {
+  try
+  {
     self->onJob();
   }
-  catch (...) {
+  catch (...)
+  {
     self->m_error = std::current_exception();
   }
   self->done();

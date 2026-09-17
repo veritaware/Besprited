@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,34 +9,42 @@
 
 #include "app/cmd_sequence.h"
 
-namespace app {
+namespace app
+{
 
-  // Cmds created on each Transaction.
-  // The whole DocumentUndo contains a list of these CmdTransaction.
-  class CmdTransaction : public CmdSequence {
-  public:
-    CmdTransaction(const std::string& label,
-      bool changeSavedState, int* savedCounter);
+// Cmds created on each Transaction.
+// The whole DocumentUndo contains a list of these CmdTransaction.
+class CmdTransaction : public CmdSequence
+{
+public:
+  CmdTransaction(const std::string& label, bool changeSavedState,
+                 int* savedCounter);
 
-    void commit();
+  void commit();
 
-    doc::SpritePosition spritePositionBeforeExecute() const { return m_spritePositionBefore; }
-    doc::SpritePosition spritePositionAfterExecute() const { return m_spritePositionAfter; }
+  doc::SpritePosition spritePositionBeforeExecute() const
+  {
+    return m_spritePositionBefore;
+  }
+  doc::SpritePosition spritePositionAfterExecute() const
+  {
+    return m_spritePositionAfter;
+  }
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    void onRedo() override;
-    std::string onLabel() const override;
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  void onRedo() override;
+  std::string onLabel() const override;
 
-  private:
-    doc::SpritePosition calcSpritePosition();
+private:
+  doc::SpritePosition calcSpritePosition();
 
-    doc::SpritePosition m_spritePositionBefore;
-    doc::SpritePosition m_spritePositionAfter;
-    std::string m_label;
-    bool m_changeSavedState;
-    int* m_savedCounter;
-  };
+  doc::SpritePosition m_spritePositionBefore;
+  doc::SpritePosition m_spritePositionAfter;
+  std::string m_label;
+  bool m_changeSavedState;
+  int* m_savedCounter;
+};
 
 } // namespace app

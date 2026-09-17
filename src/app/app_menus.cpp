@@ -36,7 +36,8 @@
 #include <cstdio>
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -44,9 +45,10 @@ using namespace ui;
 AppMenus* AppMenus::instance()
 {
   static std::shared_ptr<AppMenus> instance;
-  if (!instance) {
-      instance.reset(new AppMenus());
-      App::instance()->Exit.connect([]{ instance.reset(); });
+  if (!instance)
+  {
+    instance.reset(new AppMenus());
+    App::instance()->Exit.connect([] { instance.reset(); });
   }
   return instance.get();
 }
@@ -64,9 +66,9 @@ void AppMenus::reload()
 
   loadMenus(handle);
 
-
 #if _DEBUG
-  // Add a warning element because the user is not using the last well-known gui.xml file.
+  // Add a warning element because the user is not using the last well-known
+  // gui.xml file.
   if (GuiXml::instance()->version() != VERSION)
     getRootMenu()->insertChild(0, createInvalidVersionMenuitem());
 #endif
@@ -80,9 +82,8 @@ void AppMenus::reload()
 
   LOG(" - Loading commands keyboard shortcuts from \"%s\"...\n", path);
 
-  tinyxml2::XMLElement* xmlKey = handle
-    .FirstChildElement("gui")
-    .FirstChildElement("keyboard").ToElement();
+  tinyxml2::XMLElement* xmlKey =
+      handle.FirstChildElement("gui").FirstChildElement("keyboard").ToElement();
 
   KeyboardShortcuts::instance()->clear();
   KeyboardShortcuts::instance()->importFile(xmlKey, KeySource::Original);
@@ -97,63 +98,75 @@ void AppMenus::reload()
   }
 }
 
-void AppMenus::rebuildRecentList() {
-    m_recentFilesMenu.rebuildRecentList();
+void AppMenus::rebuildRecentList()
+{
+  m_recentFilesMenu.rebuildRecentList();
 }
 
-void AppMenus::clearIdentifiedWidgets() {
-    for (auto entry : m_identifiedWidgets) {
-        if (auto parent = entry.second->parent()) {
-            parent->removeChild(entry.second);
-        }
+void AppMenus::clearIdentifiedWidgets()
+{
+  for (auto entry : m_identifiedWidgets)
+  {
+    if (auto parent = entry.second->parent())
+    {
+      parent->removeChild(entry.second);
     }
-    for (auto entry : m_identifiedWidgets) {
-        delete entry.second;
-    }
-    m_identifiedWidgets.clear();
+  }
+  for (auto entry : m_identifiedWidgets)
+  {
+    delete entry.second;
+  }
+  m_identifiedWidgets.clear();
 }
 
-void AppMenus::rebuildScriptsList() {
+void AppMenus::rebuildScriptsList()
+{
   m_scriptMenu.rebuildScriptsList(getById("script_list"));
 }
 
 void AppMenus::loadMenus(tinyxml2::XMLHandle& handle)
 {
-    clearIdentifiedWidgets();
+  clearIdentifiedWidgets();
 
-    // <gui><menus><menu>
-    tinyxml2::XMLElement* xmlMenu = handle
-        .FirstChildElement("gui")
-        .FirstChildElement("menus")
-        .FirstChildElement("menu").ToElement();
-    for (; xmlMenu; xmlMenu = xmlMenu->NextSiblingElement()) {
-        auto menu = convertXmlelemToMenu(xmlMenu);
-        if ( menu->id().empty()) {
-            delete menu;
-        }
+  // <gui><menus><menu>
+  tinyxml2::XMLElement* xmlMenu = handle.FirstChildElement("gui")
+                                      .FirstChildElement("menus")
+                                      .FirstChildElement("menu")
+                                      .ToElement();
+  for (; xmlMenu; xmlMenu = xmlMenu->NextSiblingElement())
+  {
+    auto menu = convertXmlelemToMenu(xmlMenu);
+    if (menu->id().empty())
+    {
+      delete menu;
     }
+  }
 }
 
 Menu* AppMenus::convertXmlelemToMenu(tinyxml2::XMLElement* elem)
 {
   Menu* menu = new Menu();
 
-  //LOG("convertXmlelemToMenu(%s, %s, %s)\n", elem->Value(), elem->Attribute("id"), elem->Attribute("text"));
+  // LOG("convertXmlelemToMenu(%s, %s, %s)\n", elem->Value(),
+  // elem->Attribute("id"), elem->Attribute("text"));
 
   auto id = elem->Attribute("id");
-  if (id) {
-      menu->setId(id);
-      m_identifiedWidgets[id] = menu;
+  if (id)
+  {
+    menu->setId(id);
+    m_identifiedWidgets[id] = menu;
   }
 
   tinyxml2::XMLElement* child = elem->FirstChildElement();
-  while (child) {
+  while (child)
+  {
     Widget* menuitem = convertXmlelemToMenuitem(child);
     if (menuitem)
       menu->addChild(menuitem);
     else
-      throw base::Exception("Error converting the element \"%s\" to a menu-item.\n",
-                            static_cast<const char*>(child->Value()));
+      throw base::Exception(
+          "Error converting the element \"%s\" to a menu-item.\n",
+          static_cast<const char*>(child->Value()));
 
     child = child->NextSiblingElement();
   }
@@ -169,14 +182,16 @@ Widget* AppMenus::convertXmlelemToMenuitem(tinyxml2::XMLElement* elem)
 
   const char* command_name = elem->Attribute("command");
   Command* command =
-    command_name ? CommandsModule::instance()->getCommandByName(command_name):
-                   NULL;
+      command_name ? CommandsModule::instance()->getCommandByName(command_name)
+                   : nullptr;
 
   // load params
   Params params;
-  if (command) {
+  if (command)
+  {
     tinyxml2::XMLElement* xmlParam = elem->FirstChildElement("param");
-    while (xmlParam) {
+    while (xmlParam)
+    {
       const char* param_name = xmlParam->Attribute("name");
       const char* param_value = xmlParam->Attribute("value");
 
@@ -188,20 +203,23 @@ Widget* AppMenus::convertXmlelemToMenuitem(tinyxml2::XMLElement* elem)
   }
 
   // Create the item
-  AppMenuItem* menuitem = new AppMenuItem(elem->Attribute("text"), command, params);
+  AppMenuItem* menuitem =
+      new AppMenuItem(elem->Attribute("text"), command, params);
   if (!menuitem)
-    return NULL;
+    return nullptr;
 
   menuitem->setI18N(elem->Attribute("text"));
 
   /* has it a ID? */
 
-  if (const char* id = elem->Attribute("id")) {
+  if (const char* id = elem->Attribute("id"))
+  {
     m_identifiedWidgets[id] = menuitem;
   }
 
   // Has it a sub-menu (<menu>)?
-  if (strcmp(elem->Value(), "menu") == 0) {
+  if (strcmp(elem->Value(), "menu") == 0)
+  {
     // Create the sub-menu
     Menu* subMenu = convertXmlelemToMenu(elem);
     if (!subMenu)
@@ -217,43 +235,52 @@ Widget* AppMenus::createInvalidVersionMenuitem()
 {
   AppMenuItem* menuitem = new AppMenuItem("WARNING!");
   Menu* subMenu = new Menu();
-  subMenu->addChild(new AppMenuItem(PACKAGE " is using a customized gui.xml (maybe from your HOME directory)."));
-  subMenu->addChild(new AppMenuItem("You should update your customized gui.xml file to the new version to get"));
+  subMenu->addChild(new AppMenuItem(
+      PACKAGE
+      " is using a customized gui.xml (maybe from your HOME directory)."));
+  subMenu->addChild(new AppMenuItem("You should update your customized gui.xml "
+                                    "file to the new version to get"));
   subMenu->addChild(new AppMenuItem("the latest commands available."));
   subMenu->addChild(new MenuSeparator);
-  subMenu->addChild(new AppMenuItem("You can bypass this validation adding the correct version"));
-  subMenu->addChild(new AppMenuItem("number in <gui version=\"" VERSION "\"> element."));
+  subMenu->addChild(new AppMenuItem(
+      "You can bypass this validation adding the correct version"));
+  subMenu->addChild(
+      new AppMenuItem("number in <gui version=\"" VERSION "\"> element."));
   menuitem->setSubmenu(subMenu);
   return menuitem;
 }
 
-void AppMenus::applyShortcutToMenuitemsWithCommand(Command* command, const Params& params, Key* key)
+void AppMenus::applyShortcutToMenuitemsWithCommand(Command* command,
+                                                   const Params& params,
+                                                   Key* key)
 {
   // TODO redesign the list of popup menus, it might be an
   //      autogenerated widget from 'gen'
-  Menu* menus[] = {
-    getRootMenu(),
-    getTabPopupMenu(),
-    getDocumentTabPopupMenu(),
-    getLayerPopupMenu(),
-    getFramePopupMenu(),
-    getCelPopupMenu(),
-    getCelMovementPopupMenu(),
-    getFrameTagPopupMenu(),
-    getPalettePopupMenu(),
-    getInkPopupMenu(),
-    getById("script_list")
-  };
+  Menu* menus[] = {getRootMenu(),
+                   getTabPopupMenu(),
+                   getDocumentTabPopupMenu(),
+                   getLayerPopupMenu(),
+                   getFramePopupMenu(),
+                   getCelPopupMenu(),
+                   getCelMovementPopupMenu(),
+                   getFrameTagPopupMenu(),
+                   getPalettePopupMenu(),
+                   getInkPopupMenu(),
+                   getById("script_list")};
 
   for (Menu* menu : menus)
     if (menu)
       applyShortcutToMenuitemsWithCommand(menu, command, params, key);
 }
 
-void AppMenus::applyShortcutToMenuitemsWithCommand(Menu* menu, Command* command, const Params& params, Key* key)
+void AppMenus::applyShortcutToMenuitemsWithCommand(Menu* menu, Command* command,
+                                                   const Params& params,
+                                                   Key* key)
 {
-  for (auto child : menu->children()) {
-    if (child->type() == kMenuItemWidget) {
+  for (auto child : menu->children())
+  {
+    if (child->type() == kMenuItemWidget)
+    {
       AppMenuItem* menuitem = dynamic_cast<AppMenuItem*>(child);
       if (!menuitem)
         continue;
@@ -263,7 +290,8 @@ void AppMenus::applyShortcutToMenuitemsWithCommand(Menu* menu, Command* command,
 
       if ((mi_command) &&
           (base::utf8_icmp(mi_command->id(), command->id()) == 0) &&
-          (mi_params == params)) {
+          (mi_params == params))
+      {
         // Set the keyboard shortcut to be shown in this menu-item
         menuitem->setKey(key);
       }

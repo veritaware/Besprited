@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,22 +11,24 @@
 
 #include <string>
 
-namespace app {
+namespace app
+{
 
-  class SendCrash : public INotificationDelegate {
-  public:
-    void search();
+class SendCrash : public INotificationDelegate
+{
+public:
+  void search();
 
-    virtual std::string notificationText() override;
-    virtual void notificationClick() override;
+  virtual std::string notificationText() override;
+  virtual void notificationClick() override;
 
-  private:
-    void onClickFilename();
-    void onClickDevFilename();
+private:
+  void onClickFilename();
+  void onClickDevFilename();
 
-    std::string m_dumpFilename;
-  };
+  std::string m_dumpFilename;
+};
 
-  std::string memory_dump_filename();
+std::string memory_dump_filename();
 
 } // namespace app

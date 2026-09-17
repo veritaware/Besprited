@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,13 +10,18 @@
 #include <string>
 #include <stdexcept>
 
-namespace app {
+namespace app
+{
 
-  class WidgetTypeMismatch : public std::runtime_error {
-  public:
-    WidgetTypeMismatch(const std::string& widgetId)
-      : std::runtime_error("Widget " + widgetId +
-                           " of the expected type.\nPlease reinstall the program.\n\n") { }
-  };
+class WidgetTypeMismatch : public std::runtime_error
+{
+public:
+  WidgetTypeMismatch(const std::string& widgetId)
+    : std::runtime_error(
+          "Widget " + widgetId +
+          " of the expected type.\nPlease reinstall the program.\n\n")
+  {
+  }
+};
 
 } // namespace app

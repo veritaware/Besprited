@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,8 +15,8 @@
 #include "base/launcher.h"
 #include "ui/alert.h"
 
-namespace app {
-namespace launcher {
+namespace app::launcher
+{
 
 void open_url(const std::string& url)
 {
@@ -35,5 +35,4 @@ void open_folder(const std::string& file)
     ui::Alert::show("Problem<<Cannot open folder:<<%s||&Close", file.c_str());
 }
 
-} // namespace launcher
-} // namespace app
+} // namespace app::launcher

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,11 +13,14 @@
 
 #include "base/program_options.h"
 
-namespace app {
+namespace app
+{
 
-class AppOptions {
+class AppOptions
+{
 public:
-  enum VerboseLevel {
+  enum VerboseLevel
+  {
     kNoVerbose,
     kVerbose,
     kHighlyVerbose,
@@ -35,9 +38,7 @@ public:
 
   const std::string& paletteFileName() const { return m_paletteFileName; }
 
-  const ValueList& values() const {
-    return m_po.values();
-  }
+  const ValueList& values() const { return m_po.values(); }
 
   // Export options
   const Option& saveAs() const { return m_saveAs; }
@@ -112,7 +113,6 @@ private:
   Option& m_debug;
   Option& m_help;
   Option& m_version;
-
 };
 
 } // namespace app

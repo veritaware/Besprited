@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -36,7 +36,8 @@
 
 #include <map>
 
-namespace app {
+namespace app
+{
 
 using namespace base;
 using namespace doc;
@@ -46,8 +47,8 @@ Document::Document(Sprite* sprite)
   , m_associated_to_file(false)
   , m_write_lock(false)
   , m_read_locks(0)
-    // Information about the file format used to load/save this document
-  , m_format_options(NULL)
+  // Information about the file format used to load/save this document
+  , m_format_options(nullptr)
   // Mask
   , m_mask(new Mask())
   , m_maskVisible(true)
@@ -65,7 +66,7 @@ Document::~Document()
   // context and it would generate onRemoveDocument() notifications,
   // which could result in serious problems for observers expecting a
   // fully created app::Document.
-  ASSERT(context() == NULL);
+  ASSERT(context() == nullptr);
 }
 
 DocumentApi Document::getApi(Transaction& transaction)
@@ -79,18 +80,16 @@ DocumentApi Document::getApi(Transaction& transaction)
 color_t Document::bgColor() const
 {
   return color_utils::color_for_target(
-    Preferences::instance().colorBar.bgColor(),
-    ColorTarget(ColorTarget::BackgroundLayer,
-                sprite()->pixelFormat(),
-                sprite()->transparentColor()));
+      Preferences::instance().colorBar.bgColor(),
+      ColorTarget(ColorTarget::BackgroundLayer, sprite()->pixelFormat(),
+                  sprite()->transparentColor()));
 }
 
 color_t Document::bgColor(Layer* layer) const
 {
   if (layer->isBackground())
     return color_utils::color_for_layer(
-      Preferences::instance().colorBar.bgColor(),
-      layer);
+        Preferences::instance().colorBar.bgColor(), layer);
   else
     return layer->sprite()->transparentColor();
 }
@@ -101,24 +100,30 @@ color_t Document::bgColor(Layer* layer) const
 void Document::notifyGeneralUpdate()
 {
   doc::DocumentEvent ev(this);
-  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onGeneralUpdate, ev);
+  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onGeneralUpdate,
+                                       ev);
 }
 
-void Document::notifySpritePixelsModified(Sprite* sprite, const gfx::Region& region, frame_t frame)
+void Document::notifySpritePixelsModified(Sprite* sprite,
+                                          const gfx::Region& region,
+                                          frame_t frame)
 {
   doc::DocumentEvent ev(this);
   ev.sprite(sprite);
   ev.region(region);
   ev.frame(frame);
-  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onSpritePixelsModified, ev);
+  notifyObservers<doc::DocumentEvent&>(
+      &doc::DocumentObserver::onSpritePixelsModified, ev);
 }
 
-void Document::notifyExposeSpritePixels(Sprite* sprite, const gfx::Region& region)
+void Document::notifyExposeSpritePixels(Sprite* sprite,
+                                        const gfx::Region& region)
 {
   doc::DocumentEvent ev(this);
   ev.sprite(sprite);
   ev.region(region);
-  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onExposeSpritePixels, ev);
+  notifyObservers<doc::DocumentEvent&>(
+      &doc::DocumentObserver::onExposeSpritePixels, ev);
 }
 
 void Document::notifyLayerMergedDown(Layer* srcLayer, Layer* targetLayer)
@@ -127,10 +132,12 @@ void Document::notifyLayerMergedDown(Layer* srcLayer, Layer* targetLayer)
   ev.sprite(srcLayer->sprite());
   ev.layer(srcLayer);
   ev.targetLayer(targetLayer);
-  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onLayerMergedDown, ev);
+  notifyObservers<doc::DocumentEvent&>(
+      &doc::DocumentObserver::onLayerMergedDown, ev);
 }
 
-void Document::notifyCelMoved(Layer* fromLayer, frame_t fromFrame, Layer* toLayer, frame_t toFrame)
+void Document::notifyCelMoved(Layer* fromLayer, frame_t fromFrame,
+                              Layer* toLayer, frame_t toFrame)
 {
   doc::DocumentEvent ev(this);
   ev.sprite(fromLayer->sprite());
@@ -141,7 +148,8 @@ void Document::notifyCelMoved(Layer* fromLayer, frame_t fromFrame, Layer* toLaye
   notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onCelMoved, ev);
 }
 
-void Document::notifyCelCopied(Layer* fromLayer, frame_t fromFrame, Layer* toLayer, frame_t toFrame)
+void Document::notifyCelCopied(Layer* fromLayer, frame_t fromFrame,
+                               Layer* toLayer, frame_t toFrame)
 {
   doc::DocumentEvent ev(this);
   ev.sprite(fromLayer->sprite());
@@ -155,7 +163,8 @@ void Document::notifyCelCopied(Layer* fromLayer, frame_t fromFrame, Layer* toLay
 void Document::notifySelectionChanged()
 {
   doc::DocumentEvent ev(this);
-  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onSelectionChanged, ev);
+  notifyObservers<doc::DocumentEvent&>(
+      &doc::DocumentObserver::onSelectionChanged, ev);
 }
 
 bool Document::isModified() const
@@ -189,7 +198,8 @@ bool Document::needsBackup() const
 //////////////////////////////////////////////////////////////////////
 // Loaded options from file
 
-void Document::setFormatOptions(const base::SharedPtr<FormatOptions>& format_options)
+void Document::setFormatOptions(
+    const base::SharedPtr<FormatOptions>& format_options)
 {
   m_format_options = format_options;
 }
@@ -202,19 +212,20 @@ void Document::generateMaskBoundaries(const Mask* mask)
   m_maskBoundaries.reset();
 
   // No mask specified? Use the current one in the document
-  if (!mask) {
-    if (!isMaskVisible())       // The mask is hidden
-      return;                   // Done, without boundaries
+  if (!mask)
+  {
+    if (!isMaskVisible()) // The mask is hidden
+      return;             // Done, without boundaries
     else
-      mask = this->mask();      // Use the document mask
+      mask = this->mask(); // Use the document mask
   }
 
   ASSERT(mask);
 
-  if (!mask->isEmpty()) {
-    m_maskBoundaries.reset(new MaskBoundaries(mask->bitmap()));
-    m_maskBoundaries->offset(mask->bounds().x,
-                             mask->bounds().y);
+  if (!mask->isEmpty())
+  {
+    m_maskBoundaries = std::make_unique<MaskBoundaries>(mask->bitmap());
+    m_maskBoundaries->offset(mask->bounds().x, mask->bounds().y);
   }
 
   // TODO move this to the exact place where selection is modified.
@@ -234,10 +245,9 @@ void Document::setMask(const Mask* mask)
 
 bool Document::isMaskVisible() const
 {
-  return
-    m_maskVisible &&            // The mask was not hidden by the user explicitly
-    m_mask &&                   // The mask does exist
-    !m_mask->isEmpty();         // The mask is not empty
+  return m_maskVisible &&    // The mask was not hidden by the user explicitly
+         m_mask &&           // The mask does exist
+         !m_mask->isEmpty(); // The mask is not empty
 }
 
 void Document::setMaskVisible(bool visible)
@@ -269,14 +279,18 @@ void Document::resetTransformation()
 //////////////////////////////////////////////////////////////////////
 // Copying
 
-void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc, Layer* destLayer0) const
+void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc,
+                                Layer* destLayer0) const
 {
   LayerFlags dstFlags = sourceLayer0->flags();
 
   // Remove the "background" flag if the destDoc already has a background layer.
-  if (((int)dstFlags & (int)LayerFlags::Background) == (int)LayerFlags::Background &&
-      (destDoc->sprite()->backgroundLayer())) {
-    dstFlags = (LayerFlags)((int)dstFlags & ~(int)(LayerFlags::BackgroundLayerFlags));
+  if (((int)dstFlags & (int)LayerFlags::Background) ==
+          (int)LayerFlags::Background &&
+      (destDoc->sprite()->backgroundLayer()))
+  {
+    dstFlags =
+        (LayerFlags)((int)dstFlags & ~(int)(LayerFlags::BackgroundLayerFlags));
   }
 
   // Copy the layer name/flags/user data
@@ -284,8 +298,10 @@ void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc, La
   destLayer0->setFlags(dstFlags);
   destLayer0->setUserData(sourceLayer0->userData());
 
-  if (sourceLayer0->isImage() && destLayer0->isImage()) {
-    const LayerImage* sourceLayer = static_cast<const LayerImage*>(sourceLayer0);
+  if (sourceLayer0->isImage() && destLayer0->isImage())
+  {
+    const LayerImage* sourceLayer =
+        static_cast<const LayerImage*>(sourceLayer0);
     LayerImage* destLayer = static_cast<LayerImage*>(destLayer0);
 
     // Copy blend mode and opacity
@@ -298,7 +314,8 @@ void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc, La
 
     std::map<ObjectId, Cel*> linked;
 
-    for (; it != end; ++it) {
+    for (; it != end; ++it)
+    {
       auto sourceCel = *it;
       if (sourceCel->frame() > destLayer->sprite()->lastFrame())
         break;
@@ -306,43 +323,52 @@ void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc, La
       std::shared_ptr<Cel> newCel;
 
       auto it = linked.find(sourceCel->data()->id());
-      if (it != linked.end()) {
-        newCel = Cel::createLink(std::static_pointer_cast<Cel>(it->second->shared_from_this()));
+      if (it != linked.end())
+      {
+        newCel = Cel::createLink(
+            std::static_pointer_cast<Cel>(it->second->shared_from_this()));
         newCel->setFrame(sourceCel->frame());
-      } else {
-        newCel = create_cel_copy(sourceCel,
-                                 destLayer->sprite(),
-                                 sourceCel->frame());
+      }
+      else
+      {
+        newCel =
+            create_cel_copy(sourceCel, destLayer->sprite(), sourceCel->frame());
         linked.insert(std::make_pair(sourceCel->data()->id(), newCel.get()));
       }
 
       destLayer->addCel(newCel);
     }
   }
-  else if (sourceLayer0->isFolder() && destLayer0->isFolder()) {
-    const LayerFolder* sourceLayer = static_cast<const LayerFolder*>(sourceLayer0);
+  else if (sourceLayer0->isFolder() && destLayer0->isFolder())
+  {
+    const LayerFolder* sourceLayer =
+        static_cast<const LayerFolder*>(sourceLayer0);
     LayerFolder* destLayer = static_cast<LayerFolder*>(destLayer0);
 
     LayerConstIterator it = sourceLayer->getLayerBegin();
     LayerConstIterator end = sourceLayer->getLayerEnd();
 
-    for (; it != end; ++it) {
+    for (; it != end; ++it)
+    {
       Layer* sourceChild = *it;
       std::unique_ptr<Layer> destChild(nullptr);
 
-      if (sourceChild->isImage()) {
-        destChild.reset(new LayerImage(destLayer->sprite()));
+      if (sourceChild->isImage())
+      {
+        destChild = std::make_unique<LayerImage>(destLayer->sprite());
         copyLayerContent(sourceChild, destDoc, destChild.get());
       }
-      else if (sourceChild->isFolder()) {
-        destChild.reset(new LayerFolder(destLayer->sprite()));
+      else if (sourceChild->isFolder())
+      {
+        destChild = std::make_unique<LayerFolder>(destLayer->sprite());
         copyLayerContent(sourceChild, destDoc, destChild.get());
       }
-      else {
+      else
+      {
         ASSERT(false);
       }
 
-      ASSERT(destChild != NULL);
+      ASSERT(destChild != nullptr);
 
       // Add the new layer in the sprite.
 
@@ -353,7 +379,8 @@ void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc, La
       destLayer->stackLayer(newLayer, afterThis);
     }
   }
-  else  {
+  else
+  {
     ASSERT(false && "Trying to copy two incompatible layers");
   }
 }
@@ -362,10 +389,8 @@ Document* Document::duplicate(DuplicateType type) const
 {
   const Sprite* sourceSprite = sprite();
   std::unique_ptr<Sprite> spriteCopyPtr(new Sprite(
-      sourceSprite->pixelFormat(),
-      sourceSprite->width(),
-      sourceSprite->height(),
-      sourceSprite->palette(frame_t(0))->size()));
+      sourceSprite->pixelFormat(), sourceSprite->width(),
+      sourceSprite->height(), sourceSprite->palette(frame_t(0))->size()));
 
   std::unique_ptr<Document> documentCopy(new Document(spriteCopyPtr.get()));
   Sprite* spriteCopy = spriteCopyPtr.release();
@@ -384,41 +409,44 @@ Document* Document::duplicate(DuplicateType type) const
   {
     PalettesList::const_iterator it = sourceSprite->getPalettes().begin();
     PalettesList::const_iterator end = sourceSprite->getPalettes().end();
-    for (; it != end; ++it) {
+    for (; it != end; ++it)
+    {
       spriteCopy->setPalette(**it, true);
     }
   }
 
-  switch (type) {
+  switch (type)
+  {
 
-    case DuplicateExactCopy:
-      // Copy the layer folder
-      copyLayerContent(sourceSprite->folder(), documentCopy.get(), spriteCopy->folder());
+  case DuplicateExactCopy:
+    // Copy the layer folder
+    copyLayerContent(sourceSprite->folder(), documentCopy.get(),
+                     spriteCopy->folder());
 
-      ASSERT((spriteCopy->backgroundLayer() && sourceSprite->backgroundLayer()) ||
-             (!spriteCopy->backgroundLayer() && !sourceSprite->backgroundLayer()));
-      break;
+    ASSERT(
+        (spriteCopy->backgroundLayer() && sourceSprite->backgroundLayer()) ||
+        (!spriteCopy->backgroundLayer() && !sourceSprite->backgroundLayer()));
+    break;
 
-    case DuplicateWithFlattenLayers:
-      {
-        // Flatten layers
-        ASSERT(sourceSprite->folder() != NULL);
+  case DuplicateWithFlattenLayers:
+  {
+    // Flatten layers
+    ASSERT(sourceSprite->folder() != nullptr);
 
-        LayerImage* flatLayer = create_flatten_layer_copy
-            (spriteCopy,
-             sourceSprite->folder(),
-             gfx::Rect(0, 0, sourceSprite->width(), sourceSprite->height()),
-             frame_t(0), sourceSprite->lastFrame());
+    LayerImage* flatLayer = create_flatten_layer_copy(
+        spriteCopy, sourceSprite->folder(),
+        gfx::Rect(0, 0, sourceSprite->width(), sourceSprite->height()),
+        frame_t(0), sourceSprite->lastFrame());
 
-        // Add and select the new flat layer
-        spriteCopy->folder()->addLayer(flatLayer);
+    // Add and select the new flat layer
+    spriteCopy->folder()->addLayer(flatLayer);
 
-        // Configure the layer as background only if the original
-        // sprite has a background layer.
-        if (sourceSprite->backgroundLayer() != NULL)
-          flatLayer->configureAsBackground();
-      }
-      break;
+    // Configure the layer as background only if the original
+    // sprite has a background layer.
+    if (sourceSprite->backgroundLayer() != nullptr)
+      flatLayer->configureAsBackground();
+  }
+  break;
   }
 
   documentCopy->setMask(mask());
@@ -433,34 +461,38 @@ Document* Document::duplicate(DuplicateType type) const
 
 bool Document::lock(LockType lockType, int timeout)
 {
-  while (timeout >= 0) {
+  while (timeout >= 0)
+  {
     {
       scoped_lock lock(m_mutex);
-      switch (lockType) {
+      switch (lockType)
+      {
 
-        case ReadLock:
-          // If no body is writting the sprite...
-          if (!m_write_lock) {
-            // We can read it
-            ++m_read_locks;
-            return true;
-          }
-          break;
+      case ReadLock:
+        // If no body is writting the sprite...
+        if (!m_write_lock)
+        {
+          // We can read it
+          ++m_read_locks;
+          return true;
+        }
+        break;
 
-        case WriteLock:
-          // If no body is reading and writting...
-          if (m_read_locks == 0 && !m_write_lock) {
-            // We can start writting the sprite...
-            m_write_lock = true;
-            TRACE("Document::lock: Locked <%d> to write\n", id());
-            return true;
-          }
-          break;
-
+      case WriteLock:
+        // If no body is reading and writting...
+        if (m_read_locks == 0 && !m_write_lock)
+        {
+          // We can start writting the sprite...
+          m_write_lock = true;
+          TRACE("Document::lock: Locked <%d> to write\n", id());
+          return true;
+        }
+        break;
       }
     }
 
-    if (timeout > 0) {
+    if (timeout > 0)
+    {
       int delay = MIN(100, timeout);
       timeout -= delay;
 
@@ -471,18 +503,22 @@ bool Document::lock(LockType lockType, int timeout)
       break;
   }
 
-  TRACE("Document::lock: Cannot lock <%d> to %s (has %d read locks and %d write locks)\n",
-    id(), (lockType == ReadLock ? "read": "write"), m_read_locks, m_write_lock);
+  TRACE("Document::lock: Cannot lock <%d> to %s (has %d read locks and %d "
+        "write locks)\n",
+        id(), (lockType == ReadLock ? "read" : "write"), m_read_locks,
+        m_write_lock);
   return false;
 }
 
 bool Document::lockToWrite(int timeout)
 {
-  while (timeout >= 0) {
+  while (timeout >= 0)
+  {
     {
       scoped_lock lock(m_mutex);
       // this only is possible if there are just one reader
-      if (m_read_locks == 1) {
+      if (m_read_locks == 1)
+      {
         ASSERT(!m_write_lock);
         m_read_locks = 0;
         m_write_lock = true;
@@ -491,7 +527,8 @@ bool Document::lockToWrite(int timeout)
       }
     }
 
-    if (timeout > 0) {
+    if (timeout > 0)
+    {
       int delay = MIN(100, timeout);
       timeout -= delay;
 
@@ -502,8 +539,9 @@ bool Document::lockToWrite(int timeout)
       break;
   }
 
-  TRACE("Document::lockToWrite: Cannot lock <%d> to write (has %d read locks and %d write locks)\n",
-    id(), m_read_locks, m_write_lock);
+  TRACE("Document::lockToWrite: Cannot lock <%d> to write (has %d read locks "
+        "and %d write locks)\n",
+        id(), m_read_locks, m_write_lock);
   return false;
 }
 
@@ -522,13 +560,16 @@ void Document::unlock()
 {
   scoped_lock lock(m_mutex);
 
-  if (m_write_lock) {
+  if (m_write_lock)
+  {
     m_write_lock = false;
   }
-  else if (m_read_locks > 0) {
+  else if (m_read_locks > 0)
+  {
     --m_read_locks;
   }
-  else {
+  else
+  {
     ASSERT(false);
   }
 }

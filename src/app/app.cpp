@@ -76,17 +76,20 @@
 
 #include <iostream>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class App::CoreModules {
+class App::CoreModules
+{
 public:
   ConfigModule m_configModule;
   Preferences m_preferences;
 };
 
-class App::Modules {
+class App::Modules
+{
 public:
   LoggerModule m_loggerModule;
   FileSystemModule m_file_system_module;
@@ -103,28 +106,26 @@ public:
   Modules(bool createLogInDesktop)
     : m_loggerModule(createLogInDesktop)
     , m_activeToolManager(&m_toolbox)
-    , m_recovery(nullptr) {
+    , m_recovery(nullptr)
+  {
   }
 
-  app::crash::DataRecovery* recovery() {
-    return m_recovery;
-  }
+  app::crash::DataRecovery* recovery() { return m_recovery; }
 
-  bool hasRecoverySessions() const {
+  bool hasRecoverySessions() const
+  {
     return m_recovery && !m_recovery->sessions().empty();
   }
 
-  void createDataRecovery() {
+  void createDataRecovery()
+  {
     m_recovery = new app::crash::DataRecovery(&m_ui_context);
   }
 
-  void deleteDataRecovery() {
-    delete m_recovery;
-  }
-
+  void deleteDataRecovery() { delete m_recovery; }
 };
 
-App* App::m_instance = NULL;
+App* App::m_instance = nullptr;
 
 App::App()
   : m_coreModules(nullptr)
@@ -134,7 +135,7 @@ App::App()
   , m_isShell(false)
   , m_exporter(nullptr)
 {
-  ASSERT(m_instance == NULL);
+  ASSERT(m_instance == nullptr);
   m_instance = this;
 }
 
@@ -149,30 +150,31 @@ void App::initialize(const AppOptions& options)
   m_isGui = options.startUI();
   m_isShell = options.startShell();
   if (m_isGui)
-    m_uiSystem.reset(new ui::UISystem);
+    m_uiSystem = std::make_unique<ui::UISystem>();
 
   m_coreModules = std::make_unique<CoreModules>();
 
   bool createLogInDesktop = false;
-  switch (options.verboseLevel()) {
-    case AppOptions::kNoVerbose:
-      base::set_log_level(ERROR);
-      break;
-    case AppOptions::kVerbose:
-      base::set_log_level(INFO);
-      break;
-    case AppOptions::kHighlyVerbose:
-      base::set_log_level(VERBOSE);
-      createLogInDesktop = true;
-      break;
+  switch (options.verboseLevel())
+  {
+  case AppOptions::kNoVerbose:
+    base::set_log_level(ERROR);
+    break;
+  case AppOptions::kVerbose:
+    base::set_log_level(INFO);
+    break;
+  case AppOptions::kHighlyVerbose:
+    base::set_log_level(VERBOSE);
+    createLogInDesktop = true;
+    break;
   }
 
   m_modules = std::make_unique<Modules>(createLogInDesktop);
-  m_legacy = std::make_unique<LegacyModules>(isGui() ? REQUIRE_INTERFACE: 0);
-  m_brushes.reset(new AppBrushes);
+  m_legacy = std::make_unique<LegacyModules>(isGui() ? REQUIRE_INTERFACE : 0);
+  m_brushes = std::make_unique<AppBrushes>();
 
   if (options.hasExporterParams())
-    m_exporter.reset(new DocumentExporter);
+    m_exporter = std::make_unique<DocumentExporter>();
 
   // Data recovery is enabled only in GUI mode
   if (isGui() && preferences().general.dataRecovery())
@@ -187,21 +189,21 @@ void App::initialize(const AppOptions& options)
 
   // Initialize GUI interface
   UIContext* ctx = UIContext::instance();
-  if (isGui()) {
+  if (isGui())
+  {
     LOG("GUI mode\n");
     script::EngineDelegate::setDefault("gui");
 
     // Setup the GUI cursor and redraw screen
 
-    ui::set_use_native_cursors(
-      preferences().experimental.useNativeCursor());
+    ui::set_use_native_cursors(preferences().experimental.useNativeCursor());
 
     ui::set_mouse_cursor(kArrowCursor);
 
     ui::Manager::getDefault()->invalidate();
 
     // Create the main window and show it.
-    m_mainWindow.reset(new MainWindow);
+    m_mainWindow = std::make_unique<MainWindow>();
 
     // Default status of the main window.
     app_rebuild_documents_tabs();
@@ -225,8 +227,14 @@ void App::initialize(const AppOptions& options)
   Params cropParams;
   SpriteSheetType sheetType = SpriteSheetType::None;
 
+  // Keeps alive any FrameTag created below from --frame-range: it's
+  // handed to m_exporter as a raw pointer and must outlive the
+  // "Export" block further down where exportSheet() consumes it.
+  std::vector<std::unique_ptr<FrameTag>> ownedFrameTags;
+
   // Open file specified in the command line
-  if (!options.values().empty()) {
+  if (!options.values().empty())
+  {
     Console console;
     bool splitLayers = false;
     bool splitLayersSaveAs = false;
@@ -239,20 +247,26 @@ void App::initialize(const AppOptions& options)
     std::string frameTagName;
     std::string frameRange;
 
-    for (const auto& value : options.values()) {
+    for (const auto& value : options.values())
+    {
       const AppOptions::Option* opt = value.option();
 
       // Special options/commands
-      if (opt) {
+      if (opt)
+      {
         // --data <file.json>
-        if (opt == &options.data()) {
+        if (opt == &options.data())
+        {
           if (m_exporter)
             m_exporter->setDataFilename(value.value());
         }
         // --format <format>
-        else if (opt == &options.format()) {
-          if (m_exporter) {
-            DocumentExporter::DataFormat format = DocumentExporter::DefaultDataFormat;
+        else if (opt == &options.format())
+        {
+          if (m_exporter)
+          {
+            DocumentExporter::DataFormat format =
+                DocumentExporter::DefaultDataFormat;
 
             if (value.value() == "json-hash")
               format = DocumentExporter::JsonHashDataFormat;
@@ -263,22 +277,28 @@ void App::initialize(const AppOptions& options)
           }
         }
         // --sheet <file.png>
-        else if (opt == &options.sheet()) {
+        else if (opt == &options.sheet())
+        {
           if (m_exporter)
             m_exporter->setTextureFilename(value.value());
         }
         // --sheet-width <width>
-        else if (opt == &options.sheetWidth()) {
+        else if (opt == &options.sheetWidth())
+        {
           if (m_exporter)
-            m_exporter->setTextureWidth(strtol(value.value().c_str(), NULL, 0));
+            m_exporter->setTextureWidth(
+                strtol(value.value().c_str(), nullptr, 0));
         }
         // --sheet-height <height>
-        else if (opt == &options.sheetHeight()) {
+        else if (opt == &options.sheetHeight())
+        {
           if (m_exporter)
-            m_exporter->setTextureHeight(strtol(value.value().c_str(), NULL, 0));
+            m_exporter->setTextureHeight(
+                strtol(value.value().c_str(), nullptr, 0));
         }
         // --sheet-pack
-        else if (opt == &options.sheetType()) {
+        else if (opt == &options.sheetType())
+        {
           if (value.value() == "horizontal")
             sheetType = SpriteSheetType::Horizontal;
           else if (value.value() == "vertical")
@@ -291,62 +311,78 @@ void App::initialize(const AppOptions& options)
             sheetType = SpriteSheetType::Packed;
         }
         // --sheet-pack
-        else if (opt == &options.sheetPack()) {
+        else if (opt == &options.sheetPack())
+        {
           sheetType = SpriteSheetType::Packed;
         }
         // --split-layers
-        else if (opt == &options.splitLayers()) {
+        else if (opt == &options.splitLayers())
+        {
           splitLayers = true;
           splitLayersSaveAs = true;
         }
         // --layer <layer-name>
-        else if (opt == &options.layer()) {
+        else if (opt == &options.layer())
+        {
           importLayer = value.value();
           importLayerSaveAs = value.value();
         }
         // --all-layers
-        else if (opt == &options.allLayers()) {
+        else if (opt == &options.allLayers())
+        {
           allLayers = true;
         }
         // --frame-tag <tag-name>
-        else if (opt == &options.frameTag()) {
+        else if (opt == &options.frameTag())
+        {
           frameTagName = value.value();
         }
         // --frame-range from,to
-        else if (opt == &options.frameRange()) {
+        else if (opt == &options.frameRange())
+        {
           frameRange = value.value();
         }
         // --ignore-empty
-        else if (opt == &options.ignoreEmpty()) {
+        else if (opt == &options.ignoreEmpty())
+        {
           ignoreEmpty = true;
         }
         // --border-padding
-        else if (opt == &options.borderPadding()) {
+        else if (opt == &options.borderPadding())
+        {
           if (m_exporter)
-            m_exporter->setBorderPadding(strtol(value.value().c_str(), NULL, 0));
+            m_exporter->setBorderPadding(
+                strtol(value.value().c_str(), nullptr, 0));
         }
         // --shape-padding
-        else if (opt == &options.shapePadding()) {
+        else if (opt == &options.shapePadding())
+        {
           if (m_exporter)
-            m_exporter->setShapePadding(strtol(value.value().c_str(), NULL, 0));
+            m_exporter->setShapePadding(
+                strtol(value.value().c_str(), nullptr, 0));
         }
         // --inner-padding
-        else if (opt == &options.innerPadding()) {
+        else if (opt == &options.innerPadding())
+        {
           if (m_exporter)
-            m_exporter->setInnerPadding(strtol(value.value().c_str(), NULL, 0));
+            m_exporter->setInnerPadding(
+                strtol(value.value().c_str(), nullptr, 0));
         }
         // --trim
-        else if (opt == &options.trim()) {
+        else if (opt == &options.trim())
+        {
           trim = true;
         }
         // --crop x,y,width,height
-        else if (opt == &options.crop()) {
+        else if (opt == &options.crop())
+        {
           std::vector<std::string> parts;
           base::split_string(value.value(), parts, ",");
           if (parts.size() < 4)
-            throw std::runtime_error("--crop needs four parameters separated by comma (,)\n"
-                                     "Usage: --crop x,y,width,height\n"
-                                     "E.g. --crop 0,0,32,32");
+            throw std::runtime_error(
+                "--crop needs four parameters separated by comma (,)\n"
+                "Usage: --crop x,y,width,height\n"
+                "E.g. --crop 0,0,32,32");
 
           cropParams.set("x", parts[0].c_str());
           cropParams.set("y", parts[1].c_str());
@@ -354,39 +390,51 @@ void App::initialize(const AppOptions& options)
           cropParams.set("height", parts[3].c_str());
         }
         // --filename-format
-        else if (opt == &options.filenameFormat()) {
+        else if (opt == &options.filenameFormat())
+        {
           filenameFormat = value.value();
         }
         // --save-as <filename>
-        else if (opt == &options.saveAs()) {
+        else if (opt == &options.saveAs())
+        {
           Document* doc = nullptr;
           if (!ctx->documents().empty())
             doc = dynamic_cast<Document*>(ctx->documents().lastAdded());
 
-          if (!doc) {
+          if (!doc)
+          {
             console.printf("A document is needed before --save-as argument\n");
           }
-          else {
+          else
+          {
             ctx->setActiveDocument(doc);
 
             std::string format = filenameFormat;
 
-            Command* saveAsCommand = CommandsModule::instance()->getCommandByName(CommandId::SaveFileCopyAs);
-            Command* trimCommand = CommandsModule::instance()->getCommandByName(CommandId::AutocropSprite);
-            Command* cropCommand = CommandsModule::instance()->getCommandByName(CommandId::CropSprite);
-            Command* undoCommand = CommandsModule::instance()->getCommandByName(CommandId::Undo);
+            Command* saveAsCommand =
+                CommandsModule::instance()->getCommandByName(
+                    CommandId::SaveFileCopyAs);
+            Command* trimCommand = CommandsModule::instance()->getCommandByName(
+                CommandId::AutocropSprite);
+            Command* cropCommand = CommandsModule::instance()->getCommandByName(
+                CommandId::CropSprite);
+            Command* undoCommand =
+                CommandsModule::instance()->getCommandByName(CommandId::Undo);
 
             // --save-as with --split-layers
-            if (splitLayersSaveAs) {
+            if (splitLayersSaveAs)
+            {
               std::string fn, fmt;
-              if (format.empty()) {
+              if (format.empty())
+              {
                 if (doc->sprite()->totalFrames() > frame_t(1))
                   format = "{path}/{title} ({layer}) {frame}.{extension}";
                 else
                   format = "{path}/{title} ({layer}).{extension}";
               }
 
-              // Store in "visibility" the original "visible" state of every layer.
+              // Store in "visibility" the original "visible" state of every
+              // layer.
               std::vector<bool> visibility(doc->sprite()->countLayers());
               int i = 0;
               for (Layer* layer : doc->sprite()->layers())
@@ -394,19 +442,18 @@ void App::initialize(const AppOptions& options)
 
               // For each layer, hide other ones and save the sprite.
               i = 0;
-              for (Layer* show : doc->sprite()->layers()) {
+              for (Layer* show : doc->sprite()->layers())
+              {
                 // If the user doesn't want all layers and this one is hidden.
                 if (!visibility[i++])
-                  continue;     // Just ignore this layer.
+                  continue; // Just ignore this layer.
 
                 // Make this layer ("show") the only one visible.
                 for (Layer* hide : doc->sprite()->layers())
                   hide->setVisible(hide == show);
 
                 FilenameInfo fnInfo;
-                fnInfo
-                  .filename(value.value())
-                  .layerName(show->name());
+                fnInfo.filename(value.value()).layerName(show->name());
 
                 fn = filename_formatter(format, fnInfo);
                 fmt = filename_formatter(format, fnInfo, false);
@@ -427,7 +474,8 @@ void App::initialize(const AppOptions& options)
                 params.set("filename-format", fmt.c_str());
                 ctx->executeCommand(saveAsCommand, params);
 
-                if (trim) {     // Undo trim command
+                if (trim)
+                { // Undo trim command
                   ctx->executeCommand(undoCommand);
 
                   // Just in case allow non-linear history is enabled
@@ -441,9 +489,11 @@ void App::initialize(const AppOptions& options)
               for (Layer* layer : doc->sprite()->layers())
                 layer->setVisible(visibility[i++]);
             }
-            else {
+            else
+            {
               // Show only one layer
-              if (!importLayerSaveAs.empty()) {
+              if (!importLayerSaveAs.empty())
+              {
                 for (Layer* layer : doc->sprite()->layers())
                   layer->setVisible(layer->name() == importLayerSaveAs);
               }
@@ -459,7 +509,8 @@ void App::initialize(const AppOptions& options)
               params.set("filename-format", format.c_str());
               ctx->executeCommand(saveAsCommand, params);
 
-              if (trim) {       // Undo trim command
+              if (trim)
+              { // Undo trim command
                 ctx->executeCommand(undoCommand);
 
                 // Just in case allow non-linear history is enabled
@@ -470,69 +521,84 @@ void App::initialize(const AppOptions& options)
           }
         }
         // --scale <factor>
-        else if (opt == &options.scale()) {
-          Command* command = CommandsModule::instance()->getCommandByName(CommandId::SpriteSize);
-          double scale = strtod(value.value().c_str(), NULL);
+        else if (opt == &options.scale())
+        {
+          Command* command = CommandsModule::instance()->getCommandByName(
+              CommandId::SpriteSize);
+          double scale = strtod(value.value().c_str(), nullptr);
           static_cast<SpriteSizeCommand*>(command)->setScale(scale, scale);
 
           // Scale all sprites
-          for (auto doc : ctx->documents()) {
+          for (auto doc : ctx->documents())
+          {
             ctx->setActiveDocument(static_cast<app::Document*>(doc));
             ctx->executeCommand(command);
           }
         }
         // --shrink-to <width,height>
-        else if (opt == &options.shrinkTo()) {
+        else if (opt == &options.shrinkTo())
+        {
           std::vector<std::string> dimensions;
           base::split_string(value.value(), dimensions, ",");
           if (dimensions.size() < 2)
-            throw std::runtime_error("--shrink-to needs two parameters separated by comma (,)\n"
-                                     "Usage: --shrink-to width,height\n"
-                                     "E.g. --shrink-to 128,64");
+            throw std::runtime_error(
+                "--shrink-to needs two parameters separated by comma (,)\n"
+                "Usage: --shrink-to width,height\n"
+                "E.g. --shrink-to 128,64");
 
           double maxWidth = base::convert_to<double>(dimensions[0]);
           double maxHeight = base::convert_to<double>(dimensions[1]);
           double scaleWidth, scaleHeight, scale;
 
           // Shrink all sprites if needed
-          for (auto doc : ctx->documents()) {
+          for (auto doc : ctx->documents())
+          {
             ctx->setActiveDocument(static_cast<app::Document*>(doc));
-            scaleWidth = (doc->width() > maxWidth ? maxWidth / doc->width() : 1.0);
-            scaleHeight = (doc->height() > maxHeight ? maxHeight / doc->height() : 1.0);
-            if (scaleWidth < 1.0 || scaleHeight < 1.0) {
+            scaleWidth =
+                (doc->width() > maxWidth ? maxWidth / doc->width() : 1.0);
+            scaleHeight =
+                (doc->height() > maxHeight ? maxHeight / doc->height() : 1.0);
+            if (scaleWidth < 1.0 || scaleHeight < 1.0)
+            {
               scale = MIN(scaleWidth, scaleHeight);
-              Command* command = CommandsModule::instance()->getCommandByName(CommandId::SpriteSize);
+              Command* command = CommandsModule::instance()->getCommandByName(
+                  CommandId::SpriteSize);
               static_cast<SpriteSizeCommand*>(command)->setScale(scale, scale);
               ctx->executeCommand(command);
             }
           }
         }
         // --script <filename>
-        else if (opt == &options.script()) {
+        else if (opt == &options.script())
+        {
           script::EngineDelegate::setDefault("stdout");
           AppScripting engine;
           engine.evalFile(value.value());
         }
         // --list-layers
-        else if (opt == &options.listLayers()) {
+        else if (opt == &options.listLayers())
+        {
           listLayers = true;
           if (m_exporter)
             m_exporter->setListLayers(true);
         }
         // --list-tags
-        else if (opt == &options.listTags()) {
+        else if (opt == &options.listTags())
+        {
           listTags = true;
           if (m_exporter)
             m_exporter->setListFrameTags(true);
         }
       }
       // File names aren't associated to any option
-      else {
+      else
+      {
         const std::string& filename = base::normalize_path(value.value());
 
         app::Document* oldDoc = ctx->activeDocument();
 
-        Command* openCommand = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+        Command* openCommand =
+            CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
         Params params;
         params.set("filename", filename.c_str());
         ctx->executeCommand(openCommand, params);
@@ -545,47 +611,61 @@ void App::initialize(const AppOptions& options)
           doc = nullptr;
 
         // List layers and/or tags
-        if (doc) {
+        if (doc)
+        {
           // Show all layers
-          if (allLayers) {
+          if (allLayers)
+          {
             for (Layer* layer : doc->sprite()->layers())
               layer->setVisible(true);
           }
 
-          if (listLayers) {
+          if (listLayers)
+          {
             listLayers = false;
-            for (Layer* layer : doc->sprite()->layers()) {
+            for (Layer* layer : doc->sprite()->layers())
+            {
               if (layer->isVisible())
                 std::cout << layer->name() << "\n";
             }
           }
 
-          if (listTags) {
+          if (listTags)
+          {
             listTags = false;
             for (FrameTag* tag : doc->sprite()->frameTags())
               std::cout << tag->name() << "\n";
           }
-          if (m_exporter) {
+          if (m_exporter)
+          {
             FrameTag* frameTag = nullptr;
-            if (!frameTagName.empty()) {
+            if (!frameTagName.empty())
+            {
               frameTag = doc->sprite()->frameTags().getByName(frameTagName);
             }
-            else if (!frameRange.empty()) {
-                std::vector<std::string> splitRange;
-                base::split_string(frameRange, splitRange, ",");
-                if (splitRange.size() < 2)
-                  throw std::runtime_error("--frame-range needs two parameters separated by comma (,)\n"
-                                           "Usage: --frame-range from,to\n"
-                                           "E.g. --frame-range 0,99");
+            else if (!frameRange.empty())
+            {
+              std::vector<std::string> splitRange;
+              base::split_string(frameRange, splitRange, ",");
+              if (splitRange.size() < 2)
+                throw std::runtime_error("--frame-range needs two parameters "
+                                         "separated by comma (,)\n"
+                                         "Usage: --frame-range from,to\n"
+                                         "E.g. --frame-range 0,99");
 
-                frameTag = new FrameTag(base::convert_to<frame_t>(splitRange[0]),
-                                        base::convert_to<frame_t>(splitRange[1]));
+              ownedFrameTags.push_back(std::make_unique<FrameTag>(
+                  base::convert_to<frame_t>(splitRange[0]),
+                  base::convert_to<frame_t>(splitRange[1])));
+              frameTag = ownedFrameTags.back().get();
             }
 
-            if (!importLayer.empty()) {
+            if (!importLayer.empty())
+            {
               Layer* foundLayer = nullptr;
-              for (Layer* layer : doc->sprite()->layers()) {
-                if (layer->name() == importLayer) {
+              for (Layer* layer : doc->sprite()->layers())
+              {
+                if (layer->name() == importLayer)
+                {
                   foundLayer = layer;
                   break;
                 }
@@ -593,13 +673,16 @@ void App::initialize(const AppOptions& options)
               if (foundLayer)
                 m_exporter->addDocument(doc, foundLayer, frameTag);
             }
-            else if (splitLayers) {
-              for (auto layer : doc->sprite()->layers()) {
+            else if (splitLayers)
+            {
+              for (auto layer : doc->sprite()->layers())
+              {
                 if (layer->isVisible())
                   m_exporter->addDocument(doc, layer, frameTag);
               }
             }
-            else {
+            else
+            {
               m_exporter->addDocument(doc, nullptr, frameTag);
             }
           }
@@ -622,7 +705,8 @@ void App::initialize(const AppOptions& options)
   }
 
   // Export
-  if (m_exporter) {
+  if (m_exporter)
+  {
     LOG("Exporting sheet...\n");
 
     if (sheetType != SpriteSheetType::None)
@@ -635,7 +719,7 @@ void App::initialize(const AppOptions& options)
       m_exporter->setTrimCels(true);
 
     std::unique_ptr<Document> spriteSheet(m_exporter->exportSheet());
-    m_exporter.reset(NULL);
+    m_exporter.reset(nullptr);
 
     LOG("Export sprite sheet: Done\n");
   }
@@ -646,7 +730,8 @@ void App::initialize(const AppOptions& options)
 void App::run()
 {
   // Run the GUI
-  if (isGui()) {
+  if (isGui())
+  {
 #if _DEBUG
     // On OS X, when we compile LibreSprite on Debug mode, we're using it
     // outside an app bundle, so we must active the app explicitly.
@@ -665,7 +750,8 @@ void App::run()
   }
 
   // Start shell to execute scripts.
-  if (m_isShell) {
+  if (m_isShell)
+  {
     script::EngineDelegate::setDefault("stdout");
     AppScripting engine;
     engine.printLastResult();
@@ -675,7 +761,8 @@ void App::run()
 
   // Destroy all documents in the UIContext.
   const doc::Documents& docs = m_modules->m_ui_context.documents();
-  while (!docs.empty()) {
+  while (!docs.empty())
+  {
     doc::Document* doc = docs.back();
 
     // First we close the document. In this way we receive recent
@@ -693,7 +780,8 @@ void App::run()
     delete doc;
   }
 
-  if (isGui()) {
+  if (isGui())
+  {
     // Destroy the window.
     m_mainWindow.reset(nullptr);
   }
@@ -706,7 +794,8 @@ void App::run()
 // Finishes the LibreSprite application.
 App::~App()
 {
-  try {
+  try
+  {
     ASSERT(m_instance == this);
 
     // Remove LibreSprite handlers
@@ -735,12 +824,14 @@ App::~App()
 
     m_instance = nullptr;
   }
-  catch (const std::exception& e) {
+  catch (const std::exception& e)
+  {
     she::error_message(e.what());
 
     // no re-throw
   }
-  catch (...) {
+  catch (...)
+  {
     she::error_message("Error closing ASE.\n(uncaught exception)");
 
     // no re-throw
@@ -761,7 +852,7 @@ bool App::isPortable()
 
 tools::ToolBox* App::toolBox() const
 {
-  ASSERT(m_modules != NULL);
+  ASSERT(m_modules != nullptr);
   return &m_modules->m_toolbox;
 }
 
@@ -777,7 +868,7 @@ tools::ActiveToolManager* App::activeToolManager() const
 
 RecentFiles* App::recentFiles() const
 {
-  ASSERT(m_modules != NULL);
+  ASSERT(m_modules != nullptr);
   return &m_modules->m_recent_files;
 }
 
@@ -821,7 +912,8 @@ void App::updateDisplayTitleBar()
   std::string title;
 
   DocumentView* docView = UIContext::instance()->activeView();
-  if (docView) {
+  if (docView)
+  {
     // Prepend the document's filename.
     title += docView->document()->name();
     title += " - ";
@@ -840,14 +932,14 @@ InputChain& App::inputChain()
 void app_refresh_screen()
 {
   Context* context = UIContext::instance();
-  ASSERT(context != NULL);
+  ASSERT(context != nullptr);
 
   Site site = context->activeSite();
 
   if (Palette* pal = site.palette())
     set_current_palette(pal, false);
   else
-    set_current_palette(NULL, false);
+    set_current_palette(nullptr, false);
 
   // Invalidate the whole screen.
   ui::Manager::getDefault()->invalidate();
@@ -858,7 +950,8 @@ void app_refresh_screen()
 // document is modified).
 void app_rebuild_documents_tabs()
 {
-  if (App::instance()->isGui()) {
+  if (App::instance()->isGui())
+  {
     App::instance()->workspace()->updateTabs();
     App::instance()->updateDisplayTitleBar();
   }
@@ -867,10 +960,10 @@ void app_rebuild_documents_tabs()
 PixelFormat app_get_current_pixel_format()
 {
   Context* context = UIContext::instance();
-  ASSERT(context != NULL);
+  ASSERT(context != nullptr);
 
   Document* document = context->activeDocument();
-  if (document != NULL)
+  if (document != nullptr)
     return document->sprite()->pixelFormat();
   else
     return IMAGE_RGB;
@@ -878,22 +971,24 @@ PixelFormat app_get_current_pixel_format()
 
 void app_default_statusbar_message()
 {
-  StatusBar::instance()
-    ->setStatusText(250, "%s | %s", PACKAGE_AND_VERSION, COPYRIGHT);
+  StatusBar::instance()->setStatusText(250, "%s | %s", PACKAGE_AND_VERSION,
+                                       COPYRIGHT);
 }
 
 int app_get_color_to_clear_layer(Layer* layer)
 {
-  ASSERT(layer != NULL);
+  ASSERT(layer != nullptr);
 
   app::Color color;
 
   // The `Background' is erased with the `Background Color'
-  if (layer->isBackground()) {
+  if (layer->isBackground())
+  {
     if (ColorBar::instance())
       color = ColorBar::instance()->getBgColor();
     else
-      color = app::Color::fromRgb(0, 0, 0); // TODO get background color color from doc::Settings
+      color = app::Color::fromRgb(
+          0, 0, 0); // TODO get background color color from doc::Settings
   }
   else // All transparent layers are cleared with the mask color
     color = app::Color::fromMask();

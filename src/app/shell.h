@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,15 +7,17 @@
 
 #pragma once
 
-namespace app {
-  class AppScripting;
+namespace app
+{
+class AppScripting;
 
-  class Shell {
-  public:
-    Shell();
-    ~Shell();
+class Shell
+{
+public:
+  Shell();
+  ~Shell();
 
-    void run(AppScripting& engine);
-  };
+  void run(AppScripting& engine);
+};
 
 } // namespace app

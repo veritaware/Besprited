@@ -15,7 +15,8 @@
 #include "app/pref/preferences.h"
 #include "render/render.h"
 
-namespace app {
+namespace app
+{
 
 AppRender::AppRender() = default;
 
@@ -24,36 +25,38 @@ AppRender::AppRender(app::Document* doc, doc::PixelFormat pixelFormat)
   setupBackground(doc, pixelFormat);
 }
 
-void AppRender::setupBackground(app::Document* doc, doc::PixelFormat pixelFormat)
+void AppRender::setupBackground(app::Document* doc,
+                                doc::PixelFormat pixelFormat)
 {
   DocumentPreferences& docPref = Preferences::instance().document(doc);
   render::BgType bgType;
 
   gfx::Size tile;
-  switch (docPref.bg.type()) {
-    case app::gen::BgType::CHECKED_16x16:
-      bgType = render::BgType::CHECKED;
-      tile = gfx::Size(16, 16);
-      break;
-    case app::gen::BgType::CHECKED_8x8:
-      bgType = render::BgType::CHECKED;
-      tile = gfx::Size(8, 8);
-      break;
-    case app::gen::BgType::CHECKED_4x4:
-      bgType = render::BgType::CHECKED;
-      tile = gfx::Size(4, 4);
-      break;
-    case app::gen::BgType::CHECKED_2x2:
-      bgType = render::BgType::CHECKED;
-      tile = gfx::Size(2, 2);
-      break;
-    case app::gen::BgType::CUSTOM:
-      bgType = render::BgType::CHECKED;
-      tile = gfx::Size(docPref.bg.width(), docPref.bg.height());
-      break;
-    default:
-      bgType = render::BgType::TRANSPARENT;
-      break;
+  switch (docPref.bg.type())
+  {
+  case app::gen::BgType::CHECKED_16x16:
+    bgType = render::BgType::CHECKED;
+    tile = gfx::Size(16, 16);
+    break;
+  case app::gen::BgType::CHECKED_8x8:
+    bgType = render::BgType::CHECKED;
+    tile = gfx::Size(8, 8);
+    break;
+  case app::gen::BgType::CHECKED_4x4:
+    bgType = render::BgType::CHECKED;
+    tile = gfx::Size(4, 4);
+    break;
+  case app::gen::BgType::CHECKED_2x2:
+    bgType = render::BgType::CHECKED;
+    tile = gfx::Size(2, 2);
+    break;
+  case app::gen::BgType::CUSTOM:
+    bgType = render::BgType::CHECKED;
+    tile = gfx::Size(docPref.bg.width(), docPref.bg.height());
+    break;
+  default:
+    bgType = render::BgType::TRANSPARENT;
+    break;
   }
 
   setBgType(bgType);
@@ -63,4 +66,4 @@ void AppRender::setupBackground(app::Document* doc, doc::PixelFormat pixelFormat
   setBgCheckedSize(tile);
 }
 
-}
+} // namespace app

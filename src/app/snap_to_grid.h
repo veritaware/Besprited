@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,15 +9,16 @@
 
 #include "gfx/fwd.h"
 
-namespace app {
+namespace app
+{
 
-  enum class PreferSnapTo {
-    ClosestGridVertex,
-    BoxOrigin
-  };
+enum class PreferSnapTo
+{
+  ClosestGridVertex,
+  BoxOrigin
+};
 
-  gfx::Point snap_to_grid(const gfx::Rect& grid,
-                          const gfx::Point& point,
-                          const PreferSnapTo prefer);
+gfx::Point snap_to_grid(const gfx::Rect& grid, const gfx::Point& point,
+                        const PreferSnapTo prefer);
 
 } // namespace app

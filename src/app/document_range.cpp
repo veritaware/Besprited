@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,7 +16,8 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
@@ -80,8 +81,10 @@ bool DocumentRange::inRange(LayerIndex layer, frame_t frame) const
 
 void DocumentRange::setLayers(int layers)
 {
-  if (m_layerBegin <= m_layerEnd) m_layerEnd = m_layerBegin + LayerIndex(layers - 1);
-  else m_layerBegin = m_layerEnd + LayerIndex(layers - 1);
+  if (m_layerBegin <= m_layerEnd)
+    m_layerEnd = m_layerBegin + LayerIndex(layers - 1);
+  else
+    m_layerBegin = m_layerEnd + LayerIndex(layers - 1);
 }
 
 void DocumentRange::setFrames(frame_t frames)
@@ -95,28 +98,29 @@ void DocumentRange::setFrames(frame_t frames)
 void DocumentRange::displace(int layerDelta, int frameDelta)
 {
   m_layerBegin += LayerIndex(layerDelta);
-  m_layerEnd   += LayerIndex(layerDelta);
+  m_layerEnd += LayerIndex(layerDelta);
   m_frameBegin += frame_t(frameDelta);
-  m_frameEnd   += frame_t(frameDelta);
+  m_frameEnd += frame_t(frameDelta);
 }
 
 bool DocumentRange::convertToCels(Sprite* sprite)
 {
-  switch (m_type) {
-    case DocumentRange::kNone:
-      return false;
-    case DocumentRange::kCels:
-      break;
-    case DocumentRange::kFrames:
-      m_layerBegin = sprite->firstLayer();
-      m_layerEnd = sprite->lastLayer();
-      m_type = DocumentRange::kCels;
-      break;
-    case DocumentRange::kLayers:
-      m_frameBegin = frame_t(0);
-      m_frameEnd = sprite->lastFrame();
-      m_type = DocumentRange::kCels;
-      break;
+  switch (m_type)
+  {
+  case DocumentRange::kNone:
+    return false;
+  case DocumentRange::kCels:
+    break;
+  case DocumentRange::kFrames:
+    m_layerBegin = sprite->firstLayer();
+    m_layerEnd = sprite->lastLayer();
+    m_type = DocumentRange::kCels;
+    break;
+  case DocumentRange::kLayers:
+    m_frameBegin = frame_t(0);
+    m_frameEnd = sprite->lastFrame();
+    m_type = DocumentRange::kCels;
+    break;
   }
   return true;
 }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,7 +13,8 @@
 
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
 ExtraCel::ExtraCel()
   : m_type(render::ExtraType::NONE)
@@ -21,28 +22,25 @@ ExtraCel::ExtraCel()
 {
 }
 
-void ExtraCel::create(doc::Sprite* sprite,
-                      const gfx::Rect& bounds,
-                      doc::frame_t frame,
-                      int opacity)
+void ExtraCel::create(doc::Sprite* sprite, const gfx::Rect& bounds,
+                      doc::frame_t frame, int opacity)
 {
   ASSERT(sprite);
 
-  if (!m_image ||
-      m_image->pixelFormat() != sprite->pixelFormat() ||
-      m_image->width() != bounds.w ||
-      m_image->height() != bounds.h) {
+  if (!m_image || m_image->pixelFormat() != sprite->pixelFormat() ||
+      m_image->width() != bounds.w || m_image->height() != bounds.h)
+  {
     if (!m_imageBuffer)
       m_imageBuffer.reset(new doc::ImageBuffer(1));
-    doc::Image* newImage = doc::Image::create(sprite->pixelFormat(),
-                                              bounds.w, bounds.h,
-                                              m_imageBuffer);
+    doc::Image* newImage = doc::Image::create(sprite->pixelFormat(), bounds.w,
+                                              bounds.h, m_imageBuffer);
     m_image.reset(newImage);
   }
 
-  if (!m_cel) {
+  if (!m_cel)
+  {
     // Ignored fields for this cel (frame, and image index)
-    m_cel.reset(new doc::Cel(doc::frame_t(0), doc::ImageRef(nullptr)));
+    m_cel = std::make_unique<doc::Cel>(doc::frame_t(0), doc::ImageRef(nullptr));
   }
 
   m_cel->setPosition(bounds.origin());

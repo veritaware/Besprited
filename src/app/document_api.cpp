@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -59,7 +59,8 @@
 #include <memory>
 #include <set>
 
-namespace app {
+namespace app
+{
 
 DocumentApi::DocumentApi(Document* document, Transaction& transaction)
   : m_document(document)
@@ -84,66 +85,68 @@ void DocumentApi::cropSprite(Sprite* sprite, const gfx::Rect& bounds)
   app::Document* doc = static_cast<app::Document*>(sprite->document());
   std::vector<Layer*> layers;
   sprite->getLayersList(layers);
-  for (Layer* layer : layers) {
+  for (Layer* layer : layers)
+  {
     if (!layer->isImage())
       continue;
 
     std::set<ObjectId> visited;
     CelIterator it = ((LayerImage*)layer)->getCelBegin();
     CelIterator end = ((LayerImage*)layer)->getCelEnd();
-    for (; it != end; ++it) {
+    for (; it != end; ++it)
+    {
       auto cel = *it;
       if (visited.find(cel->data()->id()) != visited.end())
         continue;
       visited.insert(cel->data()->id());
 
-      if (layer->isBackground()) {
+      if (layer->isBackground())
+      {
         Image* image = cel->image();
-        if (image && !cel->link()) {
+        if (image && !cel->link())
+        {
           ASSERT(cel->x() == 0);
           ASSERT(cel->y() == 0);
 
           // Create the new image through a crop
-          ImageRef new_image(
-            crop_image(image,
-              bounds.x, bounds.y,
-              bounds.w, bounds.h,
-              doc->bgColor(layer)));
+          ImageRef new_image(crop_image(image, bounds.x, bounds.y, bounds.w,
+                                        bounds.h, doc->bgColor(layer)));
 
           // Replace the image in the stock that is pointed by the cel
           replaceImage(sprite, cel->imageRef(), new_image);
         }
       }
-      else {
+      else
+      {
         // Update the cel's position
-        setCelPosition(sprite, cel,
-          cel->x()-bounds.x, cel->y()-bounds.y);
+        setCelPosition(sprite, cel, cel->x() - bounds.x, cel->y() - bounds.y);
       }
     }
   }
 
   if (!m_document->mask()->isEmpty())
-    setMaskPosition(m_document->mask()->bounds().x-bounds.x,
-                    m_document->mask()->bounds().y-bounds.y);
+    setMaskPosition(m_document->mask()->bounds().x - bounds.x,
+                    m_document->mask()->bounds().y - bounds.y);
 }
 
 void DocumentApi::trimSprite(Sprite* sprite)
 {
   gfx::Rect bounds;
 
-  std::unique_ptr<Image> image_wrap(Image::create(sprite->pixelFormat(),
-                                                  sprite->width(),
-                                                  sprite->height()));
+  std::unique_ptr<Image> image_wrap(
+      Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
   Image* image = image_wrap.get();
   render::Render render;
 
-  for (frame_t frame(0); frame<sprite->totalFrames(); ++frame) {
+  for (frame_t frame(0); frame < sprite->totalFrames(); ++frame)
+  {
     render.renderSprite(image, sprite, frame);
 
     // TODO configurable (what color pixel to use as "refpixel",
     // here we are using the top-left pixel by default)
     gfx::Rect frameBounds;
-    if (doc::algorithm::shrink_bounds(image, frameBounds, get_pixel(image, 0, 0)))
+    if (doc::algorithm::shrink_bounds(image, frameBounds,
+                                      get_pixel(image, 0, 0)))
       bounds = bounds.createUnion(frameBounds);
   }
 
@@ -151,7 +154,8 @@ void DocumentApi::trimSprite(Sprite* sprite)
     cropSprite(sprite, bounds);
 }
 
-void DocumentApi::setPixelFormat(Sprite* sprite, PixelFormat newFormat, DitheringMethod dithering)
+void DocumentApi::setPixelFormat(Sprite* sprite, PixelFormat newFormat,
+                                 DitheringMethod dithering)
 {
   if (sprite->pixelFormat() == newFormat)
     return;
@@ -161,7 +165,7 @@ void DocumentApi::setPixelFormat(Sprite* sprite, PixelFormat newFormat, Ditherin
 
 void DocumentApi::addFrame(Sprite* sprite, frame_t newFrame)
 {
-  copyFrame(sprite, newFrame-1, newFrame);
+  copyFrame(sprite, newFrame - 1, newFrame);
 }
 
 void DocumentApi::addEmptyFrame(Sprite* sprite, frame_t newFrame)
@@ -201,36 +205,37 @@ void DocumentApi::setFrameDuration(Sprite* sprite, frame_t frame, int msecs)
   m_transaction.execute(new cmd::SetFrameDuration(sprite, frame, msecs));
 }
 
-void DocumentApi::setFrameRangeDuration(Sprite* sprite, frame_t from, frame_t to, int msecs)
+void DocumentApi::setFrameRangeDuration(Sprite* sprite, frame_t from,
+                                        frame_t to, int msecs)
 {
   ASSERT(from >= frame_t(0));
   ASSERT(from < to);
   ASSERT(to <= sprite->lastFrame());
 
-  for (frame_t fr=from; fr<=to; ++fr)
+  for (frame_t fr = from; fr <= to; ++fr)
     m_transaction.execute(new cmd::SetFrameDuration(sprite, fr, msecs));
 }
 
 void DocumentApi::moveFrame(Sprite* sprite, frame_t frame, frame_t beforeFrame)
 {
-  if (frame != beforeFrame &&
-      frame >= 0 &&
-      frame <= sprite->lastFrame() &&
-      beforeFrame >= 0 &&
-      beforeFrame <= sprite->lastFrame()+1) {
+  if (frame != beforeFrame && frame >= 0 && frame <= sprite->lastFrame() &&
+      beforeFrame >= 0 && beforeFrame <= sprite->lastFrame() + 1)
+  {
     // Change the frame-lengths.
     int frlen_aux = sprite->frameDuration(frame);
 
     // Moving the frame to the future.
-    if (frame < beforeFrame) {
-      for (frame_t c=frame; c<beforeFrame-1; ++c)
-        setFrameDuration(sprite, c, sprite->frameDuration(c+1));
-      setFrameDuration(sprite, beforeFrame-1, frlen_aux);
+    if (frame < beforeFrame)
+    {
+      for (frame_t c = frame; c < beforeFrame - 1; ++c)
+        setFrameDuration(sprite, c, sprite->frameDuration(c + 1));
+      setFrameDuration(sprite, beforeFrame - 1, frlen_aux);
     }
     // Moving the frame to the past.
-    else if (beforeFrame < frame) {
-      for (frame_t c=frame; c>beforeFrame; --c)
-        setFrameDuration(sprite, c, sprite->frameDuration(c-1));
+    else if (beforeFrame < frame)
+    {
+      for (frame_t c = frame; c > beforeFrame; --c)
+        setFrameDuration(sprite, c, sprite->frameDuration(c - 1));
       setFrameDuration(sprite, beforeFrame, frlen_aux);
     }
 
@@ -242,62 +247,70 @@ void DocumentApi::moveFrame(Sprite* sprite, frame_t frame, frame_t beforeFrame)
   }
 }
 
-void DocumentApi::moveFrameLayer(Layer* layer, frame_t frame, frame_t beforeFrame)
+void DocumentApi::moveFrameLayer(Layer* layer, frame_t frame,
+                                 frame_t beforeFrame)
 {
   ASSERT(layer);
 
-  switch (layer->type()) {
+  switch (layer->type())
+  {
 
-    case ObjectType::LayerImage: {
-      LayerImage* imglayer = static_cast<LayerImage*>(layer);
+  case ObjectType::LayerImage:
+  {
+    LayerImage* imglayer = static_cast<LayerImage*>(layer);
 
-      CelList cels;
-      imglayer->getCels(cels);
+    CelList cels;
+    imglayer->getCels(cels);
 
-      CelIterator it = cels.begin();
-      CelIterator end = cels.end();
+    CelIterator it = cels.begin();
+    CelIterator end = cels.end();
 
-      for (; it != end; ++it) {
-        auto cel = *it;
-        frame_t celFrame = cel->frame();
-        frame_t newFrame = celFrame;
+    for (; it != end; ++it)
+    {
+      auto cel = *it;
+      frame_t celFrame = cel->frame();
+      frame_t newFrame = celFrame;
 
-        // moving the frame to the future
-        if (frame < beforeFrame) {
-          if (celFrame == frame) {
-            newFrame = beforeFrame-1;
-          }
-          else if (celFrame > frame &&
-                   celFrame < beforeFrame) {
-            --newFrame;
-          }
+      // moving the frame to the future
+      if (frame < beforeFrame)
+      {
+        if (celFrame == frame)
+        {
+          newFrame = beforeFrame - 1;
         }
-        // moving the frame to the past
-        else if (beforeFrame < frame) {
-          if (celFrame == frame) {
-            newFrame = beforeFrame;
-          }
-          else if (celFrame >= beforeFrame &&
-                   celFrame < frame) {
-            ++newFrame;
-          }
+        else if (celFrame > frame && celFrame < beforeFrame)
+        {
+          --newFrame;
         }
-
-        if (celFrame != newFrame)
-          setCelFramePosition(cel, newFrame);
       }
-      break;
+      // moving the frame to the past
+      else if (beforeFrame < frame)
+      {
+        if (celFrame == frame)
+        {
+          newFrame = beforeFrame;
+        }
+        else if (celFrame >= beforeFrame && celFrame < frame)
+        {
+          ++newFrame;
+        }
+      }
+
+      if (celFrame != newFrame)
+        setCelFramePosition(cel, newFrame);
     }
+    break;
+  }
 
-    case ObjectType::LayerFolder: {
-      LayerIterator it = static_cast<LayerFolder*>(layer)->getLayerBegin();
-      LayerIterator end = static_cast<LayerFolder*>(layer)->getLayerEnd();
+  case ObjectType::LayerFolder:
+  {
+    LayerIterator it = static_cast<LayerFolder*>(layer)->getLayerBegin();
+    LayerIterator end = static_cast<LayerFolder*>(layer)->getLayerEnd();
 
-      for (; it != end; ++it)
-        moveFrameLayer(*it, frame, beforeFrame);
-      break;
-    }
-
+    for (; it != end; ++it)
+      moveFrameLayer(*it, frame, beforeFrame);
+    break;
+  }
   }
 }
 
@@ -317,14 +330,16 @@ void DocumentApi::setCelFramePosition(std::shared_ptr<Cel> cel, frame_t frame)
   m_transaction.execute(new cmd::SetCelFrame(cel, frame));
 }
 
-void DocumentApi::setCelPosition(Sprite* sprite, std::shared_ptr<Cel> cel, int x, int y)
+void DocumentApi::setCelPosition(Sprite* sprite, std::shared_ptr<Cel> cel,
+                                 int x, int y)
 {
   ASSERT(cel);
 
   m_transaction.execute(new cmd::SetCelPosition(cel, x, y));
 }
 
-void DocumentApi::setCelOpacity(Sprite* sprite, std::shared_ptr<Cel> cel, int newOpacity)
+void DocumentApi::setCelOpacity(Sprite* sprite, std::shared_ptr<Cel> cel,
+                                int newOpacity)
 {
   ASSERT(cel);
   ASSERT(sprite->supportAlpha());
@@ -344,56 +359,50 @@ void DocumentApi::clearCel(std::shared_ptr<Cel> cel)
   m_transaction.execute(new cmd::ClearCel(cel));
 }
 
-void DocumentApi::moveCel(
-  LayerImage* srcLayer, frame_t srcFrame,
-  LayerImage* dstLayer, frame_t dstFrame)
+void DocumentApi::moveCel(LayerImage* srcLayer, frame_t srcFrame,
+                          LayerImage* dstLayer, frame_t dstFrame)
 {
   ASSERT(srcLayer != dstLayer || srcFrame != dstFrame);
-  m_transaction.execute(new cmd::MoveCel(
-      srcLayer, srcFrame,
-      dstLayer, dstFrame, dstLayer->isContinuous()));
+  m_transaction.execute(new cmd::MoveCel(srcLayer, srcFrame, dstLayer, dstFrame,
+                                         dstLayer->isContinuous()));
 }
 
-void DocumentApi::copyCel(
-  LayerImage* srcLayer, frame_t srcFrame,
-  LayerImage* dstLayer, frame_t dstFrame)
+void DocumentApi::copyCel(LayerImage* srcLayer, frame_t srcFrame,
+                          LayerImage* dstLayer, frame_t dstFrame)
 {
-  copyCel(
-    srcLayer, srcFrame,
-    dstLayer, dstFrame, dstLayer->isContinuous());
+  copyCel(srcLayer, srcFrame, dstLayer, dstFrame, dstLayer->isContinuous());
 }
 
-void DocumentApi::copyCel(
-  LayerImage* srcLayer, frame_t srcFrame,
-  LayerImage* dstLayer, frame_t dstFrame, bool continuous)
+void DocumentApi::copyCel(LayerImage* srcLayer, frame_t srcFrame,
+                          LayerImage* dstLayer, frame_t dstFrame,
+                          bool continuous)
 {
   ASSERT(srcLayer != dstLayer || srcFrame != dstFrame);
 
   if (srcLayer == dstLayer && srcFrame == dstFrame)
-    return;                     // Nothing to be done
+    return; // Nothing to be done
 
   m_transaction.execute(
-    new cmd::CopyCel(
-      srcLayer, srcFrame,
-      dstLayer, dstFrame, continuous));
+      new cmd::CopyCel(srcLayer, srcFrame, dstLayer, dstFrame, continuous));
 }
 
-void DocumentApi::swapCel(
-  LayerImage* layer, frame_t frame1, frame_t frame2)
+void DocumentApi::swapCel(LayerImage* layer, frame_t frame1, frame_t frame2)
 {
   ASSERT(frame1 != frame2);
 
   Sprite* sprite = layer->sprite();
-  ASSERT(sprite != NULL);
+  ASSERT(sprite != nullptr);
   ASSERT(frame1 >= 0 && frame1 < sprite->totalFrames());
   ASSERT(frame2 >= 0 && frame2 < sprite->totalFrames());
-  (void)sprite;              // To avoid unused variable warning on Release mode
+  (void)sprite; // To avoid unused variable warning on Release mode
 
   auto cel1 = layer->cel(frame1);
   auto cel2 = layer->cel(frame2);
 
-  if (cel1) setCelFramePosition(cel1, frame2);
-  if (cel2) setCelFramePosition(cel2, frame1);
+  if (cel1)
+    setCelFramePosition(cel1, frame2);
+  if (cel2)
+    setCelFramePosition(cel2, frame1);
 }
 
 LayerImage* DocumentApi::newLayer(Sprite* sprite, const std::string& name)
@@ -401,8 +410,7 @@ LayerImage* DocumentApi::newLayer(Sprite* sprite, const std::string& name)
   LayerImage* layer = new LayerImage(sprite);
   layer->setName(name);
 
-  addLayer(sprite->folder(), layer,
-           sprite->folder()->getLastLayer());
+  addLayer(sprite->folder(), layer, sprite->folder()->getLastLayer());
 
   return layer;
 }
@@ -411,13 +419,13 @@ LayerFolder* DocumentApi::newLayerFolder(Sprite* sprite)
 {
   LayerFolder* layer = new LayerFolder(sprite);
 
-  addLayer(sprite->folder(), layer,
-           sprite->folder()->getLastLayer());
+  addLayer(sprite->folder(), layer, sprite->folder()->getLastLayer());
 
   return layer;
 }
 
-void DocumentApi::addLayer(LayerFolder* folder, Layer* newLayer, Layer* afterThis)
+void DocumentApi::addLayer(LayerFolder* folder, Layer* newLayer,
+                           Layer* afterThis)
 {
   m_transaction.execute(new cmd::AddLayer(folder, newLayer, afterThis));
 }
@@ -459,7 +467,8 @@ void DocumentApi::flattenLayers(Sprite* sprite)
 
 void DocumentApi::duplicateLayerAfter(Layer* sourceLayer, Layer* afterLayer)
 {
-  std::unique_ptr<LayerImage> newLayerPtr(new LayerImage(sourceLayer->sprite()));
+  std::unique_ptr<LayerImage> newLayerPtr =
+      std::make_unique<LayerImage>(sourceLayer->sprite());
 
   m_document->copyLayerContent(sourceLayer, m_document, newLayerPtr.get());
 
@@ -468,7 +477,7 @@ void DocumentApi::duplicateLayerAfter(Layer* sourceLayer, Layer* afterLayer)
   addLayer(sourceLayer->parent(), newLayerPtr.get(), afterLayer);
 
   // Release the pointer as it is owned by the sprite now.
-  newLayerPtr.release();
+  (void)newLayerPtr.release();
 }
 
 void DocumentApi::duplicateLayerBefore(Layer* sourceLayer, Layer* beforeLayer)
@@ -476,30 +485,32 @@ void DocumentApi::duplicateLayerBefore(Layer* sourceLayer, Layer* beforeLayer)
   LayerIndex beforeThisIdx = sourceLayer->sprite()->layerToIndex(beforeLayer);
   LayerIndex afterThisIdx = beforeThisIdx.previous();
 
-  duplicateLayerAfter(sourceLayer, sourceLayer->sprite()->indexToLayer(afterThisIdx));
+  duplicateLayerAfter(sourceLayer,
+                      sourceLayer->sprite()->indexToLayer(afterThisIdx));
 }
 
-std::shared_ptr<Cel> DocumentApi::addCel(LayerImage* layer, frame_t frameNumber, const ImageRef& image)
+std::shared_ptr<Cel> DocumentApi::addCel(LayerImage* layer, frame_t frameNumber,
+                                         const ImageRef& image)
 {
-  ASSERT(layer->cel(frameNumber) == NULL);
+  ASSERT(layer->cel(frameNumber) == nullptr);
 
   auto cel = std::make_shared<Cel>(frameNumber, image);
   addCel(layer, cel);
   return cel;
 }
 
-void DocumentApi::replaceImage(Sprite* sprite, const ImageRef& oldImage, const ImageRef& newImage)
+void DocumentApi::replaceImage(Sprite* sprite, const ImageRef& oldImage,
+                               const ImageRef& newImage)
 {
   ASSERT(oldImage);
   ASSERT(newImage);
   ASSERT(oldImage->maskColor() == newImage->maskColor());
 
-  m_transaction.execute(new cmd::ReplaceImage(
-      sprite, oldImage, newImage));
+  m_transaction.execute(new cmd::ReplaceImage(sprite, oldImage, newImage));
 }
 
 void DocumentApi::flipImage(Image* image, const gfx::Rect& bounds,
-  doc::algorithm::FlipType flipType)
+                            doc::algorithm::FlipType flipType)
 {
   m_transaction.execute(new cmd::FlipImage(image, bounds, flipType));
 }
@@ -519,7 +530,8 @@ void DocumentApi::setMaskPosition(int x, int y)
   m_transaction.execute(new cmd::SetMaskPosition(m_document, gfx::Point(x, y)));
 }
 
-void DocumentApi::setPalette(Sprite* sprite, frame_t frame, const Palette* newPalette)
+void DocumentApi::setPalette(Sprite* sprite, frame_t frame,
+                             const Palette* newPalette)
 {
   Palette* currentSpritePalette = sprite->palette(frame); // Sprite current pal
   int from, to;
@@ -528,32 +540,50 @@ void DocumentApi::setPalette(Sprite* sprite, frame_t frame, const Palette* newPa
   from = to = -1;
   currentSpritePalette->countDiff(*newPalette, &from, &to);
 
-  if (from >= 0 && to >= from) {
+  if (from >= 0 && to >= from)
+  {
     m_transaction.execute(new cmd::SetPalette(sprite, frame, *newPalette));
   }
 }
 
-void DocumentApi::adjustFrameTags(Sprite* sprite, frame_t frame, frame_t delta, bool between)
+void DocumentApi::adjustFrameTags(Sprite* sprite, frame_t frame, frame_t delta,
+                                  bool between)
 {
   // As FrameTag::setFrameRange() changes m_frameTags, we need to use
   // a copy of this collection
-  std::vector<FrameTag*> tags(sprite->frameTags().begin(), sprite->frameTags().end());
+  std::vector<FrameTag*> tags(sprite->frameTags().begin(),
+                              sprite->frameTags().end());
 
-  for (FrameTag* tag : tags) {
+  for (FrameTag* tag : tags)
+  {
     frame_t from = tag->fromFrame();
     frame_t to = tag->toFrame();
 
-    if (delta == +1) {
-      if (frame <= from) { ++from; }
-      if (frame <= to+1) { ++to; }
+    if (delta == +1)
+    {
+      if (frame <= from)
+      {
+        ++from;
+      }
+      if (frame <= to + 1)
+      {
+        ++to;
+      }
     }
-    else if (delta == -1) {
-      if (frame < from) { --from; }
-      if (frame <= to) { --to; }
+    else if (delta == -1)
+    {
+      if (frame < from)
+      {
+        --from;
+      }
+      if (frame <= to)
+      {
+        --to;
+      }
     }
 
-    if (from != tag->fromFrame() ||
-        to != tag->toFrame()) {
+    if (from != tag->fromFrame() || to != tag->toFrame())
+    {
       if (from > to)
         m_transaction.execute(new cmd::RemoveFrameTag(sprite, tag));
       else
