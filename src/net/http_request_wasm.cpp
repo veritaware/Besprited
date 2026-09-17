@@ -1,5 +1,6 @@
-// LibreSprite
-// Copyright (c) 2024 LibreSprite Contributors
+// Network Library
+// LibreSprite | Copyright (C) 2024 LibreSprite Contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,7 +13,6 @@
 #include "net/http_request.h"
 
 #include "base/debug.h"
-#include "net/http_response.h"
 #include "net/http_response.h"
 
 #include <emscripten/emscripten.h>

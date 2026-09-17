@@ -1,5 +1,6 @@
-// Aseprite Network Library
-// Copyright (c) 2001-2016 David Capello
+// Network Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,13 +15,15 @@
 #include <memory>
 #include <unordered_map>
 
-namespace net {
+namespace net
+{
 
 using HttpHeaders = std::unordered_map<std::string, std::string>;
 class HttpRequestImpl;
 class HttpResponse;
 
-class HttpRequest {
+class HttpRequest
+{
 public:
   HttpRequest(const std::string& url);
   ~HttpRequest();

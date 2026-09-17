@@ -12,3 +12,9 @@ src/cfg/cfg.cpp
 # language mode, so clang-format refuses to reformat it (and is not
 # idempotent when forced). Keep it hand-formatted instead.
 src/base/fs_osx.mm
+
+# http_request_wasm.cpp embeds raw JavaScript inside a MAIN_THREAD_EM_ASM(...)
+# macro (arrow functions, object literals). clang-format corrupts `=>` into
+# `= >` when reformatting this file, same class of bug as cfg.cpp above.
+# Keep it hand-formatted instead.
+src/net/http_request_wasm.cpp

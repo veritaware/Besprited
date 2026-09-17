@@ -1,5 +1,6 @@
-// LibreSprite
-// Copyright (c) 2024 LibreSprite Contributors
+// Network Library
+// LibreSprite | Copyright (C) 2024 LibreSprite Contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,20 +16,36 @@
 
 #if !__has_include(<curl/curl.h>)
 
-namespace net {
-class HttpRequestImpl {};
+namespace net
+{
+class HttpRequestImpl
+{
+};
 
-HttpRequest::HttpRequest(const std::string& url) {}
+HttpRequest::HttpRequest(const std::string& url)
+{
+}
 
-HttpRequest::~HttpRequest() {}
+HttpRequest::~HttpRequest()
+{
+}
 
-void HttpRequest::setHeaders(const HttpHeaders& headers) {}
+void HttpRequest::setHeaders(const HttpHeaders& headers)
+{
+}
 
-bool HttpRequest::send(HttpResponse& response) {return false;}
+bool HttpRequest::send(HttpResponse& response)
+{
+  return false;
+}
 
-void HttpRequest::abort() {}
+void HttpRequest::abort()
+{
+}
 
-void HttpRequest::setPostBody(const std::string& body) {}
+void HttpRequest::setPostBody(const std::string& body)
+{
+}
 
 } // namespace net
 

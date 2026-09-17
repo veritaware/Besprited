@@ -1,5 +1,6 @@
-// Aseprite Code Generator
-// Copyright (c) 2014-2016 David Capello
+// Code Generator
+// Aseprite  | Copyright (C) 2014-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,35 +17,39 @@
 #include <iostream>
 #include <sstream>
 
-typedef base::ProgramOptions PO;
+using PO = base::ProgramOptions;
 using namespace std::string_literals;
 
 static void run(int argc, const char* argv[])
 {
   PO po;
-  PO::Option& inputOpt = po.add("input").requiresValue("<filename>");
-  PO::Option& widgetId = po.add("widgetid").requiresValue("<filename>");
-  PO::Option& prefH = po.add("pref-h");
-  PO::Option& prefCpp = po.add("pref-cpp");
-  PO::Option& skin = po.add("skin");
+  const PO::Option& inputOpt = po.add("input").requiresValue("<filename>");
+  const PO::Option& widgetId = po.add("widgetid").requiresValue("<filename>");
+  const PO::Option& prefH = po.add("pref-h");
+  const PO::Option& prefCpp = po.add("pref-cpp");
+  const PO::Option& skin = po.add("skin");
   po.parse(argc, argv);
 
   // Try to load the XML file
-  tinyxml2::XMLDocument* doc = NULL;
+  tinyxml2::XMLDocument* doc = nullptr;
 
-  std::string inputFilename = po.value_of(inputOpt);
-  if (!inputFilename.empty()) {
-    base::FileHandle inputFile(base::open_file(inputFilename, "rb"));
+  const std::string inputFilename = po.value_of(inputOpt);
+  if (!inputFilename.empty())
+  {
+    const base::FileHandle inputFile(base::open_file(inputFilename, "rb"));
     if (!inputFile)
       throw std::runtime_error("Could not open input file: "s + inputFilename);
     doc = new tinyxml2::XMLDocument();
     doc->SetValue(inputFilename.c_str());
-    if (doc->LoadFile(inputFile.get()) != tinyxml2::XML_SUCCESS) {
-      throw std::runtime_error("invalid input file: "s + inputFilename + "\n" + doc->ErrorStr());
+    if (doc->LoadFile(inputFile.get()) != tinyxml2::XML_SUCCESS)
+    {
+      throw std::runtime_error("invalid input file: "s + inputFilename + "\n" +
+                               doc->ErrorStr());
     }
   }
 
-  if (doc) {
+  if (doc)
+  {
     if (po.enabled(widgetId))
       gen_ui_class(doc, inputFilename, po.value_of(widgetId));
     else if (po.enabled(prefH))
@@ -58,11 +63,13 @@ static void run(int argc, const char* argv[])
 
 int main(int argc, const char* argv[])
 {
-  try {
+  try
+  {
     run(argc, argv);
     return 0;
   }
-  catch (const std::exception& e) {
+  catch (const std::exception& e)
+  {
     std::cerr << "exception: " << e.what() << "\n";
     return 1;
   }
