@@ -1,4 +1,5 @@
-// LibreSprite | Copyright (C) 2023       LibreSprite contributors
+// LibreSprite | Copyright (C) 2023 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -24,22 +25,23 @@
 #include "she/surface_format.h"
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace base;
 
-class SheFormat : public FileFormat {
+class SheFormat : public FileFormat
+{
   const char* onGetName() const override { return "she"; }
   const char* onGetExtensions() const override { return ""; }
-  int onGetFlags() const override {
-    return
-      FILE_SUPPORT_LOAD |
-      FILE_SUPPORT_SEQUENCES;
+  int onGetFlags() const override
+  {
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SEQUENCES;
   }
 
-  int loadPriority() override {return 2;}
+  int loadPriority() override { return 2; }
 
-  bool onSave(FileOp* fop) override {return false;}
+  bool onSave(FileOp* fop) override { return false; }
 
   bool onLoad(FileOp* fop) override;
 };
@@ -48,23 +50,30 @@ static FileFormat::Regular<SheFormat> ff{"she"};
 
 bool SheFormat::onLoad(FileOp* fop)
 {
-  try {
-    auto surface = std::shared_ptr<she::Surface>(she::instance()->loadRgbaSurface(fop->filename().c_str()));
+  try
+  {
+    auto surface = std::shared_ptr<she::Surface>(
+        she::instance()->loadRgbaSurface(fop->filename().c_str()));
     auto width = surface->width();
     auto height = surface->height();
     Image* image = fop->sequenceImage(IMAGE_RGB, width, height);
-    for (int y = 0; y < height; ++y) {
-      for (int x = 0; x < width; ++x) {
+    for (int y = 0; y < height; ++y)
+    {
+      for (int x = 0; x < width; ++x)
+      {
         auto c = surface->getPixel(x, y);
         auto r = gfx::getr(c);
         auto g = gfx::getg(c);
         auto b = gfx::getb(c);
         auto a = gfx::geta(c);
-        put_pixel(image, x, y, doc::rgba(r,g,b,a));
+        put_pixel(image, x, y, doc::rgba(r, g, b, a));
       }
     }
     return true;
-  } catch (...) {}
+  }
+  catch (...)
+  {
+  }
 
   return false;
 }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,7 +18,8 @@
 #include <cstring>
 #include <memory>
 
-namespace app {
+namespace app
+{
 static std::unique_ptr<FileFormatsManager> singleton;
 
 // static
@@ -38,20 +39,25 @@ void FileFormatsManager::destroyInstance()
 std::vector<FileFormat*> FileFormatsManager::support(int flags)
 {
   std::vector<FileFormat*> pick;
-  for (auto& ff : m_formats) {
+  for (auto& ff : m_formats)
+  {
     if (ff->support(flags))
       pick.push_back(ff.get());
   }
-  std::sort(pick.begin(), pick.end(), [](auto a, auto b){return a->listPriority() < b->listPriority();});
+  std::sort(pick.begin(), pick.end(), [](auto a, auto b)
+            { return a->listPriority() < b->listPriority(); });
   return pick;
 }
 
 FileFormat* FileFormatsManager::getFileFormatByExtension(const char* extension)
 {
   std::string extensions;
-  for (auto& ff : m_formats) {
+  for (auto& ff : m_formats)
+  {
     extensions = ff->extensions();
-    for (auto tok=std::strtok(extensions.data(), ","); tok; tok=std::strtok(NULL, ",")) {
+    for (auto tok = std::strtok(extensions.data(), ","); tok;
+         tok = std::strtok(nullptr, ","))
+    {
       if (base::utf8_icmp(extension, tok) == 0)
         return ff.get();
     }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -28,7 +28,8 @@
 #include <cstring>
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
@@ -46,37 +47,41 @@ std::string get_writable_palette_extensions()
   return buf;
 }
 
-std::shared_ptr<Palette> load_palette(const char *filename)
+std::shared_ptr<Palette> load_palette(const char* filename)
 {
   std::string ext = base::string_to_lower(base::get_file_extension(filename));
   std::shared_ptr<Palette> pal;
 
-  if (ext == "col") {
+  if (ext == "col")
+  {
     pal = doc::file::load_col_file(filename);
   }
-  else if (ext == "gpl") {
+  else if (ext == "gpl")
+  {
     pal = doc::file::load_gpl_file(filename);
   }
-  else if (ext == "pal") {
+  else if (ext == "pal")
+  {
     pal = doc::file::load_pal_file(filename);
   }
-  else {
-    FileFormat* ff = FileFormatsManager::instance()->getFileFormatByExtension(ext.c_str());
-    if (ff && ff->support(FILE_SUPPORT_LOAD)) {
-      std::unique_ptr<FileOp> fop(
-        FileOp::createLoadDocumentOperation(
-          nullptr, filename,
-          FILE_LOAD_SEQUENCE_NONE |
-          FILE_LOAD_ONE_FRAME));
+  else
+  {
+    FileFormat* ff =
+        FileFormatsManager::instance()->getFileFormatByExtension(ext.c_str());
+    if (ff && ff->support(FILE_SUPPORT_LOAD))
+    {
+      std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(
+          nullptr, filename, FILE_LOAD_SEQUENCE_NONE | FILE_LOAD_ONE_FRAME));
 
-      if (fop && !fop->hasError()) {
+      if (fop && !fop->hasError())
+      {
         fop->operate(nullptr);
         fop->postLoad();
 
-        if (fop->document() &&
-            fop->document()->sprite() &&
-            fop->document()->sprite()->palette(frame_t(0))) {
-            pal = fop->document()->sprite()->palette(frame_t(0))->clone();
+        if (fop->document() && fop->document()->sprite() &&
+            fop->document()->sprite()->palette(frame_t(0)))
+        {
+          pal = fop->document()->sprite()->palette(frame_t(0))->clone();
         }
 
         delete fop->releaseDocument();
@@ -91,30 +96,37 @@ std::shared_ptr<Palette> load_palette(const char *filename)
   return pal;
 }
 
-bool save_palette(const char *filename, const Palette& pal, int columns)
+bool save_palette(const char* filename, const Palette& pal, int columns)
 {
   std::string ext = base::string_to_lower(base::get_file_extension(filename));
   bool success = false;
 
-  if (ext == "col") {
+  if (ext == "col")
+  {
     success = doc::file::save_col_file(pal, filename);
   }
-  else if (ext == "gpl") {
+  else if (ext == "gpl")
+  {
     success = doc::file::save_gpl_file(pal, filename);
   }
-  else if (ext == "pal") {
+  else if (ext == "pal")
+  {
     success = doc::file::save_pal_file(pal, filename);
   }
-  else {
-    FileFormat* ff = FileFormatsManager::instance()->getFileFormatByExtension(ext.c_str());
-    if (ff && ff->support(FILE_SUPPORT_SAVE)) {
-      int w = (columns > 0 ? columns: pal.size());
-      int h = (pal.size() / w) + (pal.size() % w > 0 ? 1: 0);
+  else
+  {
+    FileFormat* ff =
+        FileFormatsManager::instance()->getFileFormatByExtension(ext.c_str());
+    if (ff && ff->support(FILE_SUPPORT_SAVE))
+    {
+      int w = (columns > 0 ? columns : pal.size());
+      int h = (pal.size() / w) + (pal.size() % w > 0 ? 1 : 0);
 
       app::Context tmpContext;
       doc::Document* doc = tmpContext.documents().add(
-        w, h, (pal.size() <= 256 ? doc::ColorMode::INDEXED:
-                                    doc::ColorMode::RGB), pal.size());
+          w, h,
+          (pal.size() <= 256 ? doc::ColorMode::INDEXED : doc::ColorMode::RGB),
+          pal.size());
 
       Sprite* sprite = doc->sprite();
       doc->sprite()->setPalette(pal, false);
@@ -123,8 +135,10 @@ bool save_palette(const char *filename, const Palette& pal, int columns)
       Image* image = layer->cel(frame_t(0))->image();
 
       int x, y, c;
-      for (y=c=0; y<h; ++y) {
-        for (x=0; x<w; ++x, ++c) {
+      for (y = c = 0; y < h; ++y)
+      {
+        for (x = 0; x < w; ++x, ++c)
+        {
           if (doc->colorMode() == doc::ColorMode::INDEXED)
             image->putPixel(x, y, c);
           else
@@ -143,4 +157,4 @@ bool save_palette(const char *filename, const Palette& pal, int columns)
   return success;
 }
 
-}
+} // namespace app

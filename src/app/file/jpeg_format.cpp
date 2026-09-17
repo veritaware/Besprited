@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2015  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2015 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -30,27 +31,27 @@
 
 #include "jpeglib.h"
 
-namespace app {
+namespace app
+{
 
 using namespace base;
 
-class JpegFormat : public FileFormat {
+class JpegFormat : public FileFormat
+{
   // Data for JPEG files
-  class JpegOptions : public FormatOptions {
+  class JpegOptions : public FormatOptions
+  {
   public:
-    float quality;              // 1.0 maximum quality.
+    float quality; // 1.0 maximum quality.
   };
 
   const char* onGetName() const override { return "jpeg"; }
   const char* onGetExtensions() const override { return "jpeg,jpg"; }
-  int onGetFlags() const override {
-    return
-      FILE_SUPPORT_LOAD |
-      FILE_SUPPORT_SAVE |
-      FILE_SUPPORT_RGB |
-      FILE_SUPPORT_GRAY |
-      FILE_SUPPORT_SEQUENCES |
-      FILE_SUPPORT_GET_FORMAT_OPTIONS;
+  int onGetFlags() const override
+  {
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
+           FILE_SUPPORT_GRAY | FILE_SUPPORT_SEQUENCES |
+           FILE_SUPPORT_GET_FORMAT_OPTIONS;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -61,7 +62,8 @@ class JpegFormat : public FileFormat {
 
 static FileFormat::Regular<JpegFormat> ff{"jpg"};
 
-struct error_mgr {
+struct error_mgr
+{
   struct jpeg_error_mgr head;
   jmp_buf setjmp_buffer;
   FileOp* fop;
@@ -73,7 +75,7 @@ static void error_exit(j_common_ptr cinfo)
   (*cinfo->err->output_message)(cinfo);
 
   // Return control to the setjmp point.
-  longjmp(((struct error_mgr *)cinfo->err)->setjmp_buffer, 1);
+  longjmp(((struct error_mgr*)cinfo->err)->setjmp_buffer, 1);
 }
 
 static void output_message(j_common_ptr cinfo)
@@ -87,7 +89,7 @@ static void output_message(j_common_ptr cinfo)
   LOG("JPEG library: \"%s\"\n", buffer);
 
   // Leave the message for the application.
-  ((struct error_mgr *)cinfo->err)->fop->setError("%s\n", buffer);
+  ((struct error_mgr*)cinfo->err)->fop->setError("%s\n", buffer);
 }
 
 bool JpegFormat::onLoad(FileOp* fop)
@@ -110,7 +112,8 @@ bool JpegFormat::onLoad(FileOp* fop)
   jerr.head.output_message = output_message;
 
   // Establish the setjmp return context for error_exit to use.
-  if (setjmp(jerr.setjmp_buffer)) {
+  if (setjmp(jerr.setjmp_buffer))
+  {
     jpeg_destroy_decompress(&cinfo);
     return false;
   }
@@ -133,11 +136,10 @@ bool JpegFormat::onLoad(FileOp* fop)
 
   // Create the image.
   Image* image = fop->sequenceImage(
-    (cinfo.out_color_space == JCS_RGB ? IMAGE_RGB:
-                                        IMAGE_GRAYSCALE),
-    cinfo.output_width,
-    cinfo.output_height);
-  if (!image) {
+      (cinfo.out_color_space == JCS_RGB ? IMAGE_RGB : IMAGE_GRAYSCALE),
+      cinfo.output_width, cinfo.output_height);
+  if (!image)
+  {
     jpeg_destroy_decompress(&cinfo);
     return false;
   }
@@ -145,16 +147,19 @@ bool JpegFormat::onLoad(FileOp* fop)
   // Create the buffer.
   buffer_height = cinfo.rec_outbuf_height;
   buffer = (JSAMPARRAY)base_malloc(sizeof(JSAMPROW) * buffer_height);
-  if (!buffer) {
+  if (!buffer)
+  {
     jpeg_destroy_decompress(&cinfo);
     return false;
   }
 
-  for (c=0; c<(int)buffer_height; c++) {
-    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) *
-                                      cinfo.output_width * cinfo.output_components);
-    if (!buffer[c]) {
-      for (c--; c>=0; c--)
+  for (c = 0; c < (int)buffer_height; c++)
+  {
+    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * cinfo.output_width *
+                                      cinfo.output_components);
+    if (!buffer[c])
+    {
+      for (c--; c >= 0; c--)
         base_free(buffer[c]);
       base_free(buffer);
       jpeg_destroy_decompress(&cinfo);
@@ -164,28 +169,33 @@ bool JpegFormat::onLoad(FileOp* fop)
 
   // Generate a grayscale palette if is necessary.
   if (image->pixelFormat() == IMAGE_GRAYSCALE)
-    for (c=0; c<256; c++)
+    for (c = 0; c < 256; c++)
       fop->sequenceSetColor(c, c, c, c);
 
   // Read each scan line.
-  while (cinfo.output_scanline < cinfo.output_height) {
+  while (cinfo.output_scanline < cinfo.output_height)
+  {
     // TODO
-/*     if (plugin_want_close())  */
-/*       break; */
+    /*     if (plugin_want_close())  */
+    /*       break; */
 
     num_scanlines = jpeg_read_scanlines(&cinfo, buffer, buffer_height);
 
     // RGB
-    if (image->pixelFormat() == IMAGE_RGB) {
+    if (image->pixelFormat() == IMAGE_RGB)
+    {
       uint8_t* src_address;
       uint32_t* dst_address;
       int x, y, r, g, b;
 
-      for (y=0; y<(int)num_scanlines; y++) {
+      for (y = 0; y < (int)num_scanlines; y++)
+      {
         src_address = ((uint8_t**)buffer)[y];
-        dst_address = (uint32_t*)image->getPixelAddress(0, cinfo.output_scanline-1+y);
+        dst_address =
+            (uint32_t*)image->getPixelAddress(0, cinfo.output_scanline - 1 + y);
 
-        for (x=0; x<image->width(); x++) {
+        for (x = 0; x < image->width(); x++)
+        {
           r = *(src_address++);
           g = *(src_address++);
           b = *(src_address++);
@@ -194,27 +204,31 @@ bool JpegFormat::onLoad(FileOp* fop)
       }
     }
     // Grayscale
-    else {
+    else
+    {
       uint8_t* src_address;
       uint16_t* dst_address;
       int x, y;
 
-      for (y=0; y<(int)num_scanlines; y++) {
+      for (y = 0; y < (int)num_scanlines; y++)
+      {
         src_address = ((uint8_t**)buffer)[y];
-        dst_address = (uint16_t*)image->getPixelAddress(0, cinfo.output_scanline-1+y);
+        dst_address =
+            (uint16_t*)image->getPixelAddress(0, cinfo.output_scanline - 1 + y);
 
-        for (x=0; x<image->width(); x++)
+        for (x = 0; x < image->width(); x++)
           *(dst_address++) = graya(*(src_address++), 255);
       }
     }
 
-    fop->setProgress((float)(cinfo.output_scanline+1) / (float)(cinfo.output_height));
+    fop->setProgress((float)(cinfo.output_scanline + 1) /
+                     (float)(cinfo.output_height));
     if (fop->isStop())
       break;
   }
 
   /* destroy all data */
-  for (c=0; c<(int)buffer_height; c++)
+  for (c = 0; c < (int)buffer_height; c++)
     base_free(buffer[c]);
   base_free(buffer);
 
@@ -232,7 +246,7 @@ bool JpegFormat::onSave(FileOp* fop)
   JSAMPARRAY buffer;
   JDIMENSION buffer_height;
   const base::SharedPtr<JpegOptions> jpeg_options =
-    fop->sequenceGetFormatOptions();
+      fop->sequenceGetFormatOptions();
   int c;
 
   // Open the file for write in it.
@@ -251,17 +265,20 @@ bool JpegFormat::onSave(FileOp* fop)
   cinfo.image_width = image->width();
   cinfo.image_height = image->height();
 
-  if (image->pixelFormat() == IMAGE_GRAYSCALE) {
+  if (image->pixelFormat() == IMAGE_GRAYSCALE)
+  {
     cinfo.input_components = 1;
     cinfo.in_color_space = JCS_GRAYSCALE;
   }
-  else {
+  else
+  {
     cinfo.input_components = 3;
     cinfo.in_color_space = JCS_RGB;
   }
 
   jpeg_set_defaults(&cinfo);
-  jpeg_set_quality(&cinfo, (int)MID(0, 100.0f * jpeg_options->quality, 100), TRUE);
+  jpeg_set_quality(&cinfo, (int)MID(0, 100.0f * jpeg_options->quality, 100),
+                   TRUE);
   cinfo.dct_method = JDCT_ISLOW;
   cinfo.smoothing_factor = 0;
 
@@ -271,18 +288,21 @@ bool JpegFormat::onSave(FileOp* fop)
   // CREATE the buffer.
   buffer_height = 1;
   buffer = (JSAMPARRAY)base_malloc(sizeof(JSAMPROW) * buffer_height);
-  if (!buffer) {
+  if (!buffer)
+  {
     fop->setError("Not enough memory for the buffer.\n");
     jpeg_destroy_compress(&cinfo);
     return false;
   }
 
-  for (c=0; c<(int)buffer_height; c++) {
-    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) *
-                                      cinfo.image_width * cinfo.num_components);
-    if (!buffer[c]) {
+  for (c = 0; c < (int)buffer_height; c++)
+  {
+    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * cinfo.image_width *
+                                      cinfo.num_components);
+    if (!buffer[c])
+    {
       fop->setError("Not enough memory for buffer scanlines.\n");
-      for (c--; c>=0; c--)
+      for (c--; c >= 0; c--)
         base_free(buffer[c]);
       base_free(buffer);
       jpeg_destroy_compress(&cinfo);
@@ -291,17 +311,22 @@ bool JpegFormat::onSave(FileOp* fop)
   }
 
   // Write each scan line.
-  while (cinfo.next_scanline < cinfo.image_height) {
+  while (cinfo.next_scanline < cinfo.image_height)
+  {
     // RGB
-    if (image->pixelFormat() == IMAGE_RGB) {
+    if (image->pixelFormat() == IMAGE_RGB)
+    {
       uint32_t* src_address;
       uint8_t* dst_address;
       int x, y;
-      for (y=0; y<(int)buffer_height; y++) {
-        src_address = (uint32_t*)image->getPixelAddress(0, cinfo.next_scanline+y);
+      for (y = 0; y < (int)buffer_height; y++)
+      {
+        src_address =
+            (uint32_t*)image->getPixelAddress(0, cinfo.next_scanline + y);
         dst_address = ((uint8_t**)buffer)[y];
 
-        for (x=0; x<image->width(); ++x) {
+        for (x = 0; x < image->width(); ++x)
+        {
           c = *(src_address++);
           *(dst_address++) = rgba_getr(c);
           *(dst_address++) = rgba_getg(c);
@@ -310,24 +335,28 @@ bool JpegFormat::onSave(FileOp* fop)
       }
     }
     // Grayscale.
-    else {
+    else
+    {
       uint16_t* src_address;
       uint8_t* dst_address;
       int x, y;
-      for (y=0; y<(int)buffer_height; y++) {
-        src_address = (uint16_t*)image->getPixelAddress(0, cinfo.next_scanline+y);
+      for (y = 0; y < (int)buffer_height; y++)
+      {
+        src_address =
+            (uint16_t*)image->getPixelAddress(0, cinfo.next_scanline + y);
         dst_address = ((uint8_t**)buffer)[y];
-        for (x=0; x<image->width(); ++x)
+        for (x = 0; x < image->width(); ++x)
           *(dst_address++) = graya_getv(*(src_address++));
       }
     }
     jpeg_write_scanlines(&cinfo, buffer, buffer_height);
 
-    fop->setProgress((float)(cinfo.next_scanline+1) / (float)(cinfo.image_height));
+    fop->setProgress((float)(cinfo.next_scanline + 1) /
+                     (float)(cinfo.image_height));
   }
 
   // Destroy all data.
-  for (c=0; c<(int)buffer_height; c++)
+  for (c = 0; c < (int)buffer_height; c++)
     base_free(buffer[c]);
   base_free(buffer);
 
@@ -346,40 +375,46 @@ base::SharedPtr<FormatOptions> JpegFormat::onGetFormatOptions(FileOp* fop)
 {
   base::SharedPtr<JpegOptions> jpeg_options;
   if (fop->document()->getFormatOptions())
-    jpeg_options = base::SharedPtr<JpegOptions>(fop->document()->getFormatOptions());
+    jpeg_options =
+        base::SharedPtr<JpegOptions>(fop->document()->getFormatOptions());
 
   if (!jpeg_options)
     jpeg_options.reset(new JpegOptions);
 
   // Non-interactive mode
-  if (!fop->context() ||
-      !fop->context()->isUIAvailable())
+  if (!fop->context() || !fop->context()->isUIAvailable())
     return jpeg_options;
 
-  try {
+  try
+  {
     // Configuration parameters
     jpeg_options->quality = get_config_float("JPEG", "Quality", 1.0f);
 
     // Load the window to ask to the user the JPEG options he wants.
-    std::unique_ptr<ui::Window> window(app::load_widget<ui::Window>("jpeg_options.xml", "jpeg_options"));
-    ui::Slider* slider_quality = app::find_widget<ui::Slider>(window.get(), "quality");
+    std::unique_ptr<ui::Window> window(
+        app::load_widget<ui::Window>("jpeg_options.xml", "jpeg_options"));
+    ui::Slider* slider_quality =
+        app::find_widget<ui::Slider>(window.get(), "quality");
     ui::Widget* ok = app::find_widget<ui::Widget>(window.get(), "ok");
 
     slider_quality->setValue(int(jpeg_options->quality * 10.0f));
 
     window->openWindowInForeground();
 
-    if (window->closer() == ok) {
+    if (window->closer() == ok)
+    {
       jpeg_options->quality = slider_quality->getValue() / 10.0f;
       set_config_float("JPEG", "Quality", jpeg_options->quality);
     }
-    else {
-      jpeg_options.reset(NULL);
+    else
+    {
+      jpeg_options.reset(nullptr);
     }
 
     return jpeg_options;
   }
-  catch (std::exception& e) {
+  catch (std::exception& e)
+  {
     Console::showException(e);
     return base::SharedPtr<JpegOptions>(0);
   }
