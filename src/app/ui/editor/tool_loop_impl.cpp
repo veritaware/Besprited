@@ -265,7 +265,7 @@ public:
 //////////////////////////////////////////////////////////////////////
 // For drawing
 
-class ToolLoopImpl : public ToolLoopBase {
+class ToolLoopImpl final : public ToolLoopBase {
   Context* m_context;
   bool m_filled;
   bool m_previewFilled;
@@ -558,7 +558,7 @@ tools::ToolLoop* create_tool_loop(Editor* editor, Context* context)
 //////////////////////////////////////////////////////////////////////
 // For preview
 
-class PreviewToolLoopImpl : public ToolLoopBase {
+class PreviewToolLoopImpl final : public ToolLoopBase {
   Image* m_image;
 
 public:

@@ -13,8 +13,8 @@
 
 namespace app {
 
-  class ZoomEntry : public ui::IntEntry
-                  , public ui::SliderDelegate {
+  class ZoomEntry final : public ui::IntEntry
+                        , public ui::SliderDelegate {
   public:
     ZoomEntry();
 

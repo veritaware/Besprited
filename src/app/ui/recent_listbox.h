@@ -30,7 +30,7 @@ namespace app {
     base::ScopedConnection m_showFullPathConn;
   };
 
-  class RecentFilesListBox : public RecentListBox {
+  class RecentFilesListBox final : public RecentListBox {
   public:
     RecentFilesListBox();
 
@@ -39,7 +39,7 @@ namespace app {
     void onClick(const std::string& path) override;
   };
 
-  class RecentFoldersListBox : public RecentListBox {
+  class RecentFoldersListBox final : public RecentListBox {
   public:
     RecentFoldersListBox();
 

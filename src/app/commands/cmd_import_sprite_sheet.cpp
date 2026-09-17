@@ -43,7 +43,7 @@ namespace app {
 
 using namespace ui;
 
-class ImportSpriteSheetWindow : public app::gen::ImportSpriteSheet
+class ImportSpriteSheetWindow final : public app::gen::ImportSpriteSheet
                               , public SelectBoxDelegate {
 public:
   ImportSpriteSheetWindow(Context* context)

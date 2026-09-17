@@ -464,6 +464,8 @@ namespace she {
     ASSERT(m_bmp);
     ASSERT(dest);
     ASSERT(static_cast<SDL2Surface*>(dest)->m_bmp);
+    if (!m_bmp || !dest || !static_cast<SDL2Surface*>(dest)->m_bmp)
+      return;
 
     SDL_Rect srect{srcx, srcy, width, height};
     SDL_Rect drect{dstx, dsty};

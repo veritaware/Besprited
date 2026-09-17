@@ -22,7 +22,7 @@ struct SDL_Rect;
 
 namespace she {
 
-    class SDL2Display : public Display {
+    class SDL2Display final : public Display {
 	friend class SDL2System;
     public:
         SDL2Display(int width, int height, int scale);
