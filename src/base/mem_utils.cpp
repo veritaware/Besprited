@@ -13,7 +13,8 @@
 #include <string>
 #include <cstdio>
 
-namespace base {
+namespace base
+{
 
 using namespace std;
 
@@ -21,14 +22,17 @@ string get_pretty_memory_size(size_t memsize)
 {
   char buf[256];
 
-  if (memsize < 1000) {
+  if (memsize < 1000)
+  {
     snprintf(buf, sizeof(buf), "%zu bytes", memsize);
   }
-  else if (memsize < 1000*1000) {
-    snprintf(buf, sizeof(buf), "%0.1fK", memsize/1024.0f);
+  else if (memsize < 1000 * 1000)
+  {
+    snprintf(buf, sizeof(buf), "%0.1fK", memsize / 1024.0f);
   }
-  else {
-    snprintf(buf, sizeof(buf), "%0.1fM", memsize/(1024.0f*1024.0f));
+  else
+  {
+    snprintf(buf, sizeof(buf), "%0.1fM", memsize / (1024.0f * 1024.0f));
   }
 
   return buf;

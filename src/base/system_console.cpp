@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013, 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -21,7 +22,8 @@
 #include <windows.h>
 #include <io.h>
 
-namespace base {
+namespace base
+{
 
 static bool withConsole = false;
 
@@ -29,23 +31,30 @@ SystemConsole::SystemConsole()
 {
   // If some output handle (stdout/stderr) is not attached to a
   // console, we can attach the process to the parent process console.
-  bool unknownOut = (::GetFileType(::GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN);
-  bool unknownErr = (::GetFileType(::GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN);
-  if (unknownOut || unknownErr) {
+  bool unknownOut =
+      (::GetFileType(::GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN);
+  bool unknownErr =
+      (::GetFileType(::GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN);
+  if (unknownOut || unknownErr)
+  {
     // AttachConsole() can fails if the parent console doesn't have a
     // console, which is the most common, i.e. when the user
     // double-click a shortcut to start the program.
-    if (::AttachConsole(ATTACH_PARENT_PROCESS)) {
+    if (::AttachConsole(ATTACH_PARENT_PROCESS))
+    {
       // In this case we're attached to the parent process
       // (e.g. cmd.exe) console.
       withConsole = true;
     }
   }
 
-  if (withConsole) {
+  if (withConsole)
+  {
     // Here we redirect stdout/stderr to use the parent console's ones.
-    if (unknownOut) std::freopen("CONOUT$", "w", stdout);
-    if (unknownErr) std::freopen("CONOUT$", "w", stderr);
+    if (unknownOut)
+      std::freopen("CONOUT$", "w", stdout);
+    if (unknownErr)
+      std::freopen("CONOUT$", "w", stderr);
 
     // Synchronize C++'s cout/cerr streams with C's stdout/stderr.
     std::ios::sync_with_stdio();
@@ -54,7 +63,8 @@ SystemConsole::SystemConsole()
 
 SystemConsole::~SystemConsole()
 {
-  if (withConsole) {
+  if (withConsole)
+  {
     ::FreeConsole();
     withConsole = false;
   }
@@ -81,16 +91,19 @@ void SystemConsole::prepareShell()
   std::ios::sync_with_stdio();
 }
 
+} // namespace base
+
+#else // On Unix-like systems the console works just fine
+
+namespace base
+{
+
+SystemConsole::SystemConsole() = default;
+SystemConsole::~SystemConsole() = default;
+void SystemConsole::prepareShell()
+{
 }
 
-#else  // On Unix-like systems the console works just fine
-
-namespace base {
-
-SystemConsole::SystemConsole() { }
-SystemConsole::~SystemConsole() { }
-void SystemConsole::prepareShell() { }
-
-}
+} // namespace base
 
 #endif

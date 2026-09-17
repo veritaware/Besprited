@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,7 +11,8 @@
 
 #include <cstdio>
 
-namespace base {
+namespace base
+{
 
 // Reads a WORD (16 bits) using in little-endian byte ordering.
 int fgetw(FILE* file)
@@ -78,10 +80,10 @@ int fputl(long l, FILE* file)
   int b1, b2, b3, b4;
 
   // Little endian.
-  b4 = (int)((l & 0xFF000000L) >> 24);
-  b3 = (int)((l & 0x00FF0000L) >> 16);
-  b2 = (int)((l & 0x0000FF00L) >> 8);
-  b1 = (int)l & 0x00FF;
+  b4 = static_cast<int>((l & 0xFF000000L) >> 24);
+  b3 = static_cast<int>((l & 0x00FF0000L) >> 16);
+  b2 = static_cast<int>((l & 0x0000FF00L) >> 8);
+  b1 = static_cast<int>(l) & 0x00FF;
 
   if (fputc(b1, file) == b1)
     if (fputc(b2, file) == b2)

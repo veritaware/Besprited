@@ -7,8 +7,8 @@
 
 /*
 
-safe_ptr is a pointer that becomes null (and so do all of its copies) automatically
-when its initial instance is destroyed:
+safe_ptr is a pointer that becomes null (and so do all of its copies)
+automatically when its initial instance is destroyed:
 
 struct A {
   base::safe_ptr<A> ptr{this}; // initial instance
@@ -20,8 +20,8 @@ delete a;
 printf("b: %p\n", b.get()); // prints 0
 
 
-If the class you want to use has a virtual destructor, you can also create a safe_ptr without
-adding it manually, like this:
+If the class you want to use has a virtual destructor, you can also create a
+safe_ptr without adding it manually, like this:
 
 struct A {
   virtual ~A(){} // important!
@@ -32,11 +32,10 @@ delete a.get();
 if (b) printf("b is alive!\n"); // b is null, nothing is printed
 
 
-If you can't access a class's initial safe_ptr (such as is the case with make_safe), and you
-have a raw pointer to the class, you can get a copy safe_ptr like this:
-void func(A* raw) {
-  auto b = base::findSafePtr(raw);
-  if (b) printf("b is alive!");
+If you can't access a class's initial safe_ptr (such as is the case with
+make_safe), and you have a raw pointer to the class, you can get a copy safe_ptr
+like this: void func(A* raw) { auto b = base::findSafePtr(raw); if (b) printf("b
+is alive!");
 }
 
  */
@@ -51,80 +50,96 @@ void func(A* raw) {
 #include <cstdint>
 #include <vector>
 
-namespace base {
+namespace base
+{
 
-  template<typename Type>
-  class safe_ptr {
-    std::shared_ptr<Type*> storage;
-    const bool owning = false;
+template <typename Type> class safe_ptr
+{
+  std::shared_ptr<Type*> storage;
+  const bool owning = false;
 
-  public:
-    safe_ptr(std::nullptr_t) {}
+public:
+  safe_ptr(std::nullptr_t) {}
 
-    safe_ptr() = delete;
+  safe_ptr() = delete;
 
-    explicit safe_ptr(Type* ptr) :
-      storage{std::make_shared<Type*>(ptr)},
-      owning{true} {}
+  explicit safe_ptr(Type* ptr)
+    : storage{std::make_shared<Type*>(ptr)}
+    , owning{true}
+  {
+  }
 
-    safe_ptr(const safe_ptr<Type>& other) : storage{other.storage} {}
-    safe_ptr<Type>& operator = (const safe_ptr<Type>& other) {storage = other.storage; return *this;}
+  safe_ptr(const safe_ptr<Type>& other)
+    : storage{other.storage}
+  {
+  }
+  safe_ptr<Type>& operator=(const safe_ptr<Type>& other)
+  {
+    storage = other.storage;
+    return *this;
+  }
 
-    safe_ptr(safe_ptr<Type>&& other) : storage{other.storage} {}
-    safe_ptr<Type>& operator = (safe_ptr<Type>&& other) {storage = other.storage; return *this;}
+  safe_ptr(safe_ptr<Type>&& other)
+    : storage{other.storage}
+  {
+  }
+  safe_ptr<Type>& operator=(safe_ptr<Type>&& other)
+  {
+    storage = other.storage;
+    return *this;
+  }
 
-    operator bool () const {
-      return storage && *storage;
-    }
+  operator bool() const { return storage && *storage; }
 
-    template<typename Derived = Type>
-    Derived* get() const {
-      return *storage;
-    }
+  template <typename Derived = Type> [[nodiscard]] Derived* get() const
+  {
+    return *storage;
+  }
 
-    Type* operator -> () const {
-      return *storage;
-    }
+  Type* operator->() const { return *storage; }
 
-    Type& operator * () const {
-      return **storage;
-    }
+  Type& operator*() const { return **storage; }
 
-    // Only participates in overload resolution for scalar targets (bool,
-    // other pointer types, integers, enums...). Without this constraint the
-    // operator is a universal implicit conversion candidate for *any* class
-    // type T, which some SFINAE-heavy code (e.g. GoogleTest's
-    // AssertionResult, whose constructors probe std::is_convertible<...,
-    // AssertionResult> while overload-resolving an implicit bool
-    // conversion) ends up instantiating in ways that are unrelated to the
-    // caller's intent and unsafe to evaluate eagerly.
-    template<typename T,
-             typename std::enable_if<std::is_scalar<T>::value, int>::type = 0>
-    operator T () const {
-      // Guard against dereferencing empty/expired storage, same as
-      // operator bool() above.
-      if (!storage || !*storage)
-        return T{};
-      return static_cast<T>(*storage);
-    }
+  // Only participates in overload resolution for scalar targets (bool,
+  // other pointer types, integers, enums...). Without this constraint the
+  // operator is a universal implicit conversion candidate for *any* class
+  // type T, which some SFINAE-heavy code (e.g. GoogleTest's
+  // AssertionResult, whose constructors probe std::is_convertible<...,
+  // AssertionResult> while overload-resolving an implicit bool
+  // conversion) ends up instantiating in ways that are unrelated to the
+  // caller's intent and unsafe to evaluate eagerly.
+  template <typename T,
+            typename std::enable_if<std::is_scalar<T>::value, int>::type = 0>
+  operator T() const
+  {
+    // Guard against dereferencing empty/expired storage, same as
+    // operator bool() above.
+    if (!storage || !*storage)
+      return T{};
+    return static_cast<T>(*storage);
+  }
 
-    ~safe_ptr(){
-      if (owning)
-        *storage = 0;
-    }
-  };
+  ~safe_ptr()
+  {
+    if (owning)
+      *storage = 0;
+  }
+};
 
-  namespace detail {
+namespace detail
+{
 
-    inline std::vector<std::function<void()>>& getSafePtrPurgers() {
-      static std::vector<std::function<void()>> purgers;
-      return purgers;
-    }
+inline std::vector<std::function<void()>>& getSafePtrPurgers()
+{
+  static std::vector<std::function<void()>> purgers;
+  return purgers;
+}
 
-    template<typename Type>
-    std::unordered_map<Type*, safe_ptr<Type>>& getSafePtrIndex() {
-      static std::unordered_map<Type*, safe_ptr<Type>> index;
-      static bool init = ([]{
+template <typename Type>
+std::unordered_map<Type*, safe_ptr<Type>>& getSafePtrIndex()
+{
+  static std::unordered_map<Type*, safe_ptr<Type>> index;
+  static const bool init = ([]{
         getSafePtrPurgers().push_back([]{
           auto it = index.begin();
           while (it != index.end()) {
@@ -136,47 +151,54 @@ namespace base {
         });
         return true;
       })();
-      (void) init;
-      return index;
-    }
-  }
+  (void)init;
+  return index;
+}
+} // namespace detail
 
-  template<typename Type>
-  void saveSafePtr(Type* raw, safe_ptr<Type> safe) {
-    // Overwrite, don't emplace: a dead entry can still be sitting at `raw`
-    // if the heap reused a previously make_safe()'d object's address
-    // before a purgeSafePtrs() ran. emplace() would silently keep that
-    // stale (dead) entry instead of registering the new, live object.
-    // insert_or_assign() (rather than operator[]) avoids requiring
-    // safe_ptr<Type> to be default-constructible, which it isn't.
-    detail::getSafePtrIndex<Type>().insert_or_assign(raw, safe);
-  }
+template <typename Type> void saveSafePtr(Type* raw, safe_ptr<Type> safe)
+{
+  // Overwrite, don't emplace: a dead entry can still be sitting at `raw`
+  // if the heap reused a previously make_safe()'d object's address
+  // before a purgeSafePtrs() ran. emplace() would silently keep that
+  // stale (dead) entry instead of registering the new, live object.
+  // insert_or_assign() (rather than operator[]) avoids requiring
+  // safe_ptr<Type> to be default-constructible, which it isn't.
+  detail::getSafePtrIndex<Type>().insert_or_assign(raw, safe);
+}
 
-  template<typename Type>
-  safe_ptr<Type> findSafePtr(Type* raw) {
-    auto& index = detail::getSafePtrIndex<Type>();
-    auto it = index.find(raw);
-    return it == index.end() ? safe_ptr<Type>{nullptr} : it->second;
-  }
+template <typename Type> safe_ptr<Type> findSafePtr(Type* raw)
+{
+  auto& index = detail::getSafePtrIndex<Type>();
+  auto it = index.find(raw);
+  return it == index.end() ? safe_ptr<Type>{nullptr} : it->second;
+}
 
-  inline void purgeSafePtrs() {
-    for (auto& purger : detail::getSafePtrPurgers()) {
-      purger();
-    }
-  }
-
-  template<typename Type,
-           typename ... Args,
-           typename std::enable_if<std::has_virtual_destructor<Type>::value, bool>::type = 0>
-  safe_ptr<Type> make_safe(Args&& ... args) {
-    class Safe : public Type {
-      safe_ptr<Type> _ptr{this};
-    public:
-      Safe(Args&& ... args) : Type{std::forward<Args>(args)...} {
-        saveSafePtr<Type>(this, _ptr);
-      }
-      safe_ptr<Type> _get_safe_ptr() {return _ptr;}
-    };
-    return (new Safe{std::forward<Args>(args)...})->_get_safe_ptr();
+inline void purgeSafePtrs()
+{
+  for (auto& purger : detail::getSafePtrPurgers())
+  {
+    purger();
   }
 }
+
+template <typename Type, typename... Args,
+          typename std::enable_if<std::has_virtual_destructor<Type>::value,
+                                  bool>::type = 0>
+safe_ptr<Type> make_safe(Args&&... args)
+{
+  class Safe : public Type
+  {
+    safe_ptr<Type> _ptr{this};
+
+  public:
+    Safe(Args&&... args)
+      : Type{std::forward<Args>(args)...}
+    {
+      saveSafePtr<Type>(this, _ptr);
+    }
+    safe_ptr<Type> _get_safe_ptr() { return _ptr; }
+  };
+  return (new Safe{std::forward<Args>(args)...})->_get_safe_ptr();
+}
+} // namespace base

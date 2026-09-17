@@ -1,23 +1,26 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
 #pragma once
 
-namespace base {
+namespace base
+{
 
-  class Chrono {
-  public:
-    Chrono();
-    ~Chrono();
-    void reset();
-    double elapsed() const;
+class Chrono
+{
+public:
+  Chrono();
+  ~Chrono();
+  void reset();
+  double elapsed() const;
 
-  private:
-    class ChronoImpl;
-    ChronoImpl* m_impl;
-  };
+private:
+  class ChronoImpl;
+  ChronoImpl* m_impl;
+};
 
 } // namespace base

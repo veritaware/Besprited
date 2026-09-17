@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2016 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,29 +10,33 @@
 #include "base/ints.h"
 #include <iosfwd>
 
-namespace base {
-namespace serialization {
+namespace base
+{
+namespace serialization
+{
 
-  std::ostream& write8(std::ostream& os, uint8_t byte);
-  uint8_t read8(std::istream& is);
+std::ostream& write8(std::ostream& os, uint8_t byte);
+uint8_t read8(std::istream& is);
 
-  namespace little_endian {
+namespace little_endian
+{
 
-    std::ostream& write16(std::ostream& os, uint16_t word);
-    std::ostream& write32(std::ostream& os, uint32_t dword);
-    uint16_t read16(std::istream& is);
-    uint32_t read32(std::istream& is);
+std::ostream& write16(std::ostream& os, uint16_t word);
+std::ostream& write32(std::ostream& os, uint32_t dword);
+uint16_t read16(std::istream& is);
+uint32_t read32(std::istream& is);
 
-  } // little_endian namespace
+} // namespace little_endian
 
-  namespace big_endian {
+namespace big_endian
+{
 
-    std::ostream& write16(std::ostream& os, uint16_t word);
-    std::ostream& write32(std::ostream& os, uint32_t dword);
-    uint16_t read16(std::istream& is);
-    uint32_t read32(std::istream& is);
+std::ostream& write16(std::ostream& os, uint16_t word);
+std::ostream& write32(std::ostream& os, uint32_t dword);
+uint16_t read16(std::istream& is);
+uint32_t read32(std::istream& is);
 
-  } // big_endian namespace
+} // namespace big_endian
 
-} // serialization namespace
-} // base namespace
+} // namespace serialization
+} // namespace base

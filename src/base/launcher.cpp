@@ -1,5 +1,6 @@
 // Aseprite    | Copyright (C) 2001-2016  David Capello
 // LibreSprite | Copyright (C) 2018-2022  LibreSprite contributors
+// Besprited   | Copyright (C) 2026       Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -26,7 +27,8 @@
 #define SEE_MASK_DEFAULT 0x00000000
 #endif
 
-static int win32_shell_execute(const wchar_t* verb, const wchar_t* file, const wchar_t* params)
+static int win32_shell_execute(const wchar_t* verb, const wchar_t* file,
+                               const wchar_t* params)
 {
   SHELLEXECUTEINFOW sh;
   ZeroMemory((LPVOID)&sh, sizeof(sh));
@@ -37,7 +39,8 @@ static int win32_shell_execute(const wchar_t* verb, const wchar_t* file, const w
   sh.lpParameters = params;
   sh.nShow = SW_SHOWNORMAL;
 
-  if (!ShellExecuteExW(&sh)) {
+  if (!ShellExecuteExW(&sh))
+  {
     int ret = GetLastError();
 #if 0
     if (ret != 0) {
@@ -47,10 +50,10 @@ static int win32_shell_execute(const wchar_t* verb, const wchar_t* file, const w
         FORMAT_MESSAGE_IGNORE_INSERTS;
       LPSTR msgbuf;
 
-      if (FormatMessageA(flags, NULL, ret,
+      if (FormatMessageA(flags, nullptr, ret,
                          MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                          reinterpret_cast<LPSTR>(&msgbuf),
-                         0, NULL)) {
+                         0, nullptr)) {
         ui::Alert::show("Problem<<Cannot open:<<%s<<%s||&Close", file, msgbuf);
         LocalFree(msgbuf);
 
@@ -63,10 +66,10 @@ static int win32_shell_execute(const wchar_t* verb, const wchar_t* file, const w
   else
     return 0;
 }
-#endif  // _WIN32
+#endif // _WIN32
 
-namespace base {
-namespace launcher {
+namespace base::launcher
+{
 
 bool open_url(const std::string& url)
 {
@@ -80,17 +83,15 @@ bool open_file(const std::string& file)
 #ifdef __EMSCRIPTEN__
 
   auto protocol = base::string_to_lower(base::split(file, ':')[0]);
-  if (protocol == "https" || protocol == "http") {
-      MAIN_THREAD_EM_ASM({
-	      open(UTF8ToString($0));
-	  }, file.c_str());
-      ret = 0;
+  if (protocol == "https" || protocol == "http")
+  {
+    MAIN_THREAD_EM_ASM({ open(UTF8ToString($0)); }, file.c_str());
+    ret = 0;
   }
 
 #elif _WIN32
 
-  ret = win32_shell_execute(L"open",
-                            base::from_utf8(file).c_str(), NULL);
+  ret = win32_shell_execute(L"open", base::from_utf8(file).c_str(), nullptr);
 
 #elif __APPLE__
 
@@ -112,23 +113,29 @@ bool open_folder(const std::string& _file)
 #ifdef _WIN32
 
   int ret;
-  if (base::is_directory(file)) {
-    ret = win32_shell_execute(NULL, L"explorer",
-      (L"/n,/e,\"" + base::from_utf8(file) + L"\"").c_str());
+  if (base::is_directory(file))
+  {
+    ret = win32_shell_execute(
+        nullptr, L"explorer",
+        (L"/n,/e,\"" + base::from_utf8(file) + L"\"").c_str());
   }
-  else {
-    ret = win32_shell_execute(NULL, L"explorer",
-      (L"/e,/select,\"" + base::from_utf8(file) + L"\"").c_str());
+  else
+  {
+    ret = win32_shell_execute(
+        nullptr, L"explorer",
+        (L"/e,/select,\"" + base::from_utf8(file) + L"\"").c_str());
   }
   return (ret == 0);
 
 #elif __APPLE__
 
   int ret;
-  if (base::is_directory(file)) {
+  if (base::is_directory(file))
+  {
     ret = std::system(("open \"" + file + "\"").c_str());
   }
-  else {
+  else
+  {
     ret = std::system(("open --reveal \"" + file + "\"").c_str());
   }
   return (ret == 0);
@@ -144,5 +151,4 @@ bool open_folder(const std::string& _file)
 #endif
 }
 
-} // namespace launcher
-} // namespace base
+} // namespace base::launcher

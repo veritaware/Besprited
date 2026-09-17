@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2015 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,13 +13,15 @@
 
 #include "modp_b64.h"
 
-namespace base {
+namespace base
+{
 
 void encode_base64(const buffer& input, std::string& output)
 {
   size_t size = modp_b64_encode_len(input.size());
   output.resize(size);
-  size = modp_b64_encode(&output[0], (const char*)&input[0], input.size());
+  size = modp_b64_encode(&output[0], reinterpret_cast<const char*>(&input[0]),
+                         input.size());
   if (size != MODP_B64_ERROR)
     output.erase(size, std::string::npos);
   else
@@ -28,7 +31,8 @@ void encode_base64(const buffer& input, std::string& output)
 void decode_base64(const std::string& input, buffer& output)
 {
   output.resize(modp_b64_decode_len(input.size()));
-  size_t size = modp_b64_decode((char*)&output[0], input.c_str(), input.size());
+  const size_t size = modp_b64_decode(reinterpret_cast<char*>(&output[0]),
+                                      input.c_str(), input.size());
   if (size != MODP_B64_ERROR)
     output.resize(size);
   else

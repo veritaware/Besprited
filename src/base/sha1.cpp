@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013, 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,7 +16,8 @@
 #include <cassert>
 #include <fstream>
 
-namespace base {
+namespace base
+{
 
 Sha1::Sha1()
   : m_digest(20, 0)
@@ -35,15 +37,16 @@ Sha1 Sha1::calculateFromFile(const std::string& fileName)
 
   ifstream file(FSTREAM_PATH(fileName), ios::in | ios::binary);
   if (!file.good())
-    return Sha1();
+    return {};
 
   SHA1Context sha;
   SHA1Reset(&sha);
 
   unsigned char buf[1024];
-  while (file.good()) {
-    file.read((char*)buf, 1024);
-    unsigned int len = (unsigned int)file.gcount();
+  while (file.good())
+  {
+    file.read(reinterpret_cast<char*>(buf), 1024);
+    const auto len = static_cast<unsigned int>(file.gcount());
     if (len > 0)
       SHA1Input(&sha, buf, len);
   }

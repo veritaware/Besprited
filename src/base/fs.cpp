@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013, 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,12 +13,13 @@
 #include "base/split_string.h"
 
 #ifdef _WIN32
-  #include "base/fs_win32.h"
+#include "base/fs_win32.h"
 #else
-  #include "base/fs_unix.h"
+#include "base/fs_unix.h"
 #endif
 
-namespace base {
+namespace base
+{
 
 void make_all_directories(const std::string& path)
 {
@@ -25,8 +27,10 @@ void make_all_directories(const std::string& path)
   split_string(path, parts, "/\\");
 
   std::string intermediate;
-  for (const std::string& component : parts) {
-    if (component.empty()) {
+  for (const std::string& component : parts)
+  {
+    if (component.empty())
+    {
       if (intermediate.empty())
         intermediate += "/";
       continue;
@@ -35,7 +39,8 @@ void make_all_directories(const std::string& path)
     intermediate = join_path(intermediate, component);
 
     if (is_file(intermediate))
-      throw std::runtime_error("Error creating directory (a component is a file name)");
+      throw std::runtime_error(
+          "Error creating directory (a component is a file name)");
     else if (!is_directory(intermediate))
       make_directory(intermediate);
   }

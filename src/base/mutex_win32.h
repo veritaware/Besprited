@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013, 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,32 +9,25 @@
 
 #include <windows.h>
 
-class base::mutex::mutex_impl {
+class base::mutex::mutex_impl
+{
 public:
+  mutex_impl() { InitializeCriticalSection(&m_handle); }
 
-  mutex_impl() {
-    InitializeCriticalSection(&m_handle);
-  }
+  ~mutex_impl() { DeleteCriticalSection(&m_handle); }
 
-  ~mutex_impl() {
-    DeleteCriticalSection(&m_handle);
-  }
+  void lock() { EnterCriticalSection(&m_handle); }
 
-  void lock() {
-    EnterCriticalSection(&m_handle);
-  }
-
-  bool try_lock() {
-#if(_WIN32_WINNT >= 0x0400)
-    return TryEnterCriticalSection(&m_handle) ? true: false;
+  bool try_lock()
+  {
+#if (_WIN32_WINNT >= 0x0400)
+    return TryEnterCriticalSection(&m_handle) ? true : false;
 #else
     return false;
 #endif
   }
 
-  void unlock() {
-    LeaveCriticalSection(&m_handle);
-  }
+  void unlock() { LeaveCriticalSection(&m_handle); }
 
 private:
   CRITICAL_SECTION m_handle;

@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,65 +15,68 @@
 #include <cstdint>
 #include <cstdlib>
 
-namespace base {
-
-template<> int convert_to(const std::string& from)
+namespace base
 {
-  return std::strtol(from.c_str(), NULL, 10);
+
+template <> int convert_to(const std::string& from)
+{
+  return std::strtol(from.c_str(), nullptr, 10);
 }
 
-template<> std::string convert_to(const int& from)
+template <> std::string convert_to(const int& from)
 {
   char buf[32];
   std::snprintf(buf, sizeof(buf), "%d", from);
   return buf;
 }
 
-template<> uint32_t convert_to(const std::string& from)
+template <> uint32_t convert_to(const std::string& from)
 {
-  return std::strtoul(from.c_str(), NULL, 10);
+  return std::strtoul(from.c_str(), nullptr, 10);
 }
 
-template<> std::string convert_to(const uint32_t& from)
+template <> std::string convert_to(const uint32_t& from)
 {
   char buf[32];
   std::snprintf(buf, sizeof(buf), "%u", from);
   return buf;
 }
 
-template<> double convert_to(const std::string& from)
+template <> double convert_to(const std::string& from)
 {
-  return std::strtod(from.c_str(), NULL);
+  return std::strtod(from.c_str(), nullptr);
 }
 
-template<> std::string convert_to(const double& from)
+template <> std::string convert_to(const double& from)
 {
   char buf[32];
   std::snprintf(buf, sizeof(buf), "%g", from);
   return buf;
 }
 
-template<> Sha1 convert_to(const std::string& from)
+template <> Sha1 convert_to(const std::string& from)
 {
   std::vector<uint8_t> digest(Sha1::HashSize);
 
-  for (size_t i=0; i<Sha1::HashSize; ++i) {
-    if (i*2+1 >= from.size())
+  for (size_t i = 0; i < Sha1::HashSize; ++i)
+  {
+    if (i * 2 + 1 >= from.size())
       break;
 
-    digest[i] = convert_to<int>(from.substr(i*2, 2));
+    digest[i] = convert_to<int>(from.substr(i * 2, 2));
   }
 
   return Sha1(digest);
 }
 
-template<> std::string convert_to(const Sha1& from)
+template <> std::string convert_to(const Sha1& from)
 {
   char buf[3];
   std::string res;
-  res.reserve(2*Sha1::HashSize);
+  res.reserve(2 * Sha1::HashSize);
 
-  for(int c=0; c<Sha1::HashSize; ++c) {
+  for (int c = 0; c < Sha1::HashSize; ++c)
+  {
     snprintf(buf, sizeof(buf), "%02x", from[c]);
     res += buf;
   }

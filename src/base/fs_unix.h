@@ -10,8 +10,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include <climits>              // Required for PATH_MAX
-#include <cstdio>               // Required for rename()
+#include <climits> // Required for PATH_MAX
+#include <cstdio>  // Required for rename()
 #include <cstdlib>
 #include <ctime>
 #include <stdexcept>
@@ -34,24 +34,26 @@ extern std::string _AndroidDataDir;
 extern std::string _AndroidStorageDir;
 #endif
 
-namespace base {
+namespace base
+{
 
 bool is_file(const std::string& path)
 {
   struct stat sts;
-  return (stat(path.c_str(), &sts) == 0 && S_ISREG(sts.st_mode)) ? true: false;
+  return (stat(path.c_str(), &sts) == 0 && S_ISREG(sts.st_mode)) ? true : false;
 }
 
 bool is_directory(const std::string& path)
 {
   struct stat sts;
-  return (stat(path.c_str(), &sts) == 0 && S_ISDIR(sts.st_mode)) ? true: false;
+  return (stat(path.c_str(), &sts) == 0 && S_ISDIR(sts.st_mode)) ? true : false;
 }
 
 void make_directory(const std::string& path)
 {
   int result = mkdir(path.c_str(), 0777);
-  if (result < 0) {
+  if (result < 0)
+  {
     // TODO add errno into the exception
     throw std::runtime_error("Error creating directory");
   }
@@ -60,7 +62,7 @@ void make_directory(const std::string& path)
 size_t file_size(const std::string& path)
 {
   struct stat sts;
-  return (stat(path.c_str(), &sts) == 0) ? sts.st_size: 0;
+  return (stat(path.c_str(), &sts) == 0) ? sts.st_size : 0;
 }
 
 void move_file(const std::string& src, const std::string& dst)
@@ -73,7 +75,8 @@ void move_file(const std::string& src, const std::string& dst)
 
 void copy_file(const std::string& src, const std::string& dst)
 {
-    std::filesystem::copy_file(src, dst, std::filesystem::copy_options::overwrite_existing);
+  std::filesystem::copy_file(src, dst,
+                             std::filesystem::copy_options::overwrite_existing);
 }
 
 void delete_file(const std::string& path)
@@ -94,7 +97,8 @@ void remove_readonly_attr(const std::string& path)
 {
   struct stat sts;
   int result = stat(path.c_str(), &sts);
-  if (result == 0) {
+  if (result == 0)
+  {
     result = chmod(path.c_str(), sts.st_mode | S_IWUSR);
     if (result != 0)
       // TODO add errno into the exception
@@ -110,15 +114,15 @@ Time get_modification_time(const std::string& path)
     return Time();
 
   std::tm* t = std::localtime(&sts.st_mtime);
-  return Time(
-    t->tm_year+1900, t->tm_mon+1, t->tm_mday,
-    t->tm_hour, t->tm_min, t->tm_sec);
+  return Time(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour,
+              t->tm_min, t->tm_sec);
 }
 
 void remove_directory(const std::string& path)
 {
   int result = rmdir(path.c_str());
-  if (result != 0) {
+  if (result != 0)
+  {
     // TODO add errno into the exception
     throw std::runtime_error("Error removing directory");
   }
@@ -139,12 +143,12 @@ std::string get_app_path()
     path.resize(size);
 #elif __FreeBSD__
   size_t size = path.size();
-  const int mib[] = { CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1 };
-  while (sysctl(mib, 4, &path[0], &size, NULL, 0) == -1)
-      path.resize(size);
+  const int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+  while (sysctl(mib, 4, &path[0], &size, nullptr, 0) == -1)
+    path.resize(size);
 #elif defined(ANDROID)
   return _AndroidDataDir + "/";
-#else  /* linux */
+#else /* linux */
   ssize_t nread = readlink("/proc/self/exe", &path[0], path.size());
   (void)nread;
 #endif
@@ -177,7 +181,8 @@ std::string get_user_docs_folder()
 std::string get_canonical_path(const std::string& path)
 {
   char buffer[PATH_MAX];
-  if (realpath(path.c_str(), buffer) == NULL) {
+  if (realpath(path.c_str(), buffer) == nullptr)
+  {
     return path;
   }
   return buffer;
@@ -187,9 +192,11 @@ std::vector<std::string> list_files(const std::string& path)
 {
   std::vector<std::string> files;
   DIR* handle = opendir(path.c_str());
-  if (handle) {
+  if (handle)
+  {
     dirent* item;
-    while ((item = readdir(handle)) != nullptr) {
+    while ((item = readdir(handle)) != nullptr)
+    {
       std::string filename = item->d_name;
       if (filename != "." && filename != "..")
         files.push_back(filename);
@@ -203,42 +210,37 @@ std::vector<std::string> list_files(const std::string& path)
 #if defined(ANDROID)
 std::vector<std::string> get_font_paths()
 {
-    return {
-        "/system/fonts",
-        _AndroidDataDir + "/data/fonts",
-        _AndroidStorageDir + "/fonts"
-    };
+  return {"/system/fonts", _AndroidDataDir + "/data/fonts",
+          _AndroidStorageDir + "/fonts"};
 }
 
 #elif !__APPLE__
 
 std::vector<std::string> get_font_paths()
 {
-    std::string home = getenv("HOME");
-    if (home.empty())
-        home = "~";
-    return {
-        "/usr/share/fonts",
-        "/usr/local/share/fonts",
-        home + "/.local/share/fonts",
-        home + "/.fonts",
-        "/usr/share/fonts/OTF",
-        "/usr/local/share/fonts/OTF",
-        home + "/.local/share/fonts/OTF",
-        "/usr/share/fonts/OTF",
-        "/usr/local/share/fonts/OTF",
-        home + "/.local/share/fonts/OTF",
-        home + "/.font/OTF",
-        "/usr/share/fonts/TTF",
-        "/usr/local/share/fonts/TTF",
-        home + "/.local/share/fonts/TTF",
-        home + "/.font/TTF",
-        "/usr/share/fonts/ttf",
-        "/usr/local/share/fonts/ttf",
-        home + "/.local/share/fonts/ttf",
-        home + "/.font/ttf"
-    };
+  std::string home = getenv("HOME");
+  if (home.empty())
+    home = "~";
+  return {"/usr/share/fonts",
+          "/usr/local/share/fonts",
+          home + "/.local/share/fonts",
+          home + "/.fonts",
+          "/usr/share/fonts/OTF",
+          "/usr/local/share/fonts/OTF",
+          home + "/.local/share/fonts/OTF",
+          "/usr/share/fonts/OTF",
+          "/usr/local/share/fonts/OTF",
+          home + "/.local/share/fonts/OTF",
+          home + "/.font/OTF",
+          "/usr/share/fonts/TTF",
+          "/usr/local/share/fonts/TTF",
+          home + "/.local/share/fonts/TTF",
+          home + "/.font/TTF",
+          "/usr/share/fonts/ttf",
+          "/usr/local/share/fonts/ttf",
+          home + "/.local/share/fonts/ttf",
+          home + "/.font/ttf"};
 }
 #endif
 
-}
+} // namespace base

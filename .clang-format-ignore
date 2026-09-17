@@ -7,3 +7,8 @@
 # everything after the guarded block by re-parsing the JS as malformed C++
 # brace/paren nesting. Keep this file hand-formatted instead.
 src/cfg/cfg.cpp
+
+# fs_osx.mm is Objective-C++; this project's .clang-format has no ObjC
+# language mode, so clang-format refuses to reformat it (and is not
+# idempotent when forced). Keep it hand-formatted instead.
+src/base/fs_osx.mm

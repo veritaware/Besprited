@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,18 +11,18 @@
 
 #include "base/replace_string.h"
 
-namespace base {
-
-void replace_string(
-  std::string& subject,
-  const std::string& replace_this,
-  const std::string& with_that)
+namespace base
 {
-  if (replace_this.empty())     // Do nothing case
+
+void replace_string(std::string& subject, const std::string& replace_this,
+                    const std::string& with_that)
+{
+  if (replace_this.empty()) // Do nothing case
     return;
 
   std::size_t i = 0;
-  while (true) {
+  while (true)
+  {
     i = subject.find(replace_this, i);
     if (i == std::string::npos)
       break;
