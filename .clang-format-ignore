@@ -18,3 +18,18 @@ src/base/fs_osx.mm
 # `= >` when reformatting this file, same class of bug as cfg.cpp above.
 # Keep it hand-formatted instead.
 src/net/http_request_wasm.cpp
+
+# she.cpp embeds raw JavaScript inside EM_ASM/EM_JS/MAIN_THREAD_EM_ASM(...)
+# macros scattered throughout the file (arrow functions, object literals),
+# same class of bug as cfg.cpp above: clang-format corrupts `=>` into `= >`.
+# Keep it hand-formatted instead.
+src/she/sdl2/she.cpp
+
+# These she/osx/*.h headers contain Objective-C constructs (blocks, @interface
+# forward decls, etc); same "no ObjC language mode" limitation as fs_osx.mm
+# above. clang-format refuses to touch them at all. Keep hand-formatted.
+src/she/osx/app_delegate.h
+src/she/osx/generate_drop_files.h
+src/she/osx/view.h
+src/she/osx/window.h
+src/she/osx/window_delegate.h

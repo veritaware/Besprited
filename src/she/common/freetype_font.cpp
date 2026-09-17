@@ -1,6 +1,7 @@
-// SHE library
-// Copyright (C) 2016  David Capello
-// Copyright (C) 2021  LibreSprite contributors
+// SHE Library
+// Aseprite    | Copyright (C) 2016 David Capello
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,7 +16,8 @@
 #include "gfx/point.h"
 #include "gfx/size.h"
 
-namespace she {
+namespace she
+{
 
 FreeTypeFont::FreeTypeFont(const char* filename, int height)
   : m_face(m_ft.open(filename))
@@ -37,7 +39,7 @@ FontType FreeTypeFont::type()
 
 int FreeTypeFont::height() const
 {
-  return int(m_face.height());
+  return static_cast<int>(m_face.height());
 }
 
 gfx::Rect FreeTypeFont::charBounds(int chr) const
@@ -74,8 +76,9 @@ void FreeTypeFont::setAntialias(bool antialias)
 
 FreeTypeFont* loadFreeTypeFont(const char* filename, int height)
 {
-  FreeTypeFont* font = new FreeTypeFont(filename, height);
-  if (!font->isValid()) {
+  auto* font = new FreeTypeFont(filename, height);
+  if (!font->isValid())
+  {
     delete font;
     font = nullptr;
   }
