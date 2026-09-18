@@ -455,7 +455,7 @@ static void read_rle8_compressed_image(FILE* f, Image* image,
           }
 
           if (j % 2 == 1)
-            val0 = fgetc(f); /* align on word boundary */
+            val0 = fgetc(f); /* align on word boundary */ // NOLINT(clang-analyzer-deadcode.DeadStores)
           break;
         }
       }

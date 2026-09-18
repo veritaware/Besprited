@@ -366,7 +366,11 @@ color_t rgba_blender_exclusion(color_t backdrop, color_t src, int opacity)
   if ((backdrop & rgba_a_mask) == 0)
     return rgba_blender_normal(backdrop, src, opacity);
 
-  int t;
+  // Scratch for the blend_exclusion()/MUL_UN8() macro pair, which always
+  // writes it before reading it back - initialized only to satisfy static
+  // analysis, since MUL_UN8's own first sub-expression sets it before its
+  // value is used.
+  int t = 0;
   const int r = blend_exclusion(rgba_getr(backdrop), rgba_getr(src), t);
   const int g = blend_exclusion(rgba_getg(backdrop), rgba_getg(src), t);
   const int b = blend_exclusion(rgba_getb(backdrop), rgba_getb(src), t);
@@ -743,7 +747,8 @@ color_t graya_blender_exclusion(color_t backdrop, color_t src, int opacity)
   if ((backdrop & graya_a_mask) == 0)
     return graya_blender_normal(backdrop, src, opacity);
 
-  int t;
+  // See the rgba_blender_exclusion() comment above.
+  int t = 0;
   const int v = blend_exclusion(graya_getv(backdrop), graya_getv(src), t);
   src = graya(v, 0) | (src & graya_a_mask);
   return graya_blender_normal(backdrop, src, opacity);

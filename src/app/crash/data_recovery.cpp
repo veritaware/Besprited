@@ -66,7 +66,7 @@ DataRecovery::DataRecovery(doc::Context* ctx)
     base::Time time = base::current_time();
 
     char buf[1024];
-    snprintf(buf, sizeof(buf), "%04d%02d%02d-%02d%02d%02d-%d", time.year,
+    snprintf(buf, sizeof(buf), "%04d%02d%02d-%02d%02d%02d-%u", time.year,
              time.month, time.day, time.hour, time.minute, time.second, pid);
 
     newSessionDir = base::join_path(sessionsDir, buf);

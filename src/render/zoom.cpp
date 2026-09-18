@@ -83,7 +83,9 @@ Zoom Zoom::fromScale(double scale)
 Zoom Zoom::fromLinearScale(int i)
 {
   i = MID(0, i, scales_size - 1);
-  return Zoom(scales[i][0], scales[i][1]);
+  // clang-analyzer doesn't see MID() (a plain min/max macro) as clamping i
+  // into [0, scales_size-1] the way it would std::clamp.
+  return Zoom(scales[i][0], scales[i][1]); // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
 // static

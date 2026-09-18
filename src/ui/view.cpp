@@ -50,7 +50,13 @@ View::View()
 
   setFocusStop(true);
   addChild(&m_viewport);
-  setScrollableSize(Size(0, 0));
+  // This reaches the virtual setViewScroll()/viewScroll()/onSetViewScroll()
+  // chain below while View is still under construction, so any derived
+  // override (e.g. EditorView::onSetViewScroll) won't run yet - only
+  // View's own version will. EditorView's override guards on editor(),
+  // which is still null at this point anyway, so it would be a no-op even
+  // if virtual dispatch did reach it; there's no behavioral difference.
+  setScrollableSize(Size(0, 0)); // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
 
   initTheme();
 }
@@ -120,7 +126,7 @@ void View::setScrollableSize(const Size& sz)
   // Setup viewport
   invalidate();
   m_viewport.setBounds(viewportArea);
-  setViewScroll(viewScroll()); // Setup the same scroll-point
+  setViewScroll(viewScroll()); // Setup the same scroll-point // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
 }
 
 Size View::visibleSize() const
@@ -136,7 +142,7 @@ Point View::viewScroll() const
 
 void View::setViewScroll(const Point& pt)
 {
-  onSetViewScroll(pt);
+  onSetViewScroll(pt); // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
 }
 
 void View::updateView()

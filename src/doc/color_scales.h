@@ -16,12 +16,18 @@
 namespace doc
 {
 
+// clang-analyzer can't recognize this codebase's custom ASSERT() (which
+// calls base_assert(), an ordinary function) as narrowing the value the way
+// it understands the standard <cassert> assert() macro, so it still flags
+// these table lookups as potentially out of bounds despite the ASSERT just
+// above each one guaranteeing the index is in range.
+
 inline int scale_2bits_to_8bits(int channel2bits)
 {
   static int scale[4] = {0, 85, 170, 255};
   ASSERT(channel2bits >= 0);
   ASSERT(channel2bits < 4);
-  return scale[channel2bits];
+  return scale[channel2bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
 inline int scale_3bits_to_8bits(int channel3bits)
@@ -29,7 +35,7 @@ inline int scale_3bits_to_8bits(int channel3bits)
   static int scale[8] = {0, 36, 72, 109, 145, 182, 218, 255};
   ASSERT(channel3bits >= 0);
   ASSERT(channel3bits < 8);
-  return scale[channel3bits];
+  return scale[channel3bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
 inline int scale_4bits_to_8bits(int channel4bits)
@@ -38,7 +44,7 @@ inline int scale_4bits_to_8bits(int channel4bits)
                           136, 153, 170, 187, 204, 221, 238, 255};
   ASSERT(channel4bits >= 0);
   ASSERT(channel4bits < 16);
-  return scale[channel4bits];
+  return scale[channel4bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
 inline int scale_5bits_to_8bits(int channel5bits)
@@ -48,7 +54,7 @@ inline int scale_5bits_to_8bits(int channel5bits)
                           181, 189, 198, 206, 214, 222, 231, 239, 247, 255};
   ASSERT(channel5bits >= 0);
   ASSERT(channel5bits < 32);
-  return scale[channel5bits];
+  return scale[channel5bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
 inline int scale_6bits_to_8bits(int channel6bits)
@@ -61,7 +67,7 @@ inline int scale_6bits_to_8bits(int channel6bits)
                           223, 227, 231, 235, 239, 243, 247, 251, 255};
   ASSERT(channel6bits >= 0);
   ASSERT(channel6bits < 64);
-  return scale[channel6bits];
+  return scale[channel6bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
 } // namespace doc

@@ -1591,15 +1591,19 @@ void SkinTheme::paintCheckBox(PaintEvent& ev)
     look = skinProperty->getLook();
 
   // Background
-  g->fillRect(bg = BGCOLOR, bounds);
+  // `bg` is assigned inline so its value flows straight into fillRect()'s
+  // argument; the variable itself isn't read again afterward here, which
+  // clang-analyzer reports as a dead store even though the assigned value
+  // is used via the assignment expression itself.
+  g->fillRect(bg = BGCOLOR, bounds); // NOLINT(clang-analyzer-deadcode.DeadStores)
 
   // Mouse
   if (widget->isEnabled())
   {
     if (widget->hasMouseOver())
-      g->fillRect(bg = colors.checkHotFace(), bounds);
+      g->fillRect(bg = colors.checkHotFace(), bounds); // NOLINT(clang-analyzer-deadcode.DeadStores)
     else if (widget->hasFocus())
-      g->fillRect(bg = colors.checkFocusFace(), bounds);
+      g->fillRect(bg = colors.checkFocusFace(), bounds); // NOLINT(clang-analyzer-deadcode.DeadStores)
   }
 
   // Text
@@ -1949,9 +1953,9 @@ void SkinTheme::paintRadioButton(PaintEvent& ev)
   if (widget->isEnabled())
   {
     if (widget->hasMouseOver())
-      g->fillRect(bg = colors.radioHotFace(), bounds);
+      g->fillRect(bg = colors.radioHotFace(), bounds); // NOLINT(clang-analyzer-deadcode.DeadStores)
     else if (widget->hasFocus())
-      g->fillRect(bg = colors.radioFocusFace(), bounds);
+      g->fillRect(bg = colors.radioFocusFace(), bounds); // NOLINT(clang-analyzer-deadcode.DeadStores)
   }
 
   // Text

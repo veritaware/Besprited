@@ -734,7 +734,9 @@ void Manager::setFocus(Widget* widget)
             break;
         }
 
-        if (parent1->hasFocus())
+        // getParents() only ever pushes non-null widgets (it stops walking
+        // m_parent as soon as it hits null), so parent1 is never null here.
+        if (parent1->hasFocus()) // NOLINT(clang-analyzer-core.CallAndMessage)
         {
           parent1->disableFlags(HAS_FOCUS);
           msg->addRecipient(parent1);

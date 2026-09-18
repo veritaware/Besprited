@@ -92,7 +92,13 @@ void Document::removeFromContext()
     m_ctx->documents().remove(this);
     m_ctx = nullptr;
 
-    onContextChanged();
+    // When this runs from ~Document(), the vtable is back to doc::Document
+    // by now, so app::Document::onContextChanged() (which just forwards the
+    // now-null context to m_undo->setContext(), a plain pointer store with
+    // no other side effect) won't run - but m_undo is a Document member
+    // about to be destroyed itself, and nothing reads its context in
+    // between, so there's no observable difference either way.
+    onContextChanged(); // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
   }
 }
 

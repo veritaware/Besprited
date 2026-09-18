@@ -25,6 +25,13 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Nothing in this codebase uses C++20 modules, but Ninja + CMake >= 3.28
+# scans for them by default on any C++20-or-later target, adding
+# -fdeps-format=... / -fmodule-mapper=... flags to compile_commands.json.
+# clang-tidy (and clangd) don't understand those GCC-only flags and choke
+# with "unknown argument" errors on every single file. Skip the scan.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
 # This required for KDE/Qt destop integration, which sets BUILD_SHARED_LIBS to
 # TRUE by default
 set(BUILD_SHARED_LIBS off)
@@ -355,19 +362,34 @@ endif()
 # Static code analysis targets
 
 # cppcheck target
+#
+# --project reads compile_commands.json so cppcheck sees the exact defines
+# and include paths each file was actually built with, instead of guessing
+# every possible macro configuration (which used to raise bogus
+# unknownMacro/syntaxError findings on dead #ifdef branches like EMSCRIPTEN).
+# It also means only files that are actually part of this platform's build
+# get analyzed - no more "file not found" noise from Windows-only or
+# example/test sources that never get compiled here.
+#
+# --enable is intentionally narrower than "all": style/unusedFunction alone
+# account for the vast majority of cppcheck's ~2000 findings on this
+# codebase (mostly "could be const", "no explicit constructor", opinions
+# that don't reflect actual bugs), and unusedFunction produces false
+# positives for anything reached through the FileFormat/Command/Extension
+# registries below, which look unused from a single-TU analysis.
 find_program(CPPCHECK_EXECUTABLE cppcheck)
 if(CPPCHECK_EXECUTABLE)
   add_custom_target(cppcheck
     COMMAND ${CPPCHECK_EXECUTABLE}
-      --enable=all
+      --enable=warning,performance,portability
       --suppress=missingIncludeSystem
       --suppress=unmatchedSuppression
+      --suppressions-list=${CMAKE_SOURCE_DIR}/.cppcheck-suppressions
       --inline-suppr
       --error-exitcode=1
       --std=c++20
-      -I ${CMAKE_SOURCE_DIR}/src
-      -I ${CMAKE_SOURCE_DIR}/third_party
-      ${CMAKE_SOURCE_DIR}/src
+      -i ${CMAKE_SOURCE_DIR}/third_party
+      --project=${CMAKE_BINARY_DIR}/compile_commands.json
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running cppcheck static analysis"
     VERBATIM
@@ -378,24 +400,29 @@ else()
 endif()
 
 # clang-tidy target
+#
+# run-clang-tidy drives clang-tidy from compile_commands.json (same rationale
+# as cppcheck's --project above: only actually-built files get analyzed, and
+# multiple files are checked in parallel instead of one slow serial
+# invocation). The trailing regex restricts it to our own src/ tree, since
+# compile_commands.json also covers vendored third_party/ code we don't
+# control. Checks/HeaderFilterRegex are pinned in .clang-tidy at the repo
+# root.
 find_program(CLANG_TIDY_EXECUTABLE clang-tidy)
-if(CLANG_TIDY_EXECUTABLE)
-  # Get list of source files
-  file(GLOB_RECURSE ALL_SOURCE_FILES
-    ${CMAKE_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_SOURCE_DIR}/src/*.cc
-    ${CMAKE_SOURCE_DIR}/src/*.c
-  )
-
+find_program(RUN_CLANG_TIDY_EXECUTABLE NAMES run-clang-tidy run-clang-tidy.py)
+if(CLANG_TIDY_EXECUTABLE AND RUN_CLANG_TIDY_EXECUTABLE)
   add_custom_target(clang-tidy
-    COMMAND ${CLANG_TIDY_EXECUTABLE}
-      -p=${CMAKE_BINARY_DIR}
-      ${ALL_SOURCE_FILES}
+    COMMAND ${RUN_CLANG_TIDY_EXECUTABLE}
+      -p ${CMAKE_BINARY_DIR}
+      -quiet
+      "${CMAKE_SOURCE_DIR}/src/.*"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy static analysis"
     VERBATIM
   )
   message(STATUS "clang-tidy found: ${CLANG_TIDY_EXECUTABLE}")
+elseif(CLANG_TIDY_EXECUTABLE)
+  message(STATUS "clang-tidy found, but run-clang-tidy was not - target 'clang-tidy' will not be available")
 else()
   message(STATUS "clang-tidy not found - target 'clang-tidy' will not be available")
 endif()
