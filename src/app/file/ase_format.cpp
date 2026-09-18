@@ -1,6 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
-// Besprited   | Copyright (C) 2026       Veritaware
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -393,14 +393,12 @@ bool AseFormat::onPostLoad(FileOp* fop)
   {
     if (fop->context() && fop->context()->isUIAvailable() &&
         ui::Alert::show("Warning"
-                        "<<The file \"%s\" contains layer groups, which "
-                        "Besprited does not support yet."
-                        "<<Open it anyway? Layers inside groups will become "
-                        "top-level layers"
-                        "<<named \"Group-Layer\", and the groups will be lost "
-                        "if you save the file."
+                        "<<The file \"%s\" contains layer groups, which %s does not support yet."
+                        "<<Open it anyway? Layers inside groups will become top-level layers"
+                        "<<named \"Group-Layer\", and the groups will be lost if you save the file."
                         "||&Open||&Cancel",
-                        base::get_file_name(fop->filename()).c_str()) != 1)
+                        base::get_file_name(fop->filename()).c_str(),
+                        PACKAGE) != 1)
     {
       return false;
     }
