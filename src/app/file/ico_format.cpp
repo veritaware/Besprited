@@ -25,6 +25,7 @@
 #include "she/surface.h"
 #include "she/surface_format.h"
 #include <memory>
+#include <stdexcept>
 
 namespace app
 {
@@ -87,6 +88,8 @@ bool IcoFormat::onLoad(FileOp* fop)
   {
     auto surface = std::shared_ptr<she::Surface>(
         she::instance()->loadSurface(fop->filename().c_str()));
+    if (!surface)
+      throw std::runtime_error("she::loadSurface returned null");
     she::SurfaceFormatData data;
     surface->getFormat(&data);
     auto pixelFormat = data.bitsPerPixel <= 8 ? IMAGE_INDEXED : IMAGE_RGB;

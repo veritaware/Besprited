@@ -39,8 +39,6 @@ class SheFormat : public FileFormat
     return FILE_SUPPORT_LOAD | FILE_SUPPORT_SEQUENCES;
   }
 
-  int loadPriority() override { return 2; }
-
   bool onSave(FileOp* fop) override { return false; }
 
   bool onLoad(FileOp* fop) override;
@@ -54,6 +52,8 @@ bool SheFormat::onLoad(FileOp* fop)
   {
     auto surface = std::shared_ptr<she::Surface>(
         she::instance()->loadRgbaSurface(fop->filename().c_str()));
+    if (!surface)
+      return false;
     auto width = surface->width();
     auto height = surface->height();
     Image* image = fop->sequenceImage(IMAGE_RGB, width, height);

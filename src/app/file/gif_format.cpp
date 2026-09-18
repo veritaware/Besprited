@@ -788,7 +788,7 @@ private:
   int m_filesize;
   std::unique_ptr<Sprite> m_sprite;
   gfx::Rect m_spriteBounds;
-  LayerImage* m_layer;
+  LayerImage* m_layer = nullptr;
   int m_frameNum;
   bool m_opaque;
   DisposalMethod m_disposalMethod;
@@ -1336,9 +1336,9 @@ private:
   int m_loop;
   ImageBufferPtr m_frameImageBuf;
   ImageRef m_images[3];
-  Image* m_previousImage;
-  Image* m_currentImage;
-  Image* m_nextImage;
+  Image* m_previousImage = nullptr;
+  Image* m_currentImage = nullptr;
+  Image* m_nextImage = nullptr;
 };
 
 bool GifFormat::onSave(FileOp* fop)

@@ -215,6 +215,12 @@ bool AseFormat::onLoad(FileOp* fop)
     return false;
   }
 
+  if (header.width == 0 || header.height == 0)
+  {
+    fop->setError("Invalid ASE file: width and height must be greater than 0\n");
+    return false;
+  }
+
   // Create the new sprite
   std::unique_ptr<Sprite> sprite(
       new Sprite(header.depth == 32   ? IMAGE_RGB
@@ -369,6 +375,8 @@ bool AseFormat::onLoad(FileOp* fop)
   }
 
   fop->createDocument(sprite.get());
+  // cppcheck-suppress ignoredReturnValue ; releasing ownership is the
+  // point, sprite is now owned by the Document created above.
   sprite.release();
 
   if (ferror(f))
@@ -1173,12 +1181,12 @@ static void read_compressed_image(FILE* f, Image* image, size_t chunk_end,
       input_bytes = compressed.size();
 
     size_t bytes_read = fread(&compressed[0], 1, input_bytes, f);
-    zstream.next_in = (Bytef*)&compressed[0];
+    zstream.next_in = reinterpret_cast<Bytef*>(&compressed[0]);
     zstream.avail_in = bytes_read;
 
     do
     {
-      zstream.next_out = (Bytef*)&scanline[0];
+      zstream.next_out = reinterpret_cast<Bytef*>(&scanline[0]);
       zstream.avail_out = scanline.size();
 
       err = inflate(&zstream, Z_NO_FLUSH);
@@ -1242,13 +1250,13 @@ static void write_compressed_image(FILE* f, const Image* image)
 
     pixel_io.write_scanline(address, image->width(), &scanline[0]);
 
-    zstream.next_in = (Bytef*)&scanline[0];
+    zstream.next_in = reinterpret_cast<Bytef*>(&scanline[0]);
     zstream.avail_in = scanline.size();
     int flush = (y == image->height() - 1 ? Z_FINISH : Z_NO_FLUSH);
 
     do
     {
-      zstream.next_out = (Bytef*)&compressed[0];
+      zstream.next_out = reinterpret_cast<Bytef*>(&compressed[0]);
       zstream.avail_out = compressed.size();
 
       // Compress

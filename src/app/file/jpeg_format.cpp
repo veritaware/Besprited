@@ -75,7 +75,7 @@ static void error_exit(j_common_ptr cinfo)
   (*cinfo->err->output_message)(cinfo);
 
   // Return control to the setjmp point.
-  longjmp(((struct error_mgr*)cinfo->err)->setjmp_buffer, 1);
+  longjmp(reinterpret_cast<struct error_mgr*>(cinfo->err)->setjmp_buffer, 1);
 }
 
 static void output_message(j_common_ptr cinfo)
@@ -89,13 +89,13 @@ static void output_message(j_common_ptr cinfo)
   LOG("JPEG library: \"%s\"\n", buffer);
 
   // Leave the message for the application.
-  ((struct error_mgr*)cinfo->err)->fop->setError("%s\n", buffer);
+  reinterpret_cast<struct error_mgr*>(cinfo->err)->fop->setError("%s\n", buffer);
 }
 
 bool JpegFormat::onLoad(FileOp* fop)
 {
   struct jpeg_decompress_struct cinfo;
-  struct error_mgr jerr;
+  struct error_mgr jerr = {};
   JDIMENSION num_scanlines;
   JSAMPARRAY buffer;
   JDIMENSION buffer_height;
@@ -241,7 +241,7 @@ bool JpegFormat::onLoad(FileOp* fop)
 bool JpegFormat::onSave(FileOp* fop)
 {
   struct jpeg_compress_struct cinfo;
-  struct error_mgr jerr;
+  struct error_mgr jerr = {};
   const Image* image = fop->sequenceImage();
   JSAMPARRAY buffer;
   JDIMENSION buffer_height;

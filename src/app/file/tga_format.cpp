@@ -65,7 +65,7 @@ static void rle_tga_read(unsigned char* address, int w, int type, FILE* f)
           *(address++) = value;
         else
         {
-          *((uint16_t*)address) = value;
+          *(reinterpret_cast<uint16_t*>(address)) = value;
           address += sizeof(uint16_t);
         }
       }
@@ -84,7 +84,7 @@ static void rle_tga_read(unsigned char* address, int w, int type, FILE* f)
       {
         for (g = 0; g < count; g++)
         {
-          *((uint16_t*)address) = fgetc(f);
+          *(reinterpret_cast<uint16_t*>(address)) = fgetc(f);
           address += sizeof(uint16_t);
         }
       }
@@ -237,6 +237,11 @@ bool TgaFormat::onLoad(FileOp* fop)
 
   if (palette_type == 1)
   {
+    if (palette_colors > 256)
+    {
+      fop->setError("Invalid TGA file: palette has more than 256 colors.\n");
+      return false;
+    }
     for (i = 0; i < palette_colors; i++)
     {
       switch (palette_entry_size)
