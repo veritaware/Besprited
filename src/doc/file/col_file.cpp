@@ -58,9 +58,13 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
     for (c = 0; c < 256; c++)
     {
       r = fgetc(f);
+      if (feof(f) || ferror(f))
+        break;
       g = fgetc(f);
+      if (feof(f) || ferror(f))
+        break;
       b = fgetc(f);
-      if (ferror(f))
+      if (feof(f) || ferror(f))
         break;
 
       pal->setEntry(c, rgba(scale_6bits_to_8bits(base::clamp(r, 0, 63)),
@@ -89,9 +93,13 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
     for (c = 0; c < pal->size(); c++)
     {
       r = fgetc(f);
+      if (feof(f) || ferror(f))
+        break;
       g = fgetc(f);
+      if (feof(f) || ferror(f))
+        break;
       b = fgetc(f);
-      if (ferror(f))
+      if (feof(f) || ferror(f))
         break;
 
       pal->setEntry(c, rgba(base::clamp(r, 0, 255), base::clamp(g, 0, 255),

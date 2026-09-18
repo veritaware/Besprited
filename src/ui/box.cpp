@@ -159,13 +159,20 @@ void Box::onResize(ResizeEvent& ev)
     prefSize.w -= border().width();
     prefSize.h -= border().height();
 
+    // LAYOUT_CHILDREN divides availExtraSize by (expansiveChildren - j) only
+    // inside `if (child->isExpansive())`, i.e. only while iterating one of
+    // the expansiveChildren such children counted above with the same
+    // HIDDEN filter, and j (a count of prior expansive siblings this pass)
+    // can't reach expansiveChildren before this child is processed - so the
+    // divisor is always >= 1. clang-analyzer loses that invariant across
+    // the two loops.
     if (align() & HORIZONTAL)
     {
-      LAYOUT_CHILDREN(x, w);
+      LAYOUT_CHILDREN(x, w); // NOLINT(clang-analyzer-core.DivideZero)
     }
     else
     {
-      LAYOUT_CHILDREN(y, h);
+      LAYOUT_CHILDREN(y, h); // NOLINT(clang-analyzer-core.DivideZero)
     }
   }
 }

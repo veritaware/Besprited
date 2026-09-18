@@ -46,6 +46,8 @@ public:
     if (it != m_map.end())
       return it->second;
     else
+      // cppcheck-suppress internalAstError ; cppcheck's parser misreads this
+      // chained assign-through-operator[] in template code; it's valid C++.
       return m_map[name] = T();
   }
 

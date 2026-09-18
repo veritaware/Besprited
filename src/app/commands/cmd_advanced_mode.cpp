@@ -45,7 +45,10 @@ void AdvancedModeCommand::onExecute(Context* context)
   // Switch advanced mode.
   MainWindow* mainWindow = App::instance()->mainWindow();
   MainWindow::Mode oldMode = mainWindow->getMode();
-  MainWindow::Mode newMode = oldMode;
+  // Defensive default kept in case MainWindow::Mode grows a value the
+  // switch below doesn't (yet) handle; every current value does overwrite
+  // it, so clang-analyzer sees this as a dead store.
+  MainWindow::Mode newMode = oldMode; // NOLINT(clang-analyzer-deadcode.DeadStores)
 
   switch (oldMode)
   {

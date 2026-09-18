@@ -701,9 +701,12 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(
     widget->setMaxSize(gfx::Size(w, h));
   }
 
-  if (styleid)
+  if (styleid && root)
   {
     SkinTheme* theme = static_cast<SkinTheme*>(root->theme());
+    ASSERT(theme);
+    if (!theme)
+      return;
     skin::Style* style = theme->getStyle(styleid);
     ASSERT(style);
     SkinStylePropertyPtr prop(new SkinStyleProperty(style));

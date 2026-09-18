@@ -443,8 +443,9 @@ bool CustomizedGuiManager::onProcessMessage(Message* msg)
     if (msg->ctrlPressed() && msg->shiftPressed() &&
         static_cast<KeyMessage*>(msg)->scancode() == kKeyQ)
     {
+      // cppcheck-suppress nullPointer ; deliberate crash to test recovery
       int* p = nullptr;
-      *p = 0;
+      *p = 0; // NOLINT(clang-analyzer-core.NullDereference)
     }
 #endif
 

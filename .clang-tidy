@@ -1,0 +1,18 @@
+---
+# Pins the checks/behavior clang-tidy uses without this file so the CI job
+# stays stable across clang-tidy versions instead of drifting with whatever
+# a given version's defaults happen to be.
+Checks: 'clang-diagnostic-*,clang-analyzer-*,-clang-analyzer-optin.cplusplus.UninitializedObject'
+# UninitializedObject fires throughout this codebase for small value/handle
+# types that deliberately leave POD members uninitialized at declaration and
+# set them from the constructor body or an initializer that immediately
+# follows construction - the same pattern already reviewed and suppressed
+# for cppcheck's equivalent uninitMemberVar/uninitMemberVarNoCtor checks
+# (see .cppcheck-suppressions).
+# Only report findings located under our own src/ tree - vendored headers
+# under third_party/ (SimpleIni, quickjs, delta, ...) are not ours to fix.
+# Note this only filters clang-tidy's own checks (clang-analyzer-*); plain
+# compiler diagnostics (clang-diagnostic-*) ignore this and are filtered by
+# run-clang-tidy's file-name regex argument instead (see CMakeLists.txt).
+HeaderFilterRegex: '.*/src/.*'
+FormatStyle: none

@@ -677,7 +677,9 @@ void ColorBar::onPaletteViewIndexChange(int index, ui::MouseButtons buttons)
 void ColorBar::onPaletteViewModification(const doc::Palette& newPalette,
                                          PaletteViewModification mod)
 {
-  const char* text = "Palette Change";
+  // Defensive default kept in case PaletteViewModification grows a value
+  // the switch below doesn't (yet) handle.
+  const char* text = "Palette Change"; // NOLINT(clang-analyzer-deadcode.DeadStores)
   switch (mod)
   {
   case PaletteViewModification::CLEAR:

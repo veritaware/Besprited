@@ -205,11 +205,16 @@ private:
       m_refCount = nullptr;
   }
 
-  // Adds a reference to the pointee.
+  // Adds a reference to the pointee. In operator=()/reset(), this always
+  // runs after m_refCount has just been reassigned to a new (different)
+  // counter, never the one release() below may have just deleted - but
+  // clang-analyzer's NewDelete checker can't prove the old and new
+  // m_refCount values are distinct objects, so it treats this as a
+  // potential use of the just-freed one.
   void add_ref()
   {
     if (m_refCount)
-      m_refCount->add_ref();
+      m_refCount->add_ref(); // NOLINT(clang-analyzer-cplusplus.NewDelete)
 
     ASSERT((m_refCount && m_ptr) || (!m_refCount && !m_ptr));
   }

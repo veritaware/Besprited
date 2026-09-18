@@ -253,6 +253,8 @@ bool PixlyFormat::onLoad(FileOp* fop)
     }
 
     fop->createDocument(sprite.get());
+    // cppcheck-suppress ignoredReturnValue ; releasing ownership is the
+    // point, sprite is now owned by the Document created above.
     sprite.release();
   }
   catch (Exception& e)

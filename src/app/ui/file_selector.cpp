@@ -883,7 +883,9 @@ void FileSelector::updateLocation()
   // Select the location
   {
     location()->setSelectedItemIndex(selected_index);
-    location()->getEntryWidget()->setText(currentFolder->displayName().c_str());
+    // ComboBox::getEntryWidget() returns m_entry, which is constructed
+    // unconditionally in ComboBox's constructor and never reset to null.
+    location()->getEntryWidget()->setText(currentFolder->displayName().c_str()); // NOLINT(clang-analyzer-core.CallAndMessage)
     location()->getEntryWidget()->deselectText();
   }
 }
