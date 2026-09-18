@@ -95,7 +95,12 @@ bool IcoFormat::onLoad(FileOp* fop)
     auto pixelFormat = data.bitsPerPixel <= 8 ? IMAGE_INDEXED : IMAGE_RGB;
     auto width = surface->width();
     auto height = surface->height();
+    // sequenceImage() rejects unreasonable dimensions (see
+    // kMaxFileImageDimension, issue #219) - bail before the per-pixel copy
+    // loop below rather than dereferencing a null image.
     Image* image = fop->sequenceImage(pixelFormat, width, height);
+    if (!image)
+      return false;
     for (int y = 0; y < height; ++y)
     {
       for (int x = 0; x < width; ++x)

@@ -56,7 +56,12 @@ bool SheFormat::onLoad(FileOp* fop)
       return false;
     auto width = surface->width();
     auto height = surface->height();
+    // sequenceImage() rejects unreasonable dimensions (see
+    // kMaxFileImageDimension, issue #219) - bail before the per-pixel copy
+    // loop below rather than dereferencing a null image.
     Image* image = fop->sequenceImage(IMAGE_RGB, width, height);
+    if (!image)
+      return false;
     for (int y = 0; y < height; ++y)
     {
       for (int x = 0; x < width; ++x)

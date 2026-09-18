@@ -938,7 +938,7 @@ Image* FileOp::sequenceImage(PixelFormat pixelFormat, int w, int h)
   // relying on Sprite's ASSERT, which compiles out entirely in release
   // builds and would otherwise let bogus dimensions reach buffer
   // allocation.
-  if (w <= 0 || h <= 0)
+  if (w <= 0 || h <= 0 || w > kMaxFileImageDimension || h > kMaxFileImageDimension)
   {
     setError("Error: invalid image dimensions in file \"%s\" (%dx%d).\n",
               m_filename.c_str(), w, h);

@@ -11,6 +11,7 @@
 #include "base/file_handle.h"
 #include "base/fs.h"
 #include "base/path.h"
+#include "base/string.h"
 
 #include <archive.h>
 #include <archive_entry.h>
@@ -27,15 +28,25 @@ namespace extension_format_detail
 
 // Rejects absolute paths (Unix, Windows drive-letter, or UNC) and any path
 // containing a ".." component, so an archive entry can never write outside
-// the destination directory it's being extracted to (zip-slip).
+// the destination directory it's being extracted to (zip-slip). Also
+// rejects any ':' (not just at the drive-letter position) and Windows
+// reserved device basenames, since on Windows a colon anywhere in a
+// filename addresses an NTFS Alternate Data Stream of the base file
+// rather than a normal file, and CON/NUL/AUX/COM1-9/LPT1-9 are special
+// device names regardless of extension (see issue #219).
 inline bool isSafeArchiveEntryPath(const std::string& fileName)
 {
   if (fileName.empty())
     return false;
   if (fileName[0] == '/' || fileName[0] == '\\')
     return false;
-  if (fileName.size() >= 2 && fileName[1] == ':')
+  if (fileName.find(':') != std::string::npos)
     return false;
+
+  static const std::string kReservedNames[] = {
+      "con",  "prn",  "aux",  "nul",  "com1", "com2", "com3", "com4",
+      "com5", "com6", "com7", "com8", "com9", "lpt1", "lpt2", "lpt3",
+      "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9"};
 
   size_t start = 0;
   while (start <= fileName.size())
@@ -43,8 +54,18 @@ inline bool isSafeArchiveEntryPath(const std::string& fileName)
     size_t end = fileName.find_first_of("/\\", start);
     if (end == std::string::npos)
       end = fileName.size();
-    if (fileName.compare(start, end - start, "..") == 0)
+    std::string component = fileName.substr(start, end - start);
+    if (component == "..")
       return false;
+    // Compare the component up to a trailing extension too (Windows
+    // treats "NUL.txt" the same as "NUL").
+    std::string baseName =
+        base::string_to_lower(component.substr(0, component.find('.')));
+    for (auto& reserved : kReservedNames)
+    {
+      if (baseName == reserved)
+        return false;
+    }
     start = end + 1;
   }
   return true;
@@ -79,6 +100,12 @@ public:
 
   void extractTo(const std::string& path)
   {
+    // Compressed archive formats let a tiny entry expand to an arbitrary
+    // amount of data on disk (a "zip bomb", CWE-409). Cap the total bytes
+    // written across the whole archive (see issue #219).
+    constexpr uint64_t kMaxExtractedBytes = 1ull << 30; // 1 GiB
+    uint64_t totalWritten = 0;
+
     for (;;)
     {
       archive_entry* entry{};
@@ -127,6 +154,9 @@ public:
           break;
         if (r != ARCHIVE_OK)
           throw std::runtime_error("Error reading archive");
+        totalWritten += size;
+        if (totalWritten > kMaxExtractedBytes)
+          throw std::runtime_error("Archive expands past the size limit");
         fwrite(buff, size, 1, out.get());
       }
     }

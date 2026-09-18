@@ -106,9 +106,16 @@ Image* read_image(std::istream& is, bool setId)
   const int height = read16(is);         // Height
   const uint32_t maskColor = read32(is); // Mask color
 
+  // width/height are read16() fields, already capped to [0,65535] by the
+  // field width alone - the 0xfffff (1,048,575) check below was therefore
+  // always true and never actually bounded anything. A 65535x65535 RGB
+  // image is still a ~17 GB single allocation attempt from a ~15-byte
+  // record (see issue #219); use a real ceiling instead.
+  constexpr int kMaxDimension = 16384;
   if ((pixelFormat != IMAGE_RGB && pixelFormat != IMAGE_GRAYSCALE &&
        pixelFormat != IMAGE_INDEXED && pixelFormat != IMAGE_BITMAP) ||
-      (width < 1 || height < 1) || (width > 0xfffff || height > 0xfffff))
+      (width < 1 || height < 1) ||
+      (width > kMaxDimension || height > kMaxDimension))
     return nullptr;
 
   std::unique_ptr<Image> image(

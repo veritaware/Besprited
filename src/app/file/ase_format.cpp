@@ -215,9 +215,10 @@ bool AseFormat::onLoad(FileOp* fop)
     return false;
   }
 
-  if (header.width == 0 || header.height == 0)
+  if (header.width == 0 || header.height == 0 ||
+      header.width > kMaxFileImageDimension || header.height > kMaxFileImageDimension)
   {
-    fop->setError("Invalid ASE file: width and height must be greater than 0\n");
+    fop->setError("Invalid ASE file: bad width/height\n");
     return false;
   }
 
@@ -1181,6 +1182,12 @@ static void read_compressed_image(FILE* f, Image* image, size_t chunk_end,
       input_bytes = compressed.size();
 
     size_t bytes_read = fread(&compressed[0], 1, input_bytes, f);
+    // A chunk_size that overstates the bytes actually left in the file
+    // (attacker-controlled) would otherwise spin forever here: once ftell()
+    // stops advancing at real EOF, input_bytes never reaches 0 even though
+    // fread() keeps returning 0 bytes every iteration. Bail out instead.
+    if (bytes_read == 0)
+      break;
     zstream.next_in = reinterpret_cast<Bytef*>(&compressed[0]);
     zstream.avail_in = bytes_read;
 
@@ -1325,7 +1332,7 @@ static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame,
     int w = fgetw(f);
     int h = fgetw(f);
 
-    if (w > 0 && h > 0)
+    if (w > 0 && h > 0 && w <= kMaxFileImageDimension && h <= kMaxFileImageDimension)
     {
       ImageRef image(Image::create(pixelFormat, w, h));
 
@@ -1389,7 +1396,7 @@ static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame,
     int w = fgetw(f);
     int h = fgetw(f);
 
-    if (w > 0 && h > 0)
+    if (w > 0 && h > 0 && w <= kMaxFileImageDimension && h <= kMaxFileImageDimension)
     {
       ImageRef image(Image::create(pixelFormat, w, h));
 
@@ -1547,6 +1554,9 @@ static Mask* ase_file_read_mask_chunk(FILE* f)
 
   ase_file_read_padding(f, 8);
   std::string name = ase_file_read_string(f);
+
+  if (w > kMaxFileImageDimension || h > kMaxFileImageDimension)
+    return nullptr;
 
   mask = new Mask();
   mask->setName(name.c_str());

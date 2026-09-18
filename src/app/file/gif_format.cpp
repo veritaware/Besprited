@@ -198,6 +198,18 @@ public:
 
   bool decode()
   {
+    // The Logical Screen Descriptor's Width/Height are raw 16-bit fields
+    // with no validation upstream - reject before any Image::create/Sprite
+    // allocation (createSprite() below) rather than after a multi-gigabyte
+    // allocation attempt from just the header (see issue #219).
+    if (m_spriteBounds.w <= 0 || m_spriteBounds.h <= 0 ||
+        m_spriteBounds.w > kMaxFileImageDimension ||
+        m_spriteBounds.h > kMaxFileImageDimension)
+    {
+      m_fop->setError("Invalid GIF file: bad screen width/height\n");
+      return false;
+    }
+
     GifRecordType recType;
 
     // Read record by record
@@ -634,6 +646,15 @@ private:
       {
         color_t i = get_pixel_fast<IndexedTraits>(frameImage, x, y);
         if (i == static_cast<color_t>(m_localTransparentIndex))
+          continue;
+
+        // The raw pixel-index byte comes straight from the LZW-decoded
+        // frame data and isn't bound to this colormap's actual
+        // ColorCount (see issue #219) - unlike the sibling
+        // compositeIndexedImageToIndexed(), which safely goes through
+        // m_remap[]. Skip out-of-range indices instead of reading past
+        // colormap->Colors.
+        if (!colormap || static_cast<int>(i) >= colormap->ColorCount)
           continue;
 
         i = rgba(colormap->Colors[i].Red, colormap->Colors[i].Green,

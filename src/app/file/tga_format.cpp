@@ -57,6 +57,11 @@ static void rle_tga_read(unsigned char* address, int w, int type, FILE* f)
     if (count & 0x80)
     {
       count = (count & 0x7F) + 1;
+      // A packet's declared count is attacker-controlled and isn't
+      // required to respect the scanline width - clamp before writing so
+      // a packet can't write past the row buffer (see issue #219).
+      if (count > w - c)
+        count = w - c;
       c += count;
       value = fgetc(f);
       while (count--)
@@ -73,6 +78,8 @@ static void rle_tga_read(unsigned char* address, int w, int type, FILE* f)
     else
     {
       count++;
+      if (count > w - c)
+        count = w - c;
       c += count;
       if (type == 1)
       {
@@ -107,6 +114,8 @@ static void rle_tga_read32(uint32_t* address, int w, FILE* f)
     if (count & 0x80)
     {
       count = (count & 0x7F) + 1;
+      if (count > w - c)
+        count = w - c;
       c += count;
       size_t nread = fread(value, 1, 4, f);
       (void)nread;
@@ -116,6 +125,8 @@ static void rle_tga_read32(uint32_t* address, int w, FILE* f)
     else
     {
       count++;
+      if (count > w - c)
+        count = w - c;
       c += count;
       while (count--)
       {
@@ -142,6 +153,8 @@ static void rle_tga_read24(uint32_t* address, int w, FILE* f)
     if (count & 0x80)
     {
       count = (count & 0x7F) + 1;
+      if (count > w - c)
+        count = w - c;
       c += count;
       size_t nread = fread(value, 1, 3, f);
       (void)nread;
@@ -151,6 +164,8 @@ static void rle_tga_read24(uint32_t* address, int w, FILE* f)
     else
     {
       count++;
+      if (count > w - c)
+        count = w - c;
       c += count;
       while (count--)
       {
@@ -178,6 +193,8 @@ static void rle_tga_read16(uint32_t* address, int w, FILE* f)
     if (count & 0x80)
     {
       count = (count & 0x7F) + 1;
+      if (count > w - c)
+        count = w - c;
       c += count;
       value = fgetw(f);
       color = rgba(scale_5bits_to_8bits(((value >> 10) & 0x1F)),
@@ -190,6 +207,8 @@ static void rle_tga_read16(uint32_t* address, int w, FILE* f)
     else
     {
       count++;
+      if (count > w - c)
+        count = w - c;
       c += count;
       while (count--)
       {

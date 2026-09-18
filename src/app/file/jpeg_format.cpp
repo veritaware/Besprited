@@ -97,8 +97,11 @@ bool JpegFormat::onLoad(FileOp* fop)
   struct jpeg_decompress_struct cinfo;
   struct error_mgr jerr = {};
   JDIMENSION num_scanlines;
-  JSAMPARRAY buffer;
-  JDIMENSION buffer_height;
+  // volatile: both are modified between setjmp() and a longjmp() that can
+  // land back here (see the setjmp block below) - without it, a compiler
+  // is free to keep their post-longjmp values undefined.
+  JSAMPARRAY volatile buffer = nullptr;
+  JDIMENSION volatile buffer_height = 0;
   int c;
 
   FileHandle handle(open_file_with_exception(fop->filename(), "rb"));
@@ -111,9 +114,19 @@ bool JpegFormat::onLoad(FileOp* fop)
   jerr.head.error_exit = error_exit;
   jerr.head.output_message = output_message;
 
-  // Establish the setjmp return context for error_exit to use.
+  // Establish the setjmp return context for error_exit to use. A libjpeg
+  // error (e.g. corrupted entropy-coded data mid-scan) longjmps back here
+  // from inside jpeg_read_scanlines() below, after `buffer` has already
+  // been fully allocated - free it here too, or every failed load leaks
+  // it (see issue #219).
   if (setjmp(jerr.setjmp_buffer))
   {
+    if (buffer)
+    {
+      for (c = 0; c < (int)buffer_height; c++)
+        base_free(buffer[c]);
+      base_free(buffer);
+    }
     jpeg_destroy_decompress(&cinfo);
     return false;
   }
