@@ -12,6 +12,7 @@
 #include "config.h"
 #endif
 
+#include "app/file/extension_format.h"
 #include "app/file/file.h"
 #include "app/file/file_format.h"
 #include "app/file/format_options.h"
@@ -22,9 +23,6 @@
 #include "base/fs.h"
 #include "base/path.h"
 #include "ui/alert.h"
-
-#include <archive.h>
-#include <archive_entry.h>
 
 namespace app
 {
@@ -46,63 +44,6 @@ class ExtensionFormat : public FileFormat
 // remove it (and this file) entirely if it's decided the feature isn't
 // worth keeping.
 // static FileFormat::Regular<ExtensionFormat> ff{"extension"};
-
-class Archive
-{
-  std::shared_ptr<void> lib;
-  archive* a;
-
-public:
-  Archive(FILE* file)
-  {
-    a = archive_read_new();
-    lib = std::shared_ptr<archive>(a, archive_read_free);
-    archive_read_support_format_7zip(a);
-    archive_read_support_format_gnutar(a);
-    archive_read_support_format_rar(a);
-    archive_read_support_format_tar(a);
-    archive_read_support_format_zip(a);
-    if (archive_read_open_FILE(a, file))
-    {
-      throw std::runtime_error("Error reading archive");
-    }
-  }
-
-  void extractTo(const std::string& path)
-  {
-    for (;;)
-    {
-      archive_entry* entry{};
-      auto r = archive_read_next_header(a, &entry);
-      if (r == ARCHIVE_EOF)
-        break;
-      if (r != ARCHIVE_OK)
-        throw std::runtime_error("Error reading archive");
-      std::string fileName = archive_entry_pathname(entry);
-      bool isDir = archive_entry_filetype(entry) == AE_IFDIR;
-      auto out = open_file_with_exception(
-          path + base::path_separator + fileName, "wb");
-      for (;;)
-      {
-        const void* buff{};
-        size_t size;
-#if ARCHIVE_VERSION_NUMBER >= 3000000
-        int64_t offset;
-#else
-        off_t offset;
-#endif
-        r = archive_read_data_block(a, &buff, &size, &offset);
-        if (r == ARCHIVE_EOF)
-          break;
-        if (r != ARCHIVE_OK)
-          throw std::runtime_error("Error reading archive");
-        if (isDir)
-          continue;
-        fwrite(buff, size, 1, out.get());
-      }
-    }
-  }
-};
 
 bool ExtensionFormat::onLoad(FileOp* fop)
 {
