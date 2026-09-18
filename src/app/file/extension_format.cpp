@@ -12,7 +12,6 @@
 #include "config.h"
 #endif
 
-#include "app/file/extension_format.h"
 #include "app/file/file.h"
 #include "app/file/file_format.h"
 #include "app/file/format_options.h"
@@ -23,6 +22,11 @@
 #include "base/fs.h"
 #include "base/path.h"
 #include "ui/alert.h"
+
+// Included last: on Windows, <archive_entry.h> drags in <windows.h>, whose
+// macros (TRANSPARENT, IMAGE_BITMAP, DIFFERENCE, ...) collide with
+// identically-named enum members in the headers above.
+#include "app/file/extension_format.h"
 
 namespace app
 {
