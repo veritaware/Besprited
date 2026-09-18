@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,20 +13,19 @@
 
 #include "doc/frame_tag.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-WithFrameTag::WithFrameTag(FrameTag* frameTag)
-  : m_frameTagId(frameTag->id())
+WithFrameTag::WithFrameTag(const FrameTag* tag)
+  : m_frameTagId(tag->id())
 {
 }
 
-FrameTag* WithFrameTag::frameTag()
+FrameTag* WithFrameTag::frameTag() const
 {
   return get<FrameTag>(m_frameTagId);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

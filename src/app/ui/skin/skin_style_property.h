@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,23 +11,26 @@
 #include "app/ui/skin/style.h"
 #include "base/shared_ptr.h"
 
-namespace app {
-namespace skin {
-  class Style;
+namespace app
+{
+namespace skin
+{
+class Style;
 
-  class SkinStyleProperty : public ui::Property {
-  public:
-    static const char* Name;
+class SkinStyleProperty : public ui::Property
+{
+public:
+  static const char* Name;
 
-    SkinStyleProperty(Style* style);
+  SkinStyleProperty(Style* style);
 
-    skin::Style* getStyle() const;
+  skin::Style* getStyle() const;
 
-  private:
-    skin::Style* m_style;
-  };
+private:
+  skin::Style* m_style;
+};
 
-  typedef base::SharedPtr<SkinStyleProperty> SkinStylePropertyPtr;
+using SkinStylePropertyPtr = base::SharedPtr<SkinStyleProperty>;
 
 } // namespace skin
 } // namespace app

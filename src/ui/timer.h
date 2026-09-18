@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,42 +11,42 @@
 #include "base/signal.h"
 #include "base/time.h"
 
-namespace ui {
+namespace ui
+{
 
-  class Widget;
+class Widget;
 
-  class Timer {
-  public:
-    Timer(int interval, Widget* owner = NULL);
-    virtual ~Timer();
+class Timer
+{
+public:
+  Timer(int interval, Widget* owner = nullptr);
+  virtual ~Timer();
 
-    int interval() const { return m_interval; }
-    void setInterval(int interval);
+  int interval() const { return m_interval; }
+  void setInterval(int interval);
 
-    bool isRunning() const {
-      return m_running;
-    }
+  bool isRunning() const { return m_running; }
 
-    void start();
-    void stop();
+  void start();
+  void stop();
 
-    void tick();
+  void tick();
 
-    base::Signal0<void> Tick;
+  base::Signal0<void> Tick;
 
-    static void pollTimers();
-    static void checkNoTimers();
+  static void pollTimers();
+  static void checkNoTimers();
 
-  protected:
-    virtual void onTick();
+protected:
+  virtual void onTick();
 
-  public:
-    Widget* m_owner;
-    int m_interval;
-    bool m_running;
-    base::tick_t m_lastTick;
+public:
+  Widget* m_owner;
+  int m_interval;
+  bool m_running;
+  base::tick_t m_lastTick;
 
-    DISABLE_COPYING(Timer);
-  };
+  DISABLE_COPYING(Timer);
+};
 
 } // namespace ui

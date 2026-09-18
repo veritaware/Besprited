@@ -1,5 +1,6 @@
-// Aseprite    - Copyright (C) 2001-2016  David Capello
-// LibreSprite - Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,21 +17,19 @@
 #include <iostream>
 #include <string>
 
-namespace app {
-
-Shell::Shell()
+namespace app
 {
-}
 
-Shell::~Shell()
-{
-}
+Shell::Shell() = default;
+
+Shell::~Shell() = default;
 
 void Shell::run(AppScripting& engine)
 {
-  std::cout << "Welcome to " PACKAGE_AND_VERSION " interactive console" << std::endl;
+  std::cout << "Welcome to " PACKAGE_AND_VERSION " interactive console\n";
   std::string line;
-  while (std::getline(std::cin, line)) {
+  while (std::getline(std::cin, line))
+  {
     engine.eval(line);
   }
   std::cout << "Done\n";

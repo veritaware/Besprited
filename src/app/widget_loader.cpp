@@ -36,32 +36,37 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace app::skin;
 
-static int convert_align_value_to_flags(const char *value);
-static int int_attr(const tinyxml2::XMLElement* elem, const char* attribute_name, int default_value);
+static int convert_align_value_to_flags(const char* value);
+static int int_attr(const tinyxml2::XMLElement* elem,
+                    const char* attribute_name, int default_value);
 
 WidgetLoader::WidgetLoader()
-  : m_tooltipManager(NULL)
+  : m_tooltipManager(nullptr)
 {
 }
 
 WidgetLoader::~WidgetLoader()
 {
-  for (TypeCreatorsMap::iterator
-         it=m_typeCreators.begin(), end=m_typeCreators.end(); it != end; ++it)
+  for (TypeCreatorsMap::iterator it = m_typeCreators.begin(),
+                                 end = m_typeCreators.end();
+       it != end; ++it)
     it->second->dispose();
 }
 
-void WidgetLoader::addWidgetType(const char* tagName, IWidgetTypeCreator* creator)
+void WidgetLoader::addWidgetType(const char* tagName,
+                                 IWidgetTypeCreator* creator)
 {
   m_typeCreators[tagName] = creator;
 }
 
-Widget* WidgetLoader::loadWidget(const char* fileName, const char* widgetId, ui::Widget* widget)
+Widget* WidgetLoader::loadWidget(const char* fileName, const char* widgetId,
+                                 ui::Widget* widget)
 {
   std::string buf;
 
@@ -82,26 +87,26 @@ Widget* WidgetLoader::loadWidget(const char* fileName, const char* widgetId, ui:
   return widget;
 }
 
-Widget* WidgetLoader::loadWidgetFromXmlFile(
-  const std::string& xmlFilename,
-  const std::string& widgetId,
-  ui::Widget* widget)
+Widget* WidgetLoader::loadWidgetFromXmlFile(const std::string& xmlFilename,
+                                            const std::string& widgetId,
+                                            ui::Widget* widget)
 {
-  m_tooltipManager = NULL;
+  m_tooltipManager = nullptr;
 
   XmlDocumentRef doc(open_xml(xmlFilename));
   tinyxml2::XMLHandle handle(doc.get());
 
   // Search the requested widget.
-  tinyxml2::XMLElement* xmlElement = handle
-    .FirstChildElement("gui")
-    .FirstChildElement().ToElement();
+  tinyxml2::XMLElement* xmlElement =
+      handle.FirstChildElement("gui").FirstChildElement().ToElement();
 
-  while (xmlElement) {
+  while (xmlElement)
+  {
     const char* nodename = xmlElement->Attribute("id");
 
-    if (nodename && nodename == widgetId) {
-      widget = convertXmlElementToWidget(xmlElement, NULL, NULL, widget);
+    if (nodename && nodename == widgetId)
+    {
+      widget = convertXmlElementToWidget(xmlElement, nullptr, nullptr, widget);
       break;
     }
 
@@ -111,7 +116,10 @@ Widget* WidgetLoader::loadWidgetFromXmlFile(
   return widget;
 }
 
-Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem, Widget* root, Widget* parent, Widget* widget)
+Widget*
+WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
+                                        Widget* root, Widget* parent,
+                                        Widget* widget)
 {
   const std::string elem_name = elem->Value();
 
@@ -120,110 +128,125 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
   // Try to use one of the creators.
   TypeCreatorsMap::iterator it = m_typeCreators.find(elem_name);
 
-  if (it != m_typeCreators.end()) {
+  if (it != m_typeCreators.end())
+  {
     if (!widget)
       widget = it->second->createWidgetFromXml(elem);
   }
-  else if (elem_name == "panel") {
+  else if (elem_name == "panel")
+  {
     if (!widget)
       widget = new Panel();
   }
-  else if (elem_name == "box") {
-    bool horizontal  = bool_attr_is_true(elem, "horizontal");
-    bool vertical    = bool_attr_is_true(elem, "vertical");
-    int align = (horizontal ? HORIZONTAL: vertical ? VERTICAL: 0);
+  else if (elem_name == "box")
+  {
+    bool horizontal = bool_attr_is_true(elem, "horizontal");
+    bool vertical = bool_attr_is_true(elem, "vertical");
+    int align = (horizontal ? HORIZONTAL : vertical ? VERTICAL : 0);
 
     if (!widget)
       widget = new Box(align);
     else
       widget->setAlign(widget->align() | align);
   }
-  else if (elem_name == "vbox") {
+  else if (elem_name == "vbox")
+  {
     if (!widget)
       widget = new VBox();
   }
-  else if (elem_name == "hbox") {
+  else if (elem_name == "hbox")
+  {
     if (!widget)
       widget = new HBox();
   }
-  else if (elem_name == "boxfiller") {
+  else if (elem_name == "boxfiller")
+  {
     if (!widget)
       widget = new BoxFiller();
   }
-  else if (elem_name == "button") {
+  else if (elem_name == "button")
+  {
     const char* icon_name = elem->Attribute("icon");
 
-    if (!widget) {
-      if (icon_name) {
+    if (!widget)
+    {
+      if (icon_name)
+      {
         SkinPartPtr part = SkinTheme::instance()->getPartById(icon_name);
         if (!part)
-          throw base::Exception("<button> element found with invalid 'icon' attribute '%s'",
-                                icon_name);
+          throw base::Exception(
+              "<button> element found with invalid 'icon' attribute '%s'",
+              icon_name);
 
         widget = new IconButton(part->bitmap(0));
       }
-      else {
+      else
+      {
         widget = new Button("");
       }
     }
 
-    bool left   = bool_attr_is_true(elem, "left");
-    bool right  = bool_attr_is_true(elem, "right");
-    bool top    = bool_attr_is_true(elem, "top");
+    bool left = bool_attr_is_true(elem, "left");
+    bool right = bool_attr_is_true(elem, "right");
+    bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
     bool closewindow = bool_attr_is_true(elem, "closewindow");
-    const char *_bevel = elem->Attribute("bevel");
+    const char* _bevel = elem->Attribute("bevel");
 
-    widget->setAlign((left ? LEFT: (right ? RIGHT: CENTER)) |
-      (top ? TOP: (bottom ? BOTTOM: MIDDLE)));
+    widget->setAlign((left ? LEFT : (right ? RIGHT : CENTER)) |
+                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
 
-    if (_bevel != NULL) {
+    if (_bevel != nullptr)
+    {
       char* bevel = base_strdup(_bevel);
       int c, b[4];
-      char *tok;
+      char* tok;
 
-      for (c=0; c<4; ++c)
+      for (c = 0; c < 4; ++c)
         b[c] = 0;
 
-      for (tok=strtok(bevel, " "), c=0;
-           tok;
-           tok=strtok(NULL, " "), ++c) {
+      for (tok = strtok(bevel, " "), c = 0; tok;
+           tok = strtok(nullptr, " "), ++c)
+      {
         if (c < 4)
-          b[c] = strtol(tok, NULL, 10);
+          b[c] = strtol(tok, nullptr, 10);
       }
       base_free(bevel);
 
       setup_bevels(widget, b[0], b[1], b[2], b[3]);
     }
 
-    if (closewindow) {
-      static_cast<Button*>(widget)
-        ->Click.connect(base::Bind<void>(&Widget::closeWindow, widget));
+    if (closewindow)
+    {
+      static_cast<Button*>(widget)->Click.connect(
+          base::Bind<void>(&Widget::closeWindow, widget));
     }
   }
-  else if (elem_name == "check") {
-    const char *looklike = elem->Attribute("looklike");
+  else if (elem_name == "check")
+  {
+    const char* looklike = elem->Attribute("looklike");
 
-    if (looklike != NULL && strcmp(looklike, "button") == 0) {
+    if (looklike != nullptr && strcmp(looklike, "button") == 0)
+    {
       if (!widget)
         widget = new CheckBox("", kButtonWidget);
     }
-    else {
+    else
+    {
       if (!widget)
         widget = new CheckBox("");
     }
 
     bool center = bool_attr_is_true(elem, "center");
-    bool right  = bool_attr_is_true(elem, "right");
-    bool top    = bool_attr_is_true(elem, "top");
+    bool right = bool_attr_is_true(elem, "right");
+    bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
 
-    widget->setAlign((center ? CENTER:
-        (right ? RIGHT: LEFT)) |
-      (top    ? TOP:
-        (bottom ? BOTTOM: MIDDLE)));
+    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) |
+                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
-  else if (elem_name == "combobox") {
+  else if (elem_name == "combobox")
+  {
     if (!widget)
       widget = new ComboBox();
 
@@ -231,15 +254,17 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
     if (editable)
       ((ComboBox*)widget)->setEditable(true);
   }
-  else if (elem_name == "entry") {
+  else if (elem_name == "entry")
+  {
     const char* maxsize = elem->Attribute("maxsize");
     const char* suffix = elem->Attribute("suffix");
 
-    if (maxsize != NULL) {
+    if (maxsize != nullptr)
+    {
       bool readonly = bool_attr_is_true(elem, "readonly");
       bool disallowNegative = bool_attr_is_true(elem, "disallowNegative");
 
-      widget = new Entry(strtol(maxsize, NULL, 10), "");
+      widget = new Entry(strtol(maxsize, nullptr, 10), "");
 
       if (readonly)
         ((Entry*)widget)->setReadOnly(true);
@@ -251,176 +276,190 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
         ((Entry*)widget)->setSuffix(suffix);
     }
     else
-      throw std::runtime_error("<entry> element found without 'maxsize' attribute");
+      throw std::runtime_error(
+          "<entry> element found without 'maxsize' attribute");
   }
-  else if (elem_name == "intentry") {
+  else if (elem_name == "intentry")
+  {
     const char* max = elem->Attribute("max");
     const char* min = elem->Attribute("min");
-    auto maxValue = max != NULL ? strtol(max, NULL, 10): 0;
-    auto minValue = min != NULL ? strtol(min, NULL, 10): 0;
+    auto maxValue = max != nullptr ? strtol(max, nullptr, 10) : 0;
+    auto minValue = min != nullptr ? strtol(min, nullptr, 10) : 0;
     const char* suffix = elem->Attribute("suffix");
     widget = new IntEntry(minValue, maxValue);
     if (suffix)
       ((Entry*)widget)->setSuffix(suffix);
   }
-  else if (elem_name == "numberentry") {
+  else if (elem_name == "numberentry")
+  {
     const char* max = elem->Attribute("max");
     const char* min = elem->Attribute("min");
     const char* maxsize = elem->Attribute("maxsize");
-    auto maxValue = max != NULL ? strtol(max, NULL, 10) : 0;
-    auto minValue = min != NULL ? strtol(min, NULL, 10) : 0;
+    auto maxValue = max != nullptr ? strtol(max, nullptr, 10) : 0;
+    auto minValue = min != nullptr ? strtol(min, nullptr, 10) : 0;
     const char* suffix = elem->Attribute("suffix");
     auto numberEntry = new NumberEntry(minValue, maxValue);
-    if (maxsize != NULL)
-      numberEntry->setMaxTextSize(strtol(maxsize, NULL, 10));
+    if (maxsize != nullptr)
+      numberEntry->setMaxTextSize(strtol(maxsize, nullptr, 10));
     widget = numberEntry;
     if (suffix)
       static_cast<Entry*>(widget)->setSuffix(suffix);
   }
-  else if (elem_name == "grid") {
-    const char *columns = elem->Attribute("columns");
+  else if (elem_name == "grid")
+  {
+    const char* columns = elem->Attribute("columns");
     bool same_width_columns = bool_attr_is_true(elem, "same_width_columns");
 
-    if (columns != NULL) {
-      widget = new Grid(strtol(columns, NULL, 10),
-                        same_width_columns);
+    if (columns != nullptr)
+    {
+      widget = new Grid(strtol(columns, nullptr, 10), same_width_columns);
     }
   }
-  else if (elem_name == "label") {
+  else if (elem_name == "label")
+  {
     if (!widget)
       widget = new Label("");
 
     bool center = bool_attr_is_true(elem, "center");
-    bool right  = bool_attr_is_true(elem, "right");
-    bool top    = bool_attr_is_true(elem, "top");
+    bool right = bool_attr_is_true(elem, "right");
+    bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
 
-    widget->setAlign((center ? CENTER:
-        (right ? RIGHT: LEFT)) |
-      (top    ? TOP:
-        (bottom ? BOTTOM: MIDDLE)));
+    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) |
+                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
-  else if (elem_name == "link") {
+  else if (elem_name == "link")
+  {
     const char* url = elem->Attribute("url");
 
     if (!widget)
-      widget = new LinkLabel(url ? url: "", "");
-    else {
+      widget = new LinkLabel(url ? url : "", "");
+    else
+    {
       LinkLabel* link = dynamic_cast<LinkLabel*>(widget);
-      ASSERT(link != NULL);
+      ASSERT(link != nullptr);
       if (link)
         link->setUrl(url);
     }
 
     bool center = bool_attr_is_true(elem, "center");
-    bool right  = bool_attr_is_true(elem, "right");
-    bool top    = bool_attr_is_true(elem, "top");
+    bool right = bool_attr_is_true(elem, "right");
+    bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
 
-    widget->setAlign(
-      (center ? CENTER: (right ? RIGHT: LEFT)) |
-      (top    ? TOP: (bottom ? BOTTOM: MIDDLE)));
+    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) |
+                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
-  else if (elem_name == "listbox") {
+  else if (elem_name == "listbox")
+  {
     if (!widget)
       widget = new ListBox();
   }
-  else if (elem_name == "listitem") {
+  else if (elem_name == "listitem")
+  {
     ListItem* listitem;
-    if (!widget) {
+    if (!widget)
+    {
       listitem = new ListItem("");
       widget = listitem;
     }
-    else {
+    else
+    {
       listitem = dynamic_cast<ListItem*>(widget);
-      ASSERT(listitem != NULL);
+      ASSERT(listitem != nullptr);
     }
 
     const char* value = elem->Attribute("value");
     if (value)
       listitem->setValue(value);
   }
-  else if (elem_name == "splitter") {
+  else if (elem_name == "splitter")
+  {
     bool horizontal = bool_attr_is_true(elem, "horizontal");
     bool vertical = bool_attr_is_true(elem, "vertical");
     const char* by = elem->Attribute("by");
     const char* position = elem->Attribute("position");
-    Splitter::Type type = (by && strcmp(by, "pixel") == 0 ?
-                           Splitter::ByPixel:
-                           Splitter::ByPercentage);
+    Splitter::Type type =
+        (by && strcmp(by, "pixel") == 0 ? Splitter::ByPixel
+                                        : Splitter::ByPercentage);
 
-    Splitter* splitter = new Splitter(type,
-                                      horizontal ? HORIZONTAL:
-                                      vertical ? VERTICAL: 0);
-    if (position) {
-      splitter->setPosition(strtod(position, NULL)
-        * (type == Splitter::ByPixel ? guiscale(): 1));
+    Splitter* splitter = new Splitter(type, horizontal ? HORIZONTAL
+                                            : vertical ? VERTICAL
+                                                       : 0);
+    if (position)
+    {
+      splitter->setPosition(strtod(position, nullptr) *
+                            (type == Splitter::ByPixel ? guiscale() : 1));
     }
     widget = splitter;
   }
-  else if (elem_name == "radio") {
+  else if (elem_name == "radio")
+  {
     const char* group = elem->Attribute("group");
     const char* looklike = elem->Attribute("looklike");
 
-    int radio_group = (group ? strtol(group, NULL, 10): 1);
+    int radio_group = (group ? strtol(group, nullptr, 10) : 1);
 
-    if (!widget) {
-      if (looklike != NULL && strcmp(looklike, "button") == 0) {
+    if (!widget)
+    {
+      if (looklike != nullptr && strcmp(looklike, "button") == 0)
+      {
         widget = new RadioButton("", radio_group, kButtonWidget);
       }
-      else {
+      else
+      {
         widget = new RadioButton("", radio_group);
       }
     }
-    else {
+    else
+    {
       RadioButton* radio = dynamic_cast<RadioButton*>(widget);
-      ASSERT(radio != NULL);
+      ASSERT(radio != nullptr);
       if (radio)
         radio->setRadioGroup(radio_group);
     }
 
     bool center = bool_attr_is_true(elem, "center");
-    bool right  = bool_attr_is_true(elem, "right");
-    bool top    = bool_attr_is_true(elem, "top");
+    bool right = bool_attr_is_true(elem, "right");
+    bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
 
-    widget->setAlign(
-      (center ? CENTER:
-        (right ? RIGHT: LEFT)) |
-      (top    ? TOP:
-        (bottom ? BOTTOM: MIDDLE)));
+    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) |
+                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
-  else if (elem_name == "separator") {
-    bool center      = bool_attr_is_true(elem, "center");
-    bool right       = bool_attr_is_true(elem, "right");
-    bool middle      = bool_attr_is_true(elem, "middle");
-    bool bottom      = bool_attr_is_true(elem, "bottom");
-    bool horizontal  = bool_attr_is_true(elem, "horizontal");
-    bool vertical    = bool_attr_is_true(elem, "vertical");
-    int align =
-      (horizontal ? HORIZONTAL: 0) |
-      (vertical ? VERTICAL: 0) |
-      (center ? CENTER: (right ? RIGHT: LEFT)) |
-      (middle ? MIDDLE: (bottom ? BOTTOM: TOP));
+  else if (elem_name == "separator")
+  {
+    bool center = bool_attr_is_true(elem, "center");
+    bool right = bool_attr_is_true(elem, "right");
+    bool middle = bool_attr_is_true(elem, "middle");
+    bool bottom = bool_attr_is_true(elem, "bottom");
+    bool horizontal = bool_attr_is_true(elem, "horizontal");
+    bool vertical = bool_attr_is_true(elem, "vertical");
+    int align = (horizontal ? HORIZONTAL : 0) | (vertical ? VERTICAL : 0) |
+                (center ? CENTER : (right ? RIGHT : LEFT)) |
+                (middle ? MIDDLE : (bottom ? BOTTOM : TOP));
 
-    if (!widget) {
+    if (!widget)
+    {
       const char* text = elem->Attribute("text");
-      widget = new Separator(text ? text: "", align);
+      widget = new Separator(text ? text : "", align);
       if (text)
-          widget->setI18N(text);
+        widget->setI18N(text);
     }
     else
       widget->setAlign(widget->align() | align);
   }
-  else if (elem_name == "slider") {
-    const char *min = elem->Attribute("min");
-    const char *max = elem->Attribute("max");
-    int min_value = min != NULL ? strtol(min, NULL, 10): 0;
-    int max_value = max != NULL ? strtol(max, NULL, 10): 0;
+  else if (elem_name == "slider")
+  {
+    const char* min = elem->Attribute("min");
+    const char* max = elem->Attribute("max");
+    int min_value = min != nullptr ? strtol(min, nullptr, 10) : 0;
+    int max_value = max != nullptr ? strtol(max, nullptr, 10) : 0;
 
     widget = new Slider(min_value, max_value, min_value);
   }
-  else if (elem_name == "textbox") {
+  else if (elem_name == "textbox")
+  {
     bool wordwrap = bool_attr_is_true(elem, "wordwrap");
 
     if (!widget)
@@ -431,12 +470,15 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
     if (wordwrap)
       widget->setAlign(widget->align() | WORDWRAP);
   }
-  else if (elem_name == "view") {
+  else if (elem_name == "view")
+  {
     if (!widget)
       widget = new View();
   }
-  else if (elem_name == "window") {
-    if (!widget) {
+  else if (elem_name == "window")
+  {
+    if (!widget)
+    {
       const char* text = elem->Attribute("text");
       bool desktop = bool_attr_is_true(elem, "desktop");
 
@@ -450,34 +492,42 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
       widget->setI18N();
     }
   }
-  else if (elem_name == "colorpicker") {
+  else if (elem_name == "colorpicker")
+  {
     if (!widget)
-      widget = new ColorButton(Color::fromMask(), app_get_current_pixel_format());
+      widget =
+          new ColorButton(Color::fromMask(), app_get_current_pixel_format());
   }
-  else if (elem_name == "dropdownbutton")  {
-    if (!widget) {
+  else if (elem_name == "dropdownbutton")
+  {
+    if (!widget)
+    {
       const char* text = elem->Attribute("text");
       widget = new DropDownButton(text);
       widget->setI18N(text);
     }
   }
-  else if (elem_name == "buttonset") {
+  else if (elem_name == "buttonset")
+  {
     const char* columns = elem->Attribute("columns");
 
     if (!widget && columns)
-      widget = new ButtonSet(strtol(columns, NULL, 10));
+      widget = new ButtonSet(strtol(columns, nullptr, 10));
 
-    if (ButtonSet* buttonset = dynamic_cast<ButtonSet*>(widget)) {
+    if (ButtonSet* buttonset = dynamic_cast<ButtonSet*>(widget))
+    {
       bool multiple = bool_attr_is_true(elem, "multiple");
       if (multiple)
         buttonset->setMultipleSelection(multiple);
     }
   }
-  else if (elem_name == "item") {
+  else if (elem_name == "item")
+  {
     if (!parent)
       throw std::runtime_error("<item> without parent");
 
-    if (ButtonSet* buttonset = dynamic_cast<ButtonSet*>(parent)) {
+    if (ButtonSet* buttonset = dynamic_cast<ButtonSet*>(parent))
+    {
       const char* icon = elem->Attribute("icon");
       const char* text = elem->Attribute("text");
       int hspan = int_attr(elem, "hspan", 1);
@@ -485,13 +535,16 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
 
       ButtonSet::Item* item = new ButtonSet::Item();
 
-      if (icon) {
-        SkinPartPtr part = SkinTheme::instance()->getPartById(std::string(icon));
+      if (icon)
+      {
+        SkinPartPtr part =
+            SkinTheme::instance()->getPartById(std::string(icon));
         if (part)
           item->setIcon(part);
       }
 
-      if (text) {
+      if (text)
+      {
         item->setText(text);
         item->setI18N();
       }
@@ -500,28 +553,31 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
       fillWidgetWithXmlElementAttributes(elem, root, item);
     }
   }
-  else if (elem_name == "image") {
-    if (!widget) {
+  else if (elem_name == "image")
+  {
+    if (!widget)
+    {
       const char* file = elem->Attribute("file");
-
-      // Load image
-      std::string icon(file);
 
       ResourceFinder rf;
       rf.includeDataDir(file);
       if (!rf.findFirst())
         throw base::Exception("File %s not found", file);
 
-      try {
-        she::Surface* sur = she::instance()->loadRgbaSurface(rf.filename().c_str());
+      try
+      {
+        she::Surface* sur =
+            she::instance()->loadRgbaSurface(rf.filename().c_str());
         widget = new ImageView(sur, 0, true);
       }
-      catch (...) {
+      catch (...)
+      {
         throw base::Exception("Error loading %s file", file);
       }
     }
   }
-  else if (elem_name == "search") {
+  else if (elem_name == "search")
+  {
     if (!widget)
       widget = new SearchEntry;
   }
@@ -533,58 +589,73 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
   return widget;
 }
 
-void WidgetLoader::fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement* elem, Widget* root, Widget* widget)
+void WidgetLoader::fillWidgetWithXmlElementAttributes(
+    const tinyxml2::XMLElement* elem, Widget* root, Widget* widget)
 {
-  const char* id        = elem->Attribute("id");
-  const char* text      = elem->Attribute("text");
-  const char* tooltip   = elem->Attribute("tooltip");
+  const char* id = elem->Attribute("id");
+  const char* text = elem->Attribute("text");
+  const char* tooltip = elem->Attribute("tooltip");
   const char* tooltip_dir = elem->Attribute("tooltip_dir");
-  bool selected         = bool_attr_is_true(elem, "selected");
-  bool disabled         = bool_attr_is_true(elem, "disabled");
-  bool expansive        = bool_attr_is_true(elem, "expansive");
-  bool homogeneous      = bool_attr_is_true(elem, "homogeneous");
-  bool magnet           = bool_attr_is_true(elem, "magnet");
-  bool noborders        = bool_attr_is_true(elem, "noborders");
-  const char* width     = elem->Attribute("width");
-  const char* height    = elem->Attribute("height");
-  const char* minwidth  = elem->Attribute("minwidth");
+  bool selected = bool_attr_is_true(elem, "selected");
+  bool disabled = bool_attr_is_true(elem, "disabled");
+  bool expansive = bool_attr_is_true(elem, "expansive");
+  bool homogeneous = bool_attr_is_true(elem, "homogeneous");
+  bool magnet = bool_attr_is_true(elem, "magnet");
+  bool noborders = bool_attr_is_true(elem, "noborders");
+  const char* width = elem->Attribute("width");
+  const char* height = elem->Attribute("height");
+  const char* minwidth = elem->Attribute("minwidth");
   const char* minheight = elem->Attribute("minheight");
-  const char* maxwidth  = elem->Attribute("maxwidth");
+  const char* maxwidth = elem->Attribute("maxwidth");
   const char* maxheight = elem->Attribute("maxheight");
-  const char* border    = elem->Attribute("border");
-  const char* styleid   = elem->Attribute("style");
+  const char* border = elem->Attribute("border");
+  const char* styleid = elem->Attribute("style");
   const char* childspacing = elem->Attribute("childspacing");
 
-  if (width) {
-    if (!minwidth) minwidth = width;
-    if (!maxwidth) maxwidth = width;
+  if (width)
+  {
+    if (!minwidth)
+      minwidth = width;
+    if (!maxwidth)
+      maxwidth = width;
   }
 
-  if (height) {
-    if (!minheight) minheight = height;
-    if (!maxheight) maxheight = height;
+  if (height)
+  {
+    if (!minheight)
+      minheight = height;
+    if (!maxheight)
+      maxheight = height;
   }
 
-  if (id != NULL)
+  if (id != nullptr)
     widget->setId(id);
 
-  if (text) {
+  if (text)
+  {
     widget->setText(text);
     widget->setI18N();
   }
 
-  if (tooltip && root) {
-    if (!m_tooltipManager) {
+  if (tooltip && root)
+  {
+    if (!m_tooltipManager)
+    {
       m_tooltipManager = new ui::TooltipManager();
       root->addChild(m_tooltipManager);
     }
 
     int dir = LEFT;
-    if (tooltip_dir) {
-      if (strcmp(tooltip_dir, "top") == 0) dir = TOP;
-      else if (strcmp(tooltip_dir, "bottom") == 0) dir = BOTTOM;
-      else if (strcmp(tooltip_dir, "left") == 0) dir = LEFT;
-      else if (strcmp(tooltip_dir, "right") == 0) dir = RIGHT;
+    if (tooltip_dir)
+    {
+      if (strcmp(tooltip_dir, "top") == 0)
+        dir = TOP;
+      else if (strcmp(tooltip_dir, "bottom") == 0)
+        dir = BOTTOM;
+      else if (strcmp(tooltip_dir, "left") == 0)
+        dir = LEFT;
+      else if (strcmp(tooltip_dir, "right") == 0)
+        dir = RIGHT;
     }
     m_tooltipManager->addTooltipFor(widget, tooltip, dir);
   }
@@ -608,26 +679,30 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement
     widget->noBorderNoChildSpacing();
 
   if (border)
-    widget->setBorder(gfx::Border(strtol(border, NULL, 10)*guiscale()));
+    widget->setBorder(gfx::Border(strtol(border, nullptr, 10) * guiscale()));
 
   if (childspacing)
-    widget->setChildSpacing(strtol(childspacing, NULL, 10)*guiscale());
+    widget->setChildSpacing(strtol(childspacing, nullptr, 10) * guiscale());
 
   gfx::Size reqSize = widget->sizeHint();
 
-  if (minwidth || minheight) {
-    int w = (minwidth ? guiscale()*strtol(minwidth, NULL, 10): reqSize.w);
-    int h = (minheight ? guiscale()*strtol(minheight, NULL, 10): reqSize.h);
+  if (minwidth || minheight)
+  {
+    int w = (minwidth ? guiscale() * strtol(minwidth, nullptr, 10) : reqSize.w);
+    int h =
+        (minheight ? guiscale() * strtol(minheight, nullptr, 10) : reqSize.h);
     widget->setMinSize(gfx::Size(w, h));
   }
 
-  if (maxwidth || maxheight) {
-    int w = (maxwidth ? guiscale()*strtol(maxwidth, NULL, 10): INT_MAX);
-    int h = (maxheight ? guiscale()*strtol(maxheight, NULL, 10): INT_MAX);
+  if (maxwidth || maxheight)
+  {
+    int w = (maxwidth ? guiscale() * strtol(maxwidth, nullptr, 10) : INT_MAX);
+    int h = (maxheight ? guiscale() * strtol(maxheight, nullptr, 10) : INT_MAX);
     widget->setMaxSize(gfx::Size(w, h));
   }
 
-  if (styleid) {
+  if (styleid)
+  {
     SkinTheme* theme = static_cast<SkinTheme*>(root->theme());
     skin::Style* style = theme->getStyle(styleid);
     ASSERT(style);
@@ -636,7 +711,8 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement
   }
 }
 
-void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* widget)
+void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(
+    const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* widget)
 {
   fillWidgetWithXmlElementAttributes(elem, root, widget);
 
@@ -645,32 +721,37 @@ void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(const tinyxml2
 
   // Children
   const tinyxml2::XMLElement* childElem = elem->FirstChildElement();
-  while (childElem) {
-    Widget* child = convertXmlElementToWidget(childElem, root, widget, NULL);
-    if (child) {
+  while (childElem)
+  {
+    Widget* child = convertXmlElementToWidget(childElem, root, widget, nullptr);
+    if (child)
+    {
       // Attach the child in the view
-      if (widget->type() == kViewWidget) {
+      if (widget->type() == kViewWidget)
+      {
         static_cast<View*>(widget)->attachToView(child);
         break;
       }
       // Add the child in the grid
-      else if (widget->type() == kGridWidget) {
+      else if (widget->type() == kGridWidget)
+      {
         const char* cell_hspan = childElem->Attribute("cell_hspan");
         const char* cell_vspan = childElem->Attribute("cell_vspan");
         const char* cell_align = childElem->Attribute("cell_align");
-        int hspan = cell_hspan ? strtol(cell_hspan, NULL, 10): 1;
-        int vspan = cell_vspan ? strtol(cell_vspan, NULL, 10): 1;
-        int align = cell_align ? convert_align_value_to_flags(cell_align): 0;
+        int hspan = cell_hspan ? strtol(cell_hspan, nullptr, 10) : 1;
+        int vspan = cell_vspan ? strtol(cell_vspan, nullptr, 10) : 1;
+        int align = cell_align ? convert_align_value_to_flags(cell_align) : 0;
         Grid* grid = dynamic_cast<Grid*>(widget);
-        ASSERT(grid != NULL);
+        ASSERT(grid != nullptr);
 
         grid->addChildInCell(child, hspan, vspan, align);
       }
       // Attach the child in the view
       else if (widget->type() == kComboBoxWidget &&
-               child->type() == kListItemWidget) {
+               child->type() == kListItemWidget)
+      {
         ComboBox* combo = dynamic_cast<ComboBox*>(widget);
-        ASSERT(combo != NULL);
+        ASSERT(combo != nullptr);
 
         combo->addItem(dynamic_cast<ListItem*>(child));
       }
@@ -681,46 +762,55 @@ void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(const tinyxml2
     childElem = childElem->NextSiblingElement();
   }
 
-  if (widget->type() == kViewWidget) {
+  if (widget->type() == kViewWidget)
+  {
     bool maxsize = bool_attr_is_true(elem, "maxsize");
     if (maxsize)
       static_cast<View*>(widget)->makeVisibleAllScrollableArea();
   }
 }
 
-static int convert_align_value_to_flags(const char *value)
+static int convert_align_value_to_flags(const char* value)
 {
   char *tok, *ptr = base_strdup(value);
   int flags = 0;
 
-  for (tok=strtok(ptr, " ");
-       tok != NULL;
-       tok=strtok(NULL, " ")) {
-    if (strcmp(tok, "horizontal") == 0) {
+  for (tok = strtok(ptr, " "); tok != nullptr; tok = strtok(nullptr, " "))
+  {
+    if (strcmp(tok, "horizontal") == 0)
+    {
       flags |= HORIZONTAL;
     }
-    else if (strcmp(tok, "vertical") == 0) {
+    else if (strcmp(tok, "vertical") == 0)
+    {
       flags |= VERTICAL;
     }
-    else if (strcmp(tok, "left") == 0) {
+    else if (strcmp(tok, "left") == 0)
+    {
       flags |= LEFT;
     }
-    else if (strcmp(tok, "center") == 0) {
+    else if (strcmp(tok, "center") == 0)
+    {
       flags |= CENTER;
     }
-    else if (strcmp(tok, "right") == 0) {
+    else if (strcmp(tok, "right") == 0)
+    {
       flags |= RIGHT;
     }
-    else if (strcmp(tok, "top") == 0) {
+    else if (strcmp(tok, "top") == 0)
+    {
       flags |= TOP;
     }
-    else if (strcmp(tok, "middle") == 0) {
+    else if (strcmp(tok, "middle") == 0)
+    {
       flags |= MIDDLE;
     }
-    else if (strcmp(tok, "bottom") == 0) {
+    else if (strcmp(tok, "bottom") == 0)
+    {
       flags |= BOTTOM;
     }
-    else if (strcmp(tok, "homogeneous") == 0) {
+    else if (strcmp(tok, "homogeneous") == 0)
+    {
       flags |= HOMOGENEOUS;
     }
   }
@@ -729,11 +819,12 @@ static int convert_align_value_to_flags(const char *value)
   return flags;
 }
 
-static int int_attr(const tinyxml2::XMLElement* elem, const char* attribute_name, int default_value)
+static int int_attr(const tinyxml2::XMLElement* elem,
+                    const char* attribute_name, int default_value)
 {
   const char* value = elem->Attribute(attribute_name);
 
-  return (value ? strtol(value, NULL, 10): default_value);
+  return (value ? strtol(value, nullptr, 10) : default_value);
 }
 
 } // namespace app

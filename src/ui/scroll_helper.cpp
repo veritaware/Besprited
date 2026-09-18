@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,17 +11,15 @@
 
 #include "ui/scroll_bar.h"
 
-namespace ui {
-
-void setup_scrollbars(const gfx::Size& scrollableSize,
-                      gfx::Rect& viewportArea,
-                      Widget& parent,
-                      ScrollBar& hbar,
-                      ScrollBar& vbar)
+namespace ui
 {
-#define NEED_BAR(w, h, width)                       \
-  ((scrollableSize.w > viewportArea.w) &&           \
-   (vbar.getBarWidth() < fullViewportArea.w) &&     \
+
+void setup_scrollbars(const gfx::Size& scrollableSize, gfx::Rect& viewportArea,
+                      Widget& parent, ScrollBar& hbar, ScrollBar& vbar)
+{
+#define NEED_BAR(w, h, width)                                                  \
+  ((scrollableSize.w > viewportArea.w) &&                                      \
+   (vbar.getBarWidth() < fullViewportArea.w) &&                                \
    (hbar.getBarWidth() < fullViewportArea.h))
 
   const gfx::Rect fullViewportArea = viewportArea;
@@ -28,33 +27,41 @@ void setup_scrollbars(const gfx::Size& scrollableSize,
   hbar.setSize(scrollableSize.w);
   vbar.setSize(scrollableSize.h);
 
-  if (hbar.parent()) parent.removeChild(&hbar);
-  if (vbar.parent()) parent.removeChild(&vbar);
+  if (hbar.parent())
+    parent.removeChild(&hbar);
+  if (vbar.parent())
+    parent.removeChild(&vbar);
 
-  if (NEED_BAR(w, h, width)) {
+  if (NEED_BAR(w, h, width))
+  {
     viewportArea.h -= hbar.getBarWidth();
     parent.addChild(&hbar);
 
-    if (NEED_BAR(h, w, height)) {
+    if (NEED_BAR(h, w, height))
+    {
       viewportArea.w -= vbar.getBarWidth();
       if (NEED_BAR(w, h, width))
         parent.addChild(&vbar);
-      else {
+      else
+      {
         viewportArea.w += vbar.getBarWidth();
         viewportArea.h += hbar.getBarWidth();
         parent.removeChild(&hbar);
       }
     }
   }
-  else if (NEED_BAR(h, w, height)) {
+  else if (NEED_BAR(h, w, height))
+  {
     viewportArea.w -= vbar.getBarWidth();
     parent.addChild(&vbar);
 
-    if (NEED_BAR(w, h, width)) {
+    if (NEED_BAR(w, h, width))
+    {
       viewportArea.h -= hbar.getBarWidth();
       if (NEED_BAR(h, w, height))
         parent.addChild(&hbar);
-      else {
+      else
+      {
         viewportArea.w += vbar.getBarWidth();
         viewportArea.h += hbar.getBarWidth();
         parent.removeChild(&vbar);
@@ -62,15 +69,17 @@ void setup_scrollbars(const gfx::Size& scrollableSize,
     }
   }
 
-  if (parent.hasChild(&hbar)) {
-    hbar.setBounds(gfx::Rect(viewportArea.x, viewportArea.y2(),
-                             viewportArea.w, hbar.getBarWidth()));
+  if (parent.hasChild(&hbar))
+  {
+    hbar.setBounds(gfx::Rect(viewportArea.x, viewportArea.y2(), viewportArea.w,
+                             hbar.getBarWidth()));
     hbar.setVisible(true);
   }
   else
     hbar.setVisible(false);
 
-  if (parent.hasChild(&vbar)) {
+  if (parent.hasChild(&vbar))
+  {
     vbar.setBounds(gfx::Rect(viewportArea.x2(), viewportArea.y,
                              vbar.getBarWidth(), viewportArea.h));
     vbar.setVisible(true);

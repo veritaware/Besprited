@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,27 +11,29 @@
 
 #include <vector>
 
-namespace app {
+namespace app
+{
 
-  class CmdSequence : public Cmd {
-  public:
-    CmdSequence();
-    ~CmdSequence();
+class CmdSequence : public Cmd
+{
+public:
+  CmdSequence();
+  ~CmdSequence();
 
-    void add(Cmd* cmd);
+  void add(Cmd* cmd);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    void onRedo() override;
-    size_t onMemSize() const override;
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  void onRedo() override;
+  size_t onMemSize() const override;
 
-    // Helper to create a CmdSequence in the same onExecute() member
-    // function.
-    void executeAndAdd(Cmd* cmd);
+  // Helper to create a CmdSequence in the same onExecute() member
+  // function.
+  void executeAndAdd(Cmd* cmd);
 
-  private:
-    std::vector<Cmd*> m_cmds;
-  };
+private:
+  std::vector<Cmd*> m_cmds;
+};
 
 } // namespace app

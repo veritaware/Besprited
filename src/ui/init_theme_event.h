@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2013, 2015  David Capello
-// LibreSprite | Copyright (C) 2021  LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2013, 2015 David Capello
+// LibreSprite | Copyright (C) 2021            LibreSprite contributors
+// Besprited   | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,20 +9,24 @@
 
 #include "ui/event.h"
 
-namespace ui {
+namespace ui
+{
 
-  class Theme;
+class Theme;
 
-  class InitThemeEvent : public Event {
-  public:
-    InitThemeEvent(Widget* source, Theme* theme)
-      : Event(source)
-      , m_theme(theme){ }
+class InitThemeEvent : public Event
+{
+public:
+  InitThemeEvent(Widget* source, Theme* theme)
+    : Event(source)
+    , m_theme(theme)
+  {
+  }
 
-    Theme* theme() const { return m_theme; }
+  Theme* theme() const { return m_theme; }
 
-  private:
-    Theme* m_theme;
-  };
+private:
+  Theme* m_theme;
+};
 
 } // namespace ui

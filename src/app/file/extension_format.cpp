@@ -26,19 +26,19 @@
 #include <archive.h>
 #include <archive_entry.h>
 
-namespace app {
+namespace app
+{
 
 using namespace base;
 
-class ExtensionFormat : public FileFormat {
+class ExtensionFormat : public FileFormat
+{
   const char* onGetName() const override { return "aseprite-extension"; }
   const char* onGetExtensions() const override { return "aseprite-extension"; }
-  int onGetFlags() const override {
-    return FILE_SUPPORT_LOAD;
-  }
+  int onGetFlags() const override { return FILE_SUPPORT_LOAD; }
 
   bool onLoad(FileOp* fop) override;
-  bool onSave(FileOp* fop) override {return false;}
+  bool onSave(FileOp* fop) override { return false; }
 };
 
 // Disabled: this format appears to have diverged from Aseprite's current
@@ -47,11 +47,14 @@ class ExtensionFormat : public FileFormat {
 // worth keeping.
 // static FileFormat::Regular<ExtensionFormat> ff{"extension"};
 
-class Archive {
+class Archive
+{
   std::shared_ptr<void> lib;
   archive* a;
+
 public:
-  Archive(FILE* file) {
+  Archive(FILE* file)
+  {
     a = archive_read_new();
     lib = std::shared_ptr<archive>(a, archive_read_free);
     archive_read_support_format_7zip(a);
@@ -59,13 +62,16 @@ public:
     archive_read_support_format_rar(a);
     archive_read_support_format_tar(a);
     archive_read_support_format_zip(a);
-    if (archive_read_open_FILE(a, file)) {
+    if (archive_read_open_FILE(a, file))
+    {
       throw std::runtime_error("Error reading archive");
     }
   }
 
-  void extractTo(const std::string& path) {
-    for (;;) {
+  void extractTo(const std::string& path)
+  {
+    for (;;)
+    {
       archive_entry* entry{};
       auto r = archive_read_next_header(a, &entry);
       if (r == ARCHIVE_EOF)
@@ -74,9 +80,11 @@ public:
         throw std::runtime_error("Error reading archive");
       std::string fileName = archive_entry_pathname(entry);
       bool isDir = archive_entry_filetype(entry) == AE_IFDIR;
-      auto out = open_file_with_exception(path + base::path_separator + fileName, "wb");
-      for (;;) {
-        const void *buff{};
+      auto out = open_file_with_exception(
+          path + base::path_separator + fileName, "wb");
+      for (;;)
+      {
+        const void* buff{};
         size_t size;
 #if ARCHIVE_VERSION_NUMBER >= 3000000
         int64_t offset;
@@ -116,16 +124,22 @@ bool ExtensionFormat::onLoad(FileOp* fop)
   themeName.pop_back();
 
   auto themePath = skins + base::path_separator + themeName;
-  if (!base::is_directory(themePath)) {
+  if (!base::is_directory(themePath))
+  {
     base::make_all_directories(themePath);
     archive.extractTo(themePath);
   }
 
-  if (themeName != Preferences::instance().theme.selected()) {
-    TaskManager::instance().delayed([=]{
-      Preferences::instance().theme.selected(themeName);
-      ui::Alert::show(PACKAGE "<<You must restart the program to see the selected theme" "||&OK");
-    });
+  if (themeName != Preferences::instance().theme.selected())
+  {
+    TaskManager::instance().delayed(
+        [=]
+        {
+          Preferences::instance().theme.selected(themeName);
+          ui::Alert::show(
+              PACKAGE "<<You must restart the program to see the selected theme"
+                      "||&OK");
+        });
   }
 
   return true;

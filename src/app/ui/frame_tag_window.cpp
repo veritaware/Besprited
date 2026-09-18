@@ -14,25 +14,26 @@
 #include "doc/frame_tag.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-FrameTagWindow::FrameTagWindow(const doc::Sprite* sprite, const doc::FrameTag* frameTag)
+FrameTagWindow::FrameTagWindow(const doc::Sprite* sprite,
+                               const doc::FrameTag* frameTag)
   : m_sprite(sprite)
 {
   name()->setText(frameTag->name());
-  from()->setMax(sprite->lastFrame()+1);
-  to()->setMax(sprite->lastFrame()+1);
-  from()->setValue(frameTag->fromFrame()+1);
-  to()->setValue(frameTag->toFrame()+1);
-  color()->setColor(app::Color::fromRgb(
-      doc::rgba_getr(frameTag->color()),
-      doc::rgba_getg(frameTag->color()),
-      doc::rgba_getb(frameTag->color())));
+  from()->setMax(sprite->lastFrame() + 1);
+  to()->setMax(sprite->lastFrame() + 1);
+  from()->setValue(frameTag->fromFrame() + 1);
+  to()->setValue(frameTag->toFrame() + 1);
+  color()->setColor(app::Color::fromRgb(doc::rgba_getr(frameTag->color()),
+                                        doc::rgba_getg(frameTag->color()),
+                                        doc::rgba_getb(frameTag->color())));
 
-  static_assert(
-    int(doc::AniDir::FORWARD) == 0 &&
-    int(doc::AniDir::REVERSE) == 1 &&
-    int(doc::AniDir::PING_PONG) == 2, "doc::AniDir has changed");
+  static_assert(int(doc::AniDir::FORWARD) == 0 &&
+                    int(doc::AniDir::REVERSE) == 1 &&
+                    int(doc::AniDir::PING_PONG) == 2,
+                "doc::AniDir has changed");
   anidir()->addItem("Forward");
   anidir()->addItem("Reverse");
   anidir()->addItem("Ping-pong");
@@ -55,10 +56,10 @@ void FrameTagWindow::rangeValue(doc::frame_t& from, doc::frame_t& to)
   doc::frame_t first = 0;
   doc::frame_t last = m_sprite->lastFrame();
 
-  from = this->from()->getValue()-1;
-  to   = this->to()->getValue()-1;
+  from = this->from()->getValue() - 1;
+  to = this->to()->getValue() - 1;
   from = MID(first, from, last);
-  to   = MID(from, to, last);
+  to = MID(from, to, last);
 }
 
 doc::color_t FrameTagWindow::colorValue()

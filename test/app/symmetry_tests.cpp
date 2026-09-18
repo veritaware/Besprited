@@ -20,14 +20,19 @@
 using namespace app::tools;
 using namespace doc;
 
-namespace {
+namespace
+{
 
 // Symmetry::generateStrokes() only ever calls loop->getBrush() (to check
 // the brush bounds' width/height parity), so every other member of this
 // otherwise huge interface is an unused stub.
-class FakeToolLoop : public ToolLoop {
+class FakeToolLoop : public ToolLoop
+{
 public:
-  explicit FakeToolLoop(Brush brush) : m_brush(std::move(brush)) {}
+  explicit FakeToolLoop(Brush brush)
+    : m_brush(std::move(brush))
+  {
+  }
 
   void dispose() override {}
   Tool* getTool() override { return nullptr; }
@@ -92,7 +97,8 @@ private:
   gfx::Region m_dirtyArea;
 };
 
-Stroke onePoint(int x, int y, float pressure) {
+Stroke onePoint(int x, int y, float pressure)
+{
   Stroke s;
   s.addPoint({x, y, pressure});
   return s;
@@ -198,7 +204,8 @@ TEST(Rotational180Symmetry, RotatesAboutTheCenterWithBrushParityAdjustment)
   EXPECT_EQ(7, out[1][0].y);
 }
 
-TEST(Rotational90Symmetry, ProducesFourStrokesEachRotated90DegreesFromThePrevious)
+TEST(Rotational90Symmetry,
+     ProducesFourStrokesEachRotated90DegreesFromThePrevious)
 {
   Brush brush;
   FakeToolLoop loop{brush};
@@ -243,7 +250,8 @@ TEST(CompositeSymmetry, SingleAxisMatchesTheDedicatedSymmetryClass)
   dedicated.generateStrokes(onePoint(14, 3, 0.f), dedicatedOut, &loop);
 
   ASSERT_EQ(dedicatedOut.size(), compositeOut.size());
-  for (std::size_t i = 0; i < dedicatedOut.size(); ++i) {
+  for (std::size_t i = 0; i < dedicatedOut.size(); ++i)
+  {
     EXPECT_EQ(dedicatedOut[i][0].x, compositeOut[i][0].x);
     EXPECT_EQ(dedicatedOut[i][0].y, compositeOut[i][0].y);
   }
@@ -254,7 +262,8 @@ TEST(CompositeSymmetry, CombiningTwoAxesYieldsFourStrokesWithNoDuplicates)
   Brush brush(doc::kCircleBrushType, 5, 0);
   FakeToolLoop loop{brush};
 
-  int flags = (int)app::gen::SymmetryMode::HORIZONTAL | (int)app::gen::SymmetryMode::VERTICAL;
+  int flags = (int)app::gen::SymmetryMode::HORIZONTAL |
+              (int)app::gen::SymmetryMode::VERTICAL;
   CompositeSymmetry composite(flags, 10, 10);
 
   Strokes out;
@@ -268,7 +277,8 @@ TEST(CompositeSymmetry, CombiningTwoAxesYieldsFourStrokesWithNoDuplicates)
   EXPECT_EQ(4u, uniquePoints.size());
 }
 
-TEST(CompositeSymmetry, CombiningAllFourAxesYieldsSixteenStrokesWithNoDuplicates)
+TEST(CompositeSymmetry,
+     CombiningAllFourAxesYieldsSixteenStrokesWithNoDuplicates)
 {
   Brush brush(doc::kCircleBrushType, 5, 0);
   FakeToolLoop loop{brush};
@@ -287,7 +297,8 @@ TEST(CompositeSymmetry, CombiningAllFourAxesYieldsSixteenStrokesWithNoDuplicates
   ASSERT_EQ(16u, out.size());
 
   std::set<std::pair<int, int>> uniquePoints;
-  for (auto& stroke : out) {
+  for (auto& stroke : out)
+  {
     uniquePoints.insert({stroke[0].x, stroke[0].y});
     EXPECT_FLOAT_EQ(0.25f, stroke[0].pressure);
   }

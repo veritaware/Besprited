@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,13 +15,12 @@
 #include "app/ui/editor/scrolling_state.h"
 #include "ui/message.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-NavigateState::NavigateState()
-{
-}
+NavigateState::NavigateState() = default;
 
 bool NavigateState::onMouseDown(Editor* editor, MouseMessage* msg)
 {

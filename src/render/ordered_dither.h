@@ -13,163 +13,164 @@
 #include "doc/palette.h"
 #include "doc/rgbmap.h"
 
-namespace render {
+#include <array>
 
-  // Creates a Bayer dither matrix.
-  template<int N>
-  class BayerMatrix {
-    static int D2[4];
+namespace render
+{
 
-    int m_matrix[N*N];
+// Creates a Bayer dither matrix.
+template <int N> class BayerMatrix
+{
+  static std::array<int, 4> D2;
 
-  public:
-    int maxValue() const { return N*N; }
+  std::array<int, N * N> m_matrix;
 
-    BayerMatrix() {
-      int c = 0;
-      for (int i=0; i<N; ++i)
-        for (int j=0; j<N; ++j)
-          m_matrix[c++] = Dn(i, j, N);
-    }
+public:
+  [[nodiscard]] int maxValue() const { return N * N; }
 
-    int operator()(int i, int j) const {
-      return m_matrix[(i%N)*N + (j%N)];
-    }
+  BayerMatrix()
+  {
+    int c = 0;
+    for (int i = 0; i < N; ++i)
+      for (int j = 0; j < N; ++j)
+        m_matrix[c++] = Dn(i, j, N);
+  }
 
-    int operator[](int i) const {
-      return m_matrix[i];
-    }
+  int operator()(int i, int j) const { return m_matrix[(i % N) * N + (j % N)]; }
 
-  private:
-    int Dn(int i, int j, int n) const {
-      ASSERT(i >= 0 && i < n);
-      ASSERT(j >= 0 && j < n);
+  int operator[](int i) const { return m_matrix[i]; }
 
-      if (n == 2)
-        return D2[i*2 + j];
-      else
-        return
-          + 4*Dn(i%(n/2), j%(n/2), n/2)
-          +   Dn(i/(n/2), j/(n/2), 2);
-    }
-  };
+private:
+  [[nodiscard]] int Dn(int i, int j, int n) const
+  {
+    ASSERT(i >= 0 && i < n);
+    ASSERT(j >= 0 && j < n);
 
-  // Base 2x2 dither matrix, called D(2):
-  template<int N>
-  int BayerMatrix<N>::D2[4] = { 0, 2,
-                                3, 1 };
+    if (n == 2)
+      return D2[i * 2 + j];
+    else
+      return +4 * Dn(i % (n / 2), j % (n / 2), n / 2) +
+             Dn(i / (n / 2), j / (n / 2), 2);
+  }
+};
 
-  class OrderedDither {
-    static int colorDistance(int r1, int g1, int b1, int a1,
-                             int r2, int g2, int b2, int a2) {
-      // The factor for RGB components came from doc::rba_luma()
-      return int((r1-r2) * (r1-r2) * 21 + // 2126
-                 (g1-g2) * (g1-g2) * 71 + // 7152
-                 (b1-b2) * (b1-b2) *  7 + //  722
-                 (a1-a2) * (a1-a2));
-    }
+// Base 2x2 dither matrix, called D(2):
+template <int N> std::array<int, 4> BayerMatrix<N>::D2 = {0, 2, 3, 1};
 
-  public:
-    OrderedDither(int transparentIndex = -1) : m_transparentIndex(transparentIndex) {
-    }
+class OrderedDither
+{
+  [[nodiscard]] static int colorDistance(int r1, int g1, int b1, int a1, int r2,
+                                         int g2, int b2, int a2)
+  {
+    // The factor for RGB components came from doc::rba_luma()
+    return (r1 - r2) * (r1 - r2) * 21 + // 2126
+           (g1 - g2) * (g1 - g2) * 71 + // 7152
+           (b1 - b2) * (b1 - b2) * 7 +  //  722
+           (a1 - a2) * (a1 - a2);
+  }
 
-    template<typename Matrix>
-    doc::color_t ditherRgbPixelToIndex(
-      const Matrix& matrix,
-      doc::color_t color,
-      int x, int y,
-      const doc::RgbMap* rgbmap,
-      const doc::Palette* palette) {
-      // Alpha=0, output transparent color
-      if (m_transparentIndex >= 0 && !doc::rgba_geta(color))
-        return m_transparentIndex;
+public:
+  OrderedDither(int transparentIndex = -1)
+    : m_transparentIndex(transparentIndex)
+  {
+  }
 
-      // Get the nearest color in the palette with the given RGB
-      // values.
-      int r = doc::rgba_getr(color);
-      int g = doc::rgba_getg(color);
-      int b = doc::rgba_getb(color);
-      int a = doc::rgba_geta(color);
-      doc::color_t nearest1idx =
-        (rgbmap ? rgbmap->mapColor(r, g, b, a):
-                  palette->findBestfit(r, g, b, a, m_transparentIndex));
+  template <typename Matrix>
+  doc::color_t ditherRgbPixelToIndex(const Matrix& matrix, doc::color_t color,
+                                     int x, int y, const doc::RgbMap* rgbmap,
+                                     const doc::Palette* palette)
+  {
+    // Alpha=0, output transparent color
+    if (m_transparentIndex >= 0 && !doc::rgba_geta(color))
+      return m_transparentIndex;
 
-      doc::color_t nearest1rgb = palette->getEntry(nearest1idx);
-      int r1 = doc::rgba_getr(nearest1rgb);
-      int g1 = doc::rgba_getg(nearest1rgb);
-      int b1 = doc::rgba_getb(nearest1rgb);
-      int a1 = doc::rgba_geta(nearest1rgb);
+    // Get the nearest color in the palette with the given RGB
+    // values.
+    const int r = doc::rgba_getr(color);
+    const int g = doc::rgba_getg(color);
+    const int b = doc::rgba_getb(color);
+    const int a = doc::rgba_geta(color);
+    const doc::color_t nearest1idx = static_cast<doc::color_t>(
+        rgbmap ? rgbmap->mapColor(r, g, b, a)
+               : palette->findBestfit(r, g, b, a, m_transparentIndex));
 
-      // Between the original color ('color' parameter) and 'nearest'
-      // index, we have an error (r1-r, g1-g, b1-b). Here we try to
-      // find the other nearest color with the same error but with
-      // different sign.
-      int r2 = r - (r1-r);
-      int g2 = g - (g1-g);
-      int b2 = b - (b1-b);
-      int a2 = a - (a1-a);
-      r2 = MID(0, r2, 255);
-      g2 = MID(0, g2, 255);
-      b2 = MID(0, b2, 255);
-      a2 = MID(0, a2, 255);
-      doc::color_t nearest2idx =
-        (rgbmap ? rgbmap->mapColor(r2, g2, b2, a2):
-                  palette->findBestfit(r2, g2, b2, a2, m_transparentIndex));
+    const doc::color_t nearest1rgb = palette->getEntry(nearest1idx);
+    const int r1 = doc::rgba_getr(nearest1rgb);
+    const int g1 = doc::rgba_getg(nearest1rgb);
+    const int b1 = doc::rgba_getb(nearest1rgb);
+    const int a1 = doc::rgba_geta(nearest1rgb);
 
-      // If both possible RGB colors use the same index, we cannot
-      // make any dither with these two colors.
-      if (nearest1idx == nearest2idx)
-        return nearest1idx;
+    // Between the original color ('color' parameter) and 'nearest'
+    // index, we have an error (r1-r, g1-g, b1-b). Here we try to
+    // find the other nearest color with the same error but with
+    // different sign.
+    int r2 = r - (r1 - r);
+    int g2 = g - (g1 - g);
+    int b2 = b - (b1 - b);
+    int a2 = a - (a1 - a);
+    r2 = MID(0, r2, 255);
+    g2 = MID(0, g2, 255);
+    b2 = MID(0, b2, 255);
+    a2 = MID(0, a2, 255);
+    const doc::color_t nearest2idx = static_cast<doc::color_t>(
+        rgbmap ? rgbmap->mapColor(r2, g2, b2, a2)
+               : palette->findBestfit(r2, g2, b2, a2, m_transparentIndex));
 
-      doc::color_t nearest2rgb = palette->getEntry(nearest2idx);
-      r2 = doc::rgba_getr(nearest2rgb);
-      g2 = doc::rgba_getg(nearest2rgb);
-      b2 = doc::rgba_getb(nearest2rgb);
-      a2 = doc::rgba_geta(nearest2rgb);
+    // If both possible RGB colors use the same index, we cannot
+    // make any dither with these two colors.
+    if (nearest1idx == nearest2idx)
+      return nearest1idx;
 
-      // Here we calculate the distance between the original 'color'
-      // and 'nearest1rgb'. The maximum possible distance is given by
-      // the distance between 'nearest1rgb' and 'nearest2rgb'.
-      int d = colorDistance(r1, g1, b1, a1, r, g, b, a);
-      int D = colorDistance(r1, g1, b1, a1, r2, g2, b2, a2);
-      if (D == 0)
-        return nearest1idx;
+    const doc::color_t nearest2rgb = palette->getEntry(nearest2idx);
+    r2 = doc::rgba_getr(nearest2rgb);
+    g2 = doc::rgba_getg(nearest2rgb);
+    b2 = doc::rgba_getb(nearest2rgb);
+    a2 = doc::rgba_geta(nearest2rgb);
 
-      // We convert the d/D factor to the matrix range to compare it
-      // with the threshold. If d > threshold, it means that we're
-      // closer to 'nearest2rgb' than to 'nearest1rgb'.
-      d = matrix.maxValue() * d / D;
-      int threshold = matrix(x, y);
+    // Here we calculate the distance between the original 'color'
+    // and 'nearest1rgb'. The maximum possible distance is given by
+    // the distance between 'nearest1rgb' and 'nearest2rgb'.
+    int d = colorDistance(r1, g1, b1, a1, r, g, b, a);
+    int D = colorDistance(r1, g1, b1, a1, r2, g2, b2, a2);
+    if (D == 0)
+      return nearest1idx;
 
-      return (d > threshold ? nearest2idx:
-                              nearest1idx);
-    }
+    // We convert the d/D factor to the matrix range to compare it
+    // with the threshold. If d > threshold, it means that we're
+    // closer to 'nearest2rgb' than to 'nearest1rgb'.
+    d = matrix.maxValue() * d / D;
+    int threshold = matrix(x, y);
 
-    template<typename Matrix>
-    void ditherRgbImageToIndexed(const Matrix& matrix,
-                                 const doc::Image* srcImage,
-                                 doc::Image* dstImage,
-                                 int u, int v,
-                                 const doc::RgbMap* rgbmap,
-                                 const doc::Palette* palette) {
-      const doc::LockImageBits<doc::RgbTraits> srcBits(srcImage);
-      doc::LockImageBits<doc::IndexedTraits> dstBits(dstImage);
-      auto srcIt = srcBits.begin();
-      auto dstIt = dstBits.begin();
-      int w = srcImage->width();
-      int h = srcImage->height();
+    return (d > threshold ? nearest2idx : nearest1idx);
+  }
 
-      for (int y=0; y<h; ++y) {
-        for (int x=0; x<w; ++x, ++srcIt, ++dstIt) {
-          ASSERT(srcIt != srcBits.end());
-          ASSERT(dstIt != dstBits.end());
-          *dstIt = ditherRgbPixelToIndex(matrix, *srcIt, x+u, y+v, rgbmap, palette);
-        }
+  template <typename Matrix>
+  void ditherRgbImageToIndexed(const Matrix& matrix, const doc::Image* srcImage,
+                               doc::Image* dstImage, int u, int v,
+                               const doc::RgbMap* rgbmap,
+                               const doc::Palette* palette)
+  {
+    const doc::LockImageBits<doc::RgbTraits> srcBits(srcImage);
+    doc::LockImageBits<doc::IndexedTraits> dstBits(dstImage);
+    auto srcIt = srcBits.begin();
+    auto dstIt = dstBits.begin();
+    const int w = srcImage->width();
+    const int h = srcImage->height();
+
+    for (int y = 0; y < h; ++y)
+    {
+      for (int x = 0; x < w; ++x, ++srcIt, ++dstIt)
+      {
+        ASSERT(srcIt != srcBits.end());
+        ASSERT(dstIt != dstBits.end());
+        *dstIt = ditherRgbPixelToIndex(matrix, *srcIt, x + u, y + v, rgbmap,
+                                       palette);
       }
     }
+  }
 
-  private:
-    int m_transparentIndex;
-  };
+private:
+  int m_transparentIndex;
+};
 
 } // namespace render

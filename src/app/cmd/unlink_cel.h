@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,24 +10,24 @@
 #include "app/cmd.h"
 #include "app/cmd/with_cel.h"
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class UnlinkCel : public Cmd
-                  , public WithCel {
-  public:
-    UnlinkCel(std::shared_ptr<Cel> cel);
+class UnlinkCel : public Cmd,
+                  public WithCel
+{
+public:
+  explicit UnlinkCel(const std::shared_ptr<Cel>& cel);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
+protected:
+  void onExecute() override;
+  void onUndo() override;
 
-  private:
-    ObjectId m_newImageId;
-    ObjectId m_oldCelDataId;
-    ObjectId m_newCelDataId;
-  };
+private:
+  ObjectId m_newImageId;
+  ObjectId m_oldCelDataId;
+  ObjectId m_newCelDataId;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

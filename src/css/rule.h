@@ -1,5 +1,6 @@
-// Aseprite CSS Library
-// Copyright (C) 2013 David Capello
+// CSS Library
+// Aseprite  | Copyright (C) 2013 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,22 +9,23 @@
 
 #include "css/map.h"
 
-#include <map>
 #include <string>
 
-namespace css {
+namespace css
+{
 
-  class Rule {
-  public:
-    Rule() { }
-    Rule(const std::string& name);
+class Rule
+{
+public:
+  Rule() = default;
+  Rule(std::string name);
 
-    const std::string& name() const { return m_name; }
+  [[nodiscard]] const std::string& name() const { return m_name; }
 
-  private:
-    std::string m_name;
-  };
+private:
+  std::string m_name;
+};
 
-  typedef Map<Rule*> Rules;
+using Rules = Map<Rule*>;
 
 } // namespace css

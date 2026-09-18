@@ -1,5 +1,6 @@
-// Aseprite CSS Library
-// Copyright (C) 2013 David Capello
+// CSS Library
+// Aseprite  | Copyright (C) 2013 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,13 +15,10 @@
 #include "css/query.h"
 #include "css/stateful_style.h"
 
-#include <stdio.h>
-
-namespace css {
-
-Sheet::Sheet()
+namespace css
 {
-}
+
+Sheet::Sheet() = default;
 
 void Sheet::addRule(Rule* rule)
 {
@@ -47,11 +45,10 @@ Query Sheet::query(const StatefulStyle& compound)
   // We create a string with all states. This is the style with
   // highest priority.
   std::string states;
-  for (States::const_iterator
-         state_it = compound.states().begin(),
-         state_end = compound.states().end(); state_it != state_end; ++state_it) {
+  for (const State* state : compound.states())
+  {
     states += StatefulStyle::kSeparator;
-    states += (*state_it)->name();
+    states += state->name();
   }
 
   // Query by priority for the following styles:
@@ -59,7 +56,8 @@ Query Sheet::query(const StatefulStyle& compound)
   // ...
   // base1:state1:state2:...
   // base0:state1:state2:...
-  for (style=firstStyle; style != NULL; style=style->base()) {
+  for (style = firstStyle; style != nullptr; style = style->base())
+  {
     name = style->name();
     name += states;
 
@@ -76,10 +74,12 @@ Query Sheet::query(const StatefulStyle& compound)
   // base1:state1
   // base0:state2
   // base0:state1
-  for (States::const_reverse_iterator
-         state_it = compound.states().rbegin(),
-         state_end = compound.states().rend(); state_it != state_end; ++state_it) {
-    for (style=firstStyle; style != NULL; style=style->base()) {
+  for (auto state_it = compound.states().rbegin(),
+            state_end = compound.states().rend();
+       state_it != state_end; ++state_it)
+  {
+    for (style = firstStyle; style != nullptr; style = style->base())
+    {
       name = style->name();
       name += StatefulStyle::kSeparator;
       name += (*state_it)->name();
@@ -95,7 +95,8 @@ Query Sheet::query(const StatefulStyle& compound)
   // ...
   // base1
   // base0
-  for (style=firstStyle; style != NULL; style=style->base()) {
+  for (style = firstStyle; style != nullptr; style = style->base())
+  {
     query.addFromStyle(style);
   }
 
@@ -104,7 +105,7 @@ Query Sheet::query(const StatefulStyle& compound)
 
 CompoundStyle Sheet::compoundStyle(const std::string& name)
 {
-  return CompoundStyle(this, name);
+  return {this, name};
 }
 
 } // namespace css

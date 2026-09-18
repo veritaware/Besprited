@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,10 +11,11 @@
 
 #include "app/tools/pick_ink.h"
 
-namespace app {
-namespace tools {
+namespace app::tools
+{
 
-PickInk::PickInk(Target target) : m_target(target)
+PickInk::PickInk(Target target)
+  : m_target(target)
 {
 }
 
@@ -38,5 +39,4 @@ void PickInk::inkHline(int x1, int y, int x2, ToolLoop* loop)
   // Do nothing
 }
 
-} // namespace tools
-} // namespace app
+} // namespace app::tools

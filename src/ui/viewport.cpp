@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,7 +18,8 @@
 #include "ui/view.h"
 #include "ui/viewport.h"
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
@@ -38,7 +40,8 @@ void Viewport::onResize(ResizeEvent& ev)
   cpos.x = rect.x + border().left() - scroll.x;
   cpos.y = rect.y + border().top() - scroll.y;
 
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     Size reqSize = child->sizeHint();
 
     cpos.w = MAX(reqSize.w, rect.w - border().width());
@@ -50,8 +53,7 @@ void Viewport::onResize(ResizeEvent& ev)
 
 void Viewport::onSizeHint(SizeHintEvent& ev)
 {
-  ev.setSizeHint(gfx::Size(1 + border().width(),
-                           1 + border().height()));
+  ev.setSizeHint(gfx::Size(1 + border().width(), 1 + border().height()));
 }
 
 void Viewport::onPaint(PaintEvent& ev)
@@ -64,7 +66,8 @@ Size Viewport::calculateNeededSize()
   Size maxSize(0, 0);
   Size reqSize;
 
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     reqSize = child->sizeHint();
     maxSize.w = MAX(maxSize.w, reqSize.w);
     maxSize.h = MAX(maxSize.h, reqSize.h);

@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,44 +12,44 @@
 
 #include <set>
 
-namespace doc {
-  class Layer;
-  class Sprite;
+namespace doc
+{
+class Layer;
+class Sprite;
 
-  class LayersRange {
+class LayersRange
+{
+public:
+  LayersRange(const Sprite* sprite, LayerIndex first, LayerIndex last);
+
+  class iterator
+  {
   public:
-    LayersRange(const Sprite* sprite, LayerIndex first, LayerIndex last);
+    iterator();
+    iterator(const Sprite* sprite, LayerIndex first, LayerIndex last);
 
-    class iterator {
-    public:
-      iterator();
-      iterator(const Sprite* sprite, LayerIndex first, LayerIndex last);
+    bool operator==(const iterator& other) const
+    {
+      return m_layer == other.m_layer;
+    }
 
-      bool operator==(const iterator& other) const {
-        return m_layer == other.m_layer;
-      }
+    bool operator!=(const iterator& other) const { return !operator==(other); }
 
-      bool operator!=(const iterator& other) const {
-        return !operator==(other);
-      }
+    Layer* operator*() const { return m_layer; }
 
-      Layer* operator*() const {
-        return m_layer;
-      }
-
-      iterator& operator++();
-
-    private:
-      Layer* m_layer;
-      LayerIndex m_cur, m_last;
-      std::set<ObjectId> m_visited;
-    };
-
-    iterator begin() { return m_begin; }
-    iterator end() { return m_end; }
+    iterator& operator++();
 
   private:
-    iterator m_begin, m_end;
+    Layer* m_layer;
+    LayerIndex m_cur, m_last;
+    std::set<ObjectId> m_visited;
   };
+
+  iterator begin() { return m_begin; }
+  iterator end() { return m_end; }
+
+private:
+  iterator m_begin, m_end;
+};
 
 } // namespace doc

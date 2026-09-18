@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -12,30 +12,27 @@
 #include "gfx/point.h"
 #include "gfx/rect.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-  class CropCel : public Cmd
-                , public WithCel {
-  public:
-    CropCel(std::shared_ptr<doc::Cel> cel, const gfx::Rect& newBounds);
+class CropCel : public Cmd,
+                public WithCel
+{
+public:
+  CropCel(const std::shared_ptr<Cel>& cel, const gfx::Rect& newBounds);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    size_t onMemSize() const override {
-      return sizeof(*this);
-    }
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this); }
 
-  private:
-    void cropImage(const gfx::Point& origin,
-                   const gfx::Rect& bounds);
+private:
+  void cropImage(const gfx::Point& origin, const gfx::Rect& bounds) const;
 
-    gfx::Point m_oldOrigin;
-    gfx::Point m_newOrigin;
-    gfx::Rect m_oldBounds;
-    gfx::Rect m_newBounds;
-  };
+  gfx::Point m_oldOrigin;
+  gfx::Point m_newOrigin;
+  gfx::Rect m_oldBounds;
+  gfx::Rect m_newBounds;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

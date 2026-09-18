@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,21 +19,22 @@
 #include "she/native_dialogs.h"
 #include "she/system.h"
 
-namespace app {
+namespace app
+{
 
-std::string show_file_selector(
-  const std::string& title,
-  const std::string& initialPath,
-  const std::string& showExtensions,
-  FileSelectorType type,
-  FileSelectorDelegate* delegate)
+std::string show_file_selector(const std::string& title,
+                               const std::string& initialPath,
+                               const std::string& showExtensions,
+                               FileSelectorType type,
+                               FileSelectorDelegate* delegate)
 {
   if (Preferences::instance().experimental.useNativeFileDialog() &&
-      she::instance()->nativeDialogs()) {
-    she::FileDialog* dlg =
-      she::instance()->nativeDialogs()->createFileDialog();
+      she::instance()->nativeDialogs())
+  {
+    she::FileDialog* dlg = she::instance()->nativeDialogs()->createFileDialog();
 
-    if (dlg) {
+    if (dlg)
+    {
       std::string res;
 
       dlg->setTitle(title);

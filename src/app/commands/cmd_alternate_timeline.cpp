@@ -1,4 +1,5 @@
-// LibreSprite | Copyright (C)      2023  LibreSprite contributors
+// LibreSprite | Copyright (C) 2023 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -20,36 +21,41 @@
 #include "ui/system.h"
 #include "she/display.h"
 
-namespace app {
+namespace app
+{
 
-  class AlternateTimelineCommand : public Command {
-  public:
-    Command* clone() const override { return new AlternateTimelineCommand(*this); }
-
-    AlternateTimelineCommand()
-      : Command{"AlternateTimeline", "Alternate Timeline", CmdUIOnlyFlag}
-      {}
-
-  protected:
-
-    void onLoadParams(const Params& params) override {}
-
-    bool onEnabled(Context* context) override {
-      return true;
-    }
-
-    bool onChecked(Context* context) override {
-      return Preferences::instance().general.verticalTimeline();
-    }
-
-    void onExecute(Context* context) override{
-        App::instance()->mainWindow()->alternateTimeline();
-    }
-  };
-
-  Command* CommandFactory::createAlternateTimelineCommand()
+class AlternateTimelineCommand : public Command
+{
+public:
+  Command* clone() const override
   {
-    return new AlternateTimelineCommand;
+    return new AlternateTimelineCommand(*this);
   }
+
+  AlternateTimelineCommand()
+    : Command{"AlternateTimeline", "Alternate Timeline", CmdUIOnlyFlag}
+  {
+  }
+
+protected:
+  void onLoadParams(const Params& params) override {}
+
+  bool onEnabled(Context* context) override { return true; }
+
+  bool onChecked(Context* context) override
+  {
+    return Preferences::instance().general.verticalTimeline();
+  }
+
+  void onExecute(Context* context) override
+  {
+    App::instance()->mainWindow()->alternateTimeline();
+  }
+};
+
+Command* CommandFactory::createAlternateTimelineCommand()
+{
+  return new AlternateTimelineCommand;
+}
 
 } // namespace app

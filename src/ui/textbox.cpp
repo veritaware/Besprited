@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,10 +19,11 @@
 #include "ui/theme.h"
 #include "ui/view.h"
 
-namespace ui {
+namespace ui
+{
 
 TextBox::TextBox(const std::string& text, int align)
- : Widget(kTextBoxWidget)
+  : Widget(kTextBoxWidget)
 {
   setFocusStop(true);
   setAlign(align);
@@ -31,112 +33,125 @@ TextBox::TextBox(const std::string& text, int align)
 
 bool TextBox::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kKeyDownMessage:
-      if (hasFocus()) {
-        View* view = View::getView(this);
-        if (view) {
-          gfx::Rect vp = view->viewportBounds();
-          gfx::Point scroll = view->viewScroll();
-          int textheight = textHeight();
+  case kKeyDownMessage:
+    if (hasFocus())
+    {
+      View* view = View::getView(this);
+      if (view)
+      {
+        gfx::Rect vp = view->viewportBounds();
+        gfx::Point scroll = view->viewScroll();
+        int textheight = textHeight();
 
-          switch (static_cast<KeyMessage*>(msg)->scancode()) {
+        switch (static_cast<KeyMessage*>(msg)->scancode())
+        {
 
-            case kKeyLeft:
-              scroll.x -= vp.w/2;
-              view->setViewScroll(scroll);
-              break;
+        case kKeyLeft:
+          scroll.x -= vp.w / 2;
+          view->setViewScroll(scroll);
+          break;
 
-            case kKeyRight:
-              scroll.x += vp.w/2;
-              view->setViewScroll(scroll);
-              break;
+        case kKeyRight:
+          scroll.x += vp.w / 2;
+          view->setViewScroll(scroll);
+          break;
 
-            case kKeyUp:
-              scroll.y -= vp.h/2;
-              view->setViewScroll(scroll);
-              break;
+        case kKeyUp:
+          scroll.y -= vp.h / 2;
+          view->setViewScroll(scroll);
+          break;
 
-            case kKeyDown:
-              scroll.y += vp.h/2;
-              view->setViewScroll(scroll);
-              break;
+        case kKeyDown:
+          scroll.y += vp.h / 2;
+          view->setViewScroll(scroll);
+          break;
 
-            case kKeyPageUp:
-              scroll.y -= (vp.h-textheight);
-              view->setViewScroll(scroll);
-              break;
+        case kKeyPageUp:
+          scroll.y -= (vp.h - textheight);
+          view->setViewScroll(scroll);
+          break;
 
-            case kKeyPageDown:
-              scroll.y += (vp.h-textheight);
-              view->setViewScroll(scroll);
-              break;
+        case kKeyPageDown:
+          scroll.y += (vp.h - textheight);
+          view->setViewScroll(scroll);
+          break;
 
-            case kKeyHome:
-              scroll.y = 0;
-              view->setViewScroll(scroll);
-              break;
+        case kKeyHome:
+          scroll.y = 0;
+          view->setViewScroll(scroll);
+          break;
 
-            case kKeyEnd:
-              scroll.y = bounds().h - vp.h;
-              view->setViewScroll(scroll);
-              break;
+        case kKeyEnd:
+          scroll.y = bounds().h - vp.h;
+          view->setViewScroll(scroll);
+          break;
 
-            default:
-              return Widget::onProcessMessage(msg);
-          }
+        default:
+          return Widget::onProcessMessage(msg);
         }
-        return true;
       }
-      break;
-
-    case kMouseDownMessage: {
-      View* view = View::getView(this);
-      if (view) {
-        captureMouse();
-        m_oldPos = static_cast<MouseMessage*>(msg)->position();
-        set_mouse_cursor(kScrollCursor);
-        return true;
-      }
-      break;
+      return true;
     }
+    break;
 
-    case kMouseMoveMessage: {
-      View* view = View::getView(this);
-      if (view && hasCapture()) {
-        gfx::Point scroll = view->viewScroll();
-        gfx::Point newPos = static_cast<MouseMessage*>(msg)->position();
-
-        scroll += m_oldPos - newPos;
-        view->setViewScroll(scroll);
-
-        m_oldPos = newPos;
-      }
-      break;
+  case kMouseDownMessage:
+  {
+    View* view = View::getView(this);
+    if (view)
+    {
+      captureMouse();
+      m_oldPos = static_cast<MouseMessage*>(msg)->position();
+      set_mouse_cursor(kScrollCursor);
+      return true;
     }
+    break;
+  }
 
-    case kMouseUpMessage: {
-      View* view = View::getView(this);
-      if (view && hasCapture()) {
-        releaseMouse();
-        set_mouse_cursor(kArrowCursor);
-        return true;
-      }
-      break;
+  case kMouseMoveMessage:
+  {
+    View* view = View::getView(this);
+    if (view && hasCapture())
+    {
+      gfx::Point scroll = view->viewScroll();
+      gfx::Point newPos = static_cast<MouseMessage*>(msg)->position();
+
+      scroll += m_oldPos - newPos;
+      view->setViewScroll(scroll);
+
+      m_oldPos = newPos;
     }
+    break;
+  }
 
-    case kMouseWheelMessage: {
-      View* view = View::getView(this);
-      if (view) {
-        gfx::Point scroll = view->viewScroll();
-
-        scroll += static_cast<MouseMessage*>(msg)->wheelDelta() * textHeight()*3;
-
-        view->setViewScroll(scroll);
-      }
-      break;
+  case kMouseUpMessage:
+  {
+    View* view = View::getView(this);
+    if (view && hasCapture())
+    {
+      releaseMouse();
+      set_mouse_cursor(kArrowCursor);
+      return true;
     }
+    break;
+  }
+
+  case kMouseWheelMessage:
+  {
+    View* view = View::getView(this);
+    if (view)
+    {
+      gfx::Point scroll = view->viewScroll();
+
+      scroll +=
+          static_cast<MouseMessage*>(msg)->wheelDelta() * textHeight() * 3;
+
+      view->setViewScroll(scroll);
+    }
+    break;
+  }
   }
 
   return Widget::onProcessMessage(msg);
@@ -153,24 +168,27 @@ void TextBox::onSizeHint(SizeHintEvent& ev)
   int h = 0;
 
   // TODO is it necessary?
-  //w = widget->border_width.l + widget->border_width.r;
-  //h = widget->border_width.t + widget->border_width.b;
+  // w = widget->border_width.l + widget->border_width.r;
+  // h = widget->border_width.t + widget->border_width.b;
 
-  drawTextBox(NULL, this, &w, &h, gfx::ColorNone, gfx::ColorNone);
+  drawTextBox(nullptr, this, &w, &h, gfx::ColorNone, gfx::ColorNone);
 
-  if (this->align() & WORDWRAP) {
+  if (this->align() & WORDWRAP)
+  {
     View* view = View::getView(this);
     int width, min = w;
 
-    if (view) {
+    if (view)
+    {
       width = view->viewportBounds().w;
     }
-    else {
+    else
+    {
       width = bounds().w;
     }
 
     w = MAX(min, width);
-    drawTextBox(NULL, this, &w, &h, gfx::ColorNone, gfx::ColorNone);
+    drawTextBox(nullptr, this, &w, &h, gfx::ColorNone, gfx::ColorNone);
 
     w = min;
   }

@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2016 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,41 +12,42 @@
 #include "base/thread.h"
 
 #ifdef _WIN32
-  #include <windows.h>
-  #include <process.h>
+#include <windows.h>
+#include <process.h>
 #else
-  #include <pthread.h>          // Use pthread library in Unix-like systems
+#include <pthread.h> // Use pthread library in Unix-like systems
 #endif
 
 #if !defined(_WIN32)
-  #include <unistd.h>
-  #include <sys/time.h>
+#include <unistd.h>
+#include <sys/time.h>
 #endif
 
-namespace {
+namespace
+{
 
 #ifdef _WIN32
 
-  static DWORD WINAPI win32_thread_proxy(LPVOID data)
-  {
-    base::thread::details::thread_proxy(data);
-    return 0;
-  }
+static DWORD WINAPI win32_thread_proxy(LPVOID data)
+{
+  base::thread::details::thread_proxy(data);
+  return 0;
+}
 
 #else
 
-  static void* pthread_thread_proxy(void* data)
-  {
-    base::thread::details::thread_proxy(data);
-    return NULL;
-  }
+static void* pthread_thread_proxy(void* data)
+{
+  base::thread::details::thread_proxy(data);
+  return nullptr;
+}
 
 #endif
 
-}
+} // namespace
 
 base::thread::thread()
-  : m_native_handle((native_handle_type)0)
+  : m_native_handle(static_cast<native_handle_type>(nullptr))
 {
 }
 
@@ -57,29 +59,31 @@ base::thread::~thread()
 
 bool base::thread::joinable() const
 {
-  return m_native_handle != (native_handle_type)0;
+  return m_native_handle != static_cast<native_handle_type>(nullptr);
 }
 
 void base::thread::join()
 {
-  if (joinable()) {
+  if (joinable())
+  {
 #ifdef _WIN32
     ::WaitForSingleObject(m_native_handle, INFINITE);
 #else
-    ::pthread_join((pthread_t)m_native_handle, NULL);
+    ::pthread_join(reinterpret_cast<pthread_t>(m_native_handle), nullptr);
 #endif
-    m_native_handle = (native_handle_type)0;
+    m_native_handle = static_cast<native_handle_type>(nullptr);
   }
 }
 
 void base::thread::detach()
 {
-  if (joinable()) {
+  if (joinable())
+  {
 #ifdef _WIN32
     ::CloseHandle(m_native_handle);
-    m_native_handle = (native_handle_type)0;
+    m_native_handle = static_cast<native_handle_type>(nullptr);
 #else
-    ::pthread_detach((pthread_t)m_native_handle);
+    ::pthread_detach(reinterpret_cast<pthread_t>(m_native_handle));
 #endif
   }
 }
@@ -91,27 +95,28 @@ base::thread::native_handle_type base::thread::native_handle()
 
 void base::thread::launch_thread(func_wrapper* f)
 {
-  m_native_handle = (native_handle_type)0;
+  m_native_handle = static_cast<native_handle_type>(nullptr);
 
 #ifdef _WIN32
 
   DWORD native_id;
-  m_native_handle = ::CreateThread(NULL, 0, win32_thread_proxy, (LPVOID)f,
-                                   CREATE_SUSPENDED, &native_id);
+  m_native_handle =
+      ::CreateThread(nullptr, 0, win32_thread_proxy, static_cast<LPVOID>(f),
+                     CREATE_SUSPENDED, &native_id);
   ResumeThread(m_native_handle);
 
 #else
 
   pthread_t thread;
-  if (::pthread_create(&thread, NULL, pthread_thread_proxy, f) == 0)
-    m_native_handle = (void*)thread;
+  if (::pthread_create(&thread, nullptr, pthread_thread_proxy, f) == 0)
+    m_native_handle = reinterpret_cast<void*>(thread);
 
 #endif
 }
 
 void base::thread::details::thread_proxy(void* data)
 {
-  func_wrapper* f = reinterpret_cast<func_wrapper*>(data);
+  auto* f = reinterpret_cast<func_wrapper*>(data);
 
   // Call operator() of func_wrapper class (this is a virtual method).
   (*f)();
@@ -135,7 +140,7 @@ void base::this_thread::yield()
   struct timeval timeout;
   timeout.tv_sec = 0;
   timeout.tv_usec = 0;
-  select(0, NULL, NULL, NULL, &timeout);
+  select(0, nullptr, nullptr, nullptr, &timeout);
 
 #endif
 }
@@ -161,7 +166,7 @@ base::thread::native_handle_type base::this_thread::native_handle()
 
 #else
 
-  return (void*)pthread_self();
+  return reinterpret_cast<void*>(pthread_self());
 
 #endif
 }

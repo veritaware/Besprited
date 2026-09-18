@@ -1,5 +1,6 @@
-// Aseprite CSS Library
-// Copyright (C) 2013 David Capello
+// CSS Library
+// Aseprite  | Copyright (C) 2013 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,10 +11,13 @@
 
 #include "css/rule.h"
 
-namespace css {
+#include <utility>
 
-Rule::Rule(const std::string& name) :
-  m_name(name)
+namespace css
+{
+
+Rule::Rule(std::string name)
+  : m_name(std::move(name))
 {
 }
 

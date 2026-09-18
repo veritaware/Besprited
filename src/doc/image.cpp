@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,7 +18,8 @@
 #include "doc/primitives.h"
 #include "doc/rgbmap.h"
 
-namespace doc {
+namespace doc
+{
 
 Image::Image(PixelFormat format, int width, int height)
   : Object(ObjectType::Image)
@@ -28,13 +30,11 @@ Image::Image(PixelFormat format, int width, int height)
   m_maskColor = 0;
 }
 
-Image::~Image()
-{
-}
+Image::~Image() = default;
 
 int Image::getMemSize() const
 {
-  return sizeof(Image) + static_cast<long>(getRowStrideSize())*m_height;
+  return sizeof(Image) + static_cast<long>(getRowStrideSize()) * m_height;
 }
 
 int Image::getRowStrideSize() const
@@ -51,13 +51,18 @@ int Image::getRowStrideSize(int pixels_per_row) const
 Image* Image::create(PixelFormat format, int width, int height,
                      const ImageBufferPtr& buffer)
 {
-  switch (format) {
-    case IMAGE_RGB:       return new ImageImpl<RgbTraits>(width, height, buffer);
-    case IMAGE_GRAYSCALE: return new ImageImpl<GrayscaleTraits>(width, height, buffer);
-    case IMAGE_INDEXED:   return new ImageImpl<IndexedTraits>(width, height, buffer);
-    case IMAGE_BITMAP:    return new ImageImpl<BitmapTraits>(width, height, buffer);
+  switch (format)
+  {
+  case IMAGE_RGB:
+    return new ImageImpl<RgbTraits>(width, height, buffer);
+  case IMAGE_GRAYSCALE:
+    return new ImageImpl<GrayscaleTraits>(width, height, buffer);
+  case IMAGE_INDEXED:
+    return new ImageImpl<IndexedTraits>(width, height, buffer);
+  case IMAGE_BITMAP:
+    return new ImageImpl<BitmapTraits>(width, height, buffer);
   }
-  return NULL;
+  return nullptr;
 }
 
 // static
@@ -65,7 +70,7 @@ Image* Image::createCopy(const Image* image, const ImageBufferPtr& buffer)
 {
   ASSERT(image);
   return crop_image(image, 0, 0, image->width(), image->height(),
-    image->maskColor(), buffer);
+                    image->maskColor(), buffer);
 }
 
 } // namespace doc

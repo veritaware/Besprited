@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,9 +9,10 @@
 
 #include <vector>
 
-namespace app {
+namespace app
+{
 
-  class WorkspaceView;
-  typedef std::vector<WorkspaceView*> WorkspaceViews;
+class WorkspaceView;
+using WorkspaceViews = std::vector<WorkspaceView*>;
 
 } // namespace app

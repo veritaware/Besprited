@@ -1,5 +1,6 @@
-// Aseprite CSS Library
-// Copyright (C) 2013 David Capello
+// CSS Library
+// Aseprite  | Copyright (C) 2013 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,11 +11,15 @@
 
 #include "css/style.h"
 
-namespace css {
-  
-Style::Style(const std::string& name, const Style* base) :
-  m_name(name),
-  m_base(base) {
+#include <utility>
+
+namespace css
+{
+
+Style::Style(std::string name, const Style* base)
+  : m_name(std::move(name))
+  , m_base(base)
+{
 }
 
 } // namespace css

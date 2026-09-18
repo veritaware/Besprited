@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -42,7 +43,8 @@
 #include "ui/system.h"
 #include "ui/view.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -55,7 +57,8 @@ MainWindow::MainWindow()
   AppMenus::instance()->reload();
 
   bool altTouchBar = Preferences::instance().touchBar.alternatePosition();
-  auto touchbarParent = altTouchBar ? touchBarAltPlaceholder() : touchBarPlaceholder();
+  auto touchbarParent =
+      altTouchBar ? touchBarAltPlaceholder() : touchBarPlaceholder();
 
   m_menuBar = new MainMenuBar();
   m_notifications = new Notifications();
@@ -97,13 +100,15 @@ MainWindow::MainWindow()
   touchbarParent->addChild(m_touchBar.get());
 
   bool leftToolbar = Preferences::instance().general.leftToolBar();
-  if (!has_config_value("general", "left_tool_bar")) {
+  if (!has_config_value("general", "left_tool_bar"))
+  {
     // TODO: Decide default based on DPI
 #if defined(ANDROID)
     leftToolbar = true;
 #endif
   }
-  auto toolbarParent = leftToolbar ? toolBarAltPlaceholder() : this->toolBarPlaceholder();
+  auto toolbarParent =
+      leftToolbar ? toolBarAltPlaceholder() : this->toolBarPlaceholder();
   toolbarParent->addChild(m_toolBar);
 
   statusBarPlaceholder()->addChild(m_statusBar);
@@ -116,7 +121,8 @@ MainWindow::MainWindow()
   timelineSplitter()->setPosition(75);
 
   bool verticalTimeline = Preferences::instance().general.verticalTimeline();
-  if (!has_config_value("general", "vertical_timeline")) {
+  if (!has_config_value("general", "vertical_timeline"))
+  {
     // TODO: Decide default based on DPI
 #if defined(ANDROID)
     verticalTimeline = true;
@@ -125,7 +131,8 @@ MainWindow::MainWindow()
   timelineSplitter()->setAlign(verticalTimeline ? HORIZONTAL : VERTICAL);
 
   bool touchBarVisible = Preferences::instance().touchBar.visible();
-  if (!has_config_value("touch_bar", "visible")) {
+  if (!has_config_value("touch_bar", "visible"))
+  {
     // TODO: Decide default based on DPI
 #if defined(ANDROID)
     touchBarVisible = true;
@@ -139,14 +146,18 @@ MainWindow::MainWindow()
   AppMenus::instance()->rebuildRecentList();
 }
 
-void MainWindow::alternateTimeline() {
+void MainWindow::alternateTimeline()
+{
   auto old = Preferences::instance().general.verticalTimeline();
   Preferences::instance().general.verticalTimeline(!old);
-  timelineSplitter()->setAlign(Preferences::instance().general.verticalTimeline() ? HORIZONTAL : VERTICAL);
+  timelineSplitter()->setAlign(
+      Preferences::instance().general.verticalTimeline() ? HORIZONTAL
+                                                         : VERTICAL);
   configureWorkspaceLayout();
 }
 
-void MainWindow::alternateToolbar() {
+void MainWindow::alternateToolbar()
+{
   auto left = !Preferences::instance().general.leftToolBar();
   Preferences::instance().general.leftToolBar(left);
   auto parent = left ? toolBarAltPlaceholder() : toolBarPlaceholder();
@@ -155,17 +166,20 @@ void MainWindow::alternateToolbar() {
   remapWindow();
 }
 
-void MainWindow::alternateTouchbar() {
+void MainWindow::alternateTouchbar()
+{
   auto left = !Preferences::instance().touchBar.alternatePosition();
   Preferences::instance().touchBar.alternatePosition(left);
   bool altTouchBar = Preferences::instance().touchBar.alternatePosition();
-  auto touchbarParent = altTouchBar ? touchBarAltPlaceholder() : touchBarPlaceholder();
+  auto touchbarParent =
+      altTouchBar ? touchBarAltPlaceholder() : touchBarPlaceholder();
   m_touchBar->parent()->removeChild(m_touchBar.get());
   touchbarParent->addChild(m_touchBar.get());
   remapWindow();
 }
 
-void MainWindow::toggleTouchbar() {
+void MainWindow::toggleTouchbar()
+{
   auto visible = !Preferences::instance().touchBar.visible();
   Preferences::instance().touchBar.visible(visible);
   configureWorkspaceLayout();
@@ -173,12 +187,14 @@ void MainWindow::toggleTouchbar() {
 
 MainWindow::~MainWindow()
 {
-  if (m_devConsoleView) {
+  if (m_devConsoleView)
+  {
     if (m_devConsoleView->parent())
       m_workspace->removeView(m_devConsoleView);
     delete m_devConsoleView;
   }
-  if (m_homeView) {
+  if (m_homeView)
+  {
     if (m_homeView->parent())
       m_workspace->removeView(m_homeView);
     delete m_homeView;
@@ -193,7 +209,7 @@ MainWindow::~MainWindow()
 
   // Remove the root-menu from the menu-bar (because the rootmenu
   // module should destroy it).
-  m_menuBar->setMenu(NULL);
+  m_menuBar->setMenu(nullptr);
 }
 
 DocumentView* MainWindow::getDocView()
@@ -225,7 +241,8 @@ void MainWindow::showNotification(INotificationDelegate* del)
 
 void MainWindow::showHomeOnOpen()
 {
-  if (!getHomeView()->parent()) {
+  if (!getHomeView()->parent())
+  {
     TabView* selectedTab = m_tabsBar->getSelectedTab();
 
     // Show "Home" tab in the first position, and select it only if
@@ -240,7 +257,8 @@ void MainWindow::showHomeOnOpen()
 
 void MainWindow::showHome()
 {
-  if (!getHomeView()->parent()) {
+  if (!getHomeView()->parent())
+  {
     m_workspace->addView(m_homeView, 0);
   }
   m_tabsBar->selectTab(m_homeView);
@@ -256,7 +274,8 @@ void MainWindow::showDevConsole()
   if (!m_devConsoleView)
     m_devConsoleView = new DevConsoleView;
 
-  if (!m_devConsoleView->parent()) {
+  if (!m_devConsoleView->parent())
+  {
     m_workspace->addView(m_devConsoleView);
     m_tabsBar->selectTab(m_devConsoleView);
   }
@@ -328,11 +347,13 @@ void MainWindow::onActiveViewChange()
 
 bool MainWindow::isTabModified(Tabs* tabs, TabView* tabView)
 {
-  if (DocumentView* docView = dynamic_cast<DocumentView*>(tabView)) {
+  if (DocumentView* docView = dynamic_cast<DocumentView*>(tabView))
+  {
     Document* document = docView->document();
     return document->isModified();
   }
-  else {
+  else
+  {
     return false;
   }
 }
@@ -371,8 +392,8 @@ void MainWindow::onCloneTab(Tabs* tabs, TabView* tabView, int pos)
   WorkspaceView* clone = view->cloneWorkspaceView();
   ASSERT(clone);
 
-  m_workspace->addViewToPanel(
-    static_cast<WorkspaceTabs*>(tabs)->panel(), clone, true, pos);
+  m_workspace->addViewToPanel(static_cast<WorkspaceTabs*>(tabs)->panel(), clone,
+                              true, pos);
 
   clone->onClonedFrom(view);
 }
@@ -388,7 +409,8 @@ void MainWindow::onContextMenuTab(Tabs* tabs, TabView* tabView)
 void MainWindow::onMouseOverTab(Tabs* tabs, TabView* tabView)
 {
   // Note: tabView can be NULL
-  if (DocumentView* docView = dynamic_cast<DocumentView*>(tabView)) {
+  if (DocumentView* docView = dynamic_cast<DocumentView*>(tabView))
+  {
     Document* document = docView->document();
 
     std::string name;
@@ -399,16 +421,18 @@ void MainWindow::onMouseOverTab(Tabs* tabs, TabView* tabView)
 
     m_statusBar->setStatusText(250, "%s", name.c_str());
   }
-  else {
+  else
+  {
     m_statusBar->clearText();
   }
 }
 
-DropViewPreviewResult MainWindow::onFloatingTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos)
+DropViewPreviewResult MainWindow::onFloatingTab(Tabs* tabs, TabView* tabView,
+                                                const gfx::Point& pos)
 {
   return m_workspace->setDropViewPreview(pos,
-    dynamic_cast<WorkspaceView*>(tabView),
-    static_cast<WorkspaceTabs*>(tabs));
+                                         dynamic_cast<WorkspaceView*>(tabView),
+                                         static_cast<WorkspaceTabs*>(tabs));
 }
 
 void MainWindow::onDockingTab(Tabs* tabs, TabView* tabView)
@@ -416,12 +440,13 @@ void MainWindow::onDockingTab(Tabs* tabs, TabView* tabView)
   m_workspace->removeDropViewPreview();
 }
 
-DropTabResult MainWindow::onDropTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos, bool clone)
+DropTabResult MainWindow::onDropTab(Tabs* tabs, TabView* tabView,
+                                    const gfx::Point& pos, bool clone)
 {
   m_workspace->removeDropViewPreview();
 
-  DropViewAtResult result =
-    m_workspace->dropViewAt(pos, dynamic_cast<WorkspaceView*>(tabView), clone);
+  DropViewAtResult result = m_workspace->dropViewAt(
+      pos, dynamic_cast<WorkspaceView*>(tabView), clone);
 
   if (result == DropViewAtResult::MOVED_TO_OTHER_PANEL)
     return DropTabResult::REMOVE;
@@ -439,20 +464,18 @@ void MainWindow::configureWorkspaceLayout()
   m_menuBar->setVisible(normal);
   m_tabsBar->setVisible(normal);
   colorBarPlaceholder()->setVisible(normal && isDoc);
-  m_touchBar->setVisible(normal && isDoc && Preferences::instance().touchBar.visible());
+  m_touchBar->setVisible(normal && isDoc &&
+                         Preferences::instance().touchBar.visible());
   m_toolBar->setVisible(normal && isDoc);
   m_statusBar->setVisible(normal);
   m_contextBar->setVisible(
-    isDoc &&
-    (m_mode == NormalMode ||
-     m_mode == ContextBarAndTimelineMode));
+      isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode));
   timelinePlaceholder()->setVisible(
-    isDoc &&
-    (m_mode == NormalMode ||
-     m_mode == ContextBarAndTimelineMode) &&
-    Preferences::instance().general.visibleTimeline());
+      isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode) &&
+      Preferences::instance().general.visibleTimeline());
 
-  if (m_contextBar->isVisible()) {
+  if (m_contextBar->isVisible())
+  {
     m_contextBar->updateForActiveTool();
   }
 

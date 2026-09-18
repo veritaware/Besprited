@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,7 +17,8 @@
 #include "app/ui/skin/skin_theme.h"
 #include "ui/theme.h"
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace ui;
@@ -42,11 +43,10 @@ DropDownButton::DropDownButton(const char* text)
 
   setChildSpacing(0);
 
-  m_dropDown->setIconInterface
-    (new ButtonIconImpl(theme->parts.comboboxArrowDown(),
-                        theme->parts.comboboxArrowDownSelected(),
-                        theme->parts.comboboxArrowDownDisabled(),
-                        CENTER | MIDDLE));
+  m_dropDown->setIconInterface(new ButtonIconImpl(
+      theme->parts.comboboxArrowDown(),
+      theme->parts.comboboxArrowDownSelected(),
+      theme->parts.comboboxArrowDownDisabled(), CENTER | MIDDLE));
 }
 
 void DropDownButton::onButtonClick(Event& ev)

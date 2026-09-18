@@ -1,10 +1,12 @@
-// GTK Component of SHE library
-// Copyright (C) 2016  Gabriel Rauter
+// GTK Component of SHE Library
+// Aseprite  | Copyright (C) 2016 Gabriel Rauter
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-//disable EMPTY_STRING macro already set in allegro, enabling it at the end of file
+// disable EMPTY_STRING macro already set in allegro, enabling it at the end of
+// file
 #pragma push_macro("EMPTY_STRING")
 #undef EMPTY_STRING
 #pragma once
@@ -14,15 +16,18 @@
 #include <gtkmm/application.h>
 #include <glibmm/refptr.h>
 
-namespace she {
+namespace she
+{
 
-  class NativeDialogsGTK3 : public NativeDialogs {
-  public:
-    NativeDialogsGTK3();
-    FileDialog* createFileDialog() override;
-  private:
-    Glib::RefPtr<Gtk::Application> m_app;
-  };
+class NativeDialogsGTK3 : public NativeDialogs
+{
+public:
+  NativeDialogsGTK3();
+  FileDialog* createFileDialog() override;
+
+private:
+  Glib::RefPtr<Gtk::Application> m_app;
+};
 
 } // namespace she
 

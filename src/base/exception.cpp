@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013, 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,61 +15,66 @@
 #include <cstring>
 #include <cstdarg>
 
-namespace base {
+namespace base
+{
 
 using namespace std;
 
-Exception::Exception() throw()
-{
-}
+Exception::Exception() noexcept = default;
 
-Exception::Exception(const char* format, ...) throw()
+Exception::Exception(const char* format, ...) noexcept
 {
-  try {
-    if (!std::strchr(format, '%')) {
+  try
+  {
+    if (!std::strchr(format, '%'))
+    {
       m_msg = format;
     }
-    else {
+    else
+    {
       va_list ap;
       va_start(ap, format);
 
-      char buf[1024];           // TODO warning buffer overflow
+      char buf[1024]; // TODO warning buffer overflow
       std::vsnprintf(buf, sizeof(buf), format, ap);
       m_msg = buf;
 
       va_end(ap);
     }
   }
-  catch (...) {
+  catch (...)
+  {
     // No throw
   }
 }
 
-Exception::Exception(const std::string& msg) throw()
+Exception::Exception(const std::string& msg) noexcept
 {
-  try {
+  try
+  {
     m_msg = msg;
   }
-  catch (...) {
+  catch (...)
+  {
     // No throw
   }
 }
 
-Exception::~Exception() throw()
-{
-}
+Exception::~Exception() noexcept = default;
 
-void Exception::setMessage(const char* msg) throw()
+void Exception::setMessage(const char* msg) noexcept
 {
-  try {
+  try
+  {
     m_msg = msg;
   }
-  catch (...) {
+  catch (...)
+  {
     // No throw
   }
 }
 
-const char* Exception::what() const throw()
+const char* Exception::what() const noexcept
 {
   return m_msg.c_str();
 }

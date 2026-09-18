@@ -1,5 +1,6 @@
-// Aseprite Render Library
-// Copyright (c) 2001-2014 David Capello
+// Render Library
+// Aseprite  | Copyright (C) 2001-2014 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,7 +15,8 @@
 
 #include <memory>
 
-namespace render {
+namespace render
+{
 
 using namespace doc;
 
@@ -22,11 +24,13 @@ color_t get_sprite_pixel(const Sprite* sprite, int x, int y, frame_t frame)
 {
   color_t color = 0;
 
-  if ((x >= 0) && (y >= 0) && (x < sprite->width()) && (y < sprite->height())) {
-    std::unique_ptr<Image> image(Image::create(sprite->pixelFormat(), 1, 1));
+  if ((x >= 0) && (y >= 0) && (x < sprite->width()) && (y < sprite->height()))
+  {
+    const std::unique_ptr<Image> image(
+        Image::create(sprite->pixelFormat(), 1, 1));
 
     render::Render().renderSprite(image.get(), sprite, frame,
-      gfx::Clip(0, 0, x, y, 1, 1));
+                                  gfx::Clip(0, 0, x, y, 1, 1));
 
     color = get_pixel(image.get(), 0, 0);
   }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -36,8 +36,10 @@ char* tok_read(FILE* f, char* buf, char* leavings, int sizeof_leavings)
   if (feof(f))
     return NULL;
 
-  while (!*buf) {
-    if (!*leavings) {
+  while (!*buf)
+  {
+    if (!*leavings)
+    {
       line_num++;
       if (!tok_fgets(leavings, sizeof_leavings, f))
         return NULL;
@@ -45,35 +47,49 @@ char* tok_read(FILE* f, char* buf, char* leavings, int sizeof_leavings)
 
     s = leavings;
 
-    for (ch=*s; ch; ch=*s) {
-      if (ch == ' ') {
+    for (ch = *s; ch; ch = *s)
+    {
+      if (ch == ' ')
+      {
         s++;
       }
-      else if (ch == '#') {
+      else if (ch == '#')
+      {
         s += strlen(s);
         break;
       }
-      else if (ch == '\"') {
+      else if (ch == '\"')
+      {
         s++;
 
-        for (ch=*s; ; ch=*s) {
-          if (!ch) {
+        for (ch = *s;; ch = *s)
+        {
+          if (!ch)
+          {
             line_num++;
             if (!tok_fgets(leavings, sizeof_leavings, f))
               break;
-            else {
+            else
+            {
               s = leavings;
               continue;
             }
           }
-          else if (ch == '\\') {
+          else if (ch == '\\')
+          {
             s++;
-            switch (*s) {
-              case 'n': ch = '\n'; break;
-              default: ch = *s; break;
+            switch (*s)
+            {
+            case 'n':
+              ch = '\n';
+              break;
+            default:
+              ch = *s;
+              break;
             }
           }
-          else if (ch == '\"') {
+          else if (ch == '\"')
+          {
             s++;
             break;
           }
@@ -82,8 +98,10 @@ char* tok_read(FILE* f, char* buf, char* leavings, int sizeof_leavings)
         }
         break;
       }
-      else {
-        for (ch=*s; (ch) && (ch != ' '); ch=*s) {
+      else
+      {
+        for (ch = *s; (ch) && (ch != ' '); ch = *s)
+        {
           buf[len++] = ch;
           s++;
         }
@@ -91,7 +109,7 @@ char* tok_read(FILE* f, char* buf, char* leavings, int sizeof_leavings)
       }
     }
 
-    memmove(leavings, s, strlen(s)+1);
+    memmove(leavings, s, strlen(s) + 1);
   }
 
   buf[len] = 0;
@@ -104,10 +122,12 @@ static char* tok_fgets(char* buf, int size, FILE* file)
 {
   char* ret = fgets(buf, size, file);
 
-  if (ret && *ret) {
+  if (ret && *ret)
+  {
     // Remove trailing \r\n
     char* s = ret + strlen(ret);
-    do {
+    do
+    {
       *(s--) = 0;
     } while (s >= ret && *s && (*s == '\n' || *s == '\r'));
   }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,9 +21,10 @@
 #include "ui/resize_event.h"
 #include "ui/splitter.h"
 
-namespace app {
+namespace app
+{
 
-#define ANI_DROPAREA_TICKS  4
+#define ANI_DROPAREA_TICKS 4
 
 using namespace app::skin;
 using namespace ui;
@@ -69,7 +70,7 @@ void WorkspacePanel::addView(WorkspaceView* view, bool from_drop, int pos)
   if (pos < 0)
     m_views.push_back(view);
   else
-    m_views.insert(m_views.begin()+pos, view);
+    m_views.insert(m_views.begin() + pos, view);
 
   if (m_tabs)
     m_tabs->addTab(dynamic_cast<TabView*>(view), from_drop, pos);
@@ -91,7 +92,8 @@ void WorkspacePanel::removeView(WorkspaceView* view)
   removeChild(content);
 
   // Remove related tab.
-  if (m_tabs) {
+  if (m_tabs)
+  {
     m_tabs->removeTab(dynamic_cast<TabView*>(view), true);
 
     // The selected
@@ -106,7 +108,8 @@ void WorkspacePanel::removeView(WorkspaceView* view)
     getWorkspace()->setMainPanelAsActive();
 
   // Destroy this panel
-  if (m_views.empty() && m_panelType == SUB_PANEL) {
+  if (m_views.empty() && m_panelType == SUB_PANEL)
+  {
     Widget* self = parent();
     ASSERT(self->type() == kBoxWidget);
 
@@ -115,10 +118,8 @@ void WorkspacePanel::removeView(WorkspaceView* view)
 
     Widget* parent = splitter->parent();
 
-    Widget* side =
-      (splitter->firstChild() == self ?
-        splitter->lastChild():
-        splitter->firstChild());
+    Widget* side = (splitter->firstChild() == self ? splitter->lastChild()
+                                                   : splitter->firstChild());
 
     splitter->removeChild(side);
     parent->replaceChild(splitter, side);
@@ -163,7 +164,8 @@ void WorkspacePanel::adjustActiveViewBounds()
   gfx::Rect rc = childrenBounds();
 
   // Preview to drop tabs in workspace
-  if (m_leftTime+m_topTime+m_rightTime+m_bottomTime > 1e-4) {
+  if (m_leftTime + m_topTime + m_rightTime + m_bottomTime > 1e-4)
+  {
     double left = double(m_leftTime) / double(ANI_DROPAREA_TICKS);
     double top = double(m_topTime) / double(ANI_DROPAREA_TICKS);
     double right = double(m_rightTime) / double(ANI_DROPAREA_TICKS);
@@ -172,8 +174,10 @@ void WorkspacePanel::adjustActiveViewBounds()
 
     rc.x += int(inbetween(0.0, threshold, left));
     rc.y += int(inbetween(0.0, threshold, top));
-    rc.w -= int(inbetween(0.0, threshold, left) + inbetween(0.0, threshold, right));
-    rc.h -= int(inbetween(0.0, threshold, top) + inbetween(0.0, threshold, bottom));
+    rc.w -=
+        int(inbetween(0.0, threshold, left) + inbetween(0.0, threshold, right));
+    rc.h -=
+        int(inbetween(0.0, threshold, top) + inbetween(0.0, threshold, bottom));
   }
 
   for (auto child : children())
@@ -181,10 +185,12 @@ void WorkspacePanel::adjustActiveViewBounds()
       child->setBounds(rc);
 }
 
-void WorkspacePanel::setDropViewPreview(const gfx::Point& pos, WorkspaceView* view)
+void WorkspacePanel::setDropViewPreview(const gfx::Point& pos,
+                                        WorkspaceView* view)
 {
   int newDropArea = calculateDropArea(pos);
-  if (newDropArea != m_dropArea) {
+  if (newDropArea != m_dropArea)
+  {
     m_dropArea = newDropArea;
     startAnimation(ANI_DROPAREA, ANI_DROPAREA_TICKS);
   }
@@ -192,7 +198,8 @@ void WorkspacePanel::setDropViewPreview(const gfx::Point& pos, WorkspaceView* vi
 
 void WorkspacePanel::removeDropViewPreview()
 {
-  if (m_dropArea) {
+  if (m_dropArea)
+  {
     m_dropArea = 0;
     startAnimation(ANI_DROPAREA, ANI_DROPAREA_TICKS);
   }
@@ -206,7 +213,8 @@ void WorkspacePanel::onAnimationStop(int animation)
 
 void WorkspacePanel::onAnimationFrame()
 {
-  if (animation() == ANI_DROPAREA) {
+  if (animation() == ANI_DROPAREA)
+  {
     adjustTime(m_leftTime, LEFT);
     adjustTime(m_topTime, TOP);
     adjustTime(m_rightTime, RIGHT);
@@ -217,7 +225,8 @@ void WorkspacePanel::onAnimationFrame()
 
 void WorkspacePanel::adjustTime(int& time, int flag)
 {
-  if (m_dropArea & flag) {
+  if (m_dropArea & flag)
+  {
     if (time < ANI_DROPAREA_TICKS)
       ++time;
   }
@@ -225,7 +234,9 @@ void WorkspacePanel::adjustTime(int& time, int flag)
     --time;
 }
 
-DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& pos, WorkspacePanel* from, WorkspaceView* view, bool clone)
+DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& pos,
+                                            WorkspacePanel* from,
+                                            WorkspaceView* view, bool clone)
 {
   int dropArea = calculateDropArea(pos);
   if (!dropArea)
@@ -238,18 +249,22 @@ DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& pos, WorkspacePane
     return DropViewAtResult::NOTHING;
 
   int splitterAlign = 0;
-  if (dropArea & (LEFT | RIGHT)) splitterAlign = HORIZONTAL;
-  else if (dropArea & (TOP | BOTTOM)) splitterAlign = VERTICAL;
+  if (dropArea & (LEFT | RIGHT))
+    splitterAlign = HORIZONTAL;
+  else if (dropArea & (TOP | BOTTOM))
+    splitterAlign = VERTICAL;
 
   ASSERT(from);
   DropViewAtResult result;
   Workspace* workspace = getWorkspace();
   WorkspaceView* originalView = view;
-  if (clone) {
+  if (clone)
+  {
     view = view->cloneWorkspaceView();
     result = DropViewAtResult::CLONED_VIEW;
   }
-  else {
+  else
+  {
     workspace->removeView(view);
     result = DropViewAtResult::MOVED_TO_OTHER_PANEL;
   }
@@ -270,16 +285,18 @@ DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& pos, WorkspacePane
   splitter->setExpansive(true);
 
   Widget* parent = this->parent();
-  if (parent->type() == kBoxWidget) {
+  if (parent->type() == kBoxWidget)
+  {
     self = parent;
     parent = self->parent();
     ASSERT(parent->type() == kSplitterWidget);
   }
-  if (parent->type() == Workspace::Type() ||
-      parent->type() == kSplitterWidget) {
+  if (parent->type() == Workspace::Type() || parent->type() == kSplitterWidget)
+  {
     parent->replaceChild(self, splitter);
   }
-  else {
+  else
+  {
     ASSERT(false);
   }
 
@@ -289,19 +306,20 @@ DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& pos, WorkspacePane
   else
     sideSpace = 50;
 
-  switch (dropArea) {
-    case LEFT:
-    case TOP:
-      splitter->setPosition(sideSpace);
-      splitter->addChild(side);
-      splitter->addChild(self);
-      break;
-    case RIGHT:
-    case BOTTOM:
-      splitter->setPosition(100-sideSpace);
-      splitter->addChild(self);
-      splitter->addChild(side);
-      break;
+  switch (dropArea)
+  {
+  case LEFT:
+  case TOP:
+    splitter->setPosition(sideSpace);
+    splitter->addChild(side);
+    splitter->addChild(self);
+    break;
+  case RIGHT:
+  case BOTTOM:
+    splitter->setPosition(100 - sideSpace);
+    splitter->addChild(self);
+    splitter->addChild(side);
+    break;
   }
 
   workspace->addViewToPanel(newPanel, view, true, -1);
@@ -316,23 +334,29 @@ DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& pos, WorkspacePane
 int WorkspacePanel::calculateDropArea(const gfx::Point& pos) const
 {
   gfx::Rect rc = childrenBounds();
-  if (rc.contains(pos)) {
+  if (rc.contains(pos))
+  {
     int left = ABS(rc.x - pos.x);
     int top = ABS(rc.y - pos.y);
     int right = ABS(rc.x + rc.w - pos.x);
     int bottom = ABS(rc.y + rc.h - pos.y);
     int threshold = getDropThreshold();
 
-    if (left < threshold && left < right && left < top && left < bottom) {
+    if (left < threshold && left < right && left < top && left < bottom)
+    {
       return LEFT;
     }
-    else if (top < threshold && top < left && top < right && top < bottom) {
+    else if (top < threshold && top < left && top < right && top < bottom)
+    {
       return TOP;
     }
-    else if (right < threshold && right < left && right < top && right < bottom) {
+    else if (right < threshold && right < left && right < top && right < bottom)
+    {
       return RIGHT;
     }
-    else if (bottom < threshold && bottom < left && bottom < top && bottom < right) {
+    else if (bottom < threshold && bottom < left && bottom < top &&
+             bottom < right)
+    {
       return BOTTOM;
     }
   }
@@ -343,16 +367,19 @@ int WorkspacePanel::calculateDropArea(const gfx::Point& pos) const
 int WorkspacePanel::getDropThreshold() const
 {
   gfx::Rect cpos = childrenBounds();
-  int threshold = 32*guiscale();
-  if (threshold > cpos.w/2) threshold = cpos.w/2;
-  if (threshold > cpos.h/2) threshold = cpos.h/2;
+  int threshold = 32 * guiscale();
+  if (threshold > cpos.w / 2)
+    threshold = cpos.w / 2;
+  if (threshold > cpos.h / 2)
+    threshold = cpos.h / 2;
   return threshold;
 }
 
 Workspace* WorkspacePanel::getWorkspace()
 {
   Widget* widget = this;
-  while (widget) {
+  while (widget)
+  {
     if (widget->type() == Workspace::Type())
       return static_cast<Workspace*>(widget);
 

@@ -11,23 +11,32 @@
 using namespace app;
 using Kind = StatusBarTextToken::Kind;
 
-namespace {
+namespace
+{
 
-::testing::AssertionResult isText(const StatusBarTextToken& t, const std::string& value)
+::testing::AssertionResult isText(const StatusBarTextToken& t,
+                                  const std::string& value)
 {
   if (t.kind != Kind::Text)
-    return ::testing::AssertionFailure() << "expected a Text token, got an Icon token (\"" << t.value << "\")";
+    return ::testing::AssertionFailure()
+           << "expected a Text token, got an Icon token (\"" << t.value
+           << "\")";
   if (t.value != value)
-    return ::testing::AssertionFailure() << "expected text \"" << value << "\", got \"" << t.value << "\"";
+    return ::testing::AssertionFailure()
+           << "expected text \"" << value << "\", got \"" << t.value << "\"";
   return ::testing::AssertionSuccess();
 }
 
-::testing::AssertionResult isIcon(const StatusBarTextToken& t, const std::string& value)
+::testing::AssertionResult isIcon(const StatusBarTextToken& t,
+                                  const std::string& value)
 {
   if (t.kind != Kind::Icon)
-    return ::testing::AssertionFailure() << "expected an Icon token, got a Text token (\"" << t.value << "\")";
+    return ::testing::AssertionFailure()
+           << "expected an Icon token, got a Text token (\"" << t.value
+           << "\")";
   if (t.value != value)
-    return ::testing::AssertionFailure() << "expected icon \"" << value << "\", got \"" << t.value << "\"";
+    return ::testing::AssertionFailure()
+           << "expected icon \"" << value << "\", got \"" << t.value << "\"";
   return ::testing::AssertionSuccess();
 }
 
@@ -53,7 +62,8 @@ TEST(TokenizeStatusBarText, ALeadingColonWithNoClosingColonIsLiteralText)
   EXPECT_TRUE(isText(tokens[0], ":b"));
 }
 
-TEST(TokenizeStatusBarText, ColonsSeparatedBySpacesWithNoNameBetweenThemAreLiteralText)
+TEST(TokenizeStatusBarText,
+     ColonsSeparatedBySpacesWithNoNameBetweenThemAreLiteralText)
 {
   auto tokens = tokenizeStatusBarText("a : b");
   ASSERT_EQ(1u, tokens.size());

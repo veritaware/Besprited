@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2016 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,29 +13,27 @@
 
 #undef NULL
 #ifdef __cplusplus
-  #define NULL nullptr
+#define NULL nullptr
 #else
-  #define NULL ((void*)0)
+#define NULL ((void*)0)
 #endif
 
 #undef MIN
 #undef MAX
 #undef MID
-#define MIN(x,y)     (((x) < (y)) ? (x) : (y))
-#define MAX(x,y)     (((x) > (y)) ? (x) : (y))
-#define MID(x,y,z)   ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ?    \
-                       (z) : (x))) : ((y) > (z) ? ((z) > (x) ? (z) : \
-                       (x)): (y)))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MID(x, y, z)                                                           \
+  ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ? (z) : (x)))                     \
+             : ((y) > (z) ? ((z) > (x) ? (z) : (x)) : (y)))
 
 #undef CLAMP
-#define CLAMP(x,y,z) MAX((x), MIN((y), (z)))
+#define CLAMP(x, y, z) MAX((x), MIN((y), (z)))
 
 #undef ABS
 #undef SGN
-#define ABS(x)       (((x) >= 0) ? (x) : (-(x)))
-#define SGN(x)       (((x) >= 0) ? 1 : -1)
-
-
+#define ABS(x) (((x) >= 0) ? (x) : (-(x)))
+#define SGN(x) (((x) >= 0) ? 1 : -1)
 
 //////////////////////////////////////////////////////////////////////
 // Overloaded new/delete operators to detect memory-leaks

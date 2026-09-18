@@ -1,51 +1,54 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
 #pragma once
 
-namespace ui {
+namespace ui
+{
 
-  enum CursorType {
-    kOutsideDisplay = -1,
+enum CursorType
+{
+  kOutsideDisplay = -1,
 
-    kFirstCursorType = 0,
-    kNoCursor = 0,
-    kArrowCursor,
-    kArrowPlusCursor,
-    kForbiddenCursor,
-    kHandCursor,
-    kScrollCursor,
-    kMoveCursor,
+  kFirstCursorType = 0,
+  kNoCursor = 0,
+  kArrowCursor,
+  kArrowPlusCursor,
+  kForbiddenCursor,
+  kHandCursor,
+  kScrollCursor,
+  kMoveCursor,
 
-    kSizeNSCursor,
-    kSizeWECursor,
+  kSizeNSCursor,
+  kSizeWECursor,
 
-    kSizeNCursor,
-    kSizeNECursor,
-    kSizeECursor,
-    kSizeSECursor,
-    kSizeSCursor,
-    kSizeSWCursor,
-    kSizeWCursor,
-    kSizeNWCursor,
+  kSizeNCursor,
+  kSizeNECursor,
+  kSizeECursor,
+  kSizeSECursor,
+  kSizeSCursor,
+  kSizeSWCursor,
+  kSizeWCursor,
+  kSizeNWCursor,
 
-    kRotateNCursor,
-    kRotateNECursor,
-    kRotateECursor,
-    kRotateSECursor,
-    kRotateSCursor,
-    kRotateSWCursor,
-    kRotateWCursor,
-    kRotateNWCursor,
+  kRotateNCursor,
+  kRotateNECursor,
+  kRotateECursor,
+  kRotateSECursor,
+  kRotateSCursor,
+  kRotateSWCursor,
+  kRotateWCursor,
+  kRotateNWCursor,
 
-    kEyedropperCursor,
-    kMagnifierCursor,
+  kEyedropperCursor,
+  kMagnifierCursor,
 
-    kLastCursorType = kMagnifierCursor,
-    kCursorTypes,
-  };
+  kLastCursorType = kMagnifierCursor,
+  kCursorTypes,
+};
 
 } // namespace ui

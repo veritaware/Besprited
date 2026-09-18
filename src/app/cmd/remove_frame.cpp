@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,19 +17,19 @@
 #include "doc/document_event.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-RemoveFrame::RemoveFrame(Sprite* sprite, frame_t frame)
+RemoveFrame::RemoveFrame(const Sprite* sprite, const frame_t frame)
   : WithSprite(sprite)
   , m_frame(frame)
   , m_firstTime(true)
 {
   m_frameDuration = sprite->frameDuration(frame);
   for (auto cel : sprite->cels(m_frame))
-    m_seq.add(new cmd::RemoveCel(cel));
+    m_seq.add(new RemoveCel(cel));
 }
 
 void RemoveFrame::onExecute()
@@ -37,7 +37,8 @@ void RemoveFrame::onExecute()
   Sprite* sprite = this->sprite();
   Document* doc = sprite->document();
 
-  if (m_firstTime) {
+  if (m_firstTime)
+  {
     m_firstTime = false;
     m_seq.execute(context());
   }
@@ -71,5 +72,4 @@ void RemoveFrame::onUndo()
   doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onAddFrame, ev);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

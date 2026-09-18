@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,7 +22,8 @@
 #include "app/modules/gui.h"
 #include "app/ui/status_bar.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -39,10 +40,8 @@ Console::Console(Context* ctx)
   if (ctx)
     m_withUI = (ctx->isUIAvailable());
   else
-    m_withUI =
-      (App::instance()->isGui() &&
-       Manager::getDefault() &&
-       Manager::getDefault()->getDisplay());
+    m_withUI = (App::instance()->isGui() && Manager::getDefault() &&
+                Manager::getDefault()->getDisplay());
 
   if (!m_withUI)
     return;
@@ -62,8 +61,12 @@ Console::Console(Context* ctx)
     return;
 
   // The "close" closes the console
-  close->Click.connect([=](Event&){window->closeWindow(close);}); // base::Bind<void>(&Window::closeWindow, window, close));
-  clear->Click.connect([=](Event&){textbox->setText("");});
+  close->Click.connect(
+      [=](Event&)
+      {
+        window->closeWindow(close);
+      }); // base::Bind<void>(&Window::closeWindow, window, close));
+  clear->Click.connect([=](Event&) { textbox->setText(""); });
 
   view->attachToView(textbox);
 
@@ -95,49 +98,53 @@ Console::~Console()
 
   console_counter--;
 
-  if ((wid_console) && (console_counter == 0)) {
-    if (console_locked
-        && !want_close_flag
-        && wid_console->isVisible()) {
+  if ((wid_console) && (console_counter == 0))
+  {
+    if (console_locked && !want_close_flag && wid_console->isVisible())
+    {
       // Open in foreground
       wid_console->openWindowInForeground();
     }
     if (wid_console->manager())
-      delete wid_console;         // window
-    wid_console = NULL;
+      delete wid_console; // window
+    wid_console = nullptr;
     want_close_flag = false;
   }
 }
 
 void Console::printf(const char* format, ...)
 {
-  char buf[4096];               // TODO warning buffer overflow
+  char buf[4096]; // TODO warning buffer overflow
   va_list ap;
 
   va_start(ap, format);
   vsnprintf(buf, sizeof(buf), format, ap);
   va_end(ap);
 
-  if (!m_withUI || !wid_console) {
+  if (!m_withUI || !wid_console)
+  {
     fputs(buf, stdout);
     fflush(stdout);
     return;
   }
 
   // Open the window
-  if (!wid_console->isVisible()) {
+  if (!wid_console->isVisible())
+  {
     wid_console->openWindow();
     ui::Manager::getDefault()->invalidate();
   }
 
   /* update the textbox */
-  if (!console_locked) {
+  if (!console_locked)
+  {
     console_locked = true;
 
     wid_view->setVisible(true);
 
     wid_console->remapWindow();
-    wid_console->setBounds(gfx::Rect(0, 0, ui::display_w()*9/10, ui::display_h()*6/10));
+    wid_console->setBounds(
+        gfx::Rect(0, 0, ui::display_w() * 9 / 10, ui::display_h() * 6 / 10));
     wid_console->centerWindow();
     wid_console->invalidate();
   }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,12 +18,13 @@
 #include "doc/sprite.h"
 #include "doc/subobjects_io.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-SetCelData::SetCelData(std::shared_ptr<Cel> cel, const CelDataRef& newData)
+SetCelData::SetCelData(const std::shared_ptr<Cel>& cel,
+                       const CelDataRef& newData)
   : WithCel(cel)
   , m_oldDataId(cel->data()->id())
   , m_oldImageId(cel->image()->id())
@@ -34,7 +35,7 @@ SetCelData::SetCelData(std::shared_ptr<Cel> cel, const CelDataRef& newData)
 
 void SetCelData::onExecute()
 {
-  auto cel = this->cel();
+  const auto cel = this->cel();
   if (!cel->links())
     createCopy();
 
@@ -45,9 +46,10 @@ void SetCelData::onExecute()
 
 void SetCelData::onUndo()
 {
-  auto cel = this->cel();
+  const auto cel = this->cel();
 
-  if (m_dataCopy) {
+  if (m_dataCopy)
+  {
     ASSERT(!cel->sprite()->getCelDataRef(m_oldDataId));
     m_dataCopy->setId(m_oldDataId);
     m_dataCopy->image()->setId(m_oldImageId);
@@ -55,8 +57,9 @@ void SetCelData::onUndo()
     cel->setDataRef(m_dataCopy);
     m_dataCopy.reset();
   }
-  else {
-    CelDataRef oldData = cel->sprite()->getCelDataRef(m_oldDataId);
+  else
+  {
+    const CelDataRef oldData = cel->sprite()->getCelDataRef(m_oldDataId);
     ASSERT(oldData);
     cel->setDataRef(oldData);
   }
@@ -66,11 +69,11 @@ void SetCelData::onUndo()
 
 void SetCelData::onRedo()
 {
-  auto cel = this->cel();
+  const auto cel = this->cel();
   if (!cel->links())
     createCopy();
 
-  CelDataRef newData = cel->sprite()->getCelDataRef(m_newDataId);
+  const CelDataRef newData = cel->sprite()->getCelDataRef(m_newDataId);
   ASSERT(newData);
   cel->setDataRef(newData);
   cel->incrementVersion();
@@ -78,12 +81,11 @@ void SetCelData::onRedo()
 
 void SetCelData::createCopy()
 {
-  auto cel = this->cel();
+  const auto cel = this->cel();
 
   ASSERT(!m_dataCopy);
   m_dataCopy.reset(new CelData(*cel->data()));
   m_dataCopy->setImage(ImageRef(Image::createCopy(cel->image())));
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

@@ -23,13 +23,16 @@
 // directory via ResourceFinder. Declaring its existing signature here
 // reaches the directory-scanning logic directly and headlessly, without
 // either of those.
-namespace app {
-  void scanFolder(const std::string& scriptsDir, Command* cmd_run_script, ui::Menu* parent);
+namespace app
+{
+void scanFolder(const std::string& scriptsDir, Command* cmd_run_script,
+                ui::Menu* parent);
 }
 
 using namespace app;
 
-namespace {
+namespace
+{
 
 // FileSystemModule::instance() backs FileSystemModule::getFileItemFromPath()
 // (used by scanFolder()) - a standalone singleton like CommandsModule/App in
@@ -41,29 +44,30 @@ void ensureFileSystemModule()
   (void)fs;
 }
 
-struct ScriptMenuFixture : public ::testing::Test {
+struct ScriptMenuFixture : public ::testing::Test
+{
   std::string dir;
   Command runScriptCmd{"RunScript", "Run Script", CmdRecordableFlag};
   ui::Menu menu;
 
   static void SetUpTestSuite() { ensureFileSystemModule(); }
 
-  void SetUp() override {
+  void SetUp() override
+  {
     dir = "script_menu_test_scripts";
     if (base::is_directory(dir))
       removeDirRecursive(dir);
     base::make_all_directories(dir);
   }
 
-  void TearDown() override {
-    removeDirRecursive(dir);
-  }
+  void TearDown() override { removeDirRecursive(dir); }
 
   void removeDirRecursive(const std::string& d)
   {
     if (!base::is_directory(d))
       return;
-    for (const auto& entry : base::list_files(d)) {
+    for (const auto& entry : base::list_files(d))
+    {
       std::string full = base::join_path(d, entry);
       if (base::is_directory(full))
         removeDirRecursive(full);
@@ -73,7 +77,8 @@ struct ScriptMenuFixture : public ::testing::Test {
     base::remove_directory(d);
   }
 
-  void writeFile(const std::string& relPath, const std::string& content = "// a script\n")
+  void writeFile(const std::string& relPath,
+                 const std::string& content = "// a script\n")
   {
     std::ofstream out(base::join_path(dir, relPath), std::ios::binary);
     out << content;
@@ -82,15 +87,14 @@ struct ScriptMenuFixture : public ::testing::Test {
   // Refreshes FileSystemModule's cached view of the directory tree so
   // freshly-written fixture files are actually picked up - it caches
   // FileItem children until told otherwise (see FileSystemModule::refresh()).
-  void refreshFs()
-  {
-    FileSystemModule::instance()->refresh();
-  }
+  void refreshFs() { FileSystemModule::instance()->refresh(); }
 
   AppMenuItem* findChild(const std::string& text)
   {
-    for (auto* w : menu.children()) {
-      if (auto* item = dynamic_cast<AppMenuItem*>(w)) {
+    for (auto* w : menu.children())
+    {
+      if (auto* item = dynamic_cast<AppMenuItem*>(w))
+      {
         if (item->text() == text)
           return item;
       }
@@ -144,14 +148,17 @@ TEST_F(ScriptMenuFixture, SubfoldersBecomeSubmenusContainingTheirOwnScripts)
 
   AppMenuItem* sub = findChild("sub");
   ASSERT_NE(nullptr, sub);
-  EXPECT_EQ(nullptr, sub->getCommand()) << "a folder item doesn't run a script itself";
+  EXPECT_EQ(nullptr, sub->getCommand())
+      << "a folder item doesn't run a script itself";
 
   ui::Menu* submenu = sub->getSubmenu();
   ASSERT_NE(nullptr, submenu);
 
   AppMenuItem* nested = nullptr;
-  for (auto* w : submenu->children()) {
-    if (auto* item = dynamic_cast<AppMenuItem*>(w); item && item->text() == "nested.js")
+  for (auto* w : submenu->children())
+  {
+    if (auto* item = dynamic_cast<AppMenuItem*>(w);
+        item && item->text() == "nested.js")
       nested = item;
   }
   ASSERT_NE(nullptr, nested);

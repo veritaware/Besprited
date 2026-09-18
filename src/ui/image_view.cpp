@@ -1,6 +1,7 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
-// Copyright (C) 2024  LibreSprite contributors
+// UI Library
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2024      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -19,43 +20,47 @@
 #include "ui/system.h"
 #include "ui/theme.h"
 
-namespace ui {
+namespace ui
+{
 
-ImageView::ImageView(she::Surface* sur, int align, bool dispose) : Widget{kImageViewWidget} {
+ImageView::ImageView(she::Surface* sur, int align, bool dispose)
+  : Widget{kImageViewWidget}
+{
   setAlign(align);
   setSurface(sur, dispose);
 }
 
-void ImageView::release() {
-  if (m_disposeSurface) {
+void ImageView::release()
+{
+  if (m_disposeSurface)
+  {
     delete m_sur;
     m_disposeSurface = false;
     m_sur = nullptr;
   }
 }
 
-void ImageView::onSizeHint(SizeHintEvent& ev) {
+void ImageView::onSizeHint(SizeHintEvent& ev)
+{
   if (!m_sur)
     return;
   gfx::Rect box;
-  getTextIconInfo(&box, NULL, NULL,
-    align(), m_sur->width(), m_sur->height());
+  getTextIconInfo(&box, nullptr, nullptr, align(), m_sur->width(),
+                  m_sur->height());
 
   ev.setSizeHint(
-    gfx::Size(
-      box.w + border().width(),
-      box.h + border().height()));
+      gfx::Size(box.w + border().width(), box.h + border().height()));
 }
 
-void ImageView::onPaint(PaintEvent& ev) {
+void ImageView::onPaint(PaintEvent& ev)
+{
   if (!m_sur)
     return;
   Graphics* g = ev.graphics();
   gfx::Rect bounds = clientBounds();
   gfx::Rect icon;
-  getTextIconInfo(
-    nullptr, nullptr, &icon, align(),
-    m_sur->width(), m_sur->height());
+  getTextIconInfo(nullptr, nullptr, &icon, align(), m_sur->width(),
+                  m_sur->height());
 
   g->fillRect(bgColor(), bounds);
   g->drawRgbaSurface(m_sur, icon.x, icon.y);

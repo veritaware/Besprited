@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,27 +13,23 @@
 #include "app/commands/command.h"
 #include "app/ui/main_window.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class DeveloperConsoleCommand : public Command {
+class DeveloperConsoleCommand : public Command
+{
 public:
   DeveloperConsoleCommand();
-  ~DeveloperConsoleCommand();
+  ~DeveloperConsoleCommand() override = default;
 
 protected:
-  void onExecute(Context* context);
+  void onExecute(Context* context) override;
 };
 
 DeveloperConsoleCommand::DeveloperConsoleCommand()
-  : Command("DeveloperConsole",
-            "Developer Console",
-            CmdUIOnlyFlag)
-{
-}
-
-DeveloperConsoleCommand::~DeveloperConsoleCommand()
+  : Command("DeveloperConsole", "Developer Console", CmdUIOnlyFlag)
 {
 }
 

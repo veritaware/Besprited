@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -22,16 +22,17 @@
 #include "gfx/point.h"
 #include "render/get_sprite_pixel.h"
 
-namespace app {
+namespace app
+{
 
 ColorPicker::ColorPicker()
   : m_alpha(0)
-  , m_layer(NULL)
+  , m_layer(nullptr)
 {
 }
 
-void ColorPicker::pickColor(const doc::Site& site,
-  const gfx::Point& _pos, Mode mode)
+void ColorPicker::pickColor(const doc::Site& site, const gfx::Point& _pos,
+                            Mode mode)
 {
   const doc::Sprite* sprite = site.sprite();
   gfx::Point pos = _pos;
@@ -39,9 +40,14 @@ void ColorPicker::pickColor(const doc::Site& site,
   m_alpha = 255;
   m_color = app::Color::fromMask();
 
+  if (!sprite)
+    return;
+
   // Check tiled mode
-  if (sprite && site.document()) {
-    const app::Document* doc = static_cast<const app::Document*>(site.document());
+  if (sprite && site.document())
+  {
+    const app::Document* doc =
+        static_cast<const app::Document*>(site.document());
     DocumentPreferences& docPref = Preferences::instance().document(doc);
 
     if (int(docPref.tiled.mode()) & int(filters::TiledMode::X_AXIS))
@@ -52,33 +58,37 @@ void ColorPicker::pickColor(const doc::Site& site,
   }
 
   // Get the color from the image
-  if (mode == FromComposition) { // Pick from the composed image
+  if (mode == FromComposition)
+  { // Pick from the composed image
     m_color = app::Color::fromImage(
-      sprite->pixelFormat(),
-      render::get_sprite_pixel(sprite, pos.x, pos.y, site.frame()));
+        sprite->pixelFormat(),
+        render::get_sprite_pixel(sprite, pos.x, pos.y, site.frame()));
 
     doc::CelList cels;
     sprite->pickCels(pos.x, pos.y, site.frame(), 128, cels);
     if (!cels.empty())
       m_layer = cels.front()->layer();
   }
-  else {                        // Pick from the current layer
+  else
+  { // Pick from the current layer
     int u, v;
-    doc::Image* image = site.image(&u, &v, NULL);
-    gfx::Point pt(pos.x-u, pos.y-v);
+    doc::Image* image = site.image(&u, &v, nullptr);
+    gfx::Point pt(pos.x - u, pos.y - v);
 
-    if (image && image->bounds().contains(pt)) {
+    if (image && image->bounds().contains(pt))
+    {
       doc::color_t imageColor = get_pixel(image, pt.x, pt.y);
 
-      switch (image->pixelFormat()) {
-        case IMAGE_RGB:
-          m_alpha = doc::rgba_geta(imageColor);
-          break;
-        case IMAGE_GRAYSCALE:
-          m_alpha = doc::graya_geta(imageColor);
-          break;
-        default:
-	  break;
+      switch (image->pixelFormat())
+      {
+      case IMAGE_RGB:
+        m_alpha = doc::rgba_geta(imageColor);
+        break;
+      case IMAGE_GRAYSCALE:
+        m_alpha = doc::graya_geta(imageColor);
+        break;
+      default:
+        break;
       }
 
       m_color = app::Color::fromImage(image->pixelFormat(), imageColor);

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,11 +17,14 @@
 #include "app/context.h"
 #include "app/ui/input_chain.h"
 
-namespace app {
+namespace app
+{
 
-class CancelCommand : public Command {
+class CancelCommand : public Command
+{
 public:
-  enum Type {
+  enum Type
+  {
     NoOp,
     All,
   };
@@ -34,42 +37,43 @@ protected:
   void onExecute(Context* context) override;
 
 private:
-  Type m_type;
+  Type m_type = NoOp;
 };
 
 CancelCommand::CancelCommand()
-  : Command("Cancel",
-            "Cancel Current Operation",
-            CmdUIOnlyFlag)
-  , m_type(NoOp)
+  : Command("Cancel", "Cancel Current Operation", CmdUIOnlyFlag)
 {
 }
 
 void CancelCommand::onLoadParams(const Params& params)
 {
   std::string type = params.get("type");
-  if (type == "noop") m_type = NoOp;
-  else if (type == "all") m_type = All;
+  if (type == "noop")
+    m_type = NoOp;
+  else if (type == "all")
+    m_type = All;
 }
 
 void CancelCommand::onExecute(Context* context)
 {
-  switch (m_type) {
+  switch (m_type)
+  {
 
-    case NoOp:
-      // Do nothing.
-      break;
+  case NoOp:
+    // Do nothing.
+    break;
 
-    case All:
-      // TODO should the ContextBar be a InputChainElement to intercept onCancel()?
-      // Discard brush
-      {
-        Command* discardBrush = CommandsModule::instance()->getCommandByName(CommandId::DiscardBrush);
-        context->executeCommand(discardBrush);
-      }
+  case All:
+    // TODO should the ContextBar be a InputChainElement to intercept
+    // onCancel()? Discard brush
+    {
+      Command* discardBrush =
+          CommandsModule::instance()->getCommandByName(CommandId::DiscardBrush);
+      context->executeCommand(discardBrush);
+    }
 
-      App::instance()->inputChain().cancel(context);
-      break;
+    App::instance()->inputChain().cancel(context);
+    break;
   }
 }
 

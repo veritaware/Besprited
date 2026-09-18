@@ -1,5 +1,6 @@
-// Aseprite CSS Library
-// Copyright (C) 2013 David Capello
+// CSS Library
+// Aseprite  | Copyright (C) 2013 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,29 +12,31 @@
 #include "css/state.h"
 #include "css/stateful_style.h"
 
-namespace css {
+namespace css
+{
 
-  class Sheet;
+class Sheet;
 
-  class CompoundStyle {
-  public:
-    CompoundStyle(Sheet* sheet, const std::string& name);
-    ~CompoundStyle();
+class CompoundStyle
+{
+public:
+  CompoundStyle(Sheet* sheet, std::string name);
+  ~CompoundStyle();
 
-    void update();
+  void update();
 
-    const Value& operator[](const Rule& rule) const;
-    const Query& operator[](const States& states) const;
+  const Value& operator[](const Rule& rule) const;
+  const Query& operator[](const States& states) const;
 
-  private:
-    typedef std::map<States, Query*> QueriesMap;
+private:
+  using QueriesMap = std::map<States, Query*>;
 
-    void deleteQueries();
+  void deleteQueries();
 
-    Sheet* m_sheet;
-    std::string m_name;
-    Query m_normal;
-    mutable QueriesMap m_queries;
-  };
+  Sheet* m_sheet;
+  std::string m_name;
+  Query m_normal;
+  mutable QueriesMap m_queries;
+};
 
 } // namespace css

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -23,11 +23,13 @@
 #include "doc/sprite.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class NewLayerSetCommand : public Command {
+class NewLayerSetCommand : public Command
+{
 public:
   NewLayerSetCommand();
   Command* clone() const override { return new NewLayerSetCommand(*this); }
@@ -38,9 +40,7 @@ protected:
 };
 
 NewLayerSetCommand::NewLayerSetCommand()
-  : Command("NewLayerSet",
-            "New Layer Set",
-            CmdRecordableFlag)
+  : Command("NewLayerSet", "New Layer Set", CmdRecordableFlag)
 {
 }
 
@@ -57,7 +57,8 @@ void NewLayerSetCommand::onExecute(Context* context)
   Sprite* sprite(writer.sprite());
 
   // load the window widget
-  std::unique_ptr<Window> window(app::load_widget<Window>("new_layer.xml", "new_layer_set"));
+  std::unique_ptr<Window> window(
+      app::load_widget<Window>("new_layer.xml", "new_layer_set"));
 
   window->openWindowInForeground();
 

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -30,7 +30,8 @@
 #include "ui/system.h"
 #include "ui/view.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace skin;
@@ -38,26 +39,30 @@ using namespace skin;
 //////////////////////////////////////////////////////////////////////
 // RecentFileItem
 
-class RecentFileItem : public LinkLabel {
+class RecentFileItem : public LinkLabel
+{
 public:
   RecentFileItem(const std::string& file)
     : LinkLabel(file)
     , m_name(base::get_file_name(file))
-    , m_path(base::get_file_path(file)) {
+    , m_path(base::get_file_path(file))
+  {
   }
 
 protected:
-  void onSizeHint(SizeHintEvent& ev) override {
+  void onSizeHint(SizeHintEvent& ev) override
+  {
     SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
     Style* style = theme->styles.recentFile();
     Style* styleDetail = theme->styles.recentFileDetail();
     Style::State state;
     gfx::Size sz1 = style->sizeHint(m_name.c_str(), state);
     gfx::Size sz2 = styleDetail->sizeHint(m_path.c_str(), state);
-    ev.setSizeHint(gfx::Size(sz1.w+sz2.w, MAX(sz1.h, sz2.h)));
+    ev.setSizeHint(gfx::Size(sz1.w + sz2.w, MAX(sz1.h, sz2.h)));
   }
 
-  void onPaint(PaintEvent& ev) override {
+  void onPaint(PaintEvent& ev) override
+  {
     SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
     Graphics* g = ev.graphics();
     gfx::Rect bounds = clientBounds();
@@ -65,22 +70,26 @@ protected:
     Style* styleDetail = theme->styles.recentFileDetail();
 
     Style::State state;
-    if (hasMouse() && !manager()->getCapture()) state += Style::hover();
-    if (isSelected()) state += Style::active();
-    if (parent()->hasCapture()) state += Style::clicked();
+    if (hasMouse() && !manager()->getCapture())
+      state += Style::hover();
+    if (isSelected())
+      state += Style::active();
+    if (parent()->hasCapture())
+      state += Style::clicked();
 
     style->paint(g, bounds, m_name.c_str(), state);
 
-    if (Preferences::instance().general.showFullPath()) {
+    if (Preferences::instance().general.showFullPath())
+    {
       gfx::Size textSize = style->sizeHint(m_name.c_str(), state);
-      gfx::Rect detailsBounds(
-        bounds.x+textSize.w, bounds.y,
-        bounds.w-textSize.w, bounds.h);
+      gfx::Rect detailsBounds(bounds.x + textSize.w, bounds.y,
+                              bounds.w - textSize.w, bounds.h);
       styleDetail->paint(g, detailsBounds, m_path.c_str(), state);
     }
   }
 
-  void onClick() override {
+  void onClick() override
+  {
     static_cast<RecentListBox*>(parent())->onClick(text());
   }
 
@@ -94,18 +103,18 @@ private:
 
 RecentListBox::RecentListBox()
 {
-  m_recentFilesConn =
-    App::instance()->recentFiles()->Changed.connect(
+  m_recentFilesConn = App::instance()->recentFiles()->Changed.connect(
       base::Bind(&RecentListBox::rebuildList, this));
 
   m_showFullPathConn =
-    Preferences::instance().general.showFullPath.AfterChange.connect(
-      base::Bind<void>(&RecentListBox::invalidate, this));
+      Preferences::instance().general.showFullPath.AfterChange.connect(
+          base::Bind<void>(&RecentListBox::invalidate, this));
 }
 
 void RecentListBox::rebuildList()
 {
-  while (lastChild()) {
+  while (lastChild())
+  {
     auto child = lastChild();
     removeChild(child);
     child->deferDelete();
@@ -139,7 +148,8 @@ void RecentFilesListBox::onRebuildList()
 
 void RecentFilesListBox::onClick(const std::string& path)
 {
-  Command* command = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+  Command* command =
+      CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
   Params params;
   params.set("filename", path.c_str());
   UIContext::instance()->executeCommand(command, params);
@@ -164,7 +174,8 @@ void RecentFoldersListBox::onRebuildList()
 
 void RecentFoldersListBox::onClick(const std::string& path)
 {
-  Command* command = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+  Command* command =
+      CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
   Params params;
   params.set("folder", path.c_str());
   UIContext::instance()->executeCommand(command, params);

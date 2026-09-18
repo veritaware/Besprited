@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,11 +16,13 @@
 
 #include <cstdio>
 
-namespace app {
+namespace app
+{
 
 // using namespace ui;
 
-class DuplicateViewCommand : public Command {
+class DuplicateViewCommand : public Command
+{
 public:
   DuplicateViewCommand();
   Command* clone() const override { return new DuplicateViewCommand(*this); }
@@ -31,9 +33,7 @@ protected:
 };
 
 DuplicateViewCommand::DuplicateViewCommand()
-  : Command("DuplicateView",
-            "Duplicate View",
-            CmdUIOnlyFlag)
+  : Command("DuplicateView", "Duplicate View", CmdUIOnlyFlag)
 {
 }
 

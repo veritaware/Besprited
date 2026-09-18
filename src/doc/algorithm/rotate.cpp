@@ -3,6 +3,7 @@
 // Flipping routines by Andrew Geers.
 // Optimized by Sven Sandberg.
 // To C++ templates by David Capello
+// Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -21,45 +22,47 @@
 
 #include <cmath>
 
-namespace doc {
-namespace algorithm {
+namespace doc::algorithm
+{
 
 using namespace fixmath;
 
-static void ase_parallelogram_map_standard(
-  Image* bmp, const Image* sprite, const Image* mask,
-  fixed xs[4], fixed ys[4]);
+static void ase_parallelogram_map_standard(Image* bmp, const Image* sprite,
+                                           const Image* mask, fixed xs[4],
+                                           fixed ys[4]);
 
-static void ase_rotate_scale_flip_coordinates(
-  fixed w, fixed h,
-  fixed x, fixed y,
-  fixed cx, fixed cy,
-  fixed angle,
-  fixed scale_x, fixed scale_y,
-  int h_flip, int v_flip,
-  fixed xs[4], fixed ys[4]);
+static void ase_rotate_scale_flip_coordinates(fixed w, fixed h, fixed x,
+                                              fixed y, fixed cx, fixed cy,
+                                              fixed angle, fixed scale_x,
+                                              fixed scale_y, int h_flip,
+                                              int v_flip, fixed xs[4],
+                                              fixed ys[4]);
 
-template<typename ImageTraits, typename BlendFunc>
-static void image_scale_tpl(
-  Image* dst, const Image* src,
-  int dst_x, int dst_y, int dst_w, int dst_h,
-  int src_x, int src_y, int src_w, int src_h, BlendFunc blend)
+template <typename ImageTraits, typename BlendFunc>
+static void image_scale_tpl(Image* dst, const Image* src, int dst_x, int dst_y,
+                            int dst_w, int dst_h, int src_x, int src_y,
+                            int src_w, int src_h, BlendFunc blend)
 {
-  LockImageBits<ImageTraits> dst_bits(dst, gfx::Rect(dst_x, dst_y, dst_w, dst_h));
+  LockImageBits<ImageTraits> dst_bits(dst,
+                                      gfx::Rect(dst_x, dst_y, dst_w, dst_h));
   typename LockImageBits<ImageTraits>::iterator dst_it = dst_bits.begin();
-  fixed x, first_x = itofix(src_x);
+  fixed x;
+  const fixed first_x = itofix(src_x);
   fixed y = itofix(src_y);
-  fixed dx = fixdiv(itofix(src_w-1), itofix(dst_w-1));
-  fixed dy = fixdiv(itofix(src_h-1), itofix(dst_h-1));
+  const fixed dx = fixdiv(itofix(src_w - 1), itofix(dst_w - 1));
+  const fixed dy = fixdiv(itofix(src_h - 1), itofix(dst_h - 1));
   int old_x, new_x;
 
-  for (int v=0; v<dst_h; ++v) {
+  for (int v = 0; v < dst_h; ++v)
+  {
     old_x = fixtoi(x = first_x);
 
-    const LockImageBits<ImageTraits> src_bits(src, gfx::Rect(src_x, fixtoi(y), src_w, 1));
+    const LockImageBits<ImageTraits> src_bits(
+        src, gfx::Rect(src_x, fixtoi(y), src_w, 1));
     auto src_it = src_bits.begin();
 
-    for (int u=0; u<dst_w; ++u) {
+    for (int u = 0; u < dst_w; ++u)
+    {
       ASSERT(dst_it != dst_bits.end());
 
       *dst_it = blend(*dst_it, *src_it);
@@ -67,10 +70,12 @@ static void image_scale_tpl(
 
       x = fixadd(x, dx);
       new_x = fixtoi(x);
-      if (old_x != new_x) {
+      if (old_x != new_x)
+      {
         // We don't want to move the "src_it" iterator outside the src
         // image bounds.
-        if (new_x < src_w) {
+        if (new_x < src_w)
+        {
           src_it += (new_x - old_x);
           old_x = new_x;
         }
@@ -83,34 +88,41 @@ static void image_scale_tpl(
   }
 }
 
-static color_t rgba_blender(color_t back, color_t front) {
+static color_t rgba_blender(color_t back, color_t front)
+{
   return rgba_blender_normal(back, front);
 }
 
-static color_t grayscale_blender(color_t back, color_t front) {
+static color_t grayscale_blender(color_t back, color_t front)
+{
   return graya_blender_normal(back, front);
 }
 
-class if_blender {
+class if_blender
+{
 public:
-  if_blender(color_t mask) : m_mask(mask) {
+  if_blender(color_t mask)
+    : m_mask(mask)
+  {
   }
-  color_t operator()(color_t back, color_t front) {
+  color_t operator()(color_t back, color_t front)
+  {
     if (front != m_mask)
       return front;
     else
       return back;
   }
+
 private:
   color_t m_mask;
 };
 
-void scale_image(Image* dst, const Image* src,
-                 int dst_x, int dst_y, int dst_w, int dst_h,
-                 int src_x, int src_y, int src_w, int src_h)
+void scale_image(Image* dst, const Image* src, int dst_x, int dst_y, int dst_w,
+                 int dst_h, int src_x, int src_y, int src_w, int src_h)
 {
   gfx::Clip clip(dst_x, dst_y, src_x, src_y, dst_w, dst_h);
-  if (src_w == dst_w && src_h == dst_h) {
+  if (src_w == dst_w && src_h == dst_h)
+  {
     dst->copy(src, clip);
     return;
   }
@@ -118,50 +130,43 @@ void scale_image(Image* dst, const Image* src,
   if (!clip.clip(dst->width(), dst->height(), src->width(), src->height()))
     return;
 
-  switch (dst->pixelFormat()) {
+  switch (dst->pixelFormat())
+  {
 
-    case IMAGE_RGB:
-      image_scale_tpl<RgbTraits>(
-        dst, src,
-        dst_x, dst_y, dst_w, dst_h,
-        src_x, src_y, src_w, src_h, rgba_blender);
-      break;
+  case IMAGE_RGB:
+    image_scale_tpl<RgbTraits>(dst, src, dst_x, dst_y, dst_w, dst_h, src_x,
+                               src_y, src_w, src_h, rgba_blender);
+    break;
 
-    case IMAGE_GRAYSCALE:
-      image_scale_tpl<GrayscaleTraits>(
-        dst, src,
-        dst_x, dst_y, dst_w, dst_h,
-        src_x, src_y, src_w, src_h, grayscale_blender);
-      break;
+  case IMAGE_GRAYSCALE:
+    image_scale_tpl<GrayscaleTraits>(dst, src, dst_x, dst_y, dst_w, dst_h,
+                                     src_x, src_y, src_w, src_h,
+                                     grayscale_blender);
+    break;
 
-    case IMAGE_INDEXED:
-      image_scale_tpl<IndexedTraits>(
-        dst, src,
-        dst_x, dst_y, dst_w, dst_h,
-        src_x, src_y, src_w, src_h, if_blender(src->maskColor()));
-      break;
+  case IMAGE_INDEXED:
+    image_scale_tpl<IndexedTraits>(dst, src, dst_x, dst_y, dst_w, dst_h, src_x,
+                                   src_y, src_w, src_h,
+                                   if_blender(src->maskColor()));
+    break;
 
-    case IMAGE_BITMAP:
-      image_scale_tpl<BitmapTraits>(
-        dst, src,
-        dst_x, dst_y, dst_w, dst_h,
-        src_x, src_y, src_w, src_h, if_blender(0));
-      break;
+  case IMAGE_BITMAP:
+    image_scale_tpl<BitmapTraits>(dst, src, dst_x, dst_y, dst_w, dst_h, src_x,
+                                  src_y, src_w, src_h, if_blender(0));
+    break;
   }
 }
 
 void rotate_image(Image* dst, const Image* src, int x, int y, int w, int h,
-  int cx, int cy, double angle)
+                  int cx, int cy, double angle)
 {
   fixed xs[4], ys[4];
 
-  ase_rotate_scale_flip_coordinates(itofix(src->width()), itofix (src->height()),
-                                    itofix(x), itofix(y),
-                                    itofix(cx), itofix(cy),
-                                    ftofix(256 * angle / PI),
-                                    fixdiv(itofix(w), itofix(src->width())),
-                                    fixdiv(itofix(h), itofix(src->height())),
-                                    false, false, xs, ys);
+  ase_rotate_scale_flip_coordinates(
+      itofix(src->width()), itofix(src->height()), itofix(x), itofix(y),
+      itofix(cx), itofix(cy), ftofix(256 * angle / PI),
+      fixdiv(itofix(w), itofix(src->width())),
+      fixdiv(itofix(h), itofix(src->height())), false, false, xs, ys);
 
   ase_parallelogram_map_standard(dst, src, nullptr, xs, ys);
 }
@@ -170,9 +175,8 @@ void rotate_image(Image* dst, const Image* src, int x, int y, int w, int h,
       |     |
       4-----3
  */
-void parallelogram(Image* bmp, const Image* sprite, const Image* mask,
-  int x1, int y1, int x2, int y2,
-  int x3, int y3, int x4, int y4)
+void parallelogram(Image* bmp, const Image* sprite, const Image* mask, int x1,
+                   int y1, int x2, int y2, int x3, int y3, int x4, int y4)
 {
   fixed xs[4], ys[4];
 
@@ -190,27 +194,23 @@ void parallelogram(Image* bmp, const Image* sprite, const Image* mask,
 
 // Scanline drawers.
 
-template<class Traits, class Delegate>
-static void draw_scanline(
-  Image* bmp,
-  const Image* spr,
-  const Image* mask,
-  fixed l_bmp_x, int bmp_y_i,
-  fixed r_bmp_x,
-  fixed l_spr_x, fixed l_spr_y,
-  fixed spr_dx, fixed spr_dy,
-  Delegate& delegate)
+template <class Traits, class Delegate>
+static void draw_scanline(Image* bmp, const Image* spr, const Image* mask,
+                          fixed l_bmp_x, int bmp_y_i, fixed r_bmp_x,
+                          fixed l_spr_x, fixed l_spr_y, fixed spr_dx,
+                          fixed spr_dy, Delegate& delegate)
 {
   r_bmp_x >>= 16;
   l_bmp_x >>= 16;
 
   delegate.lockBits(bmp, gfx::Rect(l_bmp_x, bmp_y_i, r_bmp_x - l_bmp_x + 1, 1));
 
-  gfx::Rect maskBounds = (mask ? mask->bounds(): spr->bounds());
+  const gfx::Rect maskBounds = (mask ? mask->bounds() : spr->bounds());
 
-  for (int x=(int)l_bmp_x; x<=(int)r_bmp_x; ++x) {
-    int u = l_spr_x>>16;
-    int v = l_spr_y>>16;
+  for (int x = static_cast<int>(l_bmp_x); x <= static_cast<int>(r_bmp_x); ++x)
+  {
+    const int u = l_spr_x >> 16;
+    const int v = l_spr_y >> 16;
 
     if (!mask ||
         (maskBounds.contains(u, v) && get_pixel_fast<BitmapTraits>(mask, u, v)))
@@ -224,20 +224,20 @@ static void draw_scanline(
   delegate.unlockBits();
 }
 
-template<class Traits>
-class GenericDelegate {
+template <class Traits> class GenericDelegate
+{
 public:
-  void lockBits(Image* bmp, const gfx::Rect& bounds) {
+  void lockBits(Image* bmp, const gfx::Rect& bounds)
+  {
     m_bits = bmp->lockBits<Traits>(Image::ReadWriteLock, bounds);
     m_it = m_bits.begin();
     m_end = m_bits.end();
   }
 
-  void unlockBits() {
-    m_bits.unlock();
-  }
+  void unlockBits() { m_bits.unlock(); }
 
-  void nextPixel() {
+  void nextPixel()
+  {
     ASSERT(m_it != m_end);
     ++m_it;
   }
@@ -249,17 +249,18 @@ protected:
   typename LockImageBits<Traits>::iterator m_it, m_end;
 };
 
-class RgbDelegate : public GenericDelegate<RgbTraits> {
+class RgbDelegate : public GenericDelegate<RgbTraits>
+{
 public:
-  RgbDelegate(color_t mask_color) {
-    m_mask_color = mask_color;
-  }
+  RgbDelegate(color_t mask_color) { m_mask_color = mask_color; }
 
-  void putPixel(const Image* spr, int spr_x, int spr_y) {
+  void putPixel(const Image* spr, int spr_x, int spr_y)
+  {
     ASSERT(m_it != m_end);
 
-    int c = get_pixel_fast<RgbTraits>(spr, spr_x, spr_y);
-    if ((rgba_geta(m_mask_color) == 0) || ((c & rgba_rgb_mask) != (m_mask_color & rgba_rgb_mask)))
+    const int c = get_pixel_fast<RgbTraits>(spr, spr_x, spr_y);
+    if ((rgba_geta(m_mask_color) == 0) ||
+        ((c & rgba_rgb_mask) != (m_mask_color & rgba_rgb_mask)))
       *m_it = rgba_blender_normal(*m_it, c);
   }
 
@@ -267,17 +268,18 @@ private:
   color_t m_mask_color;
 };
 
-class GrayscaleDelegate : public GenericDelegate<GrayscaleTraits> {
+class GrayscaleDelegate : public GenericDelegate<GrayscaleTraits>
+{
 public:
-  GrayscaleDelegate(color_t mask_color) {
-    m_mask_color = mask_color;
-  }
+  GrayscaleDelegate(color_t mask_color) { m_mask_color = mask_color; }
 
-  void putPixel(const Image* spr, int spr_x, int spr_y) {
+  void putPixel(const Image* spr, int spr_x, int spr_y)
+  {
     ASSERT(m_it != m_end);
 
-    int c = get_pixel_fast<GrayscaleTraits>(spr, spr_x, spr_y);
-    if ((graya_geta(m_mask_color) == 0) || ((c & graya_v_mask) != (m_mask_color & graya_v_mask)))
+    const int c = get_pixel_fast<GrayscaleTraits>(spr, spr_x, spr_y);
+    if ((graya_geta(m_mask_color) == 0) ||
+        ((c & graya_v_mask) != (m_mask_color & graya_v_mask)))
       *m_it = graya_blender_normal(*m_it, c, 255);
   }
 
@@ -285,16 +287,19 @@ private:
   color_t m_mask_color;
 };
 
-class IndexedDelegate : public GenericDelegate<IndexedTraits> {
+class IndexedDelegate : public GenericDelegate<IndexedTraits>
+{
 public:
-  IndexedDelegate(color_t mask_color) :
-    m_mask_color(mask_color) {
+  IndexedDelegate(color_t mask_color)
+    : m_mask_color(mask_color)
+  {
   }
 
-  void putPixel(const Image* spr, int spr_x, int spr_y) {
+  void putPixel(const Image* spr, int spr_x, int spr_y)
+  {
     ASSERT(m_it != m_end);
 
-    color_t c = get_pixel_fast<IndexedTraits>(spr, spr_x, spr_y);
+    const color_t c = get_pixel_fast<IndexedTraits>(spr, spr_x, spr_y);
     if (c != m_mask_color)
       *m_it = c;
   }
@@ -303,13 +308,15 @@ private:
   color_t m_mask_color;
 };
 
-class BitmapDelegate : public GenericDelegate<BitmapTraits> {
+class BitmapDelegate : public GenericDelegate<BitmapTraits>
+{
 public:
-  void putPixel(const Image* spr, int spr_x, int spr_y) {
+  void putPixel(const Image* spr, int spr_x, int spr_y)
+  {
     ASSERT(m_it != m_end);
 
-    int c = get_pixel_fast<BitmapTraits>(spr, spr_x, spr_y);
-    if (c != 0)                 // TODO
+    const int c = get_pixel_fast<BitmapTraits>(spr, spr_x, spr_y);
+    if (c != 0) // TODO
       *m_it = c;
   }
 };
@@ -338,11 +345,10 @@ public:
  *  at least partly covered by the sprite. This is useful for doing
  *  anti-aliased blending.
  */
-template<class Traits, class Delegate>
-static void ase_parallelogram_map(
-  Image* bmp, const Image* spr, const Image* mask,
-  fixed xs[4], fixed ys[4],
-  int sub_pixel_accuracy, Delegate delegate)
+template <class Traits, class Delegate>
+static void ase_parallelogram_map(Image* bmp, const Image* spr,
+                                  const Image* mask, fixed xs[4], fixed ys[4],
+                                  int sub_pixel_accuracy, Delegate delegate)
 {
   /* Index in xs[] and ys[] to topmost point. */
   int top_index;
@@ -396,10 +402,10 @@ static void ase_parallelogram_map(
     top_index = 3;
 
   /* Get direction of points: clockwise or anti-clockwise. */
-  if (fixmul(xs[(top_index+1) & 3] - xs[top_index],
-             ys[(top_index-1) & 3] - ys[top_index]) >
-      fixmul(xs[(top_index-1) & 3] - xs[top_index],
-             ys[(top_index+1) & 3] - ys[top_index]))
+  if (fixmul(xs[(top_index + 1) & 3] - xs[top_index],
+             ys[(top_index - 1) & 3] - ys[top_index]) >
+      fixmul(xs[(top_index - 1) & 3] - xs[top_index],
+             ys[(top_index + 1) & 3] - ys[top_index]))
     right_index = 1;
   else
     right_index = -1;
@@ -410,7 +416,8 @@ static void ase_parallelogram_map(
 
   /* corner_*[0] is top, [1] is right, [2] is bottom, [3] is left. */
   index = top_index;
-  for (i = 0; i < 4; i++) {
+  for (i = 0; i < 4; i++)
+  {
     corner_bmp_x[i] = xs[index];
     corner_bmp_y[i] = ys[index];
     if (index < 2)
@@ -428,34 +435,32 @@ static void ase_parallelogram_map(
   /*
    * Get scanline starts, ends and deltas, and clipping coordinates.
    */
-#define top_bmp_y    corner_bmp_y[0]
-#define right_bmp_y  corner_bmp_y[1]
+#define top_bmp_y corner_bmp_y[0]
+#define right_bmp_y corner_bmp_y[1]
 #define bottom_bmp_y corner_bmp_y[2]
-#define left_bmp_y   corner_bmp_y[3]
-#define top_bmp_x    corner_bmp_x[0]
-#define right_bmp_x  corner_bmp_x[1]
+#define left_bmp_y corner_bmp_y[3]
+#define top_bmp_x corner_bmp_x[0]
+#define right_bmp_x corner_bmp_x[1]
 #define bottom_bmp_x corner_bmp_x[2]
-#define left_bmp_x   corner_bmp_x[3]
-#define top_spr_y    corner_spr_y[0]
-#define right_spr_y  corner_spr_y[1]
+#define left_bmp_x corner_bmp_x[3]
+#define top_spr_y corner_spr_y[0]
+#define right_spr_y corner_spr_y[1]
 #define bottom_spr_y corner_spr_y[2]
-#define left_spr_y   corner_spr_y[3]
-#define top_spr_x    corner_spr_x[0]
-#define right_spr_x  corner_spr_x[1]
+#define left_spr_y corner_spr_y[3]
+#define top_spr_x corner_spr_x[0]
+#define right_spr_x corner_spr_x[1]
 #define bottom_spr_x corner_spr_x[2]
-#define left_spr_x   corner_spr_x[3]
+#define left_spr_x corner_spr_x[3]
 
   /* Calculate left and right clipping. */
   clip_left = 0;
   clip_right = (bmp->width() << 16) - 1;
 
   /* Quit if we're totally outside. */
-  if ((left_bmp_x > clip_right) &&
-      (top_bmp_x > clip_right) &&
+  if ((left_bmp_x > clip_right) && (top_bmp_x > clip_right) &&
       (bottom_bmp_x > clip_right))
     return;
-  if ((right_bmp_x < clip_left) &&
-      (top_bmp_x < clip_left) &&
+  if ((right_bmp_x < clip_left) && (top_bmp_x < clip_left) &&
       (bottom_bmp_x < clip_left))
     return;
 
@@ -484,17 +489,14 @@ static void ase_parallelogram_map(
   /* Vertical gap between top corner and centre of topmost scanline. */
   extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - top_bmp_y;
   /* Calculate x coordinate of beginning of scanline in bmp. */
-  l_bmp_dx = fixdiv(left_bmp_x - top_bmp_x,
-                    left_bmp_y - top_bmp_y);
+  l_bmp_dx = fixdiv(left_bmp_x - top_bmp_x, left_bmp_y - top_bmp_y);
   l_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);
   /* Calculate x coordinate of beginning of scanline in spr. */
   /* note: all these are rounded down which is probably a Good Thing (tm) */
-  l_spr_dx = fixdiv(left_spr_x - top_spr_x,
-                    left_bmp_y - top_bmp_y);
+  l_spr_dx = fixdiv(left_spr_x - top_spr_x, left_bmp_y - top_bmp_y);
   l_spr_x = top_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);
   /* Calculate y coordinate of beginning of scanline in spr. */
-  l_spr_dy = fixdiv(left_spr_y - top_spr_y,
-                    left_bmp_y - top_bmp_y);
+  l_spr_dy = fixdiv(left_spr_y - top_spr_y, left_bmp_y - top_bmp_y);
   l_spr_y = top_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);
 
   /* Calculate left loop bound. */
@@ -503,17 +505,14 @@ static void ase_parallelogram_map(
     l_bmp_y_bottom_i = clip_bottom_i;
 
   /* Calculate x coordinate of end of scanline in bmp. */
-  r_bmp_dx = fixdiv(right_bmp_x - top_bmp_x,
-                    right_bmp_y - top_bmp_y);
+  r_bmp_dx = fixdiv(right_bmp_x - top_bmp_x, right_bmp_y - top_bmp_y);
   r_bmp_x = top_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);
 #ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE
   /* Calculate x coordinate of end of scanline in spr. */
-  r_spr_dx = fixdiv(right_spr_x - top_spr_x,
-                    right_bmp_y - top_bmp_y);
+  r_spr_dx = fixdiv(right_spr_x - top_spr_x, right_bmp_y - top_bmp_y);
   r_spr_x = top_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);
   /* Calculate y coordinate of end of scanline in spr. */
-  r_spr_dy = fixdiv(right_spr_y - top_spr_y,
-                    right_bmp_y - top_bmp_y);
+  r_spr_dy = fixdiv(right_spr_y - top_spr_y, right_bmp_y - top_bmp_y);
   r_spr_y = top_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);
 #endif
 
@@ -527,20 +526,24 @@ static void ase_parallelogram_map(
      We'd better use double to get this as exact as possible, since any
      errors will be accumulated along the scanline.
   */
-  spr_dx = (fixed)((ys[3] - ys[0]) * 65536.0 * (65536.0 * spr->width()) /
-                   ((xs[1] - xs[0]) * (double)(ys[3] - ys[0]) -
-                    (xs[3] - xs[0]) * (double)(ys[1] - ys[0])));
-  spr_dy = (fixed)((ys[1] - ys[0]) * 65536.0 * (65536.0 * spr->height()) /
-                   ((xs[3] - xs[0]) * (double)(ys[1] - ys[0]) -
-                    (xs[1] - xs[0]) * (double)(ys[3] - ys[0])));
+  spr_dx = static_cast<fixed>(
+      (ys[3] - ys[0]) * 65536.0 * (65536.0 * spr->width()) /
+      ((xs[1] - xs[0]) * static_cast<double>(ys[3] - ys[0]) -
+       (xs[3] - xs[0]) * static_cast<double>(ys[1] - ys[0])));
+  spr_dy = static_cast<fixed>(
+      (ys[1] - ys[0]) * 65536.0 * (65536.0 * spr->height()) /
+      ((xs[3] - xs[0]) * static_cast<double>(ys[1] - ys[0]) -
+       (xs[1] - xs[0]) * static_cast<double>(ys[3] - ys[0])));
 
   /*
    * Loop through scanlines.
    */
 
-  while (1) {
+  while (true)
+  {
     /* Has beginning of scanline passed a corner? */
-    if (bmp_y_i >= l_bmp_y_bottom_i) {
+    if (bmp_y_i >= l_bmp_y_bottom_i)
+    {
       /* Are we done? */
       if (bmp_y_i >= clip_bottom_i)
         break;
@@ -548,16 +551,13 @@ static void ase_parallelogram_map(
       /* Vertical gap between left corner and centre of scanline. */
       extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - left_bmp_y;
       /* Update x coordinate of beginning of scanline in bmp. */
-      l_bmp_dx = fixdiv(bottom_bmp_x - left_bmp_x,
-                        bottom_bmp_y - left_bmp_y);
+      l_bmp_dx = fixdiv(bottom_bmp_x - left_bmp_x, bottom_bmp_y - left_bmp_y);
       l_bmp_x = left_bmp_x + fixmul(extra_scanline_fraction, l_bmp_dx);
       /* Update x coordinate of beginning of scanline in spr. */
-      l_spr_dx = fixdiv(bottom_spr_x - left_spr_x,
-                        bottom_bmp_y - left_bmp_y);
+      l_spr_dx = fixdiv(bottom_spr_x - left_spr_x, bottom_bmp_y - left_bmp_y);
       l_spr_x = left_spr_x + fixmul(extra_scanline_fraction, l_spr_dx);
       /* Update y coordinate of beginning of scanline in spr. */
-      l_spr_dy = fixdiv(bottom_spr_y - left_spr_y,
-                        bottom_bmp_y - left_bmp_y);
+      l_spr_dy = fixdiv(bottom_spr_y - left_spr_y, bottom_bmp_y - left_bmp_y);
       l_spr_y = left_spr_y + fixmul(extra_scanline_fraction, l_spr_dy);
 
       /* Update loop bound. */
@@ -570,21 +570,19 @@ static void ase_parallelogram_map(
     }
 
     /* Has end of scanline passed a corner? */
-    if (bmp_y_i >= r_bmp_y_bottom_i) {
+    if (bmp_y_i >= r_bmp_y_bottom_i)
+    {
       /* Vertical gap between right corner and centre of scanline. */
       extra_scanline_fraction = (bmp_y_i << 16) + 0x8000 - right_bmp_y;
       /* Update x coordinate of end of scanline in bmp. */
-      r_bmp_dx = fixdiv(bottom_bmp_x - right_bmp_x,
-                        bottom_bmp_y - right_bmp_y);
+      r_bmp_dx = fixdiv(bottom_bmp_x - right_bmp_x, bottom_bmp_y - right_bmp_y);
       r_bmp_x = right_bmp_x + fixmul(extra_scanline_fraction, r_bmp_dx);
 #ifdef KEEP_TRACK_OF_RIGHT_SPRITE_SCANLINE
       /* Update x coordinate of beginning of scanline in spr. */
-      r_spr_dx = fixdiv(bottom_spr_x - right_spr_x,
-                        bottom_bmp_y - right_bmp_y);
+      r_spr_dx = fixdiv(bottom_spr_x - right_spr_x, bottom_bmp_y - right_bmp_y);
       r_spr_x = right_spr_x + fixmul(extra_scanline_fraction, r_spr_dx);
       /* Update y coordinate of beginning of scanline in spr. */
-      r_spr_dy = fixdiv(bottom_spr_y - right_spr_y,
-                        bottom_bmp_y - right_bmp_y);
+      r_spr_dy = fixdiv(bottom_spr_y - right_spr_y, bottom_bmp_y - right_bmp_y);
       r_spr_y = right_spr_y + fixmul(extra_scanline_fraction, r_spr_dy);
 #endif
 
@@ -602,17 +600,17 @@ static void ase_parallelogram_map(
       l_bmp_x_rounded = clip_left;
 
     /* ... and move starting point in sprite accordingly. */
-    if (sub_pixel_accuracy) {
-      l_spr_x_rounded = l_spr_x +
-        fixmul((l_bmp_x_rounded - l_bmp_x), spr_dx);
-      l_spr_y_rounded = l_spr_y +
-        fixmul((l_bmp_x_rounded - l_bmp_x), spr_dy);
+    if (sub_pixel_accuracy)
+    {
+      l_spr_x_rounded = l_spr_x + fixmul((l_bmp_x_rounded - l_bmp_x), spr_dx);
+      l_spr_y_rounded = l_spr_y + fixmul((l_bmp_x_rounded - l_bmp_x), spr_dy);
     }
-    else {
-      l_spr_x_rounded = l_spr_x +
-        fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);
-      l_spr_y_rounded = l_spr_y +
-        fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);
+    else
+    {
+      l_spr_x_rounded =
+          l_spr_x + fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dx);
+      l_spr_y_rounded =
+          l_spr_y + fixmul(l_bmp_x_rounded + 0x7fff - l_bmp_x, spr_dy);
     }
 
     /* Make right bmp coordinate be an integer and clip it. */
@@ -624,8 +622,10 @@ static void ase_parallelogram_map(
       r_bmp_x_rounded = clip_right;
 
     /* Draw! */
-    if (l_bmp_x_rounded <= r_bmp_x_rounded) {
-      if (!sub_pixel_accuracy) {
+    if (l_bmp_x_rounded <= r_bmp_x_rounded)
+    {
+      if (!sub_pixel_accuracy)
+      {
         /* The bodies of these ifs are only reached extremely seldom,
            it's an ugly hack to avoid reading outside the sprite when
            the rounding errors are accumulated the wrong way. It would
@@ -637,87 +637,102 @@ static void ase_parallelogram_map(
            Drawing a sprite with that routine took about 25% longer time
            though.
         */
-        if ((unsigned)(l_spr_x_rounded >> 16) >= (unsigned)spr->width()) {
+        if (static_cast<unsigned>(l_spr_x_rounded >> 16) >=
+            static_cast<unsigned>(spr->width()))
+        {
           if (((l_spr_x_rounded < 0) && (spr_dx <= 0)) ||
-              ((l_spr_x_rounded > 0) && (spr_dx >= 0))) {
+              ((l_spr_x_rounded > 0) && (spr_dx >= 0)))
+          {
             /* This can happen. */
             goto skip_draw;
           }
-          else {
+          else
+          {
             /* I don't think this can happen, but I can't prove it. */
-            do {
+            do
+            {
               l_spr_x_rounded += spr_dx;
               l_bmp_x_rounded += 65536;
               if (l_bmp_x_rounded > r_bmp_x_rounded)
                 goto skip_draw;
-            } while ((unsigned)(l_spr_x_rounded >> 16) >=
-                     (unsigned)spr->width());
-
+            } while (static_cast<unsigned>(l_spr_x_rounded >> 16) >=
+                     static_cast<unsigned>(spr->width()));
           }
         }
         right_edge_test = l_spr_x_rounded +
-          ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *
-          spr_dx;
-        if ((unsigned)(right_edge_test >> 16) >= (unsigned)spr->width()) {
+                          ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) * spr_dx;
+        if (static_cast<unsigned>(right_edge_test >> 16) >=
+            static_cast<unsigned>(spr->width()))
+        {
           if (((right_edge_test < 0) && (spr_dx <= 0)) ||
-              ((right_edge_test > 0) && (spr_dx >= 0))) {
+              ((right_edge_test > 0) && (spr_dx >= 0)))
+          {
             /* This can happen. */
-            do {
+            do
+            {
               r_bmp_x_rounded -= 65536;
               right_edge_test -= spr_dx;
               if (l_bmp_x_rounded > r_bmp_x_rounded)
                 goto skip_draw;
-            } while ((unsigned)(right_edge_test >> 16) >=
-                     (unsigned)spr->width());
+            } while (static_cast<unsigned>(right_edge_test >> 16) >=
+                     static_cast<unsigned>(spr->width()));
           }
-          else {
+          else
+          {
             /* I don't think this can happen, but I can't prove it. */
             goto skip_draw;
           }
         }
-        if ((unsigned)(l_spr_y_rounded >> 16) >= (unsigned)spr->height()) {
+        if (static_cast<unsigned>(l_spr_y_rounded >> 16) >=
+            static_cast<unsigned>(spr->height()))
+        {
           if (((l_spr_y_rounded < 0) && (spr_dy <= 0)) ||
-              ((l_spr_y_rounded > 0) && (spr_dy >= 0))) {
+              ((l_spr_y_rounded > 0) && (spr_dy >= 0)))
+          {
             /* This can happen. */
             goto skip_draw;
           }
-          else {
+          else
+          {
             /* I don't think this can happen, but I can't prove it. */
-            do {
+            do
+            {
               l_spr_y_rounded += spr_dy;
               l_bmp_x_rounded += 65536;
               if (l_bmp_x_rounded > r_bmp_x_rounded)
                 goto skip_draw;
-            } while (((unsigned)l_spr_y_rounded >> 16) >=
-                     (unsigned)spr->height());
+            } while ((static_cast<unsigned>(l_spr_y_rounded) >> 16) >=
+                     static_cast<unsigned>(spr->height()));
           }
         }
         right_edge_test = l_spr_y_rounded +
-          ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) *
-          spr_dy;
-        if ((unsigned)(right_edge_test >> 16) >= (unsigned)spr->height()) {
+                          ((r_bmp_x_rounded - l_bmp_x_rounded) >> 16) * spr_dy;
+        if (static_cast<unsigned>(right_edge_test >> 16) >=
+            static_cast<unsigned>(spr->height()))
+        {
           if (((right_edge_test < 0) && (spr_dy <= 0)) ||
-              ((right_edge_test > 0) && (spr_dy >= 0))) {
+              ((right_edge_test > 0) && (spr_dy >= 0)))
+          {
             /* This can happen. */
-            do {
+            do
+            {
               r_bmp_x_rounded -= 65536;
               right_edge_test -= spr_dy;
               if (l_bmp_x_rounded > r_bmp_x_rounded)
                 goto skip_draw;
-            } while ((unsigned)(right_edge_test >> 16) >=
-                     (unsigned)spr->height());
+            } while (static_cast<unsigned>(right_edge_test >> 16) >=
+                     static_cast<unsigned>(spr->height()));
           }
-          else {
+          else
+          {
             /* I don't think this can happen, but I can't prove it. */
             goto skip_draw;
           }
         }
       }
-      draw_scanline<Traits, Delegate>(bmp, spr, mask,
-        l_bmp_x_rounded, bmp_y_i, r_bmp_x_rounded,
-        l_spr_x_rounded, l_spr_y_rounded,
-        spr_dx, spr_dy, delegate);
-
+      draw_scanline<Traits, Delegate>(
+          bmp, spr, mask, l_bmp_x_rounded, bmp_y_i, r_bmp_x_rounded,
+          l_spr_x_rounded, l_spr_y_rounded, spr_dx, spr_dy, delegate);
     }
     /* I'm not going to apoligize for this label and its gotos: to get
        rid of it would just make the code look worse. */
@@ -744,35 +759,44 @@ static void ase_parallelogram_map(
  *  _parallelogram_map() function since then you can bypass it and define
  *  your own scanline drawer, eg. for anti-aliased rotations.
  */
-static void ase_parallelogram_map_standard(
-  Image* bmp, const Image* sprite, const Image* mask,
-  fixed xs[4], fixed ys[4])
+static void ase_parallelogram_map_standard(Image* bmp, const Image* sprite,
+                                           const Image* mask, fixed xs[4],
+                                           fixed ys[4])
 {
-  switch (bmp->pixelFormat()) {
+  switch (bmp->pixelFormat())
+  {
 
-    case IMAGE_RGB: {
-      RgbDelegate delegate(sprite->maskColor());
-      ase_parallelogram_map<RgbTraits, RgbDelegate>(bmp, sprite, mask, xs, ys, false, delegate);
-      break;
-    }
+  case IMAGE_RGB:
+  {
+    const RgbDelegate delegate(sprite->maskColor());
+    ase_parallelogram_map<RgbTraits, RgbDelegate>(bmp, sprite, mask, xs, ys,
+                                                  false, delegate);
+    break;
+  }
 
-    case IMAGE_GRAYSCALE: {
-      GrayscaleDelegate delegate(sprite->maskColor());
-      ase_parallelogram_map<GrayscaleTraits, GrayscaleDelegate>(bmp, sprite, mask, xs, ys, false, delegate);
-      break;
-    }
+  case IMAGE_GRAYSCALE:
+  {
+    const GrayscaleDelegate delegate(sprite->maskColor());
+    ase_parallelogram_map<GrayscaleTraits, GrayscaleDelegate>(
+        bmp, sprite, mask, xs, ys, false, delegate);
+    break;
+  }
 
-    case IMAGE_INDEXED: {
-      IndexedDelegate delegate(sprite->maskColor());
-      ase_parallelogram_map<IndexedTraits, IndexedDelegate>(bmp, sprite, mask, xs, ys, false, delegate);
-      break;
-    }
+  case IMAGE_INDEXED:
+  {
+    const IndexedDelegate delegate(sprite->maskColor());
+    ase_parallelogram_map<IndexedTraits, IndexedDelegate>(bmp, sprite, mask, xs,
+                                                          ys, false, delegate);
+    break;
+  }
 
-    case IMAGE_BITMAP: {
-      BitmapDelegate delegate;
-      ase_parallelogram_map<BitmapTraits, BitmapDelegate>(bmp, sprite, mask, xs, ys, false, delegate);
-      break;
-    }
+  case IMAGE_BITMAP:
+  {
+    const BitmapDelegate delegate;
+    ase_parallelogram_map<BitmapTraits, BitmapDelegate>(bmp, sprite, mask, xs,
+                                                        ys, false, delegate);
+    break;
+  }
   }
 }
 
@@ -780,82 +804,83 @@ static void ase_parallelogram_map_standard(
  *  Calculates the coordinates for the rotated, scaled and flipped sprite,
  *  and passes them on to the given function.
  */
-static void ase_rotate_scale_flip_coordinates(fixed w, fixed h,
-                                              fixed x, fixed y,
-                                              fixed cx, fixed cy,
-                                              fixed angle,
-                                              fixed scale_x, fixed scale_y,
-                                              int h_flip, int v_flip,
-                                              fixed xs[4], fixed ys[4])
+static void ase_rotate_scale_flip_coordinates(fixed w, fixed h, fixed x,
+                                              fixed y, fixed cx, fixed cy,
+                                              fixed angle, fixed scale_x,
+                                              fixed scale_y, int h_flip,
+                                              int v_flip, fixed xs[4],
+                                              fixed ys[4])
 {
-   fixed fix_cos, fix_sin;
-   int tl = 0, tr = 1, bl = 3, br = 2;
-   int tmp;
-   double cos_angle, sin_angle;
-   fixed xofs, yofs;
+  fixed fix_cos, fix_sin;
+  int tl = 0, tr = 1, bl = 3, br = 2;
+  int tmp;
+  double cos_angle, sin_angle;
+  fixed xofs, yofs;
 
-   /* Setting angle to the range -180...180 degrees makes sin & cos
-      more numerically stable. (Yes, this does have an effect for big
-      angles!) Note that using "real" sin() and cos() gives much better
-      precision than fixsin() and fixcos(). */
-   angle = angle & 0xffffff;
-   if (angle >= 0x800000)
-      angle -= 0x1000000;
+  /* Setting angle to the range -180...180 degrees makes sin & cos
+     more numerically stable. (Yes, this does have an effect for big
+     angles!) Note that using "real" sin() and cos() gives much better
+     precision than fixsin() and fixcos(). */
+  angle = angle & 0xffffff;
+  if (angle >= 0x800000)
+    angle -= 0x1000000;
 
-   cos_angle = cos(angle * (PI / (double)0x800000));
-   sin_angle = sin(angle * (PI / (double)0x800000));
+  cos_angle = cos(angle * (PI / static_cast<double>(0x800000)));
+  sin_angle = sin(angle * (PI / static_cast<double>(0x800000)));
 
-   if (cos_angle >= 0)
-      fix_cos = (int)(cos_angle * 0x10000 + 0.5);
-   else
-      fix_cos = (int)(cos_angle * 0x10000 - 0.5);
-   if (sin_angle >= 0)
-      fix_sin = (int)(sin_angle * 0x10000 + 0.5);
-   else
-      fix_sin = (int)(sin_angle * 0x10000 - 0.5);
+  if (cos_angle >= 0)
+    fix_cos = static_cast<int>(cos_angle * 0x10000 + 0.5);
+  else
+    fix_cos = static_cast<int>(cos_angle * 0x10000 - 0.5);
+  if (sin_angle >= 0)
+    fix_sin = static_cast<int>(sin_angle * 0x10000 + 0.5);
+  else
+    fix_sin = static_cast<int>(sin_angle * 0x10000 - 0.5);
 
-   /* Decide what order to take corners in. */
-   if (v_flip) {
-      tl = 3;
-      tr = 2;
-      bl = 0;
-      br = 1;
-   }
-   else {
-      tl = 0;
-      tr = 1;
-      bl = 3;
-      br = 2;
-   }
-   if (h_flip) {
-      tmp = tl;
-      tl = tr;
-      tr = tmp;
-      tmp = bl;
-      bl = br;
-      br = tmp;
-   }
+  /* Decide what order to take corners in. */
+  if (v_flip)
+  {
+    tl = 3;
+    tr = 2;
+    bl = 0;
+    br = 1;
+  }
+  else
+  {
+    tl = 0;
+    tr = 1;
+    bl = 3;
+    br = 2;
+  }
+  if (h_flip)
+  {
+    tmp = tl;
+    tl = tr;
+    tr = tmp;
+    tmp = bl;
+    bl = br;
+    br = tmp;
+  }
 
-   /* Calculate new coordinates of all corners. */
-   w = fixmul(w, scale_x);
-   h = fixmul(h, scale_y);
-   cx = fixmul(cx, scale_x);
-   cy = fixmul(cy, scale_y);
+  /* Calculate new coordinates of all corners. */
+  w = fixmul(w, scale_x);
+  h = fixmul(h, scale_y);
+  cx = fixmul(cx, scale_x);
+  cy = fixmul(cy, scale_y);
 
-   xofs = x - fixmul(cx, fix_cos) + fixmul(cy, fix_sin);
+  xofs = x - fixmul(cx, fix_cos) + fixmul(cy, fix_sin);
 
-   yofs = y - fixmul(cx, fix_sin) - fixmul(cy, fix_cos);
+  yofs = y - fixmul(cx, fix_sin) - fixmul(cy, fix_cos);
 
-   xs[tl] = xofs;
-   ys[tl] = yofs;
-   xs[tr] = xofs + fixmul(w, fix_cos);
-   ys[tr] = yofs + fixmul(w, fix_sin);
-   xs[bl] = xofs - fixmul(h, fix_sin);
-   ys[bl] = yofs + fixmul(h, fix_cos);
+  xs[tl] = xofs;
+  ys[tl] = yofs;
+  xs[tr] = xofs + fixmul(w, fix_cos);
+  ys[tr] = yofs + fixmul(w, fix_sin);
+  xs[bl] = xofs - fixmul(h, fix_sin);
+  ys[bl] = yofs + fixmul(h, fix_cos);
 
-   xs[br] = xs[tr] + xs[bl] - xs[tl];
-   ys[br] = ys[tr] + ys[bl] - ys[tl];
+  xs[br] = xs[tr] + xs[bl] - xs[tl];
+  ys[br] = ys[tr] + ys[bl] - ys[tl];
 }
 
-} // namespace algorithm
-} // namespace doc
+} // namespace doc::algorithm

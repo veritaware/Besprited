@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,11 +21,13 @@
 #include "doc/palette.h"
 #include "ui/alert.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class SavePaletteCommand : public Command {
+class SavePaletteCommand : public Command
+{
 public:
   SavePaletteCommand();
   Command* clone() const override { return new SavePaletteCommand(*this); }
@@ -39,9 +41,7 @@ private:
 };
 
 SavePaletteCommand::SavePaletteCommand()
-  : Command("SavePalette",
-            "Save Palette",
-            CmdRecordableFlag)
+  : Command("SavePalette", "Save Palette", CmdRecordableFlag)
 {
 }
 
@@ -55,10 +55,12 @@ void SavePaletteCommand::onExecute(Context* context)
   const doc::Palette* palette = get_current_palette();
   std::string filename;
 
-  if (!m_preset.empty()) {
+  if (!m_preset.empty())
+  {
     filename = get_preset_palette_filename(m_preset, ".ase");
   }
-  else {
+  else
+  {
     std::string exts = get_writable_palette_extensions();
     filename = app::show_file_selector("Save Palette", "", exts,
                                        FileSelectorType::Save);
@@ -66,10 +68,12 @@ void SavePaletteCommand::onExecute(Context* context)
       return;
   }
 
-  if (!save_palette(filename.c_str(), *palette, 16)) // TODO 16 should be configurable
+  if (!save_palette(filename.c_str(), *palette,
+                    16)) // TODO 16 should be configurable
     Alert::show("Error<<Saving palette file||&Close");
 
-  if (m_preset == get_default_palette_preset_name()) {
+  if (m_preset == get_default_palette_preset_name())
+  {
     set_default_palette(palette);
     if (!context->activeDocument())
       set_current_palette(palette, false);

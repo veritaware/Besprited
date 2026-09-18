@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2021  LibreSprite contributors
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,9 +20,11 @@
 #include "app/launcher.h"
 #include <cstdio>
 
-namespace app {
+namespace app
+{
 
-class OpenScriptsFolder : public Command {
+class OpenScriptsFolder : public Command
+{
 public:
   OpenScriptsFolder();
   Command* clone() const override { return new OpenScriptsFolder(*this); }
@@ -32,9 +34,7 @@ protected:
 };
 
 OpenScriptsFolder::OpenScriptsFolder()
-  : Command("OpenScriptsFolder",
-            "Open Scripts Folder",
-            CmdRecordableFlag)
+  : Command("OpenScriptsFolder", "Open Scripts Folder", CmdRecordableFlag)
 {
 }
 

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,19 +9,21 @@
 
 #include "ui/button.h"
 
-namespace app {
+namespace app
+{
 
-  class IconButton : public ui::Button {
-  public:
-    IconButton(she::Surface* icon);
+class IconButton : public ui::Button
+{
+public:
+  IconButton(she::Surface* icon);
 
-  protected:
-    // bool onProcessMessage(ui::Message* msg) override;
-    void onSizeHint(ui::SizeHintEvent& ev) override;
-    void onPaint(ui::PaintEvent& ev) override;
+protected:
+  // bool onProcessMessage(ui::Message* msg) override;
+  void onSizeHint(ui::SizeHintEvent& ev) override;
+  void onPaint(ui::PaintEvent& ev) override;
 
-  private:
-    she::Surface* m_icon;
-  };
+private:
+  she::Surface* m_icon;
+};
 
 } // namespace app

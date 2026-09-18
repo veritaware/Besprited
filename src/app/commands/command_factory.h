@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,17 +7,18 @@
 
 #pragma once
 
-namespace app {
-  class Command;
+namespace app
+{
+class Command;
 
-  class CommandFactory {
-  public:
+class CommandFactory
+{
+public:
 #undef FOR_EACH_COMMAND
-#define FOR_EACH_COMMAND(Name)                  \
-    static Command* create##Name##Command();
+#define FOR_EACH_COMMAND(Name) static Command* create##Name##Command();
 
 #include "app/commands/commands_list.h"
 #undef FOR_EACH_COMMAND
-  };
+};
 
 } // namespace app

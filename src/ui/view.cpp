@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -35,7 +36,8 @@
 #define HBAR_SIZE (m_scrollbar_h.getBarWidth())
 #define VBAR_SIZE (m_scrollbar_v.getBarWidth())
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
@@ -73,14 +75,9 @@ void View::makeVisibleAllScrollableArea()
   Size reqSize = m_viewport.calculateNeededSize();
 
   setMinSize(
-    gfx::Size(
-      + reqSize.w
-      + m_viewport.border().width()
-      + border().width(),
+      gfx::Size(+reqSize.w + m_viewport.border().width() + border().width(),
 
-      + reqSize.h
-      + m_viewport.border().height()
-      + border().height()));
+                +reqSize.h + m_viewport.border().height() + border().height()));
 }
 
 void View::hideScrollBars()
@@ -97,24 +94,23 @@ void View::showScrollBars()
 
 Size View::getScrollableSize()
 {
-  return Size(m_scrollbar_h.size(),
-              m_scrollbar_v.size());
+  return Size(m_scrollbar_h.size(), m_scrollbar_v.size());
 }
 
 void View::setScrollableSize(const Size& sz)
 {
   gfx::Rect viewportArea = childrenBounds();
 
-  if (m_hasBars) {
-    setup_scrollbars(sz,
-                     viewportArea,
-                     *this,
-                     m_scrollbar_h,
-                     m_scrollbar_v);
+  if (m_hasBars)
+  {
+    setup_scrollbars(sz, viewportArea, *this, m_scrollbar_h, m_scrollbar_v);
   }
-  else {
-    if (m_scrollbar_h.parent()) removeChild(&m_scrollbar_h);
-    if (m_scrollbar_v.parent()) removeChild(&m_scrollbar_v);
+  else
+  {
+    if (m_scrollbar_h.parent())
+      removeChild(&m_scrollbar_h);
+    if (m_scrollbar_v.parent())
+      removeChild(&m_scrollbar_v);
     m_scrollbar_h.setVisible(false);
     m_scrollbar_v.setVisible(false);
     m_scrollbar_h.setSize(sz.w);
@@ -135,8 +131,7 @@ Size View::visibleSize() const
 
 Point View::viewScroll() const
 {
-  return Point(m_scrollbar_h.getPos(),
-               m_scrollbar_v.getPos());
+  return Point(m_scrollbar_h.getPos(), m_scrollbar_v.getPos());
 }
 
 void View::setViewScroll(const Point& pt)
@@ -180,8 +175,7 @@ Rect View::viewportBounds()
 // static
 View* View::getView(Widget* widget)
 {
-  if ((widget->parent()) &&
-      (widget->parent()->type() == kViewViewportWidget) &&
+  if ((widget->parent()) && (widget->parent()->type() == kViewViewportWidget) &&
       (widget->parent()->parent()) &&
       (widget->parent()->parent()->type() == kViewWidget))
     return static_cast<View*>(widget->parent()->parent());
@@ -191,18 +185,19 @@ View* View::getView(Widget* widget)
 
 bool View::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kFocusEnterMessage:
-    case kFocusLeaveMessage:
-      // TODO This is theme specific stuff
-      // Redraw the borders each time the focus enters or leaves the view.
-      {
-        Region region;
-        getDrawableRegion(region, kCutTopWindows);
-        invalidateRegion(region);
-      }
-      break;
+  case kFocusEnterMessage:
+  case kFocusLeaveMessage:
+    // TODO This is theme specific stuff
+    // Redraw the borders each time the focus enters or leaves the view.
+    {
+      Region region;
+      getDrawableRegion(region, kCutTopWindows);
+      invalidateRegion(region);
+    }
+    break;
   }
 
   return Widget::onProcessMessage(msg);
@@ -245,7 +240,7 @@ void View::onSetViewScroll(const gfx::Point& pt)
   // Visible viewport region that is not overlapped by windows
   Region drawableRegion;
   m_viewport.getDrawableRegion(
-    drawableRegion, DrawableRegionFlags(kCutTopWindows | kUseChildArea));
+      drawableRegion, DrawableRegionFlags(kCutTopWindows | kUseChildArea));
 
   // Start the region to scroll equal to the drawable viewport region.
   Rect cpos = m_viewport.childrenBounds();
@@ -256,7 +251,8 @@ void View::onSetViewScroll(const gfx::Point& pt)
   {
     std::queue<Widget*> items;
     items.push(&m_viewport);
-    while (!items.empty()) {
+    while (!items.empty())
+    {
       Widget* item = items.front();
       items.pop();
       for (Widget* child : item->children())
@@ -284,12 +280,12 @@ void View::onSetViewScroll(const gfx::Point& pt)
 
   // Move viewport children
   cpos.offset(-newScroll);
-  for (auto child : m_viewport.children()) {
+  for (auto child : m_viewport.children())
+  {
     Size reqSize = child->sizeHint();
     cpos.w = MAX(reqSize.w, cpos.w);
     cpos.h = MAX(reqSize.h, cpos.h);
-    if (cpos.w != child->bounds().w ||
-        cpos.h != child->bounds().h)
+    if (cpos.w != child->bounds().w || cpos.h != child->bounds().h)
       child->setBounds(cpos);
     else
       child->offsetWidgets(cpos.x - child->bounds().x,
@@ -312,7 +308,7 @@ void View::onSetViewScroll(const gfx::Point& pt)
     Region movable = validRegion;
     movable.offset(delta);
     movable &= validRegion;
-    invalidRegion -= movable;   // Remove the moved region as invalid
+    invalidRegion -= movable; // Remove the moved region as invalid
     movable.offset(-delta);
 
     ui::move_region(manager, movable, delta.x, delta.y);

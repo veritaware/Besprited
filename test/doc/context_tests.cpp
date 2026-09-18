@@ -16,11 +16,13 @@
 
 using namespace doc;
 
-namespace doc {
+namespace doc
+{
 
-  std::ostream& operator<<(std::ostream& os, ColorMode mode) {
-    return os << (int)mode;
-  }
+std::ostream& operator<<(std::ostream& os, ColorMode mode)
+{
+  return os << (int)mode;
+}
 
 } // namespace doc
 
@@ -28,7 +30,7 @@ TEST(Context, AddDocument)
 {
   Context ctx;
   Document* doc = ctx.documents().add(32, 28);
-  ASSERT_TRUE(doc != NULL);
+  ASSERT_TRUE(doc != nullptr);
 
   EXPECT_EQ(32, doc->width());
   EXPECT_EQ(28, doc->height());

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -12,64 +12,77 @@
 #include <map>
 #include <string>
 
-namespace tinyxml2 {
-    class XMLElement;
+namespace tinyxml2
+{
+class XMLElement;
 }
 
-namespace ui {
-  class Widget;
-  class TooltipManager;
+namespace ui
+{
+class Widget;
+class TooltipManager;
 }
 
-namespace app {
+namespace app
+{
 
-  class WidgetLoader {
+class WidgetLoader
+{
+public:
+  // Interface used to create customized widgets.
+  class IWidgetTypeCreator
+  {
   public:
-    // Interface used to create customized widgets.
-    class IWidgetTypeCreator {
-    public:
-      virtual ~IWidgetTypeCreator() { }
-      virtual void dispose() = 0;
-      virtual ui::Widget* createWidgetFromXml(const tinyxml2::XMLElement* xmlElem) = 0;
-    };
-
-    WidgetLoader();
-    ~WidgetLoader();
-
-    // Adds a new widget type that can be referenced in the .xml file
-    // with an XML element. The "tagName" is the same name as in the
-    // .xml should appear as <tagName>...</tagName>
-    //
-    // The "creator" will not be deleted automatically at the
-    // WidgetLoader dtor.
-    void addWidgetType(const char* tagName, IWidgetTypeCreator* creator);
-
-    // Loads the specified widget from an .xml file.
-    ui::Widget* loadWidget(const char* fileName, const char* widgetId, ui::Widget* widget = NULL);
-
-    template<class T>
-    T* loadWidgetT(const char* fileName, const char* widgetId, T* widget = NULL) {
-      T* specificWidget = dynamic_cast<T*>(loadWidget(fileName, widgetId, widget));
-      if (!specificWidget)
-        throw WidgetTypeMismatch(widgetId);
-
-      return specificWidget;
-    }
-
-  private:
-    ui::Widget* loadWidgetFromXmlFile(
-      const std::string& xmlFilename,
-      const std::string& widgetId,
-      ui::Widget* widget);
-
-    ui::Widget* convertXmlElementToWidget(const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* parent, ui::Widget* widget);
-    void fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* widget);
-    void fillWidgetWithXmlElementAttributesWithChildren(const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* widget);
-
-    typedef std::map<std::string, IWidgetTypeCreator*> TypeCreatorsMap;
-
-    TypeCreatorsMap m_typeCreators;
-    ui::TooltipManager* m_tooltipManager;
+    virtual ~IWidgetTypeCreator() {}
+    virtual void dispose() = 0;
+    virtual ui::Widget*
+    createWidgetFromXml(const tinyxml2::XMLElement* xmlElem) = 0;
   };
+
+  WidgetLoader();
+  ~WidgetLoader();
+
+  // Adds a new widget type that can be referenced in the .xml file
+  // with an XML element. The "tagName" is the same name as in the
+  // .xml should appear as <tagName>...</tagName>
+  //
+  // The "creator" will not be deleted automatically at the
+  // WidgetLoader dtor.
+  void addWidgetType(const char* tagName, IWidgetTypeCreator* creator);
+
+  // Loads the specified widget from an .xml file.
+  ui::Widget* loadWidget(const char* fileName, const char* widgetId,
+                         ui::Widget* widget = nullptr);
+
+  template <class T>
+  T* loadWidgetT(const char* fileName, const char* widgetId,
+                 T* widget = nullptr)
+  {
+    T* specificWidget =
+        dynamic_cast<T*>(loadWidget(fileName, widgetId, widget));
+    if (!specificWidget)
+      throw WidgetTypeMismatch(widgetId);
+
+    return specificWidget;
+  }
+
+private:
+  ui::Widget* loadWidgetFromXmlFile(const std::string& xmlFilename,
+                                    const std::string& widgetId,
+                                    ui::Widget* widget);
+
+  ui::Widget* convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
+                                        ui::Widget* root, ui::Widget* parent,
+                                        ui::Widget* widget);
+  void fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement* elem,
+                                          ui::Widget* root, ui::Widget* widget);
+  void fillWidgetWithXmlElementAttributesWithChildren(
+      const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* widget);
+
+  typedef std::map<std::string, IWidgetTypeCreator*> TypeCreatorsMap;
+
+  TypeCreatorsMap m_typeCreators;
+  ui::TooltipManager* m_tooltipManager;
+};
 
 } // namespace app

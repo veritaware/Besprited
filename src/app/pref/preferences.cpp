@@ -18,7 +18,8 @@
 #include "app/tools/tool.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
 static Preferences* singleton = nullptr;
 
@@ -72,19 +73,21 @@ void Preferences::save()
 
 ToolPreferences& Preferences::tool(tools::Tool* tool)
 {
-  ASSERT(tool != NULL);
+  ASSERT(tool != nullptr);
 
   auto it = m_tools.find(tool->getId());
-  if (it != m_tools.end()) {
+  if (it != m_tools.end())
+  {
     return *it->second;
   }
-  else {
-    std::string section = std::string("tool.") + tool->getId();
-    ToolPreferences* toolPref = new ToolPreferences(section);
+  else
+  {
+    const std::string section = std::string("tool.") + tool->getId();
+    auto* toolPref = new ToolPreferences(section);
 
     // Default size for eraser, blur, etc.
-    if (tool->getInk(0)->isEraser() ||
-        tool->getInk(0)->isEffect()) {
+    if (tool->getInk(0)->isEraser() || tool->getInk(0)->isEffect())
+    {
       toolPref->brush.size.setDefaultValue(8);
     }
 
@@ -97,22 +100,25 @@ ToolPreferences& Preferences::tool(tools::Tool* tool)
 DocumentPreferences& Preferences::document(const app::Document* doc)
 {
   auto it = m_docs.find(doc);
-  if (it != m_docs.end()) {
+  if (it != m_docs.end())
+  {
     return *it->second;
   }
-  else {
+  else
+  {
     DocumentPreferences* docPref;
-    if (doc) {
+    if (doc)
+    {
       docPref = new DocumentPreferences("");
 
       // The default preferences for this document are the current
       // defaults for (document=nullptr).
-      DocumentPreferences& defPref = this->document(nullptr);
+      const DocumentPreferences& defPref = this->document(nullptr);
       *docPref = defPref;
 
       // Default values for symmetry
-      docPref->symmetry.xAxis.setDefaultValue(doc->sprite()->width()/2);
-      docPref->symmetry.yAxis.setDefaultValue(doc->sprite()->height()/2);
+      docPref->symmetry.xAxis.setDefaultValue(doc->sprite()->width() / 2);
+      docPref->symmetry.yAxis.setDefaultValue(doc->sprite()->height() / 2);
     }
     else
       docPref = new DocumentPreferences("");
@@ -131,7 +137,8 @@ void Preferences::removeDocument(doc::Document* doc)
   ASSERT(dynamic_cast<app::Document*>(doc));
 
   auto it = m_docs.find(static_cast<app::Document*>(doc));
-  if (it != m_docs.end()) {
+  if (it != m_docs.end())
+  {
     serializeDocPref(it->first, it->second, true);
     delete it->second;
     m_docs.erase(it);
@@ -150,21 +157,26 @@ std::string Preferences::docConfigFileName(const app::Document* doc)
 
   ResourceFinder rf;
   std::string fn = doc->filename();
-  for (size_t i=0; i<fn.size(); ++i) {
-    if (fn[i] == ' ' || fn[i] == '/' || fn[i] == '\\' || fn[i] == ':' || fn[i] == '.') {
-      fn[i] = '-';
+  for (char& c : fn)
+  {
+    if (c == ' ' || c == '/' || c == '\\' || c == ':' || c == '.')
+    {
+      c = '-';
     }
   }
   rf.includeUserDir(("files/" + fn + ".ini").c_str());
   return rf.getFirstOrCreateDefault();
 }
 
-void Preferences::serializeDocPref(const app::Document* doc, app::DocumentPreferences* docPref, bool save)
+void Preferences::serializeDocPref(const app::Document* doc,
+                                   app::DocumentPreferences* docPref, bool save)
 {
   bool specific_file = false;
 
-  if (doc) {
-    if (doc->isAssociatedToFile()) {
+  if (doc)
+  {
+    if (doc->isAssociatedToFile())
+    {
       push_config_state();
       set_config_file(docConfigFileName(doc).c_str());
       specific_file = true;
@@ -175,12 +187,14 @@ void Preferences::serializeDocPref(const app::Document* doc, app::DocumentPrefer
 
   if (save)
     docPref->save();
-  else {
+  else
+  {
     // Load default preferences, or preferences from .ini file.
     docPref->load();
   }
 
-  if (specific_file) {
+  if (specific_file)
+  {
     flush_config_file();
     pop_config_state();
   }

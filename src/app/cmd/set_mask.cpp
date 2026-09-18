@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,19 +14,19 @@
 #include "app/document.h"
 #include "doc/mask.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetMask::SetMask(Document* doc, Mask* newMask)
+SetMask::SetMask(const Document* doc, const Mask* newMask)
   : WithDocument(doc)
-  , m_oldMask(doc->isMaskVisible() ? new Mask(*doc->mask()): nullptr)
-  , m_newMask(newMask && !newMask->isEmpty() ? new Mask(*newMask): nullptr)
+  , m_oldMask(doc->isMaskVisible() ? new Mask(*doc->mask()) : nullptr)
+  , m_newMask(newMask && !newMask->isEmpty() ? new Mask(*newMask) : nullptr)
 {
 }
 
-void SetMask::setNewMask(Mask* newMask)
+void SetMask::setNewMask(const Mask* newMask)
 {
-  m_newMask.reset(newMask ? new Mask(*newMask): nullptr);
+  m_newMask.reset(newMask ? new Mask(*newMask) : nullptr);
   setMask(m_newMask.get());
 }
 
@@ -42,25 +42,25 @@ void SetMask::onUndo()
 
 size_t SetMask::onMemSize() const
 {
-  return sizeof(*this) +
-    (m_oldMask ? m_oldMask->getMemSize(): 0) +
-    (m_newMask ? m_newMask->getMemSize(): 0);
+  return sizeof(*this) + (m_oldMask ? m_oldMask->getMemSize() : 0) +
+         (m_newMask ? m_newMask->getMemSize() : 0);
 }
 
-void SetMask::setMask(Mask* mask)
+void SetMask::setMask(const Mask* mask) const
 {
-  app::Document* doc = document();
+  Document* doc = document();
 
-  if (mask) {
+  if (mask)
+  {
     doc->setMask(mask);
     doc->setMaskVisible(!mask->isEmpty());
   }
-  else {
-    Mask empty;
+  else
+  {
+    const Mask empty;
     doc->setMask(&empty);
     doc->setMaskVisible(false);
   }
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

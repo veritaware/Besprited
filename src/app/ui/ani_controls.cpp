@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -46,14 +46,16 @@
 #include <cstdio>
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace gfx;
 using namespace ui;
 using namespace doc;
 
-enum AniAction {
+enum AniAction
+{
   ACTION_FIRST,
   ACTION_PREV,
   ACTION_PLAY,
@@ -80,7 +82,7 @@ AniControls::AniControls()
 
   TooltipManager* tooltips = new TooltipManager;
   addChild(tooltips);
-  for (int i=0; i<ACTIONS; ++i)
+  for (int i = 0; i < ACTIONS; ++i)
     tooltips->addTooltipFor(getItem(i), getTooltipFor(i), BOTTOM);
 
   getItem(ACTION_PLAY)->enableFlags(CTRL_RIGHT_CLICK);
@@ -89,10 +91,9 @@ AniControls::AniControls()
 void AniControls::updateUsingEditor(Editor* editor)
 {
   SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
-  getItem(ACTION_PLAY)->setIcon(
-    (editor && editor->isPlaying() ?
-      theme->parts.aniStop():
-      theme->parts.aniPlay()));
+  getItem(ACTION_PLAY)
+      ->setIcon((editor && editor->isPlaying() ? theme->parts.aniStop()
+                                               : theme->parts.aniPlay()));
 }
 
 void AniControls::onClickButton()
@@ -100,8 +101,10 @@ void AniControls::onClickButton()
   int item = selectedItem();
   deselectItems();
 
-  Command* cmd = CommandsModule::instance()->getCommandByName(getCommandId(item));
-  if (cmd) {
+  Command* cmd =
+      CommandsModule::instance()->getCommandByName(getCommandId(item));
+  if (cmd)
+  {
     UIContext::instance()->executeCommand(cmd);
     updateUsingEditor(current_editor);
   }
@@ -113,17 +116,23 @@ void AniControls::onRightClick(Item* item)
 
   if (item == getItem(ACTION_PLAY) && current_editor)
     current_editor->showAnimationSpeedMultiplierPopup(
-      Preferences::instance().editor.playOnce, true);
+        Preferences::instance().editor.playOnce, true);
 }
 
 const char* AniControls::getCommandId(int index) const
 {
-  switch (index) {
-    case ACTION_FIRST: return CommandId::GotoFirstFrame;
-    case ACTION_PREV: return CommandId::GotoPreviousFrame;
-    case ACTION_PLAY: return CommandId::PlayAnimation;
-    case ACTION_NEXT: return CommandId::GotoNextFrame;
-    case ACTION_LAST: return CommandId::GotoLastFrame;
+  switch (index)
+  {
+  case ACTION_FIRST:
+    return CommandId::GotoFirstFrame;
+  case ACTION_PREV:
+    return CommandId::GotoPreviousFrame;
+  case ACTION_PLAY:
+    return CommandId::PlayAnimation;
+  case ACTION_NEXT:
+    return CommandId::GotoNextFrame;
+  case ACTION_LAST:
+    return CommandId::GotoLastFrame;
   }
   ASSERT(false);
   return nullptr;
@@ -133,13 +142,16 @@ std::string AniControls::getTooltipFor(int index) const
 {
   std::string tooltip;
 
-  Command* cmd = CommandsModule::instance()->getCommandByName(getCommandId(index));
-  if (cmd) {
+  Command* cmd =
+      CommandsModule::instance()->getCommandByName(getCommandId(index));
+  if (cmd)
+  {
     tooltip = cmd->friendlyName();
 
     Key* key = KeyboardShortcuts::instance()->command(cmd->id().c_str());
-    if (key && !key->accels().empty()) {
-        tooltip += "\n\n" + app::i18n("Shortcut: ");
+    if (key && !key->accels().empty())
+    {
+      tooltip += "\n\n" + app::i18n("Shortcut: ");
       tooltip += key->accels().front().toString();
     }
   }

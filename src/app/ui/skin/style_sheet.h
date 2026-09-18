@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,67 +16,71 @@
 #include <map>
 #include <string>
 
-namespace css {
-  class Sheet;
-  class Style;
-  class Value;
+namespace css
+{
+class Sheet;
+class Style;
+class Value;
 }
 
-namespace app {
-  namespace skin {
+namespace app
+{
+namespace skin
+{
 
-    class Style;
+class Style;
 
-    class StyleSheet {
-    public:
-      StyleSheet();
-      ~StyleSheet();
+class StyleSheet
+{
+public:
+  StyleSheet();
+  ~StyleSheet();
 
-      static css::Rule& backgroundColorRule() { return m_backgroundColorRule; }
-      static css::Rule& backgroundPartRule() { return m_backgroundPartRule; }
-      static css::Rule& backgroundRepeatRule() { return m_backgroundRepeatRule; }
-      static css::Rule& iconAlignRule() { return m_iconAlignRule; }
-      static css::Rule& iconPartRule() { return m_iconPartRule; }
-      static css::Rule& iconXRule() { return m_iconXRule; }
-      static css::Rule& iconYRule() { return m_iconYRule; }
-      static css::Rule& textAlignRule() { return m_textAlignRule; }
-      static css::Rule& textColorRule() { return m_textColorRule; }
-      static css::Rule& paddingLeftRule() { return m_paddingLeftRule; }
-      static css::Rule& paddingTopRule() { return m_paddingTopRule; }
-      static css::Rule& paddingRightRule() { return m_paddingRightRule; }
-      static css::Rule& paddingBottomRule() { return m_paddingBottomRule; }
+  static css::Rule& backgroundColorRule() { return m_backgroundColorRule; }
+  static css::Rule& backgroundPartRule() { return m_backgroundPartRule; }
+  static css::Rule& backgroundRepeatRule() { return m_backgroundRepeatRule; }
+  static css::Rule& iconAlignRule() { return m_iconAlignRule; }
+  static css::Rule& iconPartRule() { return m_iconPartRule; }
+  static css::Rule& iconXRule() { return m_iconXRule; }
+  static css::Rule& iconYRule() { return m_iconYRule; }
+  static css::Rule& textAlignRule() { return m_textAlignRule; }
+  static css::Rule& textColorRule() { return m_textColorRule; }
+  static css::Rule& paddingLeftRule() { return m_paddingLeftRule; }
+  static css::Rule& paddingTopRule() { return m_paddingTopRule; }
+  static css::Rule& paddingRightRule() { return m_paddingRightRule; }
+  static css::Rule& paddingBottomRule() { return m_paddingBottomRule; }
 
-      void addCssStyle(css::Style* style);
-      const css::Style* getCssStyle(const std::string& id);
+  void addCssStyle(css::Style* style);
+  const css::Style* getCssStyle(const std::string& id);
 
-      Style* getStyle(const std::string& id);
-      Style* findStyle(const std::string& id);
+  Style* getStyle(const std::string& id);
+  Style* findStyle(const std::string& id);
 
-      static SkinPartPtr convertPart(const css::Value& value);
-      static gfx::Color convertColor(const css::Value& value);
-      static BackgroundRepeat convertRepeat(const css::Value& value);
+  static SkinPartPtr convertPart(const css::Value& value);
+  static gfx::Color convertColor(const css::Value& value);
+  static BackgroundRepeat convertRepeat(const css::Value& value);
 
-    private:
-      typedef std::map<std::string, Style*> StyleMap;
+private:
+  using StyleMap = std::map<std::string, Style*>;
 
-      static css::Rule m_backgroundColorRule;
-      static css::Rule m_backgroundPartRule;
-      static css::Rule m_backgroundRepeatRule;
-      static css::Rule m_iconAlignRule;
-      static css::Rule m_iconPartRule;
-      static css::Rule m_iconXRule;
-      static css::Rule m_iconYRule;
-      static css::Rule m_textAlignRule;
-      static css::Rule m_textColorRule;
-      static css::Rule m_paddingLeftRule;
-      static css::Rule m_paddingTopRule;
-      static css::Rule m_paddingRightRule;
-      static css::Rule m_paddingBottomRule;
+  static css::Rule m_backgroundColorRule;
+  static css::Rule m_backgroundPartRule;
+  static css::Rule m_backgroundRepeatRule;
+  static css::Rule m_iconAlignRule;
+  static css::Rule m_iconPartRule;
+  static css::Rule m_iconXRule;
+  static css::Rule m_iconYRule;
+  static css::Rule m_textAlignRule;
+  static css::Rule m_textColorRule;
+  static css::Rule m_paddingLeftRule;
+  static css::Rule m_paddingTopRule;
+  static css::Rule m_paddingRightRule;
+  static css::Rule m_paddingBottomRule;
 
-      css::Sheet* m_sheet;
-      std::vector<css::Style*> m_cssStyles;
-      StyleMap m_styles;
-    };
+  css::Sheet* m_sheet;
+  std::vector<css::Style*> m_cssStyles;
+  StyleMap m_styles;
+};
 
-  } // namespace skin
+} // namespace skin
 } // namespace app

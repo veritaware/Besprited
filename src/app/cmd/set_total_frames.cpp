@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,10 +15,10 @@
 #include "doc/document_event.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetTotalFrames::SetTotalFrames(Sprite* sprite, frame_t frames)
+SetTotalFrames::SetTotalFrames(const Sprite* sprite, const frame_t frames)
   : WithSprite(sprite)
   , m_oldFrames(sprite->totalFrames())
   , m_newFrames(frames)
@@ -46,8 +46,8 @@ void SetTotalFrames::onFireNotifications()
   DocumentEvent ev(doc);
   ev.sprite(sprite);
   ev.frame(sprite->totalFrames());
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onTotalFramesChanged, ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onTotalFramesChanged,
+                                       ev);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

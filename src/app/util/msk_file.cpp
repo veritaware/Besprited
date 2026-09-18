@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,7 +18,8 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
@@ -27,17 +28,18 @@ Mask* load_msk_file(const char* filename)
 {
   int orig_size = base::file_size(filename);
   int i, c, u, v, byte, magic, size;
-  Mask* mask = NULL;
+  Mask* mask = nullptr;
 
   FILE* f = base::open_file_raw(filename, "r");
   if (!f)
-    return NULL;
+    return nullptr;
 
   size = base::fgetl(f);
   magic = base::fgetw(f);
 
   // Animator Pro MSK format
-  if ((size == orig_size) && (magic == 0x9500)) {
+  if ((size == orig_size) && (magic == 0x9500))
+  {
     fclose(f);
 
     // Just load an Animator Pro PIC file
@@ -45,7 +47,8 @@ Mask* load_msk_file(const char* filename)
     std::shared_ptr<Palette> picPalette;
     std::unique_ptr<Image> image(load_pic_file(filename, &x, &y, picPalette));
 
-    if (image != NULL && (image->pixelFormat() == IMAGE_BITMAP)) {
+    if (image != nullptr && (image->pixelFormat() == IMAGE_BITMAP))
+    {
       mask = new Mask();
       mask->replace(gfx::Rect(x, y, image->width(), image->height()));
       mask->bitmap()->copy(image.get(), gfx::Clip(image->bounds()));
@@ -53,17 +56,21 @@ Mask* load_msk_file(const char* filename)
     }
   }
   // Animator MSK format
-  else if (orig_size == 8000) {
+  else if (orig_size == 8000)
+  {
     mask = new Mask();
     mask->replace(gfx::Rect(0, 0, 320, 200));
 
     u = v = 0;
-    for (i=0; i<8000; i++) {
+    for (i = 0; i < 8000; i++)
+    {
       byte = getc(f);
-      for (c=0; c<8; c++) {
-        mask->bitmap()->putPixel(u, v, byte & (1<<(7-c)));
+      for (c = 0; c < 8; c++)
+      {
+        mask->bitmap()->putPixel(u, v, byte & (1 << (7 - c)));
         u++;
-        if (u == 320) {
+        if (u == 320)
+        {
           u = 0;
           v++;
         }
@@ -71,7 +78,8 @@ Mask* load_msk_file(const char* filename)
     }
     fclose(f);
   }
-  else {
+  else
+  {
     fclose(f);
   }
 
@@ -82,9 +90,7 @@ Mask* load_msk_file(const char* filename)
 int save_msk_file(const Mask* mask, const char* filename)
 {
   if (mask->bitmap())
-    return save_pic_file(filename,
-                         mask->bounds().x,
-                         mask->bounds().y, NULL,
+    return save_pic_file(filename, mask->bounds().x, mask->bounds().y, nullptr,
                          mask->bitmap());
   else
     return -1;

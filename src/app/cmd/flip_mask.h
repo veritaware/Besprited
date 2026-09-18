@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,27 +11,25 @@
 #include "app/cmd/with_document.h"
 #include "doc/algorithm/flip_type.h"
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class FlipMask : public Cmd
-                 , public WithDocument {
-  public:
-    FlipMask(Document* doc, doc::algorithm::FlipType flipType);
+class FlipMask : public Cmd,
+                 public WithDocument
+{
+public:
+  FlipMask(const Document* doc, algorithm::FlipType flipType);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    size_t onMemSize() const override {
-      return sizeof(*this);
-    }
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this); }
 
-  private:
-    void swap();
+private:
+  void swap() const;
 
-    doc::algorithm::FlipType m_flipType;
-  };
+  algorithm::FlipType m_flipType;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

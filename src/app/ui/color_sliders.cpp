@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -24,64 +24,72 @@
 
 #include <climits>
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace gfx;
 using namespace ui;
 
-namespace {
+namespace
+{
 
-  // This class is used as SkinSliderProperty for RGB/HSV sliders to
-  // draw the background of them.
-  class ColorSliderBgPainter : public ISliderBgPainter {
-  public:
-    ColorSliderBgPainter(ColorSliders::Channel channel)
-      : m_channel(channel)
-    { }
+// This class is used as SkinSliderProperty for RGB/HSV sliders to
+// draw the background of them.
+class ColorSliderBgPainter : public ISliderBgPainter
+{
+public:
+  ColorSliderBgPainter(ColorSliders::Channel channel)
+    : m_channel(channel)
+  {
+  }
 
-    void setColor(const app::Color& color) {
-      m_color = color;
-    }
+  void setColor(const app::Color& color) { m_color = color; }
 
-    void paint(Slider* slider, Graphics* g, const gfx::Rect& rc) {
-      gfx::Color color = gfx::ColorNone;
-      int w = MAX(rc.w-1, 1);
+  void paint(Slider* slider, Graphics* g, const gfx::Rect& rc) override
+  {
+    gfx::Color color = gfx::ColorNone;
+    int w = MAX(rc.w - 1, 1);
 
-      for (int x=0; x <= w; ++x) {
-        switch (m_channel) {
-          case ColorSliders::Red:
-            color = gfx::rgba(255 * x / w, m_color.getGreen(), m_color.getBlue());
-            break;
-          case ColorSliders::Green:
-            color = gfx::rgba(m_color.getRed(), 255 * x / w, m_color.getBlue());
-            break;
-          case ColorSliders::Blue:
-            color = gfx::rgba(m_color.getRed(), m_color.getGreen(), 255 * x / w);
-            break;
-          case ColorSliders::Hue:
-            color = color_utils::color_for_ui(app::Color::fromHsv(360 * x / w, m_color.getSaturation(), m_color.getValue()));
-            break;
-          case ColorSliders::Saturation:
-            color = color_utils::color_for_ui(app::Color::fromHsv(m_color.getHue(), 100 * x / w, m_color.getValue()));
-            break;
-          case ColorSliders::Value:
-            color = color_utils::color_for_ui(app::Color::fromHsv(m_color.getHue(), m_color.getSaturation(), 100 * x / w));
-            break;
-          case ColorSliders::Gray:
-            color = color_utils::color_for_ui(app::Color::fromGray(255 * x / w));
-            break;
-        }
-        g->drawVLine(color, rc.x+x, rc.y, rc.h);
+    for (int x = 0; x <= w; ++x)
+    {
+      switch (m_channel)
+      {
+      case ColorSliders::Red:
+        color = gfx::rgba(255 * x / w, m_color.getGreen(), m_color.getBlue());
+        break;
+      case ColorSliders::Green:
+        color = gfx::rgba(m_color.getRed(), 255 * x / w, m_color.getBlue());
+        break;
+      case ColorSliders::Blue:
+        color = gfx::rgba(m_color.getRed(), m_color.getGreen(), 255 * x / w);
+        break;
+      case ColorSliders::Hue:
+        color = color_utils::color_for_ui(app::Color::fromHsv(
+            360 * x / w, m_color.getSaturation(), m_color.getValue()));
+        break;
+      case ColorSliders::Saturation:
+        color = color_utils::color_for_ui(app::Color::fromHsv(
+            m_color.getHue(), 100 * x / w, m_color.getValue()));
+        break;
+      case ColorSliders::Value:
+        color = color_utils::color_for_ui(app::Color::fromHsv(
+            m_color.getHue(), m_color.getSaturation(), 100 * x / w));
+        break;
+      case ColorSliders::Gray:
+        color = color_utils::color_for_ui(app::Color::fromGray(255 * x / w));
+        break;
       }
+      g->drawVLine(color, rc.x + x, rc.y, rc.h);
     }
+  }
 
-  private:
-    ColorSliders::Channel m_channel;
-    app::Color m_color;
-  };
+private:
+  ColorSliders::Channel m_channel;
+  app::Color m_color;
+};
 
-}
+} // namespace
 
 //////////////////////////////////////////////////////////////////////
 // ColorSliders
@@ -95,9 +103,7 @@ ColorSliders::ColorSliders()
   m_grid.setChildSpacing(0);
 }
 
-ColorSliders::~ColorSliders()
-{
-}
+ColorSliders::~ColorSliders() = default;
 
 void ColorSliders::setColor(const app::Color& color)
 {
@@ -131,12 +137,13 @@ void ColorSliders::onSizeHint(SizeHintEvent& ev)
   ev.setSizeHint(m_grid.sizeHint());
 }
 
-void ColorSliders::addSlider(Channel channel, const char* labelText, int min, int max)
+void ColorSliders::addSlider(Channel channel, const char* labelText, int min,
+                             int max)
 {
-  Label*  label     = new Label(labelText);
+  Label* label = new Label(labelText);
   Slider* absSlider = new Slider(min, max, 0);
-  Slider* relSlider = new Slider(min-max, max-min, 0);
-  Entry*  entry     = new Entry(4, "0");
+  Slider* relSlider = new Slider(min - max, max - min, 0);
+  Entry* entry = new Entry(4, "0");
 
   m_label.push_back(label);
   m_absSlider.push_back(absSlider);
@@ -144,13 +151,17 @@ void ColorSliders::addSlider(Channel channel, const char* labelText, int min, in
   m_entry.push_back(entry);
   m_channel.push_back(channel);
 
-  absSlider->setProperty(SkinSliderPropertyPtr(new SkinSliderProperty(new ColorSliderBgPainter(channel))));
+  absSlider->setProperty(SkinSliderPropertyPtr(
+      new SkinSliderProperty(new ColorSliderBgPainter(channel))));
   absSlider->setDoubleBuffered(true);
   get_skin_property(entry)->setLook(MiniLook);
 
-  absSlider->Change.connect(base::Bind<void>(&ColorSliders::onSliderChange, this, m_absSlider.size()-1));
-  relSlider->Change.connect(base::Bind<void>(&ColorSliders::onSliderChange, this, m_relSlider.size()-1));
-  entry->Change.connect(base::Bind<void>(&ColorSliders::onEntryChange, this, m_entry.size()-1));
+  absSlider->Change.connect(base::Bind<void>(&ColorSliders::onSliderChange,
+                                             this, m_absSlider.size() - 1));
+  relSlider->Change.connect(base::Bind<void>(&ColorSliders::onSliderChange,
+                                             this, m_relSlider.size() - 1));
+  entry->Change.connect(
+      base::Bind<void>(&ColorSliders::onEntryChange, this, m_entry.size() - 1));
 
   HBox* box = new HBox();
   box->addChild(absSlider);
@@ -164,9 +175,9 @@ void ColorSliders::addSlider(Channel channel, const char* labelText, int min, in
   box->setMaxSize(sz);
   entry->setMaxSize(sz);
 
-  m_grid.addChildInCell(label,  1, 1, LEFT | MIDDLE);
+  m_grid.addChildInCell(label, 1, 1, LEFT | MIDDLE);
   m_grid.addChildInCell(box, 1, 1, HORIZONTAL | VERTICAL | EXPANSIVE);
-  m_grid.addChildInCell(entry,  1, 1, LEFT | MIDDLE);
+  m_grid.addChildInCell(entry, 1, 1, LEFT | MIDDLE);
 }
 
 void ColorSliders::setAbsSliderValue(int sliderIndex, int value)
@@ -196,7 +207,7 @@ void ColorSliders::onEntryChange(int i)
   // Update the slider related to the changed entry widget.
   int value = m_entry[i]->textInt();
 
-  Slider* slider = (m_mode == Absolute ? m_absSlider[i]: m_relSlider[i]);
+  Slider* slider = (m_mode == Absolute ? m_absSlider[i] : m_relSlider[i]);
   value = MID(slider->getMinValue(), value, slider->getMaxValue());
   slider->setValue(value);
 
@@ -212,16 +223,16 @@ void ColorSliders::onControlChange(int i)
   updateSlidersBgColor(color);
 
   // Fire ColorChange() signal
-  ColorSlidersChangeEvent ev(m_channel[i], m_mode,
-                             color, m_relSlider[i]->getValue(), this);
+  ColorSlidersChangeEvent ev(m_channel[i], m_mode, color,
+                             m_relSlider[i]->getValue(), this);
   ColorChange(ev);
 }
 
 // Updates the entry related to the changed slider widget.
 void ColorSliders::updateEntryText(int entryIndex)
 {
-  Slider* slider = (m_mode == Absolute ? m_absSlider[entryIndex]:
-                                         m_relSlider[entryIndex]);
+  Slider* slider =
+      (m_mode == Absolute ? m_absSlider[entryIndex] : m_relSlider[entryIndex]);
 
   m_entry[entryIndex]->setTextf("%d", slider->getValue());
 }
@@ -234,9 +245,11 @@ void ColorSliders::updateSlidersBgColor(const app::Color& color)
 
 void ColorSliders::updateSliderBgColor(Slider* slider, const app::Color& color)
 {
-  SkinSliderPropertyPtr sliderProperty(slider->getProperty(SkinSliderProperty::Name));
+  SkinSliderPropertyPtr sliderProperty(
+      slider->getProperty(SkinSliderProperty::Name));
 
-  static_cast<ColorSliderBgPainter*>(sliderProperty->getBgPainter())->setColor(color);
+  static_cast<ColorSliderBgPainter*>(sliderProperty->getBgPainter())
+      ->setColor(color);
 
   slider->invalidate();
 }
@@ -247,9 +260,9 @@ void ColorSliders::updateSliderBgColor(Slider* slider, const app::Color& color)
 RgbSliders::RgbSliders()
   : ColorSliders()
 {
-  addSlider(Red,   "R", 0, 255);
+  addSlider(Red, "R", 0, 255);
   addSlider(Green, "G", 0, 255);
-  addSlider(Blue,  "B", 0, 255);
+  addSlider(Blue, "B", 0, 255);
   addSlider(Alpha, "A", 0, 255);
 }
 
@@ -263,10 +276,8 @@ void RgbSliders::onSetColor(const app::Color& color)
 
 app::Color RgbSliders::getColorFromSliders()
 {
-  return app::Color::fromRgb(getAbsSliderValue(0),
-                             getAbsSliderValue(1),
-                             getAbsSliderValue(2),
-                             getAbsSliderValue(3));
+  return app::Color::fromRgb(getAbsSliderValue(0), getAbsSliderValue(1),
+                             getAbsSliderValue(2), getAbsSliderValue(3));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -275,10 +286,10 @@ app::Color RgbSliders::getColorFromSliders()
 HsvSliders::HsvSliders()
   : ColorSliders()
 {
-  addSlider(Hue,        "H", 0, 360);
+  addSlider(Hue, "H", 0, 360);
   addSlider(Saturation, "S", 0, 100);
-  addSlider(Value,      "B", 0, 100);
-  addSlider(Alpha,      "A", 0, 255);
+  addSlider(Value, "B", 0, 100);
+  addSlider(Alpha, "A", 0, 255);
 }
 
 void HsvSliders::onSetColor(const app::Color& color)
@@ -291,10 +302,8 @@ void HsvSliders::onSetColor(const app::Color& color)
 
 app::Color HsvSliders::getColorFromSliders()
 {
-  return app::Color::fromHsv(getAbsSliderValue(0),
-                             getAbsSliderValue(1),
-                             getAbsSliderValue(2),
-                             getAbsSliderValue(3));
+  return app::Color::fromHsv(getAbsSliderValue(0), getAbsSliderValue(1),
+                             getAbsSliderValue(2), getAbsSliderValue(3));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -303,7 +312,7 @@ app::Color HsvSliders::getColorFromSliders()
 GraySlider::GraySlider()
   : ColorSliders()
 {
-  addSlider(Gray,  "V", 0, 255);
+  addSlider(Gray, "V", 0, 255);
   addSlider(Alpha, "A", 0, 255);
 }
 
@@ -315,8 +324,7 @@ void GraySlider::onSetColor(const app::Color& color)
 
 app::Color GraySlider::getColorFromSliders()
 {
-  return app::Color::fromGray(getAbsSliderValue(0),
-                              getAbsSliderValue(1));
+  return app::Color::fromGray(getAbsSliderValue(0), getAbsSliderValue(1));
 }
 
 } // namespace app

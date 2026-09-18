@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,18 +11,20 @@
 
 #include "app/cmd/set_layer_name.h"
 
+#include <utility>
+
 #include "doc/document.h"
 #include "doc/document_event.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetLayerName::SetLayerName(Layer* layer, const std::string& name)
+SetLayerName::SetLayerName(const Layer* layer, std::string name)
   : WithLayer(layer)
   , m_oldName(layer->name())
-  , m_newName(name)
+  , m_newName(std::move(name))
 {
 }
 
@@ -41,12 +43,12 @@ void SetLayerName::onUndo()
 void SetLayerName::onFireNotifications()
 {
   Layer* layer = this->layer();
-  doc::Document* doc = layer->sprite()->document();
+  Document* doc = layer->sprite()->document();
   DocumentEvent ev(doc);
   ev.sprite(layer->sprite());
   ev.layer(layer);
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerNameChange, ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerNameChange,
+                                       ev);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,33 +11,35 @@
 
 #include <vector>
 
-namespace app {
+namespace app
+{
 
-  struct CommandId {
+struct CommandId
+{
 #undef FOR_EACH_COMMAND
-#define FOR_EACH_COMMAND(Name)                  \
-    static const char* Name;
+#define FOR_EACH_COMMAND(Name) static const char* Name;
 #include "app/commands/commands_list.h"
 #undef FOR_EACH_COMMAND
-  };
+};
 
-  class Command;
-  typedef std::vector<Command*> CommandsList;
+class Command;
+using CommandsList = std::vector<Command*>;
 
-  class CommandsModule {
-    static CommandsModule* m_instance;
-    CommandsList m_commands;
+class CommandsModule
+{
+  static CommandsModule* m_instance;
+  CommandsList m_commands;
 
-  public:
-    CommandsModule();
-    ~CommandsModule();
+public:
+  CommandsModule();
+  ~CommandsModule();
 
-    static CommandsModule* instance();
+  static CommandsModule* instance();
 
-    Command* getCommandByName(const char* name);
+  Command* getCommandByName(const char* name);
 
-    CommandsList::iterator begin() { return m_commands.begin(); }
-    CommandsList::iterator end() { return m_commands.end(); }
-  };
+  CommandsList::iterator begin() { return m_commands.begin(); }
+  CommandsList::iterator end() { return m_commands.end(); }
+};
 
 } // namespace app

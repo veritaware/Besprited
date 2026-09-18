@@ -30,12 +30,17 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
-class ColorQuantizationCommand : public Command {
+class ColorQuantizationCommand : public Command
+{
 public:
   ColorQuantizationCommand();
-  Command* clone() const override { return new ColorQuantizationCommand(*this); }
+  Command* clone() const override
+  {
+    return new ColorQuantizationCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -43,28 +48,28 @@ protected:
 };
 
 class ColorQuantizationJob : public Job,
-                             public render::PaletteOptimizerDelegate {
+                             public render::PaletteOptimizerDelegate
+{
 public:
   ColorQuantizationJob(Sprite* sprite, bool withAlpha, Palette& palette)
     : Job("Creating Palette")
     , m_sprite(sprite)
     , m_withAlpha(withAlpha)
-    , m_palette(palette) {
+    , m_palette(palette)
+  {
   }
 
 private:
-
-  void onJob() override {
-    render::create_palette_from_sprite(
-      m_sprite, 0, m_sprite->lastFrame(),
-      m_withAlpha, &m_palette, this);
+  void onJob() override
+  {
+    render::create_palette_from_sprite(m_sprite, 0, m_sprite->lastFrame(),
+                                       m_withAlpha, &m_palette, this);
   }
 
-  bool onPaletteOptimizerContinue() override {
-    return !isCanceled();
-  }
+  bool onPaletteOptimizerContinue() override { return !isCanceled(); }
 
-  void onPaletteOptimizerProgress(double progress) override {
+  void onPaletteOptimizerProgress(double progress) override
+  {
     jobProgress(progress);
   }
 
@@ -87,7 +92,8 @@ bool ColorQuantizationCommand::onEnabled(Context* context)
 
 void ColorQuantizationCommand::onExecute(Context* context)
 {
-  try {
+  try
+  {
     app::gen::PaletteFromSprite window;
     PalettePicks entries;
 
@@ -103,23 +109,22 @@ void ColorQuantizationCommand::onExecute(Context* context)
 
       window.newPalette()->setSelected(true);
       window.alphaChannel()->setSelected(
-        App::instance()->preferences().quantization.withAlpha());
+          App::instance()->preferences().quantization.withAlpha());
       window.ncolors()->setValue(256);
 
       ColorBar::instance()->getPaletteView()->getSelectedEntries(entries);
-      if (entries.picks() > 1) {
-        window.currentRange()->setTextf(
-          "%s, %d color(s)",
-          window.currentRange()->text().c_str(),
-          entries.picks());
+      if (entries.picks() > 1)
+      {
+        window.currentRange()->setTextf("%s, %d color(s)",
+                                        window.currentRange()->text().c_str(),
+                                        entries.picks());
       }
       else
         window.currentRange()->setEnabled(false);
 
-      window.currentPalette()->setTextf(
-        "%s, %d color(s)",
-        window.currentPalette()->text().c_str(),
-        curPalette->size());
+      window.currentPalette()->setTextf("%s, %d color(s)",
+                                        window.currentPalette()->text().c_str(),
+                                        curPalette->size());
     }
 
     window.openWindowInForeground();
@@ -130,13 +135,15 @@ void ColorQuantizationCommand::onExecute(Context* context)
     App::instance()->preferences().quantization.withAlpha(withAlpha);
 
     bool createPal = false;
-    if (window.newPalette()->isSelected()) {
+    if (window.newPalette()->isSelected())
+    {
       int n = window.ncolors()->getValue();
       entries = PalettePicks(n);
       entries.all();
       createPal = true;
     }
-    else if (window.currentPalette()->isSelected()) {
+    else if (window.currentPalette()->isSelected())
+    {
       entries.all();
     }
     if (entries.picks() == 0)
@@ -152,21 +159,25 @@ void ColorQuantizationCommand::onExecute(Context* context)
 
     auto newPalette = createPal ? tmpPalette.get() : get_current_palette();
 
-    if (createPal) {
+    if (createPal)
+    {
       entries = PalettePicks(newPalette->size());
       entries.all();
     }
 
     int i = 0, j = 0;
-    for (bool state : entries) {
+    for (bool state : entries)
+    {
       if (state)
         newPalette->setEntry(i, tmpPalette->getEntry(j++));
       ++i;
     }
 
-    if (*curPalette != *newPalette) {
+    if (*curPalette != *newPalette)
+    {
       ContextWriter writer(UIContext::instance(), 500);
-      Transaction transaction(writer.context(), "Color Quantization", ModifyDocument);
+      Transaction transaction(writer.context(), "Color Quantization",
+                              ModifyDocument);
       transaction.execute(new cmd::SetPalette(sprite, frame, *newPalette));
       transaction.commit();
 
@@ -174,7 +185,8 @@ void ColorQuantizationCommand::onExecute(Context* context)
       ui::Manager::getDefault()->invalidate();
     }
   }
-  catch (base::Exception& e) {
+  catch (base::Exception& e)
+  {
     Console::showException(e);
   }
 }

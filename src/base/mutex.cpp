@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013, 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,12 +12,13 @@
 #include "base/mutex.h"
 
 #ifdef _WIN32
-  #include "base/mutex_win32.h"
+#include "base/mutex_win32.h"
 #else
-  #include "base/mutex_pthread.h"
+#include "base/mutex_pthread.h"
 #endif
 
-namespace base {
+namespace base
+{
 
 mutex::mutex()
   : m_impl(new mutex_impl)

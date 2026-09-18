@@ -22,17 +22,20 @@
 
 #include <memory>
 
-namespace render {
+namespace render
+{
 
-namespace {
+namespace
+{
 
 //////////////////////////////////////////////////////////////////////
 // Scaled composite
 
-template<class DstTraits, class SrcTraits>
-class BlenderHelper {
+template <class DstTraits, class SrcTraits> class BlenderHelper
+{
   BlendFunc m_blendFunc;
   color_t m_mask_color;
+
 public:
   BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
   {
@@ -41,8 +44,7 @@ public:
   }
   inline typename DstTraits::pixel_t
   operator()(const typename DstTraits::pixel_t& dst,
-             const typename SrcTraits::pixel_t& src,
-             int opacity)
+             const typename SrcTraits::pixel_t& src, int opacity)
   {
     if (src != m_mask_color)
       return (*m_blendFunc)(dst, src, opacity);
@@ -51,22 +53,23 @@ public:
   }
 };
 
-template<>
-class BlenderHelper<RgbTraits, GrayscaleTraits> {
+template <> class BlenderHelper<RgbTraits, GrayscaleTraits>
+{
   BlendFunc m_blendFunc;
   color_t m_mask_color;
+
 public:
   BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
   {
     m_blendFunc = RgbTraits::get_blender(blendMode);
     m_mask_color = src->maskColor();
   }
-  inline RgbTraits::pixel_t
-  operator()(const RgbTraits::pixel_t& dst,
-             const GrayscaleTraits::pixel_t& src,
-             int opacity)
+  inline RgbTraits::pixel_t operator()(const RgbTraits::pixel_t& dst,
+                                       const GrayscaleTraits::pixel_t& src,
+                                       int opacity)
   {
-    if (src != m_mask_color) {
+    if (src != m_mask_color)
+    {
       int v = graya_getv(src);
       return (*m_blendFunc)(dst, rgba(v, v, v, graya_geta(src)), opacity);
     }
@@ -75,12 +78,13 @@ public:
   }
 };
 
-template<>
-class BlenderHelper<RgbTraits, IndexedTraits> {
+template <> class BlenderHelper<RgbTraits, IndexedTraits>
+{
   const Palette* m_pal;
   BlendMode m_blendMode;
   BlendFunc m_blendFunc;
   color_t m_mask_color;
+
 public:
   BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
   {
@@ -89,16 +93,18 @@ public:
     m_mask_color = src->maskColor();
     m_pal = pal;
   }
-  inline RgbTraits::pixel_t
-  operator()(const RgbTraits::pixel_t& dst,
-             const IndexedTraits::pixel_t& src,
-                         int opacity)
+  inline RgbTraits::pixel_t operator()(const RgbTraits::pixel_t& dst,
+                                       const IndexedTraits::pixel_t& src,
+                                       int opacity)
   {
-    if (m_blendMode == BlendMode::SRC) {
+    if (m_blendMode == BlendMode::SRC)
+    {
       return m_pal->getEntry(src);
     }
-    else {
-      if (src != m_mask_color) {
+    else
+    {
+      if (src != m_mask_color)
+      {
         return (*m_blendFunc)(dst, m_pal->getEntry(src), opacity);
       }
       else
@@ -107,25 +113,27 @@ public:
   }
 };
 
-template<>
-class BlenderHelper<IndexedTraits, IndexedTraits> {
+template <> class BlenderHelper<IndexedTraits, IndexedTraits>
+{
   BlendMode m_blendMode;
   color_t m_mask_color;
+
 public:
   BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
   {
     m_blendMode = blendMode;
     m_mask_color = src->maskColor();
   }
-  inline IndexedTraits::pixel_t
-  operator()(const IndexedTraits::pixel_t& dst,
-             const IndexedTraits::pixel_t& src,
-             int opacity)
+  inline IndexedTraits::pixel_t operator()(const IndexedTraits::pixel_t& dst,
+                                           const IndexedTraits::pixel_t& src,
+                                           int opacity)
   {
-    if (m_blendMode == BlendMode::SRC) {
+    if (m_blendMode == BlendMode::SRC)
+    {
       return src;
     }
-    else {
+    else
+    {
       if (src != m_mask_color)
         return src;
       else
@@ -134,15 +142,11 @@ public:
   }
 };
 
-template<class DstTraits, class SrcTraits>
-void composite_image_without_scale(
-  Image* dst,
-  const Image* src,
-  const Palette* pal,
-  const gfx::Clip& _area,
-  const int opacity,
-  const BlendMode blendMode,
-  const Zoom& zoom)
+template <class DstTraits, class SrcTraits>
+void composite_image_without_scale(Image* dst, const Image* src,
+                                   const Palette* pal, const gfx::Clip& _area,
+                                   const int opacity, const BlendMode blendMode,
+                                   const Zoom& zoom)
 {
   ASSERT(dst);
   ASSERT(src);
@@ -152,13 +156,12 @@ void composite_image_without_scale(
   BlenderHelper<DstTraits, SrcTraits> blender(src, pal, blendMode);
 
   gfx::Clip area = _area;
-  if (!area.clip(dst->width(), dst->height(),
-                 src->width(), src->height()))
+  if (!area.clip(dst->width(), dst->height(), src->width(), src->height()))
     return;
 
   gfx::Rect srcBounds = area.srcBounds();
   gfx::Rect dstBounds = area.dstBounds();
-  int bottom = area.dst.y+area.size.h-1;
+  int bottom = area.dst.y + area.size.h - 1;
 
   ASSERT(!srcBounds.isEmpty());
 
@@ -171,11 +174,13 @@ void composite_image_without_scale(
 
   // For each line to draw of the source image...
   dstBounds.h = 1;
-  for (int y=0; y<srcBounds.h; ++y) {
+  for (int y = 0; y < srcBounds.h; ++y)
+  {
     dst_it = dstBits.begin_area(dstBounds);
     dst_end = dstBits.end_area(dstBounds);
 
-    for (int x=0; x<srcBounds.w; ++x) {
+    for (int x = 0; x < srcBounds.w; ++x)
+    {
       ASSERT(src_it >= srcBits.begin() && src_it < srcBits.end());
       ASSERT(dst_it >= dstBits.begin() && dst_it < dstBits.end());
       *dst_it = blender(*dst_it, *src_it, opacity);
@@ -188,15 +193,10 @@ void composite_image_without_scale(
   }
 }
 
-template<class DstTraits, class SrcTraits>
-void composite_image_scale_up(
-  Image* dst,
-  const Image* src,
-  const Palette* pal,
-  const gfx::Clip& _area,
-  const int opacity,
-  const BlendMode blendMode,
-  const Zoom& zoom)
+template <class DstTraits, class SrcTraits>
+void composite_image_scale_up(Image* dst, const Image* src, const Palette* pal,
+                              const gfx::Clip& _area, const int opacity,
+                              const BlendMode blendMode, const Zoom& zoom)
 {
   ASSERT(dst);
   ASSERT(src);
@@ -207,9 +207,8 @@ void composite_image_scale_up(
   int px_x, px_y;
 
   gfx::Clip area = _area;
-  if (!area.clip(dst->width(), dst->height(),
-      zoom.apply(src->width()),
-      zoom.apply(src->height())))
+  if (!area.clip(dst->width(), dst->height(), zoom.apply(src->width()),
+                 zoom.apply(src->height())))
     return;
 
   int px_w = zoom.apply(1);
@@ -218,17 +217,20 @@ void composite_image_scale_up(
   int first_px_h = px_h - (area.src.y % px_h);
   gfx::Rect srcBounds = zoom.remove(area.srcBounds());
   gfx::Rect dstBounds = area.dstBounds();
-  int bottom = area.dst.y+area.size.h-1;
+  int bottom = area.dst.y + area.size.h - 1;
   int line_h;
 
-  if ((area.src.x+area.size.w) % px_w > 0) ++srcBounds.w;
-  if ((area.src.y+area.size.h) % px_h > 0) ++srcBounds.h;
+  if ((area.src.x + area.size.w) % px_w > 0)
+    ++srcBounds.w;
+  if ((area.src.y + area.size.h) % px_h > 0)
+    ++srcBounds.h;
 
   if (srcBounds.isEmpty())
     return;
 
-  // the scanline variable is used to blend src/dst pixels one time for each pixel
-  typedef std::vector<typename DstTraits::pixel_t> Scanline;
+  // the scanline variable is used to blend src/dst pixels one time for each
+  // pixel
+  using Scanline = std::vector<typename DstTraits::pixel_t>;
   Scanline scanline(srcBounds.w);
   typename Scanline::iterator scanline_it;
 #ifdef _DEBUG
@@ -246,13 +248,15 @@ void composite_image_scale_up(
 
   // For each line to draw of the source image...
   dstBounds.h = 1;
-  for (int y=0; y<srcBounds.h; ++y) {
+  for (int y = 0; y < srcBounds.h; ++y)
+  {
     dst_it = dstBits.begin_area(dstBounds);
     dst_end = dstBits.end_area(dstBounds);
 
     // Read 'src' and 'dst' and blend them, put the result in `scanline'
     scanline_it = scanline.begin();
-    for (int x=0; x<srcBounds.w; ++x) {
+    for (int x = 0; x < srcBounds.w; ++x)
+    {
       ASSERT(src_it >= srcBits.begin() && src_it < src_end);
       ASSERT(dst_it >= dstBits.begin() && dst_it < dst_end);
       ASSERT(scanline_it >= scanline.begin() && scanline_it < scanline_end);
@@ -279,7 +283,8 @@ void composite_image_scale_up(
       line_h = px_h;
 
     // Draw the line in 'dst'
-    for (px_y=0; px_y<line_h; ++px_y) {
+    for (px_y = 0; px_y < line_h; ++px_y)
+    {
       dst_it = dstBits.begin_area(dstBounds);
       dst_end = dstBits.end_area(dstBounds);
       scanline_it = scanline.begin();
@@ -287,7 +292,8 @@ void composite_image_scale_up(
       int x = 0;
 
       // first pixel
-      for (px_x=0; px_x<first_px_w; ++px_x) {
+      for (px_x = 0; px_x < first_px_w; ++px_x)
+      {
         ASSERT(scanline_it != scanline_end);
         ASSERT(dst_it != dst_end);
 
@@ -302,9 +308,11 @@ void composite_image_scale_up(
       ++x;
 
       // the rest of the line
-      for (; x<srcBounds.w; ++x) {
-        for (px_x=0; px_x<px_w; ++px_x) {
-          ASSERT(dst_it !=  dst_end);
+      for (; x < srcBounds.w; ++x)
+      {
+        for (px_x = 0; px_x < px_w; ++px_x)
+        {
+          ASSERT(dst_it != dst_end);
 
           *dst_it = *scanline_it;
 
@@ -316,7 +324,7 @@ void composite_image_scale_up(
         ++scanline_it;
       }
 
-done_with_line:;
+    done_with_line:;
       if (++dstBounds.y > bottom)
         goto done_with_blit;
     }
@@ -325,13 +333,11 @@ done_with_line:;
 done_with_blit:;
 }
 
-template<class DstTraits, class SrcTraits>
-void composite_image_scale_down(
-  Image* dst, const Image* src, const Palette* pal,
-  const gfx::Clip& _area,
-  const int opacity,
-  const BlendMode blendMode,
-  const Zoom& zoom)
+template <class DstTraits, class SrcTraits>
+void composite_image_scale_down(Image* dst, const Image* src,
+                                const Palette* pal, const gfx::Clip& _area,
+                                const int opacity, const BlendMode blendMode,
+                                const Zoom& zoom)
 {
   ASSERT(dst);
   ASSERT(src);
@@ -343,14 +349,13 @@ void composite_image_scale_down(
   int unbox_h = zoom.remove(1);
 
   gfx::Clip area = _area;
-  if (!area.clip(dst->width(), dst->height(),
-      zoom.apply(src->width()),
-      zoom.apply(src->height())))
+  if (!area.clip(dst->width(), dst->height(), zoom.apply(src->width()),
+                 zoom.apply(src->height())))
     return;
 
   gfx::Rect srcBounds = zoom.remove(area.srcBounds());
   gfx::Rect dstBounds = area.dstBounds();
-  int bottom = area.dst.y+area.size.h-1;
+  int bottom = area.dst.y + area.size.h - 1;
 
   if (srcBounds.isEmpty())
     return;
@@ -364,18 +369,20 @@ void composite_image_scale_down(
 
   // For each line to draw of the source image...
   dstBounds.h = 1;
-  for (int y=0; y<srcBounds.h; y+=unbox_h) {
+  for (int y = 0; y < srcBounds.h; y += unbox_h)
+  {
     dst_it = dstBits.begin_area(dstBounds);
     dst_end = dstBits.end_area(dstBounds);
 
-    for (int x=0; x<srcBounds.w; x+=unbox_w) {
+    for (int x = 0; x < srcBounds.w; x += unbox_w)
+    {
       ASSERT(src_it >= srcBits.begin() && src_it < src_end);
       ASSERT(dst_it >= dstBits.begin() && dst_it < dst_end);
 
       *dst_it = blender(*dst_it, *src_it, opacity);
 
       // Skip source pixels
-      for (int delta=0; delta < unbox_w && src_it != src_end; ++delta)
+      for (int delta = 0; delta < unbox_w && src_it != src_end; ++delta)
         ++src_it;
 
       ++dst_it;
@@ -385,12 +392,13 @@ void composite_image_scale_down(
       break;
 
     // Skip lines
-    for (int delta=0; delta < srcBounds.w * (unbox_h-1) && src_it != src_end; ++delta)
+    for (int delta = 0;
+         delta < srcBounds.w * (unbox_h - 1) && src_it != src_end; ++delta)
       ++src_it;
   }
 }
 
-template<class DstTraits, class SrcTraits>
+template <class DstTraits, class SrcTraits>
 CompositeImageFunc get_image_composition_impl(Zoom zoom)
 {
   if (zoom.scale() == 1.0)
@@ -405,46 +413,59 @@ CompositeImageFunc get_image_composition(PixelFormat dstFormat,
                                          PixelFormat srcFormat,
                                          const Zoom& zoom)
 {
-  switch (srcFormat) {
+  switch (srcFormat)
+  {
 
+  case IMAGE_RGB:
+    switch (dstFormat)
+    {
     case IMAGE_RGB:
-      switch (dstFormat) {
-        case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, RgbTraits>(zoom);
-        case IMAGE_GRAYSCALE: return get_image_composition_impl<GrayscaleTraits, RgbTraits>(zoom);
-        case IMAGE_INDEXED:   return get_image_composition_impl<IndexedTraits, RgbTraits>(zoom);
-      }
-      break;
-
+      return get_image_composition_impl<RgbTraits, RgbTraits>(zoom);
     case IMAGE_GRAYSCALE:
-      switch (dstFormat) {
-        case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, GrayscaleTraits>(zoom);
-        case IMAGE_GRAYSCALE: return get_image_composition_impl<GrayscaleTraits, GrayscaleTraits>(zoom);
-        case IMAGE_INDEXED:   return get_image_composition_impl<IndexedTraits, GrayscaleTraits>(zoom);
-      }
-      break;
-
+      return get_image_composition_impl<GrayscaleTraits, RgbTraits>(zoom);
     case IMAGE_INDEXED:
-      switch (dstFormat) {
-        case IMAGE_RGB:       return get_image_composition_impl<RgbTraits, IndexedTraits>(zoom);
-        case IMAGE_GRAYSCALE: return get_image_composition_impl<GrayscaleTraits, IndexedTraits>(zoom);
-        case IMAGE_INDEXED:   return get_image_composition_impl<IndexedTraits, IndexedTraits>(zoom);
-      }
-      break;
+      return get_image_composition_impl<IndexedTraits, RgbTraits>(zoom);
+    }
+    break;
+
+  case IMAGE_GRAYSCALE:
+    switch (dstFormat)
+    {
+    case IMAGE_RGB:
+      return get_image_composition_impl<RgbTraits, GrayscaleTraits>(zoom);
+    case IMAGE_GRAYSCALE:
+      return get_image_composition_impl<GrayscaleTraits, GrayscaleTraits>(zoom);
+    case IMAGE_INDEXED:
+      return get_image_composition_impl<IndexedTraits, GrayscaleTraits>(zoom);
+    }
+    break;
+
+  case IMAGE_INDEXED:
+    switch (dstFormat)
+    {
+    case IMAGE_RGB:
+      return get_image_composition_impl<RgbTraits, IndexedTraits>(zoom);
+    case IMAGE_GRAYSCALE:
+      return get_image_composition_impl<GrayscaleTraits, IndexedTraits>(zoom);
+    case IMAGE_INDEXED:
+      return get_image_composition_impl<IndexedTraits, IndexedTraits>(zoom);
+    }
+    break;
   }
 
   ASSERT(false && "Invalid pixel formats");
-  return NULL;
+  return nullptr;
 }
 
 } // anonymous namespace
 
 Render::Render()
-  : m_sprite(NULL)
-  , m_currentLayer(NULL)
+  : m_sprite(nullptr)
+  , m_currentLayer(nullptr)
   , m_currentFrame(0)
   , m_extraType(ExtraType::NONE)
-  , m_extraCel(NULL)
-  , m_extraImage(NULL)
+  , m_extraCel(nullptr)
+  , m_extraImage(nullptr)
   , m_bgType(BgType::TRANSPARENT)
   , m_bgCheckedSize(16, 16)
   , m_globalOpacity(255)
@@ -481,10 +502,8 @@ void Render::setBgCheckedSize(const gfx::Size& size)
   m_bgCheckedSize = size;
 }
 
-void Render::setPreviewImage(const Layer* layer,
-                             const frame_t frame,
-                             const Image* image,
-                             const gfx::Point& pos,
+void Render::setPreviewImage(const Layer* layer, const frame_t frame,
+                             const Image* image, const gfx::Point& pos,
                              const BlendMode blendMode)
 {
   m_selectedLayer = layer;
@@ -494,11 +513,9 @@ void Render::setPreviewImage(const Layer* layer,
   m_previewBlendMode = blendMode;
 }
 
-void Render::setExtraImage(
-  ExtraType type,
-  const Cel* cel, const Image* image, BlendMode blendMode,
-  const Layer* currentLayer,
-  frame_t currentFrame)
+void Render::setExtraImage(ExtraType type, const Cel* cel, const Image* image,
+                           BlendMode blendMode, const Layer* currentLayer,
+                           frame_t currentFrame)
 {
   m_extraType = type;
   m_extraCel = cel;
@@ -516,7 +533,7 @@ void Render::removePreviewImage()
 void Render::removeExtraImage()
 {
   m_extraType = ExtraType::NONE;
-  m_extraCel = NULL;
+  m_extraCel = nullptr;
 }
 
 void Render::setOnionskin(const OnionskinOptions& options)
@@ -529,84 +546,63 @@ void Render::disableOnionskin()
   m_onionskin.type(OnionskinType::NONE);
 }
 
-void Render::renderSprite(
-  Image* dstImage,
-  const Sprite* sprite,
-  frame_t frame)
+void Render::renderSprite(Image* dstImage, const Sprite* sprite, frame_t frame)
 {
-  renderSprite(dstImage, sprite, frame,
-    gfx::Clip(sprite->bounds()), Zoom(1, 1));
+  renderSprite(dstImage, sprite, frame, gfx::Clip(sprite->bounds()),
+               Zoom(1, 1));
 }
 
-void Render::renderSprite(
-  Image* dstImage,
-  const Sprite* sprite,
-  frame_t frame,
-  const gfx::Clip& area)
+void Render::renderSprite(Image* dstImage, const Sprite* sprite, frame_t frame,
+                          const gfx::Clip& area)
 {
   renderSprite(dstImage, sprite, frame, area, Zoom(1, 1));
 }
 
-void Render::renderLayer(
-  Image* dstImage,
-  const Layer* layer,
-  frame_t frame)
+void Render::renderLayer(Image* dstImage, const Layer* layer, frame_t frame)
 {
-  renderLayer(dstImage, layer, frame,
-    gfx::Clip(layer->sprite()->bounds()));
+  renderLayer(dstImage, layer, frame, gfx::Clip(layer->sprite()->bounds()));
 }
 
-void Render::renderLayer(
-  Image* dstImage,
-  const Layer* layer,
-  frame_t frame,
-  const gfx::Clip& area,
-  BlendMode blendMode)
+void Render::renderLayer(Image* dstImage, const Layer* layer, frame_t frame,
+                         const gfx::Clip& area, BlendMode blendMode)
 {
   m_sprite = layer->sprite();
 
-  CompositeImageFunc compositeImage =
-    get_image_composition(
-      dstImage->pixelFormat(),
-      m_sprite->pixelFormat(), Zoom(1, 1));
+  CompositeImageFunc compositeImage = get_image_composition(
+      dstImage->pixelFormat(), m_sprite->pixelFormat(), Zoom(1, 1));
   if (!compositeImage)
     return;
 
   m_globalOpacity = 255;
-  renderLayer(
-    layer, dstImage, area,
-    frame, Zoom(1, 1), compositeImage,
-    true, true, blendMode);
+  renderLayer(layer, dstImage, area, frame, Zoom(1, 1), compositeImage, true,
+              true, blendMode);
 }
 
-void Render::renderSprite(
-  Image* dstImage,
-  const Sprite* sprite,
-  frame_t frame,
-  const gfx::Clip& area,
-  Zoom zoom)
+void Render::renderSprite(Image* dstImage, const Sprite* sprite, frame_t frame,
+                          const gfx::Clip& area, Zoom zoom)
 {
   m_sprite = sprite;
 
-  CompositeImageFunc compositeImage =
-    get_image_composition(
-      dstImage->pixelFormat(),
-      m_sprite->pixelFormat(), zoom);
+  CompositeImageFunc compositeImage = get_image_composition(
+      dstImage->pixelFormat(), m_sprite->pixelFormat(), zoom);
   if (!compositeImage)
     return;
 
   const LayerImage* bgLayer = m_sprite->backgroundLayer();
   color_t bg_color = 0;
-  if (m_sprite->pixelFormat() == IMAGE_INDEXED) {
-    switch (dstImage->pixelFormat()) {
-      case IMAGE_RGB:
-      case IMAGE_GRAYSCALE:
-        if (bgLayer && bgLayer->isVisible())
-          bg_color = m_sprite->palette(frame)->getEntry(m_sprite->transparentColor());
-        break;
-      case IMAGE_INDEXED:
-        bg_color = m_sprite->transparentColor();
-        break;
+  if (m_sprite->pixelFormat() == IMAGE_INDEXED)
+  {
+    switch (dstImage->pixelFormat())
+    {
+    case IMAGE_RGB:
+    case IMAGE_GRAYSCALE:
+      if (bgLayer && bgLayer->isVisible())
+        bg_color =
+            m_sprite->palette(frame)->getEntry(m_sprite->transparentColor());
+      break;
+    case IMAGE_INDEXED:
+      bg_color = m_sprite->transparentColor();
+      break;
     }
   }
 
@@ -618,40 +614,39 @@ void Render::renderSprite(
   std::unique_ptr<Image> checkeredBg;
 
   // Draw checked background
-  switch (m_bgType) {
+  switch (m_bgType)
+  {
 
-    case BgType::CHECKED:
-      if (bgLayer && bgLayer->isVisible() && rgba_geta(bg_color) == 255) {
-        fill_rect(dstImage, area.dstBounds(), bg_color);
-      }
-      else {
-        checkeredBg.reset(Image::create(dstImage->pixelFormat(),
-                                        dstImage->width(), dstImage->height()));
-        checkeredBg->clear(0);
-        renderBackground(checkeredBg.get(), area, zoom);
-        if (bgLayer && bgLayer->isVisible() && rgba_geta(bg_color) > 0) {
-          blend_rect(checkeredBg.get(), area.dst.x, area.dst.y,
-                     area.dst.x+area.size.w-1,
-                     area.dst.y+area.size.h-1,
-                     bg_color, 255);
-        }
-        fill_rect(dstImage, area.dstBounds(), 0);
-      }
-      break;
-
-    case BgType::TRANSPARENT:
+  case BgType::CHECKED:
+    if (bgLayer && bgLayer->isVisible() && rgba_geta(bg_color) == 255)
+    {
       fill_rect(dstImage, area.dstBounds(), bg_color);
-      break;
+    }
+    else
+    {
+      checkeredBg.reset(Image::create(dstImage->pixelFormat(),
+                                      dstImage->width(), dstImage->height()));
+      checkeredBg->clear(0);
+      renderBackground(checkeredBg.get(), area, zoom);
+      if (bgLayer && bgLayer->isVisible() && rgba_geta(bg_color) > 0)
+      {
+        blend_rect(checkeredBg.get(), area.dst.x, area.dst.y,
+                   area.dst.x + area.size.w - 1, area.dst.y + area.size.h - 1,
+                   bg_color, 255);
+      }
+      fill_rect(dstImage, area.dstBounds(), 0);
+    }
+    break;
+
+  case BgType::TRANSPARENT:
+    fill_rect(dstImage, area.dstBounds(), bg_color);
+    break;
   }
 
   // Draw the background layer.
   m_globalOpacity = 255;
-  renderLayer(
-    m_sprite->folder(), dstImage,
-    area, frame, zoom, compositeImage,
-    true,
-    false,
-    BlendMode::UNSPECIFIED);
+  renderLayer(m_sprite->folder(), dstImage, area, frame, zoom, compositeImage,
+              true, false, BlendMode::UNSPECIFIED);
 
   // Draw onion skin behind the sprite.
   if (m_onionskin.position() == OnionskinPosition::BEHIND)
@@ -659,132 +654,124 @@ void Render::renderSprite(
 
   // Draw the transparent layers.
   m_globalOpacity = 255;
-  renderLayer(
-    m_sprite->folder(), dstImage,
-    area, frame, zoom, compositeImage,
-    false,
-    true,
-    BlendMode::UNSPECIFIED);
+  renderLayer(m_sprite->folder(), dstImage, area, frame, zoom, compositeImage,
+              false, true, BlendMode::UNSPECIFIED);
 
   // Draw onion skin in front of the sprite.
   if (m_onionskin.position() == OnionskinPosition::INFRONT)
     renderOnionskin(dstImage, area, frame, zoom, compositeImage);
 
   // Overlay preview image
-  if (m_previewImage &&
-      m_selectedLayer == nullptr &&
-      m_selectedFrame == frame) {
-    renderImage(
-      dstImage,
-      m_previewImage,
-      m_sprite->palette(frame),
-      m_previewPos.x,
-      m_previewPos.y,
-      area,
-      compositeImage,
-      255,
-      m_previewBlendMode,
-      zoom);
+  if (m_previewImage && m_selectedLayer == nullptr && m_selectedFrame == frame)
+  {
+    renderImage(dstImage, m_previewImage, m_sprite->palette(frame),
+                m_previewPos.x, m_previewPos.y, area, compositeImage, 255,
+                m_previewBlendMode, zoom);
   }
 
   // Now that the sprite has been fully composited with its real,
   // per-pixel alpha, drop the checkered pattern in behind it (display
   // purposes only) so transparent pixels still show the checkerboard.
-  if (checkeredBg) {
+  if (checkeredBg)
+  {
     CompositeImageFunc composeBg = get_image_composition(
-      checkeredBg->pixelFormat(), dstImage->pixelFormat(), Zoom(1, 1));
-    if (composeBg) {
-      composeBg(checkeredBg.get(), dstImage,
-                m_sprite->palette(frame),
-                gfx::Clip(area.dst, area.dstBounds()),
-                255, BlendMode::NORMAL, Zoom(1, 1));
+        checkeredBg->pixelFormat(), dstImage->pixelFormat(), Zoom(1, 1));
+    if (composeBg)
+    {
+      composeBg(checkeredBg.get(), dstImage, m_sprite->palette(frame),
+                gfx::Clip(area.dst, area.dstBounds()), 255, BlendMode::NORMAL,
+                Zoom(1, 1));
       dstImage->copy(checkeredBg.get(), gfx::Clip(area.dstBounds()));
     }
   }
 }
 
-void Render::renderOnionskin(
-  Image* dstImage,
-  const gfx::Clip& area,
-  frame_t frame, Zoom zoom,
-  CompositeImageFunc compositeImage)
+void Render::renderOnionskin(Image* dstImage, const gfx::Clip& area,
+                             frame_t frame, Zoom zoom,
+                             CompositeImageFunc compositeImage)
 {
   // Onion-skin feature: Draw previous/next frames with different
   // opacity (<255)
-  if (m_onionskin.type() != OnionskinType::NONE) {
-    FrameTag* loop = m_onionskin.loopTag();
-    Layer* onionLayer = (m_onionskin.layer() ? m_onionskin.layer():
-                                               m_sprite->folder());
+  if (m_onionskin.type() != OnionskinType::NONE)
+  {
+    const FrameTag* loop = m_onionskin.loopTag();
+    const Layer* onionLayer =
+        (m_onionskin.layer() ? m_onionskin.layer() : m_sprite->folder());
     frame_t frameIn;
 
     for (frame_t frameOut = frame - m_onionskin.prevFrames();
-         frameOut <= frame + m_onionskin.nextFrames();
-         ++frameOut) {
-      if (loop) {
+         frameOut <= frame + m_onionskin.nextFrames(); ++frameOut)
+    {
+      if (loop)
+      {
         bool pingPongForward = true;
-        frameIn =
-          calculate_next_frame(m_sprite,
-                               frame, frameOut - frame,
-                               loop, pingPongForward);
+        frameIn = calculate_next_frame(m_sprite, frame, frameOut - frame, loop,
+                                       pingPongForward);
       }
-      else {
+      else
+      {
         frameIn = frameOut;
       }
 
-      if (frameIn == frame ||
-          frameIn < 0 ||
-          frameIn > m_sprite->lastFrame()) {
+      if (frameIn == frame || frameIn < 0 || frameIn > m_sprite->lastFrame())
+      {
         continue;
       }
 
-      if (frameOut < frame) {
-        m_globalOpacity = m_onionskin.opacityBase() - m_onionskin.opacityStep() * ((frame - frameOut)-1);
+      if (frameOut < frame)
+      {
+        m_globalOpacity = m_onionskin.opacityBase() -
+                          m_onionskin.opacityStep() * ((frame - frameOut) - 1);
       }
-      else {
-        m_globalOpacity = m_onionskin.opacityBase() - m_onionskin.opacityStep() * ((frameOut - frame)-1);
+      else
+      {
+        m_globalOpacity = m_onionskin.opacityBase() -
+                          m_onionskin.opacityStep() * ((frameOut - frame) - 1);
       }
 
       m_globalOpacity = MID(0, m_globalOpacity, 255);
-      if (m_globalOpacity > 0) {
+      if (m_globalOpacity > 0)
+      {
         BlendMode blendMode = BlendMode::UNSPECIFIED;
         if (m_onionskin.type() == OnionskinType::MERGE)
           blendMode = BlendMode::NORMAL;
         else if (m_onionskin.type() == OnionskinType::RED_BLUE_TINT)
-          blendMode = (frameOut < frame ? BlendMode::RED_TINT: BlendMode::BLUE_TINT);
+          blendMode =
+              (frameOut < frame ? BlendMode::RED_TINT : BlendMode::BLUE_TINT);
 
-        renderLayer(
-          onionLayer, dstImage,
-          area, frameIn, zoom, compositeImage,
-          // Render background only for "in-front" onion skinning and
-          // when opacity is < 255
-          (m_globalOpacity < 255 &&
-           m_onionskin.position() == OnionskinPosition::INFRONT),
-          true,
-          blendMode);
+        renderLayer(onionLayer, dstImage, area, frameIn, zoom, compositeImage,
+                    // Render background only for "in-front" onion skinning and
+                    // when opacity is < 255
+                    (m_globalOpacity < 255 &&
+                     m_onionskin.position() == OnionskinPosition::INFRONT),
+                    true, blendMode);
       }
     }
   }
 }
 
-void Render::renderBackground(Image* image,
-  const gfx::Clip& area,
-  Zoom zoom)
+void Render::renderBackground(Image* image, const gfx::Clip& area, Zoom zoom)
 {
   int x, y, u, v;
   int tile_w = m_bgCheckedSize.w;
   int tile_h = m_bgCheckedSize.h;
 
-  if (m_bgZoom) {
+  if (m_bgZoom)
+  {
     tile_w = zoom.apply(tile_w);
     tile_h = zoom.apply(tile_h);
   }
 
   // Tile size
-  if (tile_w < zoom.apply(1)) tile_w = zoom.apply(1);
-  if (tile_h < zoom.apply(1)) tile_h = zoom.apply(1);
+  if (tile_w < zoom.apply(1))
+    tile_w = zoom.apply(1);
+  if (tile_h < zoom.apply(1))
+    tile_h = zoom.apply(1);
 
-  if (tile_w < 1) tile_w = 1;
-  if (tile_h < 1) tile_h = 1;
+  if (tile_w < 1)
+    tile_w = 1;
+  if (tile_h < 1)
+    tile_h = 1;
 
   // Tile position (u,v) is the number of tile we start in "area.src" coordinate
   u = (area.src.x / tile_w);
@@ -798,13 +785,16 @@ void Render::renderBackground(Image* image,
 
   // Draw checked background (tile by tile)
   int u_start = u;
-  for (y=y_start-tile_h; y<image->height()+tile_h; y+=tile_h) {
-    for (x=x_start-tile_w; x<image->width()+tile_w; x+=tile_w) {
-      gfx::Rect fillRc = dstBounds.createIntersection(gfx::Rect(x, y, tile_w, tile_h));
+  for (y = y_start - tile_h; y < image->height() + tile_h; y += tile_h)
+  {
+    for (x = x_start - tile_w; x < image->width() + tile_w; x += tile_w)
+    {
+      gfx::Rect fillRc =
+          dstBounds.createIntersection(gfx::Rect(x, y, tile_w, tile_h));
       if (!fillRc.isEmpty())
-        fill_rect(
-          image, fillRc.x, fillRc.y, fillRc.x+fillRc.w-1, fillRc.y+fillRc.h-1,
-          (((u+v))&1)? m_bgColor2: m_bgColor1);
+        fill_rect(image, fillRc.x, fillRc.y, fillRc.x + fillRc.w - 1,
+                  fillRc.y + fillRc.h - 1,
+                  (((u + v)) & 1) ? m_bgColor2 : m_bgColor1);
       ++u;
     }
     u = u_start;
@@ -813,235 +803,199 @@ void Render::renderBackground(Image* image,
 }
 
 void Render::renderImage(Image* dst_image, const Image* src_image,
-                         const Palette* pal,
-                         int x, int y,
-                         Zoom zoom, int opacity, BlendMode blendMode)
+                         const Palette* pal, int x, int y, Zoom zoom,
+                         int opacity, BlendMode blendMode)
 {
   CompositeImageFunc compositeImage = get_image_composition(
-    dst_image->pixelFormat(),
-    src_image->pixelFormat(), zoom);
+      dst_image->pixelFormat(), src_image->pixelFormat(), zoom);
   if (!compositeImage)
     return;
 
   compositeImage(dst_image, src_image, pal,
-    gfx::Clip(x, y, 0, 0,
-      zoom.apply(src_image->width()),
-      zoom.apply(src_image->height())),
-    opacity, blendMode, zoom);
+                 gfx::Clip(x, y, 0, 0, zoom.apply(src_image->width()),
+                           zoom.apply(src_image->height())),
+                 opacity, blendMode, zoom);
 }
 
-void Render::renderLayer(
-  const Layer* layer,
-  Image *image,
-  const gfx::Clip& area,
-  frame_t frame, Zoom zoom,
-  CompositeImageFunc compositeImage,
-  bool render_background,
-  bool render_transparent,
-  BlendMode blendMode)
+void Render::renderLayer(const Layer* layer, Image* image,
+                         const gfx::Clip& area, frame_t frame, Zoom zoom,
+                         CompositeImageFunc compositeImage,
+                         bool render_background, bool render_transparent,
+                         BlendMode blendMode)
 {
   // we can't read from this layer
   if (!layer->isVisible())
     return;
 
   gfx::Rect extraArea;
-  bool drawExtra = (m_extraCel &&
-                    m_extraCel->frame() == frame &&
-                    m_extraImage &&
-                    layer == m_currentLayer &&
-                    frame == m_currentFrame &&
-                    ((layer->isBackground() && render_background) ||
-                     (!layer->isBackground() && render_transparent)));
-  if (drawExtra) {
-    extraArea = gfx::Rect(
-      m_extraCel->x(),
-      m_extraCel->y(),
-      m_extraImage->width(),
-      m_extraImage->height());
+  bool drawExtra =
+      (m_extraCel && m_extraCel->frame() == frame && m_extraImage &&
+       layer == m_currentLayer && frame == m_currentFrame &&
+       ((layer->isBackground() && render_background) ||
+        (!layer->isBackground() && render_transparent)));
+  if (drawExtra)
+  {
+    extraArea = gfx::Rect(m_extraCel->x(), m_extraCel->y(),
+                          m_extraImage->width(), m_extraImage->height());
     extraArea = zoom.apply(extraArea);
-    if (zoom.scale() < 1.0) {
+    if (zoom.scale() < 1.0)
+    {
       extraArea.w--;
       extraArea.h--;
     }
-    if (extraArea.w < 1) extraArea.w = 1;
-    if (extraArea.h < 1) extraArea.h = 1;
+    if (extraArea.w < 1)
+      extraArea.w = 1;
+    if (extraArea.h < 1)
+      extraArea.h = 1;
   }
 
-  switch (layer->type()) {
+  switch (layer->type())
+  {
 
-    case ObjectType::LayerImage: {
-      if ((!render_background  &&  layer->isBackground()) ||
-          (!render_transparent && !layer->isBackground()))
-        break;
+  case ObjectType::LayerImage:
+  {
+    if ((!render_background && layer->isBackground()) ||
+        (!render_transparent && !layer->isBackground()))
+      break;
 
-      auto cel = layer->cel(frame);
-      if (cel) {
-        Palette* pal = m_sprite->palette(frame);
-        const Image* celImage;
-        gfx::Point celPos;
+    auto cel = layer->cel(frame);
+    if (cel)
+    {
+      const Palette* pal = m_sprite->palette(frame);
+      const Image* celImage;
+      gfx::Point celPos;
 
-        // Is the 'm_previewImage' set to be used with this layer?
-        if ((m_previewImage) &&
-            (m_selectedLayer == layer) &&
-            (m_selectedFrame == frame)) {
-          celImage = m_previewImage;
-          celPos = m_previewPos;
+      // Is the 'm_previewImage' set to be used with this layer?
+      if ((m_previewImage) && (m_selectedLayer == layer) &&
+          (m_selectedFrame == frame))
+      {
+        celImage = m_previewImage;
+        celPos = m_previewPos;
 
-          ASSERT(celImage->pixelFormat() == cel->image()->pixelFormat());
-        }
-        // If not, we use the original cel-image from the images' stock
-        else {
-          celImage = cel->image();
-          celPos = cel->position();
-        }
+        ASSERT(celImage->pixelFormat() == cel->image()->pixelFormat());
+      }
+      // If not, we use the original cel-image from the images' stock
+      else
+      {
+        celImage = cel->image();
+        celPos = cel->position();
+      }
 
-        if (celImage) {
-          const LayerImage* imgLayer = static_cast<const LayerImage*>(layer);
-          const BlendMode layerBlendMode =
-            (blendMode == BlendMode::UNSPECIFIED ?
-             imgLayer->blendMode():
-             blendMode);
+      if (celImage)
+      {
+        const LayerImage* imgLayer = static_cast<const LayerImage*>(layer);
+        const BlendMode layerBlendMode =
+            (blendMode == BlendMode::UNSPECIFIED ? imgLayer->blendMode()
+                                                 : blendMode);
 
-          ASSERT(cel->opacity() >= 0);
-          ASSERT(cel->opacity() <= 255);
-          ASSERT(imgLayer->opacity() >= 0);
-          ASSERT(imgLayer->opacity() <= 255);
+        ASSERT(cel->opacity() >= 0);
+        ASSERT(cel->opacity() <= 255);
+        ASSERT(imgLayer->opacity() >= 0);
+        ASSERT(imgLayer->opacity() <= 255);
 
-          // Multiple three opacities: cel*layer*global
-          int t;
-          int opacity = cel->opacity();
-          opacity = MUL_UN8(opacity, imgLayer->opacity(), t);
-          opacity = MUL_UN8(opacity, m_globalOpacity, t);
+        // Multiple three opacities: cel*layer*global
+        int t;
+        int opacity = cel->opacity();
+        opacity = MUL_UN8(opacity, imgLayer->opacity(), t);
+        opacity = MUL_UN8(opacity, m_globalOpacity, t);
 
-          ASSERT(celImage->maskColor() == m_sprite->transparentColor());
+        ASSERT(celImage->maskColor() == m_sprite->transparentColor());
 
-          // Draw parts outside the "m_extraCel" area
-          if (drawExtra && m_extraType == ExtraType::PATCH) {
-            gfx::Region originalAreas(area.srcBounds());
-            originalAreas.createSubtraction(
-              originalAreas, gfx::Region(extraArea));
+        // Draw parts outside the "m_extraCel" area
+        if (drawExtra && m_extraType == ExtraType::PATCH)
+        {
+          gfx::Region originalAreas(area.srcBounds());
+          originalAreas.createSubtraction(originalAreas,
+                                          gfx::Region(extraArea));
 
-            for (auto rc : originalAreas) {
-              renderCel(
-                image, celImage, pal, celPos,
-                gfx::Clip(area.dst.x+rc.x-area.src.x,
-                          area.dst.y+rc.y-area.src.y, rc), compositeImage,
-                opacity, layerBlendMode, zoom);
-            }
-          }
-          // Draw the whole cel
-          else {
-            renderCel(
-              image, celImage, pal,
-              celPos, area, compositeImage,
-              opacity, layerBlendMode, zoom);
+          for (const auto& rc : originalAreas)
+          {
+            renderCel(image, celImage, pal, celPos,
+                      gfx::Clip(area.dst.x + rc.x - area.src.x,
+                                area.dst.y + rc.y - area.src.y, rc),
+                      compositeImage, opacity, layerBlendMode, zoom);
           }
         }
+        // Draw the whole cel
+        else
+        {
+          renderCel(image, celImage, pal, celPos, area, compositeImage, opacity,
+                    layerBlendMode, zoom);
+        }
       }
-      break;
     }
+    break;
+  }
 
-    case ObjectType::LayerFolder: {
-      LayerConstIterator it = static_cast<const LayerFolder*>(layer)->getLayerBegin();
-      LayerConstIterator end = static_cast<const LayerFolder*>(layer)->getLayerEnd();
+  case ObjectType::LayerFolder:
+  {
+    LayerConstIterator it =
+        static_cast<const LayerFolder*>(layer)->getLayerBegin();
+    LayerConstIterator end =
+        static_cast<const LayerFolder*>(layer)->getLayerEnd();
 
-      for (; it != end; ++it) {
-        renderLayer(*it, image,
-          area, frame, zoom, compositeImage,
-          render_background,
-          render_transparent,
-          blendMode);
-      }
-      break;
+    for (; it != end; ++it)
+    {
+      renderLayer(*it, image, area, frame, zoom, compositeImage,
+                  render_background, render_transparent, blendMode);
     }
-
+    break;
+  }
   }
 
   // Draw extras
-  if (drawExtra && m_extraType != ExtraType::NONE) {
-    if (m_extraCel->opacity() > 0) {
-      renderCel(
-        image, m_extraImage,
-        m_sprite->palette(frame),
-        m_extraCel->position(),
-        gfx::Clip(area.dst.x+extraArea.x-area.src.x,
-                  area.dst.y+extraArea.y-area.src.y,
-                  extraArea),
-        compositeImage,
-        m_extraCel->opacity(),
-        m_extraBlendMode, zoom);
+  if (drawExtra && m_extraType != ExtraType::NONE)
+  {
+    if (m_extraCel->opacity() > 0)
+    {
+      renderCel(image, m_extraImage, m_sprite->palette(frame),
+                m_extraCel->position(),
+                gfx::Clip(area.dst.x + extraArea.x - area.src.x,
+                          area.dst.y + extraArea.y - area.src.y, extraArea),
+                compositeImage, m_extraCel->opacity(), m_extraBlendMode, zoom);
     }
   }
 }
 
-void Render::renderCel(
-  Image* dst_image,
-  const Image* cel_image,
-  const Palette* pal,
-  const gfx::Point& celPos,
-  const gfx::Clip& area,
-  CompositeImageFunc compositeImage,
-  int opacity, BlendMode blendMode, Zoom zoom)
+void Render::renderCel(Image* dst_image, const Image* cel_image,
+                       const Palette* pal, const gfx::Point& celPos,
+                       const gfx::Clip& area, CompositeImageFunc compositeImage,
+                       int opacity, BlendMode blendMode, Zoom zoom)
 {
-  renderImage(dst_image,
-              cel_image,
-              pal,
-              celPos.x,
-              celPos.y,
-              area,
-              compositeImage,
-              opacity,
-              blendMode,
-              zoom);
+  renderImage(dst_image, cel_image, pal, celPos.x, celPos.y, area,
+              compositeImage, opacity, blendMode, zoom);
 }
 
-void Render::renderImage(
-  Image* dst_image,
-  const Image* cel_image,
-  const Palette* pal,
-  const int x,
-  const int y,
-  const gfx::Clip& area,
-  CompositeImageFunc compositeImage,
-  int opacity, BlendMode blendMode, Zoom zoom)
+void Render::renderImage(Image* dst_image, const Image* cel_image,
+                         const Palette* pal, const int x, const int y,
+                         const gfx::Clip& area,
+                         CompositeImageFunc compositeImage, int opacity,
+                         BlendMode blendMode, Zoom zoom)
 {
   int cel_x = zoom.apply(x);
   int cel_y = zoom.apply(y);
 
-  gfx::Rect src_bounds =
-    area.srcBounds().createIntersection(
-      gfx::Rect(
-        cel_x,
-        cel_y,
-        zoom.apply(cel_image->width()),
-        zoom.apply(cel_image->height())));
+  gfx::Rect src_bounds = area.srcBounds().createIntersection(
+      gfx::Rect(cel_x, cel_y, zoom.apply(cel_image->width()),
+                zoom.apply(cel_image->height())));
   if (src_bounds.isEmpty())
     return;
 
   (*compositeImage)(dst_image, cel_image, pal,
-    gfx::Clip(
-      area.dst.x + src_bounds.x - area.src.x,
-      area.dst.y + src_bounds.y - area.src.y,
-      src_bounds.x - cel_x,
-      src_bounds.y - cel_y,
-      src_bounds.w,
-      src_bounds.h),
-    opacity, blendMode, zoom);
+                    gfx::Clip(area.dst.x + src_bounds.x - area.src.x,
+                              area.dst.y + src_bounds.y - area.src.y,
+                              src_bounds.x - cel_x, src_bounds.y - cel_y,
+                              src_bounds.w, src_bounds.h),
+                    opacity, blendMode, zoom);
 }
 
-void composite_image(Image* dst,
-                     const Image* src,
-                     const Palette* pal,
-                     const int x,
-                     const int y,
-                     const int opacity,
+void composite_image(Image* dst, const Image* src, const Palette* pal,
+                     const int x, const int y, const int opacity,
                      const BlendMode blendMode)
 {
   // As the background is not rendered in renderImage(), we don't need
   // to configure the Render instance's BgType.
-  Render().renderImage(
-    dst, src, pal, x, y, Zoom(1, 1),
-    opacity, blendMode);
+  Render().renderImage(dst, src, pal, x, y, Zoom(1, 1), opacity, blendMode);
 }
 
 } // namespace render

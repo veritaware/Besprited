@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (c) 2024 LibreSprite contributors
+// LibreSprite | Copyright (C) 2024 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -7,23 +7,28 @@
 #pragma once
 #include <iterator>
 
-namespace base {
-  template <typename iterator>
-  class range {
-    std::pair<iterator, iterator> pair;
-  public:
-    typedef typename iterator::iterator_category iterator_category;
-    typedef typename iterator::value_type value_type;
-    typedef typename iterator::difference_type difference_type;
-    typedef typename iterator::pointer pointer;
-    typedef typename iterator::reference reference;
+namespace base
+{
+template <typename iterator> class range
+{
+  std::pair<iterator, iterator> pair;
 
-    range(const std::pair<iterator, iterator>& pair) : pair{pair} {}
+public:
+  using iterator_category = typename iterator::iterator_category;
+  using value_type = typename iterator::value_type;
+  using difference_type = typename iterator::difference_type;
+  using pointer = typename iterator::pointer;
+  using reference = typename iterator::reference;
 
-    iterator begin() {return pair.first;}
+  range(const std::pair<iterator, iterator>& pair)
+    : pair{pair}
+  {
+  }
 
-    iterator end() {return pair.second;}
+  iterator begin() { return pair.first; }
 
-    bool empty() {return begin() == end();}
-  };
-}
+  iterator end() { return pair.second; }
+
+  bool empty() { return begin() == end(); }
+};
+} // namespace base

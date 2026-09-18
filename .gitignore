@@ -79,3 +79,6 @@ $RECYCLE.BIN/
 
 # --- GitHub CodeQL
 _codeql_detected_source_root/
+
+# --- Static analysis working artifacts (clang-tidy / CLion inspect reports)
+/.reports/

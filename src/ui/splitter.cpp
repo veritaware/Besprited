@@ -23,7 +23,8 @@
 
 #include <sstream>
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
@@ -46,135 +47,153 @@ void Splitter::setPosition(double pos)
 
 bool Splitter::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kMouseDownMessage:
-      if (isEnabled()) {
-        Widget* c1, *c2;
-        int x1, y1, x2, y2;
-        int bar, click_bar;
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+  case kMouseDownMessage:
+    if (isEnabled())
+    {
+      Widget *c1, *c2;
+      int x1, y1, x2, y2;
+      int bar, click_bar;
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
 
-        bar = click_bar = 0;
+      bar = click_bar = 0;
 
-        UI_FOREACH_WIDGET_WITH_END(children(), it, end) {
-          if (it+1 != end) {
-            c1 = *it;
-            c2 = *(it+1);
+      UI_FOREACH_WIDGET_WITH_END(children(), it, end)
+      {
+        if (it + 1 != end)
+        {
+          c1 = *it;
+          c2 = *(it + 1);
 
-            ++bar;
+          ++bar;
 
-            if (this->align() & HORIZONTAL) {
-              x1 = c1->bounds().x2();
-              y1 = bounds().y;
-              x2 = c2->bounds().x;
-              y2 = bounds().y2();
-            }
-            else {
-              x1 = bounds().x;
-              y1 = c1->bounds().y2();
-              x2 = bounds().x2();
-              y2 = c2->bounds().y;
-            }
-
-            if ((mousePos.x >= x1) && (mousePos.x < x2) &&
-                (mousePos.y >= y1) && (mousePos.y < y2))
-              click_bar = bar;
+          if (this->align() & HORIZONTAL)
+          {
+            x1 = c1->bounds().x2();
+            y1 = bounds().y;
+            x2 = c2->bounds().x;
+            y2 = bounds().y2();
           }
+          else
+          {
+            x1 = bounds().x;
+            y1 = c1->bounds().y2();
+            x2 = bounds().x2();
+            y2 = c2->bounds().y;
+          }
+
+          if ((mousePos.x >= x1) && (mousePos.x < x2) && (mousePos.y >= y1) &&
+              (mousePos.y < y2))
+            click_bar = bar;
         }
-
-        if (!click_bar)
-          break;
-
-        captureMouse();
-
-        // Continue with motion message...
       }
-      else
+
+      if (!click_bar)
         break;
 
-    case kMouseMoveMessage:
-      if (hasCapture()) {
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+      captureMouse();
 
-        if (align() & HORIZONTAL) {
-          switch (m_type) {
-            case ByPercentage:
-              m_pos = 100.0 * (mousePos.x - bounds().x) / bounds().w;
-              break;
-            case ByPixel:
-              m_pos = mousePos.x - bounds().x;
-              break;
-          }
-        }
-        else {
-          switch (m_type) {
-            case ByPercentage:
-              m_pos = 100.0 * (mousePos.y - bounds().y) / bounds().h;
-              break;
-            case ByPixel:
-              m_pos = mousePos.y - bounds().y;
-              break;
-          }
-        }
-
-        limitPos();
-        layout();
-        flushRedraw();
-        return true;
-      }
+      // Continue with motion message...
+    }
+    else
       break;
 
-    case kMouseUpMessage:
-      if (hasCapture()) {
-        releaseMouse();
-        return true;
-      }
-      break;
+  case kMouseMoveMessage:
+    if (hasCapture())
+    {
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
 
-    case kSetCursorMessage:
-      if (isEnabled() && (!manager()->getCapture() || hasCapture())) {
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
-        Widget* c1, *c2;
-        int x1, y1, x2, y2;
-        bool change_cursor = false;
-
-        UI_FOREACH_WIDGET_WITH_END(children(), it, end) {
-          if (it+1 != end) {
-            c1 = *it;
-            c2 = *(it+1);
-
-            if (this->align() & HORIZONTAL) {
-              x1 = c1->bounds().x2();
-              y1 = bounds().y;
-              x2 = c2->bounds().x;
-              y2 = bounds().y2();
-            }
-            else {
-              x1 = bounds().x;
-              y1 = c1->bounds().y2();
-              x2 = bounds().x2();
-              y2 = c2->bounds().y;
-            }
-
-            if ((mousePos.x >= x1) && (mousePos.x < x2) &&
-                (mousePos.y >= y1) && (mousePos.y < y2)) {
-              change_cursor = true;
-              break;
-            }
-          }
+      if (align() & HORIZONTAL)
+      {
+        switch (m_type)
+        {
+        case ByPercentage:
+          m_pos = 100.0 * (mousePos.x - bounds().x) / bounds().w;
+          break;
+        case ByPixel:
+          m_pos = mousePos.x - bounds().x;
+          break;
         }
+      }
+      else
+      {
+        switch (m_type)
+        {
+        case ByPercentage:
+          m_pos = 100.0 * (mousePos.y - bounds().y) / bounds().h;
+          break;
+        case ByPixel:
+          m_pos = mousePos.y - bounds().y;
+          break;
+        }
+      }
 
-        if (change_cursor) {
-          if (align() & HORIZONTAL)
-            set_mouse_cursor(kSizeWECursor);
+      limitPos();
+      layout();
+      flushRedraw();
+      return true;
+    }
+    break;
+
+  case kMouseUpMessage:
+    if (hasCapture())
+    {
+      releaseMouse();
+      return true;
+    }
+    break;
+
+  case kSetCursorMessage:
+    if (isEnabled() && (!manager()->getCapture() || hasCapture()))
+    {
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+      Widget *c1, *c2;
+      int x1, y1, x2, y2;
+      bool change_cursor = false;
+
+      UI_FOREACH_WIDGET_WITH_END(children(), it, end)
+      {
+        if (it + 1 != end)
+        {
+          c1 = *it;
+          c2 = *(it + 1);
+
+          if (this->align() & HORIZONTAL)
+          {
+            x1 = c1->bounds().x2();
+            y1 = bounds().y;
+            x2 = c2->bounds().x;
+            y2 = bounds().y2();
+          }
           else
-            set_mouse_cursor(kSizeNSCursor);
-          return true;
+          {
+            x1 = bounds().x;
+            y1 = c1->bounds().y2();
+            x2 = bounds().x2();
+            y2 = c2->bounds().y;
+          }
+
+          if ((mousePos.x >= x1) && (mousePos.x < x2) && (mousePos.y >= y1) &&
+              (mousePos.y < y2))
+          {
+            change_cursor = true;
+            break;
+          }
         }
       }
-      break;
 
+      if (change_cursor)
+      {
+        if (align() & HORIZONTAL)
+          set_mouse_cursor(kSizeWECursor);
+        else
+          set_mouse_cursor(kSizeNSCursor);
+        return true;
+      }
+    }
+    break;
   }
 
   return Widget::onProcessMessage(msg);
@@ -182,34 +201,35 @@ bool Splitter::onProcessMessage(Message* msg)
 
 void Splitter::onResize(ResizeEvent& ev)
 {
-#define LAYOUT_TWO_CHILDREN(x, y, w, h, l, t, r, b)                     \
-  {                                                                     \
-    avail = rc.w - this->childSpacing();                                \
-                                                                        \
-    pos.x = rc.x;                                                       \
-    pos.y = rc.y;                                                       \
-    switch (m_type) {                                                   \
-      case ByPercentage:                                                \
-        pos.w = int(avail*m_pos/100);                                   \
-        break;                                                          \
-      case ByPixel:                                                     \
-        pos.w = int(m_pos);                                             \
-        break;                                                          \
-    }                                                                   \
-                                                                        \
-    /* TODO uncomment this to make a restricted splitter */             \
-    /* pos.w = MID(reqSize1.w, pos.w, avail-reqSize2.w); */             \
-    pos.h = rc.h;                                                       \
-                                                                        \
-    child1->setBounds(pos);                                             \
-    gfx::Rect child1Pos = child1->bounds();                             \
-                                                                        \
-    pos.x = child1Pos.x + child1Pos.w + this->childSpacing();           \
-    pos.y = rc.y;                                                       \
-    pos.w = avail - child1Pos.w;                                        \
-    pos.h = rc.h;                                                       \
-                                                                        \
-    child2->setBounds(pos);                                             \
+#define LAYOUT_TWO_CHILDREN(x, y, w, h, l, t, r, b)                            \
+  {                                                                            \
+    avail = rc.w - this->childSpacing();                                       \
+                                                                               \
+    pos.x = rc.x;                                                              \
+    pos.y = rc.y;                                                              \
+    switch (m_type)                                                            \
+    {                                                                          \
+    case ByPercentage:                                                         \
+      pos.w = int(avail * m_pos / 100);                                        \
+      break;                                                                   \
+    case ByPixel:                                                              \
+      pos.w = int(m_pos);                                                      \
+      break;                                                                   \
+    }                                                                          \
+                                                                               \
+    /* TODO uncomment this to make a restricted splitter */                    \
+    /* pos.w = MID(reqSize1.w, pos.w, avail-reqSize2.w); */                    \
+    pos.h = rc.h;                                                              \
+                                                                               \
+    child1->setBounds(pos);                                                    \
+    gfx::Rect child1Pos = child1->bounds();                                    \
+                                                                               \
+    pos.x = child1Pos.x + child1Pos.w + this->childSpacing();                  \
+    pos.y = rc.y;                                                              \
+    pos.w = avail - child1Pos.w;                                               \
+    pos.h = rc.h;                                                              \
+                                                                               \
+    child2->setBounds(pos);                                                    \
   }
 
   gfx::Rect rc(ev.bounds());
@@ -222,11 +242,14 @@ void Splitter::onResize(ResizeEvent& ev)
   Widget* child1 = panel1();
   Widget* child2 = panel2();
 
-  if (child1 && child2) {
-    if (align() & HORIZONTAL) {
+  if (child1 && child2)
+  {
+    if (align() & HORIZONTAL)
+    {
       LAYOUT_TWO_CHILDREN(x, y, w, h, l, t, r, b);
     }
-    else {
+    else
+    {
       LAYOUT_TWO_CHILDREN(y, x, h, w, t, l, b, r);
     }
   }
@@ -243,23 +266,26 @@ void Splitter::onPaint(PaintEvent& ev)
 
 void Splitter::onSizeHint(SizeHintEvent& ev)
 {
-#define GET_CHILD_SIZE(w, h)                    \
-  do {                                          \
-    w = MAX(w, reqSize.w);                      \
-    h = MAX(h, reqSize.h);                      \
-  } while(0)
+#define GET_CHILD_SIZE(w, h)                                                   \
+  do                                                                           \
+  {                                                                            \
+    w = MAX(w, reqSize.w);                                                     \
+    h = MAX(h, reqSize.h);                                                     \
+  } while (0)
 
-#define FINAL_SIZE(w)                                     \
-  do {                                                    \
-    w *= visibleChildren;                                 \
-    w += this->childSpacing() * (visibleChildren-1);      \
-  } while(0)
+#define FINAL_SIZE(w)                                                          \
+  do                                                                           \
+  {                                                                            \
+    w *= visibleChildren;                                                      \
+    w += this->childSpacing() * (visibleChildren - 1);                         \
+  } while (0)
 
   int visibleChildren;
   Size reqSize;
 
   visibleChildren = 0;
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     if (child->isVisible())
       visibleChildren++;
   }
@@ -267,7 +293,8 @@ void Splitter::onSizeHint(SizeHintEvent& ev)
   int w, h;
   w = h = 0;
 
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     if (!child->isVisible())
       continue;
 
@@ -279,7 +306,8 @@ void Splitter::onSizeHint(SizeHintEvent& ev)
       GET_CHILD_SIZE(h, w);
   }
 
-  if (visibleChildren > 0) {
+  if (visibleChildren > 0)
+  {
     if (this->align() & HORIZONTAL)
       FINAL_SIZE(w);
     else
@@ -295,14 +323,15 @@ void Splitter::onSizeHint(SizeHintEvent& ev)
 void Splitter::onLoadLayout(LoadLayoutEvent& ev)
 {
   ev.stream() >> m_pos;
-  if (m_pos < 0) m_pos = 0;
+  if (m_pos < 0)
+    m_pos = 0;
   if (m_type == ByPixel)
     m_pos *= guiscale();
 }
 
 void Splitter::onSaveLayout(SaveLayoutEvent& ev)
 {
-  double pos = (m_type == ByPixel ? m_pos / guiscale(): m_pos);
+  double pos = (m_type == ByPixel ? m_pos / guiscale() : m_pos);
   ev.stream() << pos;
 }
 
@@ -326,26 +355,30 @@ Widget* Splitter::panel2() const
 
 void Splitter::limitPos()
 {
-  if (align() & HORIZONTAL) {
-    switch (m_type) {
-      case ByPercentage:
-        m_pos = MID(0, m_pos, 100);
-        break;
-      case ByPixel:
-        if (isVisible())
-          m_pos = MID(0, m_pos, bounds().w);
-        break;
+  if (align() & HORIZONTAL)
+  {
+    switch (m_type)
+    {
+    case ByPercentage:
+      m_pos = MID(0, m_pos, 100);
+      break;
+    case ByPixel:
+      if (isVisible())
+        m_pos = MID(0, m_pos, bounds().w);
+      break;
     }
   }
-  else {
-    switch (m_type) {
-      case ByPercentage:
-        m_pos = MID(0, m_pos, 100);
-        break;
-      case ByPixel:
-        if (isVisible())
-          m_pos = MID(0, m_pos, bounds().h);
-        break;
+  else
+  {
+    switch (m_type)
+    {
+    case ByPercentage:
+      m_pos = MID(0, m_pos, 100);
+      break;
+    case ByPixel:
+      if (isVisible())
+        m_pos = MID(0, m_pos, bounds().h);
+      break;
     }
   }
 }

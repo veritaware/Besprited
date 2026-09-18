@@ -11,13 +11,15 @@
 
 using namespace app;
 
-namespace app {
+namespace app
+{
 
-  inline std::ostream& operator<<(std::ostream& os, const Color& color) {
-    return os << color.toString();
-  }
-
+inline std::ostream& operator<<(std::ostream& os, const Color& color)
+{
+  return os << color.toString();
 }
+
+} // namespace app
 
 TEST(Color, fromRgb)
 {
@@ -44,5 +46,6 @@ TEST(Color, toString)
 {
   EXPECT_EQ("rgb{0,0,0,255}", Color::fromRgb(0, 0, 0).toString());
   EXPECT_EQ("rgb{32,16,255,255}", Color::fromRgb(32, 16, 255).toString());
-  EXPECT_EQ("hsv{32.00,64.00,99.00,255}", Color::fromHsv(32, 64, 99).toString());
+  EXPECT_EQ("hsv{32.00,64.00,99.00,255}",
+            Color::fromHsv(32, 64, 99).toString());
 }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,20 +9,22 @@
 
 #include "ui/base.h"
 
-#define REQUIRE_INTERFACE    1
+#define REQUIRE_INTERFACE 1
 
-namespace app {
+namespace app
+{
 
-  /**
-   * Class to install and uninstall old modules.
-   *
-   * Legacy modules are programmed in C code and should be refactored to
-   * C++ classes.
-   */
-  class LegacyModules {
-  public:
-    LegacyModules(int requirements);
-    ~LegacyModules();
-  };
+/**
+ * Class to install and uninstall old modules.
+ *
+ * Legacy modules are programmed in C code and should be refactored to
+ * C++ classes.
+ */
+class LegacyModules
+{
+public:
+  LegacyModules(int requirements);
+  ~LegacyModules();
+};
 
 } // namespace app

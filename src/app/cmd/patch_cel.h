@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -12,29 +12,28 @@
 #include "gfx/fwd.h"
 #include "gfx/point.h"
 
-namespace doc {
-  class Cel;
-  class Image;
+namespace doc
+{
+class Cel;
+class Image;
 }
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-  class PatchCel : public CmdSequence
-                 , public WithCel {
-  public:
-    PatchCel(std::shared_ptr<doc::Cel> dstCel,
-             const doc::Image* patch,
-             const gfx::Region& patchedRegion,
-             const gfx::Point& patchPos);
+class PatchCel : public CmdSequence,
+                 public WithCel
+{
+public:
+  PatchCel(const std::shared_ptr<Cel>& dstCel, const Image* patch,
+           const gfx::Region& patchedRegion, const gfx::Point& patchPos);
 
-  protected:
-    void onExecute() override;
+protected:
+  void onExecute() override;
 
-    const doc::Image* m_patch;
-    const gfx::Region& m_region;
-    gfx::Point m_pos;
-  };
+  const Image* m_patch;
+  const gfx::Region& m_region;
+  gfx::Point m_pos;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

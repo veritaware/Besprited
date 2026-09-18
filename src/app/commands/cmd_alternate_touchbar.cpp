@@ -1,4 +1,5 @@
-// LibreSprite | Copyright (C)      2023  LibreSprite contributors
+// LibreSprite | Copyright (C) 2023 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -19,36 +20,41 @@
 #include "she/display.h"
 #include "app/ui/main_window.h"
 
-namespace app {
+namespace app
+{
 
-  class AlternateTouchbarCommand : public Command {
-  public:
-    Command* clone() const override { return new AlternateTouchbarCommand(*this); }
-
-    AlternateTouchbarCommand()
-      : Command{"AlternateTouchbar", "Alternate Touchbar", CmdUIOnlyFlag}
-      {}
-
-  protected:
-
-    void onLoadParams(const Params& params) override {}
-
-    bool onEnabled(Context* context) override {
-      return true;
-    }
-
-    bool onChecked(Context* context) override {
-      return Preferences::instance().touchBar.alternatePosition();
-    }
-
-    void onExecute(Context* context) override{
-      App::instance()->mainWindow()->alternateTouchbar();
-    }
-  };
-
-  Command* CommandFactory::createAlternateTouchbarCommand()
+class AlternateTouchbarCommand : public Command
+{
+public:
+  Command* clone() const override
   {
-    return new AlternateTouchbarCommand;
+    return new AlternateTouchbarCommand(*this);
   }
+
+  AlternateTouchbarCommand()
+    : Command{"AlternateTouchbar", "Alternate Touchbar", CmdUIOnlyFlag}
+  {
+  }
+
+protected:
+  void onLoadParams(const Params& params) override {}
+
+  bool onEnabled(Context* context) override { return true; }
+
+  bool onChecked(Context* context) override
+  {
+    return Preferences::instance().touchBar.alternatePosition();
+  }
+
+  void onExecute(Context* context) override
+  {
+    App::instance()->mainWindow()->alternateTouchbar();
+  }
+};
+
+Command* CommandFactory::createAlternateTouchbarCommand()
+{
+  return new AlternateTouchbarCommand;
+}
 
 } // namespace app

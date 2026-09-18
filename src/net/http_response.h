@@ -1,5 +1,6 @@
-// Aseprite Network Library
-// Copyright (c) 2001-2015 David Capello
+// Network Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,7 +14,8 @@
 #include <cstddef>
 #include <iosfwd>
 
-namespace net {
+namespace net
+{
 
 class HttpResponse
 {
@@ -23,7 +25,8 @@ public:
   HttpResponse(std::ostream* stream)
     : m_status(0)
     , m_stream(stream)
-  { }
+  {
+  }
 
   // Returns the HTTP status code.
   int status() const { return m_status; }
@@ -41,4 +44,4 @@ private:
 
 } // namespace net
 
-#endif  // NET_HTTP_RESPONSE_H_INCLUDED
+#endif // NET_HTTP_RESPONSE_H_INCLUDED

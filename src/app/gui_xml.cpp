@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,7 +15,8 @@
 #include "base/fs.h"
 #include "tinyxml2.h"
 
-namespace app {
+namespace app
+{
 
 // static
 GuiXml* GuiXml::instance()
@@ -45,7 +46,8 @@ std::string GuiXml::version()
   tinyxml2::XMLHandle handle(m_doc.get());
   tinyxml2::XMLElement* xmlKey = handle.FirstChildElement("gui").ToElement();
 
-  if (xmlKey && xmlKey->Attribute("version")) {
+  if (xmlKey && xmlKey->Attribute("version"))
+  {
     const char* guixml_version = xmlKey->Attribute("version");
     return guixml_version;
   }

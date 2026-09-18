@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,30 +14,32 @@
 #include "filters/filter.h"
 #include "filters/tiled_mode.h"
 
-namespace filters {
+namespace filters
+{
 
-  class ConvolutionMatrix;
+class ConvolutionMatrix;
 
-  class ConvolutionMatrixFilter : public Filter {
-  public:
-    ConvolutionMatrixFilter();
+class ConvolutionMatrixFilter : public Filter
+{
+public:
+  ConvolutionMatrixFilter();
 
-    void setMatrix(const base::SharedPtr<ConvolutionMatrix>& matrix);
-    void setTiledMode(TiledMode tiledMode);
+  void setMatrix(const base::SharedPtr<ConvolutionMatrix>& matrix);
+  void setTiledMode(TiledMode tiledMode);
 
-    base::SharedPtr<ConvolutionMatrix> getMatrix() { return m_matrix; }
-    TiledMode getTiledMode() const { return m_tiledMode; }
+  base::SharedPtr<ConvolutionMatrix> getMatrix() { return m_matrix; }
+  TiledMode getTiledMode() const { return m_tiledMode; }
 
-    // Filter implementation
-    const char* getName();
-    void applyToRgba(FilterManager* filterMgr);
-    void applyToGrayscale(FilterManager* filterMgr);
-    void applyToIndexed(FilterManager* filterMgr);
+  // Filter implementation
+  const char* getName();
+  void applyToRgba(FilterManager* filterMgr);
+  void applyToGrayscale(FilterManager* filterMgr);
+  void applyToIndexed(FilterManager* filterMgr);
 
-  private:
-    base::SharedPtr<ConvolutionMatrix> m_matrix;
-    TiledMode m_tiledMode;
-    std::vector<uint8_t*> m_lines;
-  };
+private:
+  base::SharedPtr<ConvolutionMatrix> m_matrix;
+  TiledMode m_tiledMode;
+  std::vector<uint8_t*> m_lines;
+};
 
 } // namespace filters

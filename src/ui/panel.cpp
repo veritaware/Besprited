@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,7 +14,8 @@
 #include "ui/resize_event.h"
 #include "ui/size_hint_event.h"
 
-namespace ui {
+namespace ui
+{
 
 Panel::Panel()
   : Widget(kPanelWidget)
@@ -22,7 +24,8 @@ Panel::Panel()
 
 void Panel::showChild(Widget* widget)
 {
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     if (!child->isDecorative())
       child->setVisible(child == widget);
   }
@@ -36,7 +39,8 @@ void Panel::onResize(ResizeEvent& ev)
 
   // Set all the children to the same "cpos"
   gfx::Rect cpos = childrenBounds();
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     if (!child->isDecorative())
       child->setBounds(cpos);
   }
@@ -47,8 +51,10 @@ void Panel::onSizeHint(SizeHintEvent& ev)
   gfx::Size maxSize(0, 0);
   gfx::Size reqSize;
 
-  for (auto child : children()) {
-    if (!child->isDecorative()) {
+  for (auto child : children())
+  {
+    if (!child->isDecorative())
+    {
       reqSize = child->sizeHint();
 
       maxSize.w = MAX(maxSize.w, reqSize.w);
@@ -59,9 +65,7 @@ void Panel::onSizeHint(SizeHintEvent& ev)
   if (hasText())
     maxSize.w = MAX(maxSize.w, textWidth());
 
-  ev.setSizeHint(
-    maxSize.w + border().width(),
-    maxSize.h + border().height());
+  ev.setSizeHint(maxSize.w + border().width(), maxSize.h + border().height());
 }
 
 } // namespace ui

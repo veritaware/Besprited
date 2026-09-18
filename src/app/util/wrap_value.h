@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,14 +7,15 @@
 
 #pragma once
 
-namespace app {
+namespace app
+{
 
-  template<typename T>
-  inline T wrap_value(const T x, const T size) {
-    if (x < T(0))
-      return size - (-(x+1) % size) - 1;
-    else
-      return x % size;
-  }
+template <typename T> inline T wrap_value(const T x, const T size)
+{
+  if (x < T(0))
+    return size - (-(x + 1) % size) - 1;
+  else
+    return x % size;
+}
 
 } // namespace app

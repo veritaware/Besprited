@@ -12,7 +12,7 @@
 
 #include "base/path.h"
 
-#include "base/fs.h"            // TODO we should merge base/path.h and base/fs.h
+#include "base/fs.h" // TODO we should merge base/path.h and base/fs.h
 #include "base/string.h"
 
 #include <algorithm>
@@ -20,12 +20,13 @@
 #include <cstdlib>
 #include <iterator>
 
-namespace base {
+namespace base
+{
 
 #ifdef _WIN32
-  const std::string::value_type path_separator = '\\';
+const std::string::value_type path_separator = '\\';
 #else
-  const std::string::value_type path_separator = '/';
+const std::string::value_type path_separator = '/';
 #endif
 
 bool is_path_separator(std::string::value_type chr)
@@ -38,11 +39,12 @@ std::string get_file_path(const std::string& filename)
   std::string::const_reverse_iterator rit;
   std::string res;
 
-  for (rit=filename.rbegin(); rit!=filename.rend(); ++rit)
+  for (rit = filename.rbegin(); rit != filename.rend(); ++rit)
     if (is_path_separator(*rit))
       break;
 
-  if (rit != filename.rend()) {
+  if (rit != filename.rend())
+  {
     ++rit;
     std::copy(filename.begin(), std::string::const_iterator(rit.base()),
               std::back_inserter(res));
@@ -56,7 +58,7 @@ std::string get_file_name(const std::string& filename)
   std::string::const_reverse_iterator rit;
   std::string result;
 
-  for (rit=filename.rbegin(); rit!=filename.rend(); ++rit)
+  for (rit = filename.rbegin(); rit != filename.rend(); ++rit)
     if (is_path_separator(*rit))
       break;
 
@@ -72,14 +74,16 @@ std::string get_file_extension(const std::string& filename)
   std::string result;
 
   // search for the first dot from the end of the string
-  for (rit=filename.rbegin(); rit!=filename.rend(); ++rit) {
+  for (rit = filename.rbegin(); rit != filename.rend(); ++rit)
+  {
     if (is_path_separator(*rit))
       return result;
     else if (*rit == '.')
       break;
   }
 
-  if (rit != filename.rend()) {
+  if (rit != filename.rend())
+  {
     std::copy(std::string::const_iterator(rit.base()), filename.end(),
               std::back_inserter(result));
   }
@@ -87,29 +91,30 @@ std::string get_file_extension(const std::string& filename)
   return result;
 }
 
-std::string replace_extension(const std::string& filename, const std::string& extension)
+std::string replace_extension(const std::string& filename,
+                              const std::string& extension)
 {
   std::string::const_reverse_iterator rit;
   std::string result;
 
   // search for the first dot from the end of the string
-  for (rit=filename.rbegin(); rit!=filename.rend(); ++rit) {
+  for (rit = filename.rbegin(); rit != filename.rend(); ++rit)
+  {
     if (is_path_separator(*rit))
       return result;
     else if (*rit == '.')
       break;
   }
 
-  if (rit != filename.rend()) {
+  if (rit != filename.rend())
+  {
     std::copy(filename.begin(), std::string::const_iterator(rit.base()),
               std::back_inserter(result));
-    std::copy(extension.begin(), extension.end(),
-              std::back_inserter(result));
+    std::copy(extension.begin(), extension.end(), std::back_inserter(result));
   }
 
   return result;
 }
-
 
 std::string get_file_title(const std::string& filename)
 {
@@ -117,14 +122,16 @@ std::string get_file_title(const std::string& filename)
   std::string::const_iterator last_dot = filename.end();
   std::string result;
 
-  for (rit=filename.rbegin(); rit!=filename.rend(); ++rit) {
+  for (rit = filename.rbegin(); rit != filename.rend(); ++rit)
+  {
     if (is_path_separator(*rit))
       break;
     else if (*rit == '.' && last_dot == filename.end())
-      last_dot = rit.base()-1;
+      last_dot = rit.base() - 1;
   }
 
-  for (std::string::const_iterator it(rit.base()); it!=filename.end(); ++it) {
+  for (std::string::const_iterator it(rit.base()); it != filename.end(); ++it)
+  {
     if (it == last_dot)
       break;
     else
@@ -139,7 +146,7 @@ std::string join_path(const std::string& path, const std::string& file)
   std::string result(path);
 
   // Add a separator at the end if it is necessay
-  if (!result.empty() && !is_path_separator(*(result.end()-1)))
+  if (!result.empty() && !is_path_separator(*(result.end() - 1)))
     result.push_back(path_separator);
 
   // Add the file
@@ -152,8 +159,8 @@ std::string remove_path_separator(const std::string& path)
   std::string result(path);
 
   // Erase all trailing separators
-  while (!result.empty() && is_path_separator(*(result.end()-1)))
-    result.erase(result.end()-1);
+  while (!result.empty() && is_path_separator(*(result.end() - 1)))
+    result.erase(result.end() - 1);
 
   return result;
 }
@@ -163,8 +170,8 @@ std::string fix_path_separators(const std::string& filename)
   std::string result(filename);
 
   // Replace any separator with the system path separator.
-  std::replace_if(result.begin(), result.end(),
-                  is_path_separator, path_separator);
+  std::replace_if(result.begin(), result.end(), is_path_separator,
+                  path_separator);
 
   return result;
 }
@@ -176,20 +183,20 @@ std::string normalize_path(const std::string& filename)
   return fn;
 }
 
-bool has_file_extension(const std::string& filename, const std::string& csv_extensions)
+bool has_file_extension(const std::string& filename,
+                        const std::string& csv_extensions)
 {
-  if (!filename.empty()) {
+  if (!filename.empty())
+  {
     std::string ext = base::string_to_lower(get_file_extension(filename));
 
-    int extsz = (int)ext.size();
-    std::string::const_iterator p =
-      std::search(csv_extensions.begin(),
-                  csv_extensions.end(),
-                  ext.begin(), ext.end());
+    const int extsz = static_cast<int>(ext.size());
+    const std::string::const_iterator p = std::search(
+        csv_extensions.begin(), csv_extensions.end(), ext.begin(), ext.end());
 
     if ((p != csv_extensions.end()) &&
-        ((p+extsz) == csv_extensions.end() || *(p+extsz) == ',') &&
-        (p == csv_extensions.begin() || *(p-1) == ','))
+        ((p + extsz) == csv_extensions.end() || *(p + extsz) == ',') &&
+        (p == csv_extensions.begin() || *(p - 1) == ','))
       return true;
   }
   return false;
@@ -197,40 +204,48 @@ bool has_file_extension(const std::string& filename, const std::string& csv_exte
 
 int compare_filenames(const std::string& a, const std::string& b)
 {
-  utf8_const_iterator a_begin(a.begin()), a_end(a.end());
-  utf8_const_iterator b_begin(b.begin()), b_end(b.end());
+  const utf8_const_iterator a_begin(a.begin()), a_end(a.end());
+  const utf8_const_iterator b_begin(b.begin()), b_end(b.end());
   utf8_const_iterator a_it(a_begin);
   utf8_const_iterator b_it(b_begin);
 
-  for (; a_it != a_end && b_it != b_end; ) {
+  for (; a_it != a_end && b_it != b_end;)
+  {
     int a_chr = *a_it;
     int b_chr = *b_it;
 
-    if ((a_chr >= '0') && (a_chr <= '9') && (b_chr >= '0') && (b_chr <= '9')) {
+    if ((a_chr >= '0') && (a_chr <= '9') && (b_chr >= '0') && (b_chr <= '9'))
+    {
       utf8_const_iterator a_it2 = a_it;
       utf8_const_iterator b_it2 = b_it;
 
-      while (a_it2 != a_end && (*a_it2 >= '0') && (*a_it2 <= '9')) ++a_it2;
-      while (b_it2 != b_end && (*b_it2 >= '0') && (*b_it2 <= '9')) ++b_it2;
+      while (a_it2 != a_end && (*a_it2 >= '0') && (*a_it2 <= '9'))
+        ++a_it2;
+      while (b_it2 != b_end && (*b_it2 >= '0') && (*b_it2 <= '9'))
+        ++b_it2;
 
-      int a_num = std::strtol(std::string(a_it, a_it2).c_str(), NULL, 10);
-      int b_num = std::strtol(std::string(b_it, b_it2).c_str(), NULL, 10);
+      const int a_num = static_cast<int>(
+          std::strtol(std::string(a_it, a_it2).c_str(), nullptr, 10));
+      const int b_num = static_cast<int>(
+          std::strtol(std::string(b_it, b_it2).c_str(), nullptr, 10));
       if (a_num != b_num)
-        return a_num - b_num < 0 ? -1: 1;
+        return a_num - b_num < 0 ? -1 : 1;
 
       a_it = a_it2;
       b_it = b_it2;
     }
-    else if (is_path_separator(a_chr) && is_path_separator(b_chr)) {
+    else if (is_path_separator(a_chr) && is_path_separator(b_chr))
+    {
       ++a_it;
       ++b_it;
     }
-    else {
+    else
+    {
       a_chr = std::tolower(a_chr);
       b_chr = std::tolower(b_chr);
 
       if (a_chr != b_chr)
-        return a_chr - b_chr < 0 ? -1: 1;
+        return a_chr - b_chr < 0 ? -1 : 1;
 
       ++a_it;
       ++b_it;
@@ -248,12 +263,15 @@ int compare_filenames(const std::string& a, const std::string& b)
 size_t verify_filename(const std::string& filename)
 {
 #ifdef _WIN32
-  // In general, _wfopen() would fail for most of these characters *except slashes and colon*,
-  // but returning a meaningful error message to the user is always a nice practice.
+  // In general, _wfopen() would fail for most of these characters *except
+  // slashes and colon*, but returning a meaningful error message to the user is
+  // always a nice practice.
   const std::string invalidChars = ":?\"<>|*";
 
-  for (size_t it=0; it<filename.size(); ++it) {
-    if (invalidChars.find(filename[it]) != std::string::npos) {
+  for (size_t it = 0; it < filename.size(); ++it)
+  {
+    if (invalidChars.find(filename[it]) != std::string::npos)
+    {
       return it;
     }
   }

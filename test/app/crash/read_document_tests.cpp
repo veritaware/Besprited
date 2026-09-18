@@ -16,12 +16,13 @@
 
 using namespace app;
 
-namespace {
+namespace
+{
 
 // crash::write_document() populates the directory with several files
-// (cel-*, celdata-*, doc-*, img-*, lay-*, pal-*, spr-*) - base::remove_directory()
-// only removes an empty directory, so a fixture dir left over from a
-// previous write needs its contents cleared out first.
+// (cel-*, celdata-*, doc-*, img-*, lay-*, pal-*, spr-*) -
+// base::remove_directory() only removes an empty directory, so a fixture dir
+// left over from a previous write needs its contents cleared out first.
 void removeDirRecursive(const std::string& dir)
 {
   if (!base::is_directory(dir))
@@ -40,7 +41,8 @@ TEST(ReadDocumentInfo, NonSquareCanvasWidthAndHeightAreNotSwapped)
   // (`m_loadInfo->height = w;` instead of `= h;`), so any crash-recovery
   // info read back for a non-square canvas silently reported a square one.
   const int w = 20, h = 10;
-  ASSERT_NE(w, h) << "test setup: width and height must differ to catch a swap/duplication bug";
+  ASSERT_NE(w, h) << "test setup: width and height must differ to catch a "
+                     "swap/duplication bug";
 
   app::Context ctx;
   doc::Document* doc = ctx.documents().add(w, h, doc::ColorMode::RGB);
@@ -70,7 +72,8 @@ TEST(ReadDocumentInfo, SquareCanvasStillRoundTripsCorrectly)
   const int size = 15;
 
   app::Context ctx;
-  doc::Document* doc = ctx.documents().add(size, size, doc::ColorMode::INDEXED, 4);
+  doc::Document* doc =
+      ctx.documents().add(size, size, doc::ColorMode::INDEXED, 4);
   doc->setFilename("read_document_info_square_test.ase");
 
   const std::string dir = "read_document_info_square_test_dir";

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,9 +17,11 @@
 #include "app/transaction.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class FlattenLayersCommand : public Command {
+class FlattenLayersCommand : public Command
+{
 public:
   FlattenLayersCommand();
   Command* clone() const override { return new FlattenLayersCommand(*this); }
@@ -30,9 +32,7 @@ protected:
 };
 
 FlattenLayersCommand::FlattenLayersCommand()
-  : Command("FlattenLayers",
-            "Flatten Layers",
-            CmdUIOnlyFlag)
+  : Command("FlattenLayers", "Flatten Layers", CmdUIOnlyFlag)
 {
 }
 

@@ -26,7 +26,8 @@
 using namespace app;
 using namespace doc;
 
-namespace {
+namespace
+{
 
 // fill_mask()/stroke_mask() go through ExpandCelCanvas (whose static
 // create_buffers() connects a slot to app::App::instance()->Exit) and
@@ -53,14 +54,12 @@ void ensureApp()
 // keeps the just-added document active (see doc/test_context.h), which is
 // what fill_mask()/stroke_mask()'s ContextWriter need to find an active
 // document/sprite/layer without a real UI selecting one.
-struct FillStrokeFixture : public ::testing::Test {
+struct FillStrokeFixture : public ::testing::Test
+{
   doc::TestContextT<app::Context> ctx;
   app::Document* doc = nullptr;
 
-  FillStrokeFixture()
-  {
-    ensureApp();
-  }
+  FillStrokeFixture() { ensureApp(); }
 
   void makeSprite(int w, int h)
   {
@@ -87,8 +86,8 @@ struct FillStrokeFixture : public ::testing::Test {
   std::unique_ptr<Image> renderCanvas()
   {
     Sprite* sprite = doc->sprite();
-    std::unique_ptr<Image> canvas(
-      Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
+    std::unique_ptr<Image> canvas(Image::create(
+        sprite->pixelFormat(), sprite->width(), sprite->height()));
     clear_image(canvas.get(), 0);
     render::Render render;
     render.renderSprite(canvas.get(), sprite, frame_t(0));
@@ -106,10 +105,14 @@ TEST_F(FillStrokeFixture, FillOnlyPaintsPixelsInsideTheMask)
   fill_mask(&ctx, app::Color::fromRgb(200, 100, 50), 255, "Fill");
 
   std::unique_ptr<Image> image = renderCanvas();
-  EXPECT_EQ(doc::rgba(200, 100, 50, 255), image->getPixel(3, 3)) << "inside the mask";
-  EXPECT_EQ(doc::rgba(200, 100, 50, 255), image->getPixel(2, 2)) << "mask corner";
-  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(0, 0)) << "outside the mask, untouched";
-  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(5, 5)) << "just past the mask, untouched";
+  EXPECT_EQ(doc::rgba(200, 100, 50, 255), image->getPixel(3, 3))
+      << "inside the mask";
+  EXPECT_EQ(doc::rgba(200, 100, 50, 255), image->getPixel(2, 2))
+      << "mask corner";
+  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(0, 0))
+      << "outside the mask, untouched";
+  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(5, 5))
+      << "just past the mask, untouched";
 }
 
 TEST_F(FillStrokeFixture, FillOpacityBlendsIntoTheExistingTransparentPixel)
@@ -139,7 +142,8 @@ TEST_F(FillStrokeFixture, UndoAfterFillRestoresTheOriginalCel)
   EXPECT_EQ(doc::rgba(0, 0, 0, 0), renderCanvas()->getPixel(1, 1));
 }
 
-TEST_F(FillStrokeFixture, StrokeInsidePaintsOnlyTheBorderOfTheSelectionLeavingTheInteriorAlone)
+TEST_F(FillStrokeFixture,
+       StrokeInsidePaintsOnlyTheBorderOfTheSelectionLeavingTheInteriorAlone)
 {
   makeSprite(12, 12);
   selectRect(2, 2, 5, 5); // x,y in [2,6]
@@ -148,13 +152,18 @@ TEST_F(FillStrokeFixture, StrokeInsidePaintsOnlyTheBorderOfTheSelectionLeavingTh
               app::gen::StrokePosition::INSIDE, "Stroke");
 
   std::unique_ptr<Image> image = renderCanvas();
-  EXPECT_EQ(doc::rgba(0, 255, 0, 255), image->getPixel(2, 2)) << "selection corner (border)";
-  EXPECT_EQ(doc::rgba(0, 255, 0, 255), image->getPixel(2, 4)) << "selection edge (border)";
-  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(4, 4)) << "selection center (true interior)";
-  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(1, 4)) << "outside the selection, untouched";
+  EXPECT_EQ(doc::rgba(0, 255, 0, 255), image->getPixel(2, 2))
+      << "selection corner (border)";
+  EXPECT_EQ(doc::rgba(0, 255, 0, 255), image->getPixel(2, 4))
+      << "selection edge (border)";
+  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(4, 4))
+      << "selection center (true interior)";
+  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(1, 4))
+      << "outside the selection, untouched";
 }
 
-TEST_F(FillStrokeFixture, StrokeOutsidePaintsOnlyAWidthWideBandOutsideTheSelection)
+TEST_F(FillStrokeFixture,
+       StrokeOutsidePaintsOnlyAWidthWideBandOutsideTheSelection)
 {
   makeSprite(12, 12);
   selectRect(2, 2, 5, 5); // x,y in [2,6]
@@ -163,10 +172,14 @@ TEST_F(FillStrokeFixture, StrokeOutsidePaintsOnlyAWidthWideBandOutsideTheSelecti
               app::gen::StrokePosition::OUTSIDE, "Stroke");
 
   std::unique_ptr<Image> image = renderCanvas();
-  EXPECT_EQ(doc::rgba(0, 0, 255, 255), image->getPixel(1, 4)) << "1px outside the left edge";
-  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(0, 4)) << "2px outside: past the stroke width";
-  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(4, 4)) << "inside the selection, untouched";
-  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(2, 2)) << "on the selection edge, untouched";
+  EXPECT_EQ(doc::rgba(0, 0, 255, 255), image->getPixel(1, 4))
+      << "1px outside the left edge";
+  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(0, 4))
+      << "2px outside: past the stroke width";
+  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(4, 4))
+      << "inside the selection, untouched";
+  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(2, 2))
+      << "on the selection edge, untouched";
 }
 
 TEST_F(FillStrokeFixture, StrokeWidthControlsHowFarTheOutsideBandReaches)
@@ -179,8 +192,10 @@ TEST_F(FillStrokeFixture, StrokeWidthControlsHowFarTheOutsideBandReaches)
 
   std::unique_ptr<Image> image = renderCanvas();
   EXPECT_EQ(doc::rgba(0, 0, 255, 255), image->getPixel(1, 4)) << "1px outside";
-  EXPECT_EQ(doc::rgba(0, 0, 255, 255), image->getPixel(0, 4)) << "2px outside: now within width=2";
-  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(4, 4)) << "inside the selection, still untouched";
+  EXPECT_EQ(doc::rgba(0, 0, 255, 255), image->getPixel(0, 4))
+      << "2px outside: now within width=2";
+  EXPECT_EQ(doc::rgba(0, 0, 0, 0), image->getPixel(4, 4))
+      << "inside the selection, still untouched";
 }
 
 TEST_F(FillStrokeFixture, UndoAfterStrokeRestoresTheOriginalCel)

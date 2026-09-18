@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,8 +21,8 @@
 #include "base/scoped_lock.h"
 #include "doc/context.h"
 
-namespace app {
-namespace crash {
+namespace app::crash
+{
 
 BackupObserver::BackupObserver(Session* session, doc::Context* ctx)
   : m_session(session)
@@ -58,16 +58,17 @@ void BackupObserver::onRemoveDocument(doc::Document* document)
   TRACE("DataRecovery:: Remove document %p\n", document);
   {
     base::scoped_lock hold(m_mutex);
-    base::remove_from_container(m_documents, static_cast<app::Document*>(document));
+    base::remove_from_container(m_documents,
+                                static_cast<app::Document*>(document));
   }
   m_session->removeDocument(static_cast<app::Document*>(document));
 }
 
 void BackupObserver::backgroundThread()
 {
-  int normalPeriod = 60*Preferences::instance().general.dataRecoveryPeriod();
+  int normalPeriod = 60 * Preferences::instance().general.dataRecoveryPeriod();
   int lockedPeriod = 10;
-#if 0                           // Just for testing purposes
+#if 0 // Just for testing purposes
   normalPeriod = 5;
   lockedPeriod = 5;
 #endif
@@ -75,28 +76,34 @@ void BackupObserver::backgroundThread()
   int waitUntil = normalPeriod;
   int seconds = 0;
 
-  while (!m_done) {
+  while (!m_done)
+  {
     seconds++;
-    if (seconds >= waitUntil) {
-      TRACE("DataRecovery: Start backup process for %d documents\n", m_documents.size());
+    if (seconds >= waitUntil)
+    {
+      TRACE("DataRecovery: Start backup process for %d documents\n",
+            m_documents.size());
 
       base::scoped_lock hold(m_mutex);
       base::Chrono chrono;
       bool somethingLocked = false;
 
-      for (app::Document* doc : m_documents) {
-        try {
+      for (app::Document* doc : m_documents)
+      {
+        try
+        {
           if (doc->needsBackup())
             m_session->saveDocumentChanges(doc);
         }
-        catch (const std::exception&) {
+        catch (const std::exception&)
+        {
           TRACE("DataRecovery: Document '%d' is locked\n", doc->id());
           somethingLocked = true;
         }
       }
 
       seconds = 0;
-      waitUntil = (somethingLocked ? lockedPeriod: normalPeriod);
+      waitUntil = (somethingLocked ? lockedPeriod : normalPeriod);
 
       TRACE("DataRecovery: Backup process done (%.16g)\n", chrono.elapsed());
     }
@@ -104,5 +111,4 @@ void BackupObserver::backgroundThread()
   }
 }
 
-} // namespace crash
-} // namespace app
+} // namespace app::crash

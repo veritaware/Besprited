@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,9 +15,11 @@
 #include "app/ui/timeline.h"
 #include "ui/base.h"
 
-namespace app {
+namespace app
+{
 
-class CopyCelCommand : public Command {
+class CopyCelCommand : public Command
+{
 public:
   CopyCelCommand();
   Command* clone() const override { return new CopyCelCommand(*this); }
@@ -28,9 +30,7 @@ protected:
 };
 
 CopyCelCommand::CopyCelCommand()
-  : Command("CopyCel",
-            "Copy Cel",
-            CmdUIOnlyFlag)
+  : Command("CopyCel", "Copy Cel", CmdUIOnlyFlag)
 {
 }
 

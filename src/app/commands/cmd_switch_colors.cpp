@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,9 +17,11 @@
 #include "app/ui/editor/editor.h"
 #include "ui/base.h"
 
-namespace app {
+namespace app
+{
 
-class SwitchColorsCommand : public Command {
+class SwitchColorsCommand : public Command
+{
 public:
   SwitchColorsCommand();
 
@@ -29,15 +31,13 @@ protected:
 };
 
 SwitchColorsCommand::SwitchColorsCommand()
-  : Command("SwitchColors",
-            "Switch Colors",
-            CmdUIOnlyFlag)
+  : Command("SwitchColors", "Switch Colors", CmdUIOnlyFlag)
 {
 }
 
 bool SwitchColorsCommand::onEnabled(Context* context)
 {
-  return (current_editor ? true: false);
+  return (current_editor ? true : false);
 }
 
 void SwitchColorsCommand::onExecute(Context* context)
@@ -47,9 +47,11 @@ void SwitchColorsCommand::onExecute(Context* context)
     return;
 
   tools::Tool* tool = current_editor->getCurrentEditorTool();
-  if (tool) {
+  if (tool)
+  {
     const auto& toolPref(Preferences::instance().tool(tool));
-    if (toolPref.ink() == tools::InkType::SHADING) {
+    if (toolPref.ink() == tools::InkType::SHADING)
+    {
       App::instance()->contextBar()->reverseShadeColors();
     }
   }

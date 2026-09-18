@@ -16,7 +16,8 @@
 #include "base/win32_exception.h"
 #include "base/time.h"
 
-namespace base {
+namespace base
+{
 
 bool is_file(const std::string& path)
 {
@@ -39,7 +40,7 @@ bool is_directory(const std::string& path)
 size_t file_size(const std::string& path)
 {
   struct _stat sts;
-  return (_wstat(from_utf8(path).c_str(), &sts) == 0) ? sts.st_size: 0;
+  return (_wstat(from_utf8(path).c_str(), &sts) == 0) ? sts.st_size : 0;
 }
 
 void move_file(const std::string& src, const std::string& dst)
@@ -51,7 +52,8 @@ void move_file(const std::string& src, const std::string& dst)
 
 void copy_file(const std::string& src, const std::string& dst)
 {
-    std::filesystem::copy_file(src, dst, std::filesystem::copy_options::overwrite_existing);
+  std::filesystem::copy_file(src, dst,
+                             std::filesystem::copy_options::overwrite_existing);
 }
 
 void delete_file(const std::string& path)
@@ -87,16 +89,15 @@ Time get_modification_time(const std::string& path)
 
   SYSTEMTIME utc, local;
   FileTimeToSystemTime(&data.ftLastWriteTime, &utc);
-  SystemTimeToTzSpecificLocalTime(NULL, &utc, &local);
+  SystemTimeToTzSpecificLocalTime(nullptr, &utc, &local);
 
-  return Time(
-    local.wYear, local.wMonth, local.wDay,
-    local.wHour, local.wMinute, local.wSecond);
+  return Time(local.wYear, local.wMonth, local.wDay, local.wHour, local.wMinute,
+              local.wSecond);
 }
 
 void make_directory(const std::string& path)
 {
-  BOOL result = ::CreateDirectoryW(from_utf8(path).c_str(), NULL);
+  BOOL result = ::CreateDirectoryW(from_utf8(path).c_str(), nullptr);
   if (result == 0)
     throw Win32Exception("Error creating directory");
 }
@@ -115,8 +116,8 @@ std::string get_current_path()
 
 std::string get_app_path()
 {
-  WCHAR buffer[MAX_PATH+1];
-  if (::GetModuleFileNameW(NULL, buffer, sizeof(buffer)/sizeof(WCHAR)))
+  WCHAR buffer[MAX_PATH + 1];
+  if (::GetModuleFileNameW(nullptr, buffer, sizeof(buffer) / sizeof(WCHAR)))
     return to_utf8(buffer);
   else
     return "";
@@ -124,17 +125,16 @@ std::string get_app_path()
 
 std::string get_temp_path()
 {
-  WCHAR buffer[MAX_PATH+1];
-  ::GetTempPathW(sizeof(buffer)/sizeof(WCHAR), buffer);
+  WCHAR buffer[MAX_PATH + 1];
+  ::GetTempPathW(sizeof(buffer) / sizeof(WCHAR), buffer);
   return to_utf8(buffer);
 }
 
 std::string get_user_docs_folder()
 {
-  WCHAR buffer[MAX_PATH+1];
-  HRESULT hr = SHGetFolderPathW(
-    NULL, CSIDL_MYDOCUMENTS, NULL, SHGFP_TYPE_CURRENT,
-    buffer);
+  WCHAR buffer[MAX_PATH + 1];
+  HRESULT hr = SHGetFolderPathW(nullptr, CSIDL_MYDOCUMENTS, nullptr,
+                                SHGFP_TYPE_CURRENT, buffer);
   if (hr == S_OK)
     return to_utf8(buffer);
   else
@@ -143,12 +143,9 @@ std::string get_user_docs_folder()
 
 std::string get_canonical_path(const std::string& path)
 {
-  WCHAR buffer[MAX_PATH+1];
-  GetFullPathNameW(
-    from_utf8(path).c_str(),
-    sizeof(buffer)/sizeof(WCHAR),
-    buffer,
-    nullptr);
+  WCHAR buffer[MAX_PATH + 1];
+  GetFullPathNameW(from_utf8(path).c_str(), sizeof(buffer) / sizeof(WCHAR),
+                   buffer, nullptr);
   return to_utf8(buffer);
 }
 
@@ -156,9 +153,12 @@ std::vector<std::string> list_files(const std::string& path)
 {
   WIN32_FIND_DATAW fd;
   std::vector<std::string> files;
-  HANDLE handle = FindFirstFileW(base::from_utf8(base::join_path(path, "*")).c_str(), &fd);
-  if (handle) {
-    do {
+  HANDLE handle =
+      FindFirstFileW(base::from_utf8(base::join_path(path, "*")).c_str(), &fd);
+  if (handle)
+  {
+    do
+    {
       std::string filename = base::to_utf8(fd.cFileName);
       if (filename != "." && filename != "..")
         files.push_back(filename);
@@ -170,13 +170,14 @@ std::vector<std::string> list_files(const std::string& path)
 
 std::vector<std::string> get_font_paths()
 {
-    std::vector<wchar_t> buf(MAX_PATH);
-    HRESULT hr = SHGetFolderPathW(NULL, CSIDL_FONTS, NULL,
-                                 SHGFP_TYPE_DEFAULT, &buf[0]);
-    if (hr == S_OK) {
-        return {base::to_utf8(&buf[0])};
-    }
-    return {};
+  std::vector<wchar_t> buf(MAX_PATH);
+  HRESULT hr = SHGetFolderPathW(nullptr, CSIDL_FONTS, nullptr,
+                                SHGFP_TYPE_DEFAULT, &buf[0]);
+  if (hr == S_OK)
+  {
+    return {base::to_utf8(&buf[0])};
+  }
+  return {};
 }
 
-}
+} // namespace base

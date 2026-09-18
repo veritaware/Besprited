@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -7,22 +8,23 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-class base::Chrono::ChronoImpl {
+class base::Chrono::ChronoImpl
+{
 public:
-  ChronoImpl() {
+  ChronoImpl()
+  {
     QueryPerformanceFrequency(&m_freq);
     reset();
   }
 
-  void reset() {
-    QueryPerformanceCounter(&m_point);
-  }
+  void reset() { QueryPerformanceCounter(&m_point); }
 
-  double elapsed() const {
+  double elapsed() const
+  {
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
-    return static_cast<double>(now.QuadPart - m_point.QuadPart)
-         / static_cast<double>(m_freq.QuadPart);
+    return static_cast<double>(now.QuadPart - m_point.QuadPart) /
+           static_cast<double>(m_freq.QuadPart);
   }
 
 private:

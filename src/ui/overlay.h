@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,42 +11,47 @@
 #include "gfx/point.h"
 #include "ui/base.h"
 
-namespace she {
-  class Surface;
+namespace she
+{
+class Surface;
 }
 
-namespace ui {
+namespace ui
+{
 
-  class Overlay {
-  public:
-    typedef int ZOrder;
+class Overlay
+{
+public:
+  using ZOrder = int;
 
-    static const ZOrder NormalZOrder = 0;
-    static const ZOrder MouseZOrder = 5000;
+  static const ZOrder NormalZOrder = 0;
+  static const ZOrder MouseZOrder = 5000;
 
-    Overlay(she::Surface* overlaySurface, const gfx::Point& pos, ZOrder zorder = 0);
-    ~Overlay();
+  Overlay(she::Surface* overlaySurface, const gfx::Point& pos,
+          ZOrder zorder = 0);
+  ~Overlay();
 
-    she::Surface* setSurface(she::Surface* newSurface);
+  she::Surface* setSurface(she::Surface* newSurface);
 
-    const gfx::Point& position() const { return m_pos; }
-    gfx::Rect bounds() const;
+  const gfx::Point& position() const { return m_pos; }
+  gfx::Rect bounds() const;
 
-    void captureOverlappedArea(she::Surface* screen);
-    void restoreOverlappedArea(she::Surface* screen);
+  void captureOverlappedArea(she::Surface* screen);
+  void restoreOverlappedArea(she::Surface* screen);
 
-    void drawOverlay(she::Surface* screen);
-    void moveOverlay(const gfx::Point& newPos);
+  void drawOverlay(she::Surface* screen);
+  void moveOverlay(const gfx::Point& newPos);
 
-    bool operator<(const Overlay& other) const {
-      return m_zorder < other.m_zorder;
-    }
+  bool operator<(const Overlay& other) const
+  {
+    return m_zorder < other.m_zorder;
+  }
 
-  private:
-    she::Surface* m_surface;
-    she::Surface* m_overlap;
-    gfx::Point m_pos;
-    ZOrder m_zorder;
-  };
+private:
+  she::Surface* m_surface;
+  she::Surface* m_overlap;
+  gfx::Point m_pos;
+  ZOrder m_zorder;
+};
 
 } // namespace ui

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,38 +13,41 @@
 #include "ui/listbox.h"
 #include "ui/view.h"
 
-namespace app {
-  namespace crash {
-    class DataRecovery;
-  }
+namespace app
+{
+namespace crash
+{
+class DataRecovery;
+}
 
-  class DataRecoveryView : public ui::Box
-                         , public TabView
-                         , public WorkspaceView {
-  public:
-    DataRecoveryView(crash::DataRecovery* dataRecovery);
-    ~DataRecoveryView();
+class DataRecoveryView : public ui::Box,
+                         public TabView,
+                         public WorkspaceView
+{
+public:
+  DataRecoveryView(crash::DataRecovery* dataRecovery);
+  ~DataRecoveryView();
 
-    // TabView implementation
-    std::string getTabText() override;
-    TabIcon getTabIcon() override;
+  // TabView implementation
+  std::string getTabText() override;
+  TabIcon getTabIcon() override;
 
-    // WorkspaceView implementation
-    ui::Widget* getContentWidget() override { return this; }
-    void onWorkspaceViewSelected() override;
-    bool onCloseView(Workspace* workspace, bool quitting) override;
-    void onTabPopup(Workspace* workspace) override;
+  // WorkspaceView implementation
+  ui::Widget* getContentWidget() override { return this; }
+  void onWorkspaceViewSelected() override;
+  bool onCloseView(Workspace* workspace, bool quitting) override;
+  void onTabPopup(Workspace* workspace) override;
 
-    // Triggered when the list is empty (because the user deleted all
-    // sessions).
-    base::Signal0<void> Empty;
+  // Triggered when the list is empty (because the user deleted all
+  // sessions).
+  base::Signal0<void> Empty;
 
-  private:
-    void fillList();
+private:
+  void fillList();
 
-    crash::DataRecovery* m_dataRecovery;
-    ui::View m_view;
-    ui::ListBox m_listBox;
-  };
+  crash::DataRecovery* m_dataRecovery;
+  ui::View m_view;
+  ui::ListBox m_listBox;
+};
 
 } // namespace app

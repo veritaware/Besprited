@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,14 +16,16 @@
 #include "ui/theme.h"
 
 #if defined _WIN32 && defined _DEBUG
-  #include <windows.h>
+#include <windows.h>
 
-  #include <psapi.h>
+#include <psapi.h>
 #endif
 
-namespace app {
+namespace app
+{
 
-class RefreshCommand : public Command {
+class RefreshCommand : public Command
+{
 public:
   RefreshCommand();
   Command* clone() const override { return new RefreshCommand(*this); }
@@ -33,9 +35,7 @@ protected:
 };
 
 RefreshCommand::RefreshCommand()
-  : Command("Refresh",
-            "Refresh",
-            CmdUIOnlyFlag)
+  : Command("Refresh", "Refresh", CmdUIOnlyFlag)
 {
 }
 
@@ -49,13 +49,14 @@ void RefreshCommand::onExecute(Context* context)
 #if defined _WIN32 && defined _DEBUG
   {
     PROCESS_MEMORY_COUNTERS pmc;
-    if (::GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc))) {
-      StatusBar::instance()
-        ->showTip(1000,
-                  "Current memory: %.16g KB (%lu)\n"
-                  "Peak of memory: %.16g KB (%lu)",
-                  pmc.WorkingSetSize / 1024.0, pmc.WorkingSetSize,
-                  pmc.PeakWorkingSetSize / 1024.0, pmc.PeakWorkingSetSize);
+    if (::GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc)))
+    {
+      StatusBar::instance()->showTip(
+          1000,
+          "Current memory: %.16g KB (%lu)\n"
+          "Peak of memory: %.16g KB (%lu)",
+          pmc.WorkingSetSize / 1024.0, pmc.WorkingSetSize,
+          pmc.PeakWorkingSetSize / 1024.0, pmc.PeakWorkingSetSize);
     }
   }
 #endif

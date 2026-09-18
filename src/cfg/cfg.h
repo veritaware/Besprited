@@ -1,5 +1,6 @@
-// Aseprite Config Library
-// Copyright (c) 2014 David Capello
+// Config Library
+// Aseprite  | Copyright (C) 2014 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,33 +9,39 @@
 
 #include <string>
 
-namespace cfg {
+namespace cfg
+{
 
-  class CfgFile {
-  public:
-    CfgFile();
-    ~CfgFile();
+class CfgFile
+{
+public:
+  CfgFile();
+  ~CfgFile();
 
-    const std::string& filename() const;
+  [[nodiscard]] const std::string& filename() const;
 
-    const char* getValue(const char* section, const char* name, const char* defaultValue) const;
-    bool getBoolValue(const char* section, const char* name, bool defaultValue);
-    int getIntValue(const char* section, const char* name, int defaultValue);
-    double getDoubleValue(const char* section, const char* name, double defaultValue);
+  const char* getValue(const char* section, const char* name,
+                       const char* defaultValue) const;
+  bool getBoolValue(const char* section, const char* name,
+                    bool defaultValue) const;
+  int getIntValue(const char* section, const char* name,
+                  int defaultValue) const;
+  double getDoubleValue(const char* section, const char* name,
+                        double defaultValue) const;
 
-    void setValue(const char* section, const char* name, const char* value);
-    void setBoolValue(const char* section, const char* name, bool value);
-    void setIntValue(const char* section, const char* name, int value);
-    void setDoubleValue(const char* section, const char* name, double value);
+  void setValue(const char* section, const char* name, const char* value);
+  void setBoolValue(const char* section, const char* name, bool value);
+  void setIntValue(const char* section, const char* name, int value);
+  void setDoubleValue(const char* section, const char* name, double value);
 
-    void deleteValue(const char* section, const char* name);
+  void deleteValue(const char* section, const char* name);
 
-    void load(const std::string& filename);
-    void save();
+  void load(const std::string& filename);
+  void save();
 
-  private:
-    class CfgFileImpl;
-    CfgFileImpl* m_impl;
-  };
+private:
+  class CfgFileImpl;
+  CfgFileImpl* m_impl;
+};
 
 } // namespace cfg

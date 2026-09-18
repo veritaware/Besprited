@@ -51,53 +51,89 @@ TEST(Sprite, CelsRange)
   lay2->addCel(celE);
 
   int i = 0;
-  for (auto cel : spr->cels()) {
-    switch (i) {
-      case 0: EXPECT_EQ(cel, celA); break;
-      case 1: EXPECT_EQ(cel, celB); break;
-      case 2: EXPECT_EQ(cel, celC); break;
-      case 3: EXPECT_EQ(cel, celD); break;
-      case 4: EXPECT_EQ(cel, celE); break;
+  for (auto cel : spr->cels())
+  {
+    switch (i)
+    {
+    case 0:
+      EXPECT_EQ(cel, celA);
+      break;
+    case 1:
+      EXPECT_EQ(cel, celB);
+      break;
+    case 2:
+      EXPECT_EQ(cel, celC);
+      break;
+    case 3:
+      EXPECT_EQ(cel, celD);
+      break;
+    case 4:
+      EXPECT_EQ(cel, celE);
+      break;
     }
     ++i;
   }
   EXPECT_EQ(5, i);
 
   i = 0;
-  for (auto cel : spr->uniqueCels()) {
-    switch (i) {
-      case 0: EXPECT_EQ(cel, celA); break;
-      case 1: EXPECT_EQ(cel, celC); break;
-      case 2: EXPECT_EQ(cel, celD); break;
+  for (auto cel : spr->uniqueCels())
+  {
+    switch (i)
+    {
+    case 0:
+      EXPECT_EQ(cel, celA);
+      break;
+    case 1:
+      EXPECT_EQ(cel, celC);
+      break;
+    case 2:
+      EXPECT_EQ(cel, celD);
+      break;
     }
     ++i;
   }
   EXPECT_EQ(3, i);
 
   i = 0;
-  for (auto cel : spr->cels(frame_t(0))) {
-    switch (i) {
-      case 0: EXPECT_EQ(cel, celA); break;
-      case 1: EXPECT_EQ(cel, celC); break;
+  for (auto cel : spr->cels(frame_t(0)))
+  {
+    switch (i)
+    {
+    case 0:
+      EXPECT_EQ(cel, celA);
+      break;
+    case 1:
+      EXPECT_EQ(cel, celC);
+      break;
     }
     ++i;
   }
   EXPECT_EQ(2, i);
 
   i = 0;
-  for (auto cel : spr->cels(frame_t(1))) {
-    switch (i) {
-      case 0: EXPECT_EQ(cel, celD); break;
+  for (auto cel : spr->cels(frame_t(1)))
+  {
+    switch (i)
+    {
+    case 0:
+      EXPECT_EQ(cel, celD);
+      break;
     }
     ++i;
   }
   EXPECT_EQ(1, i);
 
   i = 0;
-  for (auto cel : spr->cels(frame_t(2))) {
-    switch (i) {
-      case 0: EXPECT_EQ(cel, celB); break;
-      case 1: EXPECT_EQ(cel, celE); break;
+  for (auto cel : spr->cels(frame_t(2)))
+  {
+    switch (i)
+    {
+    case 0:
+      EXPECT_EQ(cel, celB);
+      break;
+    case 1:
+      EXPECT_EQ(cel, celE);
+      break;
     }
     ++i;
   }

@@ -15,64 +15,66 @@
 
 #include <string>
 
-namespace ui {
-  class Button;
-  class ComboBox;
-  class Entry;
+namespace ui
+{
+class Button;
+class ComboBox;
+class Entry;
 }
 
-namespace app {
-  class CustomFileNameEntry;
-  class FileList;
-  class FileListView;
-  class IFileItem;
+namespace app
+{
+class CustomFileNameEntry;
+class FileList;
+class FileListView;
+class IFileItem;
 
-  class FileSelector : public app::gen::FileSelector {
-  public:
-    FileSelector(FileSelectorType type, FileSelectorDelegate* delegate);
+class FileSelector : public app::gen::FileSelector
+{
+public:
+  FileSelector(FileSelectorType type, FileSelectorDelegate* delegate);
 
-    void goBack();
-    void goForward();
-    void goUp();
-    void goInsideFolder();
+  void goBack();
+  void goForward();
+  void goUp();
+  void goInsideFolder();
 
-    // Called when the user presses Enter while typing/pasting a path
-    // into the location (address bar) entry. Returns true to consume
-    // the key press.
-    bool onLocationEntryEnter();
+  // Called when the user presses Enter while typing/pasting a path
+  // into the location (address bar) entry. Returns true to consume
+  // the key press.
+  bool onLocationEntryEnter();
 
-    // Shows the dialog to select a file in the program.
-    std::string show(const std::string& title,
-                     const std::string& initialPath,
-                     const std::string& showExtensions);
+  // Shows the dialog to select a file in the program.
+  std::string show(const std::string& title, const std::string& initialPath,
+                   const std::string& showExtensions);
 
-  private:
-    void updateLocation();
-    void updateNavigationButtons();
-    void addInNavigationHistory(IFileItem* folder);
-    void onGoBack();
-    void onGoForward();
-    void onGoUp();
-    void onNewFolder();
-    void onLocationCloseListBox();
-    void onFileTypeChange();
-    void onFileListFileSelected();
-    void onFileListFileAccepted();
-    void onFileListCurrentFolderChanged();
-    std::string getSelectedExtension() const;
+private:
+  void updateLocation();
+  void updateNavigationButtons();
+  void addInNavigationHistory(IFileItem* folder);
+  void onGoBack();
+  void onGoForward();
+  void onGoUp();
+  void onNewFolder();
+  void onLocationCloseListBox();
+  void onFileTypeChange();
+  void onFileListFileSelected();
+  void onFileListFileAccepted();
+  void onFileListCurrentFolderChanged();
+  std::string getSelectedExtension() const;
 
-    FileSelectorType m_type;
-    FileSelectorDelegate* m_delegate;
-    std::string m_defExtension;
-    CustomFileNameEntry* m_fileName;
-    FileList* m_fileList;
-    FileListView* m_fileView;
+  FileSelectorType m_type;
+  FileSelectorDelegate* m_delegate;
+  std::string m_defExtension;
+  CustomFileNameEntry* m_fileName;
+  FileList* m_fileList;
+  FileListView* m_fileView;
 
-    // If true the navigation_history isn't
-    // modified if the current folder changes
-    // (used when the back/forward buttons
-    // are pushed)
-    bool m_navigationLocked;
-  };
+  // If true the navigation_history isn't
+  // modified if the current folder changes
+  // (used when the back/forward buttons
+  // are pushed)
+  bool m_navigationLocked;
+};
 
 } // namespace app

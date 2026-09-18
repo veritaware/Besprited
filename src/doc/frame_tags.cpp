@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,7 +16,8 @@
 
 #include <algorithm>
 
-namespace doc {
+namespace doc
+{
 
 FrameTags::FrameTags(Sprite* sprite)
   : m_sprite(sprite)
@@ -24,7 +26,8 @@ FrameTags::FrameTags(Sprite* sprite)
 
 FrameTags::~FrameTags()
 {
-  for (FrameTag* tag : m_tags) {
+  for (FrameTag* tag : m_tags)
+  {
     tag->setOwner(nullptr);
     delete tag;
   }
@@ -33,7 +36,8 @@ FrameTags::~FrameTags()
 void FrameTags::add(FrameTag* tag)
 {
   auto it = begin(), end = this->end();
-  for (; it != end; ++it) {
+  for (; it != end; ++it)
+  {
     if ((*it)->fromFrame() > tag->fromFrame())
       break;
   }
@@ -53,7 +57,8 @@ void FrameTags::remove(FrameTag* tag)
 
 FrameTag* FrameTags::getByName(const std::string& name) const
 {
-  for (FrameTag* tag : *this) {
+  for (FrameTag* tag : *this)
+  {
     if (tag->name() == name)
       return tag;
   }
@@ -62,7 +67,8 @@ FrameTag* FrameTags::getByName(const std::string& name) const
 
 FrameTag* FrameTags::getById(ObjectId id) const
 {
-  for (FrameTag* tag : *this) {
+  for (FrameTag* tag : *this)
+  {
     if (tag->id() == id)
       return tag;
   }
@@ -72,11 +78,13 @@ FrameTag* FrameTags::getById(ObjectId id) const
 FrameTag* FrameTags::innerTag(frame_t frame) const
 {
   const FrameTag* found = nullptr;
-  for (const FrameTag* tag : *this) {
-    if (frame >= tag->fromFrame() &&
-        frame <= tag->toFrame()) {
-      if (!found ||
-          (tag->toFrame() - tag->fromFrame()) < (found->toFrame() - found->fromFrame())) {
+  for (const FrameTag* tag : *this)
+  {
+    if (frame >= tag->fromFrame() && frame <= tag->toFrame())
+    {
+      if (!found || (tag->toFrame() - tag->fromFrame()) <
+                        (found->toFrame() - found->fromFrame()))
+      {
         found = tag;
       }
     }
@@ -87,11 +95,13 @@ FrameTag* FrameTags::innerTag(frame_t frame) const
 FrameTag* FrameTags::outerTag(frame_t frame) const
 {
   const FrameTag* found = nullptr;
-  for (const FrameTag* tag : *this) {
-    if (frame >= tag->fromFrame() &&
-        frame <= tag->toFrame()) {
-      if (!found ||
-          (tag->toFrame() - tag->fromFrame()) > (found->toFrame() - found->fromFrame())) {
+  for (const FrameTag* tag : *this)
+  {
+    if (frame >= tag->fromFrame() && frame <= tag->toFrame())
+    {
+      if (!found || (tag->toFrame() - tag->fromFrame()) >
+                        (found->toFrame() - found->fromFrame()))
+      {
         found = tag;
       }
     }

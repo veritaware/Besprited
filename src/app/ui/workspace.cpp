@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,7 +20,8 @@
 #include "ui/paint_event.h"
 #include "ui/resize_event.h"
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace ui;
@@ -82,7 +83,7 @@ bool Workspace::closeView(WorkspaceView* view, bool quitting)
 
 WorkspaceView* Workspace::activeView()
 {
-  return (m_activePanel ? m_activePanel->activeView(): nullptr);
+  return (m_activePanel ? m_activePanel->activeView() : nullptr);
 }
 
 void Workspace::setActiveView(WorkspaceView* view)
@@ -94,7 +95,7 @@ void Workspace::setActiveView(WorkspaceView* view)
 
   m_activePanel->setActiveView(view);
 
-  ActiveViewChanged();          // Fire ActiveViewChanged event
+  ActiveViewChanged(); // Fire ActiveViewChanged event
 }
 
 void Workspace::setMainPanelAsActive()
@@ -105,7 +106,7 @@ void Workspace::setMainPanelAsActive()
   m_dropPreviewPanel = nullptr;
   m_dropPreviewTabs = nullptr;
 
-  ActiveViewChanged();          // Fire ActiveViewChanged event
+  ActiveViewChanged(); // Fire ActiveViewChanged event
 }
 
 bool Workspace::canSelectOtherTab() const
@@ -142,7 +143,8 @@ void Workspace::duplicateActiveView()
 void Workspace::updateTabs()
 {
   WidgetsList children = this->children();
-  while (!children.empty()) {
+  while (!children.empty())
+  {
     Widget* child = children.back();
     children.erase(--children.end());
 
@@ -169,12 +171,14 @@ void Workspace::onResize(ui::ResizeEvent& ev)
 }
 
 DropViewPreviewResult Workspace::setDropViewPreview(const gfx::Point& pos,
-  WorkspaceView* view, WorkspaceTabs* tabs)
+                                                    WorkspaceView* view,
+                                                    WorkspaceTabs* tabs)
 {
   TabView* tabView = dynamic_cast<TabView*>(view);
   WorkspaceTabs* newTabs = nullptr;
   WorkspacePanel* panel = getPanelAt(pos);
-  if (!newTabs) {
+  if (!newTabs)
+  {
     newTabs = getTabsAt(pos);
     // Drop preview is only to drop tabs from a different WorkspaceTabs.
     if (newTabs == tabs)
@@ -204,27 +208,32 @@ DropViewPreviewResult Workspace::setDropViewPreview(const gfx::Point& pos,
 
 void Workspace::removeDropViewPreview()
 {
-  if (m_dropPreviewPanel) {
+  if (m_dropPreviewPanel)
+  {
     m_dropPreviewPanel->removeDropViewPreview();
     m_dropPreviewPanel = nullptr;
   }
 
-  if (m_dropPreviewTabs) {
+  if (m_dropPreviewTabs)
+  {
     m_dropPreviewTabs->removeDropViewPreview();
     m_dropPreviewTabs = nullptr;
   }
 }
 
-DropViewAtResult Workspace::dropViewAt(const gfx::Point& pos, WorkspaceView* view, bool clone)
+DropViewAtResult Workspace::dropViewAt(const gfx::Point& pos,
+                                       WorkspaceView* view, bool clone)
 {
   WorkspaceTabs* tabs = getTabsAt(pos);
   WorkspacePanel* panel = getPanelAt(pos);
 
-  if (panel) {
+  if (panel)
+  {
     // Create new panel
     return panel->dropViewAt(pos, getViewPanel(view), view, clone);
   }
-  else if (tabs && tabs != getViewPanel(view)->tabs()) {
+  else if (tabs && tabs != getViewPanel(view)->tabs())
+  {
     // Dock tab in other tabs
     WorkspacePanel* dropPanel = tabs->panel();
     ASSERT(dropPanel);
@@ -233,11 +242,13 @@ DropViewAtResult Workspace::dropViewAt(const gfx::Point& pos, WorkspaceView* vie
     DropViewAtResult result;
 
     WorkspaceView* originalView = view;
-    if (clone) {
+    if (clone)
+    {
       view = view->cloneWorkspaceView();
       result = DropViewAtResult::CLONED_VIEW;
     }
-    else {
+    else
+    {
       removeView(view);
       result = DropViewAtResult::MOVED_TO_OTHER_PANEL;
     }
@@ -253,7 +264,8 @@ DropViewAtResult Workspace::dropViewAt(const gfx::Point& pos, WorkspaceView* vie
     return DropViewAtResult::NOTHING;
 }
 
-void Workspace::addViewToPanel(WorkspacePanel* panel, WorkspaceView* view, bool from_drop, int pos)
+void Workspace::addViewToPanel(WorkspacePanel* panel, WorkspaceView* view,
+                               bool from_drop, int pos)
 {
   panel->addView(view, from_drop, pos);
 
@@ -267,7 +279,8 @@ void Workspace::addViewToPanel(WorkspacePanel* panel, WorkspaceView* view, bool 
 WorkspacePanel* Workspace::getViewPanel(WorkspaceView* view)
 {
   Widget* widget = view->getContentWidget();
-  while (widget) {
+  while (widget)
+  {
     if (widget->type() == WorkspacePanel::Type())
       return static_cast<WorkspacePanel*>(widget);
 
@@ -279,7 +292,8 @@ WorkspacePanel* Workspace::getViewPanel(WorkspaceView* view)
 WorkspacePanel* Workspace::getPanelAt(const gfx::Point& pos)
 {
   Widget* widget = manager()->pick(pos);
-  while (widget) {
+  while (widget)
+  {
     if (widget->type() == WorkspacePanel::Type())
       return static_cast<WorkspacePanel*>(widget);
 
@@ -291,7 +305,8 @@ WorkspacePanel* Workspace::getPanelAt(const gfx::Point& pos)
 WorkspaceTabs* Workspace::getTabsAt(const gfx::Point& pos)
 {
   Widget* widget = manager()->pick(pos);
-  while (widget) {
+  while (widget)
+  {
     if (widget->type() == Tabs::Type())
       return static_cast<WorkspaceTabs*>(widget);
 
@@ -303,7 +318,8 @@ WorkspaceTabs* Workspace::getTabsAt(const gfx::Point& pos)
 void Workspace::onNewInputPriority(InputChainElement* newElement)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     activeElement->onNewInputPriority(newElement);
 }
@@ -311,7 +327,8 @@ void Workspace::onNewInputPriority(InputChainElement* newElement)
 bool Workspace::onCanCut(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCanCut(ctx);
   else
@@ -321,7 +338,8 @@ bool Workspace::onCanCut(Context* ctx)
 bool Workspace::onCanCopy(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCanCopy(ctx);
   else
@@ -331,7 +349,8 @@ bool Workspace::onCanCopy(Context* ctx)
 bool Workspace::onCanPaste(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCanPaste(ctx);
   else
@@ -341,7 +360,8 @@ bool Workspace::onCanPaste(Context* ctx)
 bool Workspace::onCanClear(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCanClear(ctx);
   else
@@ -351,7 +371,8 @@ bool Workspace::onCanClear(Context* ctx)
 bool Workspace::onCut(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCut(ctx);
   else
@@ -361,7 +382,8 @@ bool Workspace::onCut(Context* ctx)
 bool Workspace::onCopy(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCopy(ctx);
   else
@@ -371,7 +393,8 @@ bool Workspace::onCopy(Context* ctx)
 bool Workspace::onPaste(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onPaste(ctx);
   else
@@ -381,7 +404,8 @@ bool Workspace::onPaste(Context* ctx)
 bool Workspace::onClear(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onClear(ctx);
   else
@@ -391,7 +415,8 @@ bool Workspace::onClear(Context* ctx)
 void Workspace::onCancel(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement = (view ? view->onGetInputChainElement(): nullptr);
+  InputChainElement* activeElement =
+      (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     activeElement->onCancel(ctx);
 }

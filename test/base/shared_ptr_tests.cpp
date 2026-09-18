@@ -41,12 +41,15 @@ TEST(SharedPtr, UseCount)
   EXPECT_EQ(1, b.use_count());
 }
 
-
 class DeleteIsCalled
 {
 public:
-  DeleteIsCalled(bool& flag) : m_flag(flag) { }
+  DeleteIsCalled(bool& flag)
+    : m_flag(flag)
+  {
+  }
   ~DeleteIsCalled() { m_flag = true; }
+
 private:
   bool& m_flag;
 };
@@ -60,10 +63,15 @@ TEST(SharedPtr, DeleteIsCalled)
   EXPECT_EQ(true, flag);
 }
 
-
-class A { };
-class B : public A { };
-class C : public A { };
+class A
+{
+};
+class B : public A
+{
+};
+class C : public A
+{
+};
 
 TEST(SharedPtr, Hierarchy)
 {
@@ -142,13 +150,18 @@ TEST(SharedPtr, ResetBugDoesntSetPtrToNull)
   EXPECT_EQ(5, *a);
 }
 
-struct CustomDeleter {
+struct CustomDeleter
+{
   bool* flag;
-  CustomDeleter(bool* flag) : flag(flag) {
+  CustomDeleter(bool* flag)
+    : flag(flag)
+  {
     *flag = false;
   }
-  void operator()(int* ptr) {
-    if (*ptr == 5) {
+  void operator()(int* ptr)
+  {
+    if (*ptr == 5)
+    {
       *flag = true;
       delete ptr;
     }

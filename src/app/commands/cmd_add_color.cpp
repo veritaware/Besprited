@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -24,11 +24,18 @@
 #include "doc/palette.h"
 #include "ui/manager.h"
 
-namespace app {
+namespace app
+{
 
-class AddColorCommand : public Command {
+class AddColorCommand : public Command
+{
 public:
-  enum class Source { Fg, Bg, Color };
+  enum class Source
+  {
+    Fg,
+    Bg,
+    Color
+  };
 
   AddColorCommand();
 
@@ -38,15 +45,12 @@ protected:
   void onExecute(Context* ctx) override;
   std::string onGetFriendlyName() const override;
 
-  Source m_source;
+  Source m_source = Source::Fg;
   app::Color m_color;
 };
 
 AddColorCommand::AddColorCommand()
-  : Command("AddColor",
-            "Add Color",
-            CmdUIOnlyFlag)
-  , m_source(Source::Fg)
+  : Command("AddColor", "Add Color", CmdUIOnlyFlag)
 {
 }
 
@@ -75,30 +79,27 @@ void AddColorCommand::onExecute(Context* ctx)
 {
   app::Color appColor;
 
-  switch (m_source) {
-    case Source::Fg:
-      appColor = ColorBar::instance()->getFgColor();
-      break;
-    case Source::Bg:
-      appColor = ColorBar::instance()->getBgColor();
-      break;
-    case Source::Color:
-      appColor = m_color;
-      break;
+  switch (m_source)
+  {
+  case Source::Fg:
+    appColor = ColorBar::instance()->getFgColor();
+    break;
+  case Source::Bg:
+    appColor = ColorBar::instance()->getBgColor();
+    break;
+  case Source::Color:
+    appColor = m_color;
+    break;
   }
 
-  try {
+  try
+  {
     Palette* newPalette = get_current_palette(); // System current pal
-    color_t color = doc::rgba(
-      appColor.getRed(),
-      appColor.getGreen(),
-      appColor.getBlue(),
-      appColor.getAlpha());
-    int index = newPalette->findExactMatch(
-      appColor.getRed(),
-      appColor.getGreen(),
-      appColor.getBlue(),
-      appColor.getAlpha(), -1);
+    color_t color = doc::rgba(appColor.getRed(), appColor.getGreen(),
+                              appColor.getBlue(), appColor.getAlpha());
+    int index =
+        newPalette->findExactMatch(appColor.getRed(), appColor.getGreen(),
+                                   appColor.getBlue(), appColor.getAlpha(), -1);
 
     // It should be -1, because the user has pressed the warning
     // button that is available only when the color isn't in the
@@ -110,15 +111,16 @@ void AddColorCommand::onExecute(Context* ctx)
     ContextWriter writer(ctx, 500);
     Document* document(writer.document());
     Sprite* sprite = writer.sprite();
-    if (!document || !sprite) {
+    if (!document || !sprite)
+    {
       ASSERT(false);
       return;
     }
 
     newPalette->addEntry(color);
-    index = newPalette->size()-1;
 
-    if (document) {
+    if (document)
+    {
       frame_t frame = writer.frame();
 
       Transaction transaction(writer.context(), "Add Color", ModifyDocument);
@@ -129,7 +131,8 @@ void AddColorCommand::onExecute(Context* ctx)
     set_current_palette(newPalette, true);
     ui::Manager::getDefault()->invalidate();
   }
-  catch (base::Exception& e) {
+  catch (base::Exception& e)
+  {
     Console::showException(e);
   }
 }
@@ -138,10 +141,17 @@ std::string AddColorCommand::onGetFriendlyName() const
 {
   std::string text = "Add ";
 
-  switch (m_source) {
-    case Source::Fg: text += "Foreground"; break;
-    case Source::Bg: text += "Background"; break;
-    case Source::Color: text += "Specific"; break;
+  switch (m_source)
+  {
+  case Source::Fg:
+    text += "Foreground";
+    break;
+  case Source::Bg:
+    text += "Background";
+    break;
+  case Source::Color:
+    text += "Specific";
+    break;
   }
 
   text += " Color to Palette";

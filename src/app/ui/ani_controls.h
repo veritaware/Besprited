@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,23 +13,25 @@
 #include <string>
 #include <vector>
 
-namespace app {
-  class Editor;
+namespace app
+{
+class Editor;
 
-  class AniControls : public ButtonSet {
-  public:
-    AniControls();
+class AniControls : public ButtonSet
+{
+public:
+  AniControls();
 
-    void updateUsingEditor(Editor* editor);
+  void updateUsingEditor(Editor* editor);
 
-  protected:
-    void onRightClick(Item* item) override;
+protected:
+  void onRightClick(Item* item) override;
 
-  private:
-    void onClickButton();
+private:
+  void onClickButton();
 
-    const char* getCommandId(int index) const;
-    std::string getTooltipFor(int index) const;
-  };
+  const char* getCommandId(int index) const;
+  std::string getTooltipFor(int index) const;
+};
 
 } // namespace app

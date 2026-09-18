@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -26,9 +26,11 @@
 #include "doc/mask.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class MaskContentCommand : public Command {
+class MaskContentCommand : public Command
+{
 public:
   MaskContentCommand();
   Command* clone() const override { return new MaskContentCommand(*this); }
@@ -39,9 +41,7 @@ protected:
 };
 
 MaskContentCommand::MaskContentCommand()
-  : Command("MaskContent",
-            "Mask Content",
-            CmdRecordableFlag)
+  : Command("MaskContent", "Mask Content", CmdRecordableFlag)
 {
 }
 
@@ -58,14 +58,16 @@ void MaskContentCommand::onExecute(Context* context)
     ContextWriter writer(context);
     document = writer.document();
 
-    auto cel = writer.cel(); // Get current cel (can be NULL)
+    auto cel = writer.cel(); // Get current cel (can be nullptr)
     if (!cel)
       return;
 
     gfx::Color color;
-    if (writer.layer()->isBackground()) {
+    if (writer.layer()->isBackground())
+    {
       ColorPicker picker;
-      picker.pickColor(*writer.site(), gfx::Point(0, 0), ColorPicker::FromComposition);
+      picker.pickColor(*writer.site(), gfx::Point(0, 0),
+                       ColorPicker::FromComposition);
       color = color_utils::color_for_layer(picker.color(), writer.layer());
     }
     else
@@ -73,14 +75,17 @@ void MaskContentCommand::onExecute(Context* context)
 
     Mask newMask;
     gfx::Rect imgBounds = cel->image()->bounds();
-    if (algorithm::shrink_bounds(cel->image(), imgBounds, color)) {
+    if (algorithm::shrink_bounds(cel->image(), imgBounds, color))
+    {
       newMask.replace(imgBounds.offset(cel->bounds().origin()));
     }
-    else {
+    else
+    {
       newMask.replace(cel->bounds());
     }
 
-    Transaction transaction(writer.context(), "Select Content", DoesntModifyDocument);
+    Transaction transaction(writer.context(), "Select Content",
+                            DoesntModifyDocument);
     transaction.execute(new cmd::SetMask(document, &newMask));
     transaction.commit();
 
@@ -89,8 +94,9 @@ void MaskContentCommand::onExecute(Context* context)
   }
 
   // Select marquee tool
-  if (tools::Tool* tool = App::instance()->toolBox()
-      ->getToolById(tools::WellKnownTools::RectangularMarquee)) {
+  if (tools::Tool* tool = App::instance()->toolBox()->getToolById(
+          tools::WellKnownTools::RectangularMarquee))
+  {
     ToolBar::instance()->selectTool(tool);
   }
 

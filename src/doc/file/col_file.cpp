@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -18,10 +19,10 @@
 #include <cstdio>
 #include <cstdlib>
 
-#define PROCOL_MAGIC_NUMBER     0xB123
+#define PROCOL_MAGIC_NUMBER 0xB123
 
-namespace doc {
-namespace file {
+namespace doc::file
+{
 
 using namespace base;
 
@@ -34,25 +35,28 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
 
   f = std::fopen(filename, "rb");
   if (!f)
-    return NULL;
+    return nullptr;
 
   // Get file size.
   std::fseek(f, 0, SEEK_END);
-  std::size_t size = std::ftell(f);
-  std::div_t d = std::div(size-8, 3);
+  const std::size_t size = std::ftell(f);
+  std::div_t d = std::div(size - 8, 3);
   std::fseek(f, 0, SEEK_SET);
 
-  bool pro = (size == 768)? false: true; // is Animator Pro format?
-  if (!(size) || (pro && d.rem)) {       // Invalid format
+  const bool pro = (size == 768) ? false : true; // is Animator Pro format?
+  if (!(size) || (pro && d.rem))
+  { // Invalid format
     fclose(f);
-    return NULL;
+    return nullptr;
   }
 
   // Animator format
-  if (!pro) {
+  if (!pro)
+  {
     pal = Palette::create(256);
 
-    for (c=0; c<256; c++) {
+    for (c = 0; c < 256; c++)
+    {
       r = fgetc(f);
       g = fgetc(f);
       b = fgetc(f);
@@ -65,30 +69,32 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
     }
   }
   // Animator Pro format
-  else {
+  else
+  {
     int magic, version;
 
-    fgetl(f);                   // Skip file size
-    magic = fgetw(f);           // File format identifier
-    version = fgetw(f);         // Version file
+    fgetl(f);           // Skip file size
+    magic = fgetw(f);   // File format identifier
+    version = fgetw(f); // Version file
 
     // Unknown format
-    if (magic != PROCOL_MAGIC_NUMBER || version != 0) {
+    if (magic != PROCOL_MAGIC_NUMBER || version != 0)
+    {
       fclose(f);
-      return NULL;
+      return nullptr;
     }
 
     pal = Palette::create(MIN(d.quot, 256));
 
-    for (c=0; c<pal->size(); c++) {
+    for (c = 0; c < pal->size(); c++)
+    {
       r = fgetc(f);
       g = fgetc(f);
       b = fgetc(f);
       if (ferror(f))
         break;
 
-      pal->setEntry(c, rgba(base::clamp(r, 0, 255),
-                            base::clamp(g, 0, 255),
+      pal->setEntry(c, rgba(base::clamp(r, 0, 255), base::clamp(g, 0, 255),
                             base::clamp(b, 0, 255), 255));
     }
   }
@@ -100,16 +106,17 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
 // Saves an Animator Pro COL file
 bool save_col_file(const Palette& pal, const char* filename)
 {
-  FILE *f = fopen(filename, "wb");
+  FILE* f = fopen(filename, "wb");
   if (!f)
     return false;
 
-  fputl(8+768, f);                 // File size
-  fputw(PROCOL_MAGIC_NUMBER, f);   // File format identifier
-  fputw(0, f);                     // Version file
+  fputl(8 + 768, f);             // File size
+  fputw(PROCOL_MAGIC_NUMBER, f); // File format identifier
+  fputw(0, f);                   // Version file
 
   uint32_t c;
-  for (int i=0, max = pal.size(); i < 256; i++) {
+  for (int i = 0, max = pal.size(); i < 256; i++)
+  {
     c = i < max ? pal.getEntry(i) : 0;
     fputc(rgba_getr(c), f);
     fputc(rgba_getg(c), f);
@@ -122,5 +129,4 @@ bool save_col_file(const Palette& pal, const char* filename)
   return true;
 }
 
-} // namespace file
-} // namespace doc
+} // namespace doc::file

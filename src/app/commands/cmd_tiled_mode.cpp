@@ -17,9 +17,11 @@
 #include "app/pref/preferences.h"
 #include "filters/tiled_mode.h"
 
-namespace app {
+namespace app
+{
 
-class TiledModeCommand : public Command {
+class TiledModeCommand : public Command
+{
 public:
   TiledModeCommand();
   Command* clone() const override { return new TiledModeCommand(*this); }
@@ -30,14 +32,11 @@ protected:
   bool onChecked(Context* context) override;
   void onExecute(Context* context) override;
 
-  filters::TiledMode m_mode;
+  filters::TiledMode m_mode = filters::TiledMode::NONE;
 };
 
 TiledModeCommand::TiledModeCommand()
-  : Command("TiledMode",
-            "Tiled Mode",
-            CmdUIOnlyFlag)
-  , m_mode(filters::TiledMode::NONE)
+  : Command("TiledMode", "Tiled Mode", CmdUIOnlyFlag)
 {
 }
 
@@ -46,9 +45,12 @@ void TiledModeCommand::onLoadParams(const Params& params)
   m_mode = filters::TiledMode::NONE;
 
   std::string mode = params.get("axis");
-  if (mode == "both") m_mode = filters::TiledMode::BOTH;
-  else if (mode == "x") m_mode = filters::TiledMode::X_AXIS;
-  else if (mode == "y") m_mode = filters::TiledMode::Y_AXIS;
+  if (mode == "both")
+    m_mode = filters::TiledMode::BOTH;
+  else if (mode == "x")
+    m_mode = filters::TiledMode::X_AXIS;
+  else if (mode == "y")
+    m_mode = filters::TiledMode::Y_AXIS;
 }
 
 bool TiledModeCommand::onEnabled(Context* ctx)

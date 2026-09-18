@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,13 +9,15 @@
 
 #include <string>
 
-namespace app {
+namespace app
+{
 
-  class INotificationDelegate {
-  public:
-    virtual ~INotificationDelegate() { }
-    virtual std::string notificationText() = 0;
-    virtual void notificationClick() = 0;
-  };
+class INotificationDelegate
+{
+public:
+  virtual ~INotificationDelegate() {}
+  virtual std::string notificationText() = 0;
+  virtual void notificationClick() = 0;
+};
 
-}
+} // namespace app

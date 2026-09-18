@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,31 +17,43 @@
 
 #include <cstring>
 
-namespace ui {
+namespace ui
+{
 
 Message::Message(MessageType type, KeyModifiers modifiers)
   : m_type(type)
   , m_used(false)
 {
-  if (modifiers == kKeyUninitializedModifier) {
+  if (modifiers == kKeyUninitializedModifier)
+  {
     // Get modifiers from the deprecated API
     // TODO remove this
-    m_modifiers = (KeyModifiers)
-      ((she::is_key_pressed(kKeyLShift) || she::is_key_pressed(kKeyRShift) ? kKeyShiftModifier: 0) |
-       (she::is_key_pressed(kKeyLControl) || she::is_key_pressed(kKeyRControl) ? kKeyCtrlModifier: 0) |
-       (she::is_key_pressed(kKeyAlt) ? kKeyAltModifier: 0) |
-       (she::is_key_pressed(kKeyCommand) ? kKeyCmdModifier: 0) |
-       (she::is_key_pressed(kKeySpace) ? kKeySpaceModifier: 0) |
-       (she::is_key_pressed(kKeyLWin) || she::is_key_pressed(kKeyRWin) ? kKeyWinModifier: 0));
+    m_modifiers =
+        (KeyModifiers)((she::is_key_pressed(kKeyLShift) ||
+                                she::is_key_pressed(kKeyRShift)
+                            ? kKeyShiftModifier
+                            : 0) |
+                       (she::is_key_pressed(kKeyLControl) ||
+                                she::is_key_pressed(kKeyRControl)
+                            ? kKeyCtrlModifier
+                            : 0) |
+                       (she::is_key_pressed(kKeyAlt) ? kKeyAltModifier : 0) |
+                       (she::is_key_pressed(kKeyCommand) ? kKeyCmdModifier
+                                                         : 0) |
+                       (she::is_key_pressed(kKeySpace) ? kKeySpaceModifier
+                                                       : 0) |
+                       (she::is_key_pressed(kKeyLWin) ||
+                                she::is_key_pressed(kKeyRWin)
+                            ? kKeyWinModifier
+                            : 0));
   }
-  else {
+  else
+  {
     m_modifiers = modifiers;
   }
 }
 
-Message::~Message()
-{
-}
+Message::~Message() = default;
 
 void Message::addRecipient(Widget* widget)
 {
@@ -58,11 +71,12 @@ void Message::prependRecipient(Widget* widget)
 
 void Message::removeRecipient(Widget* widget)
 {
-  for (WidgetsList::iterator
-         it = m_recipients.begin(),
-         end = m_recipients.end(); it != end; ++it) {
+  for (WidgetsList::iterator it = m_recipients.begin(),
+                             end = m_recipients.end();
+       it != end; ++it)
+  {
     if (*it == widget)
-      *it = NULL;
+      *it = nullptr;
   }
 }
 
@@ -76,10 +90,8 @@ void Message::broadcastToChildren(Widget* widget)
   addRecipient(widget);
 }
 
-KeyMessage::KeyMessage(MessageType type,
-                       KeyScancode scancode,
-                       KeyModifiers modifiers,
-                       int unicodeChar, int repeat)
+KeyMessage::KeyMessage(MessageType type, KeyScancode scancode,
+                       KeyModifiers modifiers, int unicodeChar, int repeat)
   : Message(type, modifiers)
   , m_scancode(scancode)
   , m_unicodeChar(unicodeChar)

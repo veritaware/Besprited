@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -23,11 +23,13 @@
 
 #include <cstdio>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class DuplicateSpriteCommand : public Command {
+class DuplicateSpriteCommand : public Command
+{
 public:
   DuplicateSpriteCommand();
   Command* clone() const override { return new DuplicateSpriteCommand(*this); }
@@ -38,9 +40,7 @@ protected:
 };
 
 DuplicateSpriteCommand::DuplicateSpriteCommand()
-  : Command("DuplicateSprite",
-            "Duplicate Sprite",
-            CmdUIOnlyFlag)
+  : Command("DuplicateSprite", "Duplicate Sprite", CmdUIOnlyFlag)
 {
 }
 
@@ -59,8 +59,8 @@ void DuplicateSpriteCommand::onExecute(Context* context)
   std::string fn = document->filename();
   std::string ext = base::get_file_extension(fn);
   window.srcName()->setText(base::get_file_name(fn));
-  window.dstName()->setText(base::get_file_title(fn) +
-    " Copy" + (!ext.empty() ? "." + ext: ""));
+  window.dstName()->setText(base::get_file_title(fn) + " Copy" +
+                            (!ext.empty() ? "." + ext : ""));
 
   if (get_config_bool("DuplicateSprite", "Flatten", false))
     window.flatten()->setSelected(true);
@@ -68,8 +68,10 @@ void DuplicateSpriteCommand::onExecute(Context* context)
   // Open the window
   window.openWindowInForeground();
 
-  if (window.closer() == window.ok()) {
-    set_config_bool("DuplicateSprite", "Flatten", window.flatten()->isSelected());
+  if (window.closer() == window.ok())
+  {
+    set_config_bool("DuplicateSprite", "Flatten",
+                    window.flatten()->isSelected());
 
     // Make a copy of the document
     Document* docCopy;

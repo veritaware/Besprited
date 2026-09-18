@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,15 +20,14 @@
 #include <algorithm>
 #include <stdexcept>
 
-namespace app {
-
-Context::Context()
+namespace app
 {
-}
+
+Context::Context() = default;
 
 void Context::sendDocumentToTop(doc::Document* document)
 {
-  ASSERT(document != NULL);
+  ASSERT(document != nullptr);
 
   documents().move(document, 0);
 }
@@ -59,10 +58,11 @@ void Context::executeCommand(Command* command, const Params& params)
 {
   Console console;
 
-  ASSERT(command != NULL);
+  ASSERT(command != nullptr);
 
   LOG("Context: Executing command '%s'...\n", command->id().c_str());
-  try {
+  try
+  {
     m_flags.update(this);
 
     command->loadParams(params);
@@ -70,14 +70,17 @@ void Context::executeCommand(Command* command, const Params& params)
     CommandExecutionEvent ev(command);
     BeforeCommandExecution(ev);
 
-    if (ev.isCanceled()) {
+    if (ev.isCanceled())
+    {
       LOG("Context: '%s' was canceled/simulated.\n", command->id().c_str());
     }
-    else if (command->isEnabled(this)) {
+    else if (command->isEnabled(this))
+    {
       command->execute(this);
       LOG("Context: '%s' executed successfully\n", command->id().c_str());
     }
-    else {
+    else
+    {
       LOG("Context: '%s' is disabled\n", command->id().c_str());
     }
 
@@ -87,20 +90,24 @@ void Context::executeCommand(Command* command, const Params& params)
     if (isUIAvailable())
       app_rebuild_documents_tabs();
   }
-  catch (base::Exception& e) {
+  catch (base::Exception& e)
+  {
     LOG("Context: Exception caught executing '%s' command\n%s\n",
         command->id().c_str(), e.what());
 
     Console::showException(e);
   }
-  catch (std::exception& e) {
+  catch (std::exception& e)
+  {
     LOG("Context: std::exception caught executing '%s' command\n%s\n",
         command->id().c_str(), e.what());
 
-    console.printf("An error ocurred executing the command.\n\nDetails:\n%s", e.what());
+    console.printf("An error ocurred executing the command.\n\nDetails:\n%s",
+                   e.what());
   }
 #ifdef NDEBUG
-  catch (...) {
+  catch (...)
+  {
     LOG("Context: Unknown exception executing '%s' command\n",
         command->id().c_str());
 
@@ -115,7 +122,7 @@ void Context::executeCommand(Command* command, const Params& params)
 
 void Context::onCreateDocument(doc::CreateDocumentArgs* args)
 {
-  args->setDocument(new app::Document(NULL));
+  args->setDocument(new app::Document(nullptr));
 }
 
 } // namespace app

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -46,99 +46,111 @@
 
 #include <typeinfo>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
 class AppEditor : public Editor,
                   public EditorObserver,
-                  public EditorCustomizationDelegate {
+                  public EditorCustomizationDelegate
+{
 public:
-  AppEditor(Document* document,
-            DocumentViewPreviewDelegate* previewDelegate)
+  AppEditor(Document* document, DocumentViewPreviewDelegate* previewDelegate)
     : Editor(document)
-    , m_previewDelegate(previewDelegate) {
+    , m_previewDelegate(previewDelegate)
+  {
     addObserver(this);
     setCustomizationDelegate(this);
   }
 
-  ~AppEditor() {
+  ~AppEditor() override
+  {
     removeObserver(this);
-    setCustomizationDelegate(NULL);
+    setCustomizationDelegate(nullptr);
   }
 
   // EditorObserver implementation
-  void dispose() override {
-    m_previewDelegate->onDisposeOtherEditor(this);
-  }
+  void dispose() override { m_previewDelegate->onDisposeOtherEditor(this); }
 
-  void onScrollChanged(Editor* editor) override {
+  void onScrollChanged(Editor* editor) override
+  {
     m_previewDelegate->onScrollOtherEditor(this);
 
     if (isActive())
       StatusBar::instance()->updateFromEditor(this);
   }
 
-  void onAfterFrameChanged(Editor* editor) override {
+  void onAfterFrameChanged(Editor* editor) override
+  {
     m_previewDelegate->onPreviewOtherEditor(this);
 
     if (isActive())
       set_current_palette(editor->sprite()->palette(editor->frame()), true);
   }
 
-  void onAfterLayerChanged(Editor* editor) override {
+  void onAfterLayerChanged(Editor* editor) override
+  {
     m_previewDelegate->onPreviewOtherEditor(this);
   }
 
   // EditorCustomizationDelegate implementation
-  tools::Tool* getQuickTool(tools::Tool* currentTool) override {
-    return KeyboardShortcuts::instance()
-      ->getCurrentQuicktool(currentTool);
+  tools::Tool* getQuickTool(tools::Tool* currentTool) override
+  {
+    return KeyboardShortcuts::instance()->getCurrentQuicktool(currentTool);
   }
 
-  KeyAction getPressedKeyAction(KeyContext context) override {
+  KeyAction getPressedKeyAction(KeyContext context) override
+  {
     return KeyboardShortcuts::instance()->getCurrentActionModifiers(context);
   }
 
 protected:
-  bool onProcessMessage(Message* msg) override {
-    switch (msg->type()) {
+  bool onProcessMessage(Message* msg) override
+  {
+    switch (msg->type())
+    {
 
-      case kKeyDownMessage:
-      case kKeyUpMessage:
-        if (static_cast<KeyMessage*>(msg)->repeat() == 0) {
-          Key* lmb = KeyboardShortcuts::instance()->action(KeyAction::LeftMouseButton);
-          Key* rmb = KeyboardShortcuts::instance()->action(KeyAction::RightMouseButton);
+    case kKeyDownMessage:
+    case kKeyUpMessage:
+      if (static_cast<KeyMessage*>(msg)->repeat() == 0)
+      {
+        Key* lmb =
+            KeyboardShortcuts::instance()->action(KeyAction::LeftMouseButton);
+        Key* rmb =
+            KeyboardShortcuts::instance()->action(KeyAction::RightMouseButton);
 
-          // Convert action keys into mouse messages.
-          if (lmb->isPressed(msg) || rmb->isPressed(msg)) {
-            MouseMessage mouseMsg(
-              (msg->type() == kKeyDownMessage ? kMouseDownMessage: kMouseUpMessage),
+        // Convert action keys into mouse messages.
+        if (lmb->isPressed(msg) || rmb->isPressed(msg))
+        {
+          MouseMessage mouseMsg(
+              (msg->type() == kKeyDownMessage ? kMouseDownMessage
+                                              : kMouseUpMessage),
               PointerType::Unknown,
-              (lmb->isPressed(msg) ? kButtonLeft: kButtonRight),
-              msg->modifiers(),
-              ui::get_mouse_position());
+              (lmb->isPressed(msg) ? kButtonLeft : kButtonRight),
+              msg->modifiers(), ui::get_mouse_position());
 
-            sendMessage(&mouseMsg);
-            return true;
-          }
+          sendMessage(&mouseMsg);
+          return true;
         }
-        break;
+      }
+      break;
     }
 
-    try {
+    try
+    {
       return Editor::onProcessMessage(msg);
     }
-    catch (const std::exception& ex) {
+    catch (const std::exception& ex)
+    {
       EditorState* state = getState().get();
 
       Console console;
       Console::showException(ex);
       console.printf("\nInternal details:\n"
-        "- Message type: %d\n"
-        "- Editor state: %s\n",
-        msg->type(),
-        state ? typeid(*state).name(): "None");
+                     "- Message type: %d\n"
+                     "- Editor state: %s\n",
+                     msg->type(), state ? typeid(*state).name() : "None");
       return false;
     }
   }
@@ -147,10 +159,12 @@ private:
   DocumentViewPreviewDelegate* m_previewDelegate;
 };
 
-class PreviewEditor : public Editor {
+class PreviewEditor : public Editor
+{
 public:
   PreviewEditor(Document* document)
-    : Editor(document, Editor::kShowOutside) // Don't show grid/mask in preview preview
+    : Editor(document,
+             Editor::kShowOutside) // Don't show grid/mask in preview preview
   {
   }
 };
@@ -160,12 +174,11 @@ DocumentView::DocumentView(Document* document, Type type,
   : Box(VERTICAL)
   , m_type(type)
   , m_document(document)
-  , m_view(new EditorView(type == Normal ? EditorView::CurrentEditorMode:
-                                           EditorView::AlwaysSelected))
+  , m_view(new EditorView(type == Normal ? EditorView::CurrentEditorMode
+                                         : EditorView::AlwaysSelected))
   , m_previewDelegate(previewDelegate)
-  , m_editor((type == Normal ?
-              (Editor*)new AppEditor(document, previewDelegate):
-              (Editor*)new PreviewEditor(document)))
+  , m_editor((type == Normal ? (Editor*)new AppEditor(document, previewDelegate)
+                             : (Editor*)new PreviewEditor(document)))
 {
   addChild(m_view);
 
@@ -216,8 +229,8 @@ void DocumentView::onClonedFrom(WorkspaceView* from)
   newEditor->setFrame(srcEditor->frame());
   newEditor->setZoom(srcEditor->zoom());
 
-  View::getView(newEditor)
-    ->setViewScroll(View::getView(srcEditor)->viewScroll());
+  View::getView(newEditor)->setViewScroll(
+      View::getView(srcEditor)->viewScroll());
 }
 
 bool DocumentView::onCloseView(Workspace* workspace, bool quitting)
@@ -226,10 +239,11 @@ bool DocumentView::onCloseView(Workspace* workspace, bool quitting)
     m_editor->dropMovingPixels();
 
   // If there is another view for this document, just close the view.
-  for (auto view : *workspace) {
+  for (auto view : *workspace)
+  {
     DocumentView* docView = dynamic_cast<DocumentView*>(view);
-    if (docView && docView != this &&
-        docView->document() == document()) {
+    if (docView && docView != this && docView->document() == document())
+    {
       workspace->removeView(this);
       delete this;
       return true;
@@ -240,30 +254,35 @@ bool DocumentView::onCloseView(Workspace* workspace, bool quitting)
   bool save_it;
   bool try_again = true;
 
-  while (try_again) {
+  while (try_again)
+  {
     // This flag indicates if we have to sabe the sprite before to destroy it
     save_it = false;
     {
       // see if the sprite has changes
-      while (m_document->isModified()) {
+      while (m_document->isModified())
+      {
         // ask what want to do the user with the changes in the sprite
         int ret = Alert::show("Warning"
                               "<<Saving changes to the sprite"
                               "<<\"%s\" before %s?"
                               "||&Save||Do&n't Save||&Cancel",
                               m_document->name().c_str(),
-                              quitting ? "quitting": "closing");
+                              quitting ? "quitting" : "closing");
 
-        if (ret == 1) {
+        if (ret == 1)
+        {
           // "save": save the changes
           save_it = true;
           break;
         }
-        else if (ret != 2) {
+        else if (ret != 2)
+        {
           // "cancel" or "ESC" */
           return false; // we back doing nothing
         }
-        else {
+        else
+        {
           // "discard"
           break;
         }
@@ -271,12 +290,13 @@ bool DocumentView::onCloseView(Workspace* workspace, bool quitting)
     }
 
     // Does we need to save the sprite?
-    if (save_it) {
+    if (save_it)
+    {
       ctx->setActiveView(this);
       ctx->updateFlags();
 
       Command* save_command =
-        CommandsModule::instance()->getCommandByName(CommandId::SaveFile);
+          CommandsModule::instance()->getCommandByName(CommandId::SaveFile);
       ctx->executeCommand(save_command);
 
       try_again = true;
@@ -285,21 +305,22 @@ bool DocumentView::onCloseView(Workspace* workspace, bool quitting)
       try_again = false;
   }
 
-  try {
+  try
+  {
     // Destroy the sprite (locking it as writer)
     DocumentDestroyer destroyer(
-      static_cast<app::Context*>(m_document->context()), m_document, 500);
+        static_cast<app::Context*>(m_document->context()), m_document, 500);
 
-    StatusBar::instance()
-      ->setStatusText(0, "Sprite '%s' closed.",
-                      m_document->name().c_str());
+    StatusBar::instance()->setStatusText(0, "Sprite '%s' closed.",
+                                         m_document->name().c_str());
 
     destroyer.destroyDocument();
 
     // At this point the view is already destroyed
     return true;
   }
-  catch (const LockedDocumentException& ex) {
+  catch (const LockedDocumentException& ex)
+  {
     Console::showException(ex);
     return false;
   }
@@ -320,10 +341,11 @@ void DocumentView::onTabPopup(Workspace* workspace)
 
 bool DocumentView::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
-    case kFocusEnterMessage:
-      m_editor->requestFocus();
-      break;
+  switch (msg->type())
+  {
+  case kFocusEnterMessage:
+    m_editor->requestFocus();
+    break;
   }
   return Box::onProcessMessage(msg);
 }
@@ -336,8 +358,7 @@ void DocumentView::onGeneralUpdate(doc::DocumentEvent& ev)
 
 void DocumentView::onSpritePixelsModified(doc::DocumentEvent& ev)
 {
-  if (m_editor->isVisible() &&
-      m_editor->frame() == ev.frame())
+  if (m_editor->isVisible() && m_editor->frame() == ev.frame())
     m_editor->drawSpriteClipped(ev.region());
 }
 
@@ -348,8 +369,9 @@ void DocumentView::onLayerMergedDown(doc::DocumentEvent& ev)
 
 void DocumentView::onAddLayer(doc::DocumentEvent& ev)
 {
-  if (current_editor == m_editor) {
-    ASSERT(ev.layer() != NULL);
+  if (current_editor == m_editor)
+  {
+    ASSERT(ev.layer() != nullptr);
     m_editor->setLayer(ev.layer());
   }
 }
@@ -360,9 +382,10 @@ void DocumentView::onBeforeRemoveLayer(doc::DocumentEvent& ev)
   Layer* layer = ev.layer();
 
   // If the layer that was removed is the selected one
-  if (layer == m_editor->layer()) {
+  if (layer == m_editor->layer())
+  {
     LayerFolder* parent = layer->parent();
-    Layer* layer_select = NULL;
+    Layer* layer_select = nullptr;
 
     // Select previous layer, or next layer, or the parent (if it is
     // not the main layer of sprite set).
@@ -382,20 +405,22 @@ void DocumentView::onAddFrame(doc::DocumentEvent& ev)
   if (current_editor == m_editor)
     m_editor->setFrame(ev.frame());
   else if (m_editor->frame() > ev.frame())
-    m_editor->setFrame(m_editor->frame()+1);
+    m_editor->setFrame(m_editor->frame() + 1);
 }
 
 void DocumentView::onRemoveFrame(doc::DocumentEvent& ev)
 {
   // Adjust current frame of all editors that are in a frame more
   // advanced that the removed one.
-  if (m_editor->frame() > ev.frame()) {
-    m_editor->setFrame(m_editor->frame()-1);
+  if (m_editor->frame() > ev.frame())
+  {
+    m_editor->setFrame(m_editor->frame() - 1);
   }
   // If the editor was in the previous "last frame" (current value of
   // totalFrames()), we've to adjust it to the new last frame
   // (lastFrame())
-  else if (m_editor->frame() >= m_editor->sprite()->totalFrames()) {
+  else if (m_editor->frame() >= m_editor->sprite()->totalFrames())
+  {
     m_editor->setFrame(m_editor->sprite()->lastFrame());
   }
 }
@@ -412,7 +437,8 @@ void DocumentView::onRemoveCel(doc::DocumentEvent& ev)
 
 void DocumentView::onTotalFramesChanged(doc::DocumentEvent& ev)
 {
-  if (m_editor->frame() >= m_editor->sprite()->totalFrames()) {
+  if (m_editor->frame() >= m_editor->sprite()->totalFrames())
+  {
     m_editor->setFrame(m_editor->sprite()->lastFrame());
   }
 }
@@ -456,12 +482,11 @@ bool DocumentView::onCanCopy(Context* ctx)
 
 bool DocumentView::onCanPaste(Context* ctx)
 {
-  return
-    (clipboard::get_current_format() == clipboard::ClipboardImage &&
-     ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                     ContextFlags::ActiveLayerIsVisible |
-                     ContextFlags::ActiveLayerIsEditable |
-                     ContextFlags::ActiveLayerIsImage));
+  return (clipboard::get_current_format() == clipboard::ClipboardImage &&
+          ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
+                          ContextFlags::ActiveLayerIsVisible |
+                          ContextFlags::ActiveLayerIsEditable |
+                          ContextFlags::ActiveLayerIsImage));
 }
 
 bool DocumentView::onCanClear(Context* ctx)
@@ -469,10 +494,12 @@ bool DocumentView::onCanClear(Context* ctx)
   if (ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
                       ContextFlags::ActiveLayerIsVisible |
                       ContextFlags::ActiveLayerIsEditable |
-                      ContextFlags::ActiveLayerIsImage)) {
+                      ContextFlags::ActiveLayerIsImage))
+  {
     return true;
   }
-  else if (m_editor->isMovingPixels()) {
+  else if (m_editor->isMovingPixels())
+  {
     return true;
   }
   else
@@ -490,8 +517,10 @@ bool DocumentView::onCopy(Context* ctx)
 {
   const ContextReader reader(ctx);
   if (reader.site()->document() &&
-      static_cast<const app::Document*>(reader.site()->document())->isMaskVisible() &&
-      reader.site()->image()) {
+      static_cast<const app::Document*>(reader.site()->document())
+          ->isMaskVisible() &&
+      reader.site()->image())
+  {
     clipboard::copy(reader);
     return true;
   }
@@ -501,7 +530,8 @@ bool DocumentView::onCopy(Context* ctx)
 
 bool DocumentView::onPaste(Context* ctx)
 {
-  if (clipboard::get_current_format() == clipboard::ClipboardImage) {
+  if (clipboard::get_current_format() == clipboard::ClipboardImage)
+  {
     clipboard::paste();
     return true;
   }
@@ -523,8 +553,7 @@ bool DocumentView::onClear(Context* ctx)
     transaction.execute(new cmd::ClearMask(writer.cel()));
 
     // If the cel wasn't deleted by cmd::ClearMask, we trim it.
-    if (writer.cel() &&
-        writer.cel()->layer()->isTransparent())
+    if (writer.cel() && writer.cel()->layer()->isTransparent())
       transaction.execute(new cmd::TrimCel(writer.cel()));
 
     if (visibleMask &&
@@ -545,8 +574,10 @@ void DocumentView::onCancel(Context* ctx)
 {
   // Deselect mask
   if (ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                      ContextFlags::HasVisibleMask)) {
-    Command* deselectMask = CommandsModule::instance()->getCommandByName(CommandId::DeselectMask);
+                      ContextFlags::HasVisibleMask))
+  {
+    Command* deselectMask =
+        CommandsModule::instance()->getCommandByName(CommandId::DeselectMask);
     ctx->executeCommand(deselectMask);
   }
 }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,27 +19,27 @@
 #include <cstring>
 #include <exception>
 
-namespace app {
+namespace app
+{
 
 #undef FOR_EACH_COMMAND
-  #define FOR_EACH_COMMAND(Name) \
-    const char* CommandId::Name = #Name;
-  #include "app/commands/commands_list.h"
+#define FOR_EACH_COMMAND(Name) const char* CommandId::Name = #Name;
+#include "app/commands/commands_list.h"
 #undef FOR_EACH_COMMAND
 
-CommandsModule* CommandsModule::m_instance = NULL;
+CommandsModule* CommandsModule::m_instance = nullptr;
 
 CommandsModule::CommandsModule()
 {
-  ASSERT(m_instance == NULL);
+  ASSERT(m_instance == nullptr);
   m_instance = this;
 
-  #undef FOR_EACH_COMMAND
-  #define FOR_EACH_COMMAND(Name) \
-    m_commands.push_back(CommandFactory::create##Name##Command());
+#undef FOR_EACH_COMMAND
+#define FOR_EACH_COMMAND(Name)                                                 \
+  m_commands.push_back(CommandFactory::create##Name##Command());
 
-  #include "app/commands/commands_list.h"
-  #undef FOR_EACH_COMMAND
+#include "app/commands/commands_list.h"
+#undef FOR_EACH_COMMAND
 }
 
 CommandsModule::~CommandsModule()
@@ -50,27 +50,28 @@ CommandsModule::~CommandsModule()
     delete cmd;
 
   m_commands.clear();
-  m_instance = NULL;
+  m_instance = nullptr;
 }
 
 CommandsModule* CommandsModule::instance()
 {
-  ASSERT(m_instance != NULL);
+  ASSERT(m_instance != nullptr);
   return m_instance;
 }
 
 Command* CommandsModule::getCommandByName(const char* name)
 {
   if (!name)
-    return NULL;
+    return nullptr;
 
   std::string lname = base::string_to_lower(name);
-  for (Command* cmd : m_commands) {
+  for (Command* cmd : m_commands)
+  {
     if (base::utf8_icmp(cmd->id(), lname) == 0)
       return cmd;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 } // namespace app

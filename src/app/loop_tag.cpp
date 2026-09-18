@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,7 +14,8 @@
 #include "doc/sprite.h"
 #include "doc/frame_tag.h"
 
-namespace app {
+namespace app
+{
 
 const char* kLoopTagName = "Loop";
 
@@ -43,4 +44,4 @@ doc::FrameTag* create_loop_tag(doc::frame_t from, doc::frame_t to)
   return tag;
 }
 
-} // app
+} // namespace app

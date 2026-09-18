@@ -1,5 +1,6 @@
-// Aseprite Gfx Library
-// Copyright (C) 2001-2014 David Capello
+// Gfx Library
+// Aseprite  | Copyright (C) 2001-2014 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,11 +14,14 @@
 #include "gfx/region.h"
 #include "gfx/size.h"
 
-namespace gfx {
+#include <algorithm>
+
+namespace gfx
+{
 
 void PackingRects::add(const Size& sz)
 {
-  m_rects.push_back(Rect(sz));
+  m_rects.emplace_back(sz);
 }
 
 void PackingRects::add(const Rect& rc)
@@ -32,7 +36,8 @@ Size PackingRects::bestFit()
   // Calculate the amount of pixels that we need, the texture cannot
   // be smaller than that.
   int neededArea = 0;
-  for (const auto& rc : m_rects) {
+  for (const auto& rc : m_rects)
+  {
     neededArea += rc.w * rc.h;
   }
 
@@ -40,10 +45,13 @@ Size PackingRects::bestFit()
   int h = 1;
   int z = 0;
   bool fit = false;
-  while (true) {
-    if (w*h >= neededArea) {
+  while (true)
+  {
+    if (w * h >= neededArea)
+    {
       fit = pack(Size(w, h));
-      if (fit) {
+      if (fit)
+      {
         size = Size(w, h);
         break;
       }
@@ -58,30 +66,35 @@ Size PackingRects::bestFit()
   return size;
 }
 
-static bool by_area(const Rect* a, const Rect* b) {
-  return a->w*a->h > b->w*b->h;
+static bool by_area(const Rect* a, const Rect* b)
+{
+  return a->w * a->h > b->w * b->h;
 }
 
 bool PackingRects::pack(const Size& size)
 {
   m_bounds = Rect(size);
 
-  // We cannot sort m_rects because we want to 
+  // We cannot sort m_rects because we want to
   std::vector<Rect*> rectPtrs(m_rects.size());
   int i = 0;
   for (auto& rc : m_rects)
     rectPtrs[i++] = &rc;
-  std::sort(rectPtrs.begin(), rectPtrs.end(), by_area);
+  std::ranges::sort(rectPtrs, by_area);
 
   gfx::Region rgn(m_bounds);
-  for (auto rcPtr : rectPtrs) {
+  for (auto rcPtr : rectPtrs)
+  {
     gfx::Rect& rc = *rcPtr;
 
-    for (int v=0; v<=m_bounds.h-rc.h; ++v) {
-      for (int u=0; u<=m_bounds.w-rc.w; ++u) {
-        gfx::Rect possible(u, v, rc.w, rc.h);
-        Region::Overlap overlap = rgn.contains(possible);
-        if (overlap == Region::In) {
+    for (int v = 0; v <= m_bounds.h - rc.h; ++v)
+    {
+      for (int u = 0; u <= m_bounds.w - rc.w; ++u)
+      {
+        const gfx::Rect possible(u, v, rc.w, rc.h);
+        const Region::Overlap overlap = rgn.contains(possible);
+        if (overlap == Region::In)
+        {
           rc = possible;
           rgn.createSubtraction(rgn, gfx::Region(rc));
           goto next_rc;

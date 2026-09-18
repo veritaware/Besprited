@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,36 +13,38 @@
 #include "doc/documents.h"
 #include "doc/documents_observer.h"
 
-namespace doc {
-  class Command;
-  class Document;
-  class Settings;
+namespace doc
+{
+class Command;
+class Document;
+class Settings;
 
-  class Context : public base::Observable<ContextObserver>
-                , public DocumentsObserver {
-  public:
-    Context();
-    virtual ~Context();
+class Context : public base::Observable<ContextObserver>,
+                public DocumentsObserver
+{
+public:
+  Context();
+  virtual ~Context();
 
-    const Documents& documents() const { return m_docs; }
-    Documents& documents() { return m_docs; }
+  const Documents& documents() const { return m_docs; }
+  Documents& documents() { return m_docs; }
 
-    Site activeSite() const;
-    Document* activeDocument() const;
+  Site activeSite() const;
+  Document* activeDocument() const;
 
-    void notifyActiveSiteChanged();
+  void notifyActiveSiteChanged();
 
-  protected:
-    virtual void onGetActiveSite(Site* site) const;
-    virtual void onAddDocument(Document* doc) override;
-    virtual void onRemoveDocument(Document* doc) override;
+protected:
+  virtual void onGetActiveSite(Site* site) const;
+  virtual void onAddDocument(Document* doc) override;
+  virtual void onRemoveDocument(Document* doc) override;
 
-  private:
-    Settings* m_settings;
-    Documents m_docs;
-    Document* m_activeDoc;
+private:
+  Settings* m_settings;
+  Documents m_docs;
+  Document* m_activeDoc;
 
-    DISABLE_COPYING(Context);
-  };
+  DISABLE_COPYING(Context);
+};
 
 } // namespace doc

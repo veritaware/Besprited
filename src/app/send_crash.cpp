@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,7 +20,8 @@
 
 #include "send_crash.xml.h"
 
-namespace app {
+namespace app
+{
 
 #ifdef _WIN32
 static const char* kDefaultCrashName = PACKAGE_AND_VERSION "-crash.dmp";
@@ -43,7 +45,8 @@ void SendCrash::search()
 #ifdef _WIN32
   m_dumpFilename = memory_dump_filename();
 
-  if (base::is_file(m_dumpFilename)) {
+  if (base::is_file(m_dumpFilename))
+  {
     App::instance()->showNotification(this);
   }
 #endif
@@ -56,7 +59,8 @@ std::string SendCrash::notificationText()
 
 void SendCrash::notificationClick()
 {
-  if (m_dumpFilename.empty()) {
+  if (m_dumpFilename.empty())
+  {
     ui::Alert::show("Crash Report<<Nothing to report||&OK");
     return;
   }
@@ -66,24 +70,31 @@ void SendCrash::notificationClick()
   // The current version is a "development" version if the VERSION
   // macro contains the "dev" word.
   bool isDev = (std::string(VERSION).find("dev") != std::string::npos);
-  if (isDev) {
+  if (isDev)
+  {
     dlg.official()->setVisible(false);
     dlg.devFilename()->setText(m_dumpFilename);
-    dlg.devFilename()->Click.connect(base::Bind(&SendCrash::onClickDevFilename, this));
+    dlg.devFilename()->Click.connect(
+        base::Bind(&SendCrash::onClickDevFilename, this));
   }
-  else {
+  else
+  {
     dlg.dev()->setVisible(false);
     dlg.filename()->setText(m_dumpFilename);
-    dlg.filename()->Click.connect(base::Bind(&SendCrash::onClickFilename, this));
+    dlg.filename()->Click.connect(
+        base::Bind(&SendCrash::onClickFilename, this));
   }
 
   dlg.openWindowInForeground();
-  if (dlg.closer() == dlg.deleteFile()) {
-    try {
+  if (dlg.closer() == dlg.deleteFile())
+  {
+    try
+    {
       base::delete_file(m_dumpFilename);
       m_dumpFilename = "";
     }
-    catch (const std::exception& ex) {
+    catch (const std::exception& ex)
+    {
       ui::Alert::show("Error<<%s||&OK", ex.what());
     }
   }

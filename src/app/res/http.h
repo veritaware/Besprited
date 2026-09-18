@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (c) 2021 LibreSprite contributors
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,21 +13,28 @@
 #include "net/http_request.h"
 #include "net/http_response.h"
 
-namespace app {
-  class HTTP {
-  public:
-    struct Result {
-      std::string body;
-      int status;
-    };
+namespace app
+{
+class HTTP
+{
+public:
+  struct Result
+  {
+    std::string body;
+    int status;
+  };
 
-    static TaskHandle fetch(const std::string& url, const std::string* post, std::unordered_map<std::string, std::string>& headers, std::function<void(Result&&)>&& callback) {
-      auto req = std::make_shared<net::HttpRequest>(url);
-      req->setHeaders(headers);
-      if (post)
-        req->setPostBody(*post);
-      return TaskManager::instance().addTask<Result>(
-        [=]{
+  static TaskHandle fetch(const std::string& url, const std::string* post,
+                          std::unordered_map<std::string, std::string>& headers,
+                          std::function<void(Result&&)>&& callback)
+  {
+    auto req = std::make_shared<net::HttpRequest>(url);
+    req->setHeaders(headers);
+    if (post)
+      req->setPostBody(*post);
+    return TaskManager::instance().addTask<Result>(
+        [=]
+        {
           Result result;
           std::stringstream ss;
           net::HttpResponse res{&ss};
@@ -37,8 +44,7 @@ namespace app {
           result.body = ss.str();
           return result;
         },
-        std::move(callback),
-        [req]{req->abort();});
-    }
-  };
-}
+        std::move(callback), [req] { req->abort(); });
+  }
+};
+} // namespace app

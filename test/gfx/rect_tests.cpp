@@ -37,14 +37,16 @@ TEST(Rect, Inflate)
 TEST(Rect, Enlarge)
 {
   EXPECT_EQ(Rect(9, 19, 32, 42), Rect(10, 20, 30, 40).enlarge(1));
-  EXPECT_EQ(Rect(9, 18, 34, 46), Rect(10, 20, 30, 40).enlarge(Border(1, 2, 3, 4)));
+  EXPECT_EQ(Rect(9, 18, 34, 46),
+            Rect(10, 20, 30, 40).enlarge(Border(1, 2, 3, 4)));
   EXPECT_EQ(Rect(9, 18, 34, 46), Rect(10, 20, 30, 40) + Border(1, 2, 3, 4));
 }
 
 TEST(Rect, Shrink)
 {
   EXPECT_EQ(Rect(11, 21, 28, 38), Rect(10, 20, 30, 40).shrink(1));
-  EXPECT_EQ(Rect(11, 22, 26, 34), Rect(10, 20, 30, 40).shrink(Border(1, 2, 3, 4)));
+  EXPECT_EQ(Rect(11, 22, 26, 34),
+            Rect(10, 20, 30, 40).shrink(Border(1, 2, 3, 4)));
   EXPECT_EQ(Rect(11, 22, 26, 34), Rect(10, 20, 30, 40) - Border(1, 2, 3, 4));
 }
 

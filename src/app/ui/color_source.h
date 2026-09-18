@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,12 +10,14 @@
 #include "app/color.h"
 #include "gfx/point.h"
 
-namespace app {
+namespace app
+{
 
-  class IColorSource {
-  public:
-    virtual ~IColorSource() { }
-    virtual app::Color getColorByPosition(const gfx::Point& pos) = 0;
-  };
+class IColorSource
+{
+public:
+  virtual ~IColorSource() {}
+  virtual app::Color getColorByPosition(const gfx::Point& pos) = 0;
+};
 
 } // namespace app

@@ -11,12 +11,14 @@ This is an implementation of a simple container for Dependency Injection.
 
 - What is Dependency Injection?
 
-When you break your code up into multiple classes, they will depend on each other to be able to
-carry out their own responsibilities. When a class has such a dependency, it knows it needs
-a certain functionality, but it should not care about how that functionality is implemented.
+When you break your code up into multiple classes, they will depend on each
+other to be able to carry out their own responsibilities. When a class has such
+a dependency, it knows it needs a certain functionality, but it should not care
+about how that functionality is implemented.
 
-For this clean separation to be possible, the "depender" should only know about an interface,
-or a base class. The actual implementation should be provided to it by someone else:
+For this clean separation to be possible, the "depender" should only know about
+an interface, or a base class. The actual implementation should be provided to
+it by someone else:
 
   class Logger {
   public:
@@ -33,7 +35,8 @@ or a base class. The actual implementation should be provided to it by someone e
     }
   };
 
-With this, it is possible for the AccountManager to log its events into a file, database, terminal, etc:
+With this, it is possible for the AccountManager to log its events into a file,
+database, terminal, etc:
 
   class STDOUTLogger : public Logger {
   public:
@@ -46,13 +49,14 @@ With this, it is possible for the AccountManager to log its events into a file, 
 
 - What is a Dependency Injection Container?
 
-Receiving all the dependencies in constructors looks good enough in simple examples, but it
-falls apart in real-world code, where your depenencies have their own dependencies and those
-have dependencies, too. And what if you ever need a circular dependency (a GUI Widget might depend
-on its parent Widget)?
+Receiving all the dependencies in constructors looks good enough in simple
+examples, but it falls apart in real-world code, where your depenencies have
+their own dependencies and those have dependencies, too. And what if you ever
+need a circular dependency (a GUI Widget might depend on its parent Widget)?
 
-This is where a container is useful. It allows you to register all your classes in one place,
-and when something needs it, that dependency is constructed and made available:
+This is where a container is useful. It allows you to register all your classes
+in one place, and when something needs it, that dependency is constructed and
+made available:
 
   // say that other classes can depend on a Logger
   class Logger : public Injectable<Logger> {
@@ -97,8 +101,8 @@ knows what your intent is:
   int main(){
     // When a Logger is requested, use the one with id "file"
     Logger::setDefault("file");
-    AccountManager accountManager; // an instance of FileLogger will be created/injected
-    accountManager.widthdraw(9000);
+    AccountManager accountManager; // an instance of FileLogger will be
+created/injected accountManager.widthdraw(9000);
   }
 
 
@@ -111,15 +115,16 @@ This means that the injection is like a unique_ptr and it "owns" its
 dependency, automatically deleting it for you. Each instance of AccountManager
 would have its own instance of STDOUTLogger.
 
-"Singleton" will create only *one* instance of that class. Any time it is injected,
-the same instance will be returned. This means the injection does not own the dependency,
-which is only deleted when the application shuts down. Multiple AccountManagers could
-be created, but they would all share the same FileLogger.
+"Singleton" will create only *one* instance of that class. Any time it is
+injected, the same instance will be returned. This means the injection does not
+own the dependency, which is only deleted when the application shuts down.
+Multiple AccountManagers could be created, but they would all share the same
+FileLogger.
 
-The third policy is when a class registers itself using `Provides`. That is, it provides
-itself as a dependency for anything that is constructed afterwards and it automatically
-unregisters itself when it is destroyed. This is useful for situations where classes
-have a two-way relationship:
+The third policy is when a class registers itself using `Provides`. That is, it
+provides itself as a dependency for anything that is constructed afterwards and
+it automatically unregisters itself when it is destroyed. This is useful for
+situations where classes have a two-way relationship:
 
   class AccountManager;
 
@@ -140,12 +145,13 @@ have a two-way relationship:
 
   int main(){
     AccountManager am;
-    // injects a Dude into AccountManager and that same AccountManager into Dude.
+    // injects a Dude into AccountManager and that same AccountManager into
+Dude.
   }
 
-Note that injections through Provides are also non-owning. When "am" goes out of scope,
-it will be deleted and that will cause the deletion of Person. Person will not try
-to delete AccountManager. Perfectly balanced...
+Note that injections through Provides are also non-owning. When "am" goes out of
+scope, it will be deleted and that will cause the deletion of Person. Person
+will not try to delete AccountManager. Perfectly balanced...
 
 */
 
@@ -166,68 +172,76 @@ to delete AccountManager. Perfectly balanced...
 #define HAS_DEMANGLE
 #endif
 
-template<typename BaseClass_>
-class inject {
+template <typename BaseClass_> class inject
+{
 public:
   using BaseClass = BaseClass_;
 
-  inject(std::nullptr_t){}
+  inject(std::nullptr_t) {}
 
   inject(const std::string& name = "");
 
-  inject(inject&& other) {
+  inject(inject&& other)
+  {
     std::swap(m_ptr, other.m_ptr);
     std::swap(onDetach, other.onDetach);
   }
 
   inject(const inject& other) = delete;
 
-  ~inject() {onDetach(m_ptr);}
+  ~inject() { onDetach(m_ptr); }
 
-  void operator = (inject&& other) {
+  void operator=(inject&& other)
+  {
     std::swap(m_ptr, other.m_ptr);
     std::swap(onDetach, other.onDetach);
   }
 
-  BaseClass* operator -> () const {return m_ptr;}
-  BaseClass& operator * () const {return *m_ptr;}
-  operator bool () const {return m_ptr;}
-  operator BaseClass* () const {return m_ptr;}
+  BaseClass* operator->() const { return m_ptr; }
+  BaseClass& operator*() const { return *m_ptr; }
+  operator bool() const { return m_ptr; }
+  operator BaseClass*() const { return m_ptr; }
 
-  template<typename Derived = BaseClass>
-  Derived* get() const {return dynamic_cast<Derived*>(m_ptr);}
+  template <typename Derived = BaseClass> [[nodiscard]] Derived* get() const
+  {
+    return dynamic_cast<Derived*>(m_ptr);
+  }
 
 private:
-  BaseClass *m_ptr = nullptr;
-  std::function<void(BaseClass*)> onDetach = [](BaseClass*){};
+  BaseClass* m_ptr = nullptr;
+  std::function<void(BaseClass*)> onDetach = [](BaseClass*) {};
 };
 
-template<typename BaseClass_>
-class Injectable {
+template <typename BaseClass_> class Injectable
+{
 public:
   using BaseClass = BaseClass_;
   using AttachFunction = std::function<BaseClass*()>;
   using DetachFunction = std::function<void(BaseClass*)>;
   using TypeMatch = std::function<bool(BaseClass*)>;
-  struct RegistryEntry {
+  struct RegistryEntry
+  {
     AttachFunction attach;
     DetachFunction detach;
     TypeMatch match;
     void* data;
     std::unordered_set<std::string> flags;
-    bool hasFlag(const std::string& flag) {
+    bool hasFlag(const std::string& flag)
+    {
       return flags.find(flag) != flags.end();
     }
   };
 
   using Registry = std::unordered_map<std::string, RegistryEntry>;
 
-  virtual std::string getName() const {
+  [[nodiscard]] virtual std::string getName() const
+  {
 #ifdef HAS_DEMANGLE
     int status;
     std::string result = typeid(*this).name();
     auto name = abi::__cxa_demangle(result.c_str(), 0, 0, &status);
-    if (status == 0) result = name;
+    if (status == 0)
+      result = name;
     free(name);
     return result;
 #else
@@ -237,53 +251,66 @@ public:
 
   virtual ~Injectable() = default;
 
-  static Registry& getRegistry() {
-    static Registry* registry = new Registry();
+  static Registry& getRegistry()
+  {
+    static auto* registry = new Registry();
     return *registry;
   }
 
-  static std::vector<inject<BaseClass>> getAll() {
+  static std::vector<inject<BaseClass>> getAll()
+  {
     std::vector<inject<BaseClass>> all;
     auto& registry = getRegistry();
     all.reserve(registry.size());
-    for (auto& entry : registry) {
+    for (auto& entry : registry)
+    {
       if (!entry.first.empty())
         all.emplace_back(entry.first);
     }
     return all;
   }
 
-  static std::vector<inject<BaseClass>> getAllWithFlag(const std::string& flag) {
+  static std::vector<inject<BaseClass>> getAllWithFlag(const std::string& flag)
+  {
     std::vector<std::string> temp;
     std::vector<inject<BaseClass>> all;
     auto& registry = getRegistry();
 
     temp.reserve(registry.size());
-    for (auto& entry : registry) {
+    for (auto& entry : registry)
+    {
       if (!entry.first.empty() && entry.second.hasFlag(flag))
         temp.emplace_back(entry.first);
     }
 
     all.reserve(temp.size());
-    for (auto& entry : temp) {
+    for (auto& entry : temp)
+    {
       all.emplace_back(entry);
     }
     return all;
   }
 
-  static bool setDefault(const std::string& name, const std::unordered_set<std::string>& flags = {}) {
+  static bool setDefault(const std::string& name,
+                         const std::unordered_set<std::string>& flags = {})
+  {
     auto& registry = getRegistry();
     auto it = registry.find(name);
-    if (it == registry.end()) {
-      for (auto& entry : registry) {
+    if (it == registry.end())
+    {
+      for (auto& entry : registry)
+      {
         bool match = true;
-        for (auto& flag : flags) {
-          if (!entry.second.hasFlag(flag)) {
+        for (auto& flag : flags)
+        {
+          if (!entry.second.hasFlag(flag))
+          {
             match = false;
             break;
           }
         }
-        if (match) {
+        if (match)
+        {
           registry[""] = entry.second;
           return true;
         }
@@ -297,80 +324,84 @@ public:
     return true;
   }
 
-  template<typename DerivedClass>
-  static bool matchType(BaseClass* base) {
+  template <typename DerivedClass> static bool matchType(BaseClass* base)
+  {
     return !!dynamic_cast<DerivedClass*>(base);
   }
 
-  template<typename DerivedClass>
-  class Regular {
+  template <typename DerivedClass> class Regular
+  {
   public:
-    Regular(const std::string& name, const std::unordered_set<std::string>& flags = {}) {
-      #if _DEBUG
+    Regular(const std::string& name,
+            const std::unordered_set<std::string>& flags = {})
+    {
+#if _DEBUG
       std::cout << "Registered [" << name << "]" << std::endl;
-      #endif
+#endif
       Injectable<BaseClass>::getRegistry()[name] = {
-        []()->BaseClass*{return new DerivedClass();},
-        [](BaseClass* instance){delete instance;},
-        matchType<DerivedClass>,
-        nullptr,
-        flags
-      };
+          []() -> BaseClass* { return new DerivedClass(); },
+          [](BaseClass* instance) { delete instance; }, matchType<DerivedClass>,
+          nullptr, flags};
     }
   };
 
-  template<typename DerivedClass>
-  class Singleton {
+  template <typename DerivedClass> class Singleton
+  {
   public:
-    Singleton(const std::string& name, const std::unordered_set<std::string>& flags = {}) {
+    Singleton(const std::string& name,
+              const std::unordered_set<std::string>& flags = {})
+    {
       Injectable<BaseClass>::getRegistry()[name] = {
-        []{
-          static DerivedClass instance;
-          return &instance;
-        },
-        [](BaseClass* ptr){},
-        matchType<DerivedClass>,
-        nullptr,
-        flags
-      };
+          []
+          {
+            static DerivedClass instance;
+            return &instance;
+          },
+          [](BaseClass* ptr) {}, matchType<DerivedClass>, nullptr, flags};
     }
   };
 
-  class Provides {
+  class Provides
+  {
   public:
     std::string m_name;
 
-    ~Provides(){
+    ~Provides()
+    {
       auto& registry = Injectable<BaseClass>::getRegistry();
       auto iterator = registry.find(m_name);
-      if (iterator != registry.end() && iterator->second.data == this) {
+      if (iterator != registry.end() && iterator->second.data == this)
+      {
         registry.erase(iterator);
       }
     }
 
-    template<typename DerivedClass>
-    Provides(DerivedClass* instance, const std::string& name = "", const std::unordered_set<std::string>& flags = {}) {
+    template <typename DerivedClass>
+    Provides(DerivedClass* instance, const std::string& name = "",
+             const std::unordered_set<std::string>& flags = {})
+    {
       m_name = name;
       Injectable<BaseClass>::getRegistry()[name] = {
-        [=] {return instance;},
-        [](BaseClass* ptr) {},
-        matchType<DerivedClass>,
-        this,
-        flags
-      };
+          [=] { return instance; }, [](BaseClass* ptr) {},
+          matchType<DerivedClass>, this, flags};
     }
   };
 };
 
-template<typename BaseClass_>
-inject<BaseClass_>::inject(const std::string& name) {
+template <typename BaseClass_>
+inject<BaseClass_>::inject(const std::string& name)
+{
   auto& registry = Injectable<BaseClass>::getRegistry();
   auto it = registry.find(name);
-  if (it != registry.end()) {
+  if (it != registry.end())
+  {
     auto& registryEntry = it->second;
     onDetach = registryEntry.detach;
     m_ptr = registryEntry.attach();
-  } else {
-    std::cout << "Could not create " << typeid(BaseClass).name() << " named \"" << name << "\"" << std::endl;
+  }
+  else
+  {
+    std::cout << "Could not create " << typeid(BaseClass).name() << " named \""
+              << name << "\"" << std::endl;
   }
 }

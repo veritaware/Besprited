@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,19 +9,19 @@
 
 #include "app/cmd/add_frame_tag.h"
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class RemoveFrameTag : public AddFrameTag {
-  public:
-    RemoveFrameTag(Sprite* sprite, FrameTag* tag);
+class RemoveFrameTag : public AddFrameTag
+{
+public:
+  RemoveFrameTag(const Sprite* sprite, const FrameTag* tag);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    void onRedo() override;
-  };
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  void onRedo() override;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

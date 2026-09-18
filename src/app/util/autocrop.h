@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,15 +9,17 @@
 
 #include "doc/color.h"
 
-namespace doc {
-  class Image;
+namespace doc
+{
+class Image;
 }
 
-namespace app {
+namespace app
+{
 
-  bool get_shrink_rect(int* x1, int* y1, int* x2, int* y2,
-                       doc::Image *image, doc::color_t refpixel);
-  bool get_shrink_rect2(int* x1, int* y1, int* x2, int* y2,
-                        doc::Image* image, doc::Image* regimage);
+bool get_shrink_rect(int* x1, int* y1, int* x2, int* y2, doc::Image* image,
+                     doc::color_t refpixel);
+bool get_shrink_rect2(int* x1, int* y1, int* x2, int* y2, doc::Image* image,
+                      doc::Image* regimage);
 
 } // namespace app

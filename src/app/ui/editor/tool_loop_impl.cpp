@@ -50,14 +50,16 @@
 #include "render/render.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
 //////////////////////////////////////////////////////////////////////
 // Common properties between drawing/preview ToolLoop impl
 
-class ToolLoopBase : public tools::ToolLoop {
+class ToolLoopBase : public tools::ToolLoop
+{
 
 protected:
   Editor* m_editor;
@@ -91,13 +93,9 @@ protected:
   gfx::Region m_dirtyArea;
 
 public:
-  ToolLoopBase(Editor* editor,
-               Layer* layer,
-               tools::Tool* tool,
-               std::shared_ptr<tools::Ink> ink,
-               Document* document,
-               tools::ToolLoop::Button button,
-               const app::Color& fgColor,
+  ToolLoopBase(Editor* editor, Layer* layer, tools::Tool* tool,
+               std::shared_ptr<tools::Ink> ink, Document* document,
+               tools::ToolLoop::Button button, const app::Color& fgColor,
                const app::Color& bgColor)
     : m_editor(editor)
     , m_tool(tool)
@@ -119,71 +117,81 @@ public:
     , m_intertwine(m_tool->getIntertwine(m_button))
     , m_tracePolicy(m_tool->getTracePolicy(m_button))
     , m_symmetry(nullptr)
-    , m_colorTarget(m_layer ? ColorTarget(m_layer):
-                              ColorTarget(ColorTarget::BackgroundLayer,
+    , m_colorTarget(m_layer ? ColorTarget(m_layer)
+                            : ColorTarget(ColorTarget::BackgroundLayer,
                                           m_sprite->pixelFormat(),
                                           m_sprite->transparentColor()))
     , m_fgColor(color_utils::color_for_target_mask(fgColor, m_colorTarget))
     , m_bgColor(color_utils::color_for_target_mask(bgColor, m_colorTarget))
-    , m_primaryColor(button == tools::ToolLoop::Left ? m_fgColor: m_bgColor)
-    , m_secondaryColor(button == tools::ToolLoop::Left ? m_bgColor: m_fgColor)
+    , m_primaryColor(button == tools::ToolLoop::Left ? m_fgColor : m_bgColor)
+    , m_secondaryColor(button == tools::ToolLoop::Left ? m_bgColor : m_fgColor)
   {
     tools::FreehandAlgorithm algorithm = m_toolPref.freehandAlgorithm();
 
     if (m_tracePolicy == tools::TracePolicy::Accumulate ||
-        m_tracePolicy == tools::TracePolicy::AccumulateUpdateLast) {
+        m_tracePolicy == tools::TracePolicy::AccumulateUpdateLast)
+    {
       tools::ToolBox* toolbox = App::instance()->toolBox();
 
-      switch (algorithm) {
-        case tools::FreehandAlgorithm::PIXEL_PERFECT:
-          if (m_toolPref.brush.size() == 1) {
-            m_intertwine = toolbox->getIntertwinerById(tools::WellKnownIntertwiners::AsPixelPerfect);
-            m_tracePolicy = tools::TracePolicy::AccumulateUpdateLast;
-            break;
-          }
-          [[fallthrough]];
-        case tools::FreehandAlgorithm::DEFAULT:
-          m_intertwine = toolbox->getIntertwinerById(tools::WellKnownIntertwiners::AsLines);
-          m_tracePolicy = tools::TracePolicy::Accumulate;
+      switch (algorithm)
+      {
+      case tools::FreehandAlgorithm::PIXEL_PERFECT:
+        if (m_toolPref.brush.size() == 1)
+        {
+          m_intertwine = toolbox->getIntertwinerById(
+              tools::WellKnownIntertwiners::AsPixelPerfect);
+          m_tracePolicy = tools::TracePolicy::AccumulateUpdateLast;
           break;
-        case tools::FreehandAlgorithm::DOTS:
-          m_intertwine = toolbox->getIntertwinerById(tools::WellKnownIntertwiners::None);
-          m_tracePolicy = tools::TracePolicy::Accumulate;
-          break;
+        }
+        [[fallthrough]];
+      case tools::FreehandAlgorithm::DEFAULT:
+        m_intertwine =
+            toolbox->getIntertwinerById(tools::WellKnownIntertwiners::AsLines);
+        m_tracePolicy = tools::TracePolicy::Accumulate;
+        break;
+      case tools::FreehandAlgorithm::DOTS:
+        m_intertwine =
+            toolbox->getIntertwinerById(tools::WellKnownIntertwiners::None);
+        m_tracePolicy = tools::TracePolicy::Accumulate;
+        break;
       }
     }
 
     // Symmetry mode
-    if (Preferences::instance().symmetryMode.enabled()) {
+    if (Preferences::instance().symmetryMode.enabled())
+    {
       int mode = (int)m_docPref.symmetry.mode();
 
-      if (mode & (int)app::gen::SymmetryMode::ROTATIONAL_180) {
+      if (mode & (int)app::gen::SymmetryMode::ROTATIONAL_180)
+      {
         // Rotational symmetry is exclusive: ignore any other bit that might
         // be set alongside it.
         m_symmetry.reset(new app::tools::Rotational180Symmetry(
-          m_docPref.symmetry.xAxis(), m_docPref.symmetry.yAxis()));
+            m_docPref.symmetry.xAxis(), m_docPref.symmetry.yAxis()));
       }
-      else if (mode & (int)app::gen::SymmetryMode::ROTATIONAL_90) {
+      else if (mode & (int)app::gen::SymmetryMode::ROTATIONAL_90)
+      {
         // Also exclusive: ignore any other bit set alongside it.
         m_symmetry.reset(new app::tools::Rotational90Symmetry(
-          m_docPref.symmetry.xAxis(), m_docPref.symmetry.yAxis()));
+            m_docPref.symmetry.xAxis(), m_docPref.symmetry.yAxis()));
       }
-      else if (mode != (int)app::gen::SymmetryMode::NONE) {
+      else if (mode != (int)app::gen::SymmetryMode::NONE)
+      {
         m_symmetry.reset(new app::tools::CompositeSymmetry(
-          mode, m_docPref.symmetry.xAxis(), m_docPref.symmetry.yAxis()));
+            mode, m_docPref.symmetry.xAxis(), m_docPref.symmetry.yAxis()));
       }
     }
 
     // Ignore opacity for these inks
     if (!tools::inkHasOpacity(m_toolPref.ink()) &&
-        m_brush->type() != kImageBrushType &&
-        !m_ink->isEffect()) {
+        m_brush->type() != kImageBrushType && !m_ink->isEffect())
+    {
       m_opacity = 255;
     }
 
-    if (m_toolPref.ink() == tools::InkType::SHADING) {
-      m_shadingRemap.reset(
-        App::instance()->contextBar()->createShadeRemap(
+    if (m_toolPref.ink() == tools::InkType::SHADING)
+    {
+      m_shadingRemap.reset(App::instance()->contextBar()->createShadeRemap(
           button == tools::ToolLoop::Left));
     }
   }
@@ -195,14 +203,14 @@ public:
   Sprite* sprite() override { return m_sprite; }
   Layer* getLayer() override { return m_layer; }
   frame_t getFrame() override { return m_frame; }
-  RgbMap* getRgbMap() override {
-    if (!m_rgbMap) {
-      Sprite::RgbMapFor forLayer =
-        ((!m_layer ||
-          m_layer->isBackground() ||
-          m_sprite->pixelFormat() == IMAGE_RGB) ?
-         Sprite::RgbMapFor::OpaqueLayer:
-         Sprite::RgbMapFor::TransparentLayer);
+  RgbMap* getRgbMap() override
+  {
+    if (!m_rgbMap)
+    {
+      Sprite::RgbMapFor forLayer = ((!m_layer || m_layer->isBackground() ||
+                                     m_sprite->pixelFormat() == IMAGE_RGB)
+                                        ? Sprite::RgbMapFor::OpaqueLayer
+                                        : Sprite::RgbMapFor::TransparentLayer);
       m_rgbMap = m_sprite->rgbMap(m_frame, forLayer);
     }
     return m_rgbMap;
@@ -214,22 +222,30 @@ public:
   doc::color_t getPrimaryColor() override { return m_primaryColor; }
   void setPrimaryColor(doc::color_t color) override { m_primaryColor = color; }
   doc::color_t getSecondaryColor() override { return m_secondaryColor; }
-  void setSecondaryColor(doc::color_t color) override { m_secondaryColor = color; }
+  void setSecondaryColor(doc::color_t color) override
+  {
+    m_secondaryColor = color;
+  }
   int getOpacity() override { return m_opacity; }
   int getTolerance() override { return m_tolerance; }
   bool getContiguous() override { return m_contiguous; }
-  tools::ToolLoopModifiers getModifiers() override { return m_editor->getToolLoopModifiers(); }
+  tools::ToolLoopModifiers getModifiers() override
+  {
+    return m_editor->getToolLoopModifiers();
+  }
   filters::TiledMode getTiledMode() override { return m_docPref.tiled.mode(); }
   bool getGridVisible() override { return m_docPref.show.grid(); }
   bool getSnapToGrid() override { return m_docPref.grid.snap(); }
-  bool getStopAtGrid() override {
-    switch (m_toolPref.floodfill.stopAtGrid()) {
-      case app::gen::StopAtGrid::NEVER:
-        return false;
-      case app::gen::StopAtGrid::IF_VISIBLE:
-        return m_docPref.show.grid();
-      case app::gen::StopAtGrid::ALWAYS:
-        return true;
+  bool getStopAtGrid() override
+  {
+    switch (m_toolPref.floodfill.stopAtGrid())
+    {
+    case app::gen::StopAtGrid::NEVER:
+      return false;
+    case app::gen::StopAtGrid::IF_VISIBLE:
+      return m_docPref.show.grid();
+    case app::gen::StopAtGrid::ALWAYS:
+      return true;
     }
     return false;
   }
@@ -245,27 +261,26 @@ public:
   tools::Symmetry* getSymmetry() override { return m_symmetry.get(); }
   doc::Remap* getShadingRemap() override { return m_shadingRemap.get(); }
 
-  gfx::Region& getDirtyArea() override {
-    return m_dirtyArea;
-  }
+  gfx::Region& getDirtyArea() override { return m_dirtyArea; }
 
-  void updateDirtyArea() override {
+  void updateDirtyArea() override
+  {
     // TODO find a way to avoid calling hide/show brush preview here
     HideBrushPreview hide(m_editor->brushPreview());
-    m_document->notifySpritePixelsModified(m_sprite, m_dirtyArea,
-                                           m_frame);
+    m_document->notifySpritePixelsModified(m_sprite, m_dirtyArea, m_frame);
   }
 
-  void updateStatusBar(const char* text) override {
+  void updateStatusBar(const char* text) override
+  {
     StatusBar::instance()->setStatusText(0, text);
   }
-
 };
 
 //////////////////////////////////////////////////////////////////////
 // For drawing
 
-class ToolLoopImpl : public ToolLoopBase {
+class ToolLoopImpl final : public ToolLoopBase
+{
   Context* m_context;
   bool m_filled;
   bool m_previewFilled;
@@ -280,55 +295,46 @@ class ToolLoopImpl : public ToolLoopBase {
   Image* m_floodfillSrcImage;
 
 public:
-  ToolLoopImpl(Editor* editor,
-               Layer* layer,
-               Context* context,
-               tools::Tool* tool,
-               std::shared_ptr<tools::Ink> ink,
-               Document* document,
-               tools::ToolLoop::Button button,
-               const app::Color& fgColor,
-               const app::Color& bgColor)
-    : ToolLoopBase(editor, layer, tool, ink, document,
-                   button, fgColor, bgColor)
+  ToolLoopImpl(Editor* editor, Layer* layer, Context* context,
+               tools::Tool* tool, std::shared_ptr<tools::Ink> ink,
+               Document* document, tools::ToolLoop::Button button,
+               const app::Color& fgColor, const app::Color& bgColor)
+    : ToolLoopBase(editor, layer, tool, ink, document, button, fgColor, bgColor)
     , m_context(context)
     , m_canceled(false)
-    , m_transaction(m_context,
-                    m_tool->getText().c_str(),
-                    ((getInk()->isSelection() ||
-                      getInk()->isEyedropper() ||
-                      getInk()->isScrollMovement() ||
-                      getInk()->isSlice() ||
-                      getInk()->isZoom()) ? DoesntModifyDocument:
-                                            ModifyDocument))
+    , m_transaction(m_context, m_tool->getText().c_str(),
+                    ((getInk()->isSelection() || getInk()->isEyedropper() ||
+                      getInk()->isScrollMovement() || getInk()->isSlice() ||
+                      getInk()->isZoom())
+                         ? DoesntModifyDocument
+                         : ModifyDocument))
     , m_expandCelCanvas(nullptr)
     , m_floodfillSrcImage(nullptr)
   {
     ASSERT(m_context->activeDocument() == m_editor->document());
 
-    if (m_pointShape->isFloodFill()) {
+    if (m_pointShape->isFloodFill())
+    {
       // Prepare a special image for floodfill when it's configured to
       // stop using all visible layers.
-      if (m_toolPref.floodfill.referTo() == gen::FillReferTo::ALL_LAYERS) {
-        m_floodfillSrcImage = Image::create(m_sprite->pixelFormat(),
-                                            m_sprite->width(),
-                                            m_sprite->height());
+      if (m_toolPref.floodfill.referTo() == gen::FillReferTo::ALL_LAYERS)
+      {
+        m_floodfillSrcImage = Image::create(
+            m_sprite->pixelFormat(), m_sprite->width(), m_sprite->height());
 
         m_floodfillSrcImage->clear(m_sprite->transparentColor());
 
-        render::Render().renderSprite(
-          m_floodfillSrcImage,
-          m_sprite,
-          m_frame,
-          gfx::Clip(m_sprite->bounds()),
-          render::Zoom(1, 1));
+        render::Render().renderSprite(m_floodfillSrcImage, m_sprite, m_frame,
+                                      gfx::Clip(m_sprite->bounds()),
+                                      render::Zoom(1, 1));
       }
-      else {
+      else
+      {
         auto cel = m_layer->cel(m_frame);
-        if (cel && (cel->x() != 0 || cel->y() != 0)) {
-          m_floodfillSrcImage = Image::create(m_sprite->pixelFormat(),
-                                              m_sprite->width(),
-                                              m_sprite->height());
+        if (cel && (cel->x() != 0 || cel->y() != 0))
+        {
+          m_floodfillSrcImage = Image::create(
+              m_sprite->pixelFormat(), m_sprite->width(), m_sprite->height());
           m_floodfillSrcImage->clear(m_sprite->transparentColor());
           copy_image(m_floodfillSrcImage, cel->image(), cel->x(), cel->y());
         }
@@ -336,33 +342,32 @@ public:
     }
 
     m_expandCelCanvas = new ExpandCelCanvas(
-      editor->getSite(),
-      layer,
-      m_docPref.tiled.mode(),
-      m_transaction,
-      ExpandCelCanvas::Flags(
-        ExpandCelCanvas::NeedsSource |
-        // If the tool is freehand-like, we can use the modified
-        // region directly as undo information to save the modified
-        // pixels. See ExpandCelCanvas::commit() for details about this flag.
-        (getController()->isFreehand() ?
-         ExpandCelCanvas::UseModifiedRegionAsUndoInfo:
-         ExpandCelCanvas::None)));
+        editor->getSite(), layer, m_docPref.tiled.mode(), m_transaction,
+        ExpandCelCanvas::Flags(
+            ExpandCelCanvas::NeedsSource |
+            // If the tool is freehand-like, we can use the modified
+            // region directly as undo information to save the modified
+            // pixels. See ExpandCelCanvas::commit() for details about this
+            // flag.
+            (getController()->isFreehand()
+                 ? ExpandCelCanvas::UseModifiedRegionAsUndoInfo
+                 : ExpandCelCanvas::None)));
 
     if (!m_floodfillSrcImage)
       m_floodfillSrcImage = const_cast<Image*>(getSrcImage());
 
     // Settings
-    switch (tool->getFill(m_button)) {
-      case tools::FillNone:
-        m_filled = false;
-        break;
-      case tools::FillAlways:
-        m_filled = true;
-        break;
-      case tools::FillOptional:
-        m_filled = m_toolPref.filled();
-        break;
+    switch (tool->getFill(m_button))
+    {
+    case tools::FillNone:
+      m_filled = false;
+      break;
+    case tools::FillAlways:
+      m_filled = true;
+      break;
+    case tools::FillOptional:
+      m_filled = m_toolPref.filled();
+      break;
     }
 
     m_previewFilled = m_toolPref.filledPreview();
@@ -374,22 +379,27 @@ public:
     else
       m_useMask = m_document->isMaskVisible();
 
-    // Start with an empty mask if the user is selecting with "default selection mode"
+    // Start with an empty mask if the user is selecting with "default selection
+    // mode"
     if (getInk()->isSelection() &&
         (!m_document->isMaskVisible() ||
-         (int(getModifiers()) & int(tools::ToolLoopModifiers::kReplaceSelection)))) {
+         (int(getModifiers()) &
+          int(tools::ToolLoopModifiers::kReplaceSelection))))
+    {
       Mask emptyMask;
       m_transaction.execute(new cmd::SetMask(m_document, &emptyMask));
     }
 
     m_celOrigin = m_expandCelCanvas->getCel()->position();
     m_mask = m_document->mask();
-    m_maskOrigin = (!m_mask->isEmpty() ? gfx::Point(m_mask->bounds().x-m_celOrigin.x,
-                                                    m_mask->bounds().y-m_celOrigin.y):
-                                         gfx::Point(0, 0));
+    m_maskOrigin =
+        (!m_mask->isEmpty() ? gfx::Point(m_mask->bounds().x - m_celOrigin.x,
+                                         m_mask->bounds().y - m_celOrigin.y)
+                            : gfx::Point(0, 0));
   }
 
-  ~ToolLoopImpl() {
+  ~ToolLoopImpl() override
+  {
     if (m_floodfillSrcImage != getSrcImage())
       delete m_floodfillSrcImage;
     delete m_expandCelCanvas;
@@ -400,20 +410,25 @@ public:
   {
     bool redraw = false;
 
-    if (!m_canceled) {
+    if (!m_canceled)
+    {
       // Paint ink
-      if (getInk()->isPaint()) {
-        try {
+      if (getInk()->isPaint())
+      {
+        try
+        {
           ContextReader reader(m_context, 500);
           ContextWriter writer(reader, 500);
           m_expandCelCanvas->commit();
         }
-        catch (const LockedDocumentException& ex) {
+        catch (const LockedDocumentException& ex)
+        {
           Console::showException(ex);
         }
       }
       // Selection ink
-      else if (getInk()->isSelection()) {
+      else if (getInk()->isSelection())
+      {
         m_document->generateMaskBoundaries();
         redraw = true;
 
@@ -427,13 +442,16 @@ public:
       redraw = true;
 
     // If the trace was canceled or it is not a 'paint' ink...
-    if (m_canceled || !getInk()->isPaint()) {
-      try {
+    if (m_canceled || !getInk()->isPaint())
+    {
+      try
+      {
         ContextReader reader(m_context, 500);
         ContextWriter writer(reader, 500);
         m_expandCelCanvas->rollback();
       }
-      catch (const LockedDocumentException& ex) {
+      catch (const LockedDocumentException& ex)
+      {
         Console::showException(ex);
       }
     }
@@ -442,28 +460,37 @@ public:
       update_screen_for_document(m_document);
   }
 
-  const Image* getSrcImage() override { return m_expandCelCanvas->getSourceCanvas(); }
+  const Image* getSrcImage() override
+  {
+    return m_expandCelCanvas->getSourceCanvas();
+  }
   const Image* getFloodFillSrcImage() override { return m_floodfillSrcImage; }
   Image* getDstImage() override { return m_expandCelCanvas->getDestCanvas(); }
-  void validateSrcImage(const gfx::Region& rgn) override {
+  void validateSrcImage(const gfx::Region& rgn) override
+  {
     m_expandCelCanvas->validateSourceCanvas(rgn);
   }
-  void validateDstImage(const gfx::Region& rgn) override {
+  void validateDstImage(const gfx::Region& rgn) override
+  {
     m_expandCelCanvas->validateDestCanvas(rgn);
   }
-  void invalidateDstImage() override {
+  void invalidateDstImage() override
+  {
     m_expandCelCanvas->invalidateDestCanvas();
   }
-  void invalidateDstImage(const gfx::Region& rgn) override {
+  void invalidateDstImage(const gfx::Region& rgn) override
+  {
     m_expandCelCanvas->invalidateDestCanvas(rgn);
   }
-  void copyValidDstToSrcImage(const gfx::Region& rgn) override {
+  void copyValidDstToSrcImage(const gfx::Region& rgn) override
+  {
     m_expandCelCanvas->copyValidDestToSourceCanvas(rgn);
   }
 
   bool useMask() override { return m_useMask; }
   Mask* getMask() override { return m_mask; }
-  void setMask(Mask* newMask) override {
+  void setMask(Mask* newMask) override
+  {
     m_transaction.execute(new cmd::SetMask(m_document, newMask));
   }
   gfx::Point getMaskOrigin() override { return m_maskOrigin; }
@@ -474,7 +501,6 @@ public:
 
   void cancel() override { m_canceled = true; }
   bool isCanceled() override { return m_canceled; }
-
 };
 
 tools::ToolLoop* create_tool_loop(Editor* editor, Context* context)
@@ -496,25 +522,30 @@ tools::ToolLoop* create_tool_loop(Editor* editor, Context* context)
   // isFloodFill) because we need the original layer source
   // image/pixels to stop the flood-fill algorithm.
   if (current_ink->isSelection() &&
-      !current_tool->getPointShape(editor->isSecondaryButton() ? 1: 0)->isFloodFill()) {
+      !current_tool->getPointShape(editor->isSecondaryButton() ? 1 : 0)
+           ->isFloodFill())
+  {
     layer = nullptr;
   }
-  else {
+  else
+  {
     layer = editor->layer();
-    if (!layer) {
-      StatusBar::instance()->showTip(
-        1000, "There is no active layer");
+    if (!layer)
+    {
+      StatusBar::instance()->showTip(1000, "There is no active layer");
       return nullptr;
     }
-    else if (!layer->isVisible()) {
-      StatusBar::instance()->showTip(
-        1000, "Layer '%s' is hidden", layer->name().c_str());
+    else if (!layer->isVisible())
+    {
+      StatusBar::instance()->showTip(1000, "Layer '%s' is hidden",
+                                     layer->name().c_str());
       return nullptr;
     }
     // If the active layer is read-only.
-    else if (!layer->isEditable()) {
-      StatusBar::instance()->showTip(
-        1000, "Layer '%s' is locked", layer->name().c_str());
+    else if (!layer->isEditable())
+    {
+      StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
+                                     layer->name().c_str());
       return nullptr;
     }
   }
@@ -527,50 +558,46 @@ tools::ToolLoop* create_tool_loop(Editor* editor, Context* context)
   ASSERT(fg.isValid());
   ASSERT(bg.isValid());
 
-  if (!fg.isValid() || !bg.isValid()) {
+  if (!fg.isValid() || !bg.isValid())
+  {
     Alert::show(PACKAGE
                 "<<The current selected foreground and/or background color"
                 "<<is out of range. Select a valid color in the color-bar."
                 "||&Close");
-    return NULL;
+    return nullptr;
   }
 
   // Create the new tool loop
-  try {
+  try
+  {
     return new ToolLoopImpl(
-      editor, layer, context,
-      current_tool,
-      current_ink,
-      editor->document(),
-      !editor->isSecondaryButton() ? tools::ToolLoop::Left: tools::ToolLoop::Right,
-      fg, bg);
+        editor, layer, context, current_tool, current_ink, editor->document(),
+        !editor->isSecondaryButton() ? tools::ToolLoop::Left
+                                     : tools::ToolLoop::Right,
+        fg, bg);
   }
-  catch (const std::exception& ex) {
-    Alert::show(PACKAGE
-                "<<Error drawing ink:"
-                "<<%s"
-                "||&Close",
+  catch (const std::exception& ex)
+  {
+    Alert::show(PACKAGE "<<Error drawing ink:"
+                        "<<%s"
+                        "||&Close",
                 ex.what());
-    return NULL;
+    return nullptr;
   }
 }
 
 //////////////////////////////////////////////////////////////////////
 // For preview
 
-class PreviewToolLoopImpl : public ToolLoopBase {
+class PreviewToolLoopImpl final : public ToolLoopBase
+{
   Image* m_image;
 
 public:
-  PreviewToolLoopImpl(
-    Editor* editor,
-    tools::Tool* tool,
-    std::shared_ptr<tools::Ink> ink,
-    Document* document,
-    const app::Color& fgColor,
-    const app::Color& bgColor,
-    Image* image,
-    const gfx::Point& celOrigin)
+  PreviewToolLoopImpl(Editor* editor, tools::Tool* tool,
+                      std::shared_ptr<tools::Ink> ink, Document* document,
+                      const app::Color& fgColor, const app::Color& bgColor,
+                      Image* image, const gfx::Point& celOrigin)
     : ToolLoopBase(editor, editor->layer(), tool, ink, document,
                    tools::ToolLoop::Left, fgColor, bgColor)
     , m_image(image)
@@ -578,44 +605,44 @@ public:
     m_celOrigin = celOrigin;
 
     // Avoid preview for spray and flood fill like tools
-    if (m_pointShape->isSpray()) {
+    if (m_pointShape->isSpray())
+    {
       m_pointShape = App::instance()->toolBox()->getPointShapeById(
-        tools::WellKnownPointShapes::Brush);
+          tools::WellKnownPointShapes::Brush);
     }
-    else if (m_pointShape->isFloodFill()) {
+    else if (m_pointShape->isFloodFill())
+    {
       m_pointShape = App::instance()->toolBox()->getPointShapeById(
-        tools::WellKnownPointShapes::Pixel);
+          tools::WellKnownPointShapes::Pixel);
     }
   }
 
   // IToolLoop interface
-  void dispose() override { }
+  void dispose() override {}
   const Image* getSrcImage() override { return m_image; }
   const Image* getFloodFillSrcImage() override { return m_image; }
   Image* getDstImage() override { return m_image; }
-  void validateSrcImage(const gfx::Region& rgn) override { }
-  void validateDstImage(const gfx::Region& rgn) override { }
-  void invalidateDstImage() override { }
-  void invalidateDstImage(const gfx::Region& rgn) override { }
-  void copyValidDstToSrcImage(const gfx::Region& rgn) override { }
+  void validateSrcImage(const gfx::Region& rgn) override {}
+  void validateDstImage(const gfx::Region& rgn) override {}
+  void invalidateDstImage() override {}
+  void invalidateDstImage(const gfx::Region& rgn) override {}
+  void copyValidDstToSrcImage(const gfx::Region& rgn) override {}
 
   bool useMask() override { return false; }
   Mask* getMask() override { return nullptr; }
-  void setMask(Mask* newMask) override { }
+  void setMask(Mask* newMask) override {}
   gfx::Point getMaskOrigin() override { return gfx::Point(0, 0); }
   bool getFilled() override { return false; }
   bool getPreviewFilled() override { return false; }
   int getSprayWidth() override { return 0; }
   int getSpraySpeed() override { return 0; }
 
-  void cancel() override { }
+  void cancel() override {}
   bool isCanceled() override { return true; }
-
 };
 
-tools::ToolLoop* create_tool_loop_preview(
-  Editor* editor, Image* image,
-  const gfx::Point& celOrigin)
+tools::ToolLoop* create_tool_loop_preview(Editor* editor, Image* image,
+                                          const gfx::Point& celOrigin)
 {
   tools::Tool* current_tool = editor->getCurrentEditorTool();
   std::shared_ptr<tools::Ink> current_ink = editor->getCurrentEditorInk();
@@ -623,9 +650,8 @@ tools::ToolLoop* create_tool_loop_preview(
     return nullptr;
 
   Layer* layer = editor->layer();
-  if (!layer ||
-      !layer->isVisible() ||
-      !layer->isEditable()) {
+  if (!layer || !layer->isVisible() || !layer->isEditable())
+  {
     return nullptr;
   }
 
@@ -637,15 +663,14 @@ tools::ToolLoop* create_tool_loop_preview(
     return nullptr;
 
   // Create the new tool loop
-  try {
-    return new PreviewToolLoopImpl(
-      editor,
-      current_tool,
-      current_ink,
-      editor->document(),
-      fg, bg, image, celOrigin);
+  try
+  {
+    return new PreviewToolLoopImpl(editor, current_tool, current_ink,
+                                   editor->document(), fg, bg, image,
+                                   celOrigin);
   }
-  catch (const std::exception&) {
+  catch (const std::exception&)
+  {
     return nullptr;
   }
 }

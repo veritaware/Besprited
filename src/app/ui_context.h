@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,44 +10,46 @@
 #include "app/context.h"
 #include "doc/documents_observer.h"
 
-namespace app {
-  class DocumentView;
-  class Editor;
+namespace app
+{
+class DocumentView;
+class Editor;
 
-  typedef std::vector<DocumentView*> DocumentViews;
+typedef std::vector<DocumentView*> DocumentViews;
 
-  class UIContext : public app::Context {
-  public:
-    static UIContext* instance() { return m_instance; }
+class UIContext : public app::Context
+{
+public:
+  static UIContext* instance() { return m_instance; }
 
-    UIContext();
-    virtual ~UIContext();
+  UIContext();
+  virtual ~UIContext();
 
-    bool isUIAvailable() const override;
+  bool isUIAvailable() const override;
 
-    DocumentView* activeView() const;
-    void setActiveView(DocumentView* documentView);
-    void setActiveDocument(Document* document);
+  DocumentView* activeView() const;
+  void setActiveView(DocumentView* documentView);
+  void setActiveDocument(Document* document);
 
-    DocumentView* getFirstDocumentView(doc::Document* document) const;
-    DocumentViews getAllDocumentViews(doc::Document* document) const;
+  DocumentView* getFirstDocumentView(doc::Document* document) const;
+  DocumentViews getAllDocumentViews(doc::Document* document) const;
 
-    // Returns the current editor. It can be null.
-    Editor* activeEditor();
+  // Returns the current editor. It can be null.
+  Editor* activeEditor();
 
-    // Returns the active editor for the given document, or creates a
-    // new one if it's necessary.
-    Editor* getEditorFor(Document* document);
+  // Returns the active editor for the given document, or creates a
+  // new one if it's necessary.
+  Editor* getEditorFor(Document* document);
 
-  protected:
-    void onAddDocument(doc::Document* doc) override;
-    void onRemoveDocument(doc::Document* doc) override;
-    void onGetActiveSite(doc::Site* site) const override;
+protected:
+  void onAddDocument(doc::Document* doc) override;
+  void onRemoveDocument(doc::Document* doc) override;
+  void onGetActiveSite(doc::Site* site) const override;
 
-  private:
-    Document* m_lastSelectedDoc;
-    DocumentView* m_lastSelectedView;
-    static UIContext* m_instance;
-  };
+private:
+  Document* m_lastSelectedDoc;
+  DocumentView* m_lastSelectedView;
+  static UIContext* m_instance;
+};
 
 } // namespace app

@@ -27,14 +27,14 @@
 #include "doc/sprite.h"
 #include "render/render.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-CopyCel::CopyCel(
-  LayerImage* srcLayer, frame_t srcFrame,
-  LayerImage* dstLayer, frame_t dstFrame, bool continuous)
+CopyCel::CopyCel(const LayerImage* srcLayer, const frame_t srcFrame,
+                 const LayerImage* dstLayer, const frame_t dstFrame,
+                 const bool continuous)
   : m_srcLayer(srcLayer)
   , m_dstLayer(dstLayer)
   , m_srcFrame(srcFrame)
@@ -51,81 +51,89 @@ CopyCel::CopyCel(
 #endif
 void CopyCel::onExecute()
 {
-  LayerImage* srcLayer = static_cast<LayerImage*>(m_srcLayer.layer());
-  LayerImage* dstLayer = static_cast<LayerImage*>(m_dstLayer.layer());
+  const auto* srcLayer = dynamic_cast<LayerImage*>(m_srcLayer.layer());
+  const auto* dstLayer = dynamic_cast<LayerImage*>(m_dstLayer.layer());
 
   ASSERT(srcLayer);
   ASSERT(dstLayer);
+  if (!srcLayer || !dstLayer)
+    return;
 
-  Sprite* srcSprite = srcLayer->sprite();
-  Sprite* dstSprite = dstLayer->sprite();
+  const Sprite* srcSprite = srcLayer->sprite();
+  const Sprite* dstSprite = dstLayer->sprite();
   ASSERT(srcSprite);
   ASSERT(dstSprite);
+  if (!srcSprite || !dstSprite)
+    return;
   ASSERT(m_srcFrame >= 0 && m_srcFrame < srcSprite->totalFrames());
   ASSERT(m_dstFrame >= 0);
 
-  auto srcCel = srcLayer->cel(m_srcFrame);
+  const auto srcCel = srcLayer->cel(m_srcFrame);
   auto dstCel = dstLayer->cel(m_dstFrame);
 
-  // Clear destination cel if it does exist. It'll be overriden by the
+  // Clear destination cel if it does exist. It'll be overridden by the
   // copy of srcCel.
-  if (dstCel) {
+  if (dstCel)
+  {
     if (dstCel->links())
-      executeAndAdd(new cmd::UnlinkCel(dstCel));
-    executeAndAdd(new cmd::ClearCel(dstCel));
+      executeAndAdd(new UnlinkCel(dstCel));
+    executeAndAdd(new ClearCel(dstCel));
   }
 
   // Add empty frames until newFrame
   while (dstSprite->totalFrames() <= m_dstFrame)
-    executeAndAdd(new cmd::AddFrame(dstSprite, dstSprite->totalFrames()));
+    executeAndAdd(new AddFrame(dstSprite, dstSprite->totalFrames()));
 
-  Image* srcImage = (srcCel ? srcCel->image(): NULL);
+  const Image* srcImage = srcCel ? srcCel->image() : nullptr;
   ImageRef dstImage;
   dstCel = dstLayer->cel(m_dstFrame);
   if (dstCel)
     dstImage = dstCel->imageRef();
 
-  bool createLink =
-    (srcLayer == dstLayer && m_continuous);
+  const bool createLink = srcLayer == dstLayer && m_continuous;
 
   // For background layer
-  if (dstLayer->isBackground()) {
+  if (dstLayer->isBackground())
+  {
     ASSERT(dstCel);
     ASSERT(dstImage);
-    if (!dstCel || !dstImage ||
-        !srcCel || !srcImage)
+    if (!dstCel || !dstImage || !srcCel || !srcImage)
       return;
 
-    if (createLink) {
-      executeAndAdd(new cmd::SetCelData(dstCel, srcCel->dataRef()));
+    if (createLink)
+    {
+      executeAndAdd(new SetCelData(dstCel, srcCel->dataRef()));
     }
-    else {
-      BlendMode blend = (srcLayer->isBackground() ?
-                         BlendMode::SRC:
-                         BlendMode::NORMAL);
+    else
+    {
+      const BlendMode blend =
+          srcLayer->isBackground() ? BlendMode::SRC : BlendMode::NORMAL;
 
-      ImageRef tmp(Image::createCopy(dstImage.get()));
-      render::composite_image(
-        tmp.get(), srcImage,
-        srcSprite->palette(m_srcFrame),
-        srcCel->x(), srcCel->y(), 255, blend);
-      executeAndAdd(new cmd::CopyRect(dstImage.get(), tmp.get(), gfx::Clip(tmp->bounds())));
+      const ImageRef tmp(Image::createCopy(dstImage.get()));
+      render::composite_image(tmp.get(), srcImage,
+                              srcSprite->palette(m_srcFrame), srcCel->x(),
+                              srcCel->y(), 255, blend);
+      executeAndAdd(
+          new CopyRect(dstImage.get(), tmp.get(), gfx::Clip(tmp->bounds())));
     }
   }
   // For transparent layers
-  else {
+  else
+  {
     if (dstCel)
-      executeAndAdd(new cmd::RemoveCel(dstCel));
+      executeAndAdd(new RemoveCel(dstCel));
 
-    if (srcCel) {
-      if (createLink) {
+    if (srcCel)
+    {
+      if (createLink)
+      {
         dstCel = Cel::createLink(srcCel);
         dstCel->setFrame(m_dstFrame);
       }
       else
         dstCel = create_cel_copy(srcCel, dstSprite, m_dstFrame);
 
-      executeAndAdd(new cmd::AddCel(dstLayer, dstCel));
+      executeAndAdd(new AddCel(dstLayer, dstCel));
     }
   }
 }
@@ -140,11 +148,9 @@ void CopyCel::onFireNotifications()
   ASSERT(m_srcLayer.layer());
   ASSERT(m_dstLayer.layer());
 
-  static_cast<app::Document*>(m_dstLayer.layer()->sprite()->document())
-    ->notifyCelCopied(
-      m_srcLayer.layer(), m_srcFrame,
-      m_dstLayer.layer(), m_dstFrame);
+  dynamic_cast<Document*>(m_dstLayer.layer()->sprite()->document())
+      ->notifyCelCopied(m_srcLayer.layer(), m_srcFrame, m_dstLayer.layer(),
+                        m_dstFrame);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

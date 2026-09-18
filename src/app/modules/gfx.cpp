@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -27,12 +27,14 @@
 #include "doc/image.h"
 #include "doc/palette.h"
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace gfx;
 
-static void rectgrid(ui::Graphics* g, const gfx::Rect& rc, const gfx::Size& tile)
+static void rectgrid(ui::Graphics* g, const gfx::Rect& rc,
+                     const gfx::Size& tile)
 {
   if (tile.w < 1 || tile.h < 1)
     return;
@@ -43,28 +45,29 @@ static void rectgrid(ui::Graphics* g, const gfx::Rect& rc, const gfx::Size& tile
 
   u = 0;
   v = 0;
-  for (y=rc.y; y<rc.y2()-tile.h; y+=tile.h) {
-    for (x=rc.x; x<rc.x2()-tile.w; x+=tile.w)
-      g->fillRect(((u++)&1)? c1: c2, gfx::Rect(x, y, tile.w, tile.h));
+  for (y = rc.y; y < rc.y2() - tile.h; y += tile.h)
+  {
+    for (x = rc.x; x < rc.x2() - tile.w; x += tile.w)
+      g->fillRect(((u++) & 1) ? c1 : c2, gfx::Rect(x, y, tile.w, tile.h));
 
     if (x < rc.x2())
-      g->fillRect(((u++)&1)? c1: c2, gfx::Rect(x, y, rc.x2()-x, tile.h));
+      g->fillRect(((u++) & 1) ? c1 : c2, gfx::Rect(x, y, rc.x2() - x, tile.h));
 
     u = (++v);
   }
 
-  if (y < rc.y2()) {
-    for (x=rc.x; x<rc.x2()-tile.w; x+=tile.w)
-      g->fillRect(((u++)&1)? c1: c2, gfx::Rect(x, y, tile.w, rc.y2()-y));
+  if (y < rc.y2())
+  {
+    for (x = rc.x; x < rc.x2() - tile.w; x += tile.w)
+      g->fillRect(((u++) & 1) ? c1 : c2, gfx::Rect(x, y, tile.w, rc.y2() - y));
 
     if (x < rc.x2())
-      g->fillRect(((u++)&1)? c1: c2, gfx::Rect(x, y, rc.x2()-x, rc.y2()-y));
+      g->fillRect(((u++) & 1) ? c1 : c2,
+                  gfx::Rect(x, y, rc.x2() - x, rc.y2() - y));
   }
 }
 
-void draw_color(ui::Graphics* g,
-                const Rect& rc,
-                const app::Color& _color,
+void draw_color(ui::Graphics* g, const Rect& rc, const app::Color& _color,
                 const doc::ColorMode colorMode)
 {
   if (rc.w < 1 || rc.h < 1)
@@ -74,44 +77,46 @@ void draw_color(ui::Graphics* g,
 
   int alpha = color.getAlpha();
 
-  if (alpha < 255) {
+  if (alpha < 255)
+  {
     if (rc.w == rc.h)
-      rectgrid(g, rc, gfx::Size(rc.w/2, rc.h/2));
+      rectgrid(g, rc, gfx::Size(rc.w / 2, rc.h / 2));
     else
-      rectgrid(g, rc, gfx::Size(rc.w/4, rc.h/2));
+      rectgrid(g, rc, gfx::Size(rc.w / 4, rc.h / 2));
   }
 
-  if (alpha > 0) {
-    if (colorMode == doc::ColorMode::GRAYSCALE) {
-      color = app::Color::fromGray(
-        color.getGray(),
-        color.getAlpha());
+  if (alpha > 0)
+  {
+    if (colorMode == doc::ColorMode::GRAYSCALE)
+    {
+      color = app::Color::fromGray(color.getGray(), color.getAlpha());
     }
 
-    if (color.getType() == app::Color::IndexType) {
+    if (color.getType() == app::Color::IndexType)
+    {
       int index = color.getIndex();
 
-      if (index >= 0 && index < get_current_palette()->size()) {
+      if (index >= 0 && index < get_current_palette()->size())
+      {
         g->fillRect(color_utils::color_for_ui(color), rc);
       }
-      else {
+      else
+      {
         g->fillRect(gfx::rgba(0, 0, 0), rc);
         g->drawLine(gfx::rgba(255, 255, 255),
-                    gfx::Point(rc.x+rc.w-2, rc.y+1),
-                    gfx::Point(rc.x+1, rc.y+rc.h-2));
+                    gfx::Point(rc.x + rc.w - 2, rc.y + 1),
+                    gfx::Point(rc.x + 1, rc.y + rc.h - 2));
       }
     }
-    else {
+    else
+    {
       g->fillRect(color_utils::color_for_ui(color), rc);
     }
   }
 }
 
-void draw_color_button(ui::Graphics* g,
-                       const Rect& rc,
-                       const app::Color& color,
-                       const doc::ColorMode colorMode,
-                       const bool hot,
+void draw_color_button(ui::Graphics* g, const Rect& rc, const app::Color& color,
+                       const doc::ColorMode colorMode, const bool hot,
                        const bool drag)
 {
   SkinTheme* theme = SkinTheme::instance();
@@ -119,30 +124,23 @@ void draw_color_button(ui::Graphics* g,
 
   // Draw background (the color)
   draw_color(g,
-             Rect(rc.x+1*scale,
-                  rc.y+1*scale,
-                  rc.w-2*scale,
-                  rc.h-2*scale),
-             color,
-             colorMode);
+             Rect(rc.x + 1 * scale, rc.y + 1 * scale, rc.w - 2 * scale,
+                  rc.h - 2 * scale),
+             color, colorMode);
 
   // Draw opaque border
   theme->drawRect(
-    g, rc,
-    theme->parts.colorbar0()->bitmapNW(),
-    theme->parts.colorbar0()->bitmapN(),
-    theme->parts.colorbar1()->bitmapNE(),
-    theme->parts.colorbar1()->bitmapE(),
-    theme->parts.colorbar3()->bitmapSE(),
-    theme->parts.colorbar2()->bitmapS(),
-    theme->parts.colorbar2()->bitmapSW(),
-    theme->parts.colorbar0()->bitmapW());
+      g, rc, theme->parts.colorbar0()->bitmapNW(),
+      theme->parts.colorbar0()->bitmapN(), theme->parts.colorbar1()->bitmapNE(),
+      theme->parts.colorbar1()->bitmapE(), theme->parts.colorbar3()->bitmapSE(),
+      theme->parts.colorbar2()->bitmapS(), theme->parts.colorbar2()->bitmapSW(),
+      theme->parts.colorbar0()->bitmapW());
 
   // Draw hot
-  if (hot) {
-    theme->drawRect(
-      g, gfx::Rect(rc.x, rc.y, rc.w, rc.h-1 - 1*scale),
-      theme->parts.colorbarBorderHotfg().get());
+  if (hot)
+  {
+    theme->drawRect(g, gfx::Rect(rc.x, rc.y, rc.w, rc.h - 1 - 1 * scale),
+                    theme->parts.colorbarBorderHotfg().get());
   }
 }
 

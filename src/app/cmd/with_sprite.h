@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,22 +9,23 @@
 
 #include "doc/object_id.h"
 
-namespace doc {
-  class Sprite;
+namespace doc
+{
+class Sprite;
 }
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class WithSprite {
-  public:
-    WithSprite(Sprite* sprite);
-    Sprite* sprite();
+class WithSprite
+{
+public:
+  explicit WithSprite(const Sprite* sprite);
+  [[nodiscard]] Sprite* sprite() const;
 
-  private:
-    ObjectId m_spriteId;
-  };
+private:
+  ObjectId m_spriteId;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

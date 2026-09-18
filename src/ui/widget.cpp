@@ -49,13 +49,15 @@
 #include <sstream>
 #include <iostream>
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
 static inline void mark_dirty_flag(Widget* widget)
 {
-  while (widget) {
+  while (widget)
+  {
     widget->enableFlags(DIRTY);
     widget = widget->parent();
   }
@@ -86,12 +88,14 @@ Widget::Widget(WidgetType type)
 Widget::~Widget()
 {
   // Break relationship with the manager.
-  if (this->type() != kManagerWidget) {
+  if (this->type() != kManagerWidget)
+  {
     Manager* manager = this->manager();
 
     // manager has already been shutdown. Avoid touching anything else.
-    if (!manager) {
-        return;
+    if (!manager)
+    {
+      return;
     }
 
     manager->freeWidget(this);
@@ -163,19 +167,22 @@ double Widget::evalText() const
   m_textReadAsNumber = true;
 
   auto val = evalmath::eval(m_text);
-  if (!val) {
+  if (!val)
+  {
     onEvalError(val.error());
     return onEvalFallback();
   }
 
   // evalmath doesn't reject every division by zero, so an expression can
   // parse and still come back as inf/NaN. Those aren't usable either.
-  if (!std::isfinite(val.value())) {
+  if (!std::isfinite(val.value()))
+  {
     onEvalError("result is not a finite number");
     return onEvalFallback();
   }
 
-  if (!onEvalAcceptable(val.value())) {
+  if (!onEvalAcceptable(val.value()))
+  {
     onEvalError("value is not acceptable");
     return onEvalFallback();
   }
@@ -206,10 +213,11 @@ void Widget::setText(const std::string& text)
   onSetText();
 }
 
-void Widget::setTextf(const char *format, ...)
+void Widget::setTextf(const char* format, ...)
 {
   // formatted string
-  if (format) {
+  if (format)
+  {
     va_list ap;
     va_start(ap, format);
     char buf[4096];
@@ -219,18 +227,21 @@ void Widget::setTextf(const char *format, ...)
     setText(buf);
   }
   // empty string
-  else {
+  else
+  {
     setText("");
   }
 }
 
-void Widget::setI18N() {
+void Widget::setI18N()
+{
   m_i18n = m_text;
   std::erase(m_i18n, '&');
   setText(m_text);
 }
 
-void Widget::setI18N(std::string_view i18n) {
+void Widget::setI18N(std::string_view i18n)
+{
   if (i18n == m_i18n)
     return;
   m_i18n = i18n;
@@ -246,7 +257,8 @@ void Widget::setTextQuiet(const std::string& text)
 
 std::shared_ptr<she::Font> Widget::font() const
 {
-  if (!m_font) {
+  if (!m_font)
+  {
     ASSERT(m_theme);
     m_font = m_theme->getWidgetFont(this);
   }
@@ -276,14 +288,18 @@ void Widget::setTheme(Theme* theme)
 
 void Widget::setVisible(bool state)
 {
-  if (state) {
-    if (hasFlags(HIDDEN)) {
+  if (state)
+  {
+    if (hasFlags(HIDDEN))
+    {
       disableFlags(HIDDEN);
       invalidate();
     }
   }
-  else {
-    if (!hasFlags(HIDDEN)) {
+  else
+  {
+    if (!hasFlags(HIDDEN))
+    {
       manager()->freeWidget(this); // Free from manager
       enableFlags(HIDDEN);
     }
@@ -292,16 +308,20 @@ void Widget::setVisible(bool state)
 
 void Widget::setEnabled(bool state)
 {
-  if (state) {
-    if (hasFlags(DISABLED)) {
+  if (state)
+  {
+    if (hasFlags(DISABLED))
+    {
       disableFlags(DISABLED);
       invalidate();
 
       onEnable();
     }
   }
-  else {
-    if (!hasFlags(DISABLED)) {
+  else
+  {
+    if (!hasFlags(DISABLED))
+    {
       manager()->freeWidget(this); // Free from the manager
 
       enableFlags(DISABLED);
@@ -314,16 +334,20 @@ void Widget::setEnabled(bool state)
 
 void Widget::setSelected(bool state)
 {
-  if (state) {
-    if (!hasFlags(SELECTED)) {
+  if (state)
+  {
+    if (!hasFlags(SELECTED))
+    {
       enableFlags(SELECTED);
       invalidate();
 
       onSelect();
     }
   }
-  else {
-    if (hasFlags(SELECTED)) {
+  else
+  {
+    if (hasFlags(SELECTED))
+    {
       disableFlags(SELECTED);
       invalidate();
 
@@ -369,7 +393,8 @@ bool Widget::isVisible() const
   const Widget* widget = this;
   const Widget* lastWidget = nullptr;
 
-  do {
+  do
+  {
     if (widget->hasFlags(HIDDEN))
       return false;
 
@@ -378,14 +403,15 @@ bool Widget::isVisible() const
   } while (widget);
 
   // The widget is visible if it's inside a visible manager
-  return (lastWidget ? lastWidget->type() == kManagerWidget: false);
+  return (lastWidget ? lastWidget->type() == kManagerWidget : false);
 }
 
 bool Widget::isEnabled() const
 {
   const Widget* widget = this;
 
-  do {
+  do
+  {
     if (widget->hasFlags(DISABLED))
       return false;
 
@@ -428,21 +454,23 @@ Window* Widget::window()
 {
   Widget* widget = this;
 
-  while (widget) {
+  while (widget)
+  {
     if (widget->type() == kWindowWidget)
       return static_cast<Window*>(widget);
 
     widget = widget->m_parent;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 Manager* Widget::manager()
 {
   Widget* widget = this;
 
-  while (widget) {
+  while (widget)
+  {
     if (widget->type() == kManagerWidget)
       return static_cast<Manager*>(widget);
 
@@ -454,7 +482,8 @@ Manager* Widget::manager()
 
 void Widget::getParents(bool ascendant, WidgetsList& parents)
 {
-  for (Widget* widget=this; widget; widget=widget->m_parent) {
+  for (Widget* widget = this; widget; widget = widget->m_parent)
+  {
     // append parents in tail
     if (ascendant)
       parents.push_back(widget);
@@ -467,17 +496,17 @@ void Widget::getParents(bool ascendant, WidgetsList& parents)
 Widget* Widget::nextSibling()
 {
   if (!m_parent)
-    return NULL;
+    return nullptr;
 
   WidgetsList::iterator begin = m_parent->m_children.begin();
   WidgetsList::iterator end = m_parent->m_children.end();
   WidgetsList::iterator it = std::find(begin, end, this);
 
   if (it == end)
-    return NULL;
+    return nullptr;
 
   if (++it == end)
-    return NULL;
+    return nullptr;
 
   return *it;
 }
@@ -485,31 +514,34 @@ Widget* Widget::nextSibling()
 Widget* Widget::previousSibling()
 {
   if (!m_parent)
-    return NULL;
+    return nullptr;
 
   WidgetsList::iterator begin = m_parent->m_children.begin();
   WidgetsList::iterator end = m_parent->m_children.end();
   WidgetsList::iterator it = std::find(begin, end, this);
 
   if (it == begin || it == end)
-    return NULL;
+    return nullptr;
 
   return *(++it);
 }
 
 Widget* Widget::pick(const gfx::Point& pt, bool checkParentsVisibility)
 {
-  Widget* inside, *picked = nullptr;
+  Widget *inside, *picked = nullptr;
 
   // isVisible() checks visibility of widget's parent.
   if (((checkParentsVisibility && isVisible()) ||
        (!checkParentsVisibility && !hasFlags(HIDDEN))) &&
-      (bounds().contains(pt))) {
+      (bounds().contains(pt)))
+  {
     picked = this;
 
-    for (Widget* child : m_children) {
+    for (Widget* child : m_children)
+    {
       inside = child->pick(pt, false);
-      if (inside) {
+      if (inside)
+      {
         picked = inside;
         break;
       }
@@ -523,12 +555,14 @@ bool Widget::hasChild(Widget* child)
 {
   ASSERT_VALID_WIDGET(child);
 
-  return std::find(m_children.begin(), m_children.end(), child) != m_children.end();
+  return std::find(m_children.begin(), m_children.end(), child) !=
+         m_children.end();
 }
 
 bool Widget::hasAncestor(Widget* ancestor)
 {
-  for (Widget* widget=m_parent; widget; widget=widget->m_parent) {
+  for (Widget* widget = m_parent; widget; widget = widget->m_parent)
+  {
     if (widget == ancestor)
       return true;
   }
@@ -537,12 +571,14 @@ bool Widget::hasAncestor(Widget* ancestor)
 
 Widget* Widget::findChild(const char* id)
 {
-  for (auto child : m_children) {
+  for (auto child : m_children)
+  {
     if (child->id() == id)
       return child;
   }
 
-  for (auto child : m_children) {
+  for (auto child : m_children)
+  {
     auto subchild = child->findChild(id);
     if (subchild)
       return subchild;
@@ -578,7 +614,7 @@ void Widget::removeChild(WidgetsList::iterator& it)
   if (manager)
     manager->freeWidget(child);
 
-  child->m_parent = NULL;
+  child->m_parent = nullptr;
 }
 
 void Widget::removeChild(Widget* child)
@@ -586,11 +622,14 @@ void Widget::removeChild(Widget* child)
   ASSERT_VALID_WIDGET(this);
   ASSERT_VALID_WIDGET(child);
 
-  WidgetsList::iterator it = std::find(m_children.begin(), m_children.end(), child);
+  WidgetsList::iterator it =
+      std::find(m_children.begin(), m_children.end(), child);
 
 #ifdef _DEBUG
-  if (child && it == m_children.end()) {
-    std::cout << "Attempting to remove " << typeid(*child).name() << " that is not a child." << std::endl;
+  if (child && it == m_children.end())
+  {
+    std::cout << "Attempting to remove " << typeid(*child).name()
+              << " that is not a child.\n";
     return;
   }
 #endif
@@ -610,8 +649,9 @@ void Widget::replaceChild(Widget* oldChild, Widget* newChild)
   ASSERT_VALID_WIDGET(newChild);
 
   WidgetsList::iterator before =
-    std::find(m_children.begin(), m_children.end(), oldChild);
-  if (before == m_children.end()) {
+      std::find(m_children.begin(), m_children.end(), oldChild);
+  if (before == m_children.end())
+  {
     ASSERT(false);
     return;
   }
@@ -619,7 +659,7 @@ void Widget::replaceChild(Widget* oldChild, Widget* newChild)
 
   removeChild(oldChild);
 
-  m_children.insert(m_children.begin()+index, newChild);
+  m_children.insert(m_children.begin() + index, newChild);
   newChild->m_parent = this;
 }
 
@@ -628,7 +668,7 @@ void Widget::insertChild(int index, Widget* child)
   ASSERT_VALID_WIDGET(this);
   ASSERT_VALID_WIDGET(child);
 
-  m_children.insert(m_children.begin()+index, child);
+  m_children.insert(m_children.begin() + index, child);
   child->m_parent = this;
 }
 
@@ -644,11 +684,14 @@ void Widget::layout()
 
 void Widget::loadLayout()
 {
-  if (!m_id.empty()) {
+  if (!m_id.empty())
+  {
     LayoutIO* io = manager()->getLayoutIO();
-    if (io) {
+    if (io)
+    {
       std::string layout = io->loadLayout(this);
-      if (!layout.empty()) {
+      if (!layout.empty())
+      {
         std::stringstream s(layout);
         LoadLayoutEvent ev(this, s);
         onLoadLayout(ev);
@@ -663,9 +706,11 @@ void Widget::loadLayout()
 
 void Widget::saveLayout()
 {
-  if (!m_id.empty()) {
+  if (!m_id.empty())
+  {
     LayoutIO* io = manager()->getLayoutIO();
-    if (io) {
+    if (io)
+    {
       std::stringstream s;
       SaveLayoutEvent ev(this, s);
       onSaveLayout(ev);
@@ -692,17 +737,13 @@ void Widget::setDecorativeWidgetBounds()
 
 Rect Widget::childrenBounds() const
 {
-  return Rect(m_bounds.x + border().left(),
-              m_bounds.y + border().top(),
-              m_bounds.w - border().width(),
-              m_bounds.h - border().height());
+  return Rect(m_bounds.x + border().left(), m_bounds.y + border().top(),
+              m_bounds.w - border().width(), m_bounds.h - border().height());
 }
 
 Rect Widget::clientChildrenBounds() const
 {
-  return Rect(border().left(),
-              border().top(),
-              m_bounds.w - border().width(),
+  return Rect(border().left(), border().top(), m_bounds.w - border().width(),
               m_bounds.h - border().height());
 }
 
@@ -714,7 +755,8 @@ void Widget::setBounds(const Rect& rc)
 
 void Widget::setBoundsQuietly(const gfx::Rect& rc)
 {
-  if (m_bounds != rc) {
+  if (m_bounds != rc)
+  {
     m_bounds = rc;
 
     // Remove all paint messages for this widget.
@@ -751,25 +793,28 @@ void Widget::getRegion(gfx::Region& region)
 
 void Widget::getDrawableRegion(gfx::Region& region, DrawableRegionFlags flags)
 {
-  Widget* window, *manager, *view;
+  Widget *window, *manager, *view;
 
   getRegion(region);
 
   // Cut the top windows areas
-  if (flags & kCutTopWindows) {
+  if (flags & kCutTopWindows)
+  {
     window = this->window();
-    manager = (window ? window->manager(): nullptr);
+    manager = (window ? window->manager() : nullptr);
 
-    while (manager) {
+    while (manager)
+    {
       const WidgetsList& windows_list = manager->children();
       WidgetsList::const_reverse_iterator it =
-        std::find(windows_list.rbegin(), windows_list.rend(), window);
+          std::find(windows_list.rbegin(), windows_list.rend(), window);
 
-      if (!windows_list.empty() &&
-          window != windows_list.front() &&
-          it != windows_list.rend()) {
+      if (!windows_list.empty() && window != windows_list.front() &&
+          it != windows_list.rend())
+      {
         // Subtract the rectangles
-        for (++it; it != windows_list.rend(); ++it) {
+        for (++it; it != windows_list.rend(); ++it)
+        {
           if (!(*it)->isVisible())
             continue;
 
@@ -780,25 +825,30 @@ void Widget::getDrawableRegion(gfx::Region& region, DrawableRegionFlags flags)
       }
 
       window = manager->window();
-      manager = (window ? window->manager(): nullptr);
+      manager = (window ? window->manager() : nullptr);
     }
   }
 
   // Clip the areas where are children
-  if (!(flags & kUseChildArea) && !children().empty()) {
+  if (!(flags & kUseChildArea) && !children().empty())
+  {
     Region reg1;
     Region reg2(childrenBounds());
 
-    for (auto child : children()) {
-      if (child->isVisible()) {
+    for (auto child : children())
+    {
+      if (child->isVisible())
+      {
         Region reg3;
         child->getRegion(reg3);
 
-        if (child->hasFlags(DECORATIVE)) {
+        if (child->hasFlags(DECORATIVE))
+        {
           reg1 = bounds();
           reg1.createIntersection(reg1, reg3);
         }
-        else {
+        else
+        {
           reg1.createIntersection(reg2, reg3);
         }
         region.createSubtraction(region, reg1);
@@ -807,31 +857,35 @@ void Widget::getDrawableRegion(gfx::Region& region, DrawableRegionFlags flags)
   }
 
   // Intersect with the parent area
-  if (!hasFlags(DECORATIVE)) {
+  if (!hasFlags(DECORATIVE))
+  {
     Widget* p = this->parent();
-    while (p) {
-      region.createIntersection(
-        region, Region(p->childrenBounds()));
+    while (p)
+    {
+      region.createIntersection(region, Region(p->childrenBounds()));
       p = p->parent();
     }
   }
-  else {
+  else
+  {
     Widget* p = parent();
-    if (p) {
-      region.createIntersection(
-        region, Region(p->bounds()));
+    if (p)
+    {
+      region.createIntersection(region, Region(p->bounds()));
     }
   }
 
   // Limit to the manager area
   window = this->window();
-  manager = (window ? window->manager(): nullptr);
+  manager = (window ? window->manager() : nullptr);
 
-  while (manager) {
+  while (manager)
+  {
     view = View::getView(manager);
 
     Rect cpos;
-    if (view) {
+    if (view)
+    {
       cpos = static_cast<View*>(view)->viewportBounds();
     }
     else
@@ -840,7 +894,7 @@ void Widget::getDrawableRegion(gfx::Region& region, DrawableRegionFlags flags)
     region.createIntersection(region, Region(cpos));
 
     window = manager->window();
-    manager = (window ? window->manager(): nullptr);
+    manager = (window ? window->manager() : nullptr);
   }
 }
 
@@ -854,18 +908,16 @@ int Widget::textHeight() const
   return font()->height();
 }
 
-void Widget::getTextIconInfo(
-  gfx::Rect* box,
-  gfx::Rect* text,
-  gfx::Rect* icon,
-  int icon_align, int icon_w, int icon_h)
+void Widget::getTextIconInfo(gfx::Rect* box, gfx::Rect* text, gfx::Rect* icon,
+                             int icon_align, int icon_w, int icon_h)
 {
-#define SETRECT(r)                              \
-  if (r) {                                      \
-    r->x = r##_x;                               \
-    r->y = r##_y;                               \
-    r->w = r##_w;                               \
-    r->h = r##_h;                               \
+#define SETRECT(r)                                                             \
+  if (r)                                                                       \
+  {                                                                            \
+    r->x = r##_x;                                                              \
+    r->y = r##_y;                                                              \
+    r->w = r##_w;                                                              \
+    r->h = r##_h;                                                              \
   }
 
   gfx::Rect bounds = clientBounds();
@@ -875,29 +927,35 @@ void Widget::getTextIconInfo(
   text_x = text_y = 0;
 
   // Size of the text
-  if (hasText()) {
+  if (hasText())
+  {
     text_w = textWidth();
     text_h = textHeight();
   }
-  else {
+  else
+  {
     text_w = text_h = 0;
   }
 
   // Box size
-  if (icon_align & CENTER) {   // With the icon in the center
-    if (icon_align & MIDDLE) { // With the icon inside the text
+  if (icon_align & CENTER)
+  { // With the icon in the center
+    if (icon_align & MIDDLE)
+    { // With the icon inside the text
       box_w = MAX(icon_w, text_w);
       box_h = MAX(icon_h, text_h);
     }
     // With the icon in the top or bottom
-    else {
+    else
+    {
       box_w = MAX(icon_w, text_w);
-      box_h = icon_h + (hasText() ? childSpacing(): 0) + text_h;
+      box_h = icon_h + (hasText() ? childSpacing() : 0) + text_h;
     }
   }
   // With the icon in left or right that doesn't care by now
-  else {
-    box_w = icon_w + (hasText() ? childSpacing(): 0) + text_w;
+  else
+  {
+    box_w = icon_w + (hasText() ? childSpacing() : 0) + text_w;
     box_h = MAX(icon_h, text_h);
   }
 
@@ -905,49 +963,57 @@ void Widget::getTextIconInfo(
   if (align() & RIGHT)
     box_x = bounds.x2() - box_w - border().right();
   else if (align() & CENTER)
-    box_x = (bounds.x+bounds.x2())/2 - box_w/2;
+    box_x = (bounds.x + bounds.x2()) / 2 - box_w / 2;
   else
     box_x = bounds.x + border().left();
 
   if (align() & BOTTOM)
     box_y = bounds.y2() - box_h - border().bottom();
   else if (align() & MIDDLE)
-    box_y = (bounds.y+bounds.y2())/2 - box_h/2;
+    box_y = (bounds.y + bounds.y2()) / 2 - box_h / 2;
   else
     box_y = bounds.y + border().top();
 
   // With text
-  if (hasText()) {
+  if (hasText())
+  {
     // Text/icon X position
-    if (icon_align & RIGHT) {
+    if (icon_align & RIGHT)
+    {
       text_x = box_x;
       icon_x = box_x + box_w - icon_w;
     }
-    else if (icon_align & CENTER) {
-      text_x = box_x + box_w/2 - text_w/2;
-      icon_x = box_x + box_w/2 - icon_w/2;
+    else if (icon_align & CENTER)
+    {
+      text_x = box_x + box_w / 2 - text_w / 2;
+      icon_x = box_x + box_w / 2 - icon_w / 2;
     }
-    else {
+    else
+    {
       text_x = box_x + box_w - text_w;
       icon_x = box_x;
     }
 
     // Text Y position
-    if (icon_align & BOTTOM) {
+    if (icon_align & BOTTOM)
+    {
       text_y = box_y;
       icon_y = box_y + box_h - icon_h;
     }
-    else if (icon_align & MIDDLE) {
-      text_y = box_y + box_h/2 - text_h/2;
-      icon_y = box_y + box_h/2 - icon_h/2;
+    else if (icon_align & MIDDLE)
+    {
+      text_y = box_y + box_h / 2 - text_h / 2;
+      icon_y = box_y + box_h / 2 - icon_h / 2;
     }
-    else {
+    else
+    {
       text_y = box_y + box_h - text_h;
       icon_y = box_y;
     }
   }
   // Without text
-  else {
+  else
+  {
     // Icon X/Y position
     icon_x = box_x;
     icon_y = box_y;
@@ -973,7 +1039,8 @@ void Widget::flushRedraw()
   std::queue<Widget*> processing;
   Message* msg;
 
-  if (hasFlags(DIRTY)) {
+  if (hasFlags(DIRTY))
+  {
     disableFlags(DIRTY);
     processing.push(this);
   }
@@ -981,7 +1048,8 @@ void Widget::flushRedraw()
   Manager* manager = this->manager();
   ASSERT(manager);
 
-  while (!processing.empty()) {
+  while (!processing.empty())
+  {
     Widget* widget = processing.front();
     processing.pop();
 
@@ -991,14 +1059,17 @@ void Widget::flushRedraw()
     if (!widget->isVisible())
       continue;
 
-    for (auto child : widget->children()) {
-      if (child->hasFlags(DIRTY)) {
+    for (auto child : widget->children())
+    {
+      if (child->hasFlags(DIRTY))
+      {
         child->disableFlags(DIRTY);
         processing.push(child);
       }
     }
 
-    if (!widget->m_updateRegion.isEmpty()) {
+    if (!widget->m_updateRegion.isEmpty())
+    {
       // Intersect m_updateRegion with drawable area.
       {
         Region drawable;
@@ -1010,8 +1081,9 @@ void Widget::flushRedraw()
       Region::const_iterator it = widget->m_updateRegion.begin();
 
       // Draw the widget
-      int count = nrects-1;
-      for (c=0; c<nrects; ++c, ++it, --count) {
+      int count = nrects - 1;
+      for (c = 0; c < nrects; ++c, ++it, --count)
+      {
         // Create the draw message
         msg = new PaintMessage(count, *it);
         msg->addRecipient(widget);
@@ -1034,7 +1106,8 @@ void Widget::paint(Graphics* graphics, const gfx::Region& drawRegion)
   std::queue<Widget*> processing;
   processing.push(this);
 
-  while (!processing.empty()) {
+  while (!processing.empty())
+  {
     Widget* widget = processing.front();
     processing.pop();
 
@@ -1052,18 +1125,15 @@ void Widget::paint(Graphics* graphics, const gfx::Region& drawRegion)
     widget->getDrawableRegion(region, kCutTopWindows);
     region.createIntersection(region, drawRegion);
 
-    Graphics graphics2(
-      graphics->getInternalSurface(),
-      widget->bounds().x,
-      widget->bounds().y);
+    Graphics graphics2(graphics->getInternalSurface(), widget->bounds().x,
+                       widget->bounds().y);
     graphics2.setFont(widget->font());
 
-    for (Region::const_iterator
-           it = region.begin(),
-           end = region.end(); it != end; ++it) {
-      IntersectClip clip(&graphics2, Rect(*it).offset(
-          -widget->bounds().x,
-          -widget->bounds().y));
+    for (Region::const_iterator it = region.begin(), end = region.end();
+         it != end; ++it)
+    {
+      IntersectClip clip(&graphics2, Rect(*it).offset(-widget->bounds().x,
+                                                      -widget->bounds().y));
       widget->paintEvent(&graphics2);
     }
   }
@@ -1072,7 +1142,8 @@ void Widget::paint(Graphics* graphics, const gfx::Region& drawRegion)
 bool Widget::paintEvent(Graphics* graphics)
 {
   // For transparent widgets we have to draw the parent first.
-  if (isTransparent()) {
+  if (isTransparent())
+  {
 #if _DEBUG
     // In debug mode we can fill the area with Red so we know if
     // we are drawing the parent correctly.
@@ -1081,14 +1152,12 @@ bool Widget::paintEvent(Graphics* graphics)
 
     enableFlags(HIDDEN);
 
-    if (parent()) {
+    if (parent())
+    {
       gfx::Region rgn(parent()->bounds());
-      rgn.createIntersection(
-        rgn,
-        gfx::Region(
-          graphics->getClipBounds().offset(
-            graphics->getInternalDeltaX(),
-            graphics->getInternalDeltaY())));
+      rgn.createIntersection(rgn, gfx::Region(graphics->getClipBounds().offset(
+                                      graphics->getInternalDeltaX(),
+                                      graphics->getInternalDeltaY())));
       parent()->paint(graphics, rgn);
     }
 
@@ -1122,7 +1191,8 @@ void Widget::setTransparent(bool transparent)
 
 void Widget::invalidate()
 {
-  if (isVisible()) {
+  if (isVisible())
+  {
     m_updateRegion.clear();
     getDrawableRegion(m_updateRegion, kCutTopWindows);
 
@@ -1144,20 +1214,23 @@ void Widget::invalidateRegion(const Region& region)
   onInvalidateRegion(region);
 }
 
-class DeleteGraphicsAndSurface {
+class DeleteGraphicsAndSurface
+{
 public:
   DeleteGraphicsAndSurface(const gfx::Rect& clip, she::Surface* surface)
-    : m_pt(clip.origin()), m_surface(surface) {
+    : m_pt(clip.origin())
+    , m_surface(surface)
+  {
   }
 
-  void operator()(Graphics* graphics) {
+  void operator()(Graphics* graphics)
+  {
     {
       she::Surface* dst = she::instance()->defaultDisplay()->getSurface();
       she::SurfaceLock lockSrc(m_surface);
       she::SurfaceLock lockDst(dst);
-      m_surface->blitTo(
-        dst, 0, 0, m_pt.x, m_pt.y,
-        m_surface->width(), m_surface->height());
+      m_surface->blitTo(dst, 0, 0, m_pt.x, m_pt.y, m_surface->width(),
+                        m_surface->height());
     }
     m_surface->dispose();
     delete graphics;
@@ -1172,17 +1245,20 @@ GraphicsPtr Widget::getGraphics(const gfx::Rect& clip)
 {
   GraphicsPtr graphics;
   she::Surface* surface;
-  she::Surface* defaultSurface = she::instance()->defaultDisplay()->getSurface();
+  she::Surface* defaultSurface =
+      she::instance()->defaultDisplay()->getSurface();
 
   // In case of double-buffering, we need to create the temporary
   // buffer only if the default surface is the screen.
-  if (isDoubleBuffered() && defaultSurface->isDirectToScreen()) {
+  if (isDoubleBuffered() && defaultSurface->isDirectToScreen())
+  {
     surface = she::instance()->createSurface(clip.w, clip.h);
     graphics.reset(new Graphics(surface, -clip.x, -clip.y),
-      DeleteGraphicsAndSurface(clip, surface));
+                   DeleteGraphicsAndSurface(clip, surface));
   }
   // In other case, we can draw directly onto the screen.
-  else {
+  else
+  {
     surface = defaultSurface;
     graphics.reset(new Graphics(surface, bounds().x, bounds().y));
   }
@@ -1232,9 +1308,10 @@ void Widget::broadcastMouseMessage(WidgetsList& targets)
 */
 Size Widget::sizeHint()
 {
-  if (m_sizeHint != NULL)
+  if (m_sizeHint != nullptr)
     return *m_sizeHint;
-  else {
+  else
+  {
     SizeHintEvent ev(this, Size(0, 0));
     onSizeHint(ev);
 
@@ -1261,9 +1338,10 @@ Size Widget::sizeHint()
 */
 Size Widget::sizeHint(const Size& fitIn)
 {
-  if (m_sizeHint != NULL)
+  if (m_sizeHint != nullptr)
     return *m_sizeHint;
-  else {
+  else
+  {
     SizeHintEvent ev(this, fitIn);
     onSizeHint(ev);
 
@@ -1310,7 +1388,8 @@ void Widget::releaseFocus()
  */
 void Widget::captureMouse()
 {
-  if (!manager()->getCapture()) {
+  if (!manager()->getCapture())
+  {
     manager()->setCapture(this);
   }
 }
@@ -1320,24 +1399,24 @@ void Widget::captureMouse()
  */
 void Widget::releaseMouse()
 {
-  if (manager()->getCapture() == this) {
+  if (manager()->getCapture() == this)
+  {
     manager()->freeCapture();
   }
 }
 
 bool Widget::offerCapture(ui::MouseMessage* mouseMsg, int widget_type)
 {
-  if (hasCapture()) {
+  if (hasCapture())
+  {
     Widget* pick = manager()->pick(mouseMsg->position());
-    if (pick && pick != this && pick->type() == widget_type) {
+    if (pick && pick != this && pick->type() == widget_type)
+    {
       releaseMouse();
 
       MouseMessage* mouseMsg2 = new MouseMessage(
-        kMouseDownMessage,
-        mouseMsg->pointerType(),
-        mouseMsg->buttons(),
-        mouseMsg->modifiers(),
-        mouseMsg->position());
+          kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
+          mouseMsg->modifiers(), mouseMsg->position());
       mouseMsg2->addRecipient(pick);
       manager()->enqueueMessage(mouseMsg2);
       return true;
@@ -1368,86 +1447,88 @@ bool Widget::hasCapture()
 
 int Widget::mnemonicChar() const
 {
-  if (hasText()) {
-    for (int c=0; m_text[c]; ++c)
-      if ((m_text[c] == '&') && (m_text[c+1] != '&'))
-        return tolower(m_text[c+1]);
+  if (hasText())
+  {
+    for (int c = 0; m_text[c]; ++c)
+      if ((m_text[c] == '&') && (m_text[c + 1] != '&'))
+        return tolower(m_text[c + 1]);
   }
   return 0;
 }
 
 bool Widget::onProcessMessage(Message* msg)
 {
-  ASSERT(msg != NULL);
+  ASSERT(msg != nullptr);
 
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kOpenMessage:
-    case kCloseMessage:
-    case kWinMoveMessage:
+  case kOpenMessage:
+  case kCloseMessage:
+  case kWinMoveMessage:
+    // Broadcast the message to the children.
+    for (auto child : m_children)
+      child->sendMessage(msg);
+    break;
+
+  case kPaintMessage:
+  {
+    const PaintMessage* ptmsg = static_cast<const PaintMessage*>(msg);
+    ASSERT(ptmsg->rect().w > 0);
+    ASSERT(ptmsg->rect().h > 0);
+
+    GraphicsPtr graphics = getGraphics(toClient(ptmsg->rect()));
+    return paintEvent(graphics.get());
+  }
+
+  case kKeyDownMessage:
+  case kKeyUpMessage:
+    if (static_cast<KeyMessage*>(msg)->propagateToChildren())
+    {
       // Broadcast the message to the children.
       for (auto child : m_children)
-        child->sendMessage(msg);
-      break;
-
-    case kPaintMessage: {
-      const PaintMessage* ptmsg = static_cast<const PaintMessage*>(msg);
-      ASSERT(ptmsg->rect().w > 0);
-      ASSERT(ptmsg->rect().h > 0);
-
-      GraphicsPtr graphics = getGraphics(toClient(ptmsg->rect()));
-      return paintEvent(graphics.get());
+        if (child->sendMessage(msg))
+          return true;
     }
 
-    case kKeyDownMessage:
-    case kKeyUpMessage:
-      if (static_cast<KeyMessage*>(msg)->propagateToChildren()) {
-        // Broadcast the message to the children.
-        for (auto child : m_children)
-          if (child->sendMessage(msg))
-            return true;
-      }
-
-      // Propagate the message to the parent.
-      if (static_cast<KeyMessage*>(msg)->propagateToParent() &&
-          parent()) {
-        return parent()->sendMessage(msg);
-      }
-      break;
-
-    case kDoubleClickMessage: {
-      // Convert double clicks into mouse down
-      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-      MouseMessage mouseMsg2(kMouseDownMessage,
-                             mouseMsg->pointerType(),
-                             mouseMsg->buttons(),
-                             mouseMsg->modifiers(),
-                             mouseMsg->position(),
-                             mouseMsg->wheelDelta());
-
-      sendMessage(&mouseMsg2);
-      break;
+    // Propagate the message to the parent.
+    if (static_cast<KeyMessage*>(msg)->propagateToParent() && parent())
+    {
+      return parent()->sendMessage(msg);
     }
+    break;
 
-    case kMouseDownMessage:
-    case kMouseUpMessage:
-    case kMouseMoveMessage:
-    case kMouseWheelMessage:
-      // Propagate the message to the parent.
-      if (parent() != NULL)
-        return parent()->sendMessage(msg);
-      else
-        break;
+  case kDoubleClickMessage:
+  {
+    // Convert double clicks into mouse down
+    MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+    MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(),
+                           mouseMsg->buttons(), mouseMsg->modifiers(),
+                           mouseMsg->position(), mouseMsg->wheelDelta());
 
-    case kSetCursorMessage:
-      // Propagate the message to the parent.
-      if (parent())
-        return parent()->sendMessage(msg);
-      else {
-        set_mouse_cursor(kArrowCursor);
-        return true;
-      }
+    sendMessage(&mouseMsg2);
+    break;
+  }
 
+  case kMouseDownMessage:
+  case kMouseUpMessage:
+  case kMouseMoveMessage:
+  case kMouseWheelMessage:
+    // Propagate the message to the parent.
+    if (parent() != nullptr)
+      return parent()->sendMessage(msg);
+    else
+      break;
+
+  case kSetCursorMessage:
+    // Propagate the message to the parent.
+    if (parent())
+      return parent()->sendMessage(msg);
+    else
+    {
+      set_mouse_cursor(kArrowCursor);
+      return true;
+    }
   }
 
   return false;
@@ -1459,7 +1540,8 @@ bool Widget::onProcessMessage(Message* msg)
 
 void Widget::onInvalidateRegion(const Region& region)
 {
-  if (isVisible() && region.contains(bounds()) != Region::Out) {
+  if (isVisible() && region.contains(bounds()) != Region::Out)
+  {
     Region reg1;
     reg1.createUnion(m_updateRegion, region);
     {
@@ -1513,7 +1595,8 @@ void Widget::onBroadcastMouseMessage(WidgetsList& targets)
 
 void Widget::onInitTheme(InitThemeEvent& ev)
 {
-  if (m_theme) {
+  if (m_theme)
+  {
     m_theme->initWidget(this);
 
     if (!hasFlags(INITIALIZED))
@@ -1523,7 +1606,8 @@ void Widget::onInitTheme(InitThemeEvent& ev)
 
 void Widget::onSetDecorativeWidgetBounds()
 {
-  if (m_theme) {
+  if (m_theme)
+  {
     m_theme->setDecorativeWidgetBounds(this);
   }
 }

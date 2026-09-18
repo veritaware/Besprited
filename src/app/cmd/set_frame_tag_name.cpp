@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,15 +11,17 @@
 
 #include "app/cmd/set_frame_tag_name.h"
 
+#include <utility>
+
 #include "doc/frame_tag.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetFrameTagName::SetFrameTagName(FrameTag* tag, const std::string& name)
+SetFrameTagName::SetFrameTagName(const FrameTag* tag, std::string name)
   : WithFrameTag(tag)
   , m_oldName(tag->name())
-  , m_newName(name)
+  , m_newName(std::move(name))
 {
 }
 
@@ -35,5 +37,4 @@ void SetFrameTagName::onUndo()
   frameTag()->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

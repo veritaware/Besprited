@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -33,7 +33,8 @@
 
 #include <string>
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace gfx;
@@ -42,10 +43,11 @@ using namespace tools;
 
 // Class to show a group of tools (horizontally)
 // This widget is inside the ToolBar::m_popupWindow
-class ToolBar::ToolStrip : public Widget {
+class ToolBar::ToolStrip : public Widget
+{
 public:
   ToolStrip(ToolGroup* group, ToolBar* toolbar);
-  ~ToolStrip();
+  ~ToolStrip() override;
 
   ToolGroup* toolGroup() { return m_group; }
 
@@ -77,7 +79,7 @@ static Size getToolIconSize(Widget* widget)
 //////////////////////////////////////////////////////////////////////
 // ToolBar
 
-ToolBar* ToolBar::m_instance = NULL;
+ToolBar* ToolBar::m_instance = nullptr;
 
 ToolBar::ToolBar()
   : Widget(kGenericWidget)
@@ -86,18 +88,19 @@ ToolBar::ToolBar()
 {
   m_instance = this;
 
-  setBorder(gfx::Border(1*guiscale(), 0, 1*guiscale(), 0));
+  setBorder(gfx::Border(1 * guiscale(), 0, 1 * guiscale(), 0));
 
-  m_hotTool = NULL;
+  m_hotTool = nullptr;
   m_hotIndex = NoneIndex;
   m_openOnHot = false;
-  m_popupWindow = NULL;
-  m_currentStrip = NULL;
-  m_tipWindow = NULL;
+  m_popupWindow = nullptr;
+  m_currentStrip = nullptr;
+  m_tipWindow = nullptr;
   m_tipOpened = false;
 
   ToolBox* toolbox = App::instance()->toolBox();
-  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it) {
+  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it)
+  {
     Tool* tool = *it;
     if (m_selectedInGroup.find(tool->getGroup()) == m_selectedInGroup.end())
       m_selectedInGroup[tool->getGroup()] = tool;
@@ -121,162 +124,175 @@ bool ToolBar::isToolVisible(Tool* tool)
 
 bool ToolBar::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kMouseDownMessage: {
-      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-      ToolBox* toolbox = App::instance()->toolBox();
-      int groups = toolbox->getGroupsCount();
-      Rect toolrc;
+  case kMouseDownMessage:
+  {
+    MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+    ToolBox* toolbox = App::instance()->toolBox();
+    int groups = toolbox->getGroupsCount();
+    Rect toolrc;
 
-      ToolGroupList::iterator it = toolbox->begin_group();
-      for (int c=0; c<groups; ++c, ++it) {
-        ToolGroup* tool_group = *it;
-        Tool* tool = m_selectedInGroup[tool_group];
+    ToolGroupList::iterator it = toolbox->begin_group();
+    for (int c = 0; c < groups; ++c, ++it)
+    {
+      ToolGroup* tool_group = *it;
+      Tool* tool = m_selectedInGroup[tool_group];
 
-        toolrc = getToolGroupBounds(c);
-        if (mouseMsg->position().y >= toolrc.y &&
-            mouseMsg->position().y < toolrc.y+toolrc.h) {
-          selectTool(tool);
-
-          openPopupWindow(c, tool_group);
-
-          // We capture the mouse so the user can continue navigating
-          // the ToolBar to open other groups while he is pressing the
-          // mouse button.
-          captureMouse();
-        }
-      }
-
-      toolrc = getToolGroupBounds(PreviewVisibilityIndex);
+      toolrc = getToolGroupBounds(c);
       if (mouseMsg->position().y >= toolrc.y &&
-          mouseMsg->position().y < toolrc.y+toolrc.h) {
-        // Toggle preview visibility
-        PreviewEditorWindow* preview =
+          mouseMsg->position().y < toolrc.y + toolrc.h)
+      {
+        selectTool(tool);
+
+        openPopupWindow(c, tool_group);
+
+        // We capture the mouse so the user can continue navigating
+        // the ToolBar to open other groups while he is pressing the
+        // mouse button.
+        captureMouse();
+      }
+    }
+
+    toolrc = getToolGroupBounds(PreviewVisibilityIndex);
+    if (mouseMsg->position().y >= toolrc.y &&
+        mouseMsg->position().y < toolrc.y + toolrc.h)
+    {
+      // Toggle preview visibility
+      PreviewEditorWindow* preview =
           App::instance()->mainWindow()->getPreviewEditor();
-        bool state = preview->isPreviewEnabled();
-        preview->setPreviewEnabled(!state);
-      }
-      break;
+      bool state = preview->isPreviewEnabled();
+      preview->setPreviewEnabled(!state);
     }
+    break;
+  }
 
-    case kMouseMoveMessage: {
-      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-      ToolBox* toolbox = App::instance()->toolBox();
-      int groups = toolbox->getGroupsCount();
-      Tool* new_hot_tool = NULL;
-      int new_hot_index = NoneIndex;
-      Rect toolrc;
+  case kMouseMoveMessage:
+  {
+    MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+    ToolBox* toolbox = App::instance()->toolBox();
+    int groups = toolbox->getGroupsCount();
+    Tool* new_hot_tool = nullptr;
+    int new_hot_index = NoneIndex;
+    Rect toolrc;
 
-      ToolGroupList::iterator it = toolbox->begin_group();
+    ToolGroupList::iterator it = toolbox->begin_group();
 
-      for (int c=0; c<groups; ++c, ++it) {
-        ToolGroup* tool_group = *it;
-        Tool* tool = m_selectedInGroup[tool_group];
+    for (int c = 0; c < groups; ++c, ++it)
+    {
+      ToolGroup* tool_group = *it;
+      Tool* tool = m_selectedInGroup[tool_group];
 
-        toolrc = getToolGroupBounds(c);
-        if (mouseMsg->position().y >= toolrc.y &&
-            mouseMsg->position().y < toolrc.y+toolrc.h) {
-          new_hot_tool = tool;
-          new_hot_index = c;
-
-          if ((m_openOnHot) && (m_hotTool != new_hot_tool) && hasCapture()) {
-            openPopupWindow(c, tool_group);
-          }
-          break;
-        }
-      }
-
-      toolrc = getToolGroupBounds(PreviewVisibilityIndex);
+      toolrc = getToolGroupBounds(c);
       if (mouseMsg->position().y >= toolrc.y &&
-          mouseMsg->position().y < toolrc.y+toolrc.h) {
-        new_hot_index = PreviewVisibilityIndex;
-      }
+          mouseMsg->position().y < toolrc.y + toolrc.h)
+      {
+        new_hot_tool = tool;
+        new_hot_index = c;
 
-      // hot button changed
-      if (new_hot_tool != m_hotTool ||
-          new_hot_index != m_hotIndex) {
-
-        m_hotTool = new_hot_tool;
-        m_hotIndex = new_hot_index;
-        invalidate();
-
-        if (!m_currentStrip) {
-          if (m_hotIndex != NoneIndex && !hasCapture())
-            openTipWindow(m_hotIndex, m_hotTool);
-          else
-            closeTipWindow();
+        if ((m_openOnHot) && (m_hotTool != new_hot_tool) && hasCapture())
+        {
+          openPopupWindow(c, tool_group);
         }
-
-        if (m_hotTool) {
-          if (hasCapture())
-            selectTool(m_hotTool);
-          else
-            StatusBar::instance()->showTool(0, m_hotTool);
-        }
+        break;
       }
-
-      // We can change the current tool if the user is dragging the
-      // mouse over the ToolBar.
-      if (hasCapture()) {
-        MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-        Widget* pick = manager()->pick(mouseMsg->position());
-        if (ToolStrip* strip = dynamic_cast<ToolStrip*>(pick)) {
-          releaseMouse();
-
-          MouseMessage* mouseMsg2 = new MouseMessage(
-            kMouseDownMessage,
-            mouseMsg->pointerType(),
-            mouseMsg->buttons(),
-            mouseMsg->modifiers(),
-            mouseMsg->position());
-          mouseMsg2->addRecipient(strip);
-          manager()->enqueueMessage(mouseMsg2);
-        }
-      }
-      break;
     }
 
-    case kMouseUpMessage:
-      if (!hasCapture())
-        break;
+    toolrc = getToolGroupBounds(PreviewVisibilityIndex);
+    if (mouseMsg->position().y >= toolrc.y &&
+        mouseMsg->position().y < toolrc.y + toolrc.h)
+    {
+      new_hot_index = PreviewVisibilityIndex;
+    }
 
-      if (!m_openedRecently) {
-        if (m_popupWindow && m_popupWindow->isVisible())
-          m_popupWindow->closeWindow(this);
-      }
-      m_openedRecently = false;
+    // hot button changed
+    if (new_hot_tool != m_hotTool || new_hot_index != m_hotIndex)
+    {
 
-      releaseMouse();
-      // fallthrough
+      m_hotTool = new_hot_tool;
+      m_hotIndex = new_hot_index;
+      invalidate();
 
-    case kMouseLeaveMessage:
-      if (hasCapture())
-        break;
-
-      closeTipWindow();
-
-      if (!m_popupWindow || !m_popupWindow->isVisible()) {
-        m_tipOpened = false;
-
-        m_hotTool = NULL;
-        m_hotIndex = NoneIndex;
-        invalidate();
+      if (!m_currentStrip)
+      {
+        if (m_hotIndex != NoneIndex && !hasCapture())
+          openTipWindow(m_hotIndex, m_hotTool);
+        else
+          closeTipWindow();
       }
 
-      StatusBar::instance()->clearText();
+      if (m_hotTool)
+      {
+        if (hasCapture())
+          selectTool(m_hotTool);
+        else
+          StatusBar::instance()->showTool(0, m_hotTool);
+      }
+    }
+
+    // We can change the current tool if the user is dragging the
+    // mouse over the ToolBar.
+    if (hasCapture())
+    {
+      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+      Widget* pick = manager()->pick(mouseMsg->position());
+      if (ToolStrip* strip = dynamic_cast<ToolStrip*>(pick))
+      {
+        releaseMouse();
+
+        MouseMessage* mouseMsg2 = new MouseMessage(
+            kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
+            mouseMsg->modifiers(), mouseMsg->position());
+        mouseMsg2->addRecipient(strip);
+        manager()->enqueueMessage(mouseMsg2);
+      }
+    }
+    break;
+  }
+
+  case kMouseUpMessage:
+    if (!hasCapture())
       break;
 
-    case kTimerMessage:
-      if (static_cast<TimerMessage*>(msg)->timer() == &m_tipTimer) {
-        if (m_tipWindow)
-          m_tipWindow->openWindow();
+    if (!m_openedRecently)
+    {
+      if (m_popupWindow && m_popupWindow->isVisible())
+        m_popupWindow->closeWindow(this);
+    }
+    m_openedRecently = false;
 
-        m_tipTimer.stop();
-        m_tipOpened = true;
-      }
+    releaseMouse();
+    // fallthrough
+
+  case kMouseLeaveMessage:
+    if (hasCapture())
       break;
 
+    closeTipWindow();
+
+    if (!m_popupWindow || !m_popupWindow->isVisible())
+    {
+      m_tipOpened = false;
+
+      m_hotTool = nullptr;
+      m_hotIndex = NoneIndex;
+      invalidate();
+    }
+
+    StatusBar::instance()->clearText();
+    break;
+
+  case kTimerMessage:
+    if (static_cast<TimerMessage*>(msg)->timer() == &m_tipTimer)
+    {
+      if (m_tipWindow)
+        m_tipWindow->openWindow();
+
+      m_tipTimer.stop();
+      m_tipOpened = true;
+    }
+    break;
   }
 
   return Widget::onProcessMessage(msg);
@@ -305,19 +321,22 @@ void ToolBar::onPaint(ui::PaintEvent& ev)
 
   g->fillRect(theme->colors.tabActiveFace(), bounds);
 
-  for (int c=0; c<groups; ++c, ++it) {
+  for (int c = 0; c < groups; ++c, ++it)
+  {
     ToolGroup* tool_group = *it;
     Tool* tool = m_selectedInGroup[tool_group];
     gfx::Color face;
     SkinPartPtr nw;
 
-    if (activeTool == tool || m_hotIndex == c) {
+    if (activeTool == tool || m_hotIndex == c)
+    {
       nw = theme->parts.toolbuttonHot();
       face = hotFace;
     }
-    else {
-      nw = c >= 0 && c < groups-1 ? theme->parts.toolbuttonNormal():
-                                    theme->parts.toolbuttonLast();
+    else
+    {
+      nw = c >= 0 && c < groups - 1 ? theme->parts.toolbuttonNormal()
+                                    : theme->parts.toolbuttonLast();
       face = normalFace;
     }
 
@@ -327,30 +346,29 @@ void ToolBar::onPaint(ui::PaintEvent& ev)
 
     // Draw the tool icon
     she::Surface* icon = theme->getToolIcon(tool->getId().c_str());
-    if (icon) {
-      g->drawRgbaSurface(icon,
-        toolrc.x+toolrc.w/2-icon->width()/2,
-        toolrc.y+toolrc.h/2-icon->height()/2);
+    if (icon)
+    {
+      g->drawRgbaSurface(icon, toolrc.x + toolrc.w / 2 - icon->width() / 2,
+                         toolrc.y + toolrc.h / 2 - icon->height() / 2);
     }
   }
 
   // Draw button to show/hide preview
   toolrc = getToolGroupBounds(PreviewVisibilityIndex);
   toolrc.offset(-origin());
-  bool isHot = (m_hotIndex == PreviewVisibilityIndex ||
-    App::instance()->mainWindow()->getPreviewEditor()->isPreviewEnabled());
-  theme->drawRect(
-    g,
-    toolrc,
-    (isHot ? theme->parts.toolbuttonHot().get():
-             theme->parts.toolbuttonLast().get()),
-    (isHot ? hotFace: normalFace));
+  bool isHot =
+      (m_hotIndex == PreviewVisibilityIndex ||
+       App::instance()->mainWindow()->getPreviewEditor()->isPreviewEnabled());
+  theme->drawRect(g, toolrc,
+                  (isHot ? theme->parts.toolbuttonHot().get()
+                         : theme->parts.toolbuttonLast().get()),
+                  (isHot ? hotFace : normalFace));
 
   she::Surface* icon = theme->getToolIcon("minieditor");
-  if (icon) {
-    g->drawRgbaSurface(icon,
-      toolrc.x+toolrc.w/2-icon->width()/2,
-      toolrc.y+toolrc.h/2-icon->height()/2);
+  if (icon)
+  {
+    g->drawRgbaSurface(icon, toolrc.x + toolrc.w / 2 - icon->width() / 2,
+                       toolrc.y + toolrc.h / 2 - icon->height() / 2);
   }
 }
 
@@ -360,7 +378,8 @@ int ToolBar::getToolGroupIndex(ToolGroup* group)
   ToolGroupList::iterator it = toolbox->begin_group();
   int groups = toolbox->getGroupsCount();
 
-  for (int c=0; c<groups; ++c, ++it) {
+  for (int c = 0; c < groups; ++c, ++it)
+  {
     if (group == *it)
       return c;
   }
@@ -370,7 +389,8 @@ int ToolBar::getToolGroupIndex(ToolGroup* group)
 
 void ToolBar::openPopupWindow(int group_index, ToolGroup* tool_group)
 {
-  if (m_popupWindow) {
+  if (m_popupWindow)
+  {
     // If we've already open the given group, do nothing.
     if (m_currentStrip && m_currentStrip->toolGroup() == tool_group)
       return;
@@ -381,9 +401,9 @@ void ToolBar::openPopupWindow(int group_index, ToolGroup* tool_group)
     onClosePopup();
 
     // Close the current popup window
-    m_popupWindow->closeWindow(NULL);
+    m_popupWindow->closeWindow(nullptr);
     delete m_popupWindow;
-    m_popupWindow = NULL;
+    m_popupWindow = nullptr;
   }
 
   // Close tip window
@@ -392,7 +412,8 @@ void ToolBar::openPopupWindow(int group_index, ToolGroup* tool_group)
   // If this group contains only one tool, do not show the popup
   ToolBox* toolbox = App::instance()->toolBox();
   int count = 0;
-  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it) {
+  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it)
+  {
     Tool* tool = *it;
     if (tool->getGroup() == tool_group)
       ++count;
@@ -402,8 +423,10 @@ void ToolBar::openPopupWindow(int group_index, ToolGroup* tool_group)
     return;
 
   // In case this tool contains more than just one tool, show the popup window
-  m_popupWindow = new PopupWindow("", PopupWindow::ClickBehavior::CloseOnClickOutsideHotRegion);
-  m_closeConn = m_popupWindow->Close.connect(base::Bind<void, ToolBar, ToolBar>(&ToolBar::onClosePopup, this));
+  m_popupWindow = new PopupWindow(
+      "", PopupWindow::ClickBehavior::CloseOnClickOutsideHotRegion);
+  m_closeConn = m_popupWindow->Close.connect(
+      base::Bind<void, ToolBar, ToolBar>(&ToolBar::onClosePopup, this));
   m_openedRecently = true;
 
   ToolStrip* toolstrip = new ToolStrip(tool_group, this);
@@ -413,17 +436,18 @@ void ToolBar::openPopupWindow(int group_index, ToolGroup* tool_group)
   Rect rc = getToolGroupBounds(group_index);
   int w = 0;
 
-  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it) {
+  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it)
+  {
     Tool* tool = *it;
     if (tool->getGroup() == tool_group)
-      w += bounds().w-border().width()-1;
+      w += bounds().w - border().width() - 1;
   }
 
   rc.x -= w;
   rc.w = w;
 
   // Set hotregion of popup window
-  Region rgn(gfx::Rect(rc).enlarge(16*guiscale()));
+  Region rgn(gfx::Rect(rc).enlarge(16 * guiscale()));
   rgn.createUnion(rgn, Region(bounds()));
   m_popupWindow->setHotRegion(rgn);
 
@@ -445,18 +469,19 @@ Rect ToolBar::getToolGroupBounds(int group_index)
   Rect rc(bounds());
   rc.shrink(border());
 
-  switch (group_index) {
+  switch (group_index)
+  {
 
-    case PreviewVisibilityIndex:
-      rc.y += rc.h - iconsize.h - 2*guiscale();
-      rc.h = iconsize.h+2*guiscale();
-      break;
+  case PreviewVisibilityIndex:
+    rc.y += rc.h - iconsize.h - 2 * guiscale();
+    rc.h = iconsize.h + 2 * guiscale();
+    break;
 
-    default:
-      rc.y += group_index*(iconsize.h-1*guiscale());
-      rc.h = group_index < groups-1 ? iconsize.h+1*guiscale():
-                                      iconsize.h+2*guiscale();
-      break;
+  default:
+    rc.y += group_index * (iconsize.h - 1 * guiscale());
+    rc.h = group_index < groups - 1 ? iconsize.h + 1 * guiscale()
+                                    : iconsize.h + 2 * guiscale();
+    break;
   }
 
   return rc;
@@ -468,16 +493,18 @@ Point ToolBar::getToolPositionInGroup(int group_index, Tool* tool)
   Size iconsize = getToolIconSize(this);
   int nth = 0;
 
-  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it) {
+  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it)
+  {
     if (tool == *it)
       break;
 
-    if ((*it)->getGroup() == tool->getGroup()) {
+    if ((*it)->getGroup() == tool->getGroup())
+    {
       ++nth;
     }
   }
 
-  return Point(iconsize.w/2+iconsize.w*nth, iconsize.h);
+  return Point(iconsize.w / 2 + iconsize.w * nth, iconsize.h);
 }
 
 void ToolBar::openTipWindow(ToolGroup* tool_group, Tool* tool)
@@ -491,21 +518,25 @@ void ToolBar::openTipWindow(int group_index, Tool* tool)
     closeTipWindow();
 
   std::string tooltip;
-  if (tool && group_index >= 0) {
+  if (tool && group_index >= 0)
+  {
     tooltip = tool->getText();
-    if (tool->getTips().size() > 0) {
+    if (tool->getTips().size() > 0)
+    {
       tooltip += ":\n";
       tooltip += tool->getTips();
     }
 
     // Tool shortcut
     Key* key = KeyboardShortcuts::instance()->tool(tool);
-    if (key && !key->accels().empty()) {
+    if (key && !key->accels().empty())
+    {
       tooltip += "\n\n" + app::i18n("Shortcut: ");
       tooltip += key->accels().front().toString();
     }
   }
-  else if (group_index == PreviewVisibilityIndex) {
+  else if (group_index == PreviewVisibilityIndex)
+  {
     if (App::instance()->mainWindow()->getPreviewEditor()->isPreviewEnabled())
       tooltip = "Hide Preview";
     else
@@ -518,7 +549,8 @@ void ToolBar::openTipWindow(int group_index, Tool* tool)
   m_tipWindow->remapWindow();
 
   Rect toolrc = getToolGroupBounds(group_index);
-  Point arrow = (tool ? getToolPositionInGroup(group_index, tool): Point(0, 0));
+  Point arrow =
+      (tool ? getToolPositionInGroup(group_index, tool) : Point(0, 0));
   if (tool && m_popupWindow && m_popupWindow->isVisible())
     toolrc.x += arrow.x - m_popupWindow->bounds().w;
 
@@ -534,10 +566,11 @@ void ToolBar::closeTipWindow()
 {
   m_tipTimer.stop();
 
-  if (m_tipWindow) {
-    m_tipWindow->closeWindow(NULL);
+  if (m_tipWindow)
+  {
+    m_tipWindow->closeWindow(nullptr);
     delete m_tipWindow;
-    m_tipWindow = NULL;
+    m_tipWindow = nullptr;
   }
 }
 
@@ -564,9 +597,9 @@ void ToolBar::onClosePopup()
     m_tipOpened = false;
 
   m_openOnHot = false;
-  m_hotTool = NULL;
+  m_hotTool = nullptr;
   m_hotIndex = NoneIndex;
-  m_currentStrip = NULL;
+  m_currentStrip = nullptr;
 
   invalidate();
 }
@@ -579,87 +612,90 @@ ToolBar::ToolStrip::ToolStrip(ToolGroup* group, ToolBar* toolbar)
   : Widget(kGenericWidget)
 {
   m_group = group;
-  m_hotTool = NULL;
+  m_hotTool = nullptr;
   m_toolbar = toolbar;
 
   setDoubleBuffered(true);
   setTransparent(true);
 }
 
-ToolBar::ToolStrip::~ToolStrip()
-{
-}
+ToolBar::ToolStrip::~ToolStrip() = default;
 
 bool ToolBar::ToolStrip::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kMouseDownMessage:
-      captureMouse();
-      // fallthrough
+  case kMouseDownMessage:
+    captureMouse();
+    // fallthrough
 
-    case kMouseMoveMessage: {
-      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-      gfx::Point mousePos = mouseMsg->position();
-      ToolBox* toolbox = App::instance()->toolBox();
-      Tool* hot_tool = NULL;
-      Rect toolrc;
-      int index = 0;
+  case kMouseMoveMessage:
+  {
+    MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
+    gfx::Point mousePos = mouseMsg->position();
+    ToolBox* toolbox = App::instance()->toolBox();
+    Tool* hot_tool = nullptr;
+    Rect toolrc;
+    int index = 0;
 
-      for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it) {
-        Tool* tool = *it;
-        if (tool->getGroup() == m_group) {
-          toolrc = getToolBounds(index++);
-          if (toolrc.contains(Point(mousePos.x, mousePos.y))) {
-            hot_tool = tool;
-            break;
-          }
+    for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it)
+    {
+      Tool* tool = *it;
+      if (tool->getGroup() == m_group)
+      {
+        toolrc = getToolBounds(index++);
+        if (toolrc.contains(Point(mousePos.x, mousePos.y)))
+        {
+          hot_tool = tool;
+          break;
         }
       }
-
-      // Hot button changed
-      if (m_hotTool != hot_tool) {
-        m_hotTool = hot_tool;
-        invalidate();
-
-        // Show the tooltip for the hot tool
-        if (m_hotTool && !hasCapture())
-          m_toolbar->openTipWindow(m_group, m_hotTool);
-        else
-          m_toolbar->closeTipWindow();
-
-        if (m_hotTool)
-          StatusBar::instance()->showTool(0, m_hotTool);
-      }
-
-      if (hasCapture()) {
-        if (m_hotTool)
-          m_toolbar->selectTool(m_hotTool);
-
-        Widget* pick = manager()->pick(mouseMsg->position());
-        if (ToolBar* bar = dynamic_cast<ToolBar*>(pick)) {
-          releaseMouse();
-
-          MouseMessage* mouseMsg2 = new MouseMessage(
-            kMouseDownMessage,
-            mouseMsg->pointerType(),
-            mouseMsg->buttons(),
-            mouseMsg->modifiers(),
-            mouseMsg->position());
-          mouseMsg2->addRecipient(bar);
-          manager()->enqueueMessage(mouseMsg2);
-        }
-      }
-      break;
     }
 
-    case kMouseUpMessage:
-      if (hasCapture()) {
-        releaseMouse();
-        closeWindow();
-      }
-      break;
+    // Hot button changed
+    if (m_hotTool != hot_tool)
+    {
+      m_hotTool = hot_tool;
+      invalidate();
 
+      // Show the tooltip for the hot tool
+      if (m_hotTool && !hasCapture())
+        m_toolbar->openTipWindow(m_group, m_hotTool);
+      else
+        m_toolbar->closeTipWindow();
+
+      if (m_hotTool)
+        StatusBar::instance()->showTool(0, m_hotTool);
+    }
+
+    if (hasCapture())
+    {
+      if (m_hotTool)
+        m_toolbar->selectTool(m_hotTool);
+
+      Widget* pick = manager()->pick(mouseMsg->position());
+      if (ToolBar* bar = dynamic_cast<ToolBar*>(pick))
+      {
+        releaseMouse();
+
+        MouseMessage* mouseMsg2 = new MouseMessage(
+            kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
+            mouseMsg->modifiers(), mouseMsg->position());
+        mouseMsg2->addRecipient(bar);
+        manager()->enqueueMessage(mouseMsg2);
+      }
+    }
+    break;
+  }
+
+  case kMouseUpMessage:
+    if (hasCapture())
+    {
+      releaseMouse();
+      closeWindow();
+    }
+    break;
   }
   return Widget::onProcessMessage(msg);
 }
@@ -669,9 +705,11 @@ void ToolBar::ToolStrip::onSizeHint(SizeHintEvent& ev)
   ToolBox* toolbox = App::instance()->toolBox();
   int c = 0;
 
-  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it) {
+  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it)
+  {
     Tool* tool = *it;
-    if (tool->getGroup() == m_group) {
+    if (tool->getGroup() == m_group)
+    {
       ++c;
     }
   }
@@ -689,17 +727,21 @@ void ToolBar::ToolStrip::onPaint(PaintEvent& ev)
   Rect toolrc;
   int index = 0;
 
-  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it) {
+  for (ToolIterator it = toolbox->begin(); it != toolbox->end(); ++it)
+  {
     Tool* tool = *it;
-    if (tool->getGroup() == m_group) {
+    if (tool->getGroup() == m_group)
+    {
       gfx::Color face;
       SkinPartPtr nw;
 
-      if (activeTool == tool || m_hotTool == tool) {
+      if (activeTool == tool || m_hotTool == tool)
+      {
         nw = theme->parts.toolbuttonHot();
         face = theme->colors.buttonHotFace();
       }
-      else {
+      else
+      {
         nw = theme->parts.toolbuttonLast();
         face = theme->colors.buttonNormalFace();
       }
@@ -710,11 +752,10 @@ void ToolBar::ToolStrip::onPaint(PaintEvent& ev)
 
       // Draw the tool icon
       she::Surface* icon = theme->getToolIcon(tool->getId().c_str());
-      if (icon) {
-        g->drawRgbaSurface(
-          icon,
-          toolrc.x+toolrc.w/2-icon->width()/2,
-          toolrc.y+toolrc.h/2-icon->height()/2);
+      if (icon)
+      {
+        g->drawRgbaSurface(icon, toolrc.x + toolrc.w / 2 - icon->width() / 2,
+                           toolrc.y + toolrc.h / 2 - icon->height() / 2);
       }
     }
   }
@@ -725,8 +766,8 @@ Rect ToolBar::ToolStrip::getToolBounds(int index)
   const Rect& bounds(this->bounds());
   Size iconsize = getToolIconSize(this);
 
-  return Rect(bounds.x+index*(iconsize.w-1), bounds.y,
-              iconsize.w, bounds.h);
+  return Rect(bounds.x + index * (iconsize.w - 1), bounds.y, iconsize.w,
+              bounds.h);
 }
 
 void ToolBar::onSelectedToolChange(tools::Tool* tool)

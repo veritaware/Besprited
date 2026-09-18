@@ -1,5 +1,6 @@
-// Aseprite    - Copyright (C) 2016       David Capello
-// LibreSprite - Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2016 David Capello
+// LibreSprite | Copyright (C) 2021 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,8 +12,10 @@
 
 #include <memory>
 
-namespace app {
-namespace tools {
+namespace app
+{
+namespace tools
+{
 
 class ActiveToolObserver;
 class Ink;
@@ -22,7 +25,8 @@ class ToolBox;
 
 // Manages the coordination between different UI elements that show
 // information about the active tool.
-class ActiveToolManager : public base::Observable<ActiveToolObserver> {
+class ActiveToolManager : public base::Observable<ActiveToolObserver>
+{
 public:
   ActiveToolManager(ToolBox* toolbox);
 

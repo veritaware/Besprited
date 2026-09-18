@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -25,14 +25,19 @@
 #include "doc/frame_tag.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class FrameTagPropertiesCommand : public Command {
+class FrameTagPropertiesCommand : public Command
+{
 public:
   FrameTagPropertiesCommand();
-  Command* clone() const override { return new FrameTagPropertiesCommand(*this); }
+  Command* clone() const override
+  {
+    return new FrameTagPropertiesCommand(*this);
+  }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -45,9 +50,7 @@ private:
 };
 
 FrameTagPropertiesCommand::FrameTagPropertiesCommand()
-  : Command("FrameTagProperties",
-            "Frame Tag Properties",
-            CmdUIOnlyFlag)
+  : Command("FrameTagProperties", "Frame Tag Properties", CmdUIOnlyFlag)
   , m_tagId(NullId)
 {
 }
@@ -99,8 +102,8 @@ void FrameTagPropertiesCommand::onExecute(Context* context)
 
   doc::frame_t from, to;
   window.rangeValue(from, to);
-  if (tag->fromFrame() != from ||
-      tag->toFrame() != to) {
+  if (tag->fromFrame() != from || tag->toFrame() != to)
+  {
     transaction.execute(new cmd::SetFrameTagRange(tag, from, to));
   }
 

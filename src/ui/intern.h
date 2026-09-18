@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -9,34 +10,37 @@
 #include "gfx/color.h"
 #include "ui/base.h"
 
-namespace she {
-  class Font;
+namespace she
+{
+class Font;
 }
 
-namespace ui {
+namespace ui
+{
 
-  class Graphics;
-  class Widget;
-  class Window;
+class Graphics;
+class Widget;
+class Window;
 
-  // intern.cpp
+// intern.cpp
 
-  namespace details {
+namespace details
+{
 
-    void initWidgets();
-    void exitWidgets();
+void initWidgets();
+void exitWidgets();
 
-    void addWidget(Widget* widget);
-    void removeWidget(Widget* widget);
+void addWidget(Widget* widget);
+void removeWidget(Widget* widget);
 
-    void resetFontAllWidgets();
-    void reinitThemeForAllWidgets();
+void resetFontAllWidgets();
+void reinitThemeForAllWidgets();
 
-  } // namespace details
+} // namespace details
 
-  // theme.cpp
+// theme.cpp
 
-  void drawTextBox(Graphics* g, Widget* textbox,
-                   int* w, int* h, gfx::Color bg, gfx::Color fg);
+void drawTextBox(Graphics* g, Widget* textbox, int* w, int* h, gfx::Color bg,
+                 gfx::Color fg);
 
 } // namespace ui

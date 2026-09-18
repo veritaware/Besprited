@@ -13,13 +13,13 @@ using namespace ui;
 TEST(MessageType, EveryRegisteredValueHasANonEmptyName)
 {
   const MessageType types[] = {
-    kOpenMessage,          kCloseMessage,      kCloseDisplayMessage,
-    kResizeDisplayMessage, kPaintMessage,      kTimerMessage,
-    kDropFilesMessage,     kWinMoveMessage,    kKeyDownMessage,
-    kKeyUpMessage,         kFocusEnterMessage, kFocusLeaveMessage,
-    kMouseDownMessage,     kMouseUpMessage,    kDoubleClickMessage,
-    kMouseEnterMessage,    kMouseLeaveMessage, kMouseMoveMessage,
-    kSetCursorMessage,     kMouseWheelMessage, kTouchMagnifyMessage,
+      kOpenMessage,          kCloseMessage,      kCloseDisplayMessage,
+      kResizeDisplayMessage, kPaintMessage,      kTimerMessage,
+      kDropFilesMessage,     kWinMoveMessage,    kKeyDownMessage,
+      kKeyUpMessage,         kFocusEnterMessage, kFocusLeaveMessage,
+      kMouseDownMessage,     kMouseUpMessage,    kDoubleClickMessage,
+      kMouseEnterMessage,    kMouseLeaveMessage, kMouseMoveMessage,
+      kSetCursorMessage,     kMouseWheelMessage, kTouchMagnifyMessage,
   };
 
   for (MessageType type : types)
@@ -29,6 +29,7 @@ TEST(MessageType, EveryRegisteredValueHasANonEmptyName)
 TEST(MessageType, ValuesAtOrPastFirstRegisteredReturnAnEmptyString)
 {
   EXPECT_STREQ("", to_string(kFirstRegisteredMessage));
-  EXPECT_STREQ("", to_string(static_cast<MessageType>(kFirstRegisteredMessage + 1)));
+  EXPECT_STREQ(
+      "", to_string(static_cast<MessageType>(kFirstRegisteredMessage + 1)));
   EXPECT_STREQ("", to_string(kLastRegisteredMessage));
 }

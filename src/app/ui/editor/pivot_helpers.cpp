@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,7 +14,8 @@
 #include "app/pref/preferences.h"
 #include "app/transformation.h"
 
-namespace app {
+namespace app
+{
 
 void set_pivot_from_preferences(Transformation& t)
 {
@@ -26,32 +27,34 @@ void set_pivot_from_preferences(Transformation& t)
   gfx::PointT<double> se(corners[Transformation::Corners::RIGHT_BOTTOM]);
   gfx::PointT<double> pivotPos((nw + se) / 2);
 
-  app::gen::PivotPosition pivot = Preferences::instance().selection.pivotPosition();
-  switch (pivot) {
-    case app::gen::PivotPosition::NORTHWEST:
-      pivotPos = nw;
-      break;
-    case app::gen::PivotPosition::NORTH:
-      pivotPos = (nw + ne) / 2.0;
-      break;
-    case app::gen::PivotPosition::NORTHEAST:
-      pivotPos = ne;
-      break;
-    case app::gen::PivotPosition::WEST:
-      pivotPos = (nw + sw) / 2.0;
-      break;
-    case app::gen::PivotPosition::EAST:
-      pivotPos = (ne + se) / 2.0;
-      break;
-    case app::gen::PivotPosition::SOUTHWEST:
-      pivotPos = sw;
-      break;
-    case app::gen::PivotPosition::SOUTH:
-      pivotPos = (sw + se) / 2.0;
-      break;
-    case app::gen::PivotPosition::SOUTHEAST:
-      pivotPos = se;
-      break;
+  app::gen::PivotPosition pivot =
+      Preferences::instance().selection.pivotPosition();
+  switch (pivot)
+  {
+  case app::gen::PivotPosition::NORTHWEST:
+    pivotPos = nw;
+    break;
+  case app::gen::PivotPosition::NORTH:
+    pivotPos = (nw + ne) / 2.0;
+    break;
+  case app::gen::PivotPosition::NORTHEAST:
+    pivotPos = ne;
+    break;
+  case app::gen::PivotPosition::WEST:
+    pivotPos = (nw + sw) / 2.0;
+    break;
+  case app::gen::PivotPosition::EAST:
+    pivotPos = (ne + se) / 2.0;
+    break;
+  case app::gen::PivotPosition::SOUTHWEST:
+    pivotPos = sw;
+    break;
+  case app::gen::PivotPosition::SOUTH:
+    pivotPos = (sw + se) / 2.0;
+    break;
+  case app::gen::PivotPosition::SOUTHEAST:
+    pivotPos = se;
+    break;
   }
 
   t.displacePivotTo(gfx::PointF(pivotPos));

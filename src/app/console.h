@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,20 +9,22 @@
 
 #include <exception>
 
-namespace app {
-  class Context;
+namespace app
+{
+class Context;
 
-  class Console {
-  public:
-    Console(Context* ctx = nullptr);
-    ~Console();
+class Console
+{
+public:
+  Console(Context* ctx = nullptr);
+  ~Console();
 
-    void printf(const char *format, ...);
+  void printf(const char* format, ...);
 
-    static void showException(const std::exception& e);
+  static void showException(const std::exception& e);
 
-  private:
-    bool m_withUI;
-  };
+private:
+  bool m_withUI;
+};
 
 } // namespace app

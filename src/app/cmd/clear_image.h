@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -12,26 +12,27 @@
 #include "doc/color.h"
 #include "doc/image_ref.h"
 
-namespace app {
-namespace cmd {
-  using namespace doc;
+namespace app::cmd
+{
+using namespace doc;
 
-  class ClearImage : public Cmd
-                   , public WithImage {
-  public:
-    ClearImage(Image* image, color_t color);
+class ClearImage : public Cmd,
+                   public WithImage
+{
+public:
+  ClearImage(const Image* image, color_t color);
 
-  protected:
-    void onExecute() override;
-    void onUndo() override;
-    size_t onMemSize() const override {
-      return sizeof(*this) + (m_copy ? m_copy->getMemSize(): 0);
-    }
+protected:
+  void onExecute() override;
+  void onUndo() override;
+  [[nodiscard]] size_t onMemSize() const override
+  {
+    return sizeof(*this) + (m_copy ? m_copy->getMemSize() : 0);
+  }
 
-  private:
-    ImageRef m_copy;
-    color_t m_color;
-  };
+private:
+  ImageRef m_copy;
+  color_t m_color;
+};
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

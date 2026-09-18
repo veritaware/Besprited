@@ -20,10 +20,11 @@
 
 #include <cstdio>
 
-namespace app {
+namespace app
+{
 
-
-class RunScriptCommand : public Command {
+class RunScriptCommand : public Command
+{
 public:
   RunScriptCommand();
   Command* clone() const override { return new RunScriptCommand(*this); }
@@ -37,9 +38,7 @@ private:
 };
 
 RunScriptCommand::RunScriptCommand()
-  : Command("RunScript",
-            "Run Script",
-            CmdRecordableFlag)
+  : Command("RunScript", "Run Script", CmdRecordableFlag)
 {
 }
 

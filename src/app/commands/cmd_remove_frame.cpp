@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,9 +19,11 @@
 #include "doc/sprite.h"
 #include "ui/ui.h"
 
-namespace app {
+namespace app
+{
 
-class RemoveFrameCommand : public Command {
+class RemoveFrameCommand : public Command
+{
 public:
   RemoveFrameCommand();
   Command* clone() const override { return new RemoveFrameCommand(*this); }
@@ -32,9 +34,7 @@ protected:
 };
 
 RemoveFrameCommand::RemoveFrameCommand()
-  : Command("RemoveFrame",
-            "Remove Frame",
-            CmdRecordableFlag)
+  : Command("RemoveFrame", "Remove Frame", CmdRecordableFlag)
 {
 }
 
@@ -42,9 +42,7 @@ bool RemoveFrameCommand::onEnabled(Context* context)
 {
   ContextWriter writer(context);
   Sprite* sprite(writer.sprite());
-  return
-    sprite &&
-    sprite->totalFrames() > 1;
+  return sprite && sprite->totalFrames() > 1;
 }
 
 void RemoveFrameCommand::onExecute(Context* context)
@@ -58,15 +56,16 @@ void RemoveFrameCommand::onExecute(Context* context)
 
     // TODO the range of selected frames should be in doc::Site.
     auto range = App::instance()->timeline()->range();
-    if (range.enabled()) {
-      for (frame_t frame = range.frameEnd(),
-             begin = range.frameBegin()-1;
-           frame != begin;
-           --frame) {
+    if (range.enabled())
+    {
+      for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1;
+           frame != begin; --frame)
+      {
         api.removeFrame(sprite, frame);
       }
     }
-    else {
+    else
+    {
       api.removeFrame(sprite, writer.frame());
     }
 

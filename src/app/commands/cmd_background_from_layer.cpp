@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,12 +18,17 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class BackgroundFromLayerCommand : public Command {
+class BackgroundFromLayerCommand : public Command
+{
 public:
   BackgroundFromLayerCommand();
-  Command* clone() const override { return new BackgroundFromLayerCommand(*this); }
+  Command* clone() const override
+  {
+    return new BackgroundFromLayerCommand(*this);
+  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -31,21 +36,18 @@ protected:
 };
 
 BackgroundFromLayerCommand::BackgroundFromLayerCommand()
-  : Command("BackgroundFromLayer",
-            "BackgroundFromLayer",
-            CmdRecordableFlag)
+  : Command("BackgroundFromLayer", "BackgroundFromLayer", CmdRecordableFlag)
 {
 }
 
 bool BackgroundFromLayerCommand::onEnabled(Context* context)
 {
-  return
-    context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                        ContextFlags::ActiveLayerIsVisible |
-                        ContextFlags::ActiveLayerIsEditable |
-                        ContextFlags::ActiveLayerIsImage) &&
-    // Doesn't have a background layer
-    !context->checkFlags(ContextFlags::HasBackgroundLayer);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
+                             ContextFlags::ActiveLayerIsVisible |
+                             ContextFlags::ActiveLayerIsEditable |
+                             ContextFlags::ActiveLayerIsImage) &&
+         // Doesn't have a background layer
+         !context->checkFlags(ContextFlags::HasBackgroundLayer);
 }
 
 void BackgroundFromLayerCommand::onExecute(Context* context)
@@ -55,8 +57,8 @@ void BackgroundFromLayerCommand::onExecute(Context* context)
 
   {
     Transaction transaction(writer.context(), "Background from Layer");
-    document->getApi(transaction).backgroundFromLayer(
-      static_cast<LayerImage*>(writer.layer()));
+    document->getApi(transaction)
+        .backgroundFromLayer(static_cast<LayerImage*>(writer.layer()));
     transaction.commit();
   }
 

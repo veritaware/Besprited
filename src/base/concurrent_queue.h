@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,49 +13,51 @@
 
 #include <queue>
 
-namespace base {
+namespace base
+{
 
-  template<typename T>
-  class concurrent_queue {
-  public:
-    concurrent_queue() {
-    }
+template <typename T> class concurrent_queue
+{
+public:
+  concurrent_queue() {}
 
-    ~concurrent_queue() {
-    }
+  ~concurrent_queue() {}
 
-    bool empty() const {
-      bool result;
-      {
-        scoped_lock hold(m_mutex);
-        result = m_queue.empty();
-      }
-      return result;
-    }
-
-    void push(const T& value) {
+  bool empty() const
+  {
+    bool result;
+    {
       scoped_lock hold(m_mutex);
-      m_queue.push(value);
+      result = m_queue.empty();
     }
+    return result;
+  }
 
-    bool try_pop(T& value) {
-      if (!m_mutex.try_lock())
-        return false;
+  void push(const T& value)
+  {
+    scoped_lock hold(m_mutex);
+    m_queue.push(value);
+  }
 
-      scoped_unlock unlock(m_mutex);
-      if (m_queue.empty())
-        return false;
+  bool try_pop(T& value)
+  {
+    if (!m_mutex.try_lock())
+      return false;
 
-      value = m_queue.front();
-      m_queue.pop();
-      return true;
-    }
+    scoped_unlock unlock(m_mutex);
+    if (m_queue.empty())
+      return false;
 
-  private:
-    std::queue<T> m_queue;
-    mutable mutex m_mutex;
+    value = m_queue.front();
+    m_queue.pop();
+    return true;
+  }
 
-    DISABLE_COPYING(concurrent_queue);
-  };
+private:
+  std::queue<T> m_queue;
+  mutable mutex m_mutex;
+
+  DISABLE_COPYING(concurrent_queue);
+};
 
 } // namespace base

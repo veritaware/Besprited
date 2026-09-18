@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,7 +13,8 @@
 
 #include <typeinfo>
 
-namespace app {
+namespace app
+{
 
 Cmd::Cmd()
 #if _DEBUG
@@ -22,9 +23,7 @@ Cmd::Cmd()
 {
 }
 
-Cmd::~Cmd()
-{
-}
+Cmd::~Cmd() = default;
 
 void Cmd::execute(Context* ctx)
 {
@@ -108,7 +107,8 @@ std::string Cmd::onLabel() const
   return "";
 }
 
-size_t Cmd::onMemSize() const {
+size_t Cmd::onMemSize() const
+{
   return sizeof(*this);
 }
 

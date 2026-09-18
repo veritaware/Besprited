@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,14 +13,16 @@
 #include "app/commands/command.h"
 #include "app/ui/main_window.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class HomeCommand : public Command {
+class HomeCommand : public Command
+{
 public:
   HomeCommand();
-  ~HomeCommand();
+  ~HomeCommand() override = default;
 
 protected:
   void onExecute(Context* context) override;
@@ -28,13 +30,7 @@ protected:
 };
 
 HomeCommand::HomeCommand()
-  : Command("Home",
-            "Home",
-            CmdUIOnlyFlag)
-{
-}
-
-HomeCommand::~HomeCommand()
+  : Command("Home", "Home", CmdUIOnlyFlag)
 {
 }
 

@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013, 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013, 2015 David Capello
+// Besprited | Copyright (C) 2026            Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,12 +12,13 @@
 #include "base/memory_dump.h"
 
 #ifdef _WIN32
-  #include "base/memory_dump_win32.h"
+#include "base/memory_dump_win32.h"
 #else
-  #include "base/memory_dump_none.h"
+#include "base/memory_dump_none.h"
 #endif
 
-namespace base {
+namespace base
+{
 
 MemoryDump::MemoryDump()
   : m_impl(new MemoryDumpImpl)

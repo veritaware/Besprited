@@ -1,34 +1,40 @@
-// SHE library
-// Copyright (C) 2012-2016  David Capello
-// Copyright (C) 2021       LibreSprite contributors
+// SHE Library
+// Aseprite    | Copyright (C) 2012-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
 #pragma once
 
-#include <string>
 #include "gfx/rect.h"
 
-namespace she {
+#include <cstdint>
+#include <string>
 
-  enum class FontType {
-    kUnknown,
-    kSpriteSheet,
-    kTrueType,
-  };
+namespace she
+{
 
-  class Font {
-  public:
-    virtual ~Font() { }
-    virtual FontType type() = 0;
-    virtual int height() const = 0;
-    virtual gfx::Rect charBounds(int chr) const = 0;
-    virtual int charWidth(int chr) const = 0;
-    virtual int textLength(const std::string& str) const = 0;
-    virtual bool isScalable() const = 0;
-    virtual void setSize(int size) = 0;
-    virtual void setAntialias(bool antialias) = 0;
-  };
+enum class FontType : std::uint8_t
+{
+  kUnknown,
+  kSpriteSheet,
+  kTrueType,
+};
+
+class Font
+{
+public:
+  virtual ~Font() = default;
+  virtual FontType type() = 0;
+  [[nodiscard]] virtual int height() const = 0;
+  [[nodiscard]] virtual gfx::Rect charBounds(int chr) const = 0;
+  [[nodiscard]] virtual int charWidth(int chr) const = 0;
+  [[nodiscard]] virtual int textLength(const std::string& str) const = 0;
+  [[nodiscard]] virtual bool isScalable() const = 0;
+  virtual void setSize(int size) = 0;
+  virtual void setAntialias(bool antialias) = 0;
+};
 
 } // namespace she

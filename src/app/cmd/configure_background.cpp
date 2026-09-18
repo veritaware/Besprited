@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,25 +16,25 @@
 #include "app/cmd/set_layer_name.h"
 #include "app/cmd/set_layer_opacity.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 ConfigureBackground::ConfigureBackground(Layer* layer)
 {
   // Add "Background" and "LockMove" flags
-  LayerFlags newFlags = LayerFlags(int(layer->flags())
-    | int(LayerFlags::BackgroundLayerFlags));
+  const auto newFlags = static_cast<LayerFlags>(
+      static_cast<int>(layer->flags()) |
+      static_cast<int>(LayerFlags::BackgroundLayerFlags));
 
-  add(new cmd::SetLayerFlags(layer, newFlags));
-  add(new cmd::SetLayerName(layer, "Background"));
+  add(new SetLayerFlags(layer, newFlags));
+  add(new SetLayerName(layer, "Background"));
 
-  if (layer->isImage() &&
-      static_cast<LayerImage*>(layer)->opacity() < 255) {
-    add(new cmd::SetLayerOpacity(static_cast<LayerImage*>(layer), 255));
+  if (layer->isImage() && dynamic_cast<LayerImage*>(layer)->opacity() < 255)
+  {
+    add(new SetLayerOpacity(dynamic_cast<LayerImage*>(layer), 255));
   }
 
-  add(new cmd::MoveLayer(layer, nullptr));
+  add(new MoveLayer(layer, nullptr));
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

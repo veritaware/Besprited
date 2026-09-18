@@ -1,19 +1,22 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2014 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2014 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
 #pragma once
 
-namespace doc {
+namespace doc
+{
 
-  class Palette;
+class Palette;
 
-  namespace file {
+namespace file
+{
 
-    std::shared_ptr<Palette> load_gpl_file(const char* filename);
-    bool save_gpl_file(const Palette& pal, const char* filename);
+std::shared_ptr<Palette> load_gpl_file(const char* filename);
+bool save_gpl_file(const Palette& pal, const char* filename);
 
-  } // namespace file
+} // namespace file
 } // namespace doc

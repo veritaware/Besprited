@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,7 +20,8 @@
 #include "ui/message.h"
 #include "ui/widget.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace filters;
@@ -40,13 +41,14 @@ FilterPreview::~FilterPreview()
 
 void FilterPreview::stop()
 {
-  if (m_timer.isRunning()) {
-    ASSERT(m_filterMgr != NULL);
+  if (m_timer.isRunning())
+  {
+    ASSERT(m_filterMgr != nullptr);
 
     m_filterMgr->end();
   }
 
-  m_filterMgr = NULL;
+  m_filterMgr = nullptr;
   m_timer.stop();
 }
 
@@ -63,32 +65,32 @@ FilterManagerImpl* FilterPreview::getFilterManager() const
 
 bool FilterPreview::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kOpenMessage:
-      current_editor->renderEngine().setPreviewImage(
-        m_filterMgr->layer(),
-        m_filterMgr->frame(),
-        m_filterMgr->destinationImage(),
-        m_filterMgr->position(),
+  case kOpenMessage:
+    current_editor->renderEngine().setPreviewImage(
+        m_filterMgr->layer(), m_filterMgr->frame(),
+        m_filterMgr->destinationImage(), m_filterMgr->position(),
         static_cast<doc::LayerImage*>(m_filterMgr->layer())->blendMode());
-      break;
+    break;
 
-    case kCloseMessage:
-      current_editor->renderEngine().removePreviewImage();
+  case kCloseMessage:
+    current_editor->renderEngine().removePreviewImage();
 
-      // Stop the preview timer.
-      m_timer.stop();
-      break;
+    // Stop the preview timer.
+    m_timer.stop();
+    break;
 
-    case kTimerMessage:
-      if (m_filterMgr) {
-        if (m_filterMgr->applyStep())
-          m_filterMgr->flush();
-        else
-          m_timer.stop();
-      }
-      break;
+  case kTimerMessage:
+    if (m_filterMgr)
+    {
+      if (m_filterMgr->applyStep())
+        m_filterMgr->flush();
+      else
+        m_timer.stop();
+    }
+    break;
   }
 
   return Widget::onProcessMessage(msg);

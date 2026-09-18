@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2013 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2013 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,8 +13,8 @@
 
 #include <iostream>
 
-namespace base {
-namespace serialization {
+namespace base::serialization
+{
 
 std::ostream& write8(std::ostream& os, uint8_t byte)
 {
@@ -23,22 +24,22 @@ std::ostream& write8(std::ostream& os, uint8_t byte)
 
 uint8_t read8(std::istream& is)
 {
-  return (uint8_t)is.get();
+  return static_cast<uint8_t>(is.get());
 }
 
 std::ostream& little_endian::write16(std::ostream& os, uint16_t word)
 {
-  os.put((int)((word & 0x00ff)));
-  os.put((int)((word & 0xff00) >> 8));
+  os.put(word & 0x00ff);
+  os.put((word & 0xff00) >> 8);
   return os;
 }
 
 std::ostream& little_endian::write32(std::ostream& os, uint32_t dword)
 {
-  os.put((int)((dword & 0x000000ffl)));
-  os.put((int)((dword & 0x0000ff00l) >> 8));
-  os.put((int)((dword & 0x00ff0000l) >> 16));
-  os.put((int)((dword & 0xff000000l) >> 24));
+  os.put(static_cast<int>(dword & 0x000000ffl));
+  os.put(static_cast<int>((dword & 0x0000ff00l) >> 8));
+  os.put(static_cast<int>((dword & 0x00ff0000l) >> 16));
+  os.put(static_cast<int>((dword & 0xff000000l) >> 24));
   return os;
 }
 
@@ -62,17 +63,17 @@ uint32_t little_endian::read32(std::istream& is)
 
 std::ostream& big_endian::write16(std::ostream& os, uint16_t word)
 {
-  os.put((int)((word & 0xff00) >> 8));
-  os.put((int)((word & 0x00ff)));
+  os.put((word & 0xff00) >> 8);
+  os.put(word & 0x00ff);
   return os;
 }
 
 std::ostream& big_endian::write32(std::ostream& os, uint32_t dword)
 {
-  os.put((int)((dword & 0xff000000l) >> 24));
-  os.put((int)((dword & 0x00ff0000l) >> 16));
-  os.put((int)((dword & 0x0000ff00l) >> 8));
-  os.put((int)((dword & 0x000000ffl)));
+  os.put(static_cast<int>((dword & 0xff000000l) >> 24));
+  os.put(static_cast<int>((dword & 0x00ff0000l) >> 16));
+  os.put(static_cast<int>((dword & 0x0000ff00l) >> 8));
+  os.put(static_cast<int>(dword & 0x000000ffl));
   return os;
 }
 
@@ -94,5 +95,4 @@ uint32_t big_endian::read32(std::istream& is)
   return ((b4 << 24) | (b3 << 16) | (b2 << 8) | b1);
 }
 
-} // namespace serialization
-} // namespace base
+} // namespace base::serialization

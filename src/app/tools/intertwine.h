@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,33 +11,38 @@
 
 #include <vector>
 
-namespace app {
-  namespace tools {
-    class Stroke;
-    class ToolLoop;
+namespace app
+{
+namespace tools
+{
+class Stroke;
+class ToolLoop;
 
-    // Converts a sequence of points in several call to
-    // Intertwine::doPointshapePoint(). Basically each implementation
-    // says which pixels should be drawn between a sequence of
-    // user-defined points.
-    class Intertwine {
-    public:
-      typedef std::vector<gfx::Point> Points;
+// Converts a sequence of points in several call to
+// Intertwine::doPointshapePoint(). Basically each implementation
+// says which pixels should be drawn between a sequence of
+// user-defined points.
+class Intertwine
+{
+public:
+  typedef std::vector<gfx::Point> Points;
 
-      virtual ~Intertwine() { }
-      virtual bool snapByAngle() { return false; }
-      virtual void prepareIntertwine() { }
+  virtual ~Intertwine() {}
+  virtual bool snapByAngle() { return false; }
+  virtual void prepareIntertwine() {}
 
-      // The given stroke must be relative to the cel origin.
-      virtual void joinStroke(ToolLoop* loop, const Stroke& stroke) = 0;
-      virtual void fillStroke(ToolLoop* loop, const Stroke& stroke) = 0;
+  // The given stroke must be relative to the cel origin.
+  virtual void joinStroke(ToolLoop* loop, const Stroke& stroke) = 0;
+  virtual void fillStroke(ToolLoop* loop, const Stroke& stroke) = 0;
 
-    protected:
-      // The given point must be relative to the cel origin.
-      static void doPointshapePoint(int x, int y, float pressure, ToolLoop* loop);
-      static void doPointshapeHline(int x1, int y, int x2, float pressure, ToolLoop* loop);
-      static void doPointshapeLine(int x1, int y1, int x2, int y2, float pressure, ToolLoop* loop);
-    };
+protected:
+  // The given point must be relative to the cel origin.
+  static void doPointshapePoint(int x, int y, float pressure, ToolLoop* loop);
+  static void doPointshapeHline(int x1, int y, int x2, float pressure,
+                                ToolLoop* loop);
+  static void doPointshapeLine(int x1, int y1, int x2, int y2, float pressure,
+                               ToolLoop* loop);
+};
 
-  } // namespace tools
+} // namespace tools
 } // namespace app

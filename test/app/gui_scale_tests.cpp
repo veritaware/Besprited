@@ -18,7 +18,8 @@ TEST(GuessUiScale, ThresholdsProduceTheExpectedScale)
   EXPECT_EQ(3, guessUiScale(1200, 0));
   EXPECT_EQ(3, guessUiScale(1799, 0));
   EXPECT_EQ(4, guessUiScale(1800, 0));
-  EXPECT_EQ(4, guessUiScale(4320, 0)) << "well past the top threshold, still capped at 4";
+  EXPECT_EQ(4, guessUiScale(4320, 0))
+      << "well past the top threshold, still capped at 4";
 }
 
 TEST(GuessUiScale, AnUnknownScreenHeightFallsBackToTheGivenHeight)

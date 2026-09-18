@@ -1,5 +1,6 @@
-// Aseprite Gfx Library
-// Copyright (c) 2001-2014 David Capello
+// Gfx Library
+// Aseprite  | Copyright (C) 2001-2014 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,23 +11,23 @@
 
 #include "gfx/clip.h"
 
-namespace gfx {
+namespace gfx
+{
 
-bool Clip::clip(
-  int avail_dst_w,
-  int avail_dst_h,
-  int avail_src_w,
-  int avail_src_h)
+bool Clip::clip(int avail_dst_w, int avail_dst_h, int avail_src_w,
+                int avail_src_h)
 {
   // Clip srcBounds
 
-  if (src.x < 0) {
+  if (src.x < 0)
+  {
     size.w += src.x;
     dst.x -= src.x;
     src.x = 0;
   }
 
-  if (src.y < 0) {
+  if (src.y < 0)
+  {
     size.h += src.y;
     dst.y -= src.y;
     src.y = 0;
@@ -40,13 +41,15 @@ bool Clip::clip(
 
   // Clip dstBounds
 
-  if (dst.x < 0) {
+  if (dst.x < 0)
+  {
     size.w += dst.x;
     src.x -= dst.x;
     dst.x = 0;
   }
 
-  if (dst.y < 0) {
+  if (dst.y < 0)
+  {
     size.h += dst.y;
     src.y -= dst.y;
     dst.y = 0;

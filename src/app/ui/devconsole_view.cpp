@@ -21,14 +21,18 @@
 #include "ui/message.h"
 #include "ui/system.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace app::skin;
 
-class DevConsoleView::CommmandEntry : public Entry {
+class DevConsoleView::CommmandEntry : public Entry
+{
 public:
-  CommmandEntry() : Entry(256, "") {
+  CommmandEntry()
+    : Entry(256, "")
+  {
     setFocusStop(true);
     setFocusMagnet(true);
   }
@@ -36,24 +40,29 @@ public:
   base::Signal1<void, const std::string&> ExecuteCommand;
 
 protected:
-  bool onProcessMessage(Message* msg) override {
-    switch (msg->type()) {
-      case kKeyDownMessage:
-        if (hasFocus()) {
-          KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
-          KeyScancode scancode = keymsg->scancode();
+  bool onProcessMessage(Message* msg) override
+  {
+    switch (msg->type())
+    {
+    case kKeyDownMessage:
+      if (hasFocus())
+      {
+        KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
+        KeyScancode scancode = keymsg->scancode();
 
-          switch (scancode) {
-            case kKeyEnter:
-            case kKeyEnterPad: {
-              std::string cmd = text();
-              ExecuteCommand(cmd);
-              setText("");
-              return true;
-            }
-          }
+        switch (scancode)
+        {
+        case kKeyEnter:
+        case kKeyEnterPad:
+        {
+          std::string cmd = text();
+          ExecuteCommand(cmd);
+          setText("");
+          return true;
         }
-        break;
+        }
+      }
+      break;
     }
     return Entry::onProcessMessage(msg);
   }
@@ -82,11 +91,7 @@ DevConsoleView::DevConsoleView()
   m_entry->ExecuteCommand.connect(&DevConsoleView::onExecuteCommand, this);
 }
 
-DevConsoleView::~DevConsoleView()
-{
-  // m_document->removeObserver(this);
-  // delete m_editor;
-}
+DevConsoleView::~DevConsoleView() = default;
 
 std::string DevConsoleView::getTabText()
 {

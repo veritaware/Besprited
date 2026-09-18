@@ -40,44 +40,50 @@
 #include <map>
 #include <memory>
 
-namespace app {
-namespace crash {
+namespace app::crash
+{
 
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
 using namespace doc;
 
-namespace {
+namespace
+{
 
-class Reader : public SubObjectsIO {
+class Reader : public SubObjectsIO
+{
 public:
   Reader(const std::string& dir)
     : m_sprite(nullptr)
     , m_dir(dir)
     , m_docId(0)
     , m_docVersions(nullptr)
-    , m_loadInfo(nullptr) {
-    for (const auto& fn : base::list_files(dir)) {
+    , m_loadInfo(nullptr)
+  {
+    for (const auto& fn : base::list_files(dir))
+    {
       auto i = fn.find('-');
       if (i == std::string::npos)
-        continue;               // Has no ID
+        continue; // Has no ID
 
       auto j = fn.find('.', ++i);
       if (j == std::string::npos)
-        continue;               // Has no version
+        continue; // Has no version
 
       ObjectId id = base::convert_to<int>(fn.substr(i, j - i));
-      ObjectVersion ver = base::convert_to<int>(fn.substr(j+1));
+      ObjectVersion ver = base::convert_to<int>(fn.substr(j + 1));
       if (!id || !ver)
-        continue;               // Error converting strings to ID/ver
+        continue; // Error converting strings to ID/ver
 
       ObjVersions& versions = m_objVersions[id];
       versions.add(ver);
 
-      if (fn.compare(0, 3, "doc") == 0) {
+      if (fn.starts_with("doc"))
+      {
         if (!m_docId)
           m_docId = id;
-        else {
+        else
+        {
           ASSERT(m_docId == id);
         }
 
@@ -86,8 +92,10 @@ public:
     }
   }
 
-  app::Document* loadDocument() {
-    app::Document* doc = loadObject<app::Document*>("doc", m_docId, &Reader::readDocument);
+  app::Document* loadDocument()
+  {
+    app::Document* doc =
+        loadObject<app::Document*>("doc", m_docId, &Reader::readDocument);
     if (doc)
       fixUndetectedDocumentIssues(doc);
     else
@@ -95,28 +103,25 @@ public:
     return doc;
   }
 
-  bool loadDocumentInfo(DocumentInfo& info) {
+  bool loadDocumentInfo(DocumentInfo& info)
+  {
     m_loadInfo = &info;
-    return
-      loadObject<app::Document*>("doc", m_docId, &Reader::readDocument)
-      == (app::Document*)1;
+    return loadObject<app::Document*>("doc", m_docId, &Reader::readDocument) ==
+           (app::Document*)1;
   }
 
 private:
+  const ObjectVersion docId() const { return m_docId; }
 
-  const ObjectVersion docId() const {
-    return m_docId;
-  }
+  const ObjVersions* docVersions() const { return m_docVersions; }
 
-  const ObjVersions* docVersions() const {
-    return m_docVersions;
-  }
-
-  Sprite* loadSprite(ObjectId sprId) {
+  Sprite* loadSprite(ObjectId sprId)
+  {
     return loadObject<Sprite*>("spr", sprId, &Reader::readSprite);
   }
 
-  ImageRef getImageRef(ObjectId imageId) {
+  ImageRef getImageRef(ObjectId imageId) override
+  {
     if (m_images.find(imageId) != m_images.end())
       return m_images[imageId];
 
@@ -124,19 +129,24 @@ private:
     return m_images[imageId] = image;
   }
 
-  CelDataRef getCelDataRef(ObjectId celdataId) {
+  CelDataRef getCelDataRef(ObjectId celdataId) override
+  {
     if (m_celdatas.find(celdataId) != m_celdatas.end())
       return m_celdatas[celdataId];
 
-    CelDataRef celData(loadObject<CelData*>("celdata", celdataId, &Reader::readCelData));
+    CelDataRef celData(
+        loadObject<CelData*>("celdata", celdataId, &Reader::readCelData));
     return m_celdatas[celdataId] = celData;
   }
 
-  template<typename T>
-  T loadObject(const char* prefix, ObjectId id, T (Reader::*readMember)(std::ifstream&)) {
+  template <typename T>
+  T loadObject(const char* prefix, ObjectId id,
+               T (Reader::*readMember)(std::ifstream&))
+  {
     const ObjVersions& versions = m_objVersions[id];
 
-    for (size_t i=0; i<versions.size(); ++i) {
+    for (size_t i = 0; i < versions.size(); ++i)
+    {
       ObjectVersion ver = versions[i];
       if (!ver)
         continue;
@@ -149,16 +159,19 @@ private:
       fn.push_back('.');
       fn += base::convert_to<std::string>(ver);
 
-      std::ifstream s(FSTREAM_PATH(base::join_path(m_dir, fn)), std::ifstream::binary);
+      std::ifstream s(FSTREAM_PATH(base::join_path(m_dir, fn)),
+                      std::ifstream::binary);
       T obj = nullptr;
       if (read32(s) == MAGIC_NUMBER)
         obj = (this->*readMember)(s);
 
-      if (obj) {
+      if (obj)
+      {
         TRACE(" - %s #%d v%d restored successfully\n", prefix, id, ver);
         return obj;
       }
-      else {
+      else
+      {
         TRACE(" - %s #%d v%d was not restored\n", prefix, id, ver);
       }
     }
@@ -170,51 +183,58 @@ private:
     return nullptr;
   }
 
-  app::Document* readDocument(std::ifstream& s) {
+  app::Document* readDocument(std::ifstream& s)
+  {
     ObjectId sprId = read32(s);
     std::string filename = read_string(s);
 
     // Load DocumentInfo only
-    if (m_loadInfo) {
+    if (m_loadInfo)
+    {
       m_loadInfo->filename = filename;
       return (app::Document*)loadSprite(sprId);
     }
 
     Sprite* spr = loadSprite(sprId);
-    if (spr) {
+    if (spr)
+    {
       app::Document* doc = new app::Document(spr);
       doc->setFilename(filename);
       doc->impossibleToBackToSavedState();
       return doc;
     }
-    else {
+    else
+    {
       Console().printf("Unable to load sprite #%d\n", sprId);
       return nullptr;
     }
   }
 
-  Sprite* readSprite(std::ifstream& s) {
+  Sprite* readSprite(std::ifstream& s)
+  {
     PixelFormat format = (PixelFormat)read8(s);
     int w = read16(s);
     int h = read16(s);
     color_t transparentColor = read32(s);
     frame_t nframes = read32(s);
 
-    if (format != IMAGE_RGB &&
-        format != IMAGE_INDEXED &&
-        format != IMAGE_GRAYSCALE) {
+    if (format != IMAGE_RGB && format != IMAGE_INDEXED &&
+        format != IMAGE_GRAYSCALE)
+    {
       if (!m_loadInfo)
         Console().printf("Invalid sprite format #%d\n", (int)format);
       return nullptr;
     }
 
-    if (w < 1 || h < 1 || w > 0xfffff || h > 0xfffff) {
+    if (w < 1 || h < 1 || w > 0xfffff || h > 0xfffff)
+    {
       if (!m_loadInfo)
         Console().printf("Invalid sprite dimension %dx%d\n", w, h);
       return nullptr;
     }
 
-    if (m_loadInfo) {
+    if (m_loadInfo)
+    {
       m_loadInfo->format = format;
       m_loadInfo->width = w;
       m_loadInfo->height = h;
@@ -222,41 +242,50 @@ private:
       return (Sprite*)1;
     }
 
-    std::unique_ptr<Sprite> spr(new Sprite(format, w, h, 256));
+    auto spr = std::make_unique<Sprite>(format, w, h, 256);
     m_sprite = spr.get();
     spr->setTransparentColor(transparentColor);
 
-    if (nframes >= 1) {
+    if (nframes >= 1 && nframes < 0xfffff)
+    {
       spr->setTotalFrames(nframes);
-      for (frame_t fr=0; fr<nframes; ++fr) {
+      for (frame_t fr = 0; fr < nframes; ++fr)
+      {
         int msecs = read32(s);
         spr->setFrameDuration(fr, msecs);
       }
     }
-    else {
+    else
+    {
       Console().printf("Invalid number of frames #%d\n", nframes);
     }
 
     // Read layers
     int nlayers = read32(s);
-    if (nlayers >= 1 && nlayers < 0xfffff) {
-      for (int i = 0; i < nlayers; ++i) {
+    if (nlayers >= 1 && nlayers < 0xfffff)
+    {
+      for (int i = 0; i < nlayers; ++i)
+      {
         ObjectId layId = read32(s);
         Layer* lay = loadObject<Layer*>("lay", layId, &Reader::readLayer);
         if (lay)
           spr->folder()->addLayer(lay);
       }
     }
-    else {
+    else
+    {
       Console().printf("Invalid number of layers #%d\n", nlayers);
     }
 
     // Read palettes
     int npalettes = read32(s);
-    if (npalettes >= 1 && npalettes < 0xfffff) {
-      for (int i = 0; i < npalettes; ++i) {
+    if (npalettes >= 1 && npalettes < 0xfffff)
+    {
+      for (int i = 0; i < npalettes; ++i)
+      {
         ObjectId palId = read32(s);
-        auto pal = loadObject<std::shared_ptr<Palette>>("pal", palId, &Reader::readPalette);
+        auto pal = loadObject<std::shared_ptr<Palette>>("pal", palId,
+                                                        &Reader::readPalette);
         if (pal)
           spr->setPalette(*pal, true);
       }
@@ -264,10 +293,13 @@ private:
 
     // Read frame tags
     int nfrtags = read32(s);
-    if (nfrtags >= 1 && nfrtags < 0xfffff) {
-      for (int i = 0; i < nfrtags; ++i) {
+    if (nfrtags >= 1 && nfrtags < 0xfffff)
+    {
+      for (int i = 0; i < nfrtags; ++i)
+      {
         ObjectId tagId = read32(s);
-        FrameTag* tag = loadObject<FrameTag*>("frtag", tagId, &Reader::readFrameTag);
+        FrameTag* tag =
+            loadObject<FrameTag*>("frtag", tagId, &Reader::readFrameTag);
         if (tag)
           spr->frameTags().add(tag);
       }
@@ -276,75 +308,82 @@ private:
     return spr.release();
   }
 
-  Layer* readLayer(std::ifstream& s) {
+  Layer* readLayer(std::ifstream& s)
+  {
     LayerFlags flags = (LayerFlags)read32(s);
     ObjectType type = (ObjectType)read16(s);
     ASSERT(type == ObjectType::LayerImage);
 
     std::string name = read_string(s);
 
-    if (type == ObjectType::LayerImage) {
-      std::unique_ptr<LayerImage> lay(new LayerImage(m_sprite));
+    if (type == ObjectType::LayerImage)
+    {
+      auto lay = std::make_unique<LayerImage>(m_sprite);
       lay->setName(name);
       lay->setFlags(flags);
 
       // Cels
       int ncels = read32(s);
-      for (int i=0; i<ncels; ++i) {
+      if (ncels < 0 || ncels >= 0xfffff)
+        ncels = 0;
+      for (int i = 0; i < ncels; ++i)
+      {
         ObjectId celId = read32(s);
-        std::shared_ptr<Cel> cel{loadObject<Cel*>("cel", celId, &Reader::readCel)};
-        if (cel) {
+        std::shared_ptr<Cel> cel{
+            loadObject<Cel*>("cel", celId, &Reader::readCel)};
+        if (cel)
+        {
           // Expand sprite size
           if (cel->frame() > m_sprite->lastFrame())
-            m_sprite->setTotalFrames(cel->frame()+1);
+            m_sprite->setTotalFrames(cel->frame() + 1);
 
           lay->addCel(cel);
         }
       }
       return lay.release();
     }
-    else {
+    else
+    {
       Console().printf("Unable to load layer named '%s', type #%d\n",
-        name.c_str(), (int)type);
+                       name.c_str(), (int)type);
       return nullptr;
     }
   }
 
-  Cel* readCel(std::ifstream& s) {
-    return read_cel(s, this, false);
-  }
+  Cel* readCel(std::ifstream& s) { return read_cel(s, this, false); }
 
-  CelData* readCelData(std::ifstream& s) {
+  CelData* readCelData(std::ifstream& s)
+  {
     return read_celdata(s, this, false);
   }
 
-  Image* readImage(std::ifstream& s) {
-    return read_image(s, false);
-  }
+  Image* readImage(std::ifstream& s) { return read_image(s, false); }
 
-  std::shared_ptr<Palette> readPalette(std::ifstream& s) {
+  std::shared_ptr<Palette> readPalette(std::ifstream& s)
+  {
     return read_palette(s);
   }
 
-  FrameTag* readFrameTag(std::ifstream& s) {
-    return read_frame_tag(s, false);
-  }
+  FrameTag* readFrameTag(std::ifstream& s) { return read_frame_tag(s, false); }
 
   // Fix issues that the restoration process could produce.
-  void fixUndetectedDocumentIssues(app::Document* doc) {
+  void fixUndetectedDocumentIssues(app::Document* doc)
+  {
     Sprite* spr = doc->sprite();
     ASSERT(spr);
     if (!spr)
-      return;                   // TODO create an empty sprite
+      return; // TODO create an empty sprite
 
     // Fill the background layer with empty cels if they are missing
-    if (LayerImage* bg = spr->backgroundLayer()) {
-      for (frame_t fr=0; fr<spr->totalFrames(); ++fr) {
+    if (LayerImage* bg = spr->backgroundLayer())
+    {
+      for (frame_t fr = 0; fr < spr->totalFrames(); ++fr)
+      {
         auto cel = bg->cel(fr);
-        if (!cel) {
-          ImageRef image(Image::create(spr->pixelFormat(),
-                                       spr->width(),
-                                       spr->height()));
+        if (!cel)
+        {
+          ImageRef image(
+              Image::create(spr->pixelFormat(), spr->width(), spr->height()));
           image->clear(spr->transparentColor());
           cel = std::make_shared<Cel>(fr, image);
           bg->addCel(cel);
@@ -353,7 +392,7 @@ private:
     }
   }
 
-  Sprite* m_sprite;    // Used to pass the sprite in LayerImage() ctor
+  Sprite* m_sprite; // Used to pass the sprite in LayerImage() ctor
   std::string m_dir;
   ObjectVersion m_docId;
   ObjVersionsMap m_objVersions;
@@ -384,7 +423,8 @@ app::Document* read_document_with_raw_images(const std::string& dir,
   Reader reader(dir);
 
   DocumentInfo info;
-  if (!reader.loadDocumentInfo(info)) {
+  if (!reader.loadDocumentInfo(info))
+  {
     info.format = IMAGE_RGB;
     info.width = 256;
     info.height = 256;
@@ -399,11 +439,13 @@ app::Document* read_document_with_raw_images(const std::string& dir,
   spr->folder()->addLayer(lay);
 
   frame_t frame = 0;
-  for (const auto& fn : base::list_files(dir)) {
-    if (fn.compare(0, 3, "img") != 0)
+  for (const auto& fn : base::list_files(dir))
+  {
+    if (!fn.starts_with("img"))
       continue;
 
-    std::ifstream s(FSTREAM_PATH(base::join_path(dir, fn)), std::ifstream::binary);
+    std::ifstream s(FSTREAM_PATH(base::join_path(dir, fn)),
+                    std::ifstream::binary);
     if (!s)
       continue;
 
@@ -411,21 +453,24 @@ app::Document* read_document_with_raw_images(const std::string& dir,
     if (read32(s) == MAGIC_NUMBER)
       img.reset(read_image(s, false));
 
-    if (img) {
-        lay->addCel(std::make_shared<Cel>(frame, img));
+    if (img)
+    {
+      lay->addCel(std::make_shared<Cel>(frame, img));
     }
 
-    switch (as) {
-      case RawImagesAs::kFrames:
-        ++frame;
-        break;
-      case RawImagesAs::kLayers:
-        lay = new LayerImage(spr);
-        spr->folder()->addLayer(lay);
-        break;
+    switch (as)
+    {
+    case RawImagesAs::kFrames:
+      ++frame;
+      break;
+    case RawImagesAs::kLayers:
+      lay = new LayerImage(spr);
+      spr->folder()->addLayer(lay);
+      break;
     }
   }
-  if (as == RawImagesAs::kFrames) {
+  if (as == RawImagesAs::kFrames)
+  {
     if (frame > 1)
       spr->setTotalFrames(frame);
   }
@@ -436,5 +481,4 @@ app::Document* read_document_with_raw_images(const std::string& dir,
   return doc;
 }
 
-} // namespace crash
-} // namespace app
+} // namespace app::crash

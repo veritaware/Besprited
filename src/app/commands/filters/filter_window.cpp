@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,15 +17,15 @@
 #include "app/ini_file.h"
 #include "app/modules/gui.h"
 
-namespace app {
+namespace app
+{
 
 using namespace filters;
 using namespace ui;
 
 FilterWindow::FilterWindow(const char* title, const char* cfgSection,
                            FilterManagerImpl* filterMgr,
-                           WithChannels withChannels,
-                           WithTiled withTiled,
+                           WithChannels withChannels, WithTiled withTiled,
                            TiledMode tiledMode)
   : Window(WithTitleBar, title)
   , m_cfgSection(cfgSection)
@@ -36,12 +36,15 @@ FilterWindow::FilterWindow(const char* title, const char* cfgSection,
   , m_okButton("&OK")
   , m_cancelButton("&Cancel")
   , m_preview(filterMgr)
-  , m_targetButton(filterMgr->pixelFormat(), (withChannels == WithChannelsSelector))
+  , m_targetButton(filterMgr->pixelFormat(),
+                   (withChannels == WithChannelsSelector))
   , m_showPreview("&Preview")
-  , m_tiledCheck(withTiled == WithTiledCheckBox ? new CheckBox("&Tiled") : NULL)
+  , m_tiledCheck(withTiled == WithTiledCheckBox ? new CheckBox("&Tiled")
+                                                : nullptr)
 {
   m_targetButton.setTarget(filterMgr->getTarget());
-  m_targetButton.TargetChange.connect(&FilterWindow::onTargetButtonChange, this);
+  m_targetButton.TargetChange.connect(&FilterWindow::onTargetButtonChange,
+                                      this);
   m_okButton.Click.connect(&FilterWindow::onOk, this);
   m_cancelButton.Click.connect(&FilterWindow::onCancel, this);
   m_showPreview.Click.connect(&FilterWindow::onShowPreview, this);
@@ -59,9 +62,11 @@ FilterWindow::FilterWindow(const char* title, const char* cfgSection,
   addChild(&m_preview);
   addChild(&m_hbox);
 
-  if (m_tiledCheck) {
+  if (m_tiledCheck)
+  {
     m_tiledCheck->setSelected(tiledMode != TiledMode::NONE);
-    m_tiledCheck->Click.connect(base::Bind<void>(&FilterWindow::onTiledChange, this));
+    m_tiledCheck->Click.connect(
+        base::Bind<void>(&FilterWindow::onTiledChange, this));
 
     m_vbox.addChild(m_tiledCheck);
   }
@@ -100,7 +105,8 @@ bool FilterWindow::doModal()
   openWindowInForeground();
 
   // Did the user press OK?
-  if (closer() == &m_okButton) {
+  if (closer() == &m_okButton)
+  {
     m_preview.stop();
 
     // Apply the filter in background
@@ -151,13 +157,12 @@ void FilterWindow::onTargetButtonChange()
 
 void FilterWindow::onTiledChange()
 {
-  ASSERT(m_tiledCheck != NULL);
+  ASSERT(m_tiledCheck != nullptr);
 
   // Call derived class implementation of setupTiledMode() so the
   // filter is modified.
-  setupTiledMode(m_tiledCheck->isSelected() ?
-    TiledMode::BOTH:
-    TiledMode::NONE);
+  setupTiledMode(m_tiledCheck->isSelected() ? TiledMode::BOTH
+                                            : TiledMode::NONE);
 
   // Restart the preview.
   restartPreview();

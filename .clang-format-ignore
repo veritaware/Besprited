@@ -1,0 +1,35 @@
+# Files clang-format must not reformat.
+# One repo-relative glob per line (matched relative to this file's directory).
+
+# cfg.cpp embeds raw Emscripten/JavaScript inside EM_ASM(...) macros, guarded
+# with // clang-format off/on. clang-format has a reproducible bug where
+# reformatting this file (even with the guards in place) mis-indents
+# everything after the guarded block by re-parsing the JS as malformed C++
+# brace/paren nesting. Keep this file hand-formatted instead.
+src/cfg/cfg.cpp
+
+# fs_osx.mm is Objective-C++; this project's .clang-format has no ObjC
+# language mode, so clang-format refuses to reformat it (and is not
+# idempotent when forced). Keep it hand-formatted instead.
+src/base/fs_osx.mm
+
+# http_request_wasm.cpp embeds raw JavaScript inside a MAIN_THREAD_EM_ASM(...)
+# macro (arrow functions, object literals). clang-format corrupts `=>` into
+# `= >` when reformatting this file, same class of bug as cfg.cpp above.
+# Keep it hand-formatted instead.
+src/net/http_request_wasm.cpp
+
+# she.cpp embeds raw JavaScript inside EM_ASM/EM_JS/MAIN_THREAD_EM_ASM(...)
+# macros scattered throughout the file (arrow functions, object literals),
+# same class of bug as cfg.cpp above: clang-format corrupts `=>` into `= >`.
+# Keep it hand-formatted instead.
+src/she/sdl2/she.cpp
+
+# These she/osx/*.h headers contain Objective-C constructs (blocks, @interface
+# forward decls, etc); same "no ObjC language mode" limitation as fs_osx.mm
+# above. clang-format refuses to touch them at all. Keep hand-formatted.
+src/she/osx/app_delegate.h
+src/she/osx/generate_drop_files.h
+src/she/osx/view.h
+src/she/osx/window.h
+src/she/osx/window_delegate.h

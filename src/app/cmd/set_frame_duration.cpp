@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,10 +15,11 @@
 #include "doc/document_event.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetFrameDuration::SetFrameDuration(Sprite* sprite, frame_t frame, int duration)
+SetFrameDuration::SetFrameDuration(const Sprite* sprite, const frame_t frame,
+                                   const int duration)
   : WithSprite(sprite)
   , m_frame(frame)
   , m_oldDuration(sprite->frameDuration(frame))
@@ -45,8 +46,8 @@ void SetFrameDuration::onFireNotifications()
   DocumentEvent ev(doc);
   ev.sprite(sprite);
   ev.frame(m_frame);
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onFrameDurationChanged, ev);
+  doc->notifyObservers<DocumentEvent&>(
+      &DocumentObserver::onFrameDurationChanged, ev);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

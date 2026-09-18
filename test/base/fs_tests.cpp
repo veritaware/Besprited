@@ -60,7 +60,8 @@ TEST(FileSystem, ListFilesExcludesDotAndDotDot)
 
   ASSERT_EQ(1u, files.size());
   EXPECT_EQ("child", files[0]);
-  for (auto& name : files) {
+  for (auto& name : files)
+  {
     EXPECT_NE(".", name);
     EXPECT_NE("..", name);
   }

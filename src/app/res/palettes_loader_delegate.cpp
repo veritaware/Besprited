@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2015  David Capello
-// LibreSprite | Copyright (C) 2023       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2015 David Capello
+// LibreSprite | Copyright (C) 2023      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -24,26 +25,28 @@
 
 using namespace app;
 
-class PalettesLoaderDelegate : public ResourcesLoader {
+class PalettesLoaderDelegate : public ResourcesLoader
+{
 public:
-  std::vector<std::string> resourcesLocation() const override {
+  [[nodiscard]] std::vector<std::string> resourcesLocation() const override
+  {
     std::vector<std::string> paths;
     ResourceFinder rf;
     rf.includeDataDir("palettes");
     rf.includeUserDir("palettes");
-    while (rf.next()) {
-      if (base::is_directory(rf.filename())) {
+    while (rf.next())
+    {
+      if (base::is_directory(rf.filename()))
+      {
         paths.push_back(base::fix_path_separators(rf.filename()));
       }
     }
     return paths;
   }
 
-  Resource loadResource(const std::string& filename) override {
-    return {
-      load_palette(filename.c_str()),
-      base::get_file_title(filename)
-    };
+  Resource loadResource(const std::string& filename) override
+  {
+    return {load_palette(filename.c_str()), base::get_file_title(filename)};
   }
 };
 

@@ -77,7 +77,7 @@
     <!-- Bit flags so axes can be combined (bit-ored) freely. ROTATIONAL_180
          and ROTATIONAL_90 are exclusive: enabling either clears/ignores
          every other bit. -->
-    <enum id="SymmetryMode">
+    <enum id="SymmetryMode" flags="true">
       <value id="NONE" value="0" />
       <value id="HORIZONTAL" value="1" />
       <value id="VERTICAL" value="2" />

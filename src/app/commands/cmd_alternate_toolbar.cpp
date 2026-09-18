@@ -1,4 +1,5 @@
-// LibreSprite | Copyright (C)      2023  LibreSprite contributors
+// LibreSprite | Copyright (C) 2023 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -20,36 +21,38 @@
 #include "ui/system.h"
 #include "she/display.h"
 
-namespace app {
+namespace app
+{
 
-  class AlternateToolbarCommand : public Command {
-  public:
-    Command* clone() const override { return new AlternateToolbarCommand(*this); }
+class AlternateToolbarCommand : public Command
+{
+public:
+  Command* clone() const override { return new AlternateToolbarCommand(*this); }
 
-    AlternateToolbarCommand()
-      : Command{"AlternateToolbar", "Alternate Toolbar", CmdUIOnlyFlag}
-      {}
-
-  protected:
-
-    void onLoadParams(const Params& params) override {}
-
-    bool onEnabled(Context* context) override {
-      return true;
-    }
-
-    bool onChecked(Context* context) override {
-      return Preferences::instance().general.leftToolBar();
-    }
-
-    void onExecute(Context* context) override{
-      App::instance()->mainWindow()->alternateToolbar();
-    }
-  };
-
-  Command* CommandFactory::createAlternateToolbarCommand()
+  AlternateToolbarCommand()
+    : Command{"AlternateToolbar", "Alternate Toolbar", CmdUIOnlyFlag}
   {
-    return new AlternateToolbarCommand;
   }
+
+protected:
+  void onLoadParams(const Params& params) override {}
+
+  bool onEnabled(Context* context) override { return true; }
+
+  bool onChecked(Context* context) override
+  {
+    return Preferences::instance().general.leftToolBar();
+  }
+
+  void onExecute(Context* context) override
+  {
+    App::instance()->mainWindow()->alternateToolbar();
+  }
+};
+
+Command* CommandFactory::createAlternateToolbarCommand()
+{
+  return new AlternateToolbarCommand;
+}
 
 } // namespace app

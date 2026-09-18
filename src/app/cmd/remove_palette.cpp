@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,12 +11,12 @@
 
 #include "app/cmd/remove_palette.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-RemovePalette::RemovePalette(Sprite* sprite, Palette& pal)
+RemovePalette::RemovePalette(const Sprite* sprite, const Palette& pal)
   : AddPalette(sprite, pal)
 {
 }
@@ -31,5 +31,4 @@ void RemovePalette::onUndo()
   AddPalette::onRedo();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

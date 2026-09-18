@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,140 +21,153 @@
 #include <string>
 #include <vector>
 
-namespace ui {
-  class Graphics;
+namespace ui
+{
+class Graphics;
 }
 
-namespace app {
-  namespace skin {
+namespace app
+{
+namespace skin
+{
 
-    class Rule {
-    public:
-      Rule() { }
-      virtual ~Rule();
+class Rule
+{
+public:
+  Rule() {}
+  virtual ~Rule();
 
-      void paint(ui::Graphics* g,
-                 const gfx::Rect& bounds,
-                 const char* text);
+  void paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text);
 
-    protected:
-      virtual void onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text) = 0;
-    };
+protected:
+  virtual void onPaint(ui::Graphics* g, const gfx::Rect& bounds,
+                       const char* text) = 0;
+};
 
-    class BackgroundRule : public Rule {
-    public:
-      BackgroundRule() : m_color(gfx::ColorNone)
-                       , m_repeat(BackgroundRepeat::NO_REPEAT) { }
+class BackgroundRule : public Rule
+{
+public:
+  BackgroundRule()
+    : m_color(gfx::ColorNone)
+    , m_repeat(BackgroundRepeat::NO_REPEAT)
+  {
+  }
 
-      void setColor(gfx::Color color) { m_color = color; }
-      void setPart(const SkinPartPtr& part) { m_part = part; }
-      void setRepeat(BackgroundRepeat repeat) { m_repeat = repeat; }
+  void setColor(gfx::Color color) { m_color = color; }
+  void setPart(const SkinPartPtr& part) { m_part = part; }
+  void setRepeat(BackgroundRepeat repeat) { m_repeat = repeat; }
 
-    protected:
-      void onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text) override;
+protected:
+  void onPaint(ui::Graphics* g, const gfx::Rect& bounds,
+               const char* text) override;
 
-    private:
-      gfx::Color m_color;
-      SkinPartPtr m_part;
-      BackgroundRepeat m_repeat;
-    };
+private:
+  gfx::Color m_color;
+  SkinPartPtr m_part;
+  BackgroundRepeat m_repeat;
+};
 
-    class TextRule : public Rule {
-    public:
-      explicit TextRule() : m_align(0),
-                            m_color(gfx::ColorNone) { }
+class TextRule : public Rule
+{
+public:
+  explicit TextRule()
+    : m_align(0)
+    , m_color(gfx::ColorNone)
+  {
+  }
 
-      void setAlign(int align) { m_align = align; }
-      void setColor(gfx::Color color) { m_color = color; }
-      void setPadding(const gfx::Border& padding) { m_padding = padding; }
+  void setAlign(int align) { m_align = align; }
+  void setColor(gfx::Color color) { m_color = color; }
+  void setPadding(const gfx::Border& padding) { m_padding = padding; }
 
-      int align() const { return m_align; }
-      gfx::Border padding() const { return m_padding; }
+  int align() const { return m_align; }
+  gfx::Border padding() const { return m_padding; }
 
-    protected:
-      void onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text) override;
+protected:
+  void onPaint(ui::Graphics* g, const gfx::Rect& bounds,
+               const char* text) override;
 
-    private:
-      int m_align;
-      gfx::Color m_color;
-      gfx::Border m_padding;
-    };
+private:
+  int m_align;
+  gfx::Color m_color;
+  gfx::Border m_padding;
+};
 
-    class IconRule : public Rule {
-    public:
-      explicit IconRule() : m_align(0) { }
+class IconRule : public Rule
+{
+public:
+  explicit IconRule()
+    : m_align(0)
+  {
+  }
 
-      void setAlign(int align) { m_align = align; }
-      void setPart(const SkinPartPtr& part) { m_part = part; }
-      void setX(int x) { m_x = x; }
-      void setY(int y) { m_y = y; }
+  void setAlign(int align) { m_align = align; }
+  void setPart(const SkinPartPtr& part) { m_part = part; }
+  void setX(int x) { m_x = x; }
+  void setY(int y) { m_y = y; }
 
-      SkinPartPtr getPart() { return m_part; }
+  SkinPartPtr getPart() { return m_part; }
 
-    protected:
-      void onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text) override;
+protected:
+  void onPaint(ui::Graphics* g, const gfx::Rect& bounds,
+               const char* text) override;
 
-    private:
-      int m_align;
-      SkinPartPtr m_part;
-      int m_x, m_y;
-    };
+private:
+  int m_align;
+  SkinPartPtr m_part;
+  int m_x, m_y;
+};
 
-    class Rules {
-    public:
-      Rules(const css::Query& query);
-      ~Rules();
+class Rules
+{
+public:
+  Rules(const css::Query& query);
+  ~Rules();
 
-      void paint(ui::Graphics* g,
-        const gfx::Rect& bounds,
-        const char* text);
+  void paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text);
 
-      gfx::Size sizeHint(const char* text, int maxWidth);
+  gfx::Size sizeHint(const char* text, int maxWidth);
 
-    private:
-      BackgroundRule* m_background;
-      TextRule* m_text;
-      IconRule* m_icon;
+private:
+  BackgroundRule* m_background;
+  TextRule* m_text;
+  IconRule* m_icon;
 
-      DISABLE_COPYING(Rules);
-    };
+  DISABLE_COPYING(Rules);
+};
 
-    class Style {
-    public:
-      typedef css::States State;
+class Style
+{
+public:
+  using State = css::States;
 
-      static const css::State& hover() { return m_hoverState; }
-      static const css::State& active() { return m_activeState; }
-      static const css::State& clicked() { return m_clickedState; }
+  static const css::State& hover() { return m_hoverState; }
+  static const css::State& active() { return m_activeState; }
+  static const css::State& clicked() { return m_clickedState; }
 
-      Style(css::Sheet& sheet, const std::string& id);
-      ~Style();
+  Style(css::Sheet& sheet, const std::string& id);
+  ~Style();
 
-      void paint(ui::Graphics* g,
-        const gfx::Rect& bounds,
-        const char* text,
-        const State& state);
+  void paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text,
+             const State& state);
 
-      gfx::Size sizeHint(
-        const char* text,
-        const State& state,
-        int maxWidth = 0);
+  gfx::Size sizeHint(const char* text, const State& state, int maxWidth = 0);
 
-      const std::string& id() const { return m_id; }
+  const std::string& id() const { return m_id; }
 
-    private:
-      typedef std::map<State, Rules*> RulesMap;
+private:
+  using RulesMap = std::map<State, Rules*>;
 
-      Rules* getRulesFromState(const State& state);
+  Rules* getRulesFromState(const State& state);
 
-      std::string m_id;
-      css::CompoundStyle m_compoundStyle;
-      RulesMap m_rules;
+  std::string m_id;
+  css::CompoundStyle m_compoundStyle;
+  RulesMap m_rules;
 
-      static css::State m_hoverState;
-      static css::State m_activeState;
-      static css::State m_clickedState;
-    };
+  static css::State m_hoverState;
+  static css::State m_activeState;
+  static css::State m_clickedState;
+};
 
-  } // namespace skin
+} // namespace skin
 } // namespace app

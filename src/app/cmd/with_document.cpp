@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,18 +13,17 @@
 
 #include "app/document.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-WithDocument::WithDocument(app::Document* doc)
+WithDocument::WithDocument(const Document* doc)
   : m_docId(doc->id())
 {
 }
 
-app::Document* WithDocument::document()
+Document* WithDocument::document() const
 {
-  return doc::get<app::Document>(m_docId);
+  return doc::get<Document>(m_docId);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

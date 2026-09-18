@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -29,25 +29,28 @@
 #include "ui/widget.h"
 #include "ui/window.h"
 
-#include <stdio.h>
+#include <cstdio>
 
-namespace app {
+namespace app
+{
 
 using namespace filters;
 
 static const char* ConfigSection = "Despeckle";
 
-class DespeckleWindow : public FilterWindow {
+class DespeckleWindow : public FilterWindow
+{
 public:
   DespeckleWindow(MedianFilter& filter, FilterManagerImpl& filterMgr)
     : FilterWindow("Median Blur", ConfigSection, &filterMgr,
-                   WithChannelsSelector,
-                   WithTiledCheckBox,
+                   WithChannelsSelector, WithTiledCheckBox,
                    filter.getTiledMode())
     , m_filter(filter)
-    , m_controlsWidget(app::load_widget<ui::Widget>("despeckle.xml", "controls"))
+    , m_controlsWidget(
+          app::load_widget<ui::Widget>("despeckle.xml", "controls"))
     , m_widthEntry(app::find_widget<ui::Entry>(m_controlsWidget.get(), "width"))
-    , m_heightEntry(app::find_widget<ui::Entry>(m_controlsWidget.get(), "height"))
+    , m_heightEntry(
+          app::find_widget<ui::Entry>(m_controlsWidget.get(), "height"))
   {
     getContainer()->addChild(m_controlsWidget.get());
 
@@ -61,12 +64,11 @@ public:
 private:
   void onSizeChange()
   {
-    m_filter.setSize(m_widthEntry->textInt(),
-                     m_heightEntry->textInt());
+    m_filter.setSize(m_widthEntry->textInt(), m_heightEntry->textInt());
     restartPreview();
   }
 
-  void setupTiledMode(TiledMode tiledMode)
+  void setupTiledMode(TiledMode tiledMode) override
   {
     m_filter.setTiledMode(tiledMode);
   }
@@ -92,9 +94,7 @@ protected:
 };
 
 DespeckleCommand::DespeckleCommand()
-  : Command("Despeckle",
-            "Despeckle",
-            CmdRecordableFlag)
+  : Command("Despeckle", "Despeckle", CmdRecordableFlag)
 {
 }
 
@@ -106,8 +106,8 @@ bool DespeckleCommand::onEnabled(Context* context)
 
 void DespeckleCommand::onExecute(Context* context)
 {
-  DocumentPreferences& docPref = Preferences::instance()
-    .document(context->activeDocument());
+  DocumentPreferences& docPref =
+      Preferences::instance().document(context->activeDocument());
 
   MedianFilter filter;
   filter.setTiledMode((filters::TiledMode)docPref.tiled.mode());
@@ -115,13 +115,12 @@ void DespeckleCommand::onExecute(Context* context)
                  get_config_int(ConfigSection, "Height", 3));
 
   FilterManagerImpl filterMgr(context, &filter);
-  filterMgr.setTarget(TARGET_RED_CHANNEL |
-                      TARGET_GREEN_CHANNEL |
-                      TARGET_BLUE_CHANNEL |
-                      TARGET_GRAY_CHANNEL);
+  filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL |
+                      TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL);
 
   DespeckleWindow window(filter, filterMgr);
-  if (window.doModal()) {
+  if (window.doModal())
+  {
     set_config_int(ConfigSection, "Width", filter.getWidth());
     set_config_int(ConfigSection, "Height", filter.getHeight());
   }

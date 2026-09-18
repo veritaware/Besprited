@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -21,9 +21,11 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
-class ClearCelCommand : public Command {
+class ClearCelCommand : public Command
+{
 public:
   ClearCelCommand();
   Command* clone() const override { return new ClearCelCommand(*this); }
@@ -34,9 +36,7 @@ protected:
 };
 
 ClearCelCommand::ClearCelCommand()
-  : Command("ClearCel",
-            "Clear Cel",
-            CmdRecordableFlag)
+  : Command("ClearCel", "Clear Cel", CmdRecordableFlag)
 {
 }
 
@@ -55,21 +55,24 @@ void ClearCelCommand::onExecute(Context* context)
 
     // TODO the range of selected frames should be in doc::Site.
     auto range = App::instance()->timeline()->range();
-    if (range.enabled()) {
+    if (range.enabled())
+    {
       Sprite* sprite = writer.sprite();
 
-      for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd(); ++layerIdx) {
+      for (LayerIndex layerIdx = range.layerBegin();
+           layerIdx <= range.layerEnd(); ++layerIdx)
+      {
         Layer* layer = sprite->indexToLayer(layerIdx);
         if (!layer->isImage())
           continue;
 
         LayerImage* layerImage = static_cast<LayerImage*>(layer);
 
-        for (frame_t frame = range.frameEnd(),
-               begin = range.frameBegin()-1;
-             frame != begin;
-             --frame) {
-          if (layerImage->cel(frame)) {
+        for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1;
+             frame != begin; --frame)
+        {
+          if (layerImage->cel(frame))
+          {
             if (layerImage->isEditable())
               document->getApi(transaction).clearCel(layerImage, frame);
             else
@@ -78,7 +81,8 @@ void ClearCelCommand::onExecute(Context* context)
         }
       }
     }
-    else if (writer.cel()) {
+    else if (writer.cel())
+    {
       if (writer.layer()->isEditable())
         document->getApi(transaction).clearCel(writer.cel());
       else
@@ -89,8 +93,7 @@ void ClearCelCommand::onExecute(Context* context)
   }
 
   if (nonEditableLayers)
-    StatusBar::instance()->showTip(1000,
-      "There are locked layers");
+    StatusBar::instance()->showTip(1000, "There are locked layers");
 
   update_screen_for_document(document);
 }

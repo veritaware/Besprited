@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,7 +20,8 @@
 #include "doc/site.h"
 #include "doc/sprite.h"
 
-namespace app {
+namespace app
+{
 
 ContextFlags::ContextFlags()
 {
@@ -34,10 +35,12 @@ void ContextFlags::update(Context* context)
 
   m_flags = 0;
 
-  if (document) {
+  if (document)
+  {
     m_flags |= HasActiveDocument;
 
-    if (document->lock(Document::ReadLock, 0)) {
+    if (document->lock(Document::ReadLock, 0))
+    {
       m_flags |= ActiveDocumentIsReadable;
 
       if (document->isMaskVisible())
@@ -53,14 +56,12 @@ void ContextFlags::update(Context* context)
 
     // TODO this is a hack, try to find a better design to handle this
     // "moving pixels" state.
-    if (current_editor &&
-        current_editor->document() == document &&
-        current_editor->isMovingPixels()) {
+    if (current_editor && current_editor->document() == document &&
+        current_editor->isMovingPixels())
+    {
       // Flags enabled when we are in MovingPixelsState
       m_flags |=
-        HasVisibleMask |
-        ActiveDocumentIsReadable |
-        ActiveDocumentIsWritable;
+          HasVisibleMask | ActiveDocumentIsReadable | ActiveDocumentIsWritable;
 
       updateFlagsFromSite(current_editor->getSite());
     }
@@ -94,10 +95,12 @@ void ContextFlags::updateFlagsFromSite(const Site& site)
   if (layer->isEditable())
     m_flags |= ActiveLayerIsEditable;
 
-  if (layer->isImage()) {
+  if (layer->isImage())
+  {
     m_flags |= ActiveLayerIsImage;
 
-    if (auto cel = layer->cel(frame)) {
+    if (auto cel = layer->cel(frame))
+    {
       m_flags |= HasActiveCel;
 
       if (cel->image())

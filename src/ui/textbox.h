@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,20 +9,22 @@
 
 #include "ui/widget.h"
 
-namespace ui {
+namespace ui
+{
 
-  class TextBox : public Widget {
-  public:
-    TextBox(const std::string& text, int align);
+class TextBox : public Widget
+{
+public:
+  TextBox(const std::string& text, int align);
 
-  protected:
-    bool onProcessMessage(Message* msg) override;
-    void onPaint(PaintEvent& ev) override;
-    void onSizeHint(SizeHintEvent& ev) override;
-    void onSetText() override;
+protected:
+  bool onProcessMessage(Message* msg) override;
+  void onPaint(PaintEvent& ev) override;
+  void onSizeHint(SizeHintEvent& ev) override;
+  void onSetText() override;
 
-  private:
-    gfx::Point m_oldPos;
-  };
+private:
+  gfx::Point m_oldPos;
+};
 
 } // namespace ui

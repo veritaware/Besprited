@@ -1,6 +1,6 @@
 // SHE library
-// Copyright (C) 2021-2026 LibreSprite contributors
-// Copyright (C) 2026      Veritaware
+// LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -85,7 +85,7 @@ static std::unordered_map<int, Modifier*> reverseKeyCodeMapping;
 
 static std::unordered_map<SDL_Keycode, Modifier> keyCodeMapping = {
   {SDLK_UNKNOWN, she::kKeyNil},
-  {SDL_Keycode(13), she::kKeyEnter},
+  {static_cast<SDL_Keycode>(13), she::kKeyEnter},
   {SDLK_PERIOD, she::kKeyStop},
   {SDLK_a, she::kKeyA},
   {SDLK_b, she::kKeyB},
@@ -208,7 +208,7 @@ static std::unordered_map<SDL_Keycode, Modifier> keyCodeMapping = {
   {SDLK_RCTRL, she::kKeyRControl},
   {SDLK_LALT, she::kKeyAlt},
   {SDLK_RALT, she::kKeyAltGr},
-  {SDL_Keycode(1073742051), she::kKeyLWin},
+  {static_cast<SDL_Keycode>(1073742051), she::kKeyLWin},
   // {SDLK_RWIN, she::kKeyRWin},
   {SDLK_MENU, she::kKeyMenu},
   {SDLK_SCROLLLOCK, she::kKeyScrLock},
@@ -238,7 +238,7 @@ she::KeyModifiers getSheModifiers() {
     if (entry.second.isPressed)
       mod |= entry.second.sheModifier;
   }
-  return (she::KeyModifiers) mod;
+  return static_cast<she::KeyModifiers>(mod);
 }
 
 #ifdef __EMSCRIPTEN__
@@ -399,26 +399,27 @@ namespace she {
           case SDL_WINDOWEVENT_MAXIMIZED:
             sdl::isMaximized = true;
             sdl::isMinimized = false;
-            std::cout << "Maximized" << std::endl;
+            std::cout << "Maximized" << "\n";
             continue;
 
           case SDL_WINDOWEVENT_MINIMIZED:
             sdl::isMaximized = false;
             sdl::isMinimized = true;
-            std::cout << "Minimized" << std::endl;
+            std::cout << "Minimized" << "\n";
             continue;
 
           case SDL_WINDOWEVENT_RESTORED:
             sdl::isMaximized = false;
             sdl::isMinimized = false;
-            std::cout << "Restored" << std::endl;
+            std::cout << "Restored" << "\n";
             continue;
 
           case SDL_WINDOWEVENT_RESIZED: {
 	    #ifdef __EMSCRIPTEN__
 	    continue;
 	    #else
-            auto display = sdl::windowIdToDisplay[sdlEvent.window.windowID];
+            auto display =
+                sdl::windowIdToDisplay[static_cast<int>(sdlEvent.window.windowID)];
             display->setWidth(sdlEvent.window.data1);
             display->setHeight(sdlEvent.window.data2);
             display->recreateSurface();
@@ -450,7 +451,7 @@ namespace she {
             continue;
 
           default:
-            std::cout << "Unknown windowevent: " << (int) sdlEvent.window.event << std::endl;
+            std::cout << "Unknown windowevent: " << static_cast<int>(sdlEvent.window.event) << "\n";
             continue;
           }
           continue;
@@ -482,7 +483,7 @@ namespace she {
             });
 
 	  {
-	      int hasFingerEvent = SDL_PeepEvents(&sdlEvent, 1, SDL_PEEKEVENT, SDL_FINGERMOTION, SDL_FINGERMOTION);
+	      const int hasFingerEvent = SDL_PeepEvents(&sdlEvent, 1, SDL_PEEKEVENT, SDL_FINGERMOTION, SDL_FINGERMOTION);
 	      if (hasFingerEvent) {
 		  penPressure = std::max<>(sdlEvent.tfinger.pressure, 0.0001f);
 	      }
@@ -549,16 +550,16 @@ namespace she {
         case SDL_KEYDOWN:
         case SDL_KEYUP: {
           Event event;
-          bool isPressed = sdlEvent.type == SDL_KEYDOWN;
-          auto modifierIt = modifiers.find((SDL_Keycode) sdlEvent.key.keysym.sym);
+          const bool isPressed = sdlEvent.type == SDL_KEYDOWN;
+          auto modifierIt = modifiers.find(sdlEvent.key.keysym.sym);
           if (modifierIt != modifiers.end()) {
             modifierIt->second.isPressed = sdlEvent.type == SDL_KEYDOWN;
           }
 
-          auto it = keyCodeMapping.find((SDL_Keycode) sdlEvent.key.keysym.sym);
+          auto it = keyCodeMapping.find(sdlEvent.key.keysym.sym);
 
           if (it == keyCodeMapping.end()) {
-            std::cout << "Unknown scancode: " << sdlEvent.key.keysym.sym << std::endl;
+            std::cout << "Unknown scancode: " << sdlEvent.key.keysym.sym << "\n";
             continue;
           }
 
@@ -586,7 +587,7 @@ namespace she {
         }
 
         case SDL_DROPFILE: {
-          std::string file(sdlEvent.drop.file);
+          const std::string file(sdlEvent.drop.file);
           event.setType(Event::DropFiles);
           event.setFiles({file});
           SDL_free(sdlEvent.drop.file);
@@ -608,8 +609,8 @@ namespace she {
         case SDL_TEXTINPUT: {
           keybuffer.clear();
           std::string textString = sdlEvent.text.text;
-          base::utf8_const_iterator begin{textString.begin()};
-          base::utf8_const_iterator end{textString.end()};
+          const base::utf8_const_iterator begin{textString.begin()};
+          const base::utf8_const_iterator end{textString.end()};
           Event event;
           event.setModifiers(getSheModifiers());
           for (auto it = begin; it != end; ++it) {
@@ -631,7 +632,7 @@ namespace she {
           continue;
 
         default:
-          std::cout << "Unknown event: " << sdlEvent.type << std::endl;
+          std::cout << "Unknown event: " << sdlEvent.type << "\n";
           continue;
         }
       }
@@ -662,7 +663,7 @@ namespace she {
       g_instance = this;
     }
 
-    ~SDL2System() {
+    ~SDL2System() override {
       shutdown = true;
       sleeping = false;
       if (mainThread.joinable())
@@ -822,8 +823,8 @@ namespace she {
       #endif
       int frames = 5;
       do {
-	for (auto it = gfxQueue.begin(); it != gfxQueue.end(); ++it) {
-	  (*it)();
+	for (auto& fn : gfxQueue) {
+	  fn();
 	}
 	gfxQueue.clear();
 	sleeping = false;
@@ -859,7 +860,7 @@ namespace she {
     }
 
     gfx::Size defaultNewDisplaySize() override {
-      return gfx::Size(0, 0);
+      return {0, 0};
     }
 
     gfx::Size desktopSize() override {
@@ -868,11 +869,11 @@ namespace she {
       // without SDL_WINDOW_ALLOW_HIGHDPI). Returns (0, 0) when SDL can't
       // determine it or the video subsystem isn't up yet.
       if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
-        return gfx::Size(0, 0);
+        return {0, 0};
       SDL_DisplayMode mode;
       if (SDL_GetDesktopDisplayMode(0, &mode) != 0)
-        return gfx::Size(0, 0);
-      return gfx::Size(mode.w, mode.h);
+        return {0, 0};
+      return {mode.w, mode.h};
     }
 
     Display* defaultDisplay() override {
@@ -896,8 +897,8 @@ namespace she {
       auto surface = static_cast<SDL2Surface*>(s);
       std::vector<uint8_t> data;
       data.resize(surface->width() * surface->height() * 4 + 1024);
-      std::shared_ptr<SDL_RWops> rops{
-        SDL_RWFromMem(data.data(), data.size()),
+      const std::shared_ptr<SDL_RWops> rops{
+        SDL_RWFromMem(data.data(), static_cast<int>(data.size())),
         [](auto *rops){ rops->close(rops); }
       };
       if (IMG_SavePNG_RW(static_cast<SDL_Surface*>(surface->nativeHandle()), rops.get(), 0) != 0)
@@ -963,11 +964,11 @@ namespace she {
       SDL_StopTextInput();
       return;
     }
-    SDL_Rect sdlRect{
-      rect.x,
-      rect.y,
-      rect.w,
-      rect.h
+    const SDL_Rect sdlRect{
+      .x = rect.x,
+      .y = rect.y,
+      .w = rect.w,
+      .h = rect.h
     };
     SDL_SetTextInputRect(&sdlRect);
     SDL_StartTextInput();
@@ -994,11 +995,11 @@ int main(const int argc, char* argv[]) {
   SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
-    std::cerr << "Critical: Could not initialize SDL2. Aborting." << std::endl;
+    std::cerr << "Critical: Could not initialize SDL2. Aborting." << "\n";
     return -1;
   }
   if (!IMG_Init(-1)) {
-    std::cerr << "Critical: Could not initialize SDL2_image (" << IMG_GetError() << "). Aborting." << std::endl;
+    std::cerr << "Critical: Could not initialize SDL2_image (" << IMG_GetError() << "). Aborting." << "\n";
     return -2;
   }
   SDL_EventState(SDL_FINGERMOTION, SDL_ENABLE);

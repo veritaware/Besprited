@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -10,23 +10,25 @@
 #include "gfx/rect.h"
 #include "doc/frame.h"
 
-namespace doc {
-  class Sprite;
-  class Layer;
-  class LayerImage;
+namespace doc
+{
+class Sprite;
+class Layer;
+class LayerImage;
 }
 
-namespace app {
+namespace app
+{
 
-  // Returns a new layer with the given layer at "srcLayer" rendered
-  // frame by frame from "frmin" to "frmax" (inclusive).  The routine
-  // flattens all children of "srcLayer" to an unique output layer.
-  //
-  // Note: The layer is not added to the given sprite, but is related to
-  // it, so you'll be able to add the flatten layer only into the given
-  // sprite.
-  LayerImage* create_flatten_layer_copy(Sprite* dstSprite, const Layer* srcLayer,
-                                        const gfx::Rect& bounds,
-                                        frame_t frmin, frame_t frmax);
+// Returns a new layer with the given layer at "srcLayer" rendered
+// frame by frame from "frmin" to "frmax" (inclusive).  The routine
+// flattens all children of "srcLayer" to an unique output layer.
+//
+// Note: The layer is not added to the given sprite, but is related to
+// it, so you'll be able to add the flatten layer only into the given
+// sprite.
+LayerImage* create_flatten_layer_copy(Sprite* dstSprite, const Layer* srcLayer,
+                                      const gfx::Rect& bounds, frame_t frmin,
+                                      frame_t frmax);
 
 } // namespace app

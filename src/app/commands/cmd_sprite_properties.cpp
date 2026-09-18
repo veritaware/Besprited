@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -27,11 +27,13 @@
 
 #include <cstdio>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class SpritePropertiesCommand : public Command {
+class SpritePropertiesCommand : public Command
+{
 public:
   SpritePropertiesCommand();
   Command* clone() const override { return new SpritePropertiesCommand(*this); }
@@ -42,9 +44,7 @@ protected:
 };
 
 SpritePropertiesCommand::SpritePropertiesCommand()
-  : Command("SpriteProperties",
-            "Sprite Properties",
-            CmdUIOnlyFlag)
+  : Command("SpriteProperties", "Sprite Properties", CmdUIOnlyFlag)
 {
 }
 
@@ -58,7 +58,7 @@ void SpritePropertiesCommand::onExecute(Context* context)
 {
   std::string imgtype_text;
   char buf[256];
-  ColorButton* color_button = NULL;
+  ColorButton* color_button = nullptr;
 
   // Load the window widget
   app::gen::SpriteProperties window;
@@ -70,21 +70,23 @@ void SpritePropertiesCommand::onExecute(Context* context)
     const Sprite* sprite(reader.sprite());
 
     // Update widgets values
-    switch (sprite->pixelFormat()) {
-      case IMAGE_RGB:
-        imgtype_text = "RGB";
-        break;
-      case IMAGE_GRAYSCALE:
-        imgtype_text = "Grayscale";
-        break;
-      case IMAGE_INDEXED:
-        std::snprintf(buf, sizeof(buf), "Indexed (%d colors)", sprite->palette(0)->size());
-        imgtype_text = buf;
-        break;
-      default:
-        ASSERT(false);
-        imgtype_text = "Unknown";
-        break;
+    switch (sprite->pixelFormat())
+    {
+    case IMAGE_RGB:
+      imgtype_text = "RGB";
+      break;
+    case IMAGE_GRAYSCALE:
+      imgtype_text = "Grayscale";
+      break;
+    case IMAGE_INDEXED:
+      std::snprintf(buf, sizeof(buf), "Indexed (%d colors)",
+                    sprite->palette(0)->size());
+      imgtype_text = buf;
+      break;
+    default:
+      ASSERT(false);
+      imgtype_text = "Unknown";
+      break;
     }
 
     // Filename
@@ -95,22 +97,23 @@ void SpritePropertiesCommand::onExecute(Context* context)
 
     // Sprite size (width and height)
     window.size()->setTextf(
-      "%dx%d (%s)",
-      sprite->width(),
-      sprite->height(),
-      base::get_pretty_memory_size(sprite->getMemSize()).c_str());
+        "%dx%d (%s)", sprite->width(), sprite->height(),
+        base::get_pretty_memory_size(sprite->getMemSize()).c_str());
 
     // How many frames
     window.frames()->setTextf("%d", (int)sprite->totalFrames());
 
-    if (sprite->pixelFormat() == IMAGE_INDEXED) {
-      color_button = new ColorButton(app::Color::fromIndex(sprite->transparentColor()),
-                                     IMAGE_INDEXED);
+    if (sprite->pixelFormat() == IMAGE_INDEXED)
+    {
+      color_button = new ColorButton(
+          app::Color::fromIndex(sprite->transparentColor()), IMAGE_INDEXED);
 
       window.transparentColorPlaceholder()->addChild(color_button);
     }
-    else {
-      window.transparentColorPlaceholder()->addChild(new Label("(only for indexed images)"));
+    else
+    {
+      window.transparentColorPlaceholder()->addChild(
+          new Label("(only for indexed images)"));
     }
   }
 
@@ -121,15 +124,18 @@ void SpritePropertiesCommand::onExecute(Context* context)
   window.setVisible(true);
   window.openWindowInForeground();
 
-  if (window.closer() == window.ok()) {
-    if (color_button) {
+  if (window.closer() == window.ok())
+  {
+    if (color_button)
+    {
       ContextWriter writer(context);
       Sprite* sprite(writer.sprite());
 
       // If the transparent color index has changed, we update the
       // property in the sprite.
       int index = color_button->getColor().getIndex();
-      if (color_t(index) != sprite->transparentColor()) {
+      if (color_t(index) != sprite->transparentColor())
+      {
         Transaction transaction(writer.context(), "Set Transparent Color");
         DocumentApi api = writer.document()->getApi(transaction);
         api.setSpriteTransparentColor(sprite, index);

@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C)      2021  LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -42,53 +43,56 @@
 #include <queue>
 #include <map>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
 static std::map<std::string, doc::ImageRef> g_thumbnails;
 
-class FontItem : public ListItem {
+class FontItem : public ListItem
+{
 public:
   FontItem(const std::string& fn)
     : ListItem(base::get_file_title(fn))
     , m_image(g_thumbnails[fn])
-    , m_filename(fn) {
+    , m_filename(fn)
+  {
   }
 
-  const std::string& filename() const {
-    return m_filename;
-  }
+  const std::string& filename() const { return m_filename; }
 
 private:
-  void onPaint(PaintEvent& ev) override {
+  void onPaint(PaintEvent& ev) override
+  {
     ListItem::onPaint(ev);
 
-    if (m_image) {
+    if (m_image)
+    {
       Graphics* g = ev.graphics();
       she::Surface* sur = she::instance()->createRgbaSurface(m_image->width(),
                                                              m_image->height());
 
-      convert_image_to_surface(
-        m_image.get(), nullptr, sur,
-        0, 0, 0, 0, m_image->width(), m_image->height());
+      convert_image_to_surface(m_image.get(), nullptr, sur, 0, 0, 0, 0,
+                               m_image->width(), m_image->height());
 
-      g->drawRgbaSurface(sur, textWidth()+4, 0);
+      g->drawRgbaSurface(sur, textWidth() + 4, 0);
       sur->dispose();
     }
   }
 
-  void onSizeHint(SizeHintEvent& ev) override {
+  void onSizeHint(SizeHintEvent& ev) override
+  {
     ListItem::onSizeHint(ev);
-    if (m_image) {
+    if (m_image)
+    {
       gfx::Size sz = ev.sizeHint();
-      ev.setSizeHint(
-        sz.w + 4 + m_image->width(),
-        MAX(sz.h, m_image->height()));
+      ev.setSizeHint(sz.w + 4 + m_image->width(), MAX(sz.h, m_image->height()));
     }
   }
 
-  void onSelect() override {
+  void onSelect() override
+  {
     if (m_image)
       return;
 
@@ -99,16 +103,13 @@ private:
     app::skin::SkinTheme* theme = app::skin::SkinTheme::instance();
     gfx::Color color = theme->colors.text();
 
-    try {
-      m_image.reset(
-        render_text(
-          m_filename, 16,
-          "ABCDEabcde",             // TODO custom text
-          doc::rgba(gfx::getr(color),
-                    gfx::getg(color),
-                    gfx::getb(color),
-                    gfx::geta(color)),
-          true));                   // antialias
+    try
+    {
+      m_image.reset(render_text(m_filename, 16,
+                                "ABCDEabcde", // TODO custom text
+                                doc::rgba(gfx::getr(color), gfx::getg(color),
+                                          gfx::getb(color), gfx::geta(color)),
+                                true)); // antialias
 
       View* view = View::getView(listbox);
       view->updateView();
@@ -117,7 +118,8 @@ private:
       // Save the thumbnail for future FontPopups
       g_thumbnails[m_filename] = m_image;
     }
-    catch (const std::exception&) {
+    catch (const std::exception&)
+    {
       // Ignore errors
     }
   }
@@ -128,36 +130,39 @@ private:
 };
 
 FontPopup::FontPopup()
-  : PopupWindow("Fonts",
-                ClickBehavior::CloseOnClickInOtherWindow,
+  : PopupWindow("Fonts", ClickBehavior::CloseOnClickInOtherWindow,
                 EnterBehavior::DoNothingOnEnter)
   , m_popup(new gen::FontPopup())
 {
   setAutoRemap(false);
-  setBorder(gfx::Border(4*guiscale()));
+  setBorder(gfx::Border(4 * guiscale()));
 
   addChild(m_popup);
 
-  m_popup->loadFont()->Click.connect(base::Bind<void>(&FontPopup::onLoadFont, this));
+  m_popup->loadFont()->Click.connect(
+      base::Bind<void>(&FontPopup::onLoadFont, this));
   m_listBox.setFocusMagnet(true);
   m_listBox.Change.connect(base::Bind<void>(&FontPopup::onChangeFont, this));
-  m_listBox.DoubleClickItem.connect(base::Bind<void>(&FontPopup::onLoadFont, this));
+  m_listBox.DoubleClickItem.connect(
+      base::Bind<void>(&FontPopup::onLoadFont, this));
 
   m_popup->view()->attachToView(&m_listBox);
 
   std::queue<std::string> fontDirs;
   for (auto& dir : base::get_font_paths())
-      fontDirs.push(dir);
+    fontDirs.push(dir);
 
   // Create a list of fullpaths to every font found in all font
   // directories (fontDirs)
   std::vector<std::string> files;
-  while (!fontDirs.empty()) {
+  while (!fontDirs.empty())
+  {
     std::string fontDir = fontDirs.front();
     fontDirs.pop();
 
     auto fontDirFiles = base::list_files(fontDir);
-    for (const auto& file : fontDirFiles) {
+    for (const auto& file : fontDirFiles)
+    {
       std::string fullpath = base::join_path(fontDir, file);
       if (base::is_directory(fullpath))
         fontDirs.push(fullpath); // Add subdirectory
@@ -167,14 +172,16 @@ FontPopup::FontPopup()
   }
 
   // Sort all files by "file title"
-  std::sort(
-    files.begin(), files.end(),
-    [](const std::string& a, const std::string& b){
-      return base::utf8_icmp(base::get_file_title(a), base::get_file_title(b)) < 0;
-    });
+  std::sort(files.begin(), files.end(),
+            [](const std::string& a, const std::string& b)
+            {
+              return base::utf8_icmp(base::get_file_title(a),
+                                     base::get_file_title(b)) < 0;
+            });
 
   // Create one FontItem for each font
-  for (auto& file : files) {
+  for (auto& file : files)
+  {
     auto ext = base::string_to_lower(base::get_file_extension(file));
     if (ext == "ttf" || ext == "otf")
       m_listBox.addChild(new FontItem(file));
@@ -187,7 +194,7 @@ FontPopup::FontPopup()
 void FontPopup::showPopup(const gfx::Rect& bounds)
 {
   m_popup->loadFont()->setEnabled(false);
-  m_listBox.selectChild(NULL);
+  m_listBox.selectChild(nullptr);
 
   moveWindow(bounds);
 
@@ -210,7 +217,7 @@ void FontPopup::onLoadFont()
 
   std::string filename = child->filename();
   if (base::is_file(filename))
-    Load(filename);             // Fire Load signal
+    Load(filename); // Fire Load signal
 
   closeWindow(nullptr);
 }

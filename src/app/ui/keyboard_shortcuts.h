@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,178 +15,196 @@
 #include <optional>
 #include "tinyxml2.h"
 
-namespace ui {
-  class Message;
+namespace ui
+{
+class Message;
 }
 
-namespace app {
+namespace app
+{
 
-  class Command;
-  class Params;
+class Command;
+class Params;
 
-  namespace tools {
-    class Tool;
+namespace tools
+{
+class Tool;
+}
+
+enum class KeyContext
+{
+  Any,
+  Normal,
+  SelectionTool,
+  TranslatingSelection,
+  ScalingSelection,
+  RotatingSelection,
+  MoveTool,
+  FreehandTool,
+  ShapeTool,
+};
+
+enum class KeySource
+{
+  Original,
+  UserDefined
+};
+
+enum class KeyType
+{
+  Command,
+  Tool,
+  Quicktool,
+  Action,
+};
+
+// TODO This should be called "KeyActionModifier" or something similar
+enum class KeyAction
+{
+  None = 0x00000000,
+  CopySelection = 0x00000001,
+  SnapToGrid = 0x00000002,
+  AngleSnap = 0x00000004,
+  MaintainAspectRatio = 0x00000008,
+  LockAxis = 0x00000010,
+  AddSelection = 0x00000020,
+  SubtractSelection = 0x00000040,
+  AutoSelectLayer = 0x00000080,
+  LeftMouseButton = 0x00000100,
+  RightMouseButton = 0x00000200,
+  StraightLineFromLastPoint = 0x00000400,
+  MoveOrigin = 0x00000800,
+  SquareAspect = 0x00001000,
+  DrawFromCenter = 0x00002000,
+  ScaleFromCenter = 0x00004000,
+};
+
+inline KeyAction operator&(KeyAction a, KeyAction b)
+{
+  return KeyAction(int(a) & int(b));
+}
+
+class Key
+{
+public:
+  Key(Command* command, const Params& params, KeyContext keyContext);
+  Key(KeyType type, tools::Tool* tool);
+  explicit Key(KeyAction action);
+
+  KeyType type() const { return m_type; }
+  const ui::Accelerators& accels() const
+  {
+    return (m_useUsers ? m_users : m_accels);
   }
+  const ui::Accelerators& origAccels() const { return m_accels; }
+  const ui::Accelerators& userAccels() const { return m_users; }
+  const ui::Accelerators& userRemovedAccels() const { return m_userRemoved; }
 
-  enum class KeyContext {
-    Any,
-    Normal,
-    SelectionTool,
-    TranslatingSelection,
-    ScalingSelection,
-    RotatingSelection,
-    MoveTool,
-    FreehandTool,
-    ShapeTool,
-  };
-
-  enum class KeySource {
-    Original,
-    UserDefined
-  };
-
-  enum class KeyType {
-    Command,
-    Tool,
-    Quicktool,
-    Action,
-  };
-
-  // TODO This should be called "KeyActionModifier" or something similar
-  enum class KeyAction {
-    None                      = 0x00000000,
-    CopySelection             = 0x00000001,
-    SnapToGrid                = 0x00000002,
-    AngleSnap                 = 0x00000004,
-    MaintainAspectRatio       = 0x00000008,
-    LockAxis                  = 0x00000010,
-    AddSelection              = 0x00000020,
-    SubtractSelection         = 0x00000040,
-    AutoSelectLayer           = 0x00000080,
-    LeftMouseButton           = 0x00000100,
-    RightMouseButton          = 0x00000200,
-    StraightLineFromLastPoint = 0x00000400,
-    MoveOrigin                = 0x00000800,
-    SquareAspect              = 0x00001000,
-    DrawFromCenter            = 0x00002000,
-    ScaleFromCenter           = 0x00004000,
-  };
-
-  inline KeyAction operator&(KeyAction a, KeyAction b) {
-    return KeyAction(int(a) & int(b));
+  void add(const ui::Accelerator& accel, KeySource source);
+  void setLabel(const std::string& label, KeySource source, bool quiet);
+  const std::string& label() const
+  {
+    return m_userLabel.has_value() ? *m_userLabel : m_label;
   }
+  bool hasUserLabel() const { return m_userLabel.has_value(); }
+  bool isPressed(ui::Message* msg) const;
+  bool isPressed() const;
+  bool isLooselyPressed() const;
 
-  class Key {
-  public:
-    Key(Command* command, const Params& params, KeyContext keyContext);
-    Key(KeyType type, tools::Tool* tool);
-    explicit Key(KeyAction action);
+  bool hasAccel(const ui::Accelerator& accel) const;
+  void disableAccel(const ui::Accelerator& accel);
 
-    KeyType type() const { return m_type; }
-    const ui::Accelerators& accels() const {
-      return (m_useUsers ? m_users: m_accels);
-    }
-    const ui::Accelerators& origAccels() const { return m_accels; }
-    const ui::Accelerators& userAccels() const { return m_users; }
-    const ui::Accelerators& userRemovedAccels() const { return m_userRemoved; }
+  // Resets user accelerators to the original ones.
+  void reset();
 
-    void add(const ui::Accelerator& accel, KeySource source);
-    void setLabel(const std::string& label, KeySource source, bool quiet);
-    const std::string& label() const { return m_userLabel.has_value() ? *m_userLabel : m_label; }
-    bool hasUserLabel() const { return m_userLabel.has_value(); }
-    bool isPressed(ui::Message* msg) const;
-    bool isPressed() const;
-    bool isLooselyPressed() const;
+  // for KeyType::Command
+  Command* command() const { return m_command; }
+  const Params& params() const { return m_params; }
+  KeyContext keycontext() const { return m_keycontext; }
+  // for KeyType::Tool or Quicktool
+  tools::Tool* tool() const { return m_tool; }
+  // for KeyType::Action
+  KeyAction action() const { return m_action; }
 
-    bool hasAccel(const ui::Accelerator& accel) const;
-    void disableAccel(const ui::Accelerator& accel);
+  std::string triggerString() const;
 
-    // Resets user accelerators to the original ones.
-    void reset();
+private:
+  KeyType m_type;
+  ui::Accelerators m_accels;      // Default accelerators (from gui.xml)
+  ui::Accelerators m_users;       // User-defined accelerators
+  ui::Accelerators m_userRemoved; // Default accelerators removed by user
+  bool m_useUsers;
+  KeyContext m_keycontext;
 
-    // for KeyType::Command
-    Command* command() const { return m_command; }
-    const Params& params() const { return m_params; }
-    KeyContext keycontext() const { return m_keycontext; }
-    // for KeyType::Tool or Quicktool
-    tools::Tool* tool() const { return m_tool; }
-    // for KeyType::Action
-    KeyAction action() const { return m_action; }
+  // for KeyType::Command
+  Command* m_command;
+  Params m_params;
+  std::string m_label;
+  std::optional<std::string> m_userLabel;
+  // for KeyType::Tool or Quicktool
+  tools::Tool* m_tool;
+  // for KeyType::Action
+  KeyAction m_action;
+};
 
-    std::string triggerString() const;
+class KeyboardShortcuts
+{
+public:
+  using Keys = std::vector<Key*>;
+  using iterator = Keys::iterator;
+  using const_iterator = Keys::const_iterator;
 
-  private:
-    KeyType m_type;
-    ui::Accelerators m_accels;      // Default accelerators (from gui.xml)
-    ui::Accelerators m_users;       // User-defined accelerators
-    ui::Accelerators m_userRemoved; // Default accelerators removed by user
-    bool m_useUsers;
-    KeyContext m_keycontext;
+  static KeyboardShortcuts* instance();
+  ~KeyboardShortcuts();
 
-    // for KeyType::Command
-    Command* m_command;
-    Params m_params;
-    std::string m_label;
-    std::optional<std::string> m_userLabel;
-    // for KeyType::Tool or Quicktool
-    tools::Tool* m_tool;
-    // for KeyType::Action
-    KeyAction m_action;
-  };
+  iterator begin() { return m_keys.begin(); }
+  iterator end() { return m_keys.end(); }
+  const_iterator begin() const { return m_keys.begin(); }
+  const_iterator end() const { return m_keys.end(); }
 
-  class KeyboardShortcuts {
-  public:
-    typedef std::vector<Key*> Keys;
-    typedef Keys::iterator iterator;
-    typedef Keys::const_iterator const_iterator;
+  void clear();
+  void importFile(tinyxml2::XMLElement* rootElement, KeySource source);
+  void importFile(const std::string& filename, KeySource source);
+  void exportFile(const std::string& filename);
+  void reset();
 
-    static KeyboardShortcuts* instance();
-    ~KeyboardShortcuts();
+  Key* command(const char* commandName, const Params& params = Params(),
+               KeyContext keyContext = KeyContext::Any);
+  Key* tool(tools::Tool* tool);
+  Key* quicktool(tools::Tool* tool);
+  Key* action(KeyAction action);
 
-    iterator begin() { return m_keys.begin(); }
-    iterator end() { return m_keys.end(); }
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+  void disableAccel(const ui::Accelerator& accel, KeyContext keyContext);
 
-    void clear();
-    void importFile(tinyxml2::XMLElement* rootElement, KeySource source);
-    void importFile(const std::string& filename, KeySource source);
-    void exportFile(const std::string& filename);
-    void reset();
+  KeyContext getCurrentKeyContext();
+  bool getCommandFromKeyMessage(ui::Message* msg, Command** command,
+                                Params* params);
+  tools::Tool* getCurrentQuicktool(tools::Tool* currentTool);
+  KeyAction getCurrentActionModifiers(KeyContext context);
 
-    Key* command(const char* commandName, const Params& params = Params(), KeyContext keyContext = KeyContext::Any);
-    Key* tool(tools::Tool* tool);
-    Key* quicktool(tools::Tool* tool);
-    Key* action(KeyAction action);
+private:
+  KeyboardShortcuts();
 
-    void disableAccel(const ui::Accelerator& accel, KeyContext keyContext);
+  void exportKeys(tinyxml2::XMLElement& parent, KeyType type);
+  void exportAccel(tinyxml2::XMLElement& parent, Key* key,
+                   const ui::Accelerator* accel, bool removed, bool& first);
+  void importCommands(tinyxml2::XMLHandle& handle, KeySource source);
+  void importTools(tinyxml2::XMLHandle& handle, KeySource source);
+  void importQuickTools(tinyxml2::XMLHandle& handle, KeySource source);
+  void importActions(tinyxml2::XMLHandle& handle, KeySource source);
+  void importTouches(tinyxml2::XMLHandle& handle, KeySource source);
 
-    KeyContext getCurrentKeyContext();
-    bool getCommandFromKeyMessage(ui::Message* msg, Command** command, Params* params);
-    tools::Tool* getCurrentQuicktool(tools::Tool* currentTool);
-    KeyAction getCurrentActionModifiers(KeyContext context);
+  Keys m_keys;
 
-  private:
-    KeyboardShortcuts();
-
-    void exportKeys(tinyxml2::XMLElement& parent, KeyType type);
-    void exportAccel(tinyxml2::XMLElement& parent, Key* key, const ui::Accelerator *accel, bool removed, bool& first);
-    void importCommands(tinyxml2::XMLHandle& handle, KeySource source);
-    void importTools(tinyxml2::XMLHandle& handle, KeySource source);
-    void importQuickTools(tinyxml2::XMLHandle &handle, KeySource source);
-    void importActions(tinyxml2::XMLHandle& handle, KeySource source);
-    void importTouches(tinyxml2::XMLHandle& handle, KeySource source);
-
-    Keys m_keys;
-
-    DISABLE_COPYING(KeyboardShortcuts);
-  };
+  DISABLE_COPYING(KeyboardShortcuts);
+};
 
 } // namespace app
 
-namespace base {
+namespace base
+{
 
-  template<> app::KeyAction convert_to(const std::string& from);
-  template<> std::string convert_to(const app::KeyAction& from);
+template <> app::KeyAction convert_to(const std::string& from);
+template <> std::string convert_to(const app::KeyAction& from);
 
 } // namespace base

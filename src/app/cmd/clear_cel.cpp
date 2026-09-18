@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,25 +17,26 @@
 #include "doc/cel.h"
 #include "doc/layer.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-ClearCel::ClearCel(std::shared_ptr<Cel> cel)
+ClearCel::ClearCel(const std::shared_ptr<Cel>& cel)
   : WithCel(cel)
 {
-  app::Document* doc = static_cast<app::Document*>(cel->document());
+  const auto* doc = dynamic_cast<Document*>(cel->document());
 
-  if (cel->layer()->isBackground()) {
-    Image* image = cel->image();
+  if (cel->layer()->isBackground())
+  {
+    const Image* image = cel->image();
     ASSERT(image);
     if (image)
-      m_seq.add(new cmd::ClearImage(image,
-          doc->bgColor(cel->layer())));
+      m_seq.add(new ClearImage(image, doc->bgColor(cel->layer())));
   }
-  else {
-    m_seq.add(new cmd::RemoveCel(cel));
+  else
+  {
+    m_seq.add(new RemoveCel(cel));
   }
 }
 
@@ -54,5 +55,4 @@ void ClearCel::onRedo()
   m_seq.redo();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

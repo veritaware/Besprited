@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,8 +18,8 @@
 #include "base/path.h"
 #include "base/time.h"
 
-namespace app {
-namespace crash {
+namespace app::crash
+{
 
 DataRecovery::DataRecovery(doc::Context* ctx)
   : m_inProgress(nullptr)
@@ -31,18 +31,23 @@ DataRecovery::DataRecovery(doc::Context* ctx)
 
   // Existent sessions
   TRACE("DataRecovery: Listing sessions from '%s'\n", sessionsDir.c_str());
-  for (auto& itemname : base::list_files(sessionsDir)) {
+  for (auto& itemname : base::list_files(sessionsDir))
+  {
     std::string itempath = base::join_path(sessionsDir, itemname);
-    if (base::is_directory(itempath)) {
+    if (base::is_directory(itempath))
+    {
       TRACE("- Session '%s' ", itempath.c_str());
 
       SessionPtr session(new Session(itempath));
-      if (!session->isRunning()) {
-        if (!session->isEmpty()) {
+      if (!session->isRunning())
+      {
+        if (!session->isEmpty())
+        {
           TRACE("to be loaded\n");
           m_sessions.push_back(session);
         }
-        else {
+        else
+        {
           TRACE("to be deleted\n");
           session->removeFromDisk();
         }
@@ -56,19 +61,20 @@ DataRecovery::DataRecovery(doc::Context* ctx)
   base::pid pid = base::get_current_process_id();
   std::string newSessionDir;
 
-  do {
+  do
+  {
     base::Time time = base::current_time();
 
     char buf[1024];
-    snprintf(buf, sizeof(buf), "%04d%02d%02d-%02d%02d%02d-%d",
-      time.year, time.month, time.day,
-      time.hour, time.minute, time.second, pid);
+    snprintf(buf, sizeof(buf), "%04d%02d%02d-%02d%02d%02d-%d", time.year,
+             time.month, time.day, time.hour, time.minute, time.second, pid);
 
     newSessionDir = base::join_path(sessionsDir, buf);
 
     if (!base::is_directory(newSessionDir))
       base::make_directory(newSessionDir);
-    else {
+    else
+    {
       base::this_thread::sleep_for(1);
       newSessionDir.clear();
     }
@@ -92,5 +98,4 @@ DataRecovery::~DataRecovery()
   m_inProgress.reset();
 }
 
-} // namespace crash
-} // namespace app
+} // namespace app::crash

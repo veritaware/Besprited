@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -27,11 +27,13 @@
 #include <cstdio>
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class NewLayerCommand : public Command {
+class NewLayerCommand : public Command
+{
 public:
   NewLayerCommand();
   Command* clone() const override { return new NewLayerCommand(*this); }
@@ -51,9 +53,7 @@ static std::string get_unique_layer_name(Sprite* sprite);
 static int get_max_layer_num(Layer* layer);
 
 NewLayerCommand::NewLayerCommand()
-  : Command("NewLayer",
-            "New Layer",
-            CmdRecordableFlag)
+  : Command("NewLayer", "New Layer", CmdRecordableFlag)
 {
   m_ask = false;
   m_top = false;
@@ -87,9 +87,11 @@ void NewLayerCommand::onExecute(Context* context)
     name = get_unique_layer_name(sprite);
 
   // If params specify to ask the user about the name...
-  if (m_ask) {
+  if (m_ask)
+  {
     // We open the window to ask the name
-    std::unique_ptr<Window> window(app::load_widget<Window>("new_layer.xml", "new_layer"));
+    std::unique_ptr<Window> window(
+        app::load_widget<Window>("new_layer.xml", "new_layer"));
     Widget* name_widget = app::find_widget<Widget>(window.get(), "name");
     name_widget->setText(name.c_str());
     name_widget->setMinSize(gfx::Size(128, 0));
@@ -127,7 +129,8 @@ void NewLayerCommand::onExecute(Context* context)
 static std::string get_unique_layer_name(Sprite* sprite)
 {
   char buf[1024];
-  std::snprintf(buf, sizeof(buf), "Layer %d", get_max_layer_num(sprite->folder())+1);
+  std::snprintf(buf, sizeof(buf), "Layer %d",
+                get_max_layer_num(sprite->folder()) + 1);
   return buf;
 }
 
@@ -136,13 +139,15 @@ static int get_max_layer_num(Layer* layer)
   int max = 0;
 
   if (std::strncmp(layer->name().c_str(), "Layer ", 6) == 0)
-    max = std::strtol(layer->name().c_str()+6, NULL, 10);
+    max = std::strtol(layer->name().c_str() + 6, nullptr, 10);
 
-  if (layer->isFolder()) {
+  if (layer->isFolder())
+  {
     LayerIterator it = static_cast<LayerFolder*>(layer)->getLayerBegin();
     LayerIterator end = static_cast<LayerFolder*>(layer)->getLayerEnd();
 
-    for (; it != end; ++it) {
+    for (; it != end; ++it)
+    {
       int tmp = get_max_layer_num(*it);
       max = MAX(tmp, max);
     }

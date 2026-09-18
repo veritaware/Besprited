@@ -21,11 +21,12 @@
 #include <cstdlib>
 
 #ifdef _WIN32
-  #include <windows.h>
-  #include <shlobj.h>
+#include <windows.h>
+#include <shlobj.h>
 #endif
 
-namespace app {
+namespace app
+{
 
 ResourceFinder::ResourceFinder(bool log)
   : m_log(log)
@@ -41,7 +42,8 @@ const std::string& ResourceFinder::filename() const
 
 const std::string& ResourceFinder::defaultFilename() const
 {
-  if (m_default.empty()) {
+  if (m_default.empty())
+  {
     // The first path is the default one if nobody specified it.
     if (!m_paths.empty())
       return m_paths[0];
@@ -57,11 +59,13 @@ bool ResourceFinder::next()
 
 bool ResourceFinder::findFirst()
 {
-  while (next()) {
+  while (next())
+  {
     if (m_log)
       LOG("Searching file \"%s\"...", filename().c_str());
 
-    if (base::is_file(filename())) {
+    if (base::is_file(filename()))
+    {
       if (m_log)
         LOG(" (found)\n");
 
@@ -97,26 +101,31 @@ void ResourceFinder::includeDataDir(const char* filename)
 #elif __APPLE__
 
   snprintf(buf, sizeof(buf), "data/%s", filename);
-  includeUserDir(buf); // $HOME/Library/Application Support/Besprited/data/filename
-  includeBinDir(buf);  // $BINDIR/data/filename (outside the bundle)
+  includeUserDir(
+      buf); // $HOME/Library/Application Support/Besprited/data/filename
+  includeBinDir(buf); // $BINDIR/data/filename (outside the bundle)
 
   snprintf(buf, sizeof(buf), "../Resources/data/%s", filename);
-  includeBinDir(buf);  // $BINDIR/../Resources/data/filename (inside a bundle)
+  includeBinDir(buf); // $BINDIR/../Resources/data/filename (inside a bundle)
 
-  // $BINDIR/../share/besprited/data/filename (installed in /usr/ or /usr/local/)
+  // $BINDIR/../share/besprited/data/filename (installed in /usr/ or
+  // /usr/local/)
   snprintf(buf, sizeof(buf), "../share/besprited/data/%s", filename);
   includeBinDir(buf);
 
 #else
 
-
   const char* xdgdir = std::getenv("XDG_CONFIG_HOME");
-  if((xdgdir) && (*xdgdir)) {
-    snprintf(buf, sizeof(buf), "%s/besprited/data/%s", xdgdir, filename); // $XDG_CONFIG_HOME/besprited/data/filename
+  if ((xdgdir) && (*xdgdir))
+  {
+    snprintf(buf, sizeof(buf), "%s/besprited/data/%s", xdgdir,
+             filename); // $XDG_CONFIG_HOME/besprited/data/filename
     addPath(buf);
   }
-  else {
-    snprintf(buf, sizeof(buf), ".config/besprited/data/%s", filename); // $HOME/.config/besprited/data/filename
+  else
+  {
+    snprintf(buf, sizeof(buf), ".config/besprited/data/%s",
+             filename); // $HOME/.config/besprited/data/filename
     includeHomeDir(buf);
   }
 
@@ -124,7 +133,8 @@ void ResourceFinder::includeDataDir(const char* filename)
   snprintf(buf, sizeof(buf), "data/%s", filename);
   includeBinDir(buf);
 
-  // $BINDIR/../share/besprited/data/filename (installed in /usr/ or /usr/local/)
+  // $BINDIR/../share/besprited/data/filename (installed in /usr/ or
+  // /usr/local/)
   snprintf(buf, sizeof(buf), "../share/besprited/data/%s", filename);
   includeBinDir(buf);
 
@@ -137,7 +147,8 @@ void ResourceFinder::includeHomeDir(const char* filename)
 
   // %AppData%/Besprited/filename
   wchar_t* env = _wgetenv(L"AppData");
-  if (env) {
+  if (env)
+  {
     std::string path = base::join_path(base::to_utf8(env), "Besprited");
     path = base::join_path(path, filename);
     addPath(path);
@@ -149,12 +160,14 @@ void ResourceFinder::includeHomeDir(const char* filename)
   char* env = std::getenv("HOME");
   char buf[4096];
 
-  if ((env) && (*env)) {
+  if ((env) && (*env))
+  {
     // $HOME/filename
     snprintf(buf, sizeof(buf), "%s/%s", env, filename);
     addPath(buf);
   }
-  else {
+  else
+  {
     LOG("You don't have set $HOME variable\n");
     addPath(filename);
   }
@@ -166,11 +179,13 @@ void ResourceFinder::includeUserDir(const char* filename)
 {
 #ifdef _WIN32
 
-  if (App::instance()->isPortable()) {
+  if (App::instance()->isPortable())
+  {
     // $BINDIR/filename
     includeBinDir(filename);
   }
-  else {
+  else
+  {
     // %AppData%/Besprited/filename
     includeHomeDir(filename);
   }
@@ -179,21 +194,23 @@ void ResourceFinder::includeUserDir(const char* filename)
 
   // $HOME/Library/Application Support/Besprited/filename
   addPath(
-    base::join_path(
-      base::join_path(base::get_lib_app_support_path(), PACKAGE),
-      filename).c_str());
+      base::join_path(
+          base::join_path(base::get_lib_app_support_path(), PACKAGE), filename)
+          .c_str());
 
 #else
 
   char buf[4096];
   const char* xdgdir = std::getenv("XDG_CONFIG_HOME");
-  if((xdgdir) && (*xdgdir)) {
-    snprintf(buf, sizeof(buf), "%s/besprited/%s", xdgdir, filename); // $XDG_CONFIG_HOME/besprited/filename
+  if ((xdgdir) && (*xdgdir))
+  {
+    snprintf(buf, sizeof(buf), "%s/besprited/%s", xdgdir,
+             filename); // $XDG_CONFIG_HOME/besprited/filename
     addPath(buf);
   }
   else
-    includeHomeDir((std::string(".config/besprited/") + filename).c_str());   // $HOME/.config/besprited/filename
-
+    includeHomeDir((std::string(".config/besprited/") + filename)
+                       .c_str()); // $HOME/.config/besprited/filename
 
 #endif
 }
@@ -203,12 +220,14 @@ void ResourceFinder::includeDesktopDir(const char* filename)
 #ifdef _WIN32
 
   std::vector<wchar_t> buf(MAX_PATH);
-  HRESULT hr = SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL,
+  HRESULT hr = SHGetFolderPath(nullptr, CSIDL_DESKTOPDIRECTORY, nullptr,
                                SHGFP_TYPE_DEFAULT, &buf[0]);
-  if (hr == S_OK) {
+  if (hr == S_OK)
+  {
     addPath(base::join_path(base::to_utf8(&buf[0]), filename));
   }
-  else {
+  else
+  {
     includeHomeDir(filename);
   }
 
@@ -221,11 +240,13 @@ void ResourceFinder::includeDesktopDir(const char* filename)
 #else
 
   char* desktopDir = std::getenv("XDG_DESKTOP_DIR");
-  if (desktopDir) {
+  if (desktopDir)
+  {
     // $XDG_DESKTOP_DIR/filename
     addPath(base::join_path(desktopDir, filename));
   }
-  else {
+  else
+  {
     // $HOME/Desktop/filename
     includeHomeDir(base::join_path(std::string("Desktop"), filename).c_str());
   }
@@ -243,7 +264,8 @@ std::string ResourceFinder::getFirstOrCreateDefault()
 
   // If the file wasn't found, we will create the directories for the
   // default file name.
-  if (fn.empty()) {
+  if (fn.empty())
+  {
     fn = defaultFilename();
 
     std::string dir = base::get_file_path(fn);

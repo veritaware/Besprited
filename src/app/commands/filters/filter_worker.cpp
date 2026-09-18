@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -25,7 +25,8 @@
 #include <cstdlib>
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace base;
 using namespace ui;
@@ -36,34 +37,38 @@ static const int kMonitoringPeriod = 100;
 // modify the sprite, and the main thread to monitoring the progress
 // (and given to the user the possibility to cancel the process).
 
-class FilterWorker : public FilterManagerImpl::IProgressDelegate {
+class FilterWorker : public FilterManagerImpl::IProgressDelegate
+{
 public:
   FilterWorker(FilterManagerImpl* filterMgr);
-  ~FilterWorker();
+  ~FilterWorker() override;
 
   void run();
 
   // IProgressDelegate implementation
-  void reportProgress(float progress);
-  bool isCancelled();
+  void reportProgress(float progress) override;
+  bool isCancelled() override;
 
 private:
   void applyFilterInBackground();
   void onMonitoringTick();
 
-  static void thread_proxy(void* data) {
+  static void thread_proxy(void* data)
+  {
     FilterWorker* filterWorker = (FilterWorker*)data;
     filterWorker->applyFilterInBackground();
   }
 
   FilterManagerImpl* m_filterMgr; // Effect to be applied.
-  base::mutex m_mutex;          // Mutex to access to 'pos', 'done' and 'cancelled' fields in different threads.
-  float m_pos;                  // Current progress position
-  bool m_done;                  // Was the effect completelly applied?
-  bool m_cancelled;             // Was the effect cancelled by the user?
-  bool m_abort;                 // An exception was thrown
-  ui::Timer m_timer;            // Monitoring timer to update the progress-bar
-  AlertPtr m_alertWindow;       // Alert for the user to cancel the filter-progress if he wants.
+  base::mutex m_mutex;    // Mutex to access to 'pos', 'done' and 'cancelled'
+                          // fields in different threads.
+  float m_pos;            // Current progress position
+  bool m_done;            // Was the effect completelly applied?
+  bool m_cancelled;       // Was the effect cancelled by the user?
+  bool m_abort;           // An exception was thrown
+  ui::Timer m_timer;      // Monitoring timer to update the progress-bar
+  AlertPtr m_alertWindow; // Alert for the user to cancel the filter-progress if
+                          // he wants.
   std::string m_error;
 };
 
@@ -78,8 +83,7 @@ FilterWorker::FilterWorker(FilterManagerImpl* filterMgr)
   m_cancelled = false;
   m_abort = false;
 
-  m_alertWindow = ui::Alert::create(PACKAGE
-    "<<Applying effect...||&Cancel");
+  m_alertWindow = ui::Alert::create(PACKAGE "<<Applying effect...||&Cancel");
   m_alertWindow->addProgress();
 
   m_timer.Tick.connect(&FilterWorker::onMonitoringTick, this);
@@ -89,7 +93,7 @@ FilterWorker::FilterWorker(FilterManagerImpl* filterMgr)
 FilterWorker::~FilterWorker()
 {
   if (m_alertWindow)
-    m_alertWindow->closeWindow(NULL);
+    m_alertWindow->closeWindow(nullptr);
 }
 
 void FilterWorker::run()
@@ -112,7 +116,8 @@ void FilterWorker::run()
   // Wait the `effect_bg' thread
   thread.join();
 
-  if (!m_error.empty()) {
+  if (!m_error.empty())
+  {
     Console console;
     console.printf("A problem has occurred.\n\nDetails:\n%s", m_error.c_str());
   }
@@ -148,7 +153,8 @@ bool FilterWorker::isCancelled()
 //
 void FilterWorker::applyFilterInBackground()
 {
-  try {
+  try
+  {
     // Apply the filter
     m_filterMgr->applyToTarget();
 
@@ -156,7 +162,8 @@ void FilterWorker::applyFilterInBackground()
     scoped_lock lock(m_mutex);
     m_done = true;
   }
-  catch (std::exception& e) {
+  catch (std::exception& e)
+  {
     m_error = e.what();
     m_abort = true;
   }
@@ -172,7 +179,7 @@ void FilterWorker::onMonitoringTick()
     m_alertWindow->setProgress(m_pos);
 
   if (m_done || m_abort)
-    m_alertWindow->closeWindow(NULL);
+    m_alertWindow->closeWindow(nullptr);
 }
 
 // Applies the filter in a background thread meanwhile a progress bar

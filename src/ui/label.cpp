@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,7 +15,8 @@
 #include "ui/size_hint_event.h"
 #include "ui/theme.h"
 
-namespace ui {
+namespace ui
+{
 
 Label::Label(const std::string& text)
   : Widget(kLabelWidget)
@@ -28,7 +30,8 @@ void Label::onSizeHint(SizeHintEvent& ev)
 {
   gfx::Size sz(0, 0);
 
-  if (hasText()) {
+  if (hasText())
+  {
     // Labels are not UIString
     sz.w = font()->textLength(text().c_str());
     sz.h = textHeight();

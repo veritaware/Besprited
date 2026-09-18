@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,33 +16,37 @@
 
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 // Splits a file-name like "my_ani0000.pcx" to "my_ani" and ".pcx",
 // returning the number of the center; returns "-1" if the function
 // can't split anything
-int split_filename(const char* filename, std::string& left, std::string& right, int& width)
+int split_filename(const char* filename, std::string& left, std::string& right,
+                   int& width)
 {
-  left = base::join_path(
-    base::get_file_path(filename),
-    base::get_file_title(filename));
+  left = base::join_path(base::get_file_path(filename),
+                         base::get_file_title(filename));
   right = base::get_file_extension(filename);
   if (!right.empty())
     right.insert(right.begin(), '.');
 
-  // Remove all trailing numbers in the "left" side, and pass they to "result_str".
+  // Remove all trailing numbers in the "left" side, and pass they to
+  // "result_str".
   std::string result_str;
   width = 0;
-  for (;;) {
+  for (;;)
+  {
     // Get the last UTF-8 character (as we don't have a
     // reverse_iterator, we iterate from the beginning)
     int chr = 0;
     base::utf8_const_iterator begin(left.begin()), end(left.end());
     base::utf8_const_iterator it(begin), prev(begin);
-    for (; it != end; prev=it, ++it)
+    for (; it != end; prev = it, ++it)
       chr = *it;
 
-    if ((chr >= '0') && (chr <= '9')) {
+    if ((chr >= '0') && (chr <= '9'))
+    {
       result_str.insert(result_str.begin(), chr);
       width++;
 
@@ -53,7 +57,8 @@ int split_filename(const char* filename, std::string& left, std::string& right, 
   }
 
   // Convert the "buf" to integer and return it.
-  if (!result_str.empty()) {
+  if (!result_str.empty())
+  {
     return base::convert_to<int>(result_str);
   }
   else

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,56 +19,50 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
 std::shared_ptr<Cel> create_cel_copy(std::shared_ptr<const Cel> srcCel,
-                     const Sprite* dstSprite,
-                     const frame_t dstFrame)
+                                     const Sprite* dstSprite,
+                                     const frame_t dstFrame)
 {
   const Image* celImage = srcCel->image();
 
   std::unique_ptr<Cel> dstCel(
-    new Cel(dstFrame,
-            ImageRef(Image::create(dstSprite->pixelFormat(),
-                                   celImage->width(),
-                                   celImage->height()))));
+      new Cel(dstFrame,
+              ImageRef(Image::create(dstSprite->pixelFormat(),
+                                     celImage->width(), celImage->height()))));
 
   // If both images are indexed but with different palette, we can
   // convert the source cel to RGB first.
   if (dstSprite->pixelFormat() == IMAGE_INDEXED &&
       celImage->pixelFormat() == IMAGE_INDEXED &&
-      srcCel->sprite()->palette(srcCel->frame())->countDiff(*dstSprite->palette(dstFrame), nullptr, nullptr)) {
-    ImageRef tmpImage(Image::create(IMAGE_RGB, celImage->width(), celImage->height()));
+      srcCel->sprite()
+          ->palette(srcCel->frame())
+          ->countDiff(*dstSprite->palette(dstFrame), nullptr, nullptr))
+  {
+    ImageRef tmpImage(
+        Image::create(IMAGE_RGB, celImage->width(), celImage->height()));
     tmpImage->clear(0);
 
-    render::convert_pixel_format(
-      celImage,
-      tmpImage.get(),
-      IMAGE_RGB,
-      DitheringMethod::NONE,
-      srcCel->sprite()->rgbMap(srcCel->frame()),
-      srcCel->sprite()->palette(srcCel->frame()),
-      srcCel->layer()->isBackground(),
-      0);
+    render::convert_pixel_format(celImage, tmpImage.get(), IMAGE_RGB,
+                                 DitheringMethod::NONE,
+                                 srcCel->sprite()->rgbMap(srcCel->frame()),
+                                 srcCel->sprite()->palette(srcCel->frame()),
+                                 srcCel->layer()->isBackground(), 0);
 
     render::convert_pixel_format(
-      tmpImage.get(),
-      dstCel->image(),
-      IMAGE_INDEXED,
-      DitheringMethod::NONE,
-      dstSprite->rgbMap(dstFrame),
-      dstSprite->palette(dstFrame),
-      srcCel->layer()->isBackground(),
-      dstSprite->transparentColor());
+        tmpImage.get(), dstCel->image(), IMAGE_INDEXED, DitheringMethod::NONE,
+        dstSprite->rgbMap(dstFrame), dstSprite->palette(dstFrame),
+        srcCel->layer()->isBackground(), dstSprite->transparentColor());
   }
-  else {
-    render::composite_image(
-      dstCel->image(),
-      celImage,
-      srcCel->sprite()->palette(srcCel->frame()),
-      0, 0, 255, BlendMode::SRC);
+  else
+  {
+    render::composite_image(dstCel->image(), celImage,
+                            srcCel->sprite()->palette(srcCel->frame()), 0, 0,
+                            255, BlendMode::SRC);
   }
 
   dstCel->setPosition(srcCel->position());

@@ -24,13 +24,14 @@
 #endif
 
 #ifndef _WIN32
-  #include "base/fs.h"
+#include "base/fs.h"
 #endif
 
 #include <cstdlib>
 #include <vector>
 
-namespace app {
+namespace app
+{
 
 using namespace gfx;
 
@@ -95,7 +96,8 @@ std::string main_config_filename()
   return g_configFilename;
 }
 
-const char* get_config_string(const char* section, const char* name, const char* value)
+const char* get_config_string(const char* section, const char* name,
+                              const char* value)
 {
   return g_configs.back()->getValue(section, name, value);
 }
@@ -145,16 +147,19 @@ void set_config_bool(const char* section, const char* name, bool value)
   g_configs.back()->setBoolValue(section, name, value);
 }
 
-Point get_config_point(const char* section, const char* name, const Point& point)
+Point get_config_point(const char* section, const char* name,
+                       const Point& point)
 {
   Point point2(point);
   const char* value = get_config_string(section, name, "");
-  if (value) {
+  if (value)
+  {
     std::vector<std::string> parts;
     base::split_string(value, parts, " ");
-    if (parts.size() == 2) {
-      point2.x = strtol(parts[0].c_str(), NULL, 10);
-      point2.y = strtol(parts[1].c_str(), NULL, 10);
+    if (parts.size() == 2)
+    {
+      point2.x = strtol(parts[0].c_str(), nullptr, 10);
+      point2.y = strtol(parts[1].c_str(), nullptr, 10);
     }
   }
   return point2;
@@ -171,14 +176,16 @@ Rect get_config_rect(const char* section, const char* name, const Rect& rect)
 {
   Rect rect2(rect);
   const char* value = get_config_string(section, name, "");
-  if (value) {
+  if (value)
+  {
     std::vector<std::string> parts;
     base::split_string(value, parts, " ");
-    if (parts.size() == 4) {
-      rect2.x = strtol(parts[0].c_str(), NULL, 10);
-      rect2.y = strtol(parts[1].c_str(), NULL, 10);
-      rect2.w = strtol(parts[2].c_str(), NULL, 10);
-      rect2.h = strtol(parts[3].c_str(), NULL, 10);
+    if (parts.size() == 4)
+    {
+      rect2.x = strtol(parts[0].c_str(), nullptr, 10);
+      rect2.y = strtol(parts[1].c_str(), nullptr, 10);
+      rect2.w = strtol(parts[2].c_str(), nullptr, 10);
+      rect2.h = strtol(parts[3].c_str(), nullptr, 10);
     }
   }
   return rect2;
@@ -191,12 +198,15 @@ void set_config_rect(const char* section, const char* name, const Rect& rect)
   set_config_string(section, name, buf);
 }
 
-app::Color get_config_color(const char* section, const char* name, const app::Color& value)
+app::Color get_config_color(const char* section, const char* name,
+                            const app::Color& value)
 {
-  return app::Color::fromString(get_config_string(section, name, value.toString().c_str()));
+  return app::Color::fromString(
+      get_config_string(section, name, value.toString().c_str()));
 }
 
-void set_config_color(const char* section, const char* name, const app::Color& value)
+void set_config_color(const char* section, const char* name,
+                      const app::Color& value)
 {
   set_config_string(section, name, value.toString().c_str());
 }

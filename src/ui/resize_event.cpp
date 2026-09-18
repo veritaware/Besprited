@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -11,7 +12,8 @@
 #include "ui/resize_event.h"
 #include "ui/widget.h"
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 

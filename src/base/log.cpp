@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2016 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -20,25 +21,29 @@
 #include <iostream>
 #include <string>
 
-
-namespace she {
+namespace she
+{
 void log(const std::string&);
 }
 
-namespace {
+namespace
+{
 
-class nullbuf : public std::streambuf {
+class nullbuf : public std::streambuf
+{
 protected:
-  int_type overflow(int_type ch) override {
-    return traits_type::not_eof(ch);
-  }
+  int_type overflow(int_type ch) override { return traits_type::not_eof(ch); }
 };
 
-class nullstream : public std::ostream {
+class nullstream : public std::ostream
+{
 public:
   nullstream()
     : std::basic_ios<char_type, traits_type>(&m_buf)
-    , std::ostream(&m_buf) { }
+    , std::ostream(&m_buf)
+  {
+  }
+
 private:
   nullbuf m_buf;
 };
@@ -50,7 +55,8 @@ std::string log_filename;
 
 bool open_log_stream()
 {
-  if (!log_stream.is_open()) {
+  if (!log_stream.is_open())
+  {
     if (log_filename.empty())
       return false;
 
@@ -87,8 +93,7 @@ std::ostream& base::get_log_stream(LogLevel level)
 {
   ASSERT(level != NONE);
 
-  if ((log_level < level) ||
-      (!log_stream.is_open() && !open_log_stream()))
+  if ((log_level < level) || (!log_stream.is_open() && !open_log_stream()))
     return null_stream;
   else
     return log_stream;
@@ -102,7 +107,7 @@ void LOG(const char* format, ...)
   char buf[2048];
   va_list ap;
   va_start(ap, format);
-  std::vsnprintf(buf, sizeof(buf)-1, format, ap);
+  std::vsnprintf(buf, sizeof(buf) - 1, format, ap);
   she::log(buf);
 
   log_text(buf);

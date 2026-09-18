@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -17,12 +17,13 @@
 #include "doc/sprite.h"
 #include "doc/layer.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-CopyFrame::CopyFrame(Sprite* sprite, frame_t fromFrame, frame_t newFrame)
+CopyFrame::CopyFrame(const Sprite* sprite, const frame_t fromFrame,
+                     const frame_t newFrame)
   : WithSprite(sprite)
   , m_fromFrame(fromFrame)
   , m_newFrame(newFrame)
@@ -31,25 +32,25 @@ CopyFrame::CopyFrame(Sprite* sprite, frame_t fromFrame, frame_t newFrame)
 
 void CopyFrame::onExecute()
 {
-  Sprite* sprite = this->sprite();
+  const Sprite* sprite = this->sprite();
   frame_t fromFrame = m_fromFrame;
-  int msecs = sprite->frameDuration(fromFrame);
+  const int msecs = sprite->frameDuration(fromFrame);
 
-  executeAndAdd(new cmd::AddFrame(sprite, m_newFrame));
-  executeAndAdd(new cmd::SetFrameDuration(sprite, m_newFrame, msecs));
+  executeAndAdd(new AddFrame(sprite, m_newFrame));
+  executeAndAdd(new SetFrameDuration(sprite, m_newFrame, msecs));
 
   if (fromFrame >= m_newFrame)
     ++fromFrame;
 
-  for (int i=0; i<sprite->countLayers(); ++i) {
-    Layer* layer = sprite->layer(i);
-    if (layer->isImage())  {
-      executeAndAdd(new cmd::CopyCel(
-          static_cast<LayerImage*>(layer), fromFrame,
-          static_cast<LayerImage*>(layer), m_newFrame, layer->isContinuous()));
+  for (int i = 0; i < sprite->countLayers(); ++i)
+  {
+    if (Layer* layer = sprite->layer(i); layer->isImage())
+    {
+      executeAndAdd(new CopyCel(dynamic_cast<LayerImage*>(layer), fromFrame,
+                                dynamic_cast<LayerImage*>(layer), m_newFrame,
+                                layer->isContinuous()));
     }
   }
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

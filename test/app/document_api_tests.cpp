@@ -21,13 +21,15 @@
 using namespace app;
 using namespace doc;
 
-typedef std::unique_ptr<app::Document> DocumentPtr;
+using DocumentPtr = std::unique_ptr<app::Document>;
 
-TEST(DocumentApi, MoveCel) {
+TEST(DocumentApi, MoveCel)
+{
   TestContextT<app::Context> ctx;
   DocumentPtr doc(static_cast<app::Document*>(ctx.documents().add(32, 16)));
   Sprite* sprite = doc->sprite();
-  LayerImage* layer1 = dynamic_cast<LayerImage*>(sprite->folder()->getFirstLayer());
+  LayerImage* layer1 =
+      dynamic_cast<LayerImage*>(sprite->folder()->getFirstLayer());
   LayerImage* layer2 = new LayerImage(sprite);
 
   auto cel1 = layer1->cel(frame_t(0));
@@ -37,17 +39,15 @@ TEST(DocumentApi, MoveCel) {
   Image* image1 = cel1->image();
   EXPECT_EQ(32, image1->width());
   EXPECT_EQ(16, image1->height());
-  for (int v=0; v<image1->height(); ++v)
-    for (int u=0; u<image1->width(); ++u)
-      image1->putPixel(u, v, u+v*image1->width());
+  for (int v = 0; v < image1->height(); ++v)
+    for (int u = 0; u < image1->width(); ++u)
+      image1->putPixel(u, v, u + v * image1->width());
 
   // Create a copy for later comparison.
   std::unique_ptr<Image> expectedImage(Image::createCopy(image1));
 
   Transaction transaction(&ctx, "");
-  doc->getApi(transaction).moveCel(
-    layer1, frame_t(0),
-    layer2, frame_t(1));
+  doc->getApi(transaction).moveCel(layer1, frame_t(0), layer2, frame_t(1));
   transaction.commit();
 
   EXPECT_EQ(nullptr, layer1->cel(frame_t(0)).get());

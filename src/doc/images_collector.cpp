@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2014 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2014 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,11 +16,10 @@
 #include "doc/mask.h"
 #include "doc/sprite.h"
 
-namespace doc {
+namespace doc
+{
 
-ImagesCollector::ImagesCollector(Layer* layer,
-                                 frame_t frame,
-                                 bool allFrames,
+ImagesCollector::ImagesCollector(Layer* layer, frame_t frame, bool allFrames,
                                  bool forEdit)
   : m_allFrames(allFrames)
   , m_forEdit(forEdit)
@@ -37,38 +37,43 @@ void ImagesCollector::collectFromLayer(Layer* layer, frame_t frame)
   if (m_forEdit && !layer->isEditable())
     return;
 
-  switch (layer->type()) {
+  switch (layer->type())
+  {
 
-    case ObjectType::LayerImage: {
-      if (m_allFrames) {
-        for (frame_t frame(0); frame<sprite->totalFrames(); ++frame) {
-          if (auto cel = layer->cel(frame))
-            collectImage(layer, cel);
-        }
-      }
-      else {
+  case ObjectType::LayerImage:
+  {
+    if (m_allFrames)
+    {
+      for (frame_t frame(0); frame < sprite->totalFrames(); ++frame)
+      {
         if (auto cel = layer->cel(frame))
           collectImage(layer, cel);
       }
-      break;
     }
-
-    case ObjectType::LayerFolder: {
-      LayerIterator it = static_cast<LayerFolder*>(layer)->getLayerBegin();
-      LayerIterator end = static_cast<LayerFolder*>(layer)->getLayerEnd();
-
-      for (; it != end; ++it)
-        collectFromLayer(*it, frame);
-
-      break;
+    else
+    {
+      if (auto cel = layer->cel(frame))
+        collectImage(layer, cel);
     }
+    break;
+  }
 
+  case ObjectType::LayerFolder:
+  {
+    auto it = static_cast<LayerFolder*>(layer)->getLayerBegin();
+    auto end = static_cast<LayerFolder*>(layer)->getLayerEnd();
+
+    for (; it != end; ++it)
+      collectFromLayer(*it, frame);
+
+    break;
+  }
   }
 }
 
 void ImagesCollector::collectImage(Layer* layer, std::shared_ptr<Cel> cel)
 {
-  m_items.push_back(Item(layer, cel, cel->image()));
+  m_items.emplace_back(layer, cel, cel->image());
 }
 
 } // namespace doc

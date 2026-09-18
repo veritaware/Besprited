@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,13 +7,15 @@
 
 #pragma once
 
-namespace doc {
-  class Mask;
+namespace doc
+{
+class Mask;
 }
 
-namespace app {
+namespace app
+{
 
-  doc::Mask* load_msk_file(const char* filename);
-  int save_msk_file(const doc::Mask* mask, const char* filename);
+doc::Mask* load_msk_file(const char* filename);
+int save_msk_file(const doc::Mask* mask, const char* filename);
 
 } // namespace app

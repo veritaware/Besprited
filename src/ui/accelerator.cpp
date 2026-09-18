@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -25,25 +26,34 @@
 // #define REPORT_KEYS
 #define PREPROCESS_KEYS
 
-namespace ui {
+namespace ui
+{
 
 #ifdef _WIN32
-  const char* kWinKeyName = "Win";
+const char* kWinKeyName = "Win";
 #else
-  const char* kWinKeyName = "Super";
+const char* kWinKeyName = "Super";
 #endif
 
 static KeyModifiers get_pressed_modifiers_from_she()
 {
   KeyModifiers mods = kKeyNoneModifier;
-  if (she::is_key_pressed(kKeyLShift)  ) mods = KeyModifiers(int(mods) | int(kKeyShiftModifier));
-  if (she::is_key_pressed(kKeyRShift)  ) mods = KeyModifiers(int(mods) | int(kKeyShiftModifier));
-  if (she::is_key_pressed(kKeyLControl)) mods = KeyModifiers(int(mods) | int(kKeyCtrlModifier));
-  if (she::is_key_pressed(kKeyRControl)) mods = KeyModifiers(int(mods) | int(kKeyCtrlModifier));
-  if (she::is_key_pressed(kKeyAlt)     ) mods = KeyModifiers(int(mods) | int(kKeyAltModifier));
-  if (she::is_key_pressed(kKeyCommand) ) mods = KeyModifiers(int(mods) | int(kKeyCmdModifier));
-  if (she::is_key_pressed(kKeyLWin)    ) mods = KeyModifiers(int(mods) | int(kKeyWinModifier));
-  if (she::is_key_pressed(kKeyRWin)    ) mods = KeyModifiers(int(mods) | int(kKeyWinModifier));
+  if (she::is_key_pressed(kKeyLShift))
+    mods = KeyModifiers(int(mods) | int(kKeyShiftModifier));
+  if (she::is_key_pressed(kKeyRShift))
+    mods = KeyModifiers(int(mods) | int(kKeyShiftModifier));
+  if (she::is_key_pressed(kKeyLControl))
+    mods = KeyModifiers(int(mods) | int(kKeyCtrlModifier));
+  if (she::is_key_pressed(kKeyRControl))
+    mods = KeyModifiers(int(mods) | int(kKeyCtrlModifier));
+  if (she::is_key_pressed(kKeyAlt))
+    mods = KeyModifiers(int(mods) | int(kKeyAltModifier));
+  if (she::is_key_pressed(kKeyCommand))
+    mods = KeyModifiers(int(mods) | int(kKeyCmdModifier));
+  if (she::is_key_pressed(kKeyLWin))
+    mods = KeyModifiers(int(mods) | int(kKeyWinModifier));
+  if (she::is_key_pressed(kKeyRWin))
+    mods = KeyModifiers(int(mods) | int(kKeyWinModifier));
   return mods;
 }
 
@@ -54,7 +64,8 @@ Accelerator::Accelerator()
 {
 }
 
-Accelerator::Accelerator(KeyModifiers modifiers, KeyScancode scancode, int unicodeChar)
+Accelerator::Accelerator(KeyModifiers modifiers, KeyScancode scancode,
+                         int unicodeChar)
   : m_modifiers(modifiers)
   , m_scancode(scancode)
   , m_unicodeChar(unicodeChar)
@@ -67,46 +78,56 @@ Accelerator::Accelerator(const std::string& str)
   , m_unicodeChar(0)
 {
   // Special case: plus sign
-  if (str == "+") {
+  if (str == "+")
+  {
     m_unicodeChar = '+';
     return;
   }
 
   std::size_t i, j;
-  for (i=0; i<str.size(); i=j+1) {
+  for (i = 0; i < str.size(); i = j + 1)
+  {
     // i+1 because the first character can be '+' sign
-    for (j=i+1; j<str.size() && str[j] != '+'; ++j)
+    for (j = i + 1; j < str.size() && str[j] != '+'; ++j)
       ;
     std::string tok = base::string_to_lower(str.substr(i, j - i));
 
-    if (m_scancode == kKeySpace) {
+    if (m_scancode == kKeySpace)
+    {
       m_modifiers = (KeyModifiers)((int)m_modifiers | (int)kKeySpaceModifier);
       m_scancode = kKeyNil;
     }
 
     // Modifiers
-    if (tok == "shift") {
+    if (tok == "shift")
+    {
       m_modifiers = (KeyModifiers)((int)m_modifiers | (int)kKeyShiftModifier);
     }
-    else if (tok == "alt") {
+    else if (tok == "alt")
+    {
       m_modifiers = (KeyModifiers)((int)m_modifiers | (int)kKeyAltModifier);
     }
-    else if (tok == "ctrl") {
+    else if (tok == "ctrl")
+    {
       m_modifiers = (KeyModifiers)((int)m_modifiers | (int)kKeyCtrlModifier);
     }
-    else if (tok == "cmd") {
+    else if (tok == "cmd")
+    {
       m_modifiers = (KeyModifiers)((int)m_modifiers | (int)kKeyCmdModifier);
     }
-    else if (tok == base::string_to_lower(kWinKeyName)) {
+    else if (tok == base::string_to_lower(kWinKeyName))
+    {
       m_modifiers = (KeyModifiers)((int)m_modifiers | (int)kKeyWinModifier);
     }
 
     // Scancode
 
     // Word with one character
-    else if (base::utf8_length(tok) == 1) {
+    else if (base::utf8_length(tok) == 1)
+    {
       std::wstring wstr = base::from_utf8(tok);
-      if (wstr.size() != 1) {
+      if (wstr.size() != 1)
+      {
         ASSERT(false && "Something wrong converting utf-8 to wchar string");
         continue;
       }
@@ -114,38 +135,70 @@ Accelerator::Accelerator(const std::string& str)
       wchar_t wchr = wstr[0];
       wchr = tolower(wchr);
 
-      if ((wchr >= 'a') && (wchr <= 'z')) {
+      if ((wchr >= 'a') && (wchr <= 'z'))
+      {
         m_unicodeChar = wchr;
         m_scancode = (KeyScancode)((int)kKeyA + wchr - 'a');
       }
-      else {
+      else
+      {
         m_unicodeChar = wchr;
 
         if ((wchr >= '0') && (wchr <= '9'))
           m_scancode = (KeyScancode)((int)kKey0 + wchr - '0');
-        else {
-          switch (wchr) {
-            case '~': m_scancode = kKeyTilde; break;
-            case '-': m_scancode = kKeyMinus; break;
-            case '=': m_scancode = kKeyEquals; break;
-            case '[': m_scancode = kKeyOpenbrace; break;
-            case ']': m_scancode = kKeyClosebrace; break;
-            case ';': m_scancode = kKeyColon; break;
-            case '\'': m_scancode = kKeyQuote; break;
-            case '\\': m_scancode = kKeyBackslash; break;
-            case ',': m_scancode = kKeyComma; break;
-            case '.': m_scancode = kKeyStop; break;
-            case '/': m_scancode = kKeySlash; break;
-            case '*': m_scancode = kKeyAsterisk; break;
+        else
+        {
+          switch (wchr)
+          {
+          case '~':
+            m_scancode = kKeyTilde;
+            break;
+          case '-':
+            m_scancode = kKeyMinus;
+            break;
+          case '=':
+            m_scancode = kKeyEquals;
+            break;
+          case '[':
+            m_scancode = kKeyOpenbrace;
+            break;
+          case ']':
+            m_scancode = kKeyClosebrace;
+            break;
+          case ';':
+            m_scancode = kKeyColon;
+            break;
+          case '\'':
+            m_scancode = kKeyQuote;
+            break;
+          case '\\':
+            m_scancode = kKeyBackslash;
+            break;
+          case ',':
+            m_scancode = kKeyComma;
+            break;
+          case '.':
+            m_scancode = kKeyStop;
+            break;
+          case '/':
+            m_scancode = kKeySlash;
+            break;
+          case '*':
+            m_scancode = kKeyAsterisk;
+            break;
+          default:
+            break;
           }
         }
       }
     }
     // Other ones
-    else {
+    else
+    {
       // F1, F2, ..., F11, F12
-      if (tok[0] == 'f' && (tok.size() <= 3)) {
-        int num = std::strtol(tok.c_str()+1, NULL, 10);
+      if (tok[0] == 'f' && (tok.size() <= 3))
+      {
+        int num = std::strtol(tok.c_str() + 1, nullptr, 10);
         if ((num >= 1) && (num <= 12))
           m_scancode = (KeyScancode)((int)kKeyF1 + num - 1);
       }
@@ -220,12 +273,13 @@ bool Accelerator::operator==(const Accelerator& other) const
   if (m_modifiers != other.m_modifiers)
     return false;
 
-  if (m_scancode == other.m_scancode) {
+  if (m_scancode == other.m_scancode)
+  {
     if (m_scancode != kKeyNil)
       return true;
     else if (m_unicodeChar != 0)
       return (std::tolower(m_unicodeChar) == std::tolower(other.m_unicodeChar));
-    else               // Only comparing modifiers, and they are equal
+    else // Only comparing modifiers, and they are equal
       return true;
   }
 
@@ -234,164 +288,168 @@ bool Accelerator::operator==(const Accelerator& other) const
 
 bool Accelerator::isEmpty() const
 {
-  return
-    (m_modifiers == kKeyNoneModifier &&
-     m_scancode == kKeyNil &&
-     m_unicodeChar == 0);
+  return (m_modifiers == kKeyNoneModifier && m_scancode == kKeyNil &&
+          m_unicodeChar == 0);
 }
 
 std::string Accelerator::toString() const
 {
   // Same order that she::KeyScancode
   static const char* table[] = {
-    NULL,
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "I",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
-    "0",
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "0 Pad",
-    "1 Pad",
-    "2 Pad",
-    "3 Pad",
-    "4 Pad",
-    "5 Pad",
-    "6 Pad",
-    "7 Pad",
-    "8 Pad",
-    "9 Pad",
-    "F1",
-    "F2",
-    "F3",
-    "F4",
-    "F5",
-    "F6",
-    "F7",
-    "F8",
-    "F9",
-    "F10",
-    "F11",
-    "F12",
-    "Esc",
-    "~",
-    "-",
-    "=",
-    "Backspace",
-    "Tab",
-    "[",
-    "]",
-    "Enter",
-    ";",
-    "\'",
-    "\\",
-    "KEY_BACKSLASH2",
-    ",",
-    ".",
-    "/",
-    "Space",
-    "Ins",
-    "Del",
-    "Home",
-    "End",
-    "PgUp",
-    "PgDn",
-    "Left",
-    "Right",
-    "Up",
-    "Down",
-    "/ Pad",
-    "* Pad",
-    "- Pad",
-    "+ Pad",
-    "Del Pad",
-    "Enter Pad",
-    "PrtScr",
-    "Pause",
-    "KEY_ABNT_C1",
-    "Yen",
-    "Kana",
-    "KEY_CONVERT",
-    "KEY_NOCONVERT",
-    "KEY_AT",
-    "KEY_CIRCUMFLEX",
-    "KEY_COLON2",
-    "Kanji",
+      nullptr,
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H",
+      "I",
+      "J",
+      "K",
+      "L",
+      "M",
+      "N",
+      "O",
+      "P",
+      "Q",
+      "R",
+      "S",
+      "T",
+      "U",
+      "V",
+      "W",
+      "X",
+      "Y",
+      "Z",
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "0 Pad",
+      "1 Pad",
+      "2 Pad",
+      "3 Pad",
+      "4 Pad",
+      "5 Pad",
+      "6 Pad",
+      "7 Pad",
+      "8 Pad",
+      "9 Pad",
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6",
+      "F7",
+      "F8",
+      "F9",
+      "F10",
+      "F11",
+      "F12",
+      "Esc",
+      "~",
+      "-",
+      "=",
+      "Backspace",
+      "Tab",
+      "[",
+      "]",
+      "Enter",
+      ";",
+      "\'",
+      "\\",
+      "KEY_BACKSLASH2",
+      ",",
+      ".",
+      "/",
+      "Space",
+      "Ins",
+      "Del",
+      "Home",
+      "End",
+      "PgUp",
+      "PgDn",
+      "Left",
+      "Right",
+      "Up",
+      "Down",
+      "/ Pad",
+      "* Pad",
+      "- Pad",
+      "+ Pad",
+      "Del Pad",
+      "Enter Pad",
+      "PrtScr",
+      "Pause",
+      "KEY_ABNT_C1",
+      "Yen",
+      "Kana",
+      "KEY_CONVERT",
+      "KEY_NOCONVERT",
+      "KEY_AT",
+      "KEY_CIRCUMFLEX",
+      "KEY_COLON2",
+      "Kanji",
   };
   static std::size_t table_size = sizeof(table) / sizeof(table[0]);
 
   std::string buf;
 
   // Shifts
-  if (m_modifiers & kKeyCtrlModifier) buf += "Ctrl+";
-  if (m_modifiers & kKeyCmdModifier) buf += "Cmd+";
-  if (m_modifiers & kKeyAltModifier) buf += "Alt+";
-  if (m_modifiers & kKeyShiftModifier) buf += "Shift+";
-  if (m_modifiers & kKeySpaceModifier) buf += "Space+";
-  if (m_modifiers & kKeyWinModifier) {
+  if (m_modifiers & kKeyCtrlModifier)
+    buf += "Ctrl+";
+  if (m_modifiers & kKeyCmdModifier)
+    buf += "Cmd+";
+  if (m_modifiers & kKeyAltModifier)
+    buf += "Alt+";
+  if (m_modifiers & kKeyShiftModifier)
+    buf += "Shift+";
+  if (m_modifiers & kKeySpaceModifier)
+    buf += "Space+";
+  if (m_modifiers & kKeyWinModifier)
+  {
     buf += kWinKeyName;
     buf += "+";
   }
 
   // Key
-  if (m_unicodeChar) {
+  if (m_unicodeChar)
+  {
     std::wstring wideUnicodeChar;
     wideUnicodeChar.push_back((wchar_t)toupper(m_unicodeChar));
     buf += base::to_utf8(wideUnicodeChar);
   }
   else if (m_scancode && m_scancode > 0 && m_scancode < (int)table_size)
     buf += table[m_scancode];
-  else if (!buf.empty() && buf[buf.size()-1] == '+')
-    buf.erase(buf.size()-1);
+  else if (!buf.empty() && buf[buf.size() - 1] == '+')
+    buf.erase(buf.size() - 1);
 
   return buf;
 }
 
-bool Accelerator::isPressed(KeyModifiers modifiers, KeyScancode scancode, int unicodeChar) const
+bool Accelerator::isPressed(KeyModifiers modifiers, KeyScancode scancode,
+                            int unicodeChar) const
 {
   // Preprocess the character to be compared with the accelerator
 #ifdef PREPROCESS_KEYS
   // Directly scancode
-  if ((scancode >= kKeyF1 && scancode <= kKeyF12) ||
-      (scancode == kKeyEsc) ||
-      (scancode == kKeyBackspace) ||
-      (scancode == kKeyTab) ||
-      (scancode == kKeyEnter) ||
-      (scancode == kKeyBackslash) ||
+  if ((scancode >= kKeyF1 && scancode <= kKeyF12) || (scancode == kKeyEsc) ||
+      (scancode == kKeyBackspace) || (scancode == kKeyTab) ||
+      (scancode == kKeyEnter) || (scancode == kKeyBackslash) ||
       (scancode == kKeyBackslash2) ||
       (scancode >= kKeySpace && scancode <= kKeyDown) ||
       (scancode >= kKeyEnterPad && scancode <= kKeyNoconvert) ||
-      (scancode == kKeyKanji)) {
+      (scancode == kKeyKanji))
+  {
     unicodeChar = 0;
   }
   // For Ctrl+number
@@ -408,17 +466,20 @@ bool Accelerator::isPressed(KeyModifiers modifiers, KeyScancode scancode, int un
      Ctrl+9    36          2
    */
   else if ((scancode >= kKey0 && scancode <= kKey9) &&
-           (unicodeChar < 32 || unicodeChar == 127)) {
+           (unicodeChar < 32 || unicodeChar == 127))
+  {
     unicodeChar = '0' + scancode - kKey0;
     scancode = kKeyNil;
   }
   // For Ctrl+letter
-  else if (unicodeChar >= 1 && unicodeChar <= 'z'-'a'+1) {
-    unicodeChar = 'a'+unicodeChar-1;
+  else if (unicodeChar >= 1 && unicodeChar <= 'z' - 'a' + 1)
+  {
+    unicodeChar = 'a' + unicodeChar - 1;
     scancode = kKeyNil;
   }
   // For any other legal Unicode code
-  else if (unicodeChar >= ' ') {
+  else if (unicodeChar >= ' ')
+  {
     unicodeChar = std::tolower(unicodeChar);
 
     /* without shift (because characters like '*' can be trigger with
@@ -431,17 +492,17 @@ bool Accelerator::isPressed(KeyModifiers modifiers, KeyScancode scancode, int un
 #endif
 
 #ifdef REPORT_KEYS
-  printf("%3d==%3d %3d==%3d %s==%s ",
-    m_scancode, scancode,
-    m_unicodeChar, unicodeChar,
-    toString().c_str(),
-    Accelerator(modifiers, scancode, unicodeChar).toString().c_str());
+  printf("%3d==%3d %3d==%3d %s==%s ", m_scancode, scancode, m_unicodeChar,
+         unicodeChar, toString().c_str(),
+         Accelerator(modifiers, scancode, unicodeChar).toString().c_str());
 #endif
 
   if ((m_modifiers == modifiers) &&
       ((m_scancode != kKeyNil && m_scancode == scancode) ||
        (m_unicodeChar && m_unicodeChar == unicodeChar) ||
-       (m_scancode == kKeyNil && scancode == kKeyNil && !m_unicodeChar && !unicodeChar))) {
+       (m_scancode == kKeyNil && scancode == kKeyNil && !m_unicodeChar &&
+        !unicodeChar)))
+  {
 #ifdef REPORT_KEYS
     printf("true\n");
     fflush(stdout);

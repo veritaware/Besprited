@@ -1,5 +1,6 @@
-// SHE library
-// Copyright (C) 2016  David Capello
+// SHE Library
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -16,12 +17,13 @@
 #include "base/path.h"
 #include "base/string.h"
 
-typedef UINT (API* WTInfoW_Func)(UINT, UINT, LPVOID);
-typedef HCTX (API* WTOpenW_Func)(HWND, LPLOGCONTEXTW, BOOL);
-typedef BOOL (API* WTClose_Func)(HCTX);
-typedef BOOL (API* WTPacket_Func)(HCTX, UINT, LPVOID);
+using WTInfoW_Func = UINT(API*)(UINT, UINT, LPVOID);
+using WTOpenW_Func = HCTX(API*)(HWND, LPLOGCONTEXTW, BOOL);
+using WTClose_Func = BOOL(API*)(HCTX);
+using WTPacket_Func = BOOL(API*)(HCTX, UINT, LPVOID);
 
-namespace she {
+namespace she
+{
 
 static WTInfoW_Func WTInfo;
 static WTOpenW_Func WTOpen;
@@ -56,25 +58,23 @@ HCTX PenAPI::open(HWND hwnd)
   ASSERT(infoRes == sizeof(LOGCONTEXTW));
   ASSERT(logctx.lcOptions & CXO_SYSTEM);
 
-  if (infoRes != sizeof(LOGCONTEXTW)) {
+  if (infoRes != sizeof(LOGCONTEXTW))
+  {
     LOG("Not supported WTInfo:\n"
         "  Expected context size: %d\n"
         "  Actual context size: %d (options %d)\n",
-        sizeof(LOGCONTEXTW),
-        infoRes, logctx.lcOptions);
+        sizeof(LOGCONTEXTW), infoRes, logctx.lcOptions);
     return nullptr;
   }
 
-  logctx.lcOptions =
-    CXO_SYSTEM |
-    CXO_MESSAGES |
-    CXO_CSRMESSAGES;
+  logctx.lcOptions = CXO_SYSTEM | CXO_MESSAGES | CXO_CSRMESSAGES;
   logctx.lcPktData = PACKETDATA;
   logctx.lcPktMode = PACKETMODE;
   logctx.lcMoveMask = PACKETDATA;
 
   HCTX ctx = WTOpen(hwnd, &logctx, TRUE);
-  if (!ctx) {
+  if (!ctx)
+  {
     LOG("Error attaching pen to display\n");
     return nullptr;
   }
@@ -85,7 +85,8 @@ HCTX PenAPI::open(HWND hwnd)
 
 void PenAPI::close(HCTX ctx)
 {
-  if (ctx) {
+  if (ctx)
+  {
     ASSERT(m_wintabLib);
     LOG("Pen detached from window\n");
     WTClose(ctx);
@@ -94,7 +95,7 @@ void PenAPI::close(HCTX ctx)
 
 bool PenAPI::packet(HCTX ctx, UINT serial, LPVOID packet)
 {
-  return (WTPacket(ctx, serial, packet) ? true: false);
+  return (WTPacket(ctx, serial, packet) ? true : false);
 }
 
 bool PenAPI::loadWintab()
@@ -102,7 +103,8 @@ bool PenAPI::loadWintab()
   ASSERT(!m_wintabLib);
 
   m_wintabLib = base::load_dll("wintab32.dll");
-  if (!m_wintabLib) {
+  if (!m_wintabLib)
+  {
     LOG("wintab32.dll is not present\n");
     return false;
   }
@@ -111,7 +113,8 @@ bool PenAPI::loadWintab()
   WTOpen = base::get_dll_proc<WTOpenW_Func>(m_wintabLib, "WTOpenW");
   WTClose = base::get_dll_proc<WTClose_Func>(m_wintabLib, "WTClose");
   WTPacket = base::get_dll_proc<WTPacket_Func>(m_wintabLib, "WTPacket");
-  if (!WTInfo || !WTOpen || !WTClose || !WTPacket) {
+  if (!WTInfo || !WTOpen || !WTClose || !WTPacket)
+  {
     LOG("wintab32.dll does not contain all required functions\n");
     return false;
   }

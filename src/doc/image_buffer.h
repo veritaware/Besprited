@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,25 +13,30 @@
 #include <vector>
 #include <cstddef>
 
-namespace doc {
+namespace doc
+{
 
-  class ImageBuffer {
-  public:
-    ImageBuffer(std::size_t size = 1) : m_buffer(size) {
-    }
+class ImageBuffer
+{
+public:
+  ImageBuffer(std::size_t size = 1)
+    : m_buffer(size)
+  {
+  }
 
-    std::size_t size() const { return m_buffer.size(); }
-    uint8_t* buffer() { return &m_buffer[0]; }
+  std::size_t size() const { return m_buffer.size(); }
+  uint8_t* buffer() { return &m_buffer[0]; }
 
-    void resizeIfNecessary(std::size_t size) {
-      if (size > m_buffer.size())
-        m_buffer.resize(size);
-    }
+  void resizeIfNecessary(std::size_t size)
+  {
+    if (size > m_buffer.size())
+      m_buffer.resize(size);
+  }
 
-  private:
-    std::vector<uint8_t> m_buffer;
-  };
+private:
+  std::vector<uint8_t> m_buffer;
+};
 
-  typedef base::SharedPtr<ImageBuffer> ImageBufferPtr;
+typedef base::SharedPtr<ImageBuffer> ImageBufferPtr;
 
 } // namespace doc

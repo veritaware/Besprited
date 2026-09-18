@@ -1,6 +1,7 @@
-// SHE library
-// Copyright (C) 2012-2016  David Capello
-// Copyright (C) 2021       LibreSprite contributors
+// SHE Library
+// Aseprite    | Copyright (C) 2012-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -12,67 +13,67 @@
 
 #include <string>
 
-namespace she {
+namespace she
+{
 
-  class Surface;
-  class Font;
+class Surface;
+class Font;
 
-  // A display or window to show graphics.
-  class Display {
-  public:
-    virtual ~Display() { }
-    virtual void dispose() = 0;
+// A display or window to show graphics.
+class Display
+{
+public:
+  virtual ~Display() = default;
+  virtual void dispose() = 0;
 
-    virtual bool setIcon(Surface* surface){
-      return false;
-    }
+  virtual bool setIcon(Surface* surface) { return false; }
 
-    // Returns the real and current display's size (without scale applied).
-    virtual int width() const = 0;
-    virtual int height() const = 0;
+  // Returns the real and current display's size (without scale applied).
+  [[nodiscard]] virtual int width() const = 0;
+  [[nodiscard]] virtual int height() const = 0;
 
-    // Returns the display when it was not maximized.
-    virtual int originalWidth() const = 0;
-    virtual int originalHeight() const = 0;
+  // Returns the display when it was not maximized.
+  [[nodiscard]] virtual int originalWidth() const = 0;
+  [[nodiscard]] virtual int originalHeight() const = 0;
 
-    // Returns the current display scale. Each pixel in the internal
-    // display surface, is represented by SCALExSCALE pixels on the
-    // screen.
-    virtual int scale() const = 0;
+  // Returns the current display scale. Each pixel in the internal
+  // display surface, is represented by SCALExSCALE pixels on the
+  // screen.
+  [[nodiscard]] virtual int scale() const = 0;
 
-    // Changes the scale.
-    // The available surface size will be (Display::width() / scale,
-    //                                     Display::height() / scale)
-    virtual void setScale(int scale) = 0;
+  // Changes the scale.
+  // The available surface size will be (Display::width() / scale,
+  //                                     Display::height() / scale)
+  virtual void setScale(int scale) = 0;
 
-    // Returns the main surface to draw into this display.
-    // You must not dispose this surface.
-    virtual Surface* getSurface() = 0;
+  // Returns the main surface to draw into this display.
+  // You must not dispose this surface.
+  virtual Surface* getSurface() = 0;
 
-    // Flips all graphics in the surface to the real display.
-    virtual void flip(const gfx::Rect& bounds) = 0;
-    virtual void present() {}
+  // Flips all graphics in the surface to the real display.
+  virtual void flip(const gfx::Rect& bounds) = 0;
+  virtual void present() {}
 
-    virtual void toggleFullscreen(){}
-    virtual void maximize() = 0;
-    virtual bool isMaximized() const = 0;
-    virtual bool isMinimized() const = 0;
+  virtual void toggleFullscreen() {}
+  virtual void maximize() = 0;
+  [[nodiscard]] virtual bool isMaximized() const = 0;
+  [[nodiscard]] virtual bool isMinimized() const = 0;
 
-    virtual void setTitleBar(const std::string& title) = 0;
+  virtual void setTitleBar(const std::string& title) = 0;
 
-    virtual NativeCursor nativeMouseCursor() = 0;
-    virtual bool setNativeMouseCursor(NativeCursor cursor) = 0;
-    virtual void setMousePosition(const gfx::Point& position) = 0;
-    virtual void captureMouse() = 0;
-    virtual void releaseMouse() = 0;
+  virtual NativeCursor nativeMouseCursor() = 0;
+  virtual bool setNativeMouseCursor(NativeCursor cursor) = 0;
+  virtual void setMousePosition(const gfx::Point& position) = 0;
+  virtual void captureMouse() = 0;
+  virtual void releaseMouse() = 0;
 
-    // Set/get the specific information to restore the exact same
-    // window position (e.g. in the same monitor).
-    virtual std::string getLayout() = 0;
-    virtual void setLayout(const std::string& layout) = 0;
+  // Set/get the specific information to restore the exact same
+  // window position (e.g. in the same monitor).
+  virtual std::string getLayout() = 0;
+  virtual void setLayout(const std::string& layout) = 0;
 
-    // Returns the HWND on Windows.
-    virtual void* nativeHandle() = 0;
-  };
+  // Returns the HWND on Windows.
+  virtual void* nativeHandle() = 0;
+};
 
 } // namespace she

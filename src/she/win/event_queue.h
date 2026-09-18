@@ -1,5 +1,6 @@
-// SHE library
-// Copyright (C) 2012-2015  David Capello
+// SHE Library
+// Aseprite  | Copyright (C) 2012-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,25 +14,32 @@
 #include "she/event.h"
 #include "she/event_queue.h"
 
-namespace she {
+namespace she
+{
 
-class WinEventQueue : public EventQueue {
+class WinEventQueue : public EventQueue
+{
 public:
-  void getEvent(Event& ev, bool canWait) override {
+  void getEvent(Event& ev, bool canWait) override
+  {
     MSG msg;
 
-    while (m_events.empty()) {
+    while (m_events.empty())
+    {
       BOOL res;
 
-      if (canWait) {
-        ASSERT(false);          // Not yet supported
+      if (canWait)
+      {
+        ASSERT(false); // Not yet supported
         res = GetMessage(&msg, nullptr, 0, 0);
       }
-      else {
+      else
+      {
         res = PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE);
       }
 
-      if (res) {
+      if (res)
+      {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
       }
@@ -39,23 +47,23 @@ public:
         break;
     }
 
-    if (m_events.empty()) {
+    if (m_events.empty())
+    {
       ev.setType(Event::None);
     }
-    else {
+    else
+    {
       ev = m_events.front();
       m_events.pop();
     }
   }
 
-  void queueEvent(const Event& ev) override {
-    m_events.push(ev);
-  }
+  void queueEvent(const Event& ev) override { m_events.push(ev); }
 
 private:
   std::queue<Event> m_events;
 };
 
-typedef WinEventQueue EventQueueImpl;
+using EventQueueImpl = WinEventQueue;
 
 } // namespace she

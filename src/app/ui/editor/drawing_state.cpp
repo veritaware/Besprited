@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -35,7 +35,8 @@
 
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -60,14 +61,11 @@ void DrawingState::initToolLoop(Editor* editor, MouseMessage* msg)
   // Prepare preview image (the destination image will be our preview
   // in the tool-loop time, so we can see what we are drawing)
   editor->renderEngine().setPreviewImage(
-    m_toolLoop->getLayer(),
-    m_toolLoop->getFrame(),
-    m_toolLoop->getDstImage(),
-    m_toolLoop->getCelOrigin(),
-    (m_toolLoop->getLayer() &&
-     m_toolLoop->getLayer()->isImage() ?
-     static_cast<LayerImage*>(m_toolLoop->getLayer())->blendMode():
-     BlendMode::NEG_BW));
+      m_toolLoop->getLayer(), m_toolLoop->getFrame(), m_toolLoop->getDstImage(),
+      m_toolLoop->getCelOrigin(),
+      (m_toolLoop->getLayer() && m_toolLoop->getLayer()->isImage()
+           ? static_cast<LayerImage*>(m_toolLoop->getLayer())->blendMode()
+           : BlendMode::NEG_BW));
 
   m_lastPoint = editor->lastDrawingPosition();
 
@@ -76,13 +74,19 @@ void DrawingState::initToolLoop(Editor* editor, MouseMessage* msg)
 
   if (m_toolLoop->getController()->isFreehand() &&
       m_toolLoop->getInk()->isPaint() &&
-      (editor->getCustomizationDelegate()
-         ->getPressedKeyAction(KeyContext::FreehandTool) & KeyAction::StraightLineFromLastPoint) == KeyAction::StraightLineFromLastPoint &&
-      m_lastPoint.x >= 0) {
-    pointer = tools::Pointer(m_lastPoint, button_from_msg(msg), msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
+      (editor->getCustomizationDelegate()->getPressedKeyAction(
+           KeyContext::FreehandTool) &
+       KeyAction::StraightLineFromLastPoint) ==
+          KeyAction::StraightLineFromLastPoint &&
+      m_lastPoint.x >= 0)
+  {
+    pointer = tools::Pointer(
+        m_lastPoint, button_from_msg(msg),
+        msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
     movement = true;
   }
-  else {
+  else
+  {
     pointer = pointer_from_msg(editor, msg);
   }
 
@@ -91,7 +95,8 @@ void DrawingState::initToolLoop(Editor* editor, MouseMessage* msg)
 
   // This first movement is done when the user pressed Shift+click in
   // a freehand tool to draw a straight line.
-  if (movement) {
+  if (movement)
+  {
     pointer = pointer_from_msg(editor, msg);
     m_toolLoopManager->movement(pointer);
   }
@@ -109,7 +114,7 @@ void DrawingState::notifyToolLoopModifiersChange(Editor* editor)
 bool DrawingState::onMouseDown(Editor* editor, MouseMessage* msg)
 {
   // Drawing loop
-  ASSERT(m_toolLoopManager != NULL);
+  ASSERT(m_toolLoopManager != nullptr);
 
   // Notify the mouse button down to the tool loop manager.
   m_toolLoopManager->pressButton(pointer_from_msg(editor, msg));
@@ -122,14 +127,14 @@ bool DrawingState::onMouseDown(Editor* editor, MouseMessage* msg)
 
 bool DrawingState::onMouseUp(Editor* editor, MouseMessage* msg)
 {
-  ASSERT(m_toolLoopManager != NULL);
+  ASSERT(m_toolLoopManager != nullptr);
 
   // Selection tools are cancelled with a simple click (only "one
   // point" controller selection tools aren't cancelled with one click,
   // i.e. the magic wand).
   if (!m_toolLoop->getInk()->isSelection() ||
-      m_toolLoop->getController()->isOnePoint() ||
-      m_mouseMoveReceived) {
+      m_toolLoop->getController()->isOnePoint() || m_mouseMoveReceived)
+  {
     // Notify the release of the mouse button to the tool loop
     // manager. This is the correct way to say "the user finishes the
     // drawing trace correctly".
@@ -150,7 +155,7 @@ bool DrawingState::onMouseUp(Editor* editor, MouseMessage* msg)
 
 bool DrawingState::onMouseMove(Editor* editor, MouseMessage* msg)
 {
-  ASSERT(m_toolLoopManager != NULL);
+  ASSERT(m_toolLoopManager != nullptr);
 
   m_mouseMoveReceived = true;
 
@@ -162,12 +167,12 @@ bool DrawingState::onMouseMove(Editor* editor, MouseMessage* msg)
 
   // Infinite scroll
   gfx::Point mousePos = editor->autoScroll(msg, AutoScroll::MouseDir);
-  tools::Pointer pointer(editor->screenToEditor(mousePos),
-                         button_from_msg(msg),
-                         msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
+  tools::Pointer pointer(
+      editor->screenToEditor(mousePos), button_from_msg(msg),
+      msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
 
   // Notify mouse movement to the tool
-  ASSERT(m_toolLoopManager != NULL);
+  ASSERT(m_toolLoopManager != nullptr);
   m_toolLoopManager->movement(pointer);
 
   // Save the last point.
@@ -178,10 +183,12 @@ bool DrawingState::onMouseMove(Editor* editor, MouseMessage* msg)
 
 bool DrawingState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
 {
-  if (m_toolLoop->getInk()->isEyedropper()) {
+  if (m_toolLoop->getInk()->isEyedropper())
+  {
     editor->showMouseCursor(kEyedropperCursor);
   }
-  else {
+  else
+  {
     editor->showBrushPreview(mouseScreenPos);
   }
   return true;
@@ -189,10 +196,11 @@ bool DrawingState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
 
 bool DrawingState::onKeyDown(Editor* editor, KeyMessage* msg)
 {
-  Command* command = NULL;
+  Command* command = nullptr;
   Params params;
-  if (KeyboardShortcuts::instance()
-        ->getCommandFromKeyMessage(msg, &command, &params)) {
+  if (KeyboardShortcuts::instance()->getCommandFromKeyMessage(msg, &command,
+                                                              &params))
+  {
     // We accept zoom commands.
     if (command->id() == CommandId::Zoom)
       UIContext::instance()->executeCommand(command, params);
@@ -228,7 +236,8 @@ void DrawingState::onExposeSpritePixels(const gfx::Region& rgn)
 void DrawingState::destroyLoopIfCanceled(Editor* editor)
 {
   // Cancel drawing loop
-  if (m_toolLoopManager->isCanceled()) {
+  if (m_toolLoopManager->isCanceled())
+  {
     destroyLoop(editor);
 
     // Change to standby state
@@ -239,9 +248,10 @@ void DrawingState::destroyLoopIfCanceled(Editor* editor)
 
 void DrawingState::destroyLoop(Editor* editor)
 {
-  if (editor) {
-    if (m_toolLoopManager &&
-        m_toolLoopManager->isCanceled()) {
+  if (editor)
+  {
+    if (m_toolLoopManager && m_toolLoopManager->isCanceled())
+    {
       editor->setLastDrawingPosition(m_lastPoint);
     }
 

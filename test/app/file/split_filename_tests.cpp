@@ -19,7 +19,8 @@ TEST(SplitFilename, Common)
   int width;
 
   EXPECT_EQ(1, split_filename("C:\\test\\a1.png", left, right, width));
-  EXPECT_EQ(base::fix_path_separators("C:\\test\\a"), base::fix_path_separators(left));
+  EXPECT_EQ(base::fix_path_separators("C:\\test\\a"),
+            base::fix_path_separators(left));
   EXPECT_EQ(".png", right);
   EXPECT_EQ(1, width);
 
@@ -42,8 +43,10 @@ TEST(SplitFilename, InvalidEraseInLeftPart_Issue784)
   std::string sep;
   sep.push_back(base::path_separator);
 
-  EXPECT_EQ(1, split_filename("by \xE3\x81\xA1\xE3\x81\x83\xE3\x81\xBE\\0001.png", left, right, width));
-  EXPECT_EQ("by \xE3\x81\xA1\xE3\x81\x83\xE3\x81\xBE"+sep, left);
+  EXPECT_EQ(1,
+            split_filename("by \xE3\x81\xA1\xE3\x81\x83\xE3\x81\xBE\\0001.png",
+                           left, right, width));
+  EXPECT_EQ("by \xE3\x81\xA1\xE3\x81\x83\xE3\x81\xBE" + sep, left);
   EXPECT_EQ(".png", right);
   EXPECT_EQ(4, width);
 }

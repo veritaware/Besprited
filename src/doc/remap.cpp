@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2016 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -15,7 +16,8 @@
 #include "doc/palette_picks.h"
 #include "doc/rgbmap.h"
 
-namespace doc {
+namespace doc
+{
 
 Remap create_remap_to_move_picks(const PalettePicks& picks, int beforeIndex)
 {
@@ -24,23 +26,28 @@ Remap create_remap_to_move_picks(const PalettePicks& picks, int beforeIndex)
   int selectedTotal = 0;
   int selectedBeforeIndex = 0;
 
-  for (int i=0; i<map.size(); ++i) {
-    if (picks[i]) {
+  for (int i = 0; i < map.size(); ++i)
+  {
+    if (picks[i])
+    {
       ++selectedTotal;
       if (i < beforeIndex)
         ++selectedBeforeIndex;
     }
   }
 
-  for (int i=0, j=0, k=0; i<map.size(); ++i) {
+  for (int i = 0, j = 0, k = 0; i < map.size(); ++i)
+  {
     if (k == beforeIndex - selectedBeforeIndex)
       k += selectedTotal;
 
-    if (picks[i]) {
+    if (picks[i])
+    {
       map.map(i, beforeIndex - selectedBeforeIndex + j);
       ++j;
     }
-    else {
+    else
+    {
       map.map(i, k++);
     }
   }
@@ -53,7 +60,8 @@ Remap create_remap_to_expand_palette(int size, int count, int beforeIndex)
   Remap map(size);
 
   int j, k = 0;
-  for (int i=0; i<size; ++i) {
+  for (int i = 0; i < size; ++i)
+  {
     if (i < beforeIndex)
       j = i;
     else if (i + count < size)
@@ -66,30 +74,32 @@ Remap create_remap_to_expand_palette(int size, int count, int beforeIndex)
   return map;
 }
 
-Remap create_remap_to_change_palette(
-  const Palette* oldPalette, const Palette* newPalette,
-  const int oldMaskIndex,
-  const bool remapMaskIndex)
+Remap create_remap_to_change_palette(const Palette* oldPalette,
+                                     const Palette* newPalette,
+                                     const int oldMaskIndex,
+                                     const bool remapMaskIndex)
 {
   Remap remap(MAX(oldPalette->size(), newPalette->size()));
   int maskIndex = oldMaskIndex;
 
-  if (maskIndex >= 0) {
+  if (maskIndex >= 0)
+  {
     if (remapMaskIndex &&
-        oldPalette->getEntry(maskIndex) !=
-        newPalette->getEntry(maskIndex)) {
-      color_t maskColor = oldPalette->getEntry(maskIndex);
-      int r = rgba_getr(maskColor);
-      int g = rgba_getg(maskColor);
-      int b = rgba_getb(maskColor);
-      int a = rgba_geta(maskColor);
+        oldPalette->getEntry(maskIndex) != newPalette->getEntry(maskIndex))
+    {
+      const color_t maskColor = oldPalette->getEntry(maskIndex);
+      const int r = rgba_getr(maskColor);
+      const int g = rgba_getg(maskColor);
+      const int b = rgba_getb(maskColor);
+      const int a = rgba_geta(maskColor);
 
       // Find the new mask color
       maskIndex = newPalette->findExactMatch(r, g, b, a, -1);
       if (maskIndex >= 0)
         remap.map(oldMaskIndex, maskIndex);
     }
-    else {
+    else
+    {
       remap.map(maskIndex, maskIndex);
     }
   }
@@ -97,7 +107,8 @@ Remap create_remap_to_change_palette(
   RgbMap rgbmap;
   rgbmap.regenerate(newPalette, maskIndex);
 
-  for (int i=0; i<oldPalette->size(); ++i) {
+  for (int i = 0; i < oldPalette->size(); ++i)
+  {
     if (i == oldMaskIndex)
       continue;
 
@@ -105,23 +116,20 @@ Remap create_remap_to_change_palette(
 
     // If in both palettes, it's the same color, we don't need to
     // remap this entry.
-    if (color == newPalette->getEntry(i)) {
+    if (color == newPalette->getEntry(i))
+    {
       remap.map(i, i);
       continue;
     }
 
-    int j = newPalette->findExactMatch(
-      rgba_getr(color),
-      rgba_getg(color),
-      rgba_getb(color),
-      rgba_geta(color), maskIndex);
+    int j = newPalette->findExactMatch(rgba_getr(color), rgba_getg(color),
+                                       rgba_getb(color), rgba_geta(color),
+                                       maskIndex);
 
     if (j < 0)
-      j = newPalette->findBestfit(
-        rgba_getr(color),
-        rgba_getg(color),
-        rgba_getb(color),
-        rgba_geta(color), maskIndex);
+      j = newPalette->findBestfit(rgba_getr(color), rgba_getg(color),
+                                  rgba_getb(color), rgba_geta(color),
+                                  maskIndex);
 
     remap.map(i, j);
   }
@@ -130,7 +138,8 @@ Remap create_remap_to_change_palette(
 
 void Remap::merge(const Remap& other)
 {
-  for (int i=0; i<size(); ++i) {
+  for (int i = 0; i < size(); ++i)
+  {
     m_map[i] = other[m_map[i]];
   }
 }
@@ -138,18 +147,18 @@ void Remap::merge(const Remap& other)
 Remap Remap::invert() const
 {
   Remap inv(size());
-  for (int i=0; i<size(); ++i)
+  for (int i = 0; i < size(); ++i)
     inv.map(operator[](i), i);
   return inv;
 }
 
 bool Remap::isFor8bit() const
 {
-  for (int i=0; i<size(); ++i) {
+  for (int i = 0; i < size(); ++i)
+  {
     // Moving entries between [0,255] range to or from [256,+inf)
     // range are invalid for 8-bit images.
-    if ((i <  256 && m_map[i] >= 256) ||
-        (i >= 256 && m_map[i] <  256))
+    if ((i < 256 && m_map[i] >= 256) || (i >= 256 && m_map[i] < 256))
       return false;
   }
   return true;
@@ -158,11 +167,12 @@ bool Remap::isFor8bit() const
 bool Remap::isInvertible(const PalettePicks& usedEntries) const
 {
   PalettePicks picks(size());
-  for (int i=0; i<size(); ++i) {
+  for (int i = 0; i < size(); ++i)
+  {
     if (!usedEntries[i])
       continue;
 
-    int j = m_map[i];
+    const int j = m_map[i];
     if (picks[j])
       return false;
 

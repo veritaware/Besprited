@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2013, 2015, 2016  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2013, 2015, 2016 David Capello
+// Besprited | Copyright (C) 2026                  Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,17 +18,19 @@
 
 #include <algorithm>
 
-namespace ui {
+namespace ui
+{
 
-static bool less_than(Overlay* x, Overlay* y) {
+static bool less_than(Overlay* x, Overlay* y)
+{
   return *x < *y;
 }
 
-OverlayManager* OverlayManager::m_singleton = NULL;
+OverlayManager* OverlayManager::m_singleton = nullptr;
 
 OverlayManager* OverlayManager::instance()
 {
-  if (m_singleton == NULL)
+  if (m_singleton == nullptr)
     m_singleton = new OverlayManager;
   return m_singleton;
 }
@@ -37,13 +40,9 @@ void OverlayManager::destroyInstance()
   delete m_singleton;
 }
 
-OverlayManager::OverlayManager()
-{
-}
+OverlayManager::OverlayManager() = default;
 
-OverlayManager::~OverlayManager()
-{
-}
+OverlayManager::~OverlayManager() = default;
 
 void OverlayManager::addOverlay(Overlay* overlay)
 {

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -27,21 +27,25 @@
 #include "doc/sprite.h"
 #include "she/system.h"
 
-#define MAX_THUMBNAIL_SIZE              128
+#define MAX_THUMBNAIL_SIZE 128
 
-namespace app {
+namespace app
+{
 
-class ThumbnailGenerator::Worker {
+class ThumbnailGenerator::Worker
+{
 public:
   Worker(FileOp* fop, IFileItem* fileitem)
     : m_fop(fop)
     , m_fileitem(fileitem)
     , m_thumbnail(nullptr)
     , m_palette(nullptr)
-    , m_thread(base::Bind<void>(&Worker::loadBgThread, this)) {
+    , m_thread(base::Bind<void>(&Worker::loadBgThread, this))
+  {
   }
 
-  ~Worker() {
+  ~Worker()
+  {
     m_fop->stop();
     m_thread.join();
   }
@@ -51,36 +55,41 @@ public:
   double getProgress() const { return m_fop->progress(); }
 
 private:
-  void loadBgThread() {
-    try {
+  void loadBgThread()
+  {
+    try
+    {
       m_fop->operate(nullptr);
 
       // Post load
       m_fop->postLoad();
 
       // Convert the loaded document into the she::Surface.
-      const Sprite* sprite =
-        (m_fop->document() &&
-         m_fop->document()->sprite() ?
-         m_fop->document()->sprite(): nullptr);
+      const Sprite* sprite = (m_fop->document() && m_fop->document()->sprite()
+                                  ? m_fop->document()->sprite()
+                                  : nullptr);
 
-      if (!m_fop->isStop() && sprite) {
+      if (!m_fop->isStop() && sprite)
+      {
         // The palette to convert the Image
         m_palette = sprite->palette(frame_t(0))->clone();
 
         // Render first frame of the sprite in 'image'
-        std::unique_ptr<Image> image(Image::create(
-            IMAGE_RGB, sprite->width(), sprite->height()));
+        std::unique_ptr<Image> image(
+            Image::create(IMAGE_RGB, sprite->width(), sprite->height()));
 
         AppRender render;
-        render.setupBackground(NULL, image->pixelFormat());
+        render.setupBackground(nullptr, image->pixelFormat());
         render.setBgType(render::BgType::CHECKED);
         render.renderSprite(image.get(), sprite, frame_t(0));
 
         // Calculate the thumbnail size
-        int thumb_w = MAX_THUMBNAIL_SIZE * image->width() / MAX(image->width(), image->height());
-        int thumb_h = MAX_THUMBNAIL_SIZE * image->height() / MAX(image->width(), image->height());
-        if (MAX(thumb_w, thumb_h) > MAX(image->width(), image->height())) {
+        int thumb_w = MAX_THUMBNAIL_SIZE * image->width() /
+                      MAX(image->width(), image->height());
+        int thumb_h = MAX_THUMBNAIL_SIZE * image->height() /
+                      MAX(image->width(), image->height());
+        if (MAX(thumb_w, thumb_h) > MAX(image->width(), image->height()))
+        {
           thumb_w = image->width();
           thumb_h = image->height();
         }
@@ -88,29 +97,31 @@ private:
         thumb_h = MID(1, thumb_h, MAX_THUMBNAIL_SIZE);
 
         // Stretch the 'image'
-        m_thumbnail.reset(Image::create(image->pixelFormat(), thumb_w, thumb_h));
+        m_thumbnail.reset(
+            Image::create(image->pixelFormat(), thumb_w, thumb_h));
         clear_image(m_thumbnail.get(), 0);
-        algorithm::scale_image(m_thumbnail.get(), image.get(),
-                               0, 0, thumb_w, thumb_h,
-                               0, 0, image->width(), image->height());
+        algorithm::scale_image(m_thumbnail.get(), image.get(), 0, 0, thumb_w,
+                               thumb_h, 0, 0, image->width(), image->height());
       }
 
       // Close file
       delete m_fop->releaseDocument();
 
       // Set the thumbnail of the file-item.
-      if (m_thumbnail) {
+      if (m_thumbnail)
+      {
         she::Surface* thumbnail = she::instance()->createRgbaSurface(
-          m_thumbnail->width(),
-          m_thumbnail->height());
+            m_thumbnail->width(), m_thumbnail->height());
 
         convert_image_to_surface(m_thumbnail.get(), m_palette.get(), thumbnail,
-          0, 0, 0, 0, m_thumbnail->width(), m_thumbnail->height());
+                                 0, 0, 0, 0, m_thumbnail->width(),
+                                 m_thumbnail->height());
 
         m_fileitem->setThumbnail(thumbnail);
       }
     }
-    catch (const std::exception& e) {
+    catch (const std::exception& e)
+    {
       m_fop->setError("Error loading file:\n%s", e.what());
     }
     m_fop->done();
@@ -130,25 +141,31 @@ static void delete_singleton(ThumbnailGenerator* singleton)
 
 ThumbnailGenerator* ThumbnailGenerator::instance()
 {
-  static ThumbnailGenerator* singleton = NULL;
-  if (singleton == NULL) {
+  static ThumbnailGenerator* singleton = nullptr;
+  if (singleton == nullptr)
+  {
     singleton = new ThumbnailGenerator();
-    App::instance()->Exit.connect(base::Bind<void>(&delete_singleton, singleton));
+    App::instance()->Exit.connect(
+        base::Bind<void>(&delete_singleton, singleton));
   }
   return singleton;
 }
 
-ThumbnailGenerator::WorkerStatus ThumbnailGenerator::getWorkerStatus(IFileItem* fileitem, double& progress)
+ThumbnailGenerator::WorkerStatus
+ThumbnailGenerator::getWorkerStatus(IFileItem* fileitem, double& progress)
 {
   base::scoped_lock hold(m_workersAccess);
 
-  for (WorkerList::iterator
-         it=m_workers.begin(), end=m_workers.end(); it!=end; ++it) {
+  for (WorkerList::iterator it = m_workers.begin(), end = m_workers.end();
+       it != end; ++it)
+  {
     Worker* worker = *it;
-    if (worker->getFileItem() == fileitem) {
+    if (worker->getFileItem() == fileitem)
+    {
       if (worker->isDone())
         return ThumbnailIsDone;
-      else {
+      else
+      {
         progress = worker->getProgress();
         return WorkingOnThumbnail;
       }
@@ -162,13 +179,15 @@ bool ThumbnailGenerator::checkWorkers()
   base::scoped_lock hold(m_workersAccess);
   bool doingWork = !m_workers.empty();
 
-  for (WorkerList::iterator
-         it=m_workers.begin(); it != m_workers.end(); ) {
-    if ((*it)->isDone()) {
+  for (WorkerList::iterator it = m_workers.begin(); it != m_workers.end();)
+  {
+    if ((*it)->isDone())
+    {
       delete *it;
       it = m_workers.erase(it);
     }
-    else {
+    else
+    {
       ++it;
     }
   }
@@ -180,17 +199,13 @@ void ThumbnailGenerator::addWorkerToGenerateThumbnail(IFileItem* fileitem)
 {
   double progress;
 
-  if (fileitem->isBrowsable() ||
-      fileitem->getThumbnail() != NULL ||
+  if (fileitem->isBrowsable() || fileitem->getThumbnail() != nullptr ||
       getWorkerStatus(fileitem, progress) != WithoutWorker)
     return;
 
-  std::unique_ptr<FileOp> fop(
-    FileOp::createLoadDocumentOperation(
-      nullptr,
-      fileitem->fileName().c_str(),
-      FILE_LOAD_SEQUENCE_NONE |
-      FILE_LOAD_ONE_FRAME));
+  std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(
+      nullptr, fileitem->fileName().c_str(),
+      FILE_LOAD_SEQUENCE_NONE | FILE_LOAD_ONE_FRAME));
   if (!fop)
     return;
 
@@ -198,11 +213,13 @@ void ThumbnailGenerator::addWorkerToGenerateThumbnail(IFileItem* fileitem)
     return;
 
   Worker* worker = new Worker(fop.release(), fileitem);
-  try {
+  try
+  {
     base::scoped_lock hold(m_workersAccess);
     m_workers.push_back(worker);
   }
-  catch (...) {
+  catch (...)
+  {
     delete worker;
     throw;
   }
@@ -210,7 +227,8 @@ void ThumbnailGenerator::addWorkerToGenerateThumbnail(IFileItem* fileitem)
 
 void ThumbnailGenerator::stopAllWorkers()
 {
-  base::thread* ptr = new base::thread(base::Bind<void>(&ThumbnailGenerator::stopAllWorkersBackground, this));
+  base::thread* ptr = new base::thread(
+      base::Bind<void>(&ThumbnailGenerator::stopAllWorkersBackground, this));
   m_stopThread.reset(ptr);
 }
 
@@ -223,7 +241,7 @@ void ThumbnailGenerator::stopAllWorkersBackground()
     m_workers.clear();
   }
 
-  for (auto it=workersCopy.begin(), end=workersCopy.end(); it!=end; ++it)
+  for (auto it = workersCopy.begin(), end = workersCopy.end(); it != end; ++it)
     delete *it;
 }
 

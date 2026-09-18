@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,7 +18,8 @@
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace app::skin;
@@ -32,9 +33,7 @@ IconButton::IconButton(she::Surface* icon)
 
 void IconButton::onSizeHint(SizeHintEvent& ev)
 {
-  ev.setSizeHint(
-    gfx::Size(m_icon->width(),
-              m_icon->height()) + 4*guiscale());
+  ev.setSizeHint(gfx::Size(m_icon->width(), m_icon->height()) + 4 * guiscale());
 }
 
 void IconButton::onPaint(PaintEvent& ev)
@@ -43,15 +42,18 @@ void IconButton::onPaint(PaintEvent& ev)
   Graphics* g = ev.graphics();
   gfx::Color fg, bg;
 
-  if (isSelected()) {
+  if (isSelected())
+  {
     fg = theme->colors.menuitemHighlightText();
     bg = theme->colors.menuitemHighlightFace();
   }
-  else if (isEnabled() && hasMouseOver()) {
+  else if (isEnabled() && hasMouseOver())
+  {
     fg = theme->colors.menuitemHotText();
     bg = theme->colors.menuitemHotFace();
   }
-  else {
+  else
+  {
     fg = theme->colors.menuitemNormalText();
     bg = bgColor();
   }
@@ -59,10 +61,9 @@ void IconButton::onPaint(PaintEvent& ev)
   g->fillRect(bg, g->getClipBounds());
 
   gfx::Rect bounds = clientBounds();
-  g->drawColoredRgbaSurface(
-    m_icon, fg,
-    bounds.x+bounds.w/2-m_icon->width()/2,
-    bounds.y+bounds.h/2-m_icon->height()/2);
+  g->drawColoredRgbaSurface(m_icon, fg,
+                            bounds.x + bounds.w / 2 - m_icon->width() / 2,
+                            bounds.y + bounds.h / 2 - m_icon->height() / 2);
 }
 
 } // namespace app

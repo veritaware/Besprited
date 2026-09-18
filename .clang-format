@@ -1,0 +1,50 @@
+# Besprited clang-format style.
+
+---
+BasedOnStyle: LLVM
+Language: Cpp
+Standard: Latest
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+ColumnLimit: 80
+
+# Allman braces everywhere: functions, classes, namespaces, if/for/while.
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortBlocksOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# public:/protected:/private: sit flush with the class keyword, members
+# indented one level below them.
+AccessModifierOffset: -2
+IndentAccessModifiers: false
+
+# `namespace app::cmd { ... }` bodies are NOT indented an extra level.
+NamespaceIndentation: None
+FixNamespaceComments: true
+ShortNamespaceLines: 3
+
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+DerivePointerAlignment: false
+
+# West const: `const int x`, not `int const x`.
+QualifierAlignment: Left
+
+# Constructor initializer list: leading comma, each member on its own line,
+# indented 2 spaces under the colon.
+BreakConstructorInitializers: BeforeComma
+ConstructorInitializerIndentWidth: 2
+PackConstructorInitializers: Never
+
+# Multiple base classes: one per line, `,` at the end of the previous line,
+# aligned under the first base.
+BreakInheritanceList: AfterComma
+
+SpaceBeforeParens: ControlStatements
+Cpp11BracedListStyle: true
+MaxEmptyLinesToKeep: 1
+SortIncludes: false
+IncludeBlocks: Preserve

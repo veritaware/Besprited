@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -9,27 +9,29 @@
 
 #include "app/ui/color_selector.h"
 
-namespace app {
+namespace app
+{
 
-  class ColorTintShadeTone : public ColorSelector {
-  public:
-    ColorTintShadeTone();
+class ColorTintShadeTone : public ColorSelector
+{
+public:
+  ColorTintShadeTone();
 
-    // IColorSource
-    app::Color getColorByPosition(const gfx::Point& pos) override;
+  // IColorSource
+  app::Color getColorByPosition(const gfx::Point& pos) override;
 
-  protected:
-    void onPaint(ui::PaintEvent& ev) override;
-    bool onProcessMessage(ui::Message* msg) override;
+protected:
+  void onPaint(ui::PaintEvent& ev) override;
+  bool onProcessMessage(ui::Message* msg) override;
 
-  private:
-    bool inHueBarArea(const gfx::Point& pos) const;
-    int getHueBarSize() const;
+private:
+  bool inHueBarArea(const gfx::Point& pos) const;
+  int getHueBarSize() const;
 
-    // True when the user pressed the mouse button in the hue slider.
-    // It's used to avoid swapping in both areas (tint/shades/tones
-    // area vs hue slider) when we drag the mouse above this widget.
-    bool m_capturedInHue;
-  };
+  // True when the user pressed the mouse button in the hue slider.
+  // It's used to avoid swapping in both areas (tint/shades/tones
+  // area vs hue slider) when we drag the mouse above this widget.
+  bool m_capturedInHue;
+};
 
 } // namespace app

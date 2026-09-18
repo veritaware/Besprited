@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2023-2026 LibreSprite contributors
+// LibreSprite | Copyright (C) 2023-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -19,18 +19,25 @@
 
 #include <memory>
 
-namespace script_api {
+namespace script_api
+{
 
-  // Stateless marker "sites" for proxy classes whose methods re-resolve the
-  // active document on every access (instead of capturing a snapshot).
-  struct SpriteSite {};
-  struct SelectionSite {};
-  struct PixelColorSite {};
+// Stateless marker "sites" for proxy classes whose methods re-resolve the
+// active document on every access (instead of capturing a snapshot).
+struct SpriteSite
+{
+};
+struct SelectionSite
+{
+};
+struct PixelColorSite
+{
+};
 
-  // Wrap a non-owning raw pointer in a shared_ptr with a no-op deleter.
-  template<typename T>
-  std::shared_ptr<T> wrap(T* p) {
-    return std::shared_ptr<T>(p, [](T*) {});
-  }
+// Wrap a non-owning raw pointer in a shared_ptr with a no-op deleter.
+template <typename T> std::shared_ptr<T> wrap(T* p)
+{
+  return std::shared_ptr<T>(p, [](T*) {});
+}
 
 } // namespace script_api

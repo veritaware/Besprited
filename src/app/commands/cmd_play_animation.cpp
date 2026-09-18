@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,11 +16,13 @@
 #include "app/pref/preferences.h"
 #include "app/ui/editor/editor.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class PlayAnimationCommand : public Command {
+class PlayAnimationCommand : public Command
+{
 public:
   PlayAnimationCommand();
   Command* clone() const override { return new PlayAnimationCommand(*this); }
@@ -31,9 +33,7 @@ protected:
 };
 
 PlayAnimationCommand::PlayAnimationCommand()
-  : Command("PlayAnimation",
-            "Play Animation",
-            CmdUIOnlyFlag)
+  : Command("PlayAnimation", "Play Animation", CmdUIOnlyFlag)
 {
 }
 

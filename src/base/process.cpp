@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2015 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,12 +14,13 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include <signal.h>
+#include <csignal>
 #include <sys/types.h>
 #include <unistd.h>
 #endif
 
-namespace base {
+namespace base
+{
 
 #ifdef _WIN32
 
@@ -32,9 +34,11 @@ bool is_process_running(pid pid)
   bool running = false;
 
   HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, TRUE, pid);
-  if (handle) {
+  if (handle)
+  {
     DWORD exitCode = 0;
-    if (GetExitCodeProcess(handle, &exitCode)) {
+    if (GetExitCodeProcess(handle, &exitCode))
+    {
       running = (exitCode == STILL_ACTIVE);
     }
     CloseHandle(handle);
@@ -47,7 +51,7 @@ bool is_process_running(pid pid)
 
 pid get_current_process_id()
 {
-  return (pid)getpid();
+  return static_cast<pid>(getpid());
 }
 
 bool is_process_running(pid pid)

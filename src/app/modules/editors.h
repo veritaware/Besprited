@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -7,9 +7,10 @@
 
 #pragma once
 
-namespace app {
+namespace app
+{
 
-  class Editor;
-  extern Editor* current_editor;
+class Editor;
+extern Editor* current_editor;
 
 } // namespace app

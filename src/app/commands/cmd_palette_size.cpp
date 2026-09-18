@@ -20,9 +20,11 @@
 
 #include "palette_size.xml.h"
 
-namespace app {
+namespace app
+{
 
-class PaletteSizeCommand : public Command {
+class PaletteSizeCommand : public Command
+{
 public:
   PaletteSizeCommand();
   Command* clone() const override { return new PaletteSizeCommand(*this); }
@@ -36,9 +38,7 @@ private:
 };
 
 PaletteSizeCommand::PaletteSizeCommand()
-  : Command("PaletteSize",
-            "Palette Size",
-            CmdRecordableFlag)
+  : Command("PaletteSize", "Palette Size", CmdRecordableFlag)
 {
   m_size = 0;
 }
@@ -58,7 +58,8 @@ void PaletteSizeCommand::onExecute(Context* context)
   app::gen::PaletteSize window;
   window.colors()->setValue(palette->size());
   window.openWindowInForeground();
-  if (window.closer() == window.ok()) {
+  if (window.closer() == window.ok())
+  {
     int ncolors = window.colors()->getValue();
     if (ncolors == palette->size())
       return;

@@ -21,8 +21,8 @@
 #include "doc/layer.h"
 #include "doc/mask.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 // GCC false positive: destroying a shared_ptr<Image> here is misreported
 // as an out-of-bounds std::mutex access. See GCC PR 108088.
@@ -30,33 +30,34 @@ namespace cmd {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-FlipMaskedCel::FlipMaskedCel(std::shared_ptr<Cel> cel, doc::algorithm::FlipType flipType)
+FlipMaskedCel::FlipMaskedCel(const std::shared_ptr<Cel>& cel,
+                             const algorithm::FlipType flipType)
 {
-  app::Document* doc = static_cast<app::Document*>(cel->document());
-  color_t bgcolor = doc->bgColor(cel->layer());
+  const auto* doc = dynamic_cast<Document*>(cel->document());
+  const color_t bgcolor = doc->bgColor(cel->layer());
   Image* image = cel->image();
   Mask* mask = doc->mask();
   ASSERT(mask->bitmap());
   if (!mask->bitmap())
     return;
 
-  ImageRef copy(Image::createCopy(image));
-  int x = cel->x();
-  int y = cel->y();
+  const ImageRef copy(Image::createCopy(image));
+  const int x = cel->x();
+  const int y = cel->y();
   mask->offsetOrigin(-x, -y);
-  doc::algorithm::flip_image_with_mask(
-    copy.get(), mask, flipType, bgcolor);
+  doc::algorithm::flip_image_with_mask(copy.get(), mask, flipType,
+                                       static_cast<int>(bgcolor));
   mask->offsetOrigin(x, y);
 
   int x1, y1, x2, y2;
-  if (get_shrink_rect2(&x1, &y1, &x2, &y2, image, copy.get())) {
-    add(new cmd::CopyRect(image, copy.get(),
-                          gfx::Clip(x1, y1, x1, y1, x2-x1+1, y2-y1+1)));
+  if (get_shrink_rect2(&x1, &y1, &x2, &y2, image, copy.get()))
+  {
+    add(new CopyRect(image, copy.get(),
+                     gfx::Clip(x1, y1, x1, y1, x2 - x1 + 1, y2 - y1 + 1)));
   }
 }
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

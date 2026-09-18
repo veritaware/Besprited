@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -18,7 +18,8 @@
 #include "ui/paint_event.h"
 #include "ui/size_hint_event.h"
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace gfx;
@@ -31,19 +32,22 @@ SearchEntry::SearchEntry()
 
 bool SearchEntry::onProcessMessage(ui::Message* msg)
 {
-  switch (msg->type()) {
-    case kMouseDownMessage: {
-      Rect closeBounds = getCloseIconBounds();
-      Point mousePos = static_cast<MouseMessage*>(msg)->position()
-        - bounds().origin();
+  switch (msg->type())
+  {
+  case kMouseDownMessage:
+  {
+    Rect closeBounds = getCloseIconBounds();
+    Point mousePos =
+        static_cast<MouseMessage*>(msg)->position() - bounds().origin();
 
-      if (closeBounds.contains(mousePos)) {
-        setText("");
-        onChange();
-        return true;
-      }
-      break;
+    if (closeBounds.contains(mousePos))
+    {
+      setText("");
+      onChange();
+      return true;
     }
+    break;
+  }
   }
   return Entry::onProcessMessage(msg);
 }
@@ -56,16 +60,16 @@ void SearchEntry::onPaint(ui::PaintEvent& ev)
   auto icon = theme->parts.iconSearch()->bitmap(0);
   Rect bounds = clientBounds();
   ev.graphics()->drawColoredRgbaSurface(
-    icon, theme->colors.text(),
-    bounds.x + border().left(),
-    bounds.y + bounds.h/2 - icon->height()/2);
+      icon, theme->colors.text(), bounds.x + border().left(),
+      bounds.y + bounds.h / 2 - icon->height() / 2);
 
-  if (!text().empty()) {
+  if (!text().empty())
+  {
     icon = theme->parts.iconClose()->bitmap(0);
     ev.graphics()->drawColoredRgbaSurface(
-      icon, theme->colors.text(),
-      bounds.x + bounds.w - border().right() - childSpacing() - icon->width(),
-      bounds.y + bounds.h/2 - icon->height()/2);
+        icon, theme->colors.text(),
+        bounds.x + bounds.w - border().right() - childSpacing() - icon->width(),
+        bounds.y + bounds.h / 2 - icon->height() / 2);
   }
 }
 
@@ -76,7 +80,7 @@ void SearchEntry::onSizeHint(SizeHintEvent& ev)
 
   SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
   auto icon = theme->parts.iconSearch()->bitmap(0);
-  sz.h = MAX(sz.h, icon->height()+border().height());
+  sz.h = MAX(sz.h, icon->height() + border().height());
 
   ev.setSizeHint(sz);
 }
@@ -88,7 +92,7 @@ Rect SearchEntry::onGetEntryTextBounds() const
   auto icon1 = theme->parts.iconSearch()->bitmap(0);
   auto icon2 = theme->parts.iconClose()->bitmap(0);
   bounds.x += childSpacing() + icon1->width();
-  bounds.w -= 2*childSpacing() + icon1->width() + icon2->width();
+  bounds.w -= 2 * childSpacing() + icon1->width() + icon2->width();
   return bounds;
 }
 
@@ -98,7 +102,7 @@ Rect SearchEntry::getCloseIconBounds() const
   Rect bounds = clientBounds();
   auto icon = theme->parts.iconClose()->bitmap(0);
   bounds.x += bounds.w - border().right() - childSpacing() - icon->width();
-  bounds.y += bounds.h/2 - icon->height()/2;
+  bounds.y += bounds.h / 2 - icon->height() / 2;
   bounds.w = icon->width();
   bounds.h = icon->height();
   return bounds;

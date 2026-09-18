@@ -19,7 +19,8 @@
 #include <cmath>
 #include <cstdio>
 
-namespace ui {
+namespace ui
+{
 
 NumberEntry::NumberEntry(int min, int max)
   : Entry(32, "")
@@ -41,13 +42,16 @@ void NumberEntry::setValue(int value)
 
 bool NumberEntry::onProcessMessage(Message* msg)
 {
-  if (msg->type() == kFocusLeaveMessage) {
+  if (msg->type() == kFocusLeaveMessage)
+  {
     auto val = evalmath::eval(text());
-    if (val) {
+    if (val)
+    {
       long rounded = std::lround(val.value());
       setValue(static_cast<int>(std::clamp<long>(rounded, INT_MIN, INT_MAX)));
     }
-    else {
+    else
+    {
       // Unparseable input: revert to the last known-good value
       // instead of silently defaulting to some arbitrary number.
       setValue(m_lastValidValue);

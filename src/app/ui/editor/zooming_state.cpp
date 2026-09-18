@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -25,7 +25,8 @@
 
 #include <cmath>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
@@ -35,9 +36,7 @@ ZoomingState::ZoomingState()
 {
 }
 
-ZoomingState::~ZoomingState()
-{
-}
+ZoomingState::~ZoomingState() = default;
 
 bool ZoomingState::onMouseDown(Editor* editor, MouseMessage* msg)
 {
@@ -50,7 +49,8 @@ bool ZoomingState::onMouseDown(Editor* editor, MouseMessage* msg)
 
 bool ZoomingState::onMouseUp(Editor* editor, MouseMessage* msg)
 {
-  if (!m_moved) {
+  if (!m_moved)
+  {
     render::Zoom zoom = editor->zoom();
 
     if (msg->left())
@@ -58,8 +58,8 @@ bool ZoomingState::onMouseUp(Editor* editor, MouseMessage* msg)
     else if (msg->right())
       zoom.out();
 
-    editor->setZoomAndCenterInMouse(
-      zoom, msg->position(), Editor::ZoomBehavior::MOUSE);
+    editor->setZoomAndCenterInMouse(zoom, msg->position(),
+                                    Editor::ZoomBehavior::MOUSE);
   }
 
   editor->backToPreviousState();
@@ -72,14 +72,15 @@ bool ZoomingState::onMouseMove(Editor* editor, MouseMessage* msg)
   gfx::Point pt = (msg->position() - m_startPos);
   int threshold = 8 * guiscale() * editor->manager()->getDisplay()->scale();
 
-  if (m_moved || std::sqrt(pt.x*pt.x + pt.y*pt.y) > threshold) {
+  if (m_moved || std::sqrt(pt.x * pt.x + pt.y * pt.y) > threshold)
+  {
     m_moved = true;
 
     int newScale = m_startZoom.linearScale() + pt.x / threshold;
     render::Zoom newZoom = render::Zoom::fromLinearScale(newScale);
 
-    editor->setZoomAndCenterInMouse(
-      newZoom, m_startPos, Editor::ZoomBehavior::MOUSE);
+    editor->setZoomAndCenterInMouse(newZoom, m_startPos,
+                                    Editor::ZoomBehavior::MOUSE);
   }
   return true;
 }

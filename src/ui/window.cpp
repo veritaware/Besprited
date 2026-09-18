@@ -1,5 +1,6 @@
-// Aseprite UI Library
-// Copyright (C) 2001-2015  David Capello
+// UI Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -25,11 +26,13 @@
 
 #include <optional>
 
-namespace ui {
+namespace ui
+{
 
 using namespace gfx;
 
-enum {
+enum
+{
   WINDOW_NONE = 0,
   WINDOW_MOVE = 1,
   WINDOW_RESIZE_LEFT = 2,
@@ -39,12 +42,12 @@ enum {
 };
 
 static gfx::Point clickedMousePos;
-static gfx::Rect* clickedWindowPos = NULL;
+static gfx::Rect* clickedWindowPos = nullptr;
 
 Window::Window(Type type, const std::string& text)
   : Widget(kWindowWidget)
 {
-  m_closer = NULL;
+  m_closer = nullptr;
   m_isDesktop = (type == DesktopWindow);
   m_isMoveable = !m_isDesktop;
   m_isSizeable = !m_isDesktop;
@@ -119,7 +122,8 @@ void Window::onHitTest(HitTestEvent& ev)
       // TODO check why this is necessary, there should be a bug in
       // the manager where we are receiving mouse events and are not
       // the top most window.
-      this->manager()->pick(ev.point()) != this) {
+      this->manager()->pick(ev.point()) != this)
+  {
     ev.setHit(ht);
     return;
   }
@@ -130,49 +134,53 @@ void Window::onHitTest(HitTestEvent& ev)
   gfx::Rect cpos = childrenBounds();
 
   // Move
-  if ((hasText())
-      && (((x >= cpos.x) &&
-           (x < cpos.x2()) &&
-           (y >= pos.y+border().bottom()) &&
-           (y < cpos.y)))) {
+  if ((hasText()) && (((x >= cpos.x) && (x < cpos.x2()) &&
+                       (y >= pos.y + border().bottom()) && (y < cpos.y))))
+  {
     ht = HitTestCaption;
   }
   // Resize
-  else if (m_isSizeable) {
-    if ((x >= pos.x) && (x < cpos.x)) {
+  else if (m_isSizeable)
+  {
+    if ((x >= pos.x) && (x < cpos.x))
+    {
       if ((y >= pos.y) && (y < cpos.y))
         ht = HitTestBorderNW;
-      else if ((y > cpos.y2()-1) && (y <= pos.y2()-1))
+      else if ((y > cpos.y2() - 1) && (y <= pos.y2() - 1))
         ht = HitTestBorderSW;
       else
         ht = HitTestBorderW;
     }
-    else if ((y >= pos.y) && (y < cpos.y)) {
+    else if ((y >= pos.y) && (y < cpos.y))
+    {
       if ((x >= pos.x) && (x < cpos.x))
         ht = HitTestBorderNW;
-      else if ((x > cpos.x2()-1) && (x <= pos.x2()-1))
+      else if ((x > cpos.x2() - 1) && (x <= pos.x2() - 1))
         ht = HitTestBorderNE;
       else
         ht = HitTestBorderN;
     }
-    else if ((x > cpos.x2()-1) && (x <= pos.x2()-1)) {
+    else if ((x > cpos.x2() - 1) && (x <= pos.x2() - 1))
+    {
       if ((y >= pos.y) && (y < cpos.y))
         ht = HitTestBorderNE;
-      else if ((y > cpos.y2()-1) && (y <= pos.y2()-1))
+      else if ((y > cpos.y2() - 1) && (y <= pos.y2() - 1))
         ht = HitTestBorderSE;
       else
         ht = HitTestBorderE;
     }
-    else if ((y > cpos.y2()-1) && (y <= pos.y2()-1)) {
+    else if ((y > cpos.y2() - 1) && (y <= pos.y2() - 1))
+    {
       if ((x >= pos.x) && (x < cpos.x))
         ht = HitTestBorderSW;
-      else if ((x > cpos.x2()-1) && (x <= pos.x2()-1))
+      else if ((x > cpos.x2() - 1) && (x <= pos.x2() - 1))
         ht = HitTestBorderSE;
       else
         ht = HitTestBorderS;
     }
   }
-  else {
+  else
+  {
     // Client area
     ht = HitTestClient;
   }
@@ -187,13 +195,13 @@ void Window::onWindowResize()
 
 void Window::remapWindow()
 {
-  if (m_isAutoRemap) {
+  if (m_isAutoRemap)
+  {
     m_isAutoRemap = false;
     this->setVisible(true);
   }
 
-  setBounds(Rect(Point(bounds().x, bounds().y),
-                 sizeHint()));
+  setBounds(Rect(Point(bounds().x, bounds().y), sizeHint()));
 
   // load layout
   loadLayout();
@@ -208,8 +216,8 @@ void Window::centerWindow()
   if (m_isAutoRemap)
     remapWindow();
 
-  positionWindow(manager->bounds().w/2 - bounds().w/2,
-                 manager->bounds().h/2 - bounds().h/2);
+  positionWindow(manager->bounds().w / 2 - bounds().w / 2,
+                 manager->bounds().h / 2 - bounds().h / 2);
 }
 
 void Window::positionWindow(int x, int y)
@@ -229,7 +237,8 @@ void Window::moveWindow(const gfx::Rect& rect)
 
 void Window::openWindow()
 {
-  if (!parent()) {
+  if (!parent())
+  {
     if (m_isAutoRemap)
       centerWindow();
 
@@ -272,151 +281,184 @@ bool Window::isTopLevel()
 
 bool Window::onProcessMessage(Message* msg)
 {
-  switch (msg->type()) {
+  switch (msg->type())
+  {
 
-    case kOpenMessage:
-      m_closer = NULL;
+  case kOpenMessage:
+    m_closer = nullptr;
+    break;
+
+  case kCloseMessage:
+    saveLayout();
+    break;
+
+  case kMouseDownMessage:
+  {
+    if (!m_isMoveable)
       break;
 
-    case kCloseMessage:
-      saveLayout();
+    clickedMousePos = static_cast<MouseMessage*>(msg)->position();
+    m_hitTest = hitTest(clickedMousePos);
+
+    if (m_hitTest != HitTestNowhere && m_hitTest != HitTestClient)
+    {
+      if (clickedWindowPos == nullptr)
+        clickedWindowPos = new gfx::Rect(bounds());
+      else
+        *clickedWindowPos = bounds();
+
+      captureMouse();
+      return true;
+    }
+    else
+      break;
+  }
+
+  case kMouseUpMessage:
+    if (hasCapture())
+    {
+      releaseMouse();
+      set_mouse_cursor(kArrowCursor);
+
+      if (clickedWindowPos != nullptr)
+      {
+        delete clickedWindowPos;
+        clickedWindowPos = nullptr;
+      }
+
+      m_hitTest = HitTestNowhere;
+      return true;
+    }
+    break;
+
+  case kMouseMoveMessage:
+    if (!m_isMoveable)
       break;
 
-    case kMouseDownMessage: {
-      if (!m_isMoveable)
-        break;
+    // Does it have the mouse captured?
+    if (hasCapture())
+    {
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
 
-      clickedMousePos = static_cast<MouseMessage*>(msg)->position();
-      m_hitTest = hitTest(clickedMousePos);
-
-      if (m_hitTest != HitTestNowhere &&
-          m_hitTest != HitTestClient) {
-        if (clickedWindowPos == NULL)
-          clickedWindowPos = new gfx::Rect(bounds());
-        else
-          *clickedWindowPos = bounds();
-
-        captureMouse();
-        return true;
+      // Reposition/resize
+      if (m_hitTest == HitTestCaption)
+      {
+        int x = clickedWindowPos->x + (mousePos.x - clickedMousePos.x);
+        int y = clickedWindowPos->y + (mousePos.y - clickedMousePos.y);
+        static std::optional<gfx::Rect> moveTarget;
+        if (!moveTarget.has_value())
+        {
+          app::TaskManager::instance().delayed(
+              [handle = handle()]
+              {
+                if (auto self = handle.get<ui::Widget, ui::Window>())
+                  self->moveWindow(*moveTarget, true);
+                moveTarget.reset();
+              });
+        }
+        moveTarget = {x, y, bounds().w, bounds().h};
       }
       else
-        break;
+      {
+        int x, y, w, h;
+
+        w = clickedWindowPos->w;
+        h = clickedWindowPos->h;
+
+        bool hitLeft =
+            (m_hitTest == HitTestBorderNW || m_hitTest == HitTestBorderW ||
+             m_hitTest == HitTestBorderSW);
+        bool hitTop =
+            (m_hitTest == HitTestBorderNW || m_hitTest == HitTestBorderN ||
+             m_hitTest == HitTestBorderNE);
+        bool hitRight =
+            (m_hitTest == HitTestBorderNE || m_hitTest == HitTestBorderE ||
+             m_hitTest == HitTestBorderSE);
+        bool hitBottom =
+            (m_hitTest == HitTestBorderSW || m_hitTest == HitTestBorderS ||
+             m_hitTest == HitTestBorderSE);
+
+        if (hitLeft)
+        {
+          w += clickedMousePos.x - mousePos.x;
+        }
+        else if (hitRight)
+        {
+          w += mousePos.x - clickedMousePos.x;
+        }
+
+        if (hitTop)
+        {
+          h += (clickedMousePos.y - mousePos.y);
+        }
+        else if (hitBottom)
+        {
+          h += (mousePos.y - clickedMousePos.y);
+        }
+
+        limitSize(&w, &h);
+
+        if ((bounds().w != w) || (bounds().h != h))
+        {
+          if (hitLeft)
+            x = clickedWindowPos->x - (w - clickedWindowPos->w);
+          else
+            x = bounds().x;
+
+          if (hitTop)
+            y = clickedWindowPos->y - (h - clickedWindowPos->h);
+          else
+            y = bounds().y;
+
+          moveWindow(gfx::Rect(x, y, w, h), false);
+          invalidate();
+        }
+      }
     }
+    break;
 
-    case kMouseUpMessage:
-      if (hasCapture()) {
-        releaseMouse();
-        set_mouse_cursor(kArrowCursor);
+  case kSetCursorMessage:
+    if (m_isMoveable)
+    {
+      gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
+      HitTest ht = hitTest(mousePos);
+      CursorType cursor = kArrowCursor;
 
-        if (clickedWindowPos != NULL) {
-          delete clickedWindowPos;
-          clickedWindowPos = NULL;
-        }
-
-        m_hitTest = HitTestNowhere;
-        return true;
-      }
-      break;
-
-    case kMouseMoveMessage:
-      if (!m_isMoveable)
+      switch (ht)
+      {
+      case HitTestCaption:
+        cursor = kArrowCursor;
         break;
-
-      // Does it have the mouse captured?
-      if (hasCapture()) {
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
-
-        // Reposition/resize
-        if (m_hitTest == HitTestCaption) {
-          int x = clickedWindowPos->x + (mousePos.x - clickedMousePos.x);
-          int y = clickedWindowPos->y + (mousePos.y - clickedMousePos.y);
-          static std::optional<gfx::Rect> moveTarget;
-          if (!moveTarget.has_value()) {
-              app::TaskManager::instance().delayed([handle = handle()]{
-                  if (auto self = handle.get<ui::Widget, ui::Window>())
-                      self->moveWindow(*moveTarget, true);
-                  moveTarget.reset();
-              });
-          }
-          moveTarget = {x, y, bounds().w, bounds().h};
-        }
-        else {
-          int x, y, w, h;
-
-          w = clickedWindowPos->w;
-          h = clickedWindowPos->h;
-
-          bool hitLeft = (m_hitTest == HitTestBorderNW ||
-                          m_hitTest == HitTestBorderW ||
-                          m_hitTest == HitTestBorderSW);
-          bool hitTop = (m_hitTest == HitTestBorderNW ||
-                         m_hitTest == HitTestBorderN ||
-                         m_hitTest == HitTestBorderNE);
-          bool hitRight = (m_hitTest == HitTestBorderNE ||
-                           m_hitTest == HitTestBorderE ||
-                           m_hitTest == HitTestBorderSE);
-          bool hitBottom = (m_hitTest == HitTestBorderSW ||
-                            m_hitTest == HitTestBorderS ||
-                            m_hitTest == HitTestBorderSE);
-
-          if (hitLeft) {
-            w += clickedMousePos.x - mousePos.x;
-          }
-          else if (hitRight) {
-            w += mousePos.x - clickedMousePos.x;
-          }
-
-          if (hitTop) {
-            h += (clickedMousePos.y - mousePos.y);
-          }
-          else if (hitBottom) {
-            h += (mousePos.y - clickedMousePos.y);
-          }
-
-          limitSize(&w, &h);
-
-          if ((bounds().w != w) ||
-              (bounds().h != h)) {
-            if (hitLeft)
-              x = clickedWindowPos->x - (w - clickedWindowPos->w);
-            else
-              x = bounds().x;
-
-            if (hitTop)
-              y = clickedWindowPos->y - (h - clickedWindowPos->h);
-            else
-              y = bounds().y;
-
-            moveWindow(gfx::Rect(x, y, w, h), false);
-            invalidate();
-          }
-        }
+      case HitTestBorderNW:
+        cursor = kSizeNWCursor;
+        break;
+      case HitTestBorderW:
+        cursor = kSizeWCursor;
+        break;
+      case HitTestBorderSW:
+        cursor = kSizeSWCursor;
+        break;
+      case HitTestBorderNE:
+        cursor = kSizeNECursor;
+        break;
+      case HitTestBorderE:
+        cursor = kSizeECursor;
+        break;
+      case HitTestBorderSE:
+        cursor = kSizeSECursor;
+        break;
+      case HitTestBorderN:
+        cursor = kSizeNCursor;
+        break;
+      case HitTestBorderS:
+        cursor = kSizeSCursor;
+        break;
       }
-      break;
 
-    case kSetCursorMessage:
-      if (m_isMoveable) {
-        gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
-        HitTest ht = hitTest(mousePos);
-        CursorType cursor = kArrowCursor;
-
-        switch (ht) {
-          case HitTestCaption: cursor = kArrowCursor; break;
-          case HitTestBorderNW: cursor = kSizeNWCursor; break;
-          case HitTestBorderW: cursor = kSizeWCursor; break;
-          case HitTestBorderSW: cursor = kSizeSWCursor; break;
-          case HitTestBorderNE: cursor = kSizeNECursor; break;
-          case HitTestBorderE: cursor = kSizeECursor; break;
-          case HitTestBorderSE: cursor = kSizeSECursor; break;
-          case HitTestBorderN: cursor = kSizeNCursor; break;
-          case HitTestBorderS: cursor = kSizeSCursor; break;
-        }
-
-        set_mouse_cursor(cursor);
-        return true;
-      }
-      break;
-
+      set_mouse_cursor(cursor);
+      return true;
+    }
+    break;
   }
 
   return Widget::onProcessMessage(msg);
@@ -431,16 +473,20 @@ void Window::onSizeHint(SizeHintEvent& ev)
 {
   Widget* manager = this->manager();
 
-  if (m_isDesktop) {
+  if (m_isDesktop)
+  {
     Rect cpos = manager->childrenBounds();
     ev.setSizeHint(cpos.w, cpos.h);
   }
-  else {
+  else
+  {
     Size maxSize(0, 0);
     Size reqSize;
 
-    for (auto child : children()) {
-      if (!child->isDecorative()) {
+    for (auto child : children())
+    {
+      if (!child->isDecorative())
+      {
         reqSize = child->sizeHint();
 
         maxSize.w = MAX(maxSize.w, reqSize.w);
@@ -451,8 +497,7 @@ void Window::onSizeHint(SizeHintEvent& ev)
     if (hasText())
       maxSize.w = MAX(maxSize.w, textWidth());
 
-    ev.setSizeHint(maxSize.w + border().width(),
-                   maxSize.h + border().height());
+    ev.setSizeHint(maxSize.w + border().width(), maxSize.h + border().height());
   }
 }
 
@@ -488,7 +533,8 @@ void Window::windowSetPosition(const gfx::Rect& rect)
   Rect cpos = childrenBounds();
 
   // Set all the children to the same "cpos"
-  for (auto child : children()) {
+  for (auto child : children())
+  {
     if (child->isDecorative())
       child->setDecorativeWidgetBounds();
     else
@@ -531,11 +577,13 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
   getDrawableRegion(oldDrawableRegion, FLAGS);
 
   // If the size of the window changes...
-  if (old_pos.w != rect.w || old_pos.h != rect.h) {
+  if (old_pos.w != rect.w || old_pos.h != rect.h)
+  {
     // We have to change the position of all children.
     windowSetPosition(rect);
   }
-  else {
+  else
+  {
     // We can just displace all the widgets by a delta (new_position -
     // old_position)...
     offsetWidgets(dx, dy);
@@ -550,20 +598,20 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
   // it's the old window drawable region without the new window
   // drawable region.
   Region invalidManagerRegion;
-  invalidManagerRegion.createSubtraction(
-    oldDrawableRegion,
-    newDrawableRegion);
+  invalidManagerRegion.createSubtraction(oldDrawableRegion, newDrawableRegion);
 
   // In second place, we have to setup the window invalid region...
 
   // If "use_blit" isn't activated, we have to redraw the whole window
   // (sending kPaintMessage messages) in the new drawable region
-  if (!use_blit) {
+  if (!use_blit)
+  {
     invalidateRegion(newDrawableRegion);
   }
   // If "use_blit" is activated, we can move the old drawable to the
   // new position (to redraw as little as possible).
-  else {
+  else
+  {
     Region reg1;
     reg1 = newDrawableRegion;
     reg1.offset(-dx, -dy);
@@ -576,7 +624,8 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
     hide_mouse_cursor();
     {
       IntersectClip clip(&g, man_pos);
-      if (clip) {
+      if (clip)
+      {
         ui::move_region(manager, moveableRegion, dx, dy);
       }
     }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,7 +14,8 @@
 #include "base/file_handle.h"
 #include "tinyxml2.h"
 
-namespace app {
+namespace app
+{
 
 using namespace base;
 
@@ -47,7 +48,7 @@ bool bool_attr_is_true(const tinyxml2::XMLElement* elem, const char* attrName)
 {
   const char* value = elem->Attribute(attrName);
 
-  return (value != NULL) && (strcmp(value, "true") == 0);
+  return (value != nullptr) && (strcmp(value, "true") == 0);
 }
 
 } // namespace app

@@ -33,11 +33,13 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 static std::string last_text_used;
 
-class PasteTextCommand : public Command {
+class PasteTextCommand : public Command
+{
 public:
   PasteTextCommand();
   Command* clone() const override { return new PasteTextCommand(*this); }
@@ -48,22 +50,22 @@ protected:
 };
 
 PasteTextCommand::PasteTextCommand()
-  : Command("PasteText",
-            "Insert Text",
-            CmdUIOnlyFlag)
+  : Command("PasteText", "Insert Text", CmdUIOnlyFlag)
 {
 }
 
 bool PasteTextCommand::onEnabled(Context* ctx)
 {
-  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsEditable);
+  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
+                         ContextFlags::ActiveLayerIsEditable);
 }
 
-class PasteTextWindow : public app::gen::PasteText {
+class PasteTextWindow : public app::gen::PasteText
+{
 public:
-  PasteTextWindow(const std::string& face, int size,
-                  bool antialias,
-                  const app::Color& color) {
+  PasteTextWindow(const std::string& face, int size, bool antialias,
+                  const app::Color& color)
+  {
     this->antialias()->setSelected(antialias);
     if (!face.empty())
       setFontFace(face);
@@ -72,41 +74,40 @@ public:
       updateFontFaceButton();
 
     fontSize()->setValue(size);
-    fontFace()->Click.connect(base::Bind<void>(&PasteTextWindow::onSelectFontFile, this));
-    fontFace()->DropDownClick.connect(base::Bind<void>(&PasteTextWindow::onSelectSystemFont, this));
+    fontFace()->Click.connect(
+        base::Bind<void>(&PasteTextWindow::onSelectFontFile, this));
+    fontFace()->DropDownClick.connect(
+        base::Bind<void>(&PasteTextWindow::onSelectSystemFont, this));
     fontColor()->setColor(color);
-    this->antialias()->Click.connect([this](ui::Event&){onChangeAntialias();});
+    this->antialias()->Click.connect([this](ui::Event&)
+                                     { onChangeAntialias(); });
   }
 
-  std::string faceValue() const {
-    return m_face;
-  }
+  std::string faceValue() const { return m_face; }
 
-  int sizeValue() const {
-    return fontSize()->getValue();
-  }
+  int sizeValue() const { return fontSize()->getValue(); }
 
 private:
-  void updateFontFaceButton() {
-    fontFace()->mainButton()
-      ->setTextf("Select Font: %s",
-                 base::get_file_title(m_face).c_str());
+  void updateFontFaceButton()
+  {
+    fontFace()->mainButton()->setTextf("Select Font: %s",
+                                       base::get_file_title(m_face).c_str());
   }
 
-  void onSelectFontFile() {
-    std::string face = show_file_selector(
-      "Select a TrueType Font",
-      m_face,
-      "ttf,otf",
-      FileSelectorType::Open,
-      nullptr);
+  void onSelectFontFile()
+  {
+    std::string face =
+        show_file_selector("Select a TrueType Font", m_face, "ttf,otf",
+                           FileSelectorType::Open, nullptr);
 
-    if (!face.empty()) {
+    if (!face.empty())
+    {
       setFontFace(face);
     }
   }
 
-  void setFontFace(const std::string& face) {
+  void setFontFace(const std::string& face)
+  {
     if (face == m_face)
       return;
 
@@ -122,40 +123,47 @@ private:
     userText()->invalidate();
   }
 
-  void onChangeAntialias() {
-    if (m_font) {
+  void onChangeAntialias()
+  {
+    if (m_font)
+    {
       m_font->setAntialias(antialias()->isSelected());
       userText()->invalidate();
     }
   }
 
-  void onSelectSystemFont() {
-    if (!m_fontPopup) {
-      try {
-        m_fontPopup.reset(new FontPopup());
+  void onSelectSystemFont()
+  {
+    if (!m_fontPopup)
+    {
+      try
+      {
+        m_fontPopup = std::make_unique<FontPopup>();
         m_fontPopup->Load.connect(&PasteTextWindow::setFontFace, this);
-        m_fontPopup->Close.connect(base::Bind<void>(&PasteTextWindow::onCloseFontPopup, this));
+        m_fontPopup->Close.connect(
+            base::Bind<void>(&PasteTextWindow::onCloseFontPopup, this));
       }
-      catch (const std::exception& ex) {
+      catch (const std::exception& ex)
+      {
         Console::showException(ex);
         return;
       }
     }
 
-    if (!m_fontPopup->isVisible()) {
+    if (!m_fontPopup->isVisible())
+    {
       gfx::Rect bounds = fontFace()->bounds();
-      m_fontPopup->showPopup(
-        gfx::Rect(bounds.x, bounds.y+bounds.h,
-                  ui::display_w()/2, ui::display_h()/2));
+      m_fontPopup->showPopup(gfx::Rect(bounds.x, bounds.y + bounds.h,
+                                       ui::display_w() / 2,
+                                       ui::display_h() / 2));
     }
-    else {
-      m_fontPopup->closeWindow(NULL);
+    else
+    {
+      m_fontPopup->closeWindow(nullptr);
     }
   }
 
-  void onCloseFontPopup() {
-    fontFace()->dropDown()->requestFocus();
-  }
+  void onCloseFontPopup() { fontFace()->dropDown()->requestFocus(); }
 
   std::shared_ptr<she::Font> m_font;
   std::string m_face;
@@ -165,14 +173,12 @@ private:
 void PasteTextCommand::onExecute(Context* ctx)
 {
   Editor* editor = current_editor;
-  if (editor == NULL)
+  if (editor == nullptr)
     return;
 
   Preferences& pref = Preferences::instance();
-  PasteTextWindow window(pref.textTool.fontFace(),
-                         pref.textTool.fontSize(),
-                         pref.textTool.antialias(),
-                         pref.colorBar.fgColor());
+  PasteTextWindow window(pref.textTool.fontFace(), pref.textTool.fontSize(),
+                         pref.textTool.antialias(), pref.colorBar.fgColor());
 
   window.userText()->setText(last_text_used);
 
@@ -189,33 +195,33 @@ void PasteTextCommand::onExecute(Context* ctx)
   pref.textTool.fontSize(size);
   pref.textTool.antialias(antialias);
 
-  try {
+  try
+  {
     std::string text = window.userText()->text();
     app::Color appColor = window.fontColor()->getColor();
-    doc::color_t color = doc::rgba(appColor.getRed(),
-                                   appColor.getGreen(),
-                                   appColor.getBlue(),
-                                   appColor.getAlpha());
+    doc::color_t color = doc::rgba(appColor.getRed(), appColor.getGreen(),
+                                   appColor.getBlue(), appColor.getAlpha());
 
     doc::ImageRef image(render_text(faceName, size, text, color, antialias));
-    if (image) {
+    if (image)
+    {
       Sprite* sprite = editor->sprite();
-      if (image->pixelFormat() != sprite->pixelFormat()) {
+      if (image->pixelFormat() != sprite->pixelFormat())
+      {
         RgbMap* rgbmap = sprite->rgbMap(editor->frame());
-        image.reset(
-          render::convert_pixel_format(
-            image.get(), NULL, sprite->pixelFormat(),
-            DitheringMethod::NONE, rgbmap, sprite->palette(editor->frame()),
-            false, 0));
+        image.reset(render::convert_pixel_format(
+            image.get(), nullptr, sprite->pixelFormat(), DitheringMethod::NONE,
+            rgbmap, sprite->palette(editor->frame()), false, 0));
       }
 
       editor->pasteImage(image.get());
     }
   }
-  catch (const std::exception& ex) {
-    ui::Alert::show(PACKAGE
-                    "<<%s"
-                    "||&OK", ex.what());
+  catch (const std::exception& ex)
+  {
+    ui::Alert::show(PACKAGE "<<%s"
+                            "||&OK",
+                    ex.what());
   }
 }
 

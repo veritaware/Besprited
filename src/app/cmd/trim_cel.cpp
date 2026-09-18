@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,21 +16,22 @@
 #include "doc/algorithm/shrink_bounds.h"
 #include "doc/cel.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-TrimCel::TrimCel(std::shared_ptr<Cel> cel)
+TrimCel::TrimCel(const std::shared_ptr<Cel>& cel)
 {
-  gfx::Rect newBounds;
-  if (algorithm::shrink_bounds(cel->image(), newBounds,
-                               cel->image()->maskColor())) {
+  if (gfx::Rect newBounds; algorithm::shrink_bounds(cel->image(), newBounds,
+                                                    cel->image()->maskColor()))
+  {
     newBounds.offset(cel->position());
-    m_subCmd = new cmd::CropCel(cel, newBounds);
+    m_subCmd = new CropCel(cel, newBounds);
   }
-  else {
-    m_subCmd = new cmd::RemoveCel(cel);
+  else
+  {
+    m_subCmd = new RemoveCel(cel);
   }
 }
 
@@ -54,5 +55,4 @@ void TrimCel::onRedo()
   m_subCmd->redo();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

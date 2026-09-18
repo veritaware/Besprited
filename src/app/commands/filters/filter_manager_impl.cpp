@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -37,7 +37,8 @@
 #include <cstring>
 #include <set>
 
-namespace app {
+namespace app
+{
 
 using namespace std;
 using namespace ui;
@@ -51,7 +52,7 @@ FilterManagerImpl::FilterManagerImpl(Context* context, Filter* filter)
   , m_dst(nullptr)
   , m_mask(nullptr)
   , m_previewMask(nullptr)
-  , m_progressDelegate(NULL)
+  , m_progressDelegate(nullptr)
 {
   m_row = 0;
   m_targetOrig = TARGET_ALL_CHANNELS;
@@ -86,8 +87,7 @@ void FilterManagerImpl::setTarget(int target)
   m_target = target;
 
   // The alpha channel of the background layer can't be modified.
-  if (m_site.layer() &&
-      m_site.layer()->isBackground())
+  if (m_site.layer() && m_site.layer()->isBackground())
     m_target &= ~TARGET_ALPHA_CHANNEL;
 }
 
@@ -96,7 +96,7 @@ void FilterManagerImpl::begin()
   Document* document = static_cast<app::Document*>(m_site.document());
 
   m_row = 0;
-  m_mask = (document->isMaskVisible() ? document->mask(): nullptr);
+  m_mask = (document->isMaskVisible() ? document->mask() : nullptr);
   updateBounds(m_mask);
 }
 
@@ -105,9 +105,10 @@ void FilterManagerImpl::beginForPreview()
   Document* document = static_cast<app::Document*>(m_site.document());
 
   if (document->isMaskVisible())
-    m_previewMask.reset(new Mask(*document->mask()));
-  else {
-    m_previewMask.reset(new Mask());
+    m_previewMask = std::make_unique<Mask>(*document->mask());
+  else
+  {
+    m_previewMask = std::make_unique<Mask>();
     m_previewMask->replace(m_site.sprite()->bounds());
   }
 
@@ -121,7 +122,8 @@ void FilterManagerImpl::beginForPreview()
     vp = editor->screenToEditor(vp);
     vp = vp.createIntersection(sprite->bounds());
 
-    if (vp.isEmpty()) {
+    if (vp.isEmpty())
+    {
       m_previewMask.reset(nullptr);
       m_row = -1;
       return;
@@ -130,7 +132,8 @@ void FilterManagerImpl::beginForPreview()
     m_previewMask->intersect(vp);
   }
 
-  if (!updateBounds(m_mask)) {
+  if (!updateBounds(m_mask))
+  {
     m_previewMask.reset(nullptr);
     m_row = -1;
     return;
@@ -147,24 +150,30 @@ bool FilterManagerImpl::applyStep()
   if (m_row < 0 || m_row >= m_bounds.h)
     return false;
 
-  if (m_mask && m_mask->bitmap()) {
+  if (m_mask && m_mask->bitmap())
+  {
     int x = m_bounds.x - m_mask->bounds().x;
     int y = m_bounds.y - m_mask->bounds().y + m_row;
-    if ((x >= m_bounds.w) ||
-        (y >= m_bounds.h))
+    if ((x >= m_bounds.w) || (y >= m_bounds.h))
       return false;
 
-    m_maskBits = m_mask->bitmap()
-      ->lockBits<BitmapTraits>(Image::ReadLock,
-        gfx::Rect(x, y, m_bounds.w - x, m_bounds.h - y));
+    m_maskBits = m_mask->bitmap()->lockBits<BitmapTraits>(
+        Image::ReadLock, gfx::Rect(x, y, m_bounds.w - x, m_bounds.h - y));
 
     m_maskIterator = m_maskBits.begin();
   }
 
-  switch (m_site.sprite()->pixelFormat()) {
-    case IMAGE_RGB:       m_filter->applyToRgba(this); break;
-    case IMAGE_GRAYSCALE: m_filter->applyToGrayscale(this); break;
-    case IMAGE_INDEXED:   m_filter->applyToIndexed(this); break;
+  switch (m_site.sprite()->pixelFormat())
+  {
+  case IMAGE_RGB:
+    m_filter->applyToRgba(this);
+    break;
+  case IMAGE_GRAYSCALE:
+    m_filter->applyToGrayscale(this);
+    break;
+  case IMAGE_INDEXED:
+    m_filter->applyToIndexed(this);
+    break;
   }
   ++m_row;
 
@@ -176,26 +185,27 @@ void FilterManagerImpl::apply(Transaction& transaction)
   bool cancelled = false;
 
   begin();
-  while (!cancelled && applyStep()) {
-    if (m_progressDelegate) {
+  while (!cancelled && applyStep())
+  {
+    if (m_progressDelegate)
+    {
       // Report progress.
-      m_progressDelegate->reportProgress(m_progressBase + m_progressWidth * (m_row+1) / m_bounds.h);
+      m_progressDelegate->reportProgress(
+          m_progressBase + m_progressWidth * (m_row + 1) / m_bounds.h);
 
       // Does the user cancelled the whole process?
       cancelled = m_progressDelegate->isCancelled();
     }
   }
 
-  if (!cancelled) {
+  if (!cancelled)
+  {
     gfx::Rect output;
-    if (algorithm::shrink_bounds2(m_src.get(), m_dst.get(),
-                                  m_bounds, output)) {
+    if (algorithm::shrink_bounds2(m_src.get(), m_dst.get(), m_bounds, output))
+    {
       // Patch "m_cel"
-      transaction.execute(
-        new cmd::PatchCel(
-          m_cel, m_dst.get(),
-          gfx::Region(output),
-          position()));
+      transaction.execute(new cmd::PatchCel(m_cel, m_dst.get(),
+                                            gfx::Region(output), position()));
     }
   }
 }
@@ -204,19 +214,19 @@ void FilterManagerImpl::applyToTarget()
 {
   bool cancelled = false;
 
-  ImagesCollector images((m_target & TARGET_ALL_LAYERS ?
-                          m_site.sprite()->folder():
-                          m_site.layer()),
-                         m_site.frame(),
-                         (m_target & TARGET_ALL_FRAMES) == TARGET_ALL_FRAMES,
-                         true); // we will write in each image
+  ImagesCollector images(
+      (m_target & TARGET_ALL_LAYERS ? m_site.sprite()->folder()
+                                    : m_site.layer()),
+      m_site.frame(), (m_target & TARGET_ALL_FRAMES) == TARGET_ALL_FRAMES,
+      true); // we will write in each image
   if (images.empty())
     return;
 
   // Initialize writting operation
   ContextReader reader(m_context);
   ContextWriter writer(reader);
-  Transaction transaction(writer.context(), m_filter->getName(), ModifyDocument);
+  Transaction transaction(writer.context(), m_filter->getName(),
+                          ModifyDocument);
 
   m_progressBase = 0.0f;
   m_progressWidth = 1.0f / images.size();
@@ -224,13 +234,13 @@ void FilterManagerImpl::applyToTarget()
   std::set<ObjectId> visited;
 
   // For each target image
-  for (auto it = images.begin();
-       it != images.end() && !cancelled;
-       ++it) {
+  for (auto it = images.begin(); it != images.end() && !cancelled; ++it)
+  {
     Image* image = it->image();
 
     // Avoid applying the filter two times to the same image
-    if (visited.find(image->id()) == visited.end()) {
+    if (visited.find(image->id()) == visited.end())
+    {
       visited.insert(image->id());
       applyToCel(transaction, it->cel());
     }
@@ -248,17 +258,14 @@ void FilterManagerImpl::applyToTarget()
 
 void FilterManagerImpl::flush()
 {
-  if (m_row >= 0) {
+  if (m_row >= 0)
+  {
     Editor* editor = current_editor;
     gfx::Rect rect(
-      editor->editorToScreen(
-        gfx::Point(
-          m_bounds.x,
-          m_bounds.y+m_row-1)),
-      gfx::Size(
-        editor->zoom().apply(m_bounds.w),
-        (editor->zoom().scale() >= 1 ? editor->zoom().apply(1):
-                                       editor->zoom().remove(1))));
+        editor->editorToScreen(gfx::Point(m_bounds.x, m_bounds.y + m_row - 1)),
+        gfx::Size(editor->zoom().apply(m_bounds.w),
+                  (editor->zoom().scale() >= 1 ? editor->zoom().apply(1)
+                                               : editor->zoom().remove(1))));
 
     gfx::Region reg1(rect);
     gfx::Region reg2;
@@ -271,19 +278,20 @@ void FilterManagerImpl::flush()
 
 const void* FilterManagerImpl::getSourceAddress()
 {
-  return m_src->getPixelAddress(m_bounds.x, m_bounds.y+m_row);
+  return m_src->getPixelAddress(m_bounds.x, m_bounds.y + m_row);
 }
 
 void* FilterManagerImpl::getDestinationAddress()
 {
-  return m_dst->getPixelAddress(m_bounds.x, m_bounds.y+m_row);
+  return m_dst->getPixelAddress(m_bounds.x, m_bounds.y + m_row);
 }
 
 bool FilterManagerImpl::skipPixel()
 {
   bool skip = false;
 
-  if ((m_mask) && (m_mask->bitmap())) {
+  if ((m_mask) && (m_mask->bitmap()))
+  {
     if (!*m_maskIterator)
       skip = true;
 
@@ -310,8 +318,7 @@ void FilterManagerImpl::init(std::shared_ptr<Cel> cel)
     throw InvalidAreaException();
 
   m_cel = cel;
-  m_src.reset(
-    crop_image(
+  m_src.reset(crop_image(
       cel->image(),
       gfx::Rect(m_site.sprite()->bounds()).offset(-cel->position()), 0));
   m_dst.reset(Image::createCopy(m_src.get()));
@@ -327,7 +334,8 @@ void FilterManagerImpl::init(std::shared_ptr<Cel> cel)
     m_target &= ~TARGET_ALPHA_CHANNEL;
 }
 
-void FilterManagerImpl::applyToCel(Transaction& transaction, std::shared_ptr<Cel> cel)
+void FilterManagerImpl::applyToCel(Transaction& transaction,
+                                   std::shared_ptr<Cel> cel)
 {
   init(cel);
   apply(transaction);
@@ -336,11 +344,13 @@ void FilterManagerImpl::applyToCel(Transaction& transaction, std::shared_ptr<Cel
 bool FilterManagerImpl::updateBounds(doc::Mask* mask)
 {
   gfx::Rect bounds;
-  if (mask && mask->bitmap() && !mask->bounds().isEmpty()) {
+  if (mask && mask->bitmap() && !mask->bounds().isEmpty())
+  {
     bounds = mask->bounds();
     bounds &= m_site.sprite()->bounds();
   }
-  else {
+  else
+  {
     bounds = m_site.sprite()->bounds();
   }
   m_bounds = bounds;

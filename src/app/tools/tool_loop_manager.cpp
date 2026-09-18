@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -26,8 +26,8 @@
 
 #include <climits>
 
-namespace app {
-namespace tools {
+namespace app::tools
+{
 
 using namespace gfx;
 using namespace doc;
@@ -45,7 +45,7 @@ ToolLoopManager::~ToolLoopManager()
 
 bool ToolLoopManager::isCanceled() const
 {
- return m_toolLoop->isCanceled();
+  return m_toolLoop->isCanceled();
 }
 
 void ToolLoopManager::prepareLoop(const Pointer& pointer)
@@ -76,9 +76,13 @@ void ToolLoopManager::pressButton(const Pointer& pointer)
     return;
 
   // If the user pressed the other mouse button...
-  if ((m_toolLoop->getMouseButton() == ToolLoop::Left && pointer.button() == Pointer::Right) ||
-      (m_toolLoop->getMouseButton() == ToolLoop::Right && pointer.button() == Pointer::Left)) {
-    // Cancel the tool-loop (the destination image should be completelly discarded)
+  if ((m_toolLoop->getMouseButton() == ToolLoop::Left &&
+       pointer.button() == Pointer::Right) ||
+      (m_toolLoop->getMouseButton() == ToolLoop::Right &&
+       pointer.button() == Pointer::Left))
+  {
+    // Cancel the tool-loop (the destination image should be completelly
+    // discarded)
     m_toolLoop->cancel();
     return;
   }
@@ -89,7 +93,8 @@ void ToolLoopManager::pressButton(const Pointer& pointer)
   m_oldPoint = spritePoint;
   snapToGrid(spritePoint);
 
-  m_toolLoop->getController()->pressButton(m_stroke, spritePoint, pointer.pressure());
+  m_toolLoop->getController()->pressButton(m_stroke, spritePoint,
+                                           pointer.pressure());
 
   std::string statusText;
   m_toolLoop->getController()->getStatusBarText(m_stroke, statusText);
@@ -110,7 +115,8 @@ bool ToolLoopManager::releaseButton(const Pointer& pointer)
 
   bool res = m_toolLoop->getController()->releaseButton(m_stroke, spritePoint);
 
-  if (!res && (m_toolLoop->getInk()->isSelection() || m_toolLoop->getFilled())) {
+  if (!res && (m_toolLoop->getInk()->isSelection() || m_toolLoop->getFilled()))
+  {
     m_toolLoop->getInk()->setFinalStep(m_toolLoop, true);
     doLoopStep(true);
     m_toolLoop->getInk()->setFinalStep(m_toolLoop, false);
@@ -133,7 +139,8 @@ void ToolLoopManager::movement(const Pointer& pointer)
   m_oldPoint = spritePoint;
   snapToGrid(spritePoint);
 
-  m_toolLoop->getController()->movement(m_toolLoop, m_stroke, spritePoint, pointer.pressure());
+  m_toolLoop->getController()->movement(m_toolLoop, m_stroke, spritePoint,
+                                        pointer.pressure());
 
   std::string statusText;
   m_toolLoop->getController()->getStatusBarText(m_stroke, statusText);
@@ -163,22 +170,26 @@ void ToolLoopManager::doLoopStep(bool last_step)
   calculateDirtyArea(strokes);
 
   // Validate source image area.
-  if (m_toolLoop->getInk()->needsSpecialSourceArea()) {
+  if (m_toolLoop->getInk()->needsSpecialSourceArea())
+  {
     gfx::Region srcArea;
     m_toolLoop->getInk()->createSpecialSourceArea(m_dirtyArea, srcArea);
     m_toolLoop->validateSrcImage(srcArea);
   }
-  else {
+  else
+  {
     m_toolLoop->validateSrcImage(m_dirtyArea);
   }
 
   // Invalidate destionation image areas.
-  if (m_toolLoop->getTracePolicy() == TracePolicy::Last) {
+  if (m_toolLoop->getTracePolicy() == TracePolicy::Last)
+  {
     // Copy source to destination (reset the previous trace). Useful
     // for tools like Line and Ellipse (we kept the last trace only).
     m_toolLoop->invalidateDstImage();
   }
-  else if (m_toolLoop->getTracePolicy() == TracePolicy::AccumulateUpdateLast) {
+  else if (m_toolLoop->getTracePolicy() == TracePolicy::AccumulateUpdateLast)
+  {
     // Revalidate only this last dirty area (e.g. pixel-perfect
     // freehand algorithm needs this trace policy to redraw only the
     // last dirty area, which can vary in one pixel from the previous
@@ -189,12 +200,14 @@ void ToolLoopManager::doLoopStep(bool last_step)
   m_toolLoop->validateDstImage(m_dirtyArea);
 
   // Join or fill user points
-  if (!m_toolLoop->getFilled() || (!last_step && !m_toolLoop->getPreviewFilled()))
+  if (!m_toolLoop->getFilled() ||
+      (!last_step && !m_toolLoop->getPreviewFilled()))
     m_toolLoop->getIntertwine()->joinStroke(m_toolLoop, main_stroke);
   else
     m_toolLoop->getIntertwine()->fillStroke(m_toolLoop, main_stroke);
 
-  if (m_toolLoop->getTracePolicy() == TracePolicy::Overlap) {
+  if (m_toolLoop->getTracePolicy() == TracePolicy::Overlap)
+  {
     // Copy destination to source (yes, destination to source). In
     // this way each new trace overlaps the previous one.
     m_toolLoop->copyValidDstToSrcImage(m_dirtyArea);
@@ -226,7 +239,8 @@ void ToolLoopManager::calculateDirtyArea(const Strokes& strokes)
   // Start with a fresh dirty area
   m_dirtyArea.clear();
 
-  for (auto& stroke : strokes) {
+  for (auto& stroke : strokes)
+  {
     gfx::Rect strokeBounds = stroke.bounds();
     if (strokeBounds.isEmpty())
       continue;
@@ -234,15 +248,12 @@ void ToolLoopManager::calculateDirtyArea(const Strokes& strokes)
     // Expand the dirty-area with the pen width
     Rect r1, r2;
 
-    m_toolLoop->getPointShape()->getModifiedArea(
-      m_toolLoop,
-      strokeBounds.x,
-      strokeBounds.y, r1);
+    m_toolLoop->getPointShape()->getModifiedArea(m_toolLoop, strokeBounds.x,
+                                                 strokeBounds.y, r1);
 
     m_toolLoop->getPointShape()->getModifiedArea(
-      m_toolLoop,
-      strokeBounds.x+strokeBounds.w-1,
-      strokeBounds.y+strokeBounds.h-1, r2);
+        m_toolLoop, strokeBounds.x + strokeBounds.w - 1,
+        strokeBounds.y + strokeBounds.h - 1, r2);
 
     m_dirtyArea.createUnion(m_dirtyArea, Region(r1.createUnion(r2)));
   }
@@ -255,28 +266,35 @@ void ToolLoopManager::calculateDirtyArea(const Strokes& strokes)
 
   // Apply tiled mode
   TiledMode tiledMode = m_toolLoop->getTiledMode();
-  if (tiledMode != TiledMode::NONE) {
+  if (tiledMode != TiledMode::NONE)
+  {
     int w = m_toolLoop->sprite()->width();
     int h = m_toolLoop->sprite()->height();
     Region sprite_area(Rect(0, 0, w, h));
     Region outside;
     outside.createSubtraction(m_dirtyArea, sprite_area);
 
-    switch (tiledMode) {
-      case TiledMode::X_AXIS:
-        outside.createIntersection(outside, Region(Rect(-w*10000, 0, w*20000, h)));
-        break;
-      case TiledMode::Y_AXIS:
-        outside.createIntersection(outside, Region(Rect(0, -h*10000, w, h*20000)));
-        break;
+    switch (tiledMode)
+    {
+    case TiledMode::X_AXIS:
+      outside.createIntersection(outside,
+                                 Region(Rect(-w * 10000, 0, w * 20000, h)));
+      break;
+    case TiledMode::Y_AXIS:
+      outside.createIntersection(outside,
+                                 Region(Rect(0, -h * 10000, w, h * 20000)));
+      break;
     }
 
     Rect outsideBounds = outside.bounds();
-    if (outsideBounds.x < 0) outside.offset(w * (1+((-outsideBounds.x) / w)), 0);
-    if (outsideBounds.y < 0) outside.offset(0, h * (1+((-outsideBounds.y) / h)));
+    if (outsideBounds.x < 0)
+      outside.offset(w * (1 + ((-outsideBounds.x) / w)), 0);
+    if (outsideBounds.y < 0)
+      outside.offset(0, h * (1 + ((-outsideBounds.y) / h)));
     int x1 = outside.bounds().x;
 
-    while (true) {
+    while (true)
+    {
       Region in_sprite;
       in_sprite.createIntersection(outside, sprite_area);
       outside.createSubtraction(outside, in_sprite);
@@ -285,15 +303,14 @@ void ToolLoopManager::calculateDirtyArea(const Strokes& strokes)
       outsideBounds = outside.bounds();
       if (outsideBounds.isEmpty())
         break;
-      else if (outsideBounds.x+outsideBounds.w > w)
+      else if (outsideBounds.x + outsideBounds.w > w)
         outside.offset(-w, 0);
-      else if (outsideBounds.y+outsideBounds.h > h)
-        outside.offset(x1-outsideBounds.x, -h);
+      else if (outsideBounds.y + outsideBounds.h > h)
+        outside.offset(x1 - outsideBounds.x, -h);
       else
         break;
     }
   }
 }
 
-} // namespace tools
-} // namespace app
+} // namespace app::tools

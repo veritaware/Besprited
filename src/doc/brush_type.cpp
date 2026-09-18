@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2015 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,25 +11,35 @@
 
 #include "doc/brush_type.h"
 
-namespace doc {
+namespace doc
+{
 
 std::string brush_type_to_string_id(BrushType brushType)
 {
-  switch (brushType) {
-    case kCircleBrushType: return "circle";
-    case kSquareBrushType: return "square";
-    case kLineBrushType: return "line";
-    case kImageBrushType: return "image";
+  switch (brushType)
+  {
+  case kCircleBrushType:
+    return "circle";
+  case kSquareBrushType:
+    return "square";
+  case kLineBrushType:
+    return "line";
+  case kImageBrushType:
+    return "image";
   }
   return "unknown";
 }
 
 BrushType string_id_to_brush_type(const std::string& s)
 {
-  if (s == "circle") return kCircleBrushType;
-  if (s == "square") return kSquareBrushType;
-  if (s == "line") return kLineBrushType;
-  if (s == "image") return kImageBrushType;
+  if (s == "circle")
+    return kCircleBrushType;
+  if (s == "square")
+    return kSquareBrushType;
+  if (s == "line")
+    return kLineBrushType;
+  if (s == "image")
+    return kImageBrushType;
   return kFirstBrushType;
 }
 

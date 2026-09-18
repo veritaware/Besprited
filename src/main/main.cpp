@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -36,20 +36,22 @@
 #define LIFETIME
 #endif
 
-namespace {
+namespace
+{
 
-  // Memory leak detector wrapper
-  class MemLeak {
-  public:
+// Memory leak detector wrapper
+class MemLeak
+{
+public:
 #ifdef MEMLEAK
-    MemLeak() { base_memleak_init(); }
-    ~MemLeak() { base_memleak_exit(); }
+  MemLeak() { base_memleak_init(); }
+  ~MemLeak() { base_memleak_exit(); }
 #else
-    MemLeak() { }
+  MemLeak() {}
 #endif
-  };
+};
 
-}
+} // namespace
 
 // Aseprite entry point. (Called from she library.)
 int app_main(int argc, char* argv[])
@@ -64,41 +66,48 @@ int app_main(int argc, char* argv[])
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
 #ifdef _WIN32
-  ::CoInitialize(NULL);
+  ::CoInitialize(nullptr);
 #endif
 
-  try {
-    static app::AppOptions options(argc, const_cast<const char**>(argv));
+  try
+  {
+    static const app::AppOptions options(argc, const_cast<const char**>(argv));
     LIFETIME auto system = std::unique_ptr<she::System>(she::create_system());
-    return system->run([]{
-      try {
-	base::MemoryDump memoryDump; //
-	MemLeak memleak;
-	base::SystemConsole systemConsole;
-	app::App app;
+    return system->run(
+        []
+        {
+          try
+          {
+            base::MemoryDump memoryDump; //
+            const MemLeak memleak;
+            base::SystemConsole systemConsole;
+            app::App app;
 
-	// Change the name of the memory dump file
-	{
-	  std::string filename = app::memory_dump_filename();
-	  if (!filename.empty())
-	    memoryDump.setFileName(filename);
-	}
+            // Change the name of the memory dump file
+            {
+              const std::string filename = app::memory_dump_filename();
+              if (!filename.empty())
+                memoryDump.setFileName(filename);
+            }
 
-	app.initialize(options);
+            app.initialize(options);
 
-	if (options.startShell())
-	  systemConsole.prepareShell();
+            if (options.startShell())
+              systemConsole.prepareShell();
 
-	app.run();
-	return 0;
-      } catch (std::exception& e) {
-	std::cerr << e.what() << '\n';
-	she::error_message(e.what());
-	return 1;
-      }
-    });
+            app.run();
+            return 0;
+          }
+          catch (std::exception& e)
+          {
+            std::cerr << e.what() << '\n';
+            she::error_message(e.what());
+            return 1;
+          }
+        });
   }
-  catch (std::exception& e) {
+  catch (std::exception& e)
+  {
     std::cerr << e.what() << '\n';
     she::error_message(e.what());
     return 1;

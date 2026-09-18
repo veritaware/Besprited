@@ -1,5 +1,6 @@
-// Aseprite CSS Library
-// Copyright (C) 2013 David Capello
+// CSS Library
+// Aseprite  | Copyright (C) 2013 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -10,26 +11,29 @@
 
 #include "css/value.h"
 
-namespace css {
+#include <utility>
 
-Value::Value() :
-  m_type(None)
+namespace css
+{
+
+Value::Value()
+  : m_type(None)
 {
 }
 
-Value::Value(double value, const std::string& unit) :
-  m_type(Number),
-  m_number(value),
-  m_string(unit)
+Value::Value(double value, std::string unit)
+  : m_type(Number)
+  , m_number(value)
+  , m_string(std::move(unit))
 {
 }
 
-Value::Value(const std::string& value) :
-  m_type(String),
-  m_string(value)
+Value::Value(std::string value)
+  : m_type(String)
+  , m_string(std::move(value))
 {
 }
-    
+
 double Value::number() const
 {
   if (m_type == Number)
@@ -43,7 +47,7 @@ std::string Value::string() const
   if (m_type == String)
     return m_string;
   else
-    return std::string();
+    return {};
 }
 
 std::string Value::unit() const
@@ -51,27 +55,29 @@ std::string Value::unit() const
   if (m_type == Number)
     return m_string;
   else
-    return std::string();
+    return {};
 }
 
 void Value::setNumber(double value)
 {
-  if (m_type != Number) {
+  if (m_type != Number)
+  {
     m_type = Number;
     m_string = "";
   }
   m_number = value;
 }
 
-void Value::setString(const std::string& value)
+void Value::setString(std::string value)
 {
   m_type = String;
-  m_string = value;
+  m_string = std::move(value);
 }
 
 void Value::setUnit(const std::string& unit)
 {
-  if (m_type != Number) {
+  if (m_type != Number)
+  {
     m_type = Number;
     m_number = 0.0;
   }
@@ -83,16 +89,17 @@ bool Value::operator==(const Value& other) const
   if (m_type != other.m_type)
     return false;
 
-  switch (m_type) {
-    case None:
-      return true;
-    case Number:
-      return m_number == other.m_number && m_string == other.m_string;
-    case String:
-      return m_string == other.m_string;
-    default:
-      return false;
+  switch (m_type)
+  {
+  case None:
+    return true;
+  case Number:
+    return m_number == other.m_number && m_string == other.m_string;
+  case String:
+    return m_string == other.m_string;
+  default:
+    return false;
   }
 }
-  
+
 } // namespace css

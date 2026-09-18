@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2016 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -8,23 +9,25 @@
 #include "config.h"
 #endif
 
+#include "base/debug.h"
 #include "base/string.h"
-#include <cassert>
 #include <cctype>
 #include <vector>
 
 #ifdef _WIN32
-  #include <windows.h>
+#include <windows.h>
 #endif
 
-namespace base {
+namespace base
+{
 
 std::vector<std::string> split(const std::string& original, char delimiter)
 {
   std::vector<std::string> output;
   std::string::size_type prevPos = 0, pos = 0;
 
-  while ((pos = original.find(delimiter, pos)) != std::string::npos) {
+  while ((pos = original.find(delimiter, pos)) != std::string::npos)
+  {
     output.emplace_back(original.substr(prevPos, pos - prevPos));
     prevPos = ++pos;
   }
@@ -38,7 +41,8 @@ std::string string_to_lower(const std::string& original)
   std::wstring result(from_utf8(original));
   auto it(result.begin());
   auto end(result.end());
-  while (it != end) {
+  while (it != end)
+  {
     *it = std::tolower(*it);
     ++it;
   }
@@ -50,7 +54,8 @@ std::string string_to_upper(const std::string& original)
   std::wstring result(from_utf8(original));
   auto it(result.begin());
   auto end(result.end());
-  while (it != end) {
+  while (it != end)
+  {
     *it = std::toupper(*it);
     ++it;
   }
@@ -61,41 +66,34 @@ std::string string_to_upper(const std::string& original)
 
 std::string to_utf8(const std::wstring& src)
 {
-  int required_size =
-    ::WideCharToMultiByte(CP_UTF8, 0,
-      src.c_str(), (int)src.size(),
-      NULL, 0, NULL, NULL);
+  int required_size = ::WideCharToMultiByte(
+      CP_UTF8, 0, src.c_str(), (int)src.size(), nullptr, 0, nullptr, nullptr);
 
   if (required_size == 0)
     return std::string();
 
   std::vector<char> buf(++required_size);
 
-  ::WideCharToMultiByte(CP_UTF8, 0,
-    src.c_str(), (int)src.size(),
-    &buf[0], required_size,
-    NULL, NULL);
+  ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), (int)src.size(), &buf[0],
+                        required_size, nullptr, nullptr);
 
-  return std::string(&buf[0]);
+  return {&buf[0]};
 }
 
 std::wstring from_utf8(const std::string& src)
 {
   int required_size =
-    MultiByteToWideChar(CP_UTF8, 0,
-      src.c_str(), (int)src.size(),
-      NULL, 0);
+      MultiByteToWideChar(CP_UTF8, 0, src.c_str(), (int)src.size(), nullptr, 0);
 
   if (required_size == 0)
     return std::wstring();
 
   std::vector<wchar_t> buf(++required_size);
 
-  ::MultiByteToWideChar(CP_UTF8, 0,
-    src.c_str(), (int)src.size(),
-    &buf[0], required_size);
+  ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), (int)src.size(), &buf[0],
+                        required_size);
 
-  return std::wstring(&buf[0]);
+  return {&buf[0]};
 }
 
 #else
@@ -105,35 +103,39 @@ static std::size_t insert_utf8_char(std::string* result, wchar_t chr)
 {
   int size, bits, b, i;
 
-  if (chr < 128) {
+  if (chr < 128)
+  {
     if (result)
       result->push_back(chr);
     return 1;
   }
 
   bits = 7;
-  while (chr >= (1<<bits))
+  while (chr >= (1 << bits))
     bits++;
 
   size = 2;
   b = 11;
 
-  while (b < bits) {
+  while (b < bits)
+  {
     size++;
     b += 5;
   }
 
-  if (result) {
-    b -= (7-size);
-    int firstbyte = chr>>b;
-    for (i=0; i<size; i++)
-      firstbyte |= (0x80>>i);
+  if (result)
+  {
+    b -= (7 - size);
+    int firstbyte = chr >> b;
+    for (i = 0; i < size; i++)
+      firstbyte |= (0x80 >> i);
 
     result->push_back(firstbyte);
 
-    for (i=1; i<size; i++) {
+    for (i = 1; i < size; i++)
+    {
       b -= 6;
-      result->push_back(0x80 | ((chr>>b)&0x3F));
+      result->push_back(0x80 | ((chr >> b) & 0x3F));
     }
   }
 
@@ -143,13 +145,13 @@ static std::size_t insert_utf8_char(std::string* result, wchar_t chr)
 std::string to_utf8(const std::wstring& src)
 {
   std::wstring::const_iterator it, begin = src.begin();
-  std::wstring::const_iterator end = src.end();
+  const std::wstring::const_iterator end = src.end();
 
   // Get required size to reserve a string so string::push_back()
   // doesn't need to reallocate its data.
   std::size_t required_size = 0;
   for (it = begin; it != end; ++it)
-    required_size += insert_utf8_char(NULL, *it);
+    required_size += insert_utf8_char(nullptr, *it);
   if (!required_size)
     return "";
 
@@ -164,23 +166,22 @@ std::wstring from_utf8(const std::string& src)
 {
   int required_size = utf8_length(src);
   std::vector<wchar_t> buf(++required_size);
-  std::vector<wchar_t>::iterator buf_it = buf.begin();
+  auto buf_it = buf.begin();
 #ifdef _DEBUG
-  std::vector<wchar_t>::iterator buf_end = buf.end();
+  const auto buf_end = buf.end();
 #endif
   utf8_const_iterator it(src.begin());
   utf8_const_iterator end(src.end());
 
-  while (it != end) {
-#ifdef _DEBUG
-    assert(buf_it != buf_end);
-#endif
+  while (it != end)
+  {
+    ASSERT(buf_it != buf_end);
     *buf_it = *it;
     ++buf_it;
     ++it;
   }
 
-  return std::wstring(&buf[0]);
+  return {&buf[0]};
 }
 
 #endif
@@ -188,7 +189,7 @@ std::wstring from_utf8(const std::string& src)
 int utf8_length(const std::string& utf8string)
 {
   utf8_const_iterator it(utf8string.begin());
-  utf8_const_iterator end(utf8string.end());
+  const utf8_const_iterator end(utf8string.end());
   int c = 0;
 
   while (it != end)
@@ -200,14 +201,16 @@ int utf8_length(const std::string& utf8string)
 int utf8_icmp(const std::string& a, const std::string& b, int n)
 {
   utf8_const_iterator a_it(a.begin());
-  utf8_const_iterator a_end(a.end());
+  const utf8_const_iterator a_end(a.end());
   utf8_const_iterator b_it(b.begin());
-  utf8_const_iterator b_end(b.end());
+  const utf8_const_iterator b_end(b.end());
   int i = 0;
 
-  for (; (n == 0 || i < n) && a_it != a_end && b_it != b_end; ++a_it, ++b_it, ++i) {
-    int a_chr = std::tolower(*a_it);
-    int b_chr = std::tolower(*b_it);
+  for (; (n == 0 || i < n) && a_it != a_end && b_it != b_end;
+       ++a_it, ++b_it, ++i)
+  {
+    const int a_chr = std::tolower(*a_it);
+    const int b_chr = std::tolower(*b_it);
 
     if (a_chr < b_chr)
       return -1;

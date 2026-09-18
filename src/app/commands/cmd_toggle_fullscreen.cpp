@@ -1,4 +1,5 @@
-// LibreSprite | Copyright (C)      2023  LibreSprite contributors
+// LibreSprite | Copyright (C) 2023 LibreSprite contributors
+// Besprited   | Copyright (C) 2026 Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -19,11 +20,12 @@
 #include "ui/system.h"
 #include "she/display.h"
 
-namespace app {
+namespace app
+{
 
-class ToggleFullscreenCommand : public Command {
+class ToggleFullscreenCommand : public Command
+{
 public:
-
   ToggleFullscreenCommand();
   Command* clone() const override { return new ToggleFullscreenCommand(*this); }
 
@@ -35,21 +37,28 @@ protected:
 };
 
 ToggleFullscreenCommand::ToggleFullscreenCommand()
-  : Command("ToggleFullscreen",
-            "ToggleFullscreen",
-            CmdUIOnlyFlag)
+  : Command("ToggleFullscreen", "ToggleFullscreen", CmdUIOnlyFlag)
 {
 }
 
-void ToggleFullscreenCommand::onLoadParams(const Params& params){}
+void ToggleFullscreenCommand::onLoadParams(const Params& params)
+{
+}
 
-bool ToggleFullscreenCommand::onEnabled(Context* context){return true;}
+bool ToggleFullscreenCommand::onEnabled(Context* context)
+{
+  return true;
+}
 
-void ToggleFullscreenCommand::onExecute(Context* context){
+void ToggleFullscreenCommand::onExecute(Context* context)
+{
   she::instance()->defaultDisplay()->toggleFullscreen();
 }
 
-std::string ToggleFullscreenCommand::onGetFriendlyName() const {return "Toggle Fullscreen";}
+std::string ToggleFullscreenCommand::onGetFriendlyName() const
+{
+  return "Toggle Fullscreen";
+}
 
 Command* CommandFactory::createToggleFullscreenCommand()
 {

@@ -16,16 +16,18 @@
 #include <iostream>
 #include <vector>
 
-typedef std::vector<tinyxml2::XMLElement*> XmlElements;
+using XmlElements = std::vector<tinyxml2::XMLElement*>;
 
-static tinyxml2::XMLElement* find_element_by_id(tinyxml2::XMLElement* elem, const std::string& thisId)
+static tinyxml2::XMLElement* find_element_by_id(tinyxml2::XMLElement* elem,
+                                                const std::string& thisId)
 {
   const char* id = elem->Attribute("id");
   if (id && id == thisId)
     return elem;
 
   tinyxml2::XMLElement* child = elem->FirstChildElement();
-  while (child) {
+  while (child)
+  {
     tinyxml2::XMLElement* match = find_element_by_id(child, thisId);
     if (match)
       return match;
@@ -33,13 +35,15 @@ static tinyxml2::XMLElement* find_element_by_id(tinyxml2::XMLElement* elem, cons
     child = child->NextSiblingElement();
   }
 
-  return NULL;
+  return nullptr;
 }
 
-static void collect_widgets_with_ids(tinyxml2::XMLElement* elem, XmlElements& widgets)
+static void collect_widgets_with_ids(tinyxml2::XMLElement* elem,
+                                     XmlElements& widgets)
 {
   tinyxml2::XMLElement* child = elem->FirstChildElement();
-  while (child) {
+  while (child)
+  {
     const char* id = child->Attribute("id");
     if (id)
       widgets.push_back(child);
@@ -54,46 +58,74 @@ static std::string convert_type(const std::string& name)
   if (name != "item")
     parent = name;
 
-  if (name == "box") return "ui::Box";
-  if (name == "button") return "ui::Button";
-  if (name == "buttonset") return "app::ButtonSet";
-  if (name == "check") return "ui::CheckBox";
-  if (name == "colorpicker") return "app::ColorButton";
-  if (name == "combobox") return "ui::ComboBox";
-  if (name == "dropdownbutton") return "app::DropDownButton";
-  if (name == "entry") return "ui::Entry";
-  if (name == "intentry") return "ui::IntEntry";
-  if (name == "numberentry") return "ui::NumberEntry";
-  if (name == "grid") return "ui::Grid";
-  if (name == "hbox") return "ui::HBox";
-  if (name == "item" && parent == "buttonset") return "app::ButtonSet::Item";
-  if (name == "label") return "ui::Label";
-  if (name == "link") return "ui::LinkLabel";
-  if (name == "listbox") return "ui::ListBox";
-  if (name == "panel") return "ui::Panel";
-  if (name == "popupwindow") return "ui::PopupWindow";
-  if (name == "radio") return "ui::RadioButton";
-  if (name == "search") return "app::SearchEntry";
-  if (name == "slider") return "ui::Slider";
-  if (name == "splitter") return "ui::Splitter";
-  if (name == "tipwindow") return "ui::TipWindow";
-  if (name == "vbox") return "ui::VBox";
-  if (name == "view") return "ui::View";
-  if (name == "image") return "ui::ImageView";
-  if (name == "window") return "ui::Window";
+  if (name == "box")
+    return "ui::Box";
+  if (name == "button")
+    return "ui::Button";
+  if (name == "buttonset")
+    return "app::ButtonSet";
+  if (name == "check")
+    return "ui::CheckBox";
+  if (name == "colorpicker")
+    return "app::ColorButton";
+  if (name == "combobox")
+    return "ui::ComboBox";
+  if (name == "dropdownbutton")
+    return "app::DropDownButton";
+  if (name == "entry")
+    return "ui::Entry";
+  if (name == "intentry")
+    return "ui::IntEntry";
+  if (name == "numberentry")
+    return "ui::NumberEntry";
+  if (name == "grid")
+    return "ui::Grid";
+  if (name == "hbox")
+    return "ui::HBox";
+  if (name == "item" && parent == "buttonset")
+    return "app::ButtonSet::Item";
+  if (name == "label")
+    return "ui::Label";
+  if (name == "link")
+    return "ui::LinkLabel";
+  if (name == "listbox")
+    return "ui::ListBox";
+  if (name == "panel")
+    return "ui::Panel";
+  if (name == "popupwindow")
+    return "ui::PopupWindow";
+  if (name == "radio")
+    return "ui::RadioButton";
+  if (name == "search")
+    return "app::SearchEntry";
+  if (name == "slider")
+    return "ui::Slider";
+  if (name == "splitter")
+    return "ui::Splitter";
+  if (name == "tipwindow")
+    return "ui::TipWindow";
+  if (name == "vbox")
+    return "ui::VBox";
+  if (name == "view")
+    return "ui::View";
+  if (name == "image")
+    return "ui::ImageView";
+  if (name == "window")
+    return "ui::Window";
   throw base::Exception("unknown widget name: " + name);
 }
 
-void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn, const std::string& widgetId)
+void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn,
+                  const std::string& widgetId)
 {
-  std::cout
-    << "// Don't modify, generated file from " << inputFn << "\n"
-    << "\n";
+  std::cout << "// Don't modify, generated file from " << inputFn << "\n"
+            << "\n";
 
   tinyxml2::XMLHandle handle(doc);
   tinyxml2::XMLElement* elem = handle.FirstChildElement("gui").ToElement();
   elem = find_element_by_id(elem, widgetId);
-  if (!elem) {
+  if (!elem)
+  {
     std::cout << "#error Widget not found: " << widgetId << "\n";
     return;
   }
@@ -101,78 +133,70 @@ void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn, const 
   XmlElements widgets;
   collect_widgets_with_ids(elem, widgets);
 
-  std::string className = convert_xmlid_to_cppid(widgetId, true);
-  std::string fnUpper = base::string_to_upper(base::get_file_title(inputFn));
-  std::string widgetType = convert_type(elem->Value());
+  const std::string className = convert_xmlid_to_cppid(widgetId, true);
+  const std::string widgetType = convert_type(elem->Value());
 
-  std::cout
-    << "#pragma once\n"
-    << "\n"
-    << "#include \"app/find_widget.h\"\n"
-    << "#include \"app/load_widget.h\"\n"
-    << "#include \"ui/ui.h\"\n"
-    << "\n"
-    << "namespace app {\n"
-    << "namespace gen {\n"
-    << "\n"
-    << "  class " << className << " : public " << widgetType << " {\n"
-    << "  public:\n"
-    << "    " << className << "()";
+  std::cout << "#pragma once\n"
+            << "\n"
+            << "#include \"app/find_widget.h\"\n"
+            << "#include \"app/load_widget.h\"\n"
+            << "#include \"ui/ui.h\"\n"
+            << "\n"
+            << "namespace app {\n"
+            << "namespace gen {\n"
+            << "\n"
+            << "  class " << className << " : public " << widgetType << " {\n"
+            << "  public:\n"
+            << "    " << className << "()";
 
   // Special ctor for base class
-  if (widgetType == "ui::Window") {
+  if (widgetType == "ui::Window")
+  {
     const char* desktop = elem->Attribute("desktop");
     if (desktop && std::string(desktop) == "true")
-      std::cout
-        << " : ui::Window(ui::Window::DesktopWindow)";
+      std::cout << " : ui::Window(ui::Window::DesktopWindow)";
     else
-      std::cout
-        << " : ui::Window(ui::Window::WithTitleBar)";
+      std::cout << " : ui::Window(ui::Window::WithTitleBar)";
   }
 
-  std::cout
-    << " {\n"
-    << "      app::load_widget(\"" << base::get_file_name(inputFn) << "\", \"" << widgetId << "\", this);\n"
-    << "      app::finder(this)\n";
+  std::cout << " {\n"
+            << "      app::load_widget(\"" << base::get_file_name(inputFn)
+            << "\", \"" << widgetId << "\", this);\n"
+            << "      app::finder(this)\n";
 
-  for (XmlElements::iterator it=widgets.begin(), end=widgets.end();
-       it != end; ++it) {
-    const char* id = (*it)->Attribute("id");
-    std::string cppid = convert_xmlid_to_cppid(id, false);
-    std::cout
-      << "        >> \"" << id << "\" >> m_" << cppid << "\n";
+  for (const auto* widget : widgets)
+  {
+    const char* id = widget->Attribute("id");
+    const std::string cppid = convert_xmlid_to_cppid(id, false);
+    std::cout << "        >> \"" << id << "\" >> m_" << cppid << "\n";
   }
 
-  std::cout
-    << "      ;\n"
-    << "    }\n"
-    << "\n";
+  std::cout << "      ;\n"
+            << "    }\n"
+            << "\n";
 
-  for (XmlElements::iterator it=widgets.begin(), end=widgets.end();
-       it != end; ++it) {
-    std::string childType = convert_type((*it)->Value());
-    const char* id = (*it)->Attribute("id");
-    std::string cppid = convert_xmlid_to_cppid(id, false);
-    std::cout
-      << "    " << childType << "* " << cppid << "() const { return m_" << cppid << "; }\n";
+  for (const auto* widget : widgets)
+  {
+    const std::string childType = convert_type(widget->Value());
+    const char* id = widget->Attribute("id");
+    const std::string cppid = convert_xmlid_to_cppid(id, false);
+    std::cout << "    " << childType << "* " << cppid << "() const { return m_"
+              << cppid << "; }\n";
   }
 
-  std::cout
-    << "\n"
-    << "  private:\n";
+  std::cout << "\n"
+            << "  private:\n";
 
-  for (XmlElements::iterator it=widgets.begin(), end=widgets.end();
-       it != end; ++it) {
-    std::string childType = convert_type((*it)->Value());
-    const char* id = (*it)->Attribute("id");
-    std::string cppid = convert_xmlid_to_cppid(id, false);
-    std::cout
-      << "    " << childType << "* m_" << cppid << ";\n";
+  for (const auto* widget : widgets)
+  {
+    const std::string childType = convert_type(widget->Value());
+    const char* id = widget->Attribute("id");
+    const std::string cppid = convert_xmlid_to_cppid(id, false);
+    std::cout << "    " << childType << "* m_" << cppid << ";\n";
   }
 
-  std::cout
-    << "  };\n"
-    << "\n"
-    << "} // namespace gen\n"
-    << "} // namespace app\n";
+  std::cout << "  };\n"
+            << "\n"
+            << "} // namespace gen\n"
+            << "} // namespace app\n";
 }

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2016  David Capello
+// Aseprite  | Copyright (C) 2016 David Capello
+// Besprited | Copyright (C) 2026 Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,12 +14,12 @@
 #include "doc/cel.h"
 #include "doc/primitives.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
 using namespace doc;
 
-CropCel::CropCel(std::shared_ptr<Cel> cel, const gfx::Rect& newBounds)
+CropCel::CropCel(const std::shared_ptr<Cel>& cel, const gfx::Rect& newBounds)
   : WithCel(cel)
   , m_oldOrigin(cel->position())
   , m_newOrigin(newBounds.origin())
@@ -41,18 +41,16 @@ void CropCel::onUndo()
 }
 
 // Crops the cel image leaving the same ID in the image.
-void CropCel::cropImage(const gfx::Point& origin,
-                        const gfx::Rect& bounds)
+void CropCel::cropImage(const gfx::Point& origin, const gfx::Rect& bounds) const
 {
-  auto cel = this->cel();
+  const auto cel = this->cel();
 
-  if (bounds != cel->image()->bounds()) {
-    ImageRef image(crop_image(cel->image(),
-                              bounds.x, bounds.y,
-                              bounds.w, bounds.h,
-                              cel->image()->maskColor()));
-    ObjectId id = cel->image()->id();
-    ObjectVersion ver = cel->image()->version();
+  if (bounds != cel->image()->bounds())
+  {
+    const ImageRef image(crop_image(cel->image(), bounds.x, bounds.y, bounds.w,
+                                    bounds.h, cel->image()->maskColor()));
+    const ObjectId id = cel->image()->id();
+    const ObjectVersion ver = cel->image()->version();
 
     cel->image()->setId(NullId);
     image->setId(id);
@@ -62,11 +60,11 @@ void CropCel::cropImage(const gfx::Point& origin,
     cel->incrementVersion();
   }
 
-  if (cel->data()->position() != origin) {
+  if (cel->data()->position() != origin)
+  {
     cel->data()->setPosition(origin);
     cel->incrementVersion();
   }
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

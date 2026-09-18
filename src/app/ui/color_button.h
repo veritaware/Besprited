@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,45 +14,47 @@
 #include "doc/pixel_format.h"
 #include "ui/button.h"
 
-namespace app {
-  class ColorPopup;
+namespace app
+{
+class ColorPopup;
 
-  class ColorButton : public ui::ButtonBase
-                    , public doc::ContextObserver
-                    , public IColorSource {
-  public:
-    ColorButton(const app::Color& color, PixelFormat pixelFormat);
-    ~ColorButton();
+class ColorButton : public ui::ButtonBase,
+                    public doc::ContextObserver,
+                    public IColorSource
+{
+public:
+  ColorButton(const app::Color& color, PixelFormat pixelFormat);
+  ~ColorButton();
 
-    PixelFormat pixelFormat() const;
-    void setPixelFormat(PixelFormat pixelFormat);
+  PixelFormat pixelFormat() const;
+  void setPixelFormat(PixelFormat pixelFormat);
 
-    app::Color getColor() const;
-    void setColor(const app::Color& color);
+  app::Color getColor() const;
+  void setColor(const app::Color& color);
 
-    // IColorSource
-    app::Color getColorByPosition(const gfx::Point& pos) override;
+  // IColorSource
+  app::Color getColorByPosition(const gfx::Point& pos) override;
 
-    // Signals
-    base::Signal1<void, const app::Color&> Change;
+  // Signals
+  base::Signal1<void, const app::Color&> Change;
 
-  protected:
-    // Events
-    bool onProcessMessage(ui::Message* msg) override;
-    void onSizeHint(ui::SizeHintEvent& ev) override;
-    void onPaint(ui::PaintEvent& ev) override;
-    void onClick(ui::Event& ev) override;
+protected:
+  // Events
+  bool onProcessMessage(ui::Message* msg) override;
+  void onSizeHint(ui::SizeHintEvent& ev) override;
+  void onPaint(ui::PaintEvent& ev) override;
+  void onClick(ui::Event& ev) override;
 
-  private:
-    void openSelectorDialog();
-    void closeSelectorDialog();
-    void onWindowColorChange(const app::Color& color);
-    void onActiveSiteChange(const Site& site) override;
+private:
+  void openSelectorDialog();
+  void closeSelectorDialog();
+  void onWindowColorChange(const app::Color& color);
+  void onActiveSiteChange(const Site& site) override;
 
-    app::Color m_color;
-    PixelFormat m_pixelFormat;
-    ColorPopup* m_window;
-    bool m_dependOnLayer;
-  };
+  app::Color m_color;
+  PixelFormat m_pixelFormat;
+  ColorPopup* m_window;
+  bool m_dependOnLayer;
+};
 
 } // namespace app

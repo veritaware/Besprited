@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -16,10 +16,10 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app::cmd
+{
 
-SetLayerOpacity::SetLayerOpacity(LayerImage* layer, int opacity)
+SetLayerOpacity::SetLayerOpacity(const LayerImage* layer, const int opacity)
   : WithLayer(layer)
   , m_oldOpacity(layer->opacity())
   , m_newOpacity(opacity)
@@ -28,25 +28,25 @@ SetLayerOpacity::SetLayerOpacity(LayerImage* layer, int opacity)
 
 void SetLayerOpacity::onExecute()
 {
-  static_cast<LayerImage*>(layer())->setOpacity(m_newOpacity);
+  dynamic_cast<LayerImage*>(layer())->setOpacity(m_newOpacity);
   layer()->incrementVersion();
 }
 
 void SetLayerOpacity::onUndo()
 {
-  static_cast<LayerImage*>(layer())->setOpacity(m_oldOpacity);
+  dynamic_cast<LayerImage*>(layer())->setOpacity(m_oldOpacity);
   layer()->incrementVersion();
 }
 
 void SetLayerOpacity::onFireNotifications()
 {
   Layer* layer = this->layer();
-  doc::Document* doc = layer->sprite()->document();
+  Document* doc = layer->sprite()->document();
   DocumentEvent ev(doc);
   ev.sprite(layer->sprite());
   ev.layer(layer);
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerOpacityChange, ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerOpacityChange,
+                                       ev);
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

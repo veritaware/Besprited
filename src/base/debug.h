@@ -1,5 +1,6 @@
-// Aseprite Base Library
-// Copyright (c) 2001-2015 David Capello
+// Base Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -13,24 +14,27 @@ void base_trace(const char* msg, ...);
 #undef TRACE
 
 #ifdef _DEBUG
-  #ifdef _WIN32
-    #include <crtdbg.h>
-    #define base_break() _CrtDbgBreak()
-  #else
-    #include <signal.h>
-    #define base_break() raise(SIGTRAP)
-  #endif
+#ifdef _WIN32
+#include <crtdbg.h>
+#define base_break() _CrtDbgBreak()
+#else
+#include <signal.h>
+#define base_break() raise(SIGTRAP)
+#endif
 
-  #define ASSERT(condition) {                                             \
-    if (!(condition)) {                                                   \
-      if (base_assert(#condition, __FILE__, __LINE__)) {                  \
-        base_break();                                                     \
-      }                                                                   \
-    }                                                                     \
+#define ASSERT(condition)                                                      \
+  {                                                                            \
+    if (!(condition))                                                          \
+    {                                                                          \
+      if (base_assert(#condition, __FILE__, __LINE__))                         \
+      {                                                                        \
+        base_break();                                                          \
+      }                                                                        \
+    }                                                                          \
   }
 
-  #define TRACE base_trace
+#define TRACE base_trace
 #else
-  #define ASSERT(condition)
-  #define TRACE(...)
+#define ASSERT(condition)
+#define TRACE(...)
 #endif

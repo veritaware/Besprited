@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -11,11 +11,10 @@
 
 #include "app/cmd_sequence.h"
 
-namespace app {
-
-CmdSequence::CmdSequence()
+namespace app
 {
-}
+
+CmdSequence::CmdSequence() = default;
 
 CmdSequence::~CmdSequence()
 {
@@ -30,19 +29,19 @@ void CmdSequence::add(Cmd* cmd)
 
 void CmdSequence::onExecute()
 {
-  for (auto it = m_cmds.begin(), end=m_cmds.end(); it!=end; ++it)
+  for (auto it = m_cmds.begin(), end = m_cmds.end(); it != end; ++it)
     (*it)->execute(context());
 }
 
 void CmdSequence::onUndo()
 {
-  for (auto it = m_cmds.rbegin(), end=m_cmds.rend(); it!=end; ++it)
+  for (auto it = m_cmds.rbegin(), end = m_cmds.rend(); it != end; ++it)
     (*it)->undo();
 }
 
 void CmdSequence::onRedo()
 {
-  for (auto it = m_cmds.begin(), end=m_cmds.end(); it!=end; ++it)
+  for (auto it = m_cmds.begin(), end = m_cmds.end(); it != end; ++it)
     (*it)->redo();
 }
 
@@ -50,7 +49,7 @@ size_t CmdSequence::onMemSize() const
 {
   size_t size = sizeof(*this);
 
-  for (auto it = m_cmds.begin(), end=m_cmds.end(); it!=end; ++it)
+  for (auto it = m_cmds.begin(), end = m_cmds.end(); it != end; ++it)
     size += (*it)->memSize();
 
   return size;

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,12 +14,17 @@
 #include "app/commands/params.h"
 #include "app/ui/color_bar.h"
 
-namespace app {
+namespace app
+{
 
-class SetPaletteEntrySizeCommand : public Command {
+class SetPaletteEntrySizeCommand : public Command
+{
 public:
   SetPaletteEntrySizeCommand();
-  Command* clone() const override { return new SetPaletteEntrySizeCommand(*this); }
+  Command* clone() const override
+  {
+    return new SetPaletteEntrySizeCommand(*this);
+  }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -27,14 +32,11 @@ protected:
   void onExecute(Context* context) override;
 
 private:
-  int m_size;
+  int m_size = 7;
 };
 
 SetPaletteEntrySizeCommand::SetPaletteEntrySizeCommand()
-  : Command("SetPaletteEntrySize",
-            "Set Palette Entry Size",
-            CmdUIOnlyFlag)
-  , m_size(7)
+  : Command("SetPaletteEntrySize", "Set Palette Entry Size", CmdUIOnlyFlag)
 {
 }
 

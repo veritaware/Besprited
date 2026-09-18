@@ -48,7 +48,8 @@
 #include <cstdarg>
 #include <cstdio>
 
-namespace ui {
+namespace ui
+{
 
 Alert::Alert()
   : Window(WithTitleBar)
@@ -116,10 +117,13 @@ int Alert::show(const char* format, ...)
 
   // Check the closer
   int ret = 0;
-  if (Widget* closer = window->closer()) {
-    for (int i=0; i<(int)buttons.size(); ++i) {
-      if (closer == buttons[i]) {
-        ret = i+1;
+  if (Widget* closer = window->closer())
+  {
+    for (int i = 0; i < (int)buttons.size(); ++i)
+    {
+      if (closer == buttons[i])
+      {
+        ret = i + 1;
         break;
       }
     }
@@ -129,53 +133,58 @@ int Alert::show(const char* format, ...)
   return ret;
 }
 
-void Alert::processString(char* buf, std::vector<Widget*>& labels, std::vector<Widget*>& buttons)
+void Alert::processString(char* buf, std::vector<Widget*>& labels,
+                          std::vector<Widget*>& buttons)
 {
-  Box* box1, *box2, *box3, *box4, *box5;
+  Box *box1, *box2, *box3, *box4, *box5;
   Grid* grid;
   bool title = true;
   bool label = false;
   bool separator = false;
   bool button = false;
   int align = 0;
-  char *beg;
+  char* beg;
   int c, chr;
 
   // Process buffer
   c = 0;
   beg = buf;
-  for (; ; c++) {
-    if ((!buf[c]) ||
-        ((buf[c] == buf[c+1]) &&
-         ((buf[c] == '<') ||
-          (buf[c] == '=') ||
-          (buf[c] == '>') ||
-          (buf[c] == '-') ||
-          (buf[c] == '|')))) {
-      if (title || label || separator || button) {
+  for (;; c++)
+  {
+    if ((!buf[c]) || ((buf[c] == buf[c + 1]) &&
+                      ((buf[c] == '<') || (buf[c] == '=') || (buf[c] == '>') ||
+                       (buf[c] == '-') || (buf[c] == '|'))))
+    {
+      if (title || label || separator || button)
+      {
         chr = buf[c];
         buf[c] = 0;
 
-        if (title) {
+        if (title)
+        {
           setText(beg);
         }
-        else if (label) {
+        else if (label)
+        {
           Label* label = new Label(beg);
           label->setAlign(align);
           labels.push_back(label);
         }
-        else if (separator) {
+        else if (separator)
+        {
           labels.push_back(new Separator("", HORIZONTAL));
         }
-        else if (button) {
+        else if (button)
+        {
           char buttonId[256];
           Button* button_widget = new Button(beg);
-          button_widget->setMinSize(gfx::Size(60*guiscale(), 0));
+          button_widget->setMinSize(gfx::Size(60 * guiscale(), 0));
           buttons.push_back(button_widget);
 
           snprintf(buttonId, sizeof(buttonId), "button-%zu", buttons.size());
           button_widget->setId(buttonId);
-          button_widget->Click.connect(base::Bind<void>(&Window::closeWindow, this, button_widget));
+          button_widget->Click.connect(
+              base::Bind<void>(&Window::closeWindow, this, button_widget));
         }
 
         buf[c] = chr;
@@ -185,17 +194,34 @@ void Alert::processString(char* buf, std::vector<Widget*>& labels, std::vector<W
       if (!buf[c])
         break;
       /* next widget */
-      else {
+      else
+      {
         title = label = separator = button = false;
-        beg = buf+c+2;
+        beg = buf + c + 2;
         align = 0;
 
-        switch (buf[c]) {
-          case '<': label=true; align=LEFT; break;
-          case '=': label=true; align=CENTER; break;
-          case '>': label=true; align=RIGHT; break;
-          case '-': separator=true; break;
-          case '|': button=true; break;
+        switch (buf[c])
+        {
+        case '<':
+          label = true;
+          align = LEFT;
+          break;
+        case '=':
+          label = true;
+          align = CENTER;
+          break;
+        case '>':
+          label = true;
+          align = RIGHT;
+          break;
+        case '-':
+          separator = true;
+          break;
+        case '|':
+          button = true;
+          break;
+        default:
+          break;
         }
         c++;
       }
@@ -234,15 +260,17 @@ void Alert::processString(char* buf, std::vector<Widget*>& labels, std::vector<W
 
   grid->addChildInCell(box3, 1, 1, CENTER | BOTTOM);
 
-  for (std::vector<Widget*>::iterator it = labels.begin(); it != labels.end(); ++it)
+  for (std::vector<Widget*>::iterator it = labels.begin(); it != labels.end();
+       ++it)
     box2->addChild(*it);
 
-  for (std::vector<Widget*>::iterator it = buttons.begin(); it != buttons.end(); ++it)
+  for (std::vector<Widget*>::iterator it = buttons.begin(); it != buttons.end();
+       ++it)
     box3->addChild(*it);
 
   // Default button is the last one
   if (!buttons.empty())
-    buttons[buttons.size()-1]->setFocusMagnet(true);
+    buttons[buttons.size() - 1]->setFocusMagnet(true);
 }
 
 } // namespace ui

@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,9 +15,11 @@
 #include "app/ui/main_window.h"
 #include "app/ui/preview_editor.h"
 
-namespace app {
+namespace app
+{
 
-class TogglePreviewCommand : public Command {
+class TogglePreviewCommand : public Command
+{
 public:
   TogglePreviewCommand();
   Command* clone() const override { return new TogglePreviewCommand(*this); }
@@ -29,9 +31,7 @@ protected:
 };
 
 TogglePreviewCommand::TogglePreviewCommand()
-  : Command("TogglePreview",
-            "Toggle Preview",
-            CmdUIOnlyFlag)
+  : Command("TogglePreview", "Toggle Preview", CmdUIOnlyFlag)
 {
 }
 
@@ -54,7 +54,7 @@ bool TogglePreviewCommand::onChecked(Context* context)
 void TogglePreviewCommand::onExecute(Context* context)
 {
   PreviewEditorWindow* previewWin =
-    App::instance()->mainWindow()->getPreviewEditor();
+      App::instance()->mainWindow()->getPreviewEditor();
 
   bool state = previewWin->isPreviewEnabled();
   previewWin->setPreviewEnabled(!state);

@@ -1,5 +1,6 @@
 // Aseprite    | Copyright (C) 2001-2016 David Capello
 // LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -15,44 +16,47 @@
 
 class Extension;
 
-namespace app {
+namespace app
+{
 
-  class AppScripting {
-    static void initEngine();
-    static void addExtension(Extension& ext);
-    static void drainEventQueue();
-    static void flushAfterEval();
-  public:
-    static bool evalFile(const std::string& fileName);
-    static void raiseEvent(const std::string& fileName, script::Value& event);
-    static bool scanScript(const std::string& fullPath);
-    static void clearEventHooks();
+class AppScripting
+{
+  static void initEngine();
+  static void addExtension(Extension& ext);
+  static void drainEventQueue();
+  static void flushAfterEval();
 
-    // Evaluates a REPL line (script-type eval, so top-level `var` persists
-    // across lines). Prints the completion value when printLastResult()
-    // has been called.
-    static bool eval(const std::string& code, const std::string& path = "::");
-    static void printLastResult();
+public:
+  static bool evalFile(const std::string& fileName);
+  static void raiseEvent(const std::string& fileName, script::Value& event);
+  static bool scanScript(const std::string& fullPath);
+  static void clearEventHooks();
 
-    // Pumps the event loop (timers, promises, microtasks) and
-    // delivers queued events to the registered handler. Called once per
-    // UI message-loop iteration by the tick pump.
-    static void tick();
-    // Starts the per-frame tick pump. Must be called once the UI message
-    // loop is up (from App::run() in GUI mode).
-    static void startTickPump();
+  // Evaluates a REPL line (script-type eval, so top-level `var` persists
+  // across lines). Prints the completion value when printLastResult()
+  // has been called.
+  static bool eval(const std::string& code, const std::string& path = "::");
+  static void printLastResult();
 
-    // The file of the most recently loaded script ("" if none).
-    static std::string getFileName();
-    // Queues a callback to run right after the next eval() returns.
-    static void afterEval(std::function<void()> fn);
+  // Pumps the event loop (timers, promises, microtasks) and
+  // delivers queued events to the registered handler. Called once per
+  // UI message-loop iteration by the tick pump.
+  static void tick();
+  // Starts the per-frame tick pump. Must be called once the UI message
+  // loop is up (from App::run() in GUI mode).
+  static void startTickPump();
 
-    // Routes text to the script console (DevConsole panel / --shell stdout,
-    // plain stdout when no delegate is registered). Used by the timer
-    // extension to surface errors thrown by timer callbacks.
-    static void consolePrint(const std::string& text);
+  // The file of the most recently loaded script ("" if none).
+  static std::string getFileName();
+  // Queues a callback to run right after the next eval() returns.
+  static void afterEval(std::function<void()> fn);
 
-    static void shutdown();
-  };
+  // Routes text to the script console (DevConsole panel / --shell stdout,
+  // plain stdout when no delegate is registered). Used by the timer
+  // extension to surface errors thrown by timer callbacks.
+  static void consolePrint(const std::string& text);
+
+  static void shutdown();
+};
 
 } // namespace app

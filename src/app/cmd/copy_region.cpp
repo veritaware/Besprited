@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,42 +13,36 @@
 
 #include "doc/image.h"
 
-#include <algorithm>
+namespace app::cmd
+{
 
-namespace app {
-namespace cmd {
-
-CopyRegion::CopyRegion(Image* dst, const Image* src,
-                       const gfx::Region& region,
-                       const gfx::Point& dstPos,
-                       bool alreadyCopied)
+CopyRegion::CopyRegion(Image* dst, const Image* src, const gfx::Region& region,
+                       const gfx::Point& dstPos, bool alreadyCopied)
   : WithImage(dst)
   , m_size(0)
   , m_alreadyCopied(alreadyCopied)
 {
   // Create region to save/swap later
-  for (const auto& rc : region) {
-    gfx::Clip clip(
-      rc.x+dstPos.x, rc.y+dstPos.y,
-      rc.x, rc.y, rc.w, rc.h);
-    if (!clip.clip(
-          dst->width(), dst->height(),
-          src->width(), src->height()))
+  for (const auto& rc : region)
+  {
+    gfx::Clip clip(rc.x + dstPos.x, rc.y + dstPos.y, rc.x, rc.y, rc.w, rc.h);
+    if (!clip.clip(dst->width(), dst->height(), src->width(), src->height()))
       continue;
 
     m_region.createUnion(m_region, gfx::Region(clip.dstBounds()));
   }
 
   // Save region pixels
-  for (const auto& rc : m_region) {
-    for (int y=0; y<rc.h; ++y) {
-      m_stream.write(
-        (const char*)src->getPixelAddress(rc.x-dstPos.x,
-                                          rc.y-dstPos.y+y),
-        src->getRowStrideSize(rc.w));
+  for (const auto& rc : m_region)
+  {
+    for (int y = 0; y < rc.h; ++y)
+    {
+      m_stream.write(reinterpret_cast<const char*>(src->getPixelAddress(
+                         rc.x - dstPos.x, rc.y - dstPos.y + y)),
+                     src->getRowStrideSize(rc.w));
     }
   }
-  m_size = size_t(m_stream.tellp());
+  m_size = static_cast<size_t>(m_stream.tellp());
 }
 
 void CopyRegion::onExecute()
@@ -74,18 +68,20 @@ void CopyRegion::swap()
   // Save current image region in "tmp" stream
   std::stringstream tmp;
   for (const auto& rc : m_region)
-    for (int y=0; y<rc.h; ++y)
+    for (int y = 0; y < rc.h; ++y)
       tmp.write(
-        (const char*)image->getPixelAddress(rc.x, rc.y+y),
-        image->getRowStrideSize(rc.w));
+          reinterpret_cast<const char*>(image->getPixelAddress(rc.x, rc.y + y)),
+          image->getRowStrideSize(rc.w));
 
   // Restore m_stream into the image
   m_stream.seekg(0, std::ios_base::beg);
-  for (const auto& rc : m_region) {
-    for (int y=0; y<rc.h; ++y) {
+  for (const auto& rc : m_region)
+  {
+    for (int y = 0; y < rc.h; ++y)
+    {
       m_stream.read(
-        (char*)image->getPixelAddress(rc.x, rc.y+y),
-        image->getRowStrideSize(rc.w));
+          reinterpret_cast<char*>(image->getPixelAddress(rc.x, rc.y + y)),
+          image->getRowStrideSize(rc.w));
     }
   }
 
@@ -96,5 +92,4 @@ void CopyRegion::swap()
   image->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+} // namespace app::cmd

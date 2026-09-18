@@ -1,5 +1,6 @@
-// SHE library
-// Copyright (C) 2012-2016  David Capello
+// SHE Library
+// Aseprite  | Copyright (C) 2012-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -7,36 +8,38 @@
 #pragma once
 
 #ifdef _WIN32
-  #include "she/win/native_dialogs.h"
+#include "she/win/native_dialogs.h"
 #elif defined(__APPLE__)
-  #include "she/osx/native_dialogs.h"
+#include "she/osx/native_dialogs.h"
 #elif defined(ASEPRITE_WITH_GTK_FILE_DIALOG_SUPPORT) && defined(__linux__)
-  #include "she/gtk/native_dialogs.h"
+#include "she/gtk/native_dialogs.h"
 #else
-  #include "she/native_dialogs.h"
+#include "she/native_dialogs.h"
 #endif
 
 #include "she/common/freetype_font.h"
 #include "she/common/sprite_sheet_font.h"
 #include "she/system.h"
 
-namespace she {
+namespace she
+{
 
 #ifdef __APPLE__
 Logger* getOsxLogger();
 #endif
 
-class CommonSystem : public System {
+class CommonSystem : public System
+{
 public:
   CommonSystem()
-    : m_nativeDialogs(nullptr) {
+    : m_nativeDialogs(nullptr)
+  {
   }
 
-  ~CommonSystem() {
-    delete m_nativeDialogs;
-  }
+  ~CommonSystem() { delete m_nativeDialogs; }
 
-  Logger* logger() override {
+  Logger* logger() override
+  {
 #ifdef __APPLE__
     return getOsxLogger();
 #else
@@ -44,7 +47,8 @@ public:
 #endif
   }
 
-  NativeDialogs* nativeDialogs() override {
+  NativeDialogs* nativeDialogs() override
+  {
 #ifdef _WIN32
     if (!m_nativeDialogs)
       m_nativeDialogs = new NativeDialogsWin32();
@@ -58,17 +62,20 @@ public:
     return m_nativeDialogs;
   }
 
-  Font* loadSpriteSheetFont(const char* filename, int scale) override {
+  Font* loadSpriteSheetFont(const char* filename, int scale) override
+  {
     Surface* sheet = loadRgbaSurface(filename);
     Font* font = nullptr;
-    if (sheet) {
+    if (sheet)
+    {
       sheet->applyScale(scale);
       font = SpriteSheetFont::fromSurface(sheet);
     }
     return font;
   }
 
-  Font* loadTrueTypeFont(const char* filename, int height) override {
+  Font* loadTrueTypeFont(const char* filename, int height) override
+  {
     return loadFreeTypeFont(filename, height);
   }
 

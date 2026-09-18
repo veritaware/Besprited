@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -24,7 +24,8 @@
 
 #include <cstring>
 
-namespace app {
+namespace app
+{
 
 using namespace app::skin;
 using namespace filters;
@@ -44,24 +45,29 @@ FilterTargetButtons::FilterTargetButtons(int imgtype, bool withChannels)
   setMultipleSelection(true);
   addChild(&m_tooltips);
 
-  if (withChannels) {
-    switch (imgtype) {
+  if (withChannels)
+  {
+    switch (imgtype)
+    {
 
-      case IMAGE_RGB:
-      case IMAGE_INDEXED:
-        m_red   = addItem("R");
-        m_green = addItem("G");
-        m_blue  = addItem("B");
-        m_alpha = addItem("A");
+    case IMAGE_RGB:
+    case IMAGE_INDEXED:
+      m_red = addItem("R");
+      m_green = addItem("G");
+      m_blue = addItem("B");
+      m_alpha = addItem("A");
 
-        if (imgtype == IMAGE_INDEXED)
-          m_index = addItem("Index", 4, 1);
-        break;
+      if (imgtype == IMAGE_INDEXED)
+        m_index = addItem("Index", 4, 1);
+      break;
 
-      case IMAGE_GRAYSCALE:
-        m_gray = addItem("K", 2, 1);
-        m_alpha = addItem("A", 2, 1);
-        break;
+    case IMAGE_GRAYSCALE:
+      m_gray = addItem("K", 2, 1);
+      m_alpha = addItem("A", 2, 1);
+      break;
+
+    default:
+      break;
     }
   }
 
@@ -75,11 +81,11 @@ void FilterTargetButtons::setTarget(int target)
   m_target &= (TARGET_ALL_FRAMES | TARGET_ALL_LAYERS);
   m_target |= (target & ~(TARGET_ALL_FRAMES | TARGET_ALL_LAYERS));
 
-  selectTargetButton(m_red,   TARGET_RED_CHANNEL);
+  selectTargetButton(m_red, TARGET_RED_CHANNEL);
   selectTargetButton(m_green, TARGET_GREEN_CHANNEL);
-  selectTargetButton(m_blue,  TARGET_BLUE_CHANNEL);
+  selectTargetButton(m_blue, TARGET_BLUE_CHANNEL);
   selectTargetButton(m_alpha, TARGET_ALPHA_CHANNEL);
-  selectTargetButton(m_gray,  TARGET_GRAY_CHANNEL);
+  selectTargetButton(m_gray, TARGET_GRAY_CHANNEL);
   selectTargetButton(m_index, TARGET_INDEX_CHANNEL);
 
   updateFromTarget();
@@ -103,31 +109,36 @@ void FilterTargetButtons::updateFromTarget()
   updateComponentTooltip(m_index, "Index", LEFT);
 
   const char* celsTooltip = "";
-  switch (m_target & (TARGET_ALL_FRAMES | TARGET_ALL_LAYERS)) {
-    case 0:
-      celsTooltip = "Apply to the active frame/layer (the active cel)";
-      break;
-    case TARGET_ALL_FRAMES:
-      celsTooltip = "Apply to all frames in the active layer";
-      break;
-    case TARGET_ALL_LAYERS:
-      celsTooltip = "Apply to all layers in the active frame";
-      break;
-    case TARGET_ALL_FRAMES | TARGET_ALL_LAYERS:
-      celsTooltip = "Apply to all cels in the sprite";
-      break;
+  switch (m_target & (TARGET_ALL_FRAMES | TARGET_ALL_LAYERS))
+  {
+  case 0:
+    celsTooltip = "Apply to the active frame/layer (the active cel)";
+    break;
+  case TARGET_ALL_FRAMES:
+    celsTooltip = "Apply to all frames in the active layer";
+    break;
+  case TARGET_ALL_LAYERS:
+    celsTooltip = "Apply to all layers in the active frame";
+    break;
+  case TARGET_ALL_FRAMES | TARGET_ALL_LAYERS:
+    celsTooltip = "Apply to all cels in the sprite";
+    break;
+  default:
+    break;
   }
 
   m_tooltips.addTooltipFor(m_cels, celsTooltip, LEFT);
 }
 
-void FilterTargetButtons::updateComponentTooltip(Item* item, const char* channelName, int align)
+void FilterTargetButtons::updateComponentTooltip(Item* item,
+                                                 const char* channelName,
+                                                 int align)
 {
-  if (item) {
+  if (item)
+  {
     char buf[256];
     std::snprintf(buf, sizeof(buf), "%s %s Component",
-                 (item->isSelected() ? "Modify": "Ignore"),
-                 channelName);
+                  (item->isSelected() ? "Modify" : "Ignore"), channelName);
     m_tooltips.addTooltipFor(item, buf, align);
   }
 }
@@ -137,33 +148,42 @@ void FilterTargetButtons::onItemChange(Item* item)
   ButtonSet::onItemChange(item);
   Target flags = (m_target & (TARGET_ALL_FRAMES | TARGET_ALL_LAYERS));
 
-  if (m_index && item && item->isSelected()) {
-    if (item == m_index) {
+  if (m_index && item && item->isSelected())
+  {
+    if (item == m_index)
+    {
       m_red->setSelected(false);
       m_green->setSelected(false);
       m_blue->setSelected(false);
       m_alpha->setSelected(false);
     }
-    else if (item == m_red ||
-             item == m_green ||
-             item == m_blue ||
-             item == m_alpha) {
+    else if (item == m_red || item == m_green || item == m_blue ||
+             item == m_alpha)
+    {
       m_index->setSelected(false);
     }
   }
 
-  if (m_red && m_red->isSelected()) flags |= TARGET_RED_CHANNEL;
-  if (m_green && m_green->isSelected()) flags |= TARGET_GREEN_CHANNEL;
-  if (m_blue && m_blue->isSelected()) flags |= TARGET_BLUE_CHANNEL;
-  if (m_gray && m_gray->isSelected()) flags |= TARGET_GRAY_CHANNEL;
-  if (m_index && m_index->isSelected()) flags |= TARGET_INDEX_CHANNEL;
-  if (m_alpha && m_alpha->isSelected()) flags |= TARGET_ALPHA_CHANNEL;
+  if (m_red && m_red->isSelected())
+    flags |= TARGET_RED_CHANNEL;
+  if (m_green && m_green->isSelected())
+    flags |= TARGET_GREEN_CHANNEL;
+  if (m_blue && m_blue->isSelected())
+    flags |= TARGET_BLUE_CHANNEL;
+  if (m_gray && m_gray->isSelected())
+    flags |= TARGET_GRAY_CHANNEL;
+  if (m_index && m_index->isSelected())
+    flags |= TARGET_INDEX_CHANNEL;
+  if (m_alpha && m_alpha->isSelected())
+    flags |= TARGET_ALPHA_CHANNEL;
 
-  if (m_cels->isSelected()) {
+  if (m_cels->isSelected())
+  {
     m_cels->setSelected(false);
 
     // Rotate cels target
-    if (flags & TARGET_ALL_FRAMES) {
+    if (flags & TARGET_ALL_FRAMES)
+    {
       flags &= ~TARGET_ALL_FRAMES;
 
       if (flags & TARGET_ALL_LAYERS)
@@ -171,12 +191,14 @@ void FilterTargetButtons::onItemChange(Item* item)
       else
         flags |= TARGET_ALL_LAYERS;
     }
-    else {
+    else
+    {
       flags |= TARGET_ALL_FRAMES;
     }
   }
 
-  if (m_target != flags) {
+  if (m_target != flags)
+  {
     m_target = flags;
     updateFromTarget();
     TargetChange();
@@ -187,15 +209,15 @@ SkinPartPtr FilterTargetButtons::getCelsIcon() const
 {
   SkinTheme* theme = SkinTheme::instance();
 
-  if (m_target & TARGET_ALL_FRAMES) {
-    return (m_target & TARGET_ALL_LAYERS) ?
-      theme->parts.targetFramesLayers():
-      theme->parts.targetFrames();
+  if (m_target & TARGET_ALL_FRAMES)
+  {
+    return (m_target & TARGET_ALL_LAYERS) ? theme->parts.targetFramesLayers()
+                                          : theme->parts.targetFrames();
   }
-  else {
-    return (m_target & TARGET_ALL_LAYERS) ?
-      theme->parts.targetLayers():
-      theme->parts.targetOne();
+  else
+  {
+    return (m_target & TARGET_ALL_LAYERS) ? theme->parts.targetLayers()
+                                          : theme->parts.targetOne();
   }
 }
 

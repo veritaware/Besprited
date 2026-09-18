@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,18 +20,19 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace doc;
 
 Image* new_image_from_mask(const Site& site)
 {
-  const Mask* srcMask = static_cast<const app::Document*>(site.document())->mask();
+  const Mask* srcMask =
+      static_cast<const app::Document*>(site.document())->mask();
   return new_image_from_mask(site, srcMask);
 }
 
-doc::Image* new_image_from_mask(const doc::Site& site,
-                                const doc::Mask* srcMask,
+doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* srcMask,
                                 bool merged)
 {
   const Sprite* srcSprite = site.sprite();
@@ -44,7 +45,8 @@ doc::Image* new_image_from_mask(const doc::Site& site,
   ASSERT(srcMaskBitmap);
   ASSERT(!srcBounds.isEmpty());
 
-  std::unique_ptr<Image> dst(Image::create(srcSprite->pixelFormat(), srcBounds.w, srcBounds.h));
+  std::unique_ptr<Image> dst(
+      Image::create(srcSprite->pixelFormat(), srcBounds.w, srcBounds.h));
   if (!dst)
     return nullptr;
 
@@ -54,47 +56,59 @@ doc::Image* new_image_from_mask(const doc::Site& site,
 
   const Image* src = nullptr;
   int x = 0, y = 0;
-  if (merged) {
+  if (merged)
+  {
     render::Render render;
     render.renderSprite(dst.get(), srcSprite, site.frame(),
                         gfx::Clip(0, 0, srcBounds));
 
     src = dst.get();
   }
-  else {
+  else
+  {
     src = site.image(&x, &y);
   }
 
   // Copy the masked zones
-  if (src) {
-    if (srcMaskBitmap) {
+  if (src)
+  {
+    if (srcMaskBitmap)
+    {
       // Copy active layer with mask
-      const LockImageBits<BitmapTraits> maskBits(srcMaskBitmap, gfx::Rect(0, 0, srcBounds.w, srcBounds.h));
+      const LockImageBits<BitmapTraits> maskBits(
+          srcMaskBitmap, gfx::Rect(0, 0, srcBounds.w, srcBounds.h));
       LockImageBits<BitmapTraits>::const_iterator mask_it = maskBits.begin();
 
-      for (int v=0; v<srcBounds.h; ++v) {
-        for (int u=0; u<srcBounds.w; ++u, ++mask_it) {
+      for (int v = 0; v < srcBounds.h; ++v)
+      {
+        for (int u = 0; u < srcBounds.w; ++u, ++mask_it)
+        {
           ASSERT(mask_it != maskBits.end());
 
-          if (src != dst.get()) {
-            if (*mask_it) {
-              int getx = u+srcBounds.x-x;
-              int gety = v+srcBounds.y-y;
+          if (src != dst.get())
+          {
+            if (*mask_it)
+            {
+              int getx = u + srcBounds.x - x;
+              int gety = v + srcBounds.y - y;
 
-              if ((getx >= 0) && (getx < src->width()) &&
-                  (gety >= 0) && (gety < src->height()))
+              if ((getx >= 0) && (getx < src->width()) && (gety >= 0) &&
+                  (gety < src->height()))
                 dst->putPixel(u, v, src->getPixel(getx, gety));
             }
           }
-          else {
-            if (!*mask_it) {
+          else
+          {
+            if (!*mask_it)
+            {
               dst->putPixel(u, v, dst->maskColor());
             }
           }
         }
       }
     }
-    else if (src != dst.get()) {
+    else if (src != dst.get())
+    {
       copy_image(dst.get(), src, -srcBounds.x, -srcBounds.y);
     }
   }

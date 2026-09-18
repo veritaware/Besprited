@@ -18,9 +18,11 @@
 
 #include <algorithm>
 
-namespace app {
+namespace app
+{
 
-class FitScreenCommand : public Command {
+class FitScreenCommand : public Command
+{
 public:
   FitScreenCommand();
   Command* clone() const override { return new FitScreenCommand(*this); }
@@ -31,15 +33,13 @@ protected:
 };
 
 FitScreenCommand::FitScreenCommand()
-  : Command("FitScreen",
-            "Fit Screen",
-            CmdUIOnlyFlag)
+  : Command("FitScreen", "Fit Screen", CmdUIOnlyFlag)
 {
 }
 
 bool FitScreenCommand::onEnabled(Context* context)
 {
-  return (current_editor != NULL && current_editor->sprite() != NULL);
+  return (current_editor != nullptr && current_editor->sprite() != nullptr);
 }
 
 void FitScreenCommand::onExecute(Context* context)
@@ -58,10 +58,9 @@ void FitScreenCommand::onExecute(Context* context)
 
   render::Zoom zoom = render::Zoom::fromScale(scale);
 
-  editor->setZoomAndCenterInMouse(
-    zoom,
-    gfx::Point(vp.x + vp.w/2, vp.y + vp.h/2),
-    Editor::ZoomBehavior::CENTER);
+  editor->setZoomAndCenterInMouse(zoom,
+                                  gfx::Point(vp.x + vp.w / 2, vp.y + vp.h / 2),
+                                  Editor::ZoomBehavior::CENTER);
 }
 
 Command* CommandFactory::createFitScreenCommand()

@@ -14,7 +14,8 @@
 
 using namespace ui;
 
-namespace {
+namespace
+{
 
 // Entry puts a half-typed expression right on kFocusLeaveMessage - send
 // one directly instead of standing up a Manager to move focus for real.
@@ -26,14 +27,20 @@ void loseFocus(Entry& entry)
 
 // Stands in for a window that reads an entry as a number to refresh a live
 // preview (Canvas Size, Sprite Size, Import Sprite Sheet...).
-class PreviewReader {
+class PreviewReader
+{
 public:
-  explicit PreviewReader(Entry& entry) : m_entry(entry)
+  explicit PreviewReader(Entry& entry)
+    : m_entry(entry)
   {
-    m_entry.Change.connect([this]{ read(); });
+    m_entry.Change.connect([this] { read(); });
   }
 
-  void read() { value = m_entry.textInt(); ++reads; }
+  void read()
+  {
+    value = m_entry.textInt();
+    ++reads;
+  }
 
   int value = 0;
   int reads = 0;
@@ -134,7 +141,8 @@ TEST(EntryExpr, RepeatedFocusChangesKeepRestoringTheSameValue)
   PreviewReader preview(entry);
   preview.read();
 
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < 5; ++i)
+  {
     entry.setText("-");
     preview.read();
     loseFocus(entry);

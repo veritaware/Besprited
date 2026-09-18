@@ -30,26 +30,31 @@ TEST(File, SeveralSizes)
   std::vector<char> fn(256);
   app::Context ctx;
 
-  for (int w=10; w<=10+503*2; w+=503) {
-    for (int h=10; h<=10+503*2; h+=503) {
-      //std::sprintf(&fn[0], "test_%dx%d.ase", w, h);
+  for (int w = 10; w <= 10 + 503 * 2; w += 503)
+  {
+    for (int h = 10; h <= 10 + 503 * 2; h += 503)
+    {
+      // std::sprintf(&fn[0], "test_%dx%d.ase", w, h);
       std::snprintf(&fn[0], fn.size(), "test.ase");
 
       {
-        doc::Document* doc = ctx.documents().add(w, h, doc::ColorMode::INDEXED, 256);
+        doc::Document* doc =
+            ctx.documents().add(w, h, doc::ColorMode::INDEXED, 256);
         doc->setFilename(&fn[0]);
 
         // Random pixels
         Layer* layer = doc->sprite()->folder()->getFirstLayer();
-        ASSERT_TRUE(layer != NULL);
+        ASSERT_TRUE(layer != nullptr);
         Image* image = layer->cel(frame_t(0))->image();
-        std::srand(w*h);
-        int c = std::rand()%256;
-        for (int y=0; y<h; y++) {
-          for (int x=0; x<w; x++) {
+        std::srand(w * h);
+        int c = std::rand() % 256;
+        for (int y = 0; y < h; y++)
+        {
+          for (int x = 0; x < w; x++)
+          {
             put_pixel_fast<IndexedTraits>(image, x, y, c);
-            if ((std::rand()&4) == 0)
-              c = std::rand()%256;
+            if ((std::rand() & 4) == 0)
+              c = std::rand() % 256;
           }
         }
 
@@ -65,15 +70,17 @@ TEST(File, SeveralSizes)
 
         // Same random pixels (see the seed)
         Layer* layer = doc->sprite()->folder()->getFirstLayer();
-        ASSERT_TRUE(layer != NULL);
+        ASSERT_TRUE(layer != nullptr);
         Image* image = layer->cel(frame_t(0))->image();
-        std::srand(w*h);
-        int c = std::rand()%256;
-        for (int y=0; y<h; y++) {
-          for (int x=0; x<w; x++) {
+        std::srand(w * h);
+        int c = std::rand() % 256;
+        for (int y = 0; y < h; y++)
+        {
+          for (int x = 0; x < w; x++)
+          {
             ASSERT_EQ(c, get_pixel_fast<IndexedTraits>(image, x, y));
-            if ((std::rand()&4) == 0)
-              c = std::rand()%256;
+            if ((std::rand() & 4) == 0)
+              c = std::rand() % 256;
           }
         }
 
@@ -95,7 +102,8 @@ TEST(FileFormatsManager, SupportListsAseThenPngFirst)
   EXPECT_STREQ("ase", formats[0]->name());
   EXPECT_STREQ("png", formats[1]->name());
 
-  for (std::size_t i = 2; i < formats.size(); ++i) {
+  for (std::size_t i = 2; i < formats.size(); ++i)
+  {
     EXPECT_STRNE("ase", formats[i]->name());
     EXPECT_STRNE("png", formats[i]->name());
   }
@@ -111,7 +119,8 @@ TEST(FileFormatsManager, GetFileFormatByExtensionIsCaseInsensitive)
   EXPECT_STREQ("png", manager->getFileFormatByExtension("PNG")->name());
 }
 
-TEST(FileFormatsManager, GetFileFormatByExtensionMatchesAnyTokenInAMultiExtensionList)
+TEST(FileFormatsManager,
+     GetFileFormatByExtensionMatchesAnyTokenInAMultiExtensionList)
 {
   auto* manager = FileFormatsManager::instance();
 
@@ -125,9 +134,11 @@ TEST(FileFormatsManager, GetFileFormatByExtensionMatchesAnyTokenInAMultiExtensio
   EXPECT_STREQ("jpeg", manager->getFileFormatByExtension("JPG")->name());
 }
 
-TEST(FileFormatsManager, GetFileFormatByExtensionReturnsNullForAnUnknownExtension)
+TEST(FileFormatsManager,
+     GetFileFormatByExtensionReturnsNullForAnUnknownExtension)
 {
-  EXPECT_EQ(nullptr, FileFormatsManager::instance()->getFileFormatByExtension("not-a-real-format"));
+  EXPECT_EQ(nullptr, FileFormatsManager::instance()->getFileFormatByExtension(
+                         "not-a-real-format"));
 }
 
 TEST(File, LoadFallsBackToSheFormatWhenTheExtensionMatchesNothing)
@@ -144,7 +155,7 @@ TEST(File, LoadFallsBackToSheFormatWhenTheExtensionMatchesNothing)
   doc->setFilename("she_fallback_test.png");
 
   Layer* layer = doc->sprite()->folder()->getFirstLayer();
-  ASSERT_TRUE(layer != NULL);
+  ASSERT_TRUE(layer != nullptr);
   Image* image = layer->cel(frame_t(0))->image();
   for (int y = 0; y < h; ++y)
     for (int x = 0; x < w; ++x)
@@ -163,7 +174,8 @@ TEST(File, LoadFallsBackToSheFormatWhenTheExtensionMatchesNothing)
     base::delete_file("she_fallback_test.notaformat");
   std::rename("she_fallback_test.png", "she_fallback_test.notaformat");
 
-  ASSERT_EQ(nullptr, FileFormatsManager::instance()->getFileFormatByExtension("notaformat"));
+  ASSERT_EQ(nullptr, FileFormatsManager::instance()->getFileFormatByExtension(
+                         "notaformat"));
 
   app::Document* loaded = load_document(&ctx, "she_fallback_test.notaformat");
   ASSERT_NE(nullptr, loaded);
@@ -171,12 +183,13 @@ TEST(File, LoadFallsBackToSheFormatWhenTheExtensionMatchesNothing)
   ASSERT_EQ(h, loaded->sprite()->height());
 
   Layer* loadedLayer = loaded->sprite()->folder()->getFirstLayer();
-  ASSERT_TRUE(loadedLayer != NULL);
+  ASSERT_TRUE(loadedLayer != nullptr);
   Image* loadedImage = loadedLayer->cel(frame_t(0))->image();
   for (int y = 0; y < h; ++y)
     for (int x = 0; x < w; ++x)
-      EXPECT_EQ(doc::rgba(x * 10, y * 20, 128, 255), loadedImage->getPixel(x, y))
-        << "at (" << x << "," << y << ")";
+      EXPECT_EQ(doc::rgba(x * 10, y * 20, 128, 255),
+                loadedImage->getPixel(x, y))
+          << "at (" << x << "," << y << ")";
 
   loaded->close();
   delete loaded;

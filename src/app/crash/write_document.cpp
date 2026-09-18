@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -36,38 +36,43 @@
 #include <fstream>
 #include <map>
 
-namespace app {
-namespace crash {
+namespace app::crash
+{
 
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
 using namespace doc;
 
-namespace {
+namespace
+{
 
 static std::map<ObjectId, ObjVersionsMap> g_docVersions;
 
-class Writer {
+class Writer
+{
 public:
-  Writer(const std::string& dir, app::Document* doc)
-    : m_dir(dir)
+  Writer(std::string dir, app::Document* doc)
+    : m_dir(std::move(dir))
     , m_doc(doc)
-    , m_objVersions(g_docVersions[doc->id()]) {
+    , m_objVersions(g_docVersions[doc->id()])
+  {
   }
 
-  void saveDocument() {
+  void saveDocument()
+  {
     Sprite* spr = m_doc->sprite();
 
     // Save from objects without children (e.g. images), to aggregated
     // objects (e.g. cels, layers, etc.)
 
-    for (auto pal : spr->getPalettes())
+    for (const auto& pal : spr->getPalettes())
       saveObject("pal", pal.get(), &Writer::writePalette);
 
     for (FrameTag* frtag : spr->frameTags())
       saveObject("frtag", frtag, &Writer::writeFrameTag);
 
-    for (auto cel : spr->uniqueCels()) {
+    for (auto cel : spr->uniqueCels())
+    {
       saveObject("img", cel->image(), &Writer::writeImage);
       saveObject("celdata", cel->data(), &Writer::writeCelData);
     }
@@ -85,13 +90,14 @@ public:
   }
 
 private:
-
-  void writeDocumentFile(std::ofstream& s, app::Document* doc) {
+  void writeDocumentFile(std::ofstream& s, app::Document* doc)
+  {
     write32(s, doc->sprite()->id());
     write_string(s, doc->filename());
   }
 
-  void writeSprite(std::ofstream& s, Sprite* spr) {
+  void writeSprite(std::ofstream& s, Sprite* spr)
+  {
     write8(s, spr->pixelFormat());
     write16(s, spr->width());
     write16(s, spr->height());
@@ -106,59 +112,61 @@ private:
     std::vector<Layer*> layers;
     spr->getLayersList(layers);
     write32(s, layers.size());
-    for (Layer* lay : layers)
+    for (const Layer* lay : layers)
       write32(s, lay->id());
 
     // IDs of all palettes
     write32(s, spr->getPalettes().size());
-    for (auto pal : spr->getPalettes())
+    for (const auto& pal : spr->getPalettes())
       write32(s, pal->id());
 
     // IDs of all frame tags
     write32(s, spr->frameTags().size());
-    for (FrameTag* frtag : spr->frameTags())
+    for (const FrameTag* frtag : spr->frameTags())
       write32(s, frtag->id());
   }
 
-  void writeLayerStructure(std::ofstream& s, Layer* lay) {
+  void writeLayerStructure(std::ofstream& s, Layer* lay)
+  {
     write32(s, static_cast<int>(lay->flags())); // Flags
     write16(s, static_cast<int>(lay->type()));  // Type
     write_string(s, lay->name());
 
-    if (lay->type() == ObjectType::LayerImage) {
-      CelConstIterator it, begin = static_cast<const LayerImage*>(lay)->getCelBegin();
+    if (lay->type() == ObjectType::LayerImage)
+    {
+      CelConstIterator it,
+          begin = static_cast<const LayerImage*>(lay)->getCelBegin();
       CelConstIterator end = static_cast<const LayerImage*>(lay)->getCelEnd();
 
       // Cels
       write32(s, static_cast<const LayerImage*>(lay)->getCelsCount());
-      for (it=begin; it != end; ++it) {
+      for (it = begin; it != end; ++it)
+      {
         write32(s, (*it)->id());
       }
     }
   }
 
-  void writeCel(std::ofstream& s, Cel* cel) {
-    write_cel(s, cel);
-  }
+  void writeCel(std::ofstream& s, Cel* cel) { write_cel(s, cel); }
 
-  void writeCelData(std::ofstream& s, CelData* celdata) {
+  void writeCelData(std::ofstream& s, CelData* celdata)
+  {
     write_celdata(s, celdata);
   }
 
-  void writeImage(std::ofstream& s, Image* img) {
-    write_image(s, img);
-  }
+  void writeImage(std::ofstream& s, Image* img) { write_image(s, img); }
 
-  void writePalette(std::ofstream& s, Palette* pal) {
-    write_palette(s, *pal);
-  }
+  void writePalette(std::ofstream& s, Palette* pal) { write_palette(s, *pal); }
 
-  void writeFrameTag(std::ofstream& s, FrameTag* frameTag) {
+  void writeFrameTag(std::ofstream& s, FrameTag* frameTag)
+  {
     write_frame_tag(s, frameTag);
   }
 
-  template<typename T>
-  void saveObject(const char* prefix, T* obj, void (Writer::*writeMember)(std::ofstream&, T*)) {
+  template <typename T>
+  void saveObject(const char* prefix, T* obj,
+                  void (Writer::*writeMember)(std::ofstream&, T*))
+  {
     if (!obj->version())
       obj->incrementVersion();
 
@@ -171,7 +179,8 @@ private:
     fn += base::convert_to<std::string>(obj->id());
 
     std::string fullfn = base::join_path(m_dir, fn);
-    std::string oldfn = fullfn + "." + base::convert_to<std::string>(versions.older());
+    std::string oldfn =
+        fullfn + "." + base::convert_to<std::string>(versions.older());
     fullfn += "." + base::convert_to<std::string>(obj->version());
 
     std::ofstream s(FSTREAM_PATH(fullfn), std::ofstream::binary);
@@ -187,12 +196,15 @@ private:
     write32(s, MAGIC_NUMBER);
 
     // Remove the older version
-    try {
+    try
+    {
       if (versions.older() && base::is_file(oldfn))
         base::delete_file(oldfn);
     }
-    catch (const std::exception&) {
-      TRACE(" - Cannot delete %s #%d v%d\n", prefix, obj->id(), versions.older());
+    catch (const std::exception&)
+    {
+      TRACE(" - Cannot delete %s #%d v%d\n", prefix, obj->id(),
+            versions.older());
     }
 
     // Rotate versions and add the latest one
@@ -228,5 +240,4 @@ void delete_document_internals(app::Document* doc)
     g_docVersions.erase(it);
 }
 
-} // namespace crash
-} // namespace app
+} // namespace app::crash

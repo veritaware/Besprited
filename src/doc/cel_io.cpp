@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -17,7 +18,8 @@
 #include <iostream>
 #include <memory>
 
-namespace doc {
+namespace doc
+{
 
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
@@ -31,17 +33,17 @@ void write_cel(std::ostream& os, const Cel* cel)
 
 Cel* read_cel(std::istream& is, SubObjectsIO* subObjects, bool setId)
 {
-  ObjectId id = read32(is);
-  frame_t frame(read16(is));
-  ObjectId celDataId = read32(is);
-  CelDataRef celData(subObjects->getCelDataRef(celDataId));
+  const ObjectId id = read32(is);
+  const frame_t frame(read16(is));
+  const ObjectId celDataId = read32(is);
+  const CelDataRef celData(subObjects->getCelDataRef(celDataId));
   if (!celData)
     return nullptr;
 
-  std::unique_ptr<Cel> cel(new Cel(frame, celData));
+  std::unique_ptr<Cel> cel = std::make_unique<Cel>(frame, celData);
   if (setId)
     cel->setId(id);
   return cel.release();
 }
 
-}
+} // namespace doc

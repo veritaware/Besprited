@@ -1,5 +1,6 @@
-// Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2021       LibreSprite contributors
+// Aseprite    | Copyright (C) 2001-2016 David Capello
+// LibreSprite | Copyright (C) 2021      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -14,71 +15,80 @@
 #include "app/ui/editor/symmetry_handles.h"
 #include "base/connection.h"
 
-namespace app {
-  namespace tools {
-    class Ink;
-  }
+namespace app
+{
+namespace tools
+{
+class Ink;
+}
 
-  class TransformHandles;
+class TransformHandles;
 
-  class StandbyState : public StateWithWheelBehavior {
+class StandbyState : public StateWithWheelBehavior
+{
+public:
+  StandbyState();
+  virtual ~StandbyState();
+  virtual void onEnterState(Editor* editor) override;
+  virtual void onActiveToolChange(Editor* editor, tools::Tool* tool) override;
+  virtual bool onMouseDown(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onDoubleClick(Editor* editor, ui::MouseMessage* msg) override;
+  virtual bool onSetCursor(Editor* editor,
+                           const gfx::Point& mouseScreenPos) override;
+  virtual bool onKeyDown(Editor* editor, ui::KeyMessage* msg) override;
+  virtual bool onKeyUp(Editor* editor, ui::KeyMessage* msg) override;
+  virtual bool onUpdateStatusBar(Editor* editor) override;
+
+  // Returns true as the standby state is the only one which shows
+  // the brush-preview.
+  virtual bool requireBrushPreview() override { return true; }
+
+  virtual Transformation getTransformation(Editor* editor);
+
+  void startSelectionTransformation(Editor* editor, const gfx::Point& move,
+                                    double angle);
+
+protected:
+  // Returns true and changes to ScrollingState when "msg" says "the
+  // user wants to scroll".
+  bool checkForScroll(Editor* editor, ui::MouseMessage* msg);
+  bool checkForZoom(Editor* editor, ui::MouseMessage* msg);
+  void callEyedropper(Editor* editor);
+
+  class Decorator : public EditorDecorator
+  {
   public:
-    StandbyState();
-    virtual ~StandbyState();
-    virtual void onEnterState(Editor* editor) override;
-    virtual void onActiveToolChange(Editor* editor, tools::Tool* tool) override;
-    virtual bool onMouseDown(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onDoubleClick(Editor* editor, ui::MouseMessage* msg) override;
-    virtual bool onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos) override;
-    virtual bool onKeyDown(Editor* editor, ui::KeyMessage* msg) override;
-    virtual bool onKeyUp(Editor* editor, ui::KeyMessage* msg) override;
-    virtual bool onUpdateStatusBar(Editor* editor) override;
+    Decorator(StandbyState* standbyState);
+    virtual ~Decorator();
 
-    // Returns true as the standby state is the only one which shows
-    // the brush-preview.
-    virtual bool requireBrushPreview() override { return true; }
+    TransformHandles* getTransformHandles(Editor* editor);
+    bool getSymmetryHandles(Editor* editor, SymmetryHandles& handles);
 
-    virtual Transformation getTransformation(Editor* editor);
+    bool onSetCursor(tools::Ink* ink, Editor* editor,
+                     const gfx::Point& mouseScreenPos);
 
-    void startSelectionTransformation(Editor* editor, const gfx::Point& move, double angle);
-
-  protected:
-    // Returns true and changes to ScrollingState when "msg" says "the
-    // user wants to scroll".
-    bool checkForScroll(Editor* editor, ui::MouseMessage* msg);
-    bool checkForZoom(Editor* editor, ui::MouseMessage* msg);
-    void callEyedropper(Editor* editor);
-
-    class Decorator : public EditorDecorator {
-    public:
-      Decorator(StandbyState* standbyState);
-      virtual ~Decorator();
-
-      TransformHandles* getTransformHandles(Editor* editor);
-      bool getSymmetryHandles(Editor* editor, SymmetryHandles& handles);
-
-      bool onSetCursor(tools::Ink* ink, Editor* editor, const gfx::Point& mouseScreenPos);
-
-      // EditorDecorator overrides
-      void preRenderDecorator(EditorPreRender* render) override;
-      void postRenderDecorator(EditorPostRender* render) override;
-      void getInvalidDecoratoredRegion(Editor* editor, gfx::Region& region) override;
-
-    private:
-      TransformHandles* m_transfHandles;
-      StandbyState* m_standbyState;
-    };
+    // EditorDecorator overrides
+    void preRenderDecorator(EditorPreRender* render) override;
+    void postRenderDecorator(EditorPostRender* render) override;
+    void getInvalidDecoratoredRegion(Editor* editor,
+                                     gfx::Region& region) override;
 
   private:
-    void transformSelection(Editor* editor, ui::MouseMessage* msg, HandleType handle);
-    void onPivotChange(Editor* editor);
-
-    Decorator* m_decorator;
-    base::ScopedConnection m_pivotVisConn;
-    base::ScopedConnection m_pivotPosConn;
-    bool m_transformSelectionHandlesAreVisible;
+    TransformHandles* m_transfHandles;
+    StandbyState* m_standbyState;
   };
+
+private:
+  void transformSelection(Editor* editor, ui::MouseMessage* msg,
+                          HandleType handle);
+  void onPivotChange(Editor* editor);
+
+  Decorator* m_decorator;
+  base::ScopedConnection m_pivotVisConn;
+  base::ScopedConnection m_pivotPosConn;
+  bool m_transformSelectionHandlesAreVisible;
+};
 
 } // namespace app

@@ -1,5 +1,6 @@
-// Aseprite Document Library
-// Copyright (c) 2001-2015 David Capello
+// Document Library
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
@@ -14,10 +15,11 @@
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace doc {
+namespace doc
+{
 
-LayersRange::LayersRange(const Sprite* sprite,
-                         LayerIndex first, LayerIndex last)
+LayersRange::LayersRange(const Sprite* sprite, LayerIndex first,
+                         LayerIndex last)
   : m_begin(sprite, first, last)
   , m_end()
 {
@@ -30,8 +32,8 @@ LayersRange::iterator::iterator()
 {
 }
 
-LayersRange::iterator::iterator(const Sprite* sprite,
-                                LayerIndex first, LayerIndex last)
+LayersRange::iterator::iterator(const Sprite* sprite, LayerIndex first,
+                                LayerIndex last)
   : m_layer(nullptr)
   , m_cur(first)
   , m_last(last)

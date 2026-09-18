@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -29,21 +29,24 @@
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using namespace app::skin;
 
-namespace {
+namespace
+{
 
-class Item : public ListItem {
+class Item : public ListItem
+{
 public:
   Item(crash::Session* session, crash::Session::Backup* backup)
-    : ListItem(backup ? " > " + backup->description(): session->name())
+    : ListItem(backup ? " > " + backup->description() : session->name())
     , m_session(session)
     , m_backup(backup)
-    , m_openButton(backup ? "Open": "Open All")
-    , m_deleteButton(backup ? "Delete": "Delete All")
+    , m_openButton(backup ? "Open" : "Open All")
+    , m_deleteButton(backup ? "Delete" : "Delete All")
   {
     m_hbox.setBgColor(gfx::ColorNone);
     m_hbox.setTransparent(true);
@@ -52,7 +55,8 @@ public:
     addChild(&m_hbox);
 
     m_openButton.Click.connect(base::Bind(&Item::onOpen, this));
-    m_openButton.DropDownClick.connect(base::Bind<void>(&Item::onOpenMenu, this));
+    m_openButton.DropDownClick.connect(
+        base::Bind<void>(&Item::onOpenMenu, this));
     m_deleteButton.Click.connect(base::Bind(&Item::onDelete, this));
 
     setup_mini_look(&m_openButton);
@@ -62,23 +66,25 @@ public:
   base::Signal0<void> Regenerate;
 
 protected:
-  void onSizeHint(SizeHintEvent& ev) override {
+  void onSizeHint(SizeHintEvent& ev) override
+  {
     gfx::Size sz = m_deleteButton.sizeHint();
-    sz.h += 4*guiscale();
+    sz.h += 4 * guiscale();
     ev.setSizeHint(sz);
   }
 
-  void onResize(ResizeEvent& ev) override {
+  void onResize(ResizeEvent& ev) override
+  {
     ListItem::onResize(ev);
 
     gfx::Rect rc = ev.bounds();
     gfx::Size sz = m_hbox.sizeHint();
-    m_hbox.setBounds(
-      gfx::Rect(
-        rc.x+rc.w-sz.w-2*guiscale(), rc.y+rc.h/2-sz.h/2, sz.w, sz.h));
+    m_hbox.setBounds(gfx::Rect(rc.x + rc.w - sz.w - 2 * guiscale(),
+                               rc.y + rc.h / 2 - sz.h / 2, sz.w, sz.h));
   }
 
-  void onOpen() {
+  void onOpen()
+  {
     if (m_backup)
       m_session->restoreBackup(m_backup);
     else
@@ -86,7 +92,8 @@ protected:
         m_session->restoreBackup(backup);
   }
 
-  void onOpenRaw(crash::RawImagesAs as) {
+  void onOpenRaw(crash::RawImagesAs as)
+  {
     if (m_backup)
       m_session->restoreRawImages(m_backup, as);
     else
@@ -94,7 +101,8 @@ protected:
         m_session->restoreRawImages(backup, as);
   }
 
-  void onOpenMenu() {
+  void onOpenMenu()
+  {
     gfx::Rect bounds = m_openButton.bounds();
 
     Menu menu;
@@ -103,20 +111,23 @@ protected:
     menu.addChild(&rawFrames);
     menu.addChild(&rawLayers);
 
-    rawFrames.Click.connect(base::Bind(&Item::onOpenRaw, this, crash::RawImagesAs::kFrames));
-    rawLayers.Click.connect(base::Bind(&Item::onOpenRaw, this, crash::RawImagesAs::kLayers));
+    rawFrames.Click.connect(
+        base::Bind(&Item::onOpenRaw, this, crash::RawImagesAs::kFrames));
+    rawLayers.Click.connect(
+        base::Bind(&Item::onOpenRaw, this, crash::RawImagesAs::kLayers));
 
-    menu.showPopup(gfx::Point(bounds.x, bounds.y+bounds.h));
+    menu.showPopup(gfx::Point(bounds.x, bounds.y + bounds.h));
   }
 
-  void onDelete() {
+  void onDelete()
+  {
     Widget* parent = this->parent();
 
-    if (m_backup) {
+    if (m_backup)
+    {
       // Delete one backup
-      if (Alert::show(PACKAGE
-          "<<Do you really want to delete this backup?"
-          "||&Yes||&No") != 1)
+      if (Alert::show(PACKAGE "<<Do you really want to delete this backup?"
+                              "||&Yes||&No") != 1)
         return;
 
       m_session->deleteBackup(m_backup);
@@ -125,13 +136,15 @@ protected:
       parent->removeChild(this);
       deferDelete();
     }
-    else {
+    else
+    {
       // Delete the whole session
-      if (!m_session->isEmpty()) {
+      if (!m_session->isEmpty())
+      {
         if (Alert::show(PACKAGE
-            "<<Do you want to delete the whole session?"
-            "<<You will lost all backups related to this session."
-            "||&Yes||&No") != 1)
+                        "<<Do you want to delete the whole session?"
+                        "<<You will lost all backups related to this session."
+                        "||&Yes||&No") != 1)
           return;
       }
 
@@ -167,24 +180,25 @@ DataRecoveryView::DataRecoveryView(crash::DataRecovery* dataRecovery)
   addChild(&m_view);
   m_view.setExpansive(true);
   m_view.attachToView(&m_listBox);
-  m_view.setProperty(SkinStylePropertyPtr(new SkinStyleProperty(theme->styles.workspaceView())));
+  m_view.setProperty(SkinStylePropertyPtr(
+      new SkinStyleProperty(theme->styles.workspaceView())));
 
   fillList();
 }
 
-DataRecoveryView::~DataRecoveryView()
-{
-}
+DataRecoveryView::~DataRecoveryView() = default;
 
 void DataRecoveryView::fillList()
 {
   WidgetsList children = m_listBox.children();
-  for (auto child : children) {
+  for (auto child : children)
+  {
     m_listBox.removeChild(child);
     child->deferDelete();
   }
 
-  for (auto& session : m_dataRecovery->sessions()) {
+  for (auto& session : m_dataRecovery->sessions())
+  {
     if (session->isEmpty())
       continue;
 
@@ -192,7 +206,8 @@ void DataRecoveryView::fillList()
     item->Regenerate.connect(&DataRecoveryView::fillList, this);
     m_listBox.addChild(item);
 
-    for (auto& backup : session->backups()) {
+    for (auto& backup : session->backups())
+    {
       item = new Item(session.get(), backup);
       item->Regenerate.connect(&DataRecoveryView::fillList, this);
       m_listBox.addChild(item);

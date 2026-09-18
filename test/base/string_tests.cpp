@@ -14,7 +14,10 @@
 
 using namespace base;
 
-bool all(int) { return true; }
+bool all(int)
+{
+  return true;
+}
 
 TEST(String, Utf8Conversion)
 {
@@ -33,39 +36,36 @@ TEST(String, Utf8Conversion)
 TEST(String, Utf8Iterator)
 {
   std::string a = "Hello";
-  int value = std::count_if(utf8_iterator(a.begin()),
-                            utf8_iterator(a.end()), all);
+  int value =
+      std::count_if(utf8_iterator(a.begin()), utf8_iterator(a.end()), all);
   ASSERT_EQ(5, value);
   ASSERT_EQ('H', *(utf8_iterator(a.begin())));
-  ASSERT_EQ('e', *(utf8_iterator(a.begin())+1));
-  ASSERT_EQ('l', *(utf8_iterator(a.begin())+2));
-  ASSERT_EQ('l', *(utf8_iterator(a.begin())+3));
-  ASSERT_EQ('o', *(utf8_iterator(a.begin())+4));
+  ASSERT_EQ('e', *(utf8_iterator(a.begin()) + 1));
+  ASSERT_EQ('l', *(utf8_iterator(a.begin()) + 2));
+  ASSERT_EQ('l', *(utf8_iterator(a.begin()) + 3));
+  ASSERT_EQ('o', *(utf8_iterator(a.begin()) + 4));
 
   std::string b = "Copyright \xC2\xA9";
-  value = std::count_if(utf8_iterator(b.begin()),
-                        utf8_iterator(b.end()), all);
+  value = std::count_if(utf8_iterator(b.begin()), utf8_iterator(b.end()), all);
   ASSERT_EQ(11, value);
   ASSERT_EQ('C', *(utf8_iterator(b.begin())));
-  ASSERT_EQ('o', *(utf8_iterator(b.begin())+1));
-  ASSERT_EQ(0xA9, *(utf8_iterator(b.begin())+10));
-  ASSERT_TRUE((utf8_iterator(b.begin())+11) == utf8_iterator(b.end()));
+  ASSERT_EQ('o', *(utf8_iterator(b.begin()) + 1));
+  ASSERT_EQ(0xA9, *(utf8_iterator(b.begin()) + 10));
+  ASSERT_TRUE((utf8_iterator(b.begin()) + 11) == utf8_iterator(b.end()));
 
   std::string c = "\xf0\x90\x8d\x86\xe6\x97\xa5\xd1\x88";
-  value = std::count_if(utf8_iterator(c.begin()),
-                        utf8_iterator(c.end()), all);
+  value = std::count_if(utf8_iterator(c.begin()), utf8_iterator(c.end()), all);
   ASSERT_EQ(3, value);
   ASSERT_EQ(0x10346, *(utf8_iterator(c.begin())));
-  ASSERT_EQ(0x65E5, *(utf8_iterator(c.begin())+1));
-  ASSERT_EQ(0x448, *(utf8_iterator(c.begin())+2));
-  ASSERT_TRUE((utf8_iterator(c.begin())+3) == utf8_iterator(c.end()));
+  ASSERT_EQ(0x65E5, *(utf8_iterator(c.begin()) + 1));
+  ASSERT_EQ(0x448, *(utf8_iterator(c.begin()) + 2));
+  ASSERT_TRUE((utf8_iterator(c.begin()) + 3) == utf8_iterator(c.end()));
 
   std::string d = "\xf0\xa4\xad\xa2";
-  value = std::count_if(utf8_iterator(d.begin()),
-                        utf8_iterator(d.end()), all);
+  value = std::count_if(utf8_iterator(d.begin()), utf8_iterator(d.end()), all);
   ASSERT_EQ(1, value);
   ASSERT_EQ(0x24B62, *(utf8_iterator(d.begin())));
-  ASSERT_TRUE((utf8_iterator(d.begin())+1) == utf8_iterator(d.end()));
+  ASSERT_TRUE((utf8_iterator(d.begin()) + 1) == utf8_iterator(d.end()));
 }
 
 TEST(String, Utf8ICmp)
@@ -94,9 +94,9 @@ TEST(String, StringToLowerByUnicodeCharIssue1065)
   // Required to make old string_to_lower() version fail.
   std::setlocale(LC_ALL, "en-US");
 
-  std::string  a = "\xC2\xBA";
+  std::string a = "\xC2\xBA";
   std::wstring b = from_utf8(a);
-  std::string  c = to_utf8(b);
+  std::string c = to_utf8(b);
 
   ASSERT_EQ(a, c);
   ASSERT_EQ("\xC2\xBA", c);
@@ -113,7 +113,8 @@ TEST(String, StringToLowerByUnicodeCharIssue1065)
   auto it = utf8_iterator(d.begin());
   auto end = utf8_iterator(d.end());
   int i = 0;
-  for (; it != end; ++it) {
+  for (; it != end; ++it)
+  {
     ASSERT_EQ(b[i++], *it);
   }
 }

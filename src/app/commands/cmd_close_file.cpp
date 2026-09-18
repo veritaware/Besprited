@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2016  David Capello
+// Aseprite  | Copyright (C) 2001-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -24,29 +24,31 @@
 
 #include <memory>
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 
-class CloseFileCommand : public Command {
+class CloseFileCommand : public Command
+{
 public:
   CloseFileCommand()
-    : Command("CloseFile",
-              "Close File",
-              CmdUIOnlyFlag) {
+    : Command("CloseFile", "Close File", CmdUIOnlyFlag)
+  {
   }
 
   Command* clone() const override { return new CloseFileCommand(*this); }
 
 protected:
-
-  bool onEnabled(Context* context) override {
+  bool onEnabled(Context* context) override
+  {
     Workspace* workspace = App::instance()->workspace();
     WorkspaceView* view = workspace->activeView();
     return (view != nullptr);
   }
 
-  void onExecute(Context* context) override {
+  void onExecute(Context* context) override
+  {
     Workspace* workspace = App::instance()->workspace();
     WorkspaceView* view = workspace->activeView();
     if (view)
@@ -54,35 +56,38 @@ protected:
   }
 };
 
-class CloseAllFilesCommand : public Command {
+class CloseAllFilesCommand : public Command
+{
 public:
   CloseAllFilesCommand()
-    : Command("CloseAllFiles",
-              "Close All Files",
-              CmdRecordableFlag) {
+    : Command("CloseAllFiles", "Close All Files", CmdRecordableFlag)
+  {
     m_quitting = false;
   }
 
   Command* clone() const override { return new CloseAllFilesCommand(*this); }
 
 protected:
-
-  void onLoadParams(const Params& params) override {
+  void onLoadParams(const Params& params) override
+  {
     m_quitting = params.get_as<bool>("quitting");
   }
 
-  void onExecute(Context* context) override {
+  void onExecute(Context* context) override
+  {
     Workspace* workspace = App::instance()->workspace();
 
     // Collect all document views
     DocumentViews docViews;
-    for (auto view : *workspace) {
+    for (auto view : *workspace)
+    {
       DocumentView* docView = dynamic_cast<DocumentView*>(view);
       if (docView)
         docViews.push_back(docView);
     }
 
-    for (auto docView : docViews) {
+    for (auto docView : docViews)
+    {
       if (!workspace->closeView(docView, m_quitting))
         break;
     }

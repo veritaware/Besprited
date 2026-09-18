@@ -19,20 +19,21 @@
 #include <gtest/gtest.h>
 
 #ifdef TEST_GUI
-  #include "she/she.h"
-  #include "ui/ui.h"
+#include "she/she.h"
+#include "ui/ui.h"
 #endif
 
 #ifdef LINKED_WITH_SHE
-  // she's platform layer provides the real main() and calls app_main().
-  #undef main
-  #ifdef _WIN32
-    int main(int argc, char* argv[]) {
-      extern int app_main(int argc, char* argv[]);
-      return app_main(argc, argv);
-    }
-  #endif
-  #define main app_main
+// she's platform layer provides the real main() and calls app_main().
+#undef main
+#ifdef _WIN32
+int main(int argc, char* argv[])
+{
+  extern int app_main(int argc, char* argv[]);
+  return app_main(argc, argv);
+}
+#endif
+#define main app_main
 #endif
 
 int main(int argc, char* argv[])
@@ -40,18 +41,18 @@ int main(int argc, char* argv[])
   int exitcode;
   ::testing::InitGoogleTest(&argc, argv);
 
-  #ifdef TEST_GUI
-    {
-      // Do not create a she::System, as we don't need it for testing purposes.
-      ui::UISystem uiSystem;
-      ui::Manager uiManager;
-  #endif
+#ifdef TEST_GUI
+  {
+    // Do not create a she::System, as we don't need it for testing purposes.
+    ui::UISystem uiSystem;
+    ui::Manager uiManager;
+#endif
 
-      exitcode = RUN_ALL_TESTS();
+    exitcode = RUN_ALL_TESTS();
 
-  #ifdef TEST_GUI
-    }
-  #endif
+#ifdef TEST_GUI
+  }
+#endif
 
   return exitcode;
 }

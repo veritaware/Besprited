@@ -1,5 +1,5 @@
-// Aseprite
-// Copyright (C) 2001-2015  David Capello
+// Aseprite  | Copyright (C) 2001-2015 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -20,114 +20,127 @@
 
 #include <vector>
 
-namespace doc {
-  class Layer;
-  class Sprite;
+namespace doc
+{
+class Layer;
+class Sprite;
 }
 
-namespace ui {
-  class Graphics;
+namespace ui
+{
+class Graphics;
 }
 
-namespace app {
-  class Editor;
+namespace app
+{
+class Editor;
 
-  class BrushPreview {
-  public:
-    // Brush type
-    enum {
-      CROSS            = 1,
-      SELECTION_CROSS  = 2,
-      BRUSH_BOUNDARIES = 4,
-    };
-
-    BrushPreview(Editor* editor);
-    ~BrushPreview();
-
-    bool onScreen() const { return m_onScreen; }
-    const gfx::Point& screenPosition() const { return m_screenPosition; }
-
-    void show(const gfx::Point& screenPos);
-    void hide();
-    void redraw();
-
-    void invalidateRegion(const gfx::Region& region);
-
-  private:
-    typedef void (BrushPreview::*PixelDelegate)(ui::Graphics*, const gfx::Point&, gfx::Color);
-
-    doc::BrushRef getCurrentBrush();
-    static doc::color_t getBrushColor(doc::Sprite* sprite, doc::Layer* layer);
-
-    void generateBoundaries();
-    void forEachBrushPixel(
-      ui::Graphics* g,
-      const gfx::Point& screenPos,
-      const gfx::Point& spritePos,
-      gfx::Color color,
-      PixelDelegate pixelDelegate);
-
-    void traceCrossPixels(ui::Graphics* g, const gfx::Point& pt, gfx::Color color, PixelDelegate pixel);
-    void traceSelectionCrossPixels(ui::Graphics* g, const gfx::Point& pt, gfx::Color color, int thickness, PixelDelegate pixel);
-    void traceBrushBoundaries(ui::Graphics* g, gfx::Point pos, gfx::Color color, PixelDelegate pixel);
-
-    void savePixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color);
-    void drawPixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color);
-    void clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color);
-
-    Editor* m_editor;
-    int m_type;
-
-    // The brush preview shows the cross or brush boundaries as black
-    // & white negative.
-    bool m_blackAndWhiteNegative;
-
-    // The brush preview is on the screen.
-    bool m_onScreen;
-    bool m_withRealPreview;
-    gfx::Point m_screenPosition; // Position in the screen (view)
-    gfx::Point m_editorPosition; // Position in the editor (model)
-
-    // Information about current brush
-    base::SharedPtr<doc::MaskBoundaries> m_brushBoundaries;
-    int m_brushGen;
-    int m_brushWidth;
-    int m_brushHeight;
-
-    std::vector<gfx::Color> m_savedPixels;
-    int m_savedPixelsIterator;
-    int m_savedPixelsLimit;
-
-    gfx::Region m_clippingRegion;
-    gfx::Region m_oldClippingRegion;
-
-    // Information stored in show() and used in hide() to clear the
-    // brush preview in the exact same place.
-    gfx::Rect m_lastBounds;
-    doc::frame_t m_lastFrame;
-
-    ExtraCelRef m_extraCel;
+class BrushPreview
+{
+public:
+  // Brush type
+  enum
+  {
+    CROSS = 1,
+    SELECTION_CROSS = 2,
+    BRUSH_BOUNDARIES = 4,
   };
 
-  class HideBrushPreview {
-  public:
-    HideBrushPreview(BrushPreview& brushPreview)
-      : m_brushPreview(brushPreview)
-      , m_oldScreenPosition(brushPreview.screenPosition())
-      , m_onScreen(brushPreview.onScreen()) {
-      if (m_onScreen)
-        m_brushPreview.hide();
-    }
+  BrushPreview(Editor* editor);
+  ~BrushPreview();
 
-    ~HideBrushPreview() {
-      if (m_onScreen)
-        m_brushPreview.show(m_oldScreenPosition);
-    }
+  bool onScreen() const { return m_onScreen; }
+  const gfx::Point& screenPosition() const { return m_screenPosition; }
 
-  private:
-    BrushPreview& m_brushPreview;
-    gfx::Point m_oldScreenPosition;
-    bool m_onScreen;
-  };
+  void show(const gfx::Point& screenPos);
+  void hide();
+  void redraw();
+
+  void invalidateRegion(const gfx::Region& region);
+
+private:
+  using PixelDelegate = void (BrushPreview::*)(ui::Graphics*, const gfx::Point&,
+                                               gfx::Color);
+
+  doc::BrushRef getCurrentBrush();
+  static doc::color_t getBrushColor(doc::Sprite* sprite, doc::Layer* layer);
+
+  void generateBoundaries();
+  void forEachBrushPixel(ui::Graphics* g, const gfx::Point& screenPos,
+                         const gfx::Point& spritePos, gfx::Color color,
+                         PixelDelegate pixelDelegate);
+
+  void traceCrossPixels(ui::Graphics* g, const gfx::Point& pt, gfx::Color color,
+                        PixelDelegate pixel);
+  void traceSelectionCrossPixels(ui::Graphics* g, const gfx::Point& pt,
+                                 gfx::Color color, int thickness,
+                                 PixelDelegate pixel);
+  void traceBrushBoundaries(ui::Graphics* g, gfx::Point pos, gfx::Color color,
+                            PixelDelegate pixel);
+
+  void savePixelDelegate(ui::Graphics* g, const gfx::Point& pt,
+                         gfx::Color color);
+  void drawPixelDelegate(ui::Graphics* g, const gfx::Point& pt,
+                         gfx::Color color);
+  void clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt,
+                          gfx::Color color);
+
+  Editor* m_editor;
+  int m_type;
+
+  // The brush preview shows the cross or brush boundaries as black
+  // & white negative.
+  bool m_blackAndWhiteNegative;
+
+  // The brush preview is on the screen.
+  bool m_onScreen;
+  bool m_withRealPreview;
+  gfx::Point m_screenPosition; // Position in the screen (view)
+  gfx::Point m_editorPosition; // Position in the editor (model)
+
+  // Information about current brush
+  base::SharedPtr<doc::MaskBoundaries> m_brushBoundaries;
+  int m_brushGen;
+  int m_brushWidth;
+  int m_brushHeight;
+
+  std::vector<gfx::Color> m_savedPixels;
+  int m_savedPixelsIterator;
+  int m_savedPixelsLimit;
+
+  gfx::Region m_clippingRegion;
+  gfx::Region m_oldClippingRegion;
+
+  // Information stored in show() and used in hide() to clear the
+  // brush preview in the exact same place.
+  gfx::Rect m_lastBounds;
+  doc::frame_t m_lastFrame;
+
+  ExtraCelRef m_extraCel;
+};
+
+class HideBrushPreview
+{
+public:
+  HideBrushPreview(BrushPreview& brushPreview)
+    : m_brushPreview(brushPreview)
+    , m_oldScreenPosition(brushPreview.screenPosition())
+    , m_onScreen(brushPreview.onScreen())
+  {
+    if (m_onScreen)
+      m_brushPreview.hide();
+  }
+
+  ~HideBrushPreview()
+  {
+    if (m_onScreen)
+      m_brushPreview.show(m_oldScreenPosition);
+  }
+
+private:
+  BrushPreview& m_brushPreview;
+  gfx::Point m_oldScreenPosition;
+  bool m_onScreen;
+};
 
 } // namespace app

@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2021-2026  LibreSprite contributors
+// LibreSprite | Copyright (C) 2021-2026 LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -13,22 +13,25 @@
 #include <memory>
 #include <string>
 
-class ButtonExtension : public Extension {
+class ButtonExtension : public Extension
+{
 public:
-  ButtonExtension() {
+  ButtonExtension()
+  {
     auto& cls = addClass<void, ButtonObject>("Button");
     // The button is created by DialogObject::addButton() (C++), not `new
     // Button()` in JS, but delta requires a non-null constructor.
-    cls.setConstructor() = []() -> std::shared_ptr<ButtonObject> {
-      return std::make_shared<ButtonObject>();
-    };
+    cls.setConstructor() = []() -> std::shared_ptr<ButtonObject>
+    { return std::make_shared<ButtonObject>(); };
 
     addWidgetId<ButtonObject>(cls);
 
-    cls.addGetter("text") = [](ButtonObject& self) -> JSON::Value {
+    cls.addGetter("text") = [](ButtonObject& self) -> JSON::Value
+    {
       return self.button() ? std::string{self.button()->text()} : std::string{};
     };
-    cls.addSetter("text") = [](ButtonObject& self, JSON::Value& v) {
+    cls.addSetter("text") = [](ButtonObject& self, JSON::Value& v)
+    {
       if (self.button())
         self.button()->setText(v.toString());
     };

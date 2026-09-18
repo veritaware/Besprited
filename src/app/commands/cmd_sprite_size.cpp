@@ -36,14 +36,16 @@
 
 #include <memory>
 
-#define PERC_FORMAT     "%.1f"
+#define PERC_FORMAT "%.1f"
 
-namespace app {
+namespace app
+{
 
 using namespace ui;
 using doc::algorithm::ResizeMethod;
 
-class SpriteSizeJob : public Job {
+class SpriteSizeJob : public Job
+{
   ContextWriter m_writer;
   Document* m_document;
   Sprite* m_sprite;
@@ -55,8 +57,8 @@ class SpriteSizeJob : public Job {
   int scale_y(int y) const { return y * m_new_height / m_sprite->height(); }
 
 public:
-
-  SpriteSizeJob(const ContextReader& reader, int new_width, int new_height, ResizeMethod resize_method)
+  SpriteSizeJob(const ContextReader& reader, int new_width, int new_height,
+                ResizeMethod resize_method)
     : Job("Sprite Size")
     , m_writer(reader)
     , m_document(m_writer.document())
@@ -68,7 +70,6 @@ public:
   }
 
 protected:
-
   /**
    * [working thread]
    */
@@ -78,39 +79,41 @@ protected:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-  virtual void onJob()
+  void onJob() override
   {
     Transaction transaction(m_writer.context(), "Sprite Size");
     DocumentApi api = m_writer.document()->getApi(transaction);
 
     int cels_count = 0;
-    for (auto cel : m_sprite->uniqueCels()) { // TODO add size() member function to CelsRange
+    for (auto cel : m_sprite->uniqueCels())
+    { // TODO add size() member function to CelsRange
       (void)cel;
       ++cels_count;
     }
 
     // For each cel...
     int progress = 0;
-    for (auto cel : m_sprite->uniqueCels()) {
+    for (auto cel : m_sprite->uniqueCels())
+    {
       // Change its location
       api.setCelPosition(m_sprite, cel, scale_x(cel->x()), scale_y(cel->y()));
 
       // Get cel's image
       Image* image = cel->image();
-      if (image && !cel->link()) {
+      if (image && !cel->link())
+      {
         // Resize the image
         int w = scale_x(image->width());
         int h = scale_y(image->height());
-        ImageRef new_image(Image::create(image->pixelFormat(), MAX(1, w), MAX(1, h)));
+        ImageRef new_image(
+            Image::create(image->pixelFormat(), MAX(1, w), MAX(1, h)));
         new_image->setMaskColor(image->maskColor());
 
         doc::algorithm::fixup_image_transparent_colors(image);
         doc::algorithm::resize_image(
-          image, new_image.get(),
-          m_resize_method,
-          m_sprite->palette(cel->frame()),
-          m_sprite->rgbMap(cel->frame()),
-          (cel->layer()->isBackground() ? -1: m_sprite->transparentColor()));
+            image, new_image.get(), m_resize_method,
+            m_sprite->palette(cel->frame()), m_sprite->rgbMap(cel->frame()),
+            (cel->layer()->isBackground() ? -1 : m_sprite->transparentColor()));
 
         api.replaceImage(m_sprite, cel->imageRef(), new_image);
       }
@@ -120,29 +123,28 @@ protected:
 
       // cancel all the operation?
       if (isCanceled())
-        return;        // Transaction destructor will undo all operations
+        return; // Transaction destructor will undo all operations
     }
 
     // Resize mask
-    if (m_document->isMaskVisible()) {
-      ImageRef old_bitmap
-        (crop_image(m_document->mask()->bitmap(), -1, -1,
-                    m_document->mask()->bitmap()->width()+2,
-                    m_document->mask()->bitmap()->height()+2, 0));
+    if (m_document->isMaskVisible())
+    {
+      ImageRef old_bitmap(crop_image(m_document->mask()->bitmap(), -1, -1,
+                                     m_document->mask()->bitmap()->width() + 2,
+                                     m_document->mask()->bitmap()->height() + 2,
+                                     0));
 
       int w = scale_x(old_bitmap->width());
       int h = scale_y(old_bitmap->height());
-      std::unique_ptr<Mask> new_mask(new Mask);
-      new_mask->replace(
-        gfx::Rect(
-          scale_x(m_document->mask()->bounds().x-1),
-          scale_y(m_document->mask()->bounds().y-1), MAX(1, w), MAX(1, h)));
-      algorithm::resize_image(
-        old_bitmap.get(), new_mask->bitmap(),
-        m_resize_method,
-        m_sprite->palette(0), // Ignored
-        m_sprite->rgbMap(0),  // Ignored
-        -1);                  // Ignored
+      auto new_mask = std::make_unique<Mask>();
+      new_mask->replace(gfx::Rect(scale_x(m_document->mask()->bounds().x - 1),
+                                  scale_y(m_document->mask()->bounds().y - 1),
+                                  MAX(1, w), MAX(1, h)));
+      algorithm::resize_image(old_bitmap.get(), new_mask->bitmap(),
+                              m_resize_method,
+                              m_sprite->palette(0), // Ignored
+                              m_sprite->rgbMap(0),  // Ignored
+                              -1);                  // Ignored
 
       // Reshrink
       new_mask->intersect(new_mask->bounds());
@@ -164,41 +166,49 @@ protected:
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
-
 };
 
-class SpriteSizeWindow : public app::gen::SpriteSize {
+class SpriteSizeWindow : public app::gen::SpriteSize
+{
 public:
-  SpriteSizeWindow(Context* ctx, int new_width, int new_height) : m_ctx(ctx) {
-    lockRatio()->Click.connect(base::Bind<void>(&SpriteSizeWindow::onLockRatioClick, this));
-    widthPx()->Change.connect(base::Bind<void>(&SpriteSizeWindow::onWidthPxChange, this));
-    heightPx()->Change.connect(base::Bind<void>(&SpriteSizeWindow::onHeightPxChange, this));
-    widthPerc()->Change.connect(base::Bind<void>(&SpriteSizeWindow::onWidthPercChange, this));
-    heightPerc()->Change.connect(base::Bind<void>(&SpriteSizeWindow::onHeightPercChange, this));
+  SpriteSizeWindow(Context* ctx, int new_width, int new_height)
+    : m_ctx(ctx)
+  {
+    lockRatio()->Click.connect(
+        base::Bind<void>(&SpriteSizeWindow::onLockRatioClick, this));
+    widthPx()->Change.connect(
+        base::Bind<void>(&SpriteSizeWindow::onWidthPxChange, this));
+    heightPx()->Change.connect(
+        base::Bind<void>(&SpriteSizeWindow::onHeightPxChange, this));
+    widthPerc()->Change.connect(
+        base::Bind<void>(&SpriteSizeWindow::onWidthPercChange, this));
+    heightPerc()->Change.connect(
+        base::Bind<void>(&SpriteSizeWindow::onHeightPercChange, this));
 
     widthPx()->setTextf("%d", new_width);
     heightPx()->setTextf("%d", new_height);
 
     static_assert(doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR == 0 &&
-                  doc::algorithm::RESIZE_METHOD_BILINEAR == 1 &&
-                  doc::algorithm::RESIZE_METHOD_ROTSPRITE == 2,
+                      doc::algorithm::RESIZE_METHOD_BILINEAR == 1 &&
+                      doc::algorithm::RESIZE_METHOD_ROTSPRITE == 2,
                   "ResizeMethod enum has changed");
     method()->addItem("Nearest-neighbor");
     method()->addItem("Bilinear");
     method()->addItem("RotSprite");
     method()->setSelectedItemIndex(
-      get_config_int("SpriteSize", "Method",
-                     doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR));
+        get_config_int("SpriteSize", "Method",
+                       doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR));
   }
 
 private:
-
-  void onLockRatioClick() {
+  void onLockRatioClick()
+  {
     const ContextReader reader(m_ctx);
     onWidthPxChange();
   }
 
-  void onWidthPxChange() {
+  void onWidthPxChange()
+  {
     const ContextReader reader(m_ctx);
     const Sprite* sprite(reader.sprite());
     int width = widthPx()->textInt();
@@ -206,13 +216,15 @@ private:
 
     widthPerc()->setTextf(PERC_FORMAT, perc);
 
-    if (lockRatio()->isSelected()) {
+    if (lockRatio()->isSelected())
+    {
       heightPerc()->setTextf(PERC_FORMAT, perc);
       heightPx()->setTextf("%d", sprite->height() * width / sprite->width());
     }
   }
 
-  void onHeightPxChange() {
+  void onHeightPxChange()
+  {
     const ContextReader reader(m_ctx);
     const Sprite* sprite(reader.sprite());
     int height = heightPx()->textInt();
@@ -220,33 +232,38 @@ private:
 
     heightPerc()->setTextf(PERC_FORMAT, perc);
 
-    if (lockRatio()->isSelected()) {
+    if (lockRatio()->isSelected())
+    {
       widthPerc()->setTextf(PERC_FORMAT, perc);
       widthPx()->setTextf("%d", sprite->width() * height / sprite->height());
     }
   }
 
-  void onWidthPercChange() {
+  void onWidthPercChange()
+  {
     const ContextReader reader(m_ctx);
     const Sprite* sprite(reader.sprite());
     double width = widthPerc()->textDouble();
 
     widthPx()->setTextf("%d", (int)(sprite->width() * width / 100));
 
-    if (lockRatio()->isSelected()) {
+    if (lockRatio()->isSelected())
+    {
       heightPx()->setTextf("%d", (int)(sprite->height() * width / 100));
       heightPerc()->setText(widthPerc()->text());
     }
   }
 
-  void onHeightPercChange() {
+  void onHeightPercChange()
+  {
     const ContextReader reader(m_ctx);
     const Sprite* sprite(reader.sprite());
     double height = heightPerc()->textDouble();
 
     heightPx()->setTextf("%d", (int)(sprite->height() * height / 100));
 
-    if (lockRatio()->isSelected()) {
+    if (lockRatio()->isSelected())
+    {
       widthPx()->setTextf("%d", (int)(sprite->width() * height / 100));
       widthPerc()->setText(heightPerc()->text());
     }
@@ -256,9 +273,7 @@ private:
 };
 
 SpriteSizeCommand::SpriteSizeCommand()
-  : Command("SpriteSize",
-            "Sprite Size",
-            CmdRecordableFlag)
+  : Command("SpriteSize", "Sprite Size", CmdRecordableFlag)
 {
   m_useUI = true;
   m_width = 0;
@@ -279,21 +294,24 @@ void SpriteSizeCommand::onLoadParams(const Params& params)
   m_useUI = (useUI.empty() || (useUI == "true"));
 
   std::string width = params.get("width");
-  if (!width.empty()) {
-    m_width = std::strtol(width.c_str(), NULL, 10);
+  if (!width.empty())
+  {
+    m_width = std::strtol(width.c_str(), nullptr, 10);
   }
   else
     m_width = 0;
 
   std::string height = params.get("height");
-  if (!height.empty()) {
-    m_height = std::strtol(height.c_str(), NULL, 10);
+  if (!height.empty())
+  {
+    m_height = std::strtol(height.c_str(), nullptr, 10);
   }
   else
     m_height = 0;
 
   std::string resize_method = params.get("resize-method");
-  if (!resize_method.empty()) {
+  if (!resize_method.empty())
+  {
     if (resize_method == "bilinear")
       m_resizeMethod = doc::algorithm::RESIZE_METHOD_BILINEAR;
     else if (resize_method == "rotsprite")
@@ -315,11 +333,12 @@ void SpriteSizeCommand::onExecute(Context* context)
 {
   const ContextReader reader(context);
   const Sprite* sprite(reader.sprite());
-  int new_width = (m_width ? m_width: int(sprite->width()*m_scaleX));
-  int new_height = (m_height ? m_height: int(sprite->height()*m_scaleY));
+  int new_width = (m_width ? m_width : int(sprite->width() * m_scaleX));
+  int new_height = (m_height ? m_height : int(sprite->height() * m_scaleY));
   ResizeMethod resize_method = m_resizeMethod;
 
-  if (m_useUI && context->isUIAvailable()) {
+  if (m_useUI && context->isUIAvailable())
+  {
     SpriteSizeWindow window(context, new_width, new_height);
     window.remapWindow();
     window.centerWindow();
