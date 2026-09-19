@@ -20,6 +20,7 @@ namespace app
 Command::Command(const char* id, const char* friendlyName, CommandFlags flags)
   : m_id(id)
   , m_friendlyName(friendlyName)
+  , m_flags(flags)
 {
 }
 

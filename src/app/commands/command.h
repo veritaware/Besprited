@@ -32,6 +32,14 @@ public:
   const std::string& id() const { return m_id; }
   std::string friendlyName() const;
 
+  // Was previously never stored (no m_flags member existed), making every
+  // CmdUIOnlyFlag/CmdRecordableFlag call site across the codebase a silent
+  // no-op (see issue #219, Phase 5). Stored now; nothing reads it yet -
+  // the ~125 declared values were never validated against real command
+  // behavior, so wiring up a consumer needs its own separate audit rather
+  // than piggybacking on this fix.
+  [[nodiscard]] CommandFlags flags() const { return m_flags; }
+
   void loadParams(const Params& params);
   bool isEnabled(Context* context);
   bool isChecked(Context* context);
@@ -47,6 +55,7 @@ protected:
 private:
   std::string m_id;
   std::string m_friendlyName;
+  CommandFlags m_flags;
 };
 
 } // namespace app
