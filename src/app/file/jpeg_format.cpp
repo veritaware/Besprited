@@ -244,6 +244,12 @@ bool JpegFormat::onLoad(FileOp* fop)
   for (c = 0; c < (int)buffer_height; c++)
     base_free(buffer[c]);
   base_free(buffer);
+  // jpeg_finish_decompress() below can still error_exit/longjmp back to the
+  // setjmp block above (e.g. truncated/malformed trailing data) - null out
+  // `buffer` so that recovery path's own free doesn't double-free what was
+  // just freed here.
+  buffer = nullptr;
+  buffer_height = 0;
 
   jpeg_finish_decompress(&cinfo);
   jpeg_destroy_decompress(&cinfo);

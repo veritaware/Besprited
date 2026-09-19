@@ -58,7 +58,12 @@ bool QoiFormat::onLoad(FileOp* fop)
     return false;
   }
   fop->sequenceSetHasAlpha(true);
+  // qoi's own decoder allows dimensions well past sequenceImage()'s shared
+  // kMaxFileImageDimension cap (see issue #219), so this can legitimately
+  // return null here now.
   auto image = fop->sequenceImage(IMAGE_RGB, desc.width, desc.height);
+  if (!image)
+    return false;
   const size_t size =
       static_cast<size_t>(desc.width) * static_cast<size_t>(desc.height) * 4;
   memcpy(image->getPixelAddress(0, 0), decoded.get(), size);

@@ -61,7 +61,14 @@ public:
     for (auto cmd : *app::CommandsModule::instance())
     {
       std::string id = cmd->id();
-      if (id == "CloseFile" || id == "CloseAllFiles")
+      // Exit executes CloseAllFiles internally (cmd_exit.cpp) when there
+      // are modified documents, reaching the same UAF class as CloseFile/
+      // CloseAllFiles above if the user picks "Don't Save" while a script
+      // still holds live wrappers. It also unconditionally dereferences
+      // App::instance()->mainWindow(), which is null outside the GUI (e.g.
+      // a headless --batch --script run) - a separate crash this same
+      // exclusion avoids.
+      if (id == "CloseFile" || id == "CloseAllFiles" || id == "Exit")
         continue;
 
       cls.addMethod(cmd->id()) = [cmd](CommandObject& self,

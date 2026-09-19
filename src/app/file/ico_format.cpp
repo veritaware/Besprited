@@ -167,6 +167,8 @@ bool IcoFormat::onLoad(FileOp* fop)
     pixelFormat = IMAGE_RGB;
 
   Image* image = fop->sequenceImage(pixelFormat, width, height);
+  if (!image)
+    return false;
 
   // Go to the entry start in the file
   fseek(f, entry.image_offset, SEEK_SET);

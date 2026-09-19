@@ -326,7 +326,11 @@ bool lock::impl::get_data(format f, char* buf, size_t len) const {
           // unbounded read from the clipboard global (data supplied by
           // another, possibly untrusted, process on the desktop). Match
           // the pattern the other two branches already use.
-          size_t reqsize = strlen(lpstr) + 1;
+          // strnlen (not strlen): another process controls this global's
+          // contents and isn't obligated to NUL-terminate it within its
+          // allocated size.
+          size_t maxlen = GlobalSize(hglobal);
+          size_t reqsize = strnlen(lpstr, maxlen) + 1;
           if (reqsize <= len) {
             memcpy(buf, lpstr, reqsize);
             result = true;
@@ -387,7 +391,7 @@ size_t lock::impl::get_data_length(format f) const {
       if (hglobal) {
         LPSTR lpstr = (LPSTR)GlobalLock(hglobal);
         if (lpstr) {
-          len = strlen(lpstr) + 1;
+          len = strnlen(lpstr, GlobalSize(hglobal)) + 1;
           GlobalUnlock(hglobal);
         }
       }

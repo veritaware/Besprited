@@ -811,8 +811,22 @@ ase_file_read_palette_chunk(FILE* f, const Palette& prevPal, frame_t frame)
   int to = fgetl(f);
   ase_file_read_padding(f, 8);
 
+  // newSize/from/to are raw 32-bit fields with no format-level upper bound.
+  // Palette::setEntry() below is bounds-checked so this loop can't corrupt
+  // memory either way, but an oversized newSize is still a multi-GB
+  // resize() attempt, and an oversized `to` is a CPU-exhaustion DoS
+  // (reading past real EOF for up to ~2 billion iterations). Cap both to a
+  // sane ceiling (see issue #219).
+  constexpr int kMaxPaletteSize = 65536;
+  if (newSize < 0 || newSize > kMaxPaletteSize)
+    newSize = 0;
   if (newSize > 0)
     pal->resize(newSize);
+
+  if (from < 0)
+    from = 0;
+  if (to > kMaxPaletteSize - 1)
+    to = kMaxPaletteSize - 1;
 
   for (int c = from; c <= to; ++c)
   {
@@ -1169,6 +1183,15 @@ static void read_compressed_image(FILE* f, Image* image, size_t chunk_end,
   while (true)
   {
     size_t input_bytes;
+
+    // chunk_size (hence chunk_end) is attacker-controlled and can
+    // understate the bytes the cel header itself already consumed - if
+    // ftell() has already passed chunk_end, `chunk_end - ftell(f)` below
+    // would wrap around (unsigned - larger value) into a huge input_bytes,
+    // reading the rest of the file into a fixed 4096-byte buffer (see
+    // issue #219). Bail out first instead.
+    if (static_cast<long>(chunk_end) <= ftell(f))
+      break;
 
     if (ftell(f) + compressed.size() > chunk_end)
     {

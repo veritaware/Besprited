@@ -44,6 +44,14 @@ std::string normalizeDomain(const std::string& domain)
 // reject only that (see issue #219).
 bool hasPathTraversal(const std::string& s)
 {
+  // A JS string can carry an embedded NUL that std::string preserves but
+  // the eventual C-string handoff to ResourceFinder::includeUserDir()
+  // truncates at - the two would see different strings, so reject
+  // outright rather than trying to reason about what's checked vs. what's
+  // actually opened.
+  if (s.find('\0') != std::string::npos)
+    return true;
+
   size_t start = 0;
   while (start <= s.size())
   {
