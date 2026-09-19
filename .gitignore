@@ -85,3 +85,7 @@ _codeql_detected_source_root/
 
 # --- Security/refactoring audit working artifacts (issue #219)
 /.audit/
+
+# --- Local agents settings
+/.claude/
+/.agents/
