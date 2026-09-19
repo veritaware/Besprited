@@ -39,8 +39,6 @@ class SheFormat : public FileFormat
     return FILE_SUPPORT_LOAD | FILE_SUPPORT_SEQUENCES;
   }
 
-  int loadPriority() override { return 2; }
-
   bool onSave(FileOp* fop) override { return false; }
 
   bool onLoad(FileOp* fop) override;
@@ -54,9 +52,16 @@ bool SheFormat::onLoad(FileOp* fop)
   {
     auto surface = std::shared_ptr<she::Surface>(
         she::instance()->loadRgbaSurface(fop->filename().c_str()));
+    if (!surface)
+      return false;
     auto width = surface->width();
     auto height = surface->height();
+    // sequenceImage() rejects unreasonable dimensions (see
+    // kMaxFileImageDimension, issue #219) - bail before the per-pixel copy
+    // loop below rather than dereferencing a null image.
     Image* image = fop->sequenceImage(IMAGE_RGB, width, height);
+    if (!image)
+      return false;
     for (int y = 0; y < height; ++y)
     {
       for (int x = 0; x < width; ++x)

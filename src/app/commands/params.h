@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <type_traits>
 
 namespace app
 {
@@ -50,9 +51,19 @@ public:
     return m_params[name] = value;
   }
 
-  const std::string& get(const char* name) const { return m_params[name]; }
+  // A failed lookup must not insert anything - callers hold onto Params
+  // instances as persistent state (e.g. Key::params()) and compare them
+  // for equality, so every const get() used to silently grow the map via
+  // operator[] (which required `m_params` to be `mutable`), corrupting
+  // that state (see issue #219, Phase 5).
+  const std::string& get(const char* name) const
+  {
+    auto it = m_params.find(name);
+    static const std::string empty;
+    return it != m_params.end() ? it->second : empty;
+  }
 
-  void operator|=(const Params& params) const
+  void operator|=(const Params& params)
   {
     for (const auto& p : params)
       m_params[p.first] = p.second;
@@ -60,14 +71,29 @@ public:
 
   template <typename T> const T get_as(const char* name) const
   {
-    std::istringstream stream(m_params[name]);
-    T value = T();
-    stream >> value;
-    return value;
+    auto it = m_params.find(name);
+    if (it == m_params.end())
+      return T();
+
+    if constexpr (std::is_same_v<T, bool>)
+    {
+      // Plain `stream >> value` only recognizes "0"/"1" for bool (no
+      // boolalpha), silently parsing "true"/"false" as false - several
+      // callers worked around this by comparing the raw string instead of
+      // using get_as<bool> at all.
+      return it->second == "true" || it->second == "1";
+    }
+    else
+    {
+      std::istringstream stream(it->second);
+      T value = T();
+      stream >> value;
+      return value;
+    }
   }
 
 private:
-  mutable Map m_params;
+  Map m_params;
 };
 
 } // namespace app

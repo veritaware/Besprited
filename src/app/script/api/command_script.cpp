@@ -17,6 +17,8 @@
 #include "app/ui_context.h"
 #include "app/script/api/script_api_common.h"
 
+#include <string>
+
 class CommandObject
 {
 public:
@@ -48,9 +50,27 @@ public:
       return JSON::makeNative(script_api::wrap(&self));
     };
 
-    // One method per registered command, named by the command id.
+    // One method per registered command, named by the command id - except
+    // for commands that delete Document/Sprite/Layer/Image objects that a
+    // script may still be holding a live (non-owning) wrapper for.
+    // document.close() is the safe, script-facing way to close a document;
+    // it deliberately leaves the underlying objects alive rather than
+    // freeing them while a script handle might still reference them (see
+    // issue #219 - exposing the real close/free path here was a
+    // use-after-free reachable from a plain JS call sequence).
     for (auto cmd : *app::CommandsModule::instance())
     {
+      std::string id = cmd->id();
+      // Exit executes CloseAllFiles internally (cmd_exit.cpp) when there
+      // are modified documents, reaching the same UAF class as CloseFile/
+      // CloseAllFiles above if the user picks "Don't Save" while a script
+      // still holds live wrappers. It also unconditionally dereferences
+      // App::instance()->mainWindow(), which is null outside the GUI (e.g.
+      // a headless --batch --script run) - a separate crash this same
+      // exclusion avoids.
+      if (id == "CloseFile" || id == "CloseAllFiles" || id == "Exit")
+        continue;
+
       cls.addMethod(cmd->id()) = [cmd](CommandObject& self,
                                        JSON::Value& mapArg) -> JSON::Value
       {

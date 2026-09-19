@@ -139,6 +139,8 @@ bool WebPFormat::onLoad(FileOp* fop)
 
   Image* image =
       fop->sequenceImage(IMAGE_RGB, config.input.width, config.input.height);
+  if (!image)
+    return false;
 
   config.output.colorspace = MODE_RGBA;
   config.output.u.RGBA.rgba = (uint8_t*)image->getPixelAddress(0, 0);

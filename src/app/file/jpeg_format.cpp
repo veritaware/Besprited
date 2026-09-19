@@ -75,7 +75,7 @@ static void error_exit(j_common_ptr cinfo)
   (*cinfo->err->output_message)(cinfo);
 
   // Return control to the setjmp point.
-  longjmp(((struct error_mgr*)cinfo->err)->setjmp_buffer, 1);
+  longjmp(reinterpret_cast<struct error_mgr*>(cinfo->err)->setjmp_buffer, 1);
 }
 
 static void output_message(j_common_ptr cinfo)
@@ -89,16 +89,19 @@ static void output_message(j_common_ptr cinfo)
   LOG("JPEG library: \"%s\"\n", buffer);
 
   // Leave the message for the application.
-  ((struct error_mgr*)cinfo->err)->fop->setError("%s\n", buffer);
+  reinterpret_cast<struct error_mgr*>(cinfo->err)->fop->setError("%s\n", buffer);
 }
 
 bool JpegFormat::onLoad(FileOp* fop)
 {
   struct jpeg_decompress_struct cinfo;
-  struct error_mgr jerr;
+  struct error_mgr jerr = {};
   JDIMENSION num_scanlines;
-  JSAMPARRAY buffer;
-  JDIMENSION buffer_height;
+  // volatile: both are modified between setjmp() and a longjmp() that can
+  // land back here (see the setjmp block below) - without it, a compiler
+  // is free to keep their post-longjmp values undefined.
+  JSAMPARRAY volatile buffer = nullptr;
+  JDIMENSION volatile buffer_height = 0;
   int c;
 
   FileHandle handle(open_file_with_exception(fop->filename(), "rb"));
@@ -111,9 +114,19 @@ bool JpegFormat::onLoad(FileOp* fop)
   jerr.head.error_exit = error_exit;
   jerr.head.output_message = output_message;
 
-  // Establish the setjmp return context for error_exit to use.
+  // Establish the setjmp return context for error_exit to use. A libjpeg
+  // error (e.g. corrupted entropy-coded data mid-scan) longjmps back here
+  // from inside jpeg_read_scanlines() below, after `buffer` has already
+  // been fully allocated - free it here too, or every failed load leaks
+  // it (see issue #219).
   if (setjmp(jerr.setjmp_buffer))
   {
+    if (buffer)
+    {
+      for (c = 0; c < (int)buffer_height; c++)
+        base_free(buffer[c]);
+      base_free(buffer);
+    }
     jpeg_destroy_decompress(&cinfo);
     return false;
   }
@@ -231,6 +244,12 @@ bool JpegFormat::onLoad(FileOp* fop)
   for (c = 0; c < (int)buffer_height; c++)
     base_free(buffer[c]);
   base_free(buffer);
+  // jpeg_finish_decompress() below can still error_exit/longjmp back to the
+  // setjmp block above (e.g. truncated/malformed trailing data) - null out
+  // `buffer` so that recovery path's own free doesn't double-free what was
+  // just freed here.
+  buffer = nullptr;
+  buffer_height = 0;
 
   jpeg_finish_decompress(&cinfo);
   jpeg_destroy_decompress(&cinfo);
@@ -241,7 +260,7 @@ bool JpegFormat::onLoad(FileOp* fop)
 bool JpegFormat::onSave(FileOp* fop)
 {
   struct jpeg_compress_struct cinfo;
-  struct error_mgr jerr;
+  struct error_mgr jerr = {};
   const Image* image = fop->sequenceImage();
   JSAMPARRAY buffer;
   JDIMENSION buffer_height;

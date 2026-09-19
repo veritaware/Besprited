@@ -25,6 +25,7 @@
 #include "she/surface.h"
 #include "she/surface_format.h"
 #include <memory>
+#include <stdexcept>
 
 namespace app
 {
@@ -87,12 +88,19 @@ bool IcoFormat::onLoad(FileOp* fop)
   {
     auto surface = std::shared_ptr<she::Surface>(
         she::instance()->loadSurface(fop->filename().c_str()));
+    if (!surface)
+      throw std::runtime_error("she::loadSurface returned null");
     she::SurfaceFormatData data;
     surface->getFormat(&data);
     auto pixelFormat = data.bitsPerPixel <= 8 ? IMAGE_INDEXED : IMAGE_RGB;
     auto width = surface->width();
     auto height = surface->height();
+    // sequenceImage() rejects unreasonable dimensions (see
+    // kMaxFileImageDimension, issue #219) - bail before the per-pixel copy
+    // loop below rather than dereferencing a null image.
     Image* image = fop->sequenceImage(pixelFormat, width, height);
+    if (!image)
+      return false;
     for (int y = 0; y < height; ++y)
     {
       for (int x = 0; x < width; ++x)
@@ -159,6 +167,8 @@ bool IcoFormat::onLoad(FileOp* fop)
     pixelFormat = IMAGE_RGB;
 
   Image* image = fop->sequenceImage(pixelFormat, width, height);
+  if (!image)
+    return false;
 
   // Go to the entry start in the file
   fseek(f, entry.image_offset, SEEK_SET);

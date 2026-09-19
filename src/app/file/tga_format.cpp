@@ -57,6 +57,11 @@ static void rle_tga_read(unsigned char* address, int w, int type, FILE* f)
     if (count & 0x80)
     {
       count = (count & 0x7F) + 1;
+      // A packet's declared count is attacker-controlled and isn't
+      // required to respect the scanline width - clamp before writing so
+      // a packet can't write past the row buffer (see issue #219).
+      if (count > w - c)
+        count = w - c;
       c += count;
       value = fgetc(f);
       while (count--)
@@ -65,7 +70,7 @@ static void rle_tga_read(unsigned char* address, int w, int type, FILE* f)
           *(address++) = value;
         else
         {
-          *((uint16_t*)address) = value;
+          *(reinterpret_cast<uint16_t*>(address)) = value;
           address += sizeof(uint16_t);
         }
       }
@@ -73,6 +78,8 @@ static void rle_tga_read(unsigned char* address, int w, int type, FILE* f)
     else
     {
       count++;
+      if (count > w - c)
+        count = w - c;
       c += count;
       if (type == 1)
       {
@@ -84,7 +91,7 @@ static void rle_tga_read(unsigned char* address, int w, int type, FILE* f)
       {
         for (g = 0; g < count; g++)
         {
-          *((uint16_t*)address) = fgetc(f);
+          *(reinterpret_cast<uint16_t*>(address)) = fgetc(f);
           address += sizeof(uint16_t);
         }
       }
@@ -107,6 +114,8 @@ static void rle_tga_read32(uint32_t* address, int w, FILE* f)
     if (count & 0x80)
     {
       count = (count & 0x7F) + 1;
+      if (count > w - c)
+        count = w - c;
       c += count;
       size_t nread = fread(value, 1, 4, f);
       (void)nread;
@@ -116,6 +125,8 @@ static void rle_tga_read32(uint32_t* address, int w, FILE* f)
     else
     {
       count++;
+      if (count > w - c)
+        count = w - c;
       c += count;
       while (count--)
       {
@@ -142,6 +153,8 @@ static void rle_tga_read24(uint32_t* address, int w, FILE* f)
     if (count & 0x80)
     {
       count = (count & 0x7F) + 1;
+      if (count > w - c)
+        count = w - c;
       c += count;
       size_t nread = fread(value, 1, 3, f);
       (void)nread;
@@ -151,6 +164,8 @@ static void rle_tga_read24(uint32_t* address, int w, FILE* f)
     else
     {
       count++;
+      if (count > w - c)
+        count = w - c;
       c += count;
       while (count--)
       {
@@ -178,6 +193,8 @@ static void rle_tga_read16(uint32_t* address, int w, FILE* f)
     if (count & 0x80)
     {
       count = (count & 0x7F) + 1;
+      if (count > w - c)
+        count = w - c;
       c += count;
       value = fgetw(f);
       color = rgba(scale_5bits_to_8bits(((value >> 10) & 0x1F)),
@@ -190,6 +207,8 @@ static void rle_tga_read16(uint32_t* address, int w, FILE* f)
     else
     {
       count++;
+      if (count > w - c)
+        count = w - c;
       c += count;
       while (count--)
       {
@@ -237,6 +256,11 @@ bool TgaFormat::onLoad(FileOp* fop)
 
   if (palette_type == 1)
   {
+    if (palette_colors > 256)
+    {
+      fop->setError("Invalid TGA file: palette has more than 256 colors.\n");
+      return false;
+    }
     for (i = 0; i < palette_colors; i++)
     {
       switch (palette_entry_size)

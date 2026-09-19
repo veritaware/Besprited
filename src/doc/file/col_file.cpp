@@ -37,10 +37,19 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
   if (!f)
     return nullptr;
 
-  // Get file size.
+  // Get file size. A non-seekable stream (e.g. a FIFO) makes ftell() fail
+  // (-1); treating that as a huge unsigned size would wrap `size - 8` and
+  // ultimately feed a bogus color count into Palette::create() below (see
+  // issue #219), so reject outright instead.
   std::fseek(f, 0, SEEK_END);
-  const std::size_t size = std::ftell(f);
-  std::div_t d = std::div(size - 8, 3);
+  const long rawSize = std::ftell(f);
+  if (rawSize < 8)
+  {
+    fclose(f);
+    return nullptr;
+  }
+  const std::size_t size = static_cast<std::size_t>(rawSize);
+  std::div_t d = std::div(static_cast<int>(size - 8), 3);
   std::fseek(f, 0, SEEK_SET);
 
   const bool pro = (size == 768) ? false : true; // is Animator Pro format?

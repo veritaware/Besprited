@@ -224,7 +224,14 @@ void LayerImage::moveCel(std::shared_ptr<Cel> cel, frame_t frame)
 void LayerImage::configureAsBackground()
 {
   ASSERT(sprite() != NULL);
-  ASSERT(sprite()->backgroundLayer() == NULL);
+
+  // Whether a background layer already exists can be driven by malformed
+  // file input (e.g. a crafted file that causes this to be invoked more
+  // than once) - ASSERT compiles out entirely in release builds, so this
+  // must be a real, always-on check rather than an invariant we merely
+  // assert.
+  if (sprite()->backgroundLayer() != NULL)
+    return;
 
   switchFlags(LayerFlags::BackgroundLayerFlags, true);
   setName("Background");
