@@ -213,6 +213,32 @@ TEST_F(AppScriptApiTest, AppExposesTheDialogAndCommandEntryPoints)
   EXPECT_EQ("function,object,function", captured().string());
 }
 
+TEST_F(AppScriptApiTest, CloseFileCloseAllFilesAndExitAreNotScriptReachable)
+{
+  // These delete Document/Sprite/Layer/Image objects a script may still
+  // hold a live (non-owning) wrapper for - see issue #219. They must not
+  // be exposed through the generic per-command enumeration, unlike an
+  // ordinary command such as NewFile.
+  ASSERT_TRUE(eval("native.capture([typeof command.CloseFile, typeof "
+                   "command.CloseAllFiles, typeof command.Exit, typeof "
+                   "command.NewFile].join(','));"));
+  EXPECT_EQ("undefined,undefined,undefined,function", captured().string());
+}
+
+TEST_F(AppScriptApiTest, AppLaunchRejectsNonHttpSchemes)
+{
+  // Unrestricted, this reaches base::launcher::open_file() with a
+  // script-controlled target - a script-only RCE primitive when combined
+  // with storage.save() (see issue #219). Deliberately not testing an
+  // accepted http(s) target here: that would actually invoke the OS
+  // launcher (spawn a browser/xdg-open), which isn't safe to do from a
+  // headless CI test.
+  ASSERT_TRUE(eval("native.capture([app.launch('javascript:1'), "
+                   "app.launch('/tmp/should-not-be-touched'), "
+                   "app.launch('')].join(','));"));
+  EXPECT_EQ("false,false,false", captured().string());
+}
+
 TEST_F(AppScriptApiTest, ImageGetPixelPutPixelRoundTrip)
 {
   std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 4, 4));

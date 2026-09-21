@@ -152,6 +152,8 @@ public:
 
   SharedPtr& operator=(const SharedPtr<T>& other)
   {
+    if (this == &other)
+      return *this;
     if (m_ptr != other.m_ptr)
     {
       release();

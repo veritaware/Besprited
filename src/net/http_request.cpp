@@ -27,14 +27,24 @@ public:
   HttpRequestImpl(const std::string& url)
     : m_curl(curl_easy_init())
   {
-#ifdef ANDROID
-    curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, 0);
-#endif
+    // TLS verification must stay on unconditionally - it was previously
+    // disabled on Android, which let anyone on the network path intercept
+    // or tamper with every request (including script-initiated fetches,
+    // see issue #219). If Android needs a CA bundle, supply one via
+    // CURLOPT_CAINFO rather than skipping verification.
     curl_easy_setopt(m_curl, CURLOPT_BUFFERSIZE, 102400L);
     curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this);
     curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION,
                      &HttpRequestImpl::writeBodyCallback);
     curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
+    // CURLOPT_PROTOCOLS_STR needs libcurl >= 7.85.0; fall back to the
+    // older (but equivalent) bitmask option on earlier versions so this
+    // still builds against whatever libcurl a given platform ships.
+#if LIBCURL_VERSION_NUM >= 0x075500
+    curl_easy_setopt(m_curl, CURLOPT_PROTOCOLS_STR, "http,https");
+#else
+    curl_easy_setopt(m_curl, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+#endif
     curl_easy_setopt(m_curl, CURLOPT_NOSIGNAL, 1);
     curl_easy_setopt(m_curl, CURLOPT_NOPROGRESS, 1L);
   }

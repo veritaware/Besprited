@@ -43,6 +43,8 @@ public:
 
   ImageBits& operator=(const ImageBits& other)
   {
+    if (this == &other)
+      return *this;
     m_image = other.m_image;
     m_bounds = other.m_bounds;
     return *this;
