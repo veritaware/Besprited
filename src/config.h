@@ -6,11 +6,11 @@
 // it under the terms of the GNU General Public License version 2 as
 // published by the Free Software Foundation.
 
-#ifdef __ASE_CONFIG_H
+#ifdef __BESPRITED_CONFIG_H
 #error You cannot use config.h two times
 #endif
 
-#define __ASE_CONFIG_H
+#define __BESPRITED_CONFIG_H
 
 // In MSVC
 #ifdef _MSC_VER
@@ -27,7 +27,7 @@
 #define PACKAGE "Besprited"
 #define COMMIT  "local build"
 #ifndef RELEASE_TAG
-    #define VERSION "1.26-dev (" COMMIT ")"
+    #define VERSION "dev: " COMMIT
 #else
     #define VERSION RELEASE_VERSION
 #endif
@@ -36,9 +36,7 @@
 #define WEBSITE                 "https://github.com/Veritaware/Besprited/"
 #define WEBSITE_DOWNLOAD        WEBSITE "releases/"
 #define WEBSITE_CONTRIBUTORS    WEBSITE "graphs/contributors/"
-#define COPYRIGHT               "Copyright © 2001-2016 David Capello, "\
-                                            "2016-2026 LibreSprite contributors, "\
-                                            "2026 Veritaware"
+#define COPYRIGHT               "Copyright © 2026 Veritaware"
 
 #include "base/base.h"
 #include "base/debug.h"
