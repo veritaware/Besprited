@@ -182,9 +182,11 @@ CelIterator LayerImage::findFirstCelIteratorAfter(frame_t firstAfterFrame)
 void LayerImage::addCel(std::shared_ptr<Cel> cel)
 {
   ASSERT(cel);
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(cel->data() && "The cel doesn't contain CelData");
   ASSERT(cel->image());
   ASSERT(sprite());
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(cel->image()->pixelFormat() == sprite()->pixelFormat());
 
   auto it = findFirstCelIteratorAfter(cel->frame());
@@ -199,9 +201,11 @@ void LayerImage::addCel(std::shared_ptr<Cel> cel)
 void LayerImage::removeCel(std::shared_ptr<Cel> cel)
 {
   ASSERT(cel);
+  // cppcheck-suppress nullPointerRedundantCheck
   auto it = findCelIterator(cel->frame());
   ASSERT(it != m_cels.end());
 
+  // cppcheck-suppress eraseIteratorOutOfBoundsCond
   m_cels.erase(it);
 
   cel->setParentLayer(nullptr);
@@ -230,6 +234,7 @@ void LayerImage::configureAsBackground()
   // than once) - ASSERT compiles out entirely in release builds, so this
   // must be a real, always-on check rather than an invariant we merely
   // assert.
+  // cppcheck-suppress nullPointerRedundantCheck
   if (sprite()->backgroundLayer() != NULL)
     return;
 
@@ -322,6 +327,7 @@ void LayerFolder::removeLayer(Layer* layer)
 {
   auto it = std::find(m_layers.begin(), m_layers.end(), layer);
   ASSERT(it != m_layers.end());
+  // cppcheck-suppress eraseIteratorOutOfBoundsCond
   m_layers.erase(it);
 
   layer->setParent(nullptr);
@@ -335,6 +341,7 @@ void LayerFolder::stackLayer(Layer* layer, Layer* after)
 
   auto it = std::find(m_layers.begin(), m_layers.end(), layer);
   ASSERT(it != m_layers.end());
+  // cppcheck-suppress eraseIteratorOutOfBoundsCond
   m_layers.erase(it);
 
   if (after)

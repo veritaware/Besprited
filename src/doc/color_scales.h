@@ -27,6 +27,8 @@ inline int scale_2bits_to_8bits(int channel2bits)
   static int scale[4] = {0, 85, 170, 255};
   ASSERT(channel2bits >= 0);
   ASSERT(channel2bits < 4);
+  // cppcheck-suppress arrayIndexOutOfBoundsCond
+  // cppcheck-suppress negativeIndex
   return scale[channel2bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
@@ -35,6 +37,8 @@ inline int scale_3bits_to_8bits(int channel3bits)
   static int scale[8] = {0, 36, 72, 109, 145, 182, 218, 255};
   ASSERT(channel3bits >= 0);
   ASSERT(channel3bits < 8);
+  // cppcheck-suppress arrayIndexOutOfBoundsCond
+  // cppcheck-suppress negativeIndex
   return scale[channel3bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
@@ -44,6 +48,8 @@ inline int scale_4bits_to_8bits(int channel4bits)
                           136, 153, 170, 187, 204, 221, 238, 255};
   ASSERT(channel4bits >= 0);
   ASSERT(channel4bits < 16);
+  // cppcheck-suppress arrayIndexOutOfBoundsCond
+  // cppcheck-suppress negativeIndex
   return scale[channel4bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
@@ -54,6 +60,8 @@ inline int scale_5bits_to_8bits(int channel5bits)
                           181, 189, 198, 206, 214, 222, 231, 239, 247, 255};
   ASSERT(channel5bits >= 0);
   ASSERT(channel5bits < 32);
+  // cppcheck-suppress arrayIndexOutOfBoundsCond
+  // cppcheck-suppress negativeIndex
   return scale[channel5bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
@@ -67,6 +75,8 @@ inline int scale_6bits_to_8bits(int channel6bits)
                           223, 227, 231, 235, 239, 243, 247, 251, 255};
   ASSERT(channel6bits >= 0);
   ASSERT(channel6bits < 64);
+  // cppcheck-suppress arrayIndexOutOfBoundsCond
+  // cppcheck-suppress negativeIndex
   return scale[channel6bits]; // NOLINT(clang-analyzer-security.ArrayBound)
 }
 

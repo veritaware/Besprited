@@ -32,6 +32,7 @@ void SkinPart::clear()
   {
     ASSERT(*it != nullptr);
 
+    // cppcheck-suppress nullPointerRedundantCheck
     (*it)->dispose();
     *it = nullptr;
   }

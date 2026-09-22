@@ -22,10 +22,12 @@ namespace app::cmd
 LayerFromBackground::LayerFromBackground(const Layer* layer)
 {
   ASSERT(layer != nullptr);
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(layer->isVisible());
   ASSERT(layer->isEditable());
   ASSERT(layer->isBackground());
   ASSERT(layer->sprite() != nullptr);
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(layer->sprite()->backgroundLayer() != nullptr);
 
   // Remove "Background" and "LockMove" flags

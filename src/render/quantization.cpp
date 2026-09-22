@@ -359,6 +359,7 @@ void PaletteOptimizer::feedWithImage(Image* image, bool withAlpha)
   uint32_t color;
 
   ASSERT(image);
+  // cppcheck-suppress nullPointerRedundantCheck
   switch (image->pixelFormat())
   {
 

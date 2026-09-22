@@ -247,6 +247,7 @@ bool shrink_bounds2(const Image* a, const Image* b,
                     const gfx::Rect& start_bounds, gfx::Rect& bounds)
 {
   ASSERT(a && b);
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(a->bounds() == b->bounds());
 
   bounds = (start_bounds & a->bounds());

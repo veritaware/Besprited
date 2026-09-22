@@ -252,6 +252,7 @@ void DocumentApi::moveFrameLayer(Layer* layer, frame_t frame,
 {
   ASSERT(layer);
 
+  // cppcheck-suppress nullPointerRedundantCheck
   switch (layer->type())
   {
 
@@ -549,6 +550,8 @@ void DocumentApi::setPalette(Sprite* sprite, frame_t frame,
 void DocumentApi::adjustFrameTags(Sprite* sprite, frame_t frame, frame_t delta,
                                   bool between)
 {
+  ASSERT(sprite);
+
   // As FrameTag::setFrameRange() changes m_frameTags, we need to use
   // a copy of this collection
   std::vector<FrameTag*> tags(sprite->frameTags().begin(),

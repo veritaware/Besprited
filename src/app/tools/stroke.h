@@ -45,12 +45,14 @@ public:
   const Point& firstPoint() const
   {
     ASSERT(!m_points.empty());
+    // cppcheck-suppress containerOutOfBounds
     return m_points[0];
   }
 
   const Point& lastPoint() const
   {
     ASSERT(!m_points.empty());
+    // cppcheck-suppress containerOutOfBounds
     return m_points.back();
   }
 

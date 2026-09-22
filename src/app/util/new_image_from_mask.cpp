@@ -39,7 +39,9 @@ doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* srcMask,
   ASSERT(srcSprite);
   ASSERT(srcMask);
 
+  // cppcheck-suppress nullPointerRedundantCheck
   const Image* srcMaskBitmap = srcMask->bitmap();
+  // cppcheck-suppress nullPointerRedundantCheck
   const gfx::Rect& srcBounds = srcMask->bounds();
 
   ASSERT(srcMaskBitmap);

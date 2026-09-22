@@ -357,7 +357,7 @@ FileOp* FileOp::createSaveDocumentOperation(const Context* context,
       for (int c = 0; c < pal->size(); ++c)
       {
         int a = rgba_geta(pal->getEntry(c));
-        if (oneAlpha && c == transparentColor)
+        if (oneAlpha && c == static_cast<int>(transparentColor))
         {
           continue;
         }

@@ -148,6 +148,7 @@ void CopyCel::onFireNotifications()
   ASSERT(m_srcLayer.layer());
   ASSERT(m_dstLayer.layer());
 
+  // cppcheck-suppress nullPointerRedundantCheck
   dynamic_cast<Document*>(m_dstLayer.layer()->sprite()->document())
       ->notifyCelCopied(m_srcLayer.layer(), m_srcFrame, m_dstLayer.layer(),
                         m_dstFrame);

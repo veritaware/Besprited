@@ -32,9 +32,11 @@ BackgroundFromLayer::BackgroundFromLayer(const Layer* layer)
   : WithLayer(layer)
 {
   ASSERT(layer);
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(layer->isVisible());
   ASSERT(layer->isEditable());
   ASSERT(layer->sprite() != nullptr);
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(layer->sprite()->backgroundLayer() == nullptr);
 }
 

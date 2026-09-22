@@ -40,6 +40,7 @@ void ColorCurveFilter::setCurve(ColorCurve* curve)
   m_curve = curve;
 
   // Generate the color convertion map
+  // cppcheck-suppress nullPointerRedundantCheck
   m_curve->getValues(0, 255, m_cmap);
   for (int c = 0; c < 256; c++)
     m_cmap[c] = MID(0, m_cmap[c], 255);

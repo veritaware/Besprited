@@ -27,6 +27,7 @@ LayerIndex Site::layerIndex() const
 void Site::layerIndex(LayerIndex layerIndex)
 {
   ASSERT(m_sprite != NULL);
+  // cppcheck-suppress nullPointerRedundantCheck
   m_layer = m_sprite->indexToLayer(layerIndex);
 }
 

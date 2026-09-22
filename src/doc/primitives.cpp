@@ -45,6 +45,7 @@ void clear_image(Image* image, color_t color)
 {
   ASSERT(image);
 
+  // cppcheck-suppress nullPointerRedundantCheck
   image->clear(color);
 }
 
@@ -53,6 +54,7 @@ void copy_image(Image* dst, const Image* src)
   ASSERT(dst);
   ASSERT(src);
 
+  // cppcheck-suppress nullPointerRedundantCheck
   dst->copy(src, gfx::Clip(0, 0, 0, 0, src->width(), src->height()));
 }
 
@@ -61,6 +63,7 @@ void copy_image(Image* dst, const Image* src, int x, int y)
   ASSERT(dst);
   ASSERT(src);
 
+  // cppcheck-suppress nullPointerRedundantCheck
   dst->copy(src, gfx::Clip(x, y, 0, 0, src->width(), src->height()));
 }
 
@@ -248,6 +251,7 @@ void fill_rect(Image* image, const gfx::Rect& rc, color_t c)
 {
   ASSERT(image);
 
+  // cppcheck-suppress nullPointerRedundantCheck
   const gfx::Rect clip = rc.createIntersection(image->bounds());
   if (!clip.isEmpty())
     image->fillRect(clip.x, clip.y, clip.x + clip.w - 1, clip.y + clip.h - 1,

@@ -176,6 +176,7 @@ std::wstring from_utf8(const std::string& src)
   while (it != end)
   {
     ASSERT(buf_it != buf_end);
+    // cppcheck-suppress derefInvalidIterator
     *buf_it = *it;
     ++buf_it;
     ++it;

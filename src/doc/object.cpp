@@ -71,6 +71,7 @@ void Object::setId(ObjectId id)
   {
     auto it = objects.find(m_id);
     ASSERT(it != objects.end());
+    // cppcheck-suppress derefInvalidIteratorRedundantCheck
     ASSERT(it->second == this);
     if (it != objects.end())
       objects.erase(it);

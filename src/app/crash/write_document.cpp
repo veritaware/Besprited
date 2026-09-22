@@ -232,6 +232,7 @@ void write_document(const std::string& dir, app::Document* doc)
 void delete_document_internals(app::Document* doc)
 {
   ASSERT(doc);
+  // cppcheck-suppress nullPointerRedundantCheck
   auto it = g_docVersions.find(doc->id());
 
   // The document could not be inside g_documentObjects in case it was

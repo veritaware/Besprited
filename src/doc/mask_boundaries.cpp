@@ -119,6 +119,7 @@ MaskBoundaries::MaskBoundaries(const Image* bitmap)
             else
             {
               ASSERT(!prevColor);
+              // cppcheck-suppress nullPointerRedundantCheck
               expand_vseg();
             }
           }
@@ -293,6 +294,7 @@ MaskBoundaries::MaskBoundaries(const Image* bitmap)
             else
             {
               ASSERT(prevColor);
+              // cppcheck-suppress nullPointerRedundantCheck
               expand_vseg();
             }
           }

@@ -37,6 +37,7 @@ public:
     ASSERT(b >= 0 && b < 256);
     ASSERT(a >= 0 && a < 256);
     // bits -> bbbbbgggggrrrrraaa
+    // cppcheck-suppress shiftNegativeLHS
     int i = (a >> 5) | ((b >> 3) << 3) | ((g >> 3) << 8) | ((r >> 3) << 13);
     int v = m_map[i];
     return (v & INVALID) ? generateEntry(i, r, g, b, a) : v;

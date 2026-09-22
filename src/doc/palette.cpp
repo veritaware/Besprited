@@ -27,7 +27,7 @@ Palette::Palette(int ncolors)
   : Object(ObjectType::Palette)
 {
   ASSERT(ncolors >= 0);
-  m_colors.resize(ncolors, doc::rgba(0, 0, 0, 255));
+  m_colors.resize(std::max(ncolors, 0), doc::rgba(0, 0, 0, 255));
 }
 
 Palette::Palette(const Palette& palette)
@@ -58,7 +58,7 @@ void Palette::resize(int ncolors)
 {
   ASSERT(ncolors >= 0);
 
-  m_colors.resize(ncolors, doc::rgba(0, 0, 0, 255));
+  m_colors.resize(std::max(ncolors, 0), doc::rgba(0, 0, 0, 255));
   ++m_modifications;
 }
 

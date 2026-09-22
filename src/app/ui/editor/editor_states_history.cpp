@@ -35,6 +35,7 @@ void EditorStatesHistory::push(const EditorStatePtr& state)
 void EditorStatesHistory::pop()
 {
   ASSERT(!m_states.empty());
+  // cppcheck-suppress containerOutOfBounds
   m_states.pop_back();
 }
 

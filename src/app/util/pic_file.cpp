@@ -232,6 +232,7 @@ int save_pic_file(const char* filename, int x, int y, const Palette* palette,
     base::fputw(0, f);                     // Version
     for (c = 0; c < 256; c++)
     { // 256 palette entries
+      // cppcheck-suppress nullPointerRedundantCheck
       color_t color = palette->getEntry(c);
       std::fputc(rgba_getr(color), f);
       std::fputc(rgba_getg(color), f);

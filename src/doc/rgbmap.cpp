@@ -51,6 +51,7 @@ void RgbMap::regenerate(const Palette* palette, int mask_index)
 
 int RgbMap::generateEntry(int i, int r, int g, int b, int a) const
 {
+  // cppcheck-suppress shiftNegativeLHS
   return m_map[i] = m_palette->findBestfit(
              scale_5bits_to_8bits(r >> 3), scale_5bits_to_8bits(g >> 3),
              scale_5bits_to_8bits(b >> 3), scale_3bits_to_8bits(a >> 5),

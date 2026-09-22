@@ -84,6 +84,7 @@ void Message::broadcastToChildren(Widget* widget)
 {
   ASSERT_VALID_WIDGET(widget);
 
+  // cppcheck-suppress nullPointerRedundantCheck
   for (auto child : widget->children())
     broadcastToChildren(child);
 

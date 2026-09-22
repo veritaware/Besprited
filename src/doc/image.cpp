@@ -69,7 +69,9 @@ Image* Image::create(PixelFormat format, int width, int height,
 Image* Image::createCopy(const Image* image, const ImageBufferPtr& buffer)
 {
   ASSERT(image);
+  // cppcheck-suppress nullPointerRedundantCheck
   return crop_image(image, 0, 0, image->width(), image->height(),
+                    // cppcheck-suppress nullPointerRedundantCheck
                     image->maskColor(), buffer);
 }
 

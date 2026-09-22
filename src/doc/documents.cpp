@@ -53,6 +53,7 @@ Document* Documents::add(int width, int height, ColorMode mode, int ncolors)
 Document* Documents::add(Document* doc)
 {
   ASSERT(doc != NULL);
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(doc->id() != doc::NullId);
 
   if (doc->context() != m_ctx)

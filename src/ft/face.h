@@ -225,6 +225,7 @@ public:
   void doneGlyph(Glyph* glyph)
   {
     ASSERT(glyph);
+    // cppcheck-suppress nullPointerRedundantCheck
     FT_Done_Glyph(glyph->ft_glyph);
   }
 

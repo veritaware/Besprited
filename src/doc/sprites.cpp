@@ -50,6 +50,7 @@ Sprite* Sprites::add(Sprite* spr)
   ASSERT(spr != NULL);
 
   m_sprites.insert(begin(), spr);
+  // cppcheck-suppress nullPointerRedundantCheck
   spr->setDocument(m_doc);
 
   notifyObservers(&SpritesObserver::onAddSprite, spr);

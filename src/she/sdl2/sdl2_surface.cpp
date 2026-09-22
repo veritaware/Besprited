@@ -525,6 +525,7 @@ void SDL2Surface::blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty,
 {
   ASSERT(m_bmp);
   ASSERT(dest);
+  // cppcheck-suppress nullPointerRedundantCheck
   ASSERT(static_cast<SDL2Surface*>(dest)->m_bmp);
   if (!m_bmp || !dest || !static_cast<SDL2Surface*>(dest)->m_bmp)
     return;

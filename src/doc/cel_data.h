@@ -38,6 +38,7 @@ public:
   virtual int getMemSize() const override
   {
     ASSERT(m_image);
+    // cppcheck-suppress nullPointerRedundantCheck
     return sizeof(CelData) + m_image->getMemSize();
   }
 
