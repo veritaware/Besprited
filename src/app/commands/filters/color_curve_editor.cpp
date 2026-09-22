@@ -341,7 +341,6 @@ gfx::Point ColorCurveEditor::clientToView(const gfx::Point& clientPt)
 
 void ColorCurveEditor::addPoint(const gfx::Point& viewPoint)
 {
-  // TODO Undo history
   m_curve->addPoint(viewPoint);
 
   invalidate();
@@ -350,7 +349,6 @@ void ColorCurveEditor::addPoint(const gfx::Point& viewPoint)
 
 void ColorCurveEditor::removePoint(gfx::Point* viewPoint)
 {
-  // TODO Undo history
   m_curve->removePoint(*viewPoint);
 
   m_hotPoint = nullptr;

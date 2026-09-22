@@ -104,6 +104,10 @@ void ColorCurveCommand::onExecute(Context* context)
     the_curve->addPoint(gfx::Point(255, 255));
   }
 
+  // ColorCurveEditor mutates *the_curve in place, and it's reused across
+  // invocations, so a rejected edit must not leak into the next one.
+  ColorCurve curveBackup = *the_curve;
+
   ColorCurveFilter filter;
   filter.setCurve(the_curve.get());
 
@@ -113,10 +117,8 @@ void ColorCurveCommand::onExecute(Context* context)
                       TARGET_ALPHA_CHANNEL);
 
   ColorCurveWindow window(filter, filterMgr);
-  if (window.doModal())
-  {
-    // TODO save the curve?
-  }
+  if (!window.doModal())
+    *the_curve = curveBackup;
 }
 
 Command* CommandFactory::createColorCurveCommand()
