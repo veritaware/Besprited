@@ -324,6 +324,43 @@ TEST_F(AppScriptApiTest, ImageGetPNGDataReturnsABase64PngDataUri)
       << "should carry actual encoded PNG data, not just the prefix";
 }
 
+TEST_F(AppScriptApiTest, WrappedImageHandlesWithTheSameIdCompareEqual)
+{
+  // The interpreter dedups JS wrappers by the address of the wrapped native
+  // object (see QuickJSInterpreter's `wrappers` map), so ScriptRef's
+  // per-ObjectId cache (script_api::wrap) must hand back the same
+  // ScriptRef<doc::Image> instance both times for identity to hold - see
+  // issue #232.
+  std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 2, 2));
+  TestBridge::image = img.get();
+
+  ASSERT_TRUE(eval("native.capture(native.image === native.image);"));
+  EXPECT_TRUE(captured().boolean());
+}
+
+TEST_F(AppScriptApiTest, StaleImageHandleThrowsInsteadOfCrashingAfterFree)
+{
+  // document.close() now actually frees the underlying Document/Sprite/
+  // Layer/Image graph (issue #232), which can leave a script holding a
+  // handle into memory that no longer exists (grabbed before the close).
+  // Simulate that here directly: free the doc::Image out from under a JS
+  // handle that already resolved it once, the same way DocumentDestroyer
+  // frees objects a script may still reference.
+  auto* img = doc::Image::create(doc::IMAGE_RGB, 2, 2);
+  doc::clear_image(img, 0);
+  TestBridge::image = img;
+
+  ASSERT_TRUE(eval("var stale = native.image;"));
+
+  delete img;
+  TestBridge::image = nullptr;
+
+  EXPECT_FALSE(eval("stale.getPixel(0, 0);"))
+      << "a handle into a freed object must throw a catchable error, not "
+         "dereference freed memory";
+  EXPECT_TRUE(eval("1 + 1;")) << "engine must keep working after the throw";
+}
+
 TEST_F(AppScriptApiTest, TimersFireFromTick)
 {
   ASSERT_TRUE(

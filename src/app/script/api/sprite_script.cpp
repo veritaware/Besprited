@@ -98,12 +98,12 @@ public:
     { return JSON::makeNative(std::make_shared<SelectionSite>()); };
 
     clazz.addGetter("palette") = [](SpriteSite&) -> JSON::Value
-    { return JSON::makeNative(wrap(activeSprite()->palette(0))); };
+    { return JSON::makeNative(script_api::wrap(activeSprite()->palette(0))); };
 
     clazz.addMethod("layer") = [](SpriteSite&, double i) -> JSON::Value
     {
       auto* layer = activeSprite()->indexToLayer(doc::LayerIndex((int)i));
-      return JSON::makeNative(wrap(layer));
+      return JSON::makeNative(script_api::wrap(layer));
     };
 
     // In the proxy model each mutation commits its own transaction, so there

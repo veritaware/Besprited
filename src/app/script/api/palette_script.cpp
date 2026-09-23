@@ -18,33 +18,37 @@
 
 #include <memory>
 
+using PaletteRef = script_api::ScriptRef<doc::Palette>;
+
 class PaletteExtension : public Extension
 {
 public:
   PaletteExtension()
   {
-    auto& clazz = addClass<void, doc::Palette>("Palette");
+    auto& clazz = addClass<void, PaletteRef>("Palette");
     clazz.setConstructor() = []() -> std::shared_ptr<void>
     { throw std::runtime_error{"Palette cannot be constructed directly"}; };
 
-    clazz.addGetter("length") = [](doc::Palette& pal) -> JSON::Value
-    { return (double)pal.size(); };
-    clazz.addSetter("length") = [](doc::Palette& pal, JSON::Value& v)
+    clazz.addGetter("length") = [](PaletteRef& ref) -> JSON::Value
+    { return (double)ref.get().size(); };
+    clazz.addSetter("length") = [](PaletteRef& ref, JSON::Value& v)
     {
+      auto& pal = ref.get();
       pal.resize(static_cast<int>(v));
       schedulePaletteUpdate(&pal);
     };
 
-    clazz.addMethod("get") = [](doc::Palette& pal, double i) -> JSON::Value
-    { return (double)pal.getEntry((int)i); };
+    clazz.addMethod("get") = [](PaletteRef& ref, double i) -> JSON::Value
+    { return (double)ref.get().getEntry((int)i); };
 
     // `set` is variadic: `set(i, color)`, `set(i, r, g, b)`, or `set(i, r, g,
     // b, a)`. Missing trailing args are padded with `undefined`; the form is
     // disambiguated by which trailing args are defined.
-    clazz.addMethod("set") = [](doc::Palette& pal, int i, JSON::Value& a,
+    clazz.addMethod("set") = [](PaletteRef& ref, int i, JSON::Value& a,
                                 JSON::Value& b, JSON::Value& c,
                                 JSON::Value& d) -> JSON::Value
     {
+      auto& pal = ref.get();
       if (i < 0 || i >= pal.size())
         return {};
       doc::color_t color;
