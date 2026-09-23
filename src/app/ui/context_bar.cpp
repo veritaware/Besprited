@@ -11,6 +11,7 @@
 #endif
 
 #include "app/ui/context_bar.h"
+#include "app/ui/context_bar_fields.h"
 
 #include "app/app.h"
 #include "app/app_brushes.h"
@@ -71,6 +72,11 @@ using namespace ui;
 using namespace tools;
 
 static bool g_updatingFromCode = false;
+
+bool ContextBar::updatingFromCode()
+{
+  return g_updatingFromCode;
+}
 
 class ContextBar::BrushTypeField : public ButtonSet
 {
@@ -271,32 +277,29 @@ protected:
   bool m_lock;
 };
 
-class ContextBar::ToleranceField : public IntEntry
+class ContextBar::ToleranceField
+  : public ToolPrefField<IntEntry, int, &ToolPreferences::tolerance>
 {
 public:
   ToleranceField()
-    : IntEntry(0, 255)
+    : ToolPrefField(0, 255)
   {
   }
 
 protected:
   void onValueChange() override
   {
-    if (g_updatingFromCode)
-      return;
-
     IntEntry::onValueChange();
-
-    Tool* tool = App::instance()->activeTool();
-    Preferences::instance().tool(tool).tolerance(getValue());
+    commit(getValue());
   }
 };
 
-class ContextBar::ContiguousField : public CheckBox
+class ContextBar::ContiguousField
+  : public ToolPrefField<CheckBox, bool, &ToolPreferences::contiguous>
 {
 public:
   ContiguousField()
-    : CheckBox("Contiguous")
+    : ToolPrefField("Contiguous")
   {
     setup_mini_font(this);
   }
@@ -305,10 +308,7 @@ protected:
   void onClick(Event& ev) override
   {
     CheckBox::onClick(ev);
-
-    Tool* tool = App::instance()->activeTool();
-    Preferences::instance().tool(tool).contiguous(isSelected());
-
+    commit(isSelected());
     releaseFocus();
   }
 };
