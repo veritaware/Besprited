@@ -166,6 +166,9 @@ find_tests(css    css-lib)
 find_tests(script delta)
 
 # doc / render / ui / app all reach the she layer (see MODULE_TEST_LIBS).
+# filters itself only needs doc (doc::Image/Palette/RgbMap), but doc pulls in
+# she transitively, so this needs the full set too - see issue #226.
+find_tests(filters  ${MODULE_TEST_LIBS})
 find_tests(doc      ${MODULE_TEST_LIBS})
 find_tests(render   ${MODULE_TEST_LIBS})
 find_tests(ui       ${MODULE_TEST_LIBS})
