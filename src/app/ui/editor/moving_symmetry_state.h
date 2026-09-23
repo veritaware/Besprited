@@ -9,6 +9,7 @@
 #pragma once
 
 #include "app/pref/preferences.h"
+#include "app/ui/editor/drag_state.h"
 #include "app/ui/editor/standby_state.h"
 #include "app/ui/editor/symmetry_handles.h"
 
@@ -16,18 +17,23 @@ namespace app
 {
 class Editor;
 
-class MovingSymmetryState : public StandbyState
+class MovingSymmetryState : public DragState<StandbyState>
 {
 public:
   MovingSymmetryState(Editor* editor, ui::MouseMessage* msg, Axis axis,
                       Option<int>& xAxis, Option<int>& yAxis);
   virtual ~MovingSymmetryState();
 
-  virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
-  virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
   virtual bool onUpdateStatusBar(Editor* editor) override;
 
   virtual bool requireBrushPreview() override { return false; }
+
+protected:
+  void onDrag(Editor* editor, const gfx::Point& delta) override;
+  bool afterDrag(Editor* editor, ui::MouseMessage* msg) override
+  {
+    return StandbyState::onMouseMove(editor, msg);
+  }
 
 private:
   Axis m_symmetryAxis;
@@ -35,7 +41,6 @@ private:
   Option<int>& m_yAxis;
   int m_xAxisStart;
   int m_yAxisStart;
-  gfx::Point m_mouseStart;
 };
 
 } // namespace app

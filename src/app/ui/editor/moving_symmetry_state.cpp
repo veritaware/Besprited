@@ -30,24 +30,13 @@ MovingSymmetryState::MovingSymmetryState(Editor* editor, MouseMessage* msg,
   , m_xAxisStart(xAxis())
   , m_yAxisStart(yAxis())
 {
-  m_mouseStart = editor->screenToEditor(msg->position());
-  editor->captureMouse();
+  beginDrag(editor, editor->screenToEditor(msg->position()));
 }
 
 MovingSymmetryState::~MovingSymmetryState() = default;
 
-bool MovingSymmetryState::onMouseUp(Editor* editor, MouseMessage* msg)
+void MovingSymmetryState::onDrag(Editor* editor, const gfx::Point& delta)
 {
-  editor->backToPreviousState();
-  editor->releaseMouse();
-  return true;
-}
-
-bool MovingSymmetryState::onMouseMove(Editor* editor, MouseMessage* msg)
-{
-  gfx::Point newCursorPos = editor->screenToEditor(msg->position());
-  gfx::Point delta = newCursorPos - m_mouseStart;
-
   switch (m_symmetryAxis)
   {
   case Axis::HORIZONTAL:
@@ -66,9 +55,6 @@ bool MovingSymmetryState::onMouseMove(Editor* editor, MouseMessage* msg)
 
   // Redraw the editor.
   editor->invalidate();
-
-  // Use StandbyState implementation
-  return StandbyState::onMouseMove(editor, msg);
 }
 
 bool MovingSymmetryState::onUpdateStatusBar(Editor* editor)

@@ -63,9 +63,8 @@ MovingCelState::MovingCelState(Editor* editor, MouseMessage* msg)
     }
   }
 
-  m_cursorStart = editor->screenToEditor(msg->position());
+  beginDrag(editor, editor->screenToEditor(msg->position()));
   m_celOffset = gfx::Point(0, 0);
-  editor->captureMouse();
 
   // Hide the mask (temporarily, until mouse-up event)
   m_maskVisible = document->isMaskVisible();
@@ -78,7 +77,7 @@ MovingCelState::MovingCelState(Editor* editor, MouseMessage* msg)
 
 MovingCelState::~MovingCelState() = default;
 
-bool MovingCelState::onMouseUp(Editor* editor, MouseMessage* msg)
+void MovingCelState::onDragEnd(Editor* editor)
 {
   Document* document = editor->document();
 
@@ -118,9 +117,9 @@ bool MovingCelState::onMouseUp(Editor* editor, MouseMessage* msg)
     }
 
     // Redraw all editors. We've to notify all views about this
-    // general update because MovingCelState::onMouseMove() redraws
-    // only the cels in the current editor. And at this point we'd
-    // like to update all the editors.
+    // general update because MovingCelState::onDrag() redraws only the
+    // cels in the current editor. And at this point we'd like to update
+    // all the editors.
     document->notifyGeneralUpdate();
   }
 
@@ -130,17 +129,11 @@ bool MovingCelState::onMouseUp(Editor* editor, MouseMessage* msg)
     document->setMaskVisible(m_maskVisible);
     document->generateMaskBoundaries();
   }
-
-  editor->backToPreviousState();
-  editor->releaseMouse();
-  return true;
 }
 
-bool MovingCelState::onMouseMove(Editor* editor, MouseMessage* msg)
+void MovingCelState::onDrag(Editor* editor, const gfx::Point& delta)
 {
-  gfx::Point newCursorPos = editor->screenToEditor(msg->position());
-
-  m_celOffset = newCursorPos - m_cursorStart;
+  m_celOffset = delta;
 
   if (int(editor->getCustomizationDelegate()->getPressedKeyAction(
               KeyContext::TranslatingSelection) &
@@ -166,16 +159,13 @@ bool MovingCelState::onMouseMove(Editor* editor, MouseMessage* msg)
 
   // Redraw the new cel position.
   editor->invalidate();
-
-  // Use StandbyState implementation
-  return StandbyState::onMouseMove(editor, msg);
 }
 
 bool MovingCelState::onUpdateStatusBar(Editor* editor)
 {
   StatusBar::instance()->setStatusText(
-      0, ":pos: %3d %3d :offset: %3d %3d", (int)m_cursorStart.x,
-      (int)m_cursorStart.y, (int)m_celOffset.x, (int)m_celOffset.y);
+      0, ":pos: %3d %3d :offset: %3d %3d", (int)dragStart().x,
+      (int)dragStart().y, (int)m_celOffset.x, (int)m_celOffset.y);
 
   return true;
 }
