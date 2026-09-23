@@ -45,6 +45,9 @@ class Region;
 namespace ui
 {
 class Graphics;
+class KeyMessage;
+class TimerMessage;
+class TouchMessage;
 class View;
 }
 
@@ -259,6 +262,26 @@ private:
   void updateQuicktool();
   void updateToolByTipProximity(ui::PointerType pointerType);
   void updateToolLoopModifiersIndicators();
+
+  // Each of these is one case of onProcessMessage()'s switch, cut out
+  // verbatim so the dispatcher reads as a list of cases instead of one long
+  // function - no behavior change (see issue #225). Each mirrors its
+  // original case body exactly, including whether that case unconditionally
+  // returns to the caller when m_sprite is set (onMouseDownMessage(),
+  // onMouseMoveMessage(), onTouchMagnifyMessage()) or only returns when it
+  // reports having handled the message (the rest).
+  void onTimerMessage(ui::TimerMessage* msg);
+  void onMouseEnterMessage();
+  void onMouseLeaveMessage();
+  bool onMouseDownMessage(ui::MouseMessage* msg);
+  bool onMouseMoveMessage(ui::MouseMessage* msg);
+  bool onMouseUpMessage(ui::MouseMessage* msg);
+  bool onDoubleClickMessage(ui::MouseMessage* msg);
+  bool onTouchMagnifyMessage(ui::TouchMessage* msg);
+  bool onKeyDownMessage(ui::KeyMessage* msg);
+  bool onKeyUpMessage(ui::KeyMessage* msg);
+  void onFocusLeaveMessage();
+  bool onMouseWheelMessage(ui::MouseMessage* msg);
 
   void drawMaskSafe();
   void drawMask(ui::Graphics* g);
