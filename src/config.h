@@ -27,7 +27,7 @@
 #define PACKAGE "Besprited"
 #define COMMIT  "local build"
 #ifndef RELEASE_TAG
-    #define VERSION "dev: " COMMIT
+    #define VERSION "development version: " COMMIT
 #else
     #define VERSION RELEASE_VERSION
 #endif
