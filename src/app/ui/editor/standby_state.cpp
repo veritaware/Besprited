@@ -169,66 +169,7 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
 
   // Move cel X,Y coordinates
   if (clickedInk->isCelMovement())
-  {
-    // Handle "Auto Select Layer"
-    if (editor->isAutoSelectLayer())
-    {
-      gfx::Point cursor = editor->screenToEditor(msg->position());
-
-      ColorPicker picker;
-      picker.pickColor(site, cursor, ColorPicker::FromComposition);
-
-      auto range = App::instance()->timeline()->range();
-
-      // Change layer only when the layer is diffrent from current one, and
-      // the range we selected is not with multiple cels.
-      bool layerChanged = (layer != picker.layer());
-      bool rangeEnabled = range.enabled();
-      bool rangeSingleCel = ((range.type() == DocumentRange::kCels) &&
-                             (range.layers() == 1) && (range.frames() == 1));
-
-      if (layerChanged && (!rangeEnabled || rangeSingleCel))
-      {
-        layer = picker.layer();
-        if (layer)
-        {
-          editor->setLayer(layer);
-          editor->flashCurrentLayer();
-        }
-      }
-    }
-
-    if ((layer) && (layer->type() == ObjectType::LayerImage))
-    {
-      // TODO we should be able to move the `Background' with tiled mode
-      if (layer->isBackground())
-      {
-        StatusBar::instance()->showTip(1000,
-                                       "The background layer cannot be moved");
-      }
-      else if (!layer->isVisible())
-      {
-        StatusBar::instance()->showTip(1000, "Layer '%s' is hidden",
-                                       layer->name().c_str());
-      }
-      else if (!layer->isMovable() || !layer->isEditable())
-      {
-        StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
-                                       layer->name().c_str());
-      }
-      else if (!layer->cel(editor->frame()))
-      {
-        StatusBar::instance()->showTip(1000, "Cel is empty, nothing to move");
-      }
-      else
-      {
-        // Change to MovingCelState
-        editor->setState(EditorStatePtr(new MovingCelState(editor, msg)));
-      }
-    }
-
-    return true;
-  }
+    return tryStartCelMovement(editor, msg, site, layer);
 
   // Call the eyedropper command
   if (clickedInk->isEyedropper())
@@ -238,56 +179,136 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
     return true;
   }
 
-  if (clickedInk->isSelection())
+  if (clickedInk->isSelection() &&
+      tryStartSelectionTransform(editor, msg, site, layer, document))
+    return true;
+
+  // Move symmetry
+  if (tryStartSymmetryDrag(editor, msg))
+    return true;
+
+  // Start the Tool-Loop
+  return startToolLoop(editor, msg, context, layer);
+}
+
+bool StandbyState::tryStartCelMovement(Editor* editor, MouseMessage* msg,
+                                       const Site& site, Layer* layer)
+{
+  // Handle "Auto Select Layer"
+  if (editor->isAutoSelectLayer())
   {
-    // Transform selected pixels
-    if (editor->isActive() && document->isMaskVisible() &&
-        m_decorator->getTransformHandles(editor))
+    gfx::Point cursor = editor->screenToEditor(msg->position());
+
+    ColorPicker picker;
+    picker.pickColor(site, cursor, ColorPicker::FromComposition);
+
+    auto range = App::instance()->timeline()->range();
+
+    // Change layer only when the layer is diffrent from current one, and
+    // the range we selected is not with multiple cels.
+    bool layerChanged = (layer != picker.layer());
+    bool rangeEnabled = range.enabled();
+    bool rangeSingleCel = ((range.type() == DocumentRange::kCels) &&
+                           (range.layers() == 1) && (range.frames() == 1));
+
+    if (layerChanged && (!rangeEnabled || rangeSingleCel))
     {
-      TransformHandles* transfHandles =
-          m_decorator->getTransformHandles(editor);
-
-      // Get the handle covered by the mouse.
-      HandleType handle = transfHandles->getHandleAtPoint(
-          editor, msg->position(), document->getTransformation());
-
-      if (handle != NoHandle)
+      layer = picker.layer();
+      if (layer)
       {
-        int x, y, opacity;
-        Image* image = site.image(&x, &y, &opacity);
-        if (layer && image)
-        {
-          if (!layer->isEditable())
-          {
-            StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
-                                           layer->name().c_str());
-            return true;
-          }
-
-          // Change to MovingPixelsState
-          transformSelection(editor, msg, handle);
-        }
-        return true;
+        editor->setLayer(layer);
+        editor->flashCurrentLayer();
       }
     }
+  }
 
-    // Move selected pixels
-    if (layer && editor->isInsideSelection() && msg->left())
+  if ((layer) && (layer->type() == ObjectType::LayerImage))
+  {
+    // TODO we should be able to move the `Background' with tiled mode
+    if (layer->isBackground())
     {
-      if (!layer->isEditable())
-      {
-        StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
-                                       layer->name().c_str());
-        return true;
-      }
+      StatusBar::instance()->showTip(1000,
+                                     "The background layer cannot be moved");
+    }
+    else if (!layer->isVisible())
+    {
+      StatusBar::instance()->showTip(1000, "Layer '%s' is hidden",
+                                     layer->name().c_str());
+    }
+    else if (!layer->isMovable() || !layer->isEditable())
+    {
+      StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
+                                     layer->name().c_str());
+    }
+    else if (!layer->cel(editor->frame()))
+    {
+      StatusBar::instance()->showTip(1000, "Cel is empty, nothing to move");
+    }
+    else
+    {
+      // Change to MovingCelState
+      editor->setState(EditorStatePtr(new MovingCelState(editor, msg)));
+    }
+  }
 
-      // Change to MovingPixelsState
-      transformSelection(editor, msg, MoveHandle);
+  return true;
+}
+
+bool StandbyState::tryStartSelectionTransform(Editor* editor,
+                                              MouseMessage* msg,
+                                              const Site& site, Layer* layer,
+                                              app::Document* document)
+{
+  // Transform selected pixels
+  if (editor->isActive() && document->isMaskVisible() &&
+      m_decorator->getTransformHandles(editor))
+  {
+    TransformHandles* transfHandles = m_decorator->getTransformHandles(editor);
+
+    // Get the handle covered by the mouse.
+    HandleType handle = transfHandles->getHandleAtPoint(
+        editor, msg->position(), document->getTransformation());
+
+    if (handle != NoHandle)
+    {
+      int x, y, opacity;
+      Image* image = site.image(&x, &y, &opacity);
+      if (layer && image)
+      {
+        if (!layer->isEditable())
+        {
+          StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
+                                         layer->name().c_str());
+          return true;
+        }
+
+        // Change to MovingPixelsState
+        transformSelection(editor, msg, handle);
+      }
       return true;
     }
   }
 
-  // Move symmetry
+  // Move selected pixels
+  if (layer && editor->isInsideSelection() && msg->left())
+  {
+    if (!layer->isEditable())
+    {
+      StatusBar::instance()->showTip(1000, "Layer '%s' is locked",
+                                     layer->name().c_str());
+      return true;
+    }
+
+    // Change to MovingPixelsState
+    transformSelection(editor, msg, MoveHandle);
+    return true;
+  }
+
+  return false;
+}
+
+bool StandbyState::tryStartSymmetryDrag(Editor* editor, MouseMessage* msg)
+{
   SymmetryHandles handles;
   if (m_decorator->getSymmetryHandles(editor, handles))
   {
@@ -305,32 +326,35 @@ bool StandbyState::onMouseDown(Editor* editor, MouseMessage* msg)
     }
   }
 
-  // Start the Tool-Loop
-  if (layer)
-  {
-    // Disable layer edges to avoid showing the modified cel
-    // information by ExpandCelCanvas (i.e. the cel origin is changed
-    // to 0,0 coordinate.)
-    auto& layerEdgesOption = editor->docPref().show.layerEdges;
-    bool layerEdges = layerEdgesOption();
-    if (layerEdges)
-      layerEdgesOption(false);
+  return false;
+}
 
-    tools::ToolLoop* toolLoop = create_tool_loop(editor, context);
-    if (toolLoop)
-    {
-      EditorStatePtr newState(new DrawingState(toolLoop));
-      editor->setState(newState);
-
-      static_cast<DrawingState*>(newState.get())->initToolLoop(editor, msg);
-    }
-
-    // Restore layer edges
-    if (layerEdges)
-      layerEdgesOption(true);
+bool StandbyState::startToolLoop(Editor* editor, MouseMessage* msg,
+                                 UIContext* context, Layer* layer)
+{
+  if (!layer)
     return true;
+
+  // Disable layer edges to avoid showing the modified cel
+  // information by ExpandCelCanvas (i.e. the cel origin is changed
+  // to 0,0 coordinate.)
+  auto& layerEdgesOption = editor->docPref().show.layerEdges;
+  bool layerEdges = layerEdgesOption();
+  if (layerEdges)
+    layerEdgesOption(false);
+
+  tools::ToolLoop* toolLoop = create_tool_loop(editor, context);
+  if (toolLoop)
+  {
+    EditorStatePtr newState(new DrawingState(toolLoop));
+    editor->setState(newState);
+
+    static_cast<DrawingState*>(newState.get())->initToolLoop(editor, msg);
   }
 
+  // Restore layer edges
+  if (layerEdges)
+    layerEdgesOption(true);
   return true;
 }
 
