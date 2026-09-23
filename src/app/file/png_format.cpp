@@ -439,6 +439,9 @@ bool PngFormat::onSave(FileOp* fop)
     int pal_size = fop->sequenceGetNColors();
     pal_size = MID(1, pal_size, PNG_MAX_PALETTE_LENGTH);
 
+    // MID() above clamps to PNG_MAX_PALETTE_LENGTH assuming it's 256 (the
+    // indexed-palette size Besprited works with everywhere else); this only
+    // fails to build if libpng is ever linked with a non-standard value.
 #if PNG_MAX_PALETTE_LENGTH != 256
 #error PNG_MAX_PALETTE_LENGTH should be 256
 #endif
