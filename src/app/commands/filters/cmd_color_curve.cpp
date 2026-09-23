@@ -25,14 +25,10 @@
 #include "filters/color_curve_filter.h"
 #include "ui/ui.h"
 
-#include <memory>
-
 namespace app
 {
 
 using namespace filters;
-
-static std::unique_ptr<ColorCurve> the_curve;
 
 class ColorCurveWindow : public FilterWindow
 {
@@ -42,6 +38,7 @@ public:
                    WithChannelsSelector, WithoutTiledCheckBox)
     , m_filter(filter)
     , m_editor(filter.getCurve(), gfx::Rect(0, 0, 256, 256))
+    , m_resetButton("&Reset")
   {
     m_view.attachToView(&m_editor);
     m_view.setExpansive(true);
@@ -49,7 +46,10 @@ public:
 
     getContainer()->addChild(&m_view);
 
+    insertExtraButton(&m_resetButton);
+
     m_editor.CurveEditorChange.connect(&ColorCurveWindow::onCurveChange, this);
+    m_resetButton.Click.connect(&ColorCurveWindow::onReset, this);
   }
 
 protected:
@@ -64,10 +64,16 @@ protected:
     restartPreview();
   }
 
+  void onReset(ui::Event& ev)
+  {
+    m_editor.resetToDefault();
+  }
+
 private:
   ColorCurveFilter& m_filter;
   ui::View m_view;
   ColorCurveEditor m_editor;
+  ui::Button m_resetButton;
 };
 
 class ColorCurveCommand : public Command
@@ -94,18 +100,13 @@ bool ColorCurveCommand::onEnabled(Context* context)
 
 void ColorCurveCommand::onExecute(Context* context)
 {
-  // Default curve
-  if (!the_curve)
-  {
-    // TODO load the curve?
-
-    the_curve = std::make_unique<ColorCurve>(ColorCurve::Linear);
-    the_curve->addPoint(gfx::Point(0, 0));
-    the_curve->addPoint(gfx::Point(255, 255));
-  }
+  // The curve always starts as the default linear identity curve
+  // (no user-set points) each time the dialog is opened, regardless
+  // of whether the previous invocation was accepted or cancelled.
+  ColorCurve curve = ColorCurve::Default();
 
   ColorCurveFilter filter;
-  filter.setCurve(the_curve.get());
+  filter.setCurve(&curve);
 
   FilterManagerImpl filterMgr(context, &filter);
   filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL |
@@ -113,10 +114,7 @@ void ColorCurveCommand::onExecute(Context* context)
                       TARGET_ALPHA_CHANNEL);
 
   ColorCurveWindow window(filter, filterMgr);
-  if (window.doModal())
-  {
-    // TODO save the curve?
-  }
+  window.doModal();
 }
 
 Command* CommandFactory::createColorCurveCommand()

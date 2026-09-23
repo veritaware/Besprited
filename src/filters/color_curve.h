@@ -30,6 +30,10 @@ public:
 
   ColorCurve(Type type);
 
+  // A linear curve with just the identity endpoints (0,0)-(255,255),
+  // i.e. no user-set points.
+  static ColorCurve Default();
+
   iterator begin() { return m_points.begin(); }
   iterator end() { return m_points.end(); }
 

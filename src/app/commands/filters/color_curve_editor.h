@@ -27,6 +27,10 @@ public:
 
   ColorCurve* getCurve() const { return m_curve; }
 
+  // Resets the curve to the default linear identity curve (no
+  // user-set points), repaints and notifies listeners.
+  void resetToDefault();
+
   base::Signal0<void> CurveEditorChange;
 
 protected:
