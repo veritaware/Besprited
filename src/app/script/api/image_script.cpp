@@ -21,46 +21,50 @@
 #include <memory>
 #include <vector>
 
+using ImageRef = script_api::ScriptRef<doc::Image>;
+
 class ImageExtension : public Extension
 {
 public:
   ImageExtension()
   {
-    auto& clazz = addClass<void, doc::Image>("Image");
+    auto& clazz = addClass<void, ImageRef>("Image");
     clazz.setConstructor() = []() -> std::shared_ptr<void>
     { throw std::runtime_error{"Image cannot be constructed directly"}; };
 
-    clazz.addGetter("width") = [](doc::Image& img) -> JSON::Value
-    { return (double)img.width(); };
-    clazz.addGetter("height") = [](doc::Image& img) -> JSON::Value
-    { return (double)img.height(); };
-    clazz.addGetter("stride") = [](doc::Image& img) -> JSON::Value
-    { return (double)img.getRowStrideSize(); };
-    clazz.addGetter("format") = [](doc::Image& img) -> JSON::Value
-    { return (double)img.pixelFormat(); };
+    clazz.addGetter("width") = [](ImageRef& ref) -> JSON::Value
+    { return (double)ref.get().width(); };
+    clazz.addGetter("height") = [](ImageRef& ref) -> JSON::Value
+    { return (double)ref.get().height(); };
+    clazz.addGetter("stride") = [](ImageRef& ref) -> JSON::Value
+    { return (double)ref.get().getRowStrideSize(); };
+    clazz.addGetter("format") = [](ImageRef& ref) -> JSON::Value
+    { return (double)ref.get().pixelFormat(); };
 
-    clazz.addMethod("getPixel") = [](doc::Image& img, double x,
+    clazz.addMethod("getPixel") = [](ImageRef& ref, double x,
                                      double y) -> JSON::Value
-    { return (double)img.getPixel((int)x, (int)y); };
+    { return (double)ref.get().getPixel((int)x, (int)y); };
 
-    clazz.addMethod("putPixel") = [](doc::Image& img, double x, double y,
+    clazz.addMethod("putPixel") = [](ImageRef& ref, double x, double y,
                                      double color) -> JSON::Value
     {
+      auto& img = ref.get();
       if ((unsigned)x < (unsigned)img.width() &&
           (unsigned)y < (unsigned)img.height())
         img.putPixel((int)x, (int)y, (doc::color_t)color);
       return {};
     };
 
-    clazz.addMethod("clear") = [](doc::Image& img, double color) -> JSON::Value
+    clazz.addMethod("clear") = [](ImageRef& ref, double color) -> JSON::Value
     {
-      img.clear((doc::color_t)color);
+      ref.get().clear((doc::color_t)color);
       return {};
     };
 
-    clazz.addMethod("putImageData") = [](doc::Image& img,
+    clazz.addMethod("putImageData") = [](ImageRef& ref,
                                          JSON::Value& data) -> JSON::Value
     {
+      auto& img = ref.get();
       auto& bytes = data.byteArray();
       if (bytes.size() !=
           static_cast<std::size_t>(img.getRowStrideSize()) * img.height())
@@ -74,8 +78,9 @@ public:
       return {};
     };
 
-    clazz.addMethod("getImageData") = [](doc::Image& img) -> JSON::Value
+    clazz.addMethod("getImageData") = [](ImageRef& ref) -> JSON::Value
     {
+      auto& img = ref.get();
       auto* addr = img.getPixelAddress(0, 0);
       const std::size_t size =
           static_cast<std::size_t>(img.getRowStrideSize()) * img.height();
@@ -83,8 +88,9 @@ public:
       return JSON::Value{vec};
     };
 
-    clazz.addMethod("getPNGData") = [](doc::Image& img) -> JSON::Value
+    clazz.addMethod("getPNGData") = [](ImageRef& ref) -> JSON::Value
     {
+      auto& img = ref.get();
       auto w = img.width();
       auto h = img.height();
       const std::shared_ptr<she::Surface> surface{

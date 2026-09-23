@@ -41,23 +41,22 @@ public:
                                        const std::string& value) -> JSON::Value
     {
       self.params.set(key.c_str(), value.c_str());
-      return JSON::makeNative(script_api::wrap(&self));
+      return JSON::makeNative(script_api::wrapNonOwning(&self));
     };
 
     cls.addMethod("clearParameters") = [](CommandObject& self) -> JSON::Value
     {
       self.params.clear();
-      return JSON::makeNative(script_api::wrap(&self));
+      return JSON::makeNative(script_api::wrapNonOwning(&self));
     };
 
     // One method per registered command, named by the command id - except
-    // for commands that delete Document/Sprite/Layer/Image objects that a
-    // script may still be holding a live (non-owning) wrapper for.
-    // document.close() is the safe, script-facing way to close a document;
-    // it deliberately leaves the underlying objects alive rather than
-    // freeing them while a script handle might still reference them (see
-    // issue #219 - exposing the real close/free path here was a
-    // use-after-free reachable from a plain JS call sequence).
+    // CloseFile/CloseAllFiles/Exit. document.close() (see document_script.cpp)
+    // is the sanctioned, script-facing way to close a document: it resolves
+    // every live handle by id (ScriptRef), so a stale Layer/Image/Cel handle
+    // throws a catchable error instead of dereferencing freed memory (issue
+    // #232). Re-exposing the raw commands here is left disabled rather than
+    // re-litigated as part of that fix (see issue #219).
     for (auto cmd : *app::CommandsModule::instance())
     {
       std::string id = cmd->id();

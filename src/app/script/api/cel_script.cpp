@@ -15,35 +15,43 @@
 
 #include <memory>
 
+using CelRef = script_api::ScriptRef<doc::Cel>;
+
 class CelExtension : public Extension
 {
 public:
   CelExtension()
   {
-    auto& clazz = addClass<void, doc::Cel>("Cel");
+    auto& clazz = addClass<void, CelRef>("Cel");
     clazz.setConstructor() = []() -> std::shared_ptr<void>
     { throw std::runtime_error{"Cel cannot be constructed directly"}; };
 
-    clazz.addGetter("x") = [](doc::Cel& cel) -> JSON::Value
-    { return (double)cel.x(); };
-    clazz.addSetter("x") = [](doc::Cel& cel, JSON::Value& v)
-    { cel.setPosition(static_cast<int>(v), cel.y()); };
+    clazz.addGetter("x") = [](CelRef& ref) -> JSON::Value
+    { return (double)ref.get().x(); };
+    clazz.addSetter("x") = [](CelRef& ref, JSON::Value& v)
+    {
+      auto& cel = ref.get();
+      cel.setPosition(static_cast<int>(v), cel.y());
+    };
 
-    clazz.addGetter("y") = [](doc::Cel& cel) -> JSON::Value
-    { return (double)cel.y(); };
-    clazz.addSetter("y") = [](doc::Cel& cel, JSON::Value& v)
-    { cel.setPosition(cel.x(), static_cast<int>(v)); };
+    clazz.addGetter("y") = [](CelRef& ref) -> JSON::Value
+    { return (double)ref.get().y(); };
+    clazz.addSetter("y") = [](CelRef& ref, JSON::Value& v)
+    {
+      auto& cel = ref.get();
+      cel.setPosition(cel.x(), static_cast<int>(v));
+    };
 
-    clazz.addGetter("image") = [](doc::Cel& cel) -> JSON::Value
-    { return JSON::makeNative(script_api::wrap(cel.image())); };
+    clazz.addGetter("image") = [](CelRef& ref) -> JSON::Value
+    { return JSON::makeNative(script_api::wrap(ref.get().image())); };
 
-    clazz.addGetter("frame") = [](doc::Cel& cel) -> JSON::Value
-    { return (double)cel.frame(); };
+    clazz.addGetter("frame") = [](CelRef& ref) -> JSON::Value
+    { return (double)ref.get().frame(); };
 
-    clazz.addMethod("setPosition") = [](doc::Cel& cel, double x,
+    clazz.addMethod("setPosition") = [](CelRef& ref, double x,
                                         double y) -> JSON::Value
     {
-      cel.setPosition((int)x, (int)y);
+      ref.get().setPosition((int)x, (int)y);
       return {};
     };
   }

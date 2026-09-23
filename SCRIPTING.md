@@ -871,6 +871,10 @@
 
 ## Methods:
    - `close()`:
+      Frees the document and everything in it (sprite, layers, images).
+      Any other handle into this document held by the script (a `Layer`,
+      `Image`, `Cel` or `Palette` obtained before the close) throws when
+      used afterwards, instead of silently operating on freed memory.
       returns: Nothing
 
 
@@ -1803,6 +1807,10 @@
 
 ## Methods:
    - `close()`:
+      Frees the document and everything in it (sprite, layers, images).
+      Any other handle into this document held by the script (a `Layer`,
+      `Image`, `Cel` or `Palette` obtained before the close) throws when
+      used afterwards, instead of silently operating on freed memory.
       returns: Nothing
 
 
