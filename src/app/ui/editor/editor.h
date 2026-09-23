@@ -97,15 +97,15 @@ public:
 
   static void destroyEditorSharedInternals();
 
-  bool isActive() const;
+  [[nodiscard]] bool isActive() const;
 
-  DocumentView* getDocumentView() { return m_docView; }
+  [[nodiscard]] DocumentView* getDocumentView() { return m_docView; }
   void setDocumentView(DocumentView* docView) { m_docView = docView; }
 
   // Returns the current state.
-  EditorStatePtr getState() { return m_state; }
+  [[nodiscard]] EditorStatePtr getState() { return m_state; }
 
-  bool isMovingPixels() const;
+  [[nodiscard]] bool isMovingPixels() const;
   void dropMovingPixels();
 
   // Changes the state of the editor.
@@ -116,27 +116,27 @@ public:
 
   // Gets/sets the current decorator. The decorator is not owned by
   // the Editor, so it must be deleted by the caller.
-  EditorDecorator* decorator() { return m_decorator; }
+  [[nodiscard]] EditorDecorator* decorator() { return m_decorator; }
   void setDecorator(EditorDecorator* decorator) { m_decorator = decorator; }
   void getInvalidDecoratoredRegion(gfx::Region& region);
 
-  EditorFlags editorFlags() const { return m_flags; }
+  [[nodiscard]] EditorFlags editorFlags() const { return m_flags; }
   void setEditorFlags(EditorFlags flags) { m_flags = flags; }
 
-  Document* document() { return m_document; }
-  Sprite* sprite() { return m_sprite; }
-  Layer* layer() { return m_layer; }
-  frame_t frame() { return m_frame; }
-  DocumentPreferences& docPref() { return m_docPref; }
+  [[nodiscard]] Document* document() { return m_document; }
+  [[nodiscard]] Sprite* sprite() { return m_sprite; }
+  [[nodiscard]] Layer* layer() { return m_layer; }
+  [[nodiscard]] frame_t frame() { return m_frame; }
+  [[nodiscard]] DocumentPreferences& docPref() { return m_docPref; }
 
   void getSite(Site* site) const;
-  Site getSite() const;
+  [[nodiscard]] Site getSite() const;
 
   void setLayer(const Layer* layer);
   void setFrame(frame_t frame);
 
-  const render::Zoom& zoom() const { return m_zoom; }
-  const gfx::Point& padding() const { return m_padding; }
+  [[nodiscard]] const render::Zoom& zoom() const { return m_zoom; }
+  [[nodiscard]] const gfx::Point& padding() const { return m_padding; }
 
   void setZoom(const render::Zoom& zoom);
   void setDefaultScroll();
@@ -152,23 +152,23 @@ public:
 
   void flashCurrentLayer();
 
-  gfx::Point screenToEditor(const gfx::Point& pt);
-  gfx::Point editorToScreen(const gfx::Point& pt);
-  gfx::Rect screenToEditor(const gfx::Rect& rc);
-  gfx::Rect editorToScreen(const gfx::Rect& rc);
+  [[nodiscard]] gfx::Point screenToEditor(const gfx::Point& pt);
+  [[nodiscard]] gfx::Point editorToScreen(const gfx::Point& pt);
+  [[nodiscard]] gfx::Rect screenToEditor(const gfx::Rect& rc);
+  [[nodiscard]] gfx::Rect editorToScreen(const gfx::Rect& rc);
 
   void addObserver(EditorObserver* observer);
   void removeObserver(EditorObserver* observer);
 
   void setCustomizationDelegate(EditorCustomizationDelegate* delegate);
 
-  EditorCustomizationDelegate* getCustomizationDelegate()
+  [[nodiscard]] EditorCustomizationDelegate* getCustomizationDelegate()
   {
     return m_customizationDelegate;
   }
 
   // Returns the visible area of the active sprite.
-  gfx::Rect getVisibleSpriteBounds();
+  [[nodiscard]] gfx::Rect getVisibleSpriteBounds();
 
   // Changes the scroll to see the given point as the center of the editor.
   void centerInSpritePoint(const gfx::Point& spritePos);
@@ -178,24 +178,27 @@ public:
   // Control scroll when cursor goes out of the editor viewport.
   gfx::Point autoScroll(ui::MouseMessage* msg, AutoScroll dir);
 
-  tools::Tool* getCurrentEditorTool();
-  std::shared_ptr<tools::Ink> getCurrentEditorInk();
+  [[nodiscard]] tools::Tool* getCurrentEditorTool();
+  [[nodiscard]] std::shared_ptr<tools::Ink> getCurrentEditorInk();
 
-  tools::ToolLoopModifiers getToolLoopModifiers() const
+  [[nodiscard]] tools::ToolLoopModifiers getToolLoopModifiers() const
   {
     return m_toolLoopModifiers;
   }
-  bool isAutoSelectLayer() const { return m_autoSelectLayer; }
-  bool isSecondaryButton() const { return m_secondaryButton; }
+  [[nodiscard]] bool isAutoSelectLayer() const { return m_autoSelectLayer; }
+  [[nodiscard]] bool isSecondaryButton() const { return m_secondaryButton; }
 
-  gfx::Point lastDrawingPosition() const { return m_lastDrawingPosition; }
+  [[nodiscard]] gfx::Point lastDrawingPosition() const
+  {
+    return m_lastDrawingPosition;
+  }
   void setLastDrawingPosition(const gfx::Point& pos);
 
   // Returns true if we are able to draw in the current doc/sprite/layer/cel.
-  bool canDraw();
+  [[nodiscard]] bool canDraw();
 
   // Returns true if the cursor is inside the active mask/selection.
-  bool isInsideSelection();
+  [[nodiscard]] bool isInsideSelection();
 
   void setZoomAndCenterInMouse(const render::Zoom& zoom,
                                const gfx::Point& mousePos,
@@ -213,12 +216,12 @@ public:
   // Animation control
   void play(bool playOnce);
   void stop();
-  bool isPlaying() const;
+  [[nodiscard]] bool isPlaying() const;
 
   // Shows a popup menu to change the editor animation speed.
   void showAnimationSpeedMultiplierPopup(Option<bool>& playOnce,
                                          bool withStopBehaviorOptions);
-  double getAnimationSpeedMultiplier() const;
+  [[nodiscard]] double getAnimationSpeedMultiplier() const;
   void setAnimationSpeedMultiplier(double speed);
 
   // Functions to be used in EditorState::onSetCursor()

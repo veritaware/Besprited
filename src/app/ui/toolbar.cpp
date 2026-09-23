@@ -86,6 +86,7 @@ ToolBar::ToolBar()
   , m_openedRecently(false)
   , m_tipTimer(300, this)
 {
+  ASSERT(m_instance == nullptr);
   m_instance = this;
 
   setBorder(gfx::Border(1 * guiscale(), 0, 1 * guiscale(), 0));
@@ -111,10 +112,13 @@ ToolBar::ToolBar()
 
 ToolBar::~ToolBar()
 {
+  ASSERT(m_instance == this);
   App::instance()->activeToolManager()->removeObserver(this);
 
   delete m_popupWindow;
   delete m_tipWindow;
+
+  m_instance = nullptr;
 }
 
 bool ToolBar::isToolVisible(Tool* tool)

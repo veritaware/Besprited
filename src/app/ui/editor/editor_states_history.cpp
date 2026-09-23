@@ -41,12 +41,9 @@ void EditorStatesHistory::pop()
 
 void EditorStatesHistory::clear()
 {
-  // Free shared pointers in reverse order
-  std::vector<EditorStatePtr>::reverse_iterator it = m_states.rbegin();
-  std::vector<EditorStatePtr>::reverse_iterator end = m_states.rend();
-  for (; it != end; ++it)
-    (*it).reset();
-
+  // EditorState (base or any subclass in src/app/ui/editor/) never holds a
+  // reference to another EditorState, so nothing depends on the order these
+  // are destroyed in - just let the vector destroy its elements normally.
   m_states.clear();
 }
 

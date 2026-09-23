@@ -51,7 +51,7 @@
 #include "ui/scroll_helper.h"
 #include "ui/ui.h"
 
-#include <cstdio>
+#include <format>
 
 // Size of the thumbnail in the screen (width x height), the really
 // size of the thumbnail bitmap is specified in the
@@ -1136,13 +1136,6 @@ void Timeline::onPaint(ui::PaintEvent& ev)
     drawFrameTags(g);
     drawRangeOutline(g);
     drawClipboardRange(g);
-
-#if 0 // Use this code to debug the calculated m_dropRange by updateDropRange()
-    {
-      g->drawRect(gfx::rgba(255, 255, 0), getRangeBounds(m_range));
-      g->drawRect(gfx::rgba(255, 0, 0), getRangeBounds(m_dropRange));
-    }
-#endif
   }
   catch (const LockedDocumentException&)
   {
@@ -1473,15 +1466,13 @@ void Timeline::drawHeaderFrame(ui::Graphics* g, frame_t frame)
   if (!clip)
     return;
 
-  // Draw the header for the layers.
-  char buf[256];
-  std::snprintf(buf, sizeof(buf), "%d",
-                (frame + 1) % 100); // Draw only the first two digits.
+  // Draw the header for the layers. Only the first two digits are shown.
+  std::string label = std::format("{}", (frame + 1) % 100);
 
   auto oldFont = g->font();
   g->setFont(skinTheme()->getMiniFont());
-  drawPart(g, bounds, buf, skinTheme()->styles.timelineBox(), is_active,
-           is_hover, is_clicked);
+  drawPart(g, bounds, label.c_str(), skinTheme()->styles.timelineBox(),
+           is_active, is_hover, is_clicked);
   g->setFont(oldFont);
 }
 

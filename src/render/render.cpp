@@ -169,7 +169,6 @@ void composite_image_without_scale(Image* dst, const Image* src,
   const LockImageBits<SrcTraits> srcBits(src, srcBounds);
   LockImageBits<DstTraits> dstBits(dst, dstBounds);
   typename LockImageBits<SrcTraits>::const_iterator src_it = srcBits.begin();
-  // typename LockImageBits<SrcTraits>::const_iterator src_end = srcBits.end();
   typename LockImageBits<DstTraits>::iterator dst_it, dst_end;
 
   // For each line to draw of the source image...
@@ -233,17 +232,18 @@ void composite_image_scale_up(Image* dst, const Image* src, const Palette* pal,
   using Scanline = std::vector<typename DstTraits::pixel_t>;
   Scanline scanline(srcBounds.w);
   typename Scanline::iterator scanline_it;
-#ifdef _DEBUG
-  typename Scanline::iterator scanline_end = scanline.end();
-#endif
+  // Only read inside ASSERT(), which compiles away entirely outside _DEBUG
+  // builds (see base/debug.h) - hence [[maybe_unused]] rather than #ifdef
+  // _DEBUG, for consistency with the other composite functions below that
+  // already declare their end iterators unconditionally.
+  [[maybe_unused]] typename Scanline::iterator scanline_end = scanline.end();
 
   // Lock all necessary bits
   const LockImageBits<SrcTraits> srcBits(src, srcBounds);
   LockImageBits<DstTraits> dstBits(dst, dstBounds);
   typename LockImageBits<SrcTraits>::const_iterator src_it = srcBits.begin();
-#ifdef _DEBUG
-  typename LockImageBits<SrcTraits>::const_iterator src_end = srcBits.end();
-#endif
+  [[maybe_unused]] typename LockImageBits<SrcTraits>::const_iterator src_end =
+      srcBits.end();
   typename LockImageBits<DstTraits>::iterator dst_it, dst_end;
 
   // For each line to draw of the source image...

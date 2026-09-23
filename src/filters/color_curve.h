@@ -20,7 +20,6 @@ public:
   enum Type
   {
     Linear,
-    // Spline,                      // TODO for the future
   };
 
   typedef std::vector<gfx::Point> Points;

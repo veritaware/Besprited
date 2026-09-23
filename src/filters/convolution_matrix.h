@@ -19,7 +19,6 @@ namespace filters
 class ConvolutionMatrix
 {
 public:
-  // TODO warning: this number could be dangerous for big filters
   static const int Precision = 256;
 
   ConvolutionMatrix(int width, int height);

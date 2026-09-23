@@ -60,6 +60,7 @@
 #include "ui/theme.h"
 #include "ui/tooltips.h"
 
+#include <format>
 #include <memory>
 
 namespace app
@@ -887,13 +888,12 @@ private:
 
     m_loaded = true;
 
-    char buf[32];
     int n = get_config_int("shades", "count", 0);
     n = MID(0, n, 256);
     for (int i = 0; i < n; ++i)
     {
-      snprintf(buf, sizeof(buf), "shade%d", i);
-      Shade shade = shade_from_string(get_config_string("shades", buf, ""));
+      std::string key = std::format("shade{}", i);
+      Shade shade = shade_from_string(get_config_string("shades", key.c_str(), ""));
       if (shade.size() >= 2)
         m_shades.push_back(shade);
     }
@@ -904,13 +904,12 @@ private:
     if (!m_loaded)
       return;
 
-    char buf[32];
     int n = int(m_shades.size());
     set_config_int("shades", "count", n);
     for (int i = 0; i < n; ++i)
     {
-      snprintf(buf, sizeof(buf), "shade%d", i);
-      set_config_string("shades", buf, shade_to_string(m_shades[i]).c_str());
+      std::string key = std::format("shade{}", i);
+      set_config_string("shades", key.c_str(), shade_to_string(m_shades[i]).c_str());
     }
   }
 
@@ -1700,10 +1699,6 @@ ContextBar::ContextBar()
   setup_mini_font(m_sprayLabel);
 
   addChild(m_freehandBox = new HBox());
-#if 0 // TODO for v1.1
-  m_freehandBox->addChild(m_freehandLabel = new Label("Freehand:"));
-  setup_mini_font(m_freehandLabel);
-#endif
   m_freehandBox->addChild(m_freehandAlgo = new FreehandAlgorithmField());
 
   setup_mini_font(m_toleranceLabel);

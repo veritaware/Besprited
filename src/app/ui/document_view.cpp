@@ -169,6 +169,14 @@ public:
   }
 };
 
+Editor* createEditorFor(DocumentView::Type type, Document* document,
+                        DocumentViewPreviewDelegate* previewDelegate)
+{
+  if (type == DocumentView::Normal)
+    return new AppEditor(document, previewDelegate);
+  return new PreviewEditor(document);
+}
+
 DocumentView::DocumentView(Document* document, Type type,
                            DocumentViewPreviewDelegate* previewDelegate)
   : Box(VERTICAL)
@@ -177,8 +185,7 @@ DocumentView::DocumentView(Document* document, Type type,
   , m_view(new EditorView(type == Normal ? EditorView::CurrentEditorMode
                                          : EditorView::AlwaysSelected))
   , m_previewDelegate(previewDelegate)
-  , m_editor((type == Normal ? (Editor*)new AppEditor(document, previewDelegate)
-                             : (Editor*)new PreviewEditor(document)))
+  , m_editor(createEditorFor(type, document, previewDelegate))
 {
   addChild(m_view);
 

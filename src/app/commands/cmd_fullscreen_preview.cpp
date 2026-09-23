@@ -31,8 +31,6 @@
 #include "she/surface.h"
 #include "she/system.h"
 
-#include <cstring>
-
 namespace app
 {
 
@@ -139,13 +137,6 @@ protected:
         invalidate();
         m_render.reset(nullptr); // Re-render
       }
-#if 0
-        // Play the animation
-        else if (command != nullptr &&
-                 std::strcmp(command->short_name(), CommandId::PlayAnimation) == 0) {
-          // TODO
-        }
-#endif
       // Change background color
       else if (keyMsg->scancode() == kKeyPlusPad ||
                keyMsg->unicodeChar() == '+')

@@ -112,25 +112,6 @@ void TransformHandles::drawHandles(Editor* editor,
     screenPoints[c] = editor->editorToScreen(
         gfx::Point((int)corners[c].x, (int)corners[c].y));
 
-  // TODO DO NOT COMMIT
-#if 0 // Uncomment this if you want to see the bounds in red (only for debugging
-      // purposes)
-  // -----------------------------------------------
-  {
-    gfx::Point
-      a(transform.bounds().origin()),
-      b(transform.bounds().point2());
-    a = editor->editorToScreen(a);
-    b = editor->editorToScreen(b);
-    g.drawRect(gfx::rgba(255, 0, 0), gfx::Rect(a, b));
-
-    a = transform.pivot();
-    a = editor->editorToScreen(a);
-    g.drawRect(gfx::rgba(255, 0, 0), gfx::Rect(a.x-2, a.y-2, 5, 5));
-  }
-  // -----------------------------------------------
-#endif
-
   // Draw corner handle
   for (size_t c = 0; c < HANDLES; ++c)
   {

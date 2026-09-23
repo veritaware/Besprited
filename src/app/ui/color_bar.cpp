@@ -148,6 +148,7 @@ ColorBar::ColorBar(int align)
   , m_ascending(true)
   , m_lastButtons(kButtonLeft)
 {
+  ASSERT(m_instance == nullptr);
   m_instance = this;
 
   SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
@@ -272,7 +273,9 @@ ColorBar::ColorBar(int align)
 
 ColorBar::~ColorBar()
 {
+  ASSERT(m_instance == this);
   UIContext::instance()->removeObserver(this);
+  m_instance = nullptr;
 }
 
 void ColorBar::setPixelFormat(PixelFormat pixelFormat)

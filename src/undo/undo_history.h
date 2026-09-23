@@ -1,11 +1,10 @@
 // Undo Library
 // Copyright (C) 2015-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef UNDO_HISTORY_H_INCLUDED
-#define UNDO_HISTORY_H_INCLUDED
 #pragma once
 
 namespace undo {
@@ -16,7 +15,8 @@ namespace undo {
   class UndoHistory {
   public:
     UndoHistory();
-    virtual ~UndoHistory();
+    // No subclasses exist anywhere in the tree.
+    ~UndoHistory();
 
     const UndoState* firstState()   const { return m_first; }
     const UndoState* lastState()    const { return m_last; }
@@ -43,5 +43,3 @@ namespace undo {
   };
 
 } // namespace undo
-
-#endif  // HISTORY_H_INCLUDED

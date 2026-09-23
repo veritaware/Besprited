@@ -250,7 +250,7 @@ class SelectedFrameTag
 public:
   static frame_t From()
   {
-    // TODO the range of selected frames should be in doc::Site.
+    // TODO see issue #245: the range of selected frames should be in doc::Site.
     auto range = App::instance()->timeline()->range();
     if (range.enabled())
     {
@@ -312,7 +312,7 @@ public:
 
   void showSelectedLayers(Sprite* sprite)
   {
-    // TODO the range of selected frames should be in doc::Site.
+    // TODO see issue #245: the range of selected frames should be in doc::Site.
     auto range = App::instance()->timeline()->range();
     if (!range.enabled())
     {

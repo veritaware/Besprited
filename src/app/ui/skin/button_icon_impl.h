@@ -24,12 +24,12 @@ public:
                  const SkinPartPtr& disabledIcon, int iconAlign);
 
   // IButtonIcon implementation
-  void destroy();
-  gfx::Size size();
-  she::Surface* normalIcon();
-  she::Surface* selectedIcon();
-  she::Surface* disabledIcon();
-  int iconAlign();
+  void destroy() override;
+  gfx::Size size() override;
+  she::Surface* normalIcon() override;
+  she::Surface* selectedIcon() override;
+  she::Surface* disabledIcon() override;
+  int iconAlign() override;
 
 public:
   SkinPartPtr m_normalIcon;

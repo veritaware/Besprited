@@ -98,7 +98,7 @@ void FramePropertiesCommand::onExecute(Context* context)
 
   case CURRENT_RANGE:
   {
-    // TODO the range of selected frames should be in doc::Site.
+    // TODO see issue #245: the range of selected frames should be in doc::Site.
     auto range = App::instance()->timeline()->range();
     if (range.enabled())
     {

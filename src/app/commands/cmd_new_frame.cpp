@@ -108,7 +108,7 @@ void NewFrameCommand::onExecute(Context* context)
     case Content::DUPLICATE_CELS:
     case Content::DUPLICATE_CELS_BLOCK:
     {
-      // TODO the range of selected frames should be in doc::Site.
+      // TODO see issue #245: the range of selected frames should be in doc::Site.
       Timeline* timeline = App::instance()->timeline();
       Timeline::Range range = timeline->range();
       if (range.enabled())

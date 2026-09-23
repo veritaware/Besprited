@@ -116,14 +116,17 @@ public:
 
   Style* getStyle(const std::string& id) { return m_stylesheet.getStyle(id); }
 
-  SkinPartPtr getPartById(const std::string& id) { return m_parts_by_id[id]; }
+  [[nodiscard]] SkinPartPtr getPartById(const std::string& id)
+  {
+    return m_parts_by_id[id];
+  }
 
-  int getDimensionById(const std::string& id)
+  [[nodiscard]] int getDimensionById(const std::string& id)
   {
     return m_dimensions_by_id[id] * ui::guiscale();
   }
 
-  gfx::Color getColorById(const std::string& id);
+  [[nodiscard]] gfx::Color getColorById(const std::string& id);
 
 protected:
   void onRegenerate() override;

@@ -22,8 +22,8 @@
 #include "ui/theme.h"
 
 #include <cmath>
-#include <cstdio>
 #include <cstdlib>
+#include <format>
 
 namespace app
 {
@@ -57,9 +57,7 @@ std::string ZoomEntry::onGetTextFromValue(int value)
 {
   render::Zoom zoom = render::Zoom::fromLinearScale(value);
 
-  char buf[256];
-  std::snprintf(buf, sizeof(buf), "%.1f", zoom.scale() * 100.0);
-  return buf;
+  return std::format("{:.1f}", zoom.scale() * 100.0);
 }
 
 int ZoomEntry::onGetValueFromText(const std::string& text)
