@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "app/ui/editor/drag_state.h"
 #include "app/ui/editor/standby_state.h"
 
 #include "app/context_access.h"
@@ -23,24 +24,29 @@ namespace app
 {
 class Editor;
 
-class MovingCelState : public StandbyState
+class MovingCelState : public DragState<StandbyState>
 {
 public:
   MovingCelState(Editor* editor, ui::MouseMessage* msg);
   virtual ~MovingCelState();
 
-  virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
-  virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
   virtual bool onUpdateStatusBar(Editor* editor) override;
 
   virtual bool requireBrushPreview() override { return false; }
+
+protected:
+  void onDrag(Editor* editor, const gfx::Point& delta) override;
+  void onDragEnd(Editor* editor) override;
+  bool afterDrag(Editor* editor, ui::MouseMessage* msg) override
+  {
+    return StandbyState::onMouseMove(editor, msg);
+  }
 
 private:
   ContextReader m_reader;
   CelList m_celList;
   std::vector<gfx::Point> m_celStarts;
   gfx::Point m_celOffset;
-  gfx::Point m_cursorStart;
   bool m_canceled;
   bool m_maskVisible;
 };
