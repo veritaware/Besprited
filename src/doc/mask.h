@@ -27,7 +27,7 @@ public:
   Mask(const Mask& mask);
   virtual ~Mask();
 
-  virtual int getMemSize() const override;
+  virtual size_t getMemSize() const override;
 
   void setName(const char* name);
   const std::string& name() const { return m_name; }

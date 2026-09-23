@@ -32,9 +32,10 @@ Image::Image(PixelFormat format, int width, int height)
 
 Image::~Image() = default;
 
-int Image::getMemSize() const
+size_t Image::getMemSize() const
 {
-  return sizeof(Image) + static_cast<long>(getRowStrideSize()) * m_height;
+  return sizeof(Image) +
+         static_cast<size_t>(getRowStrideSize()) * static_cast<size_t>(m_height);
 }
 
 int Image::getRowStrideSize() const

@@ -48,7 +48,7 @@ protected:
 public:
   virtual ~Layer();
 
-  virtual int getMemSize() const override;
+  virtual size_t getMemSize() const override;
 
   std::string name() const { return m_name; }
   void setName(const std::string& name) { m_name = name; }
@@ -117,7 +117,7 @@ public:
   explicit LayerImage(Sprite* sprite);
   virtual ~LayerImage();
 
-  virtual int getMemSize() const override;
+  virtual size_t getMemSize() const override;
 
   BlendMode blendMode() const { return m_blendmode; }
   void setBlendMode(BlendMode blendmode) { m_blendmode = blendmode; }
@@ -163,7 +163,7 @@ public:
   explicit LayerFolder(Sprite* sprite);
   virtual ~LayerFolder();
 
-  virtual int getMemSize() const override;
+  virtual size_t getMemSize() const override;
 
   const LayerList& getLayersList() { return m_layers; }
   LayerIterator getLayerBegin() { return m_layers.begin(); }

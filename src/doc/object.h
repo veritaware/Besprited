@@ -37,7 +37,7 @@ public:
 
   // Returns the approximate amount of memory (in bytes) which this
   // object use.
-  virtual int getMemSize() const;
+  virtual size_t getMemSize() const;
 
 private:
   ObjectType m_type;
