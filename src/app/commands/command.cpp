@@ -24,10 +24,6 @@ Command::Command(const char* id, const char* friendlyName, CommandFlags flags)
 {
 }
 
-Command::~Command()
-{
-}
-
 std::string Command::friendlyName() const
 {
   return app::i18n(onGetFriendlyName());

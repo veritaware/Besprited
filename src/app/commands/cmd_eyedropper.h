@@ -22,7 +22,6 @@ class EyedropperCommand : public Command
 {
 public:
   EyedropperCommand();
-  Command* clone() const override { return new EyedropperCommand(*this); }
 
   // Returns the color in the given sprite pos.
   void pickSample(const doc::Site& site, const gfx::Point& pixelPos,

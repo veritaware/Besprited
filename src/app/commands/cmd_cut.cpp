@@ -20,7 +20,6 @@ class CutCommand : public Command
 {
 public:
   CutCommand();
-  Command* clone() const override { return new CutCommand(*this); }
 
 protected:
   bool onEnabled(Context* ctx) override;
@@ -42,9 +41,9 @@ void CutCommand::onExecute(Context* ctx)
   App::instance()->inputChain().cut(ctx);
 }
 
-Command* CommandFactory::createCutCommand()
+std::unique_ptr<Command> CommandFactory::createCutCommand()
 {
-  return new CutCommand;
+  return std::make_unique<CutCommand>();
 }
 
 } // namespace app

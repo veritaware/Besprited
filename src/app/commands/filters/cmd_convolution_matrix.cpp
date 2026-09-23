@@ -160,10 +160,6 @@ class ConvolutionMatrixCommand : public Command
 {
 public:
   ConvolutionMatrixCommand();
-  Command* clone() const override
-  {
-    return new ConvolutionMatrixCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -210,9 +206,9 @@ void ConvolutionMatrixCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createConvolutionMatrixCommand()
+std::unique_ptr<Command> CommandFactory::createConvolutionMatrixCommand()
 {
-  return new ConvolutionMatrixCommand;
+  return std::make_unique<ConvolutionMatrixCommand>();
 }
 
 } // namespace app

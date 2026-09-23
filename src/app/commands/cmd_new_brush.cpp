@@ -39,7 +39,6 @@ class NewBrushCommand : public Command,
 {
 public:
   NewBrushCommand();
-  Command* clone() const override { return new NewBrushCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -187,9 +186,9 @@ void NewBrushCommand::selectPencilTool()
   }
 }
 
-Command* CommandFactory::createNewBrushCommand()
+std::unique_ptr<Command> CommandFactory::createNewBrushCommand()
 {
-  return new NewBrushCommand();
+  return std::make_unique<NewBrushCommand>();
 }
 
 } // namespace app

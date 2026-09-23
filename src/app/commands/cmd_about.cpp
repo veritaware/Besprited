@@ -24,7 +24,6 @@ class AboutCommand : public Command
 {
 public:
   AboutCommand();
-  Command* clone() const override { return new AboutCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -106,9 +105,9 @@ void AboutCommand::onExecute(Context* context)
   window->openWindowInForeground();
 }
 
-Command* CommandFactory::createAboutCommand()
+std::unique_ptr<Command> CommandFactory::createAboutCommand()
 {
-  return new AboutCommand;
+  return std::make_unique<AboutCommand>();
 }
 
 } // namespace app

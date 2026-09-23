@@ -37,10 +37,6 @@ class ColorQuantizationCommand : public Command
 {
 public:
   ColorQuantizationCommand();
-  Command* clone() const override
-  {
-    return new ColorQuantizationCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -191,9 +187,9 @@ void ColorQuantizationCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createColorQuantizationCommand()
+std::unique_ptr<Command> CommandFactory::createColorQuantizationCommand()
 {
-  return new ColorQuantizationCommand;
+  return std::make_unique<ColorQuantizationCommand>();
 }
 
 } // namespace app

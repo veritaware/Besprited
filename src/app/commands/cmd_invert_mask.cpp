@@ -29,7 +29,6 @@ class InvertMaskCommand : public Command
 {
 public:
   InvertMaskCommand();
-  Command* clone() const override { return new InvertMaskCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -108,9 +107,9 @@ void InvertMaskCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createInvertMaskCommand()
+std::unique_ptr<Command> CommandFactory::createInvertMaskCommand()
 {
-  return new InvertMaskCommand;
+  return std::make_unique<InvertMaskCommand>();
 }
 
 } // namespace app

@@ -20,7 +20,6 @@ class ClearCommand : public Command
 {
 public:
   ClearCommand();
-  Command* clone() const override { return new ClearCommand(*this); }
 
 protected:
   bool onEnabled(Context* ctx) override;
@@ -42,9 +41,9 @@ void ClearCommand::onExecute(Context* ctx)
   App::instance()->inputChain().clear(ctx);
 }
 
-Command* CommandFactory::createClearCommand()
+std::unique_ptr<Command> CommandFactory::createClearCommand()
 {
-  return new ClearCommand;
+  return std::make_unique<ClearCommand>();
 }
 
 } // namespace app

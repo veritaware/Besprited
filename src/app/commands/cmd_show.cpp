@@ -25,7 +25,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new ShowExtrasCommand(*this); }
 
 protected:
   bool onChecked(Context* ctx) override
@@ -49,7 +48,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new ShowLayerEdgesCommand(*this); }
 
 protected:
   bool onChecked(Context* ctx) override
@@ -77,7 +75,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new ShowGridCommand(*this); }
 
 protected:
   bool onChecked(Context* ctx) override
@@ -105,7 +102,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new ShowPixelGridCommand(*this); }
 
 protected:
   bool onChecked(Context* ctx) override
@@ -133,10 +129,6 @@ public:
   {
   }
 
-  Command* clone() const override
-  {
-    return new ShowSelectionEdgesCommand(*this);
-  }
 
 protected:
   bool onChecked(Context* ctx) override
@@ -164,7 +156,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new ShowBrushPreviewCommand(*this); }
 
 protected:
   bool onChecked(Context* ctx) override
@@ -187,34 +178,34 @@ protected:
   }
 };
 
-Command* CommandFactory::createShowExtrasCommand()
+std::unique_ptr<Command> CommandFactory::createShowExtrasCommand()
 {
-  return new ShowExtrasCommand;
+  return std::make_unique<ShowExtrasCommand>();
 }
 
-Command* CommandFactory::createShowGridCommand()
+std::unique_ptr<Command> CommandFactory::createShowGridCommand()
 {
-  return new ShowGridCommand;
+  return std::make_unique<ShowGridCommand>();
 }
 
-Command* CommandFactory::createShowPixelGridCommand()
+std::unique_ptr<Command> CommandFactory::createShowPixelGridCommand()
 {
-  return new ShowPixelGridCommand;
+  return std::make_unique<ShowPixelGridCommand>();
 }
 
-Command* CommandFactory::createShowLayerEdgesCommand()
+std::unique_ptr<Command> CommandFactory::createShowLayerEdgesCommand()
 {
-  return new ShowLayerEdgesCommand;
+  return std::make_unique<ShowLayerEdgesCommand>();
 }
 
-Command* CommandFactory::createShowSelectionEdgesCommand()
+std::unique_ptr<Command> CommandFactory::createShowSelectionEdgesCommand()
 {
-  return new ShowSelectionEdgesCommand;
+  return std::make_unique<ShowSelectionEdgesCommand>();
 }
 
-Command* CommandFactory::createShowBrushPreviewCommand()
+std::unique_ptr<Command> CommandFactory::createShowBrushPreviewCommand()
 {
-  return new ShowBrushPreviewCommand;
+  return std::make_unique<ShowBrushPreviewCommand>();
 }
 
 } // namespace app

@@ -27,7 +27,6 @@ class PaletteSizeCommand : public Command
 {
 public:
   PaletteSizeCommand();
-  Command* clone() const override { return new PaletteSizeCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -75,9 +74,9 @@ void PaletteSizeCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createPaletteSizeCommand()
+std::unique_ptr<Command> CommandFactory::createPaletteSizeCommand()
 {
-  return new PaletteSizeCommand;
+  return std::make_unique<PaletteSizeCommand>();
 }
 
 } // namespace app

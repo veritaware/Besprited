@@ -209,9 +209,9 @@ std::string FlipCommand::onGetFriendlyName() const
   return text;
 }
 
-Command* CommandFactory::createFlipCommand()
+std::unique_ptr<Command> CommandFactory::createFlipCommand()
 {
-  return new FlipCommand;
+  return std::make_unique<FlipCommand>();
 }
 
 } // namespace app

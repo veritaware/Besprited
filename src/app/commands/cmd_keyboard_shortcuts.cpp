@@ -700,10 +700,6 @@ class KeyboardShortcutsCommand : public Command
 {
 public:
   KeyboardShortcutsCommand();
-  Command* clone() const override
-  {
-    return new KeyboardShortcutsCommand(*this);
-  }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -759,9 +755,9 @@ void KeyboardShortcutsCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createKeyboardShortcutsCommand()
+std::unique_ptr<Command> CommandFactory::createKeyboardShortcutsCommand()
 {
-  return new KeyboardShortcutsCommand;
+  return std::make_unique<KeyboardShortcutsCommand>();
 }
 
 } // namespace app

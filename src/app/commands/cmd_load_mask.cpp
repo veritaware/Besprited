@@ -32,7 +32,6 @@ class LoadMaskCommand : public Command
 
 public:
   LoadMaskCommand();
-  Command* clone() const override { return new LoadMaskCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -91,9 +90,9 @@ void LoadMaskCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createLoadMaskCommand()
+std::unique_ptr<Command> CommandFactory::createLoadMaskCommand()
 {
-  return new LoadMaskCommand;
+  return std::make_unique<LoadMaskCommand>();
 }
 
 } // namespace app

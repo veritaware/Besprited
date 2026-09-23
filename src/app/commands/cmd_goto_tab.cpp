@@ -21,7 +21,6 @@ class GotoNextTabCommand : public Command
 {
 public:
   GotoNextTabCommand();
-  Command* clone() const override { return new GotoNextTabCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -47,7 +46,6 @@ class GotoPreviousTabCommand : public Command
 {
 public:
   GotoPreviousTabCommand();
-  Command* clone() const override { return new GotoPreviousTabCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -69,14 +67,14 @@ void GotoPreviousTabCommand::onExecute(Context* context)
   App::instance()->workspace()->selectPreviousTab();
 }
 
-Command* CommandFactory::createGotoNextTabCommand()
+std::unique_ptr<Command> CommandFactory::createGotoNextTabCommand()
 {
-  return new GotoNextTabCommand;
+  return std::make_unique<GotoNextTabCommand>();
 }
 
-Command* CommandFactory::createGotoPreviousTabCommand()
+std::unique_ptr<Command> CommandFactory::createGotoPreviousTabCommand()
 {
-  return new GotoPreviousTabCommand;
+  return std::make_unique<GotoPreviousTabCommand>();
 }
 
 } // namespace app

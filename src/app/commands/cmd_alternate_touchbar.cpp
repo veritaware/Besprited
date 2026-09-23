@@ -26,10 +26,6 @@ namespace app
 class AlternateTouchbarCommand : public Command
 {
 public:
-  Command* clone() const override
-  {
-    return new AlternateTouchbarCommand(*this);
-  }
 
   AlternateTouchbarCommand()
     : Command{"AlternateTouchbar", "Alternate Touchbar", CmdUIOnlyFlag}
@@ -52,9 +48,9 @@ protected:
   }
 };
 
-Command* CommandFactory::createAlternateTouchbarCommand()
+std::unique_ptr<Command> CommandFactory::createAlternateTouchbarCommand()
 {
-  return new AlternateTouchbarCommand;
+  return std::make_unique<AlternateTouchbarCommand>();
 }
 
 } // namespace app

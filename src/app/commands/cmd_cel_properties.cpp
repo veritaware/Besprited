@@ -317,7 +317,6 @@ class CelPropertiesCommand : public Command
 {
 public:
   CelPropertiesCommand();
-  Command* clone() const override { return new CelPropertiesCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -349,9 +348,9 @@ void CelPropertiesCommand::onExecute(Context* context)
   g_window->opacity()->requestFocus();
 }
 
-Command* CommandFactory::createCelPropertiesCommand()
+std::unique_ptr<Command> CommandFactory::createCelPropertiesCommand()
 {
-  return new CelPropertiesCommand;
+  return std::make_unique<CelPropertiesCommand>();
 }
 
 } // namespace app

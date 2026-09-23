@@ -29,7 +29,6 @@ class AdvancedModeCommand : public Command
 {
 public:
   AdvancedModeCommand();
-  Command* clone() const override { return new AdvancedModeCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -84,9 +83,9 @@ void AdvancedModeCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createAdvancedModeCommand()
+std::unique_ptr<Command> CommandFactory::createAdvancedModeCommand()
 {
-  return new AdvancedModeCommand;
+  return std::make_unique<AdvancedModeCommand>();
 }
 
 } // namespace app

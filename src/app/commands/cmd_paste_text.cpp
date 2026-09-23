@@ -42,7 +42,6 @@ class PasteTextCommand : public Command
 {
 public:
   PasteTextCommand();
-  Command* clone() const override { return new PasteTextCommand(*this); }
 
 protected:
   bool onEnabled(Context* ctx) override;
@@ -225,9 +224,9 @@ void PasteTextCommand::onExecute(Context* ctx)
   }
 }
 
-Command* CommandFactory::createPasteTextCommand()
+std::unique_ptr<Command> CommandFactory::createPasteTextCommand()
 {
-  return new PasteTextCommand;
+  return std::make_unique<PasteTextCommand>();
 }
 
 } // namespace app

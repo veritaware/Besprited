@@ -27,7 +27,6 @@ class RescanScriptsCommand : public Command
 {
 public:
   RescanScriptsCommand();
-  Command* clone() const override { return new RescanScriptsCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -43,9 +42,9 @@ void RescanScriptsCommand::onExecute(Context* context)
   app::AppMenus::instance()->rebuildScriptsList();
 }
 
-Command* CommandFactory::createRescanScriptsCommand()
+std::unique_ptr<Command> CommandFactory::createRescanScriptsCommand()
 {
-  return new RescanScriptsCommand;
+  return std::make_unique<RescanScriptsCommand>();
 }
 
 } // namespace app

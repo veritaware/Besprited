@@ -25,7 +25,6 @@ class ResetSymmetryCommand : public Command
 {
 public:
   ResetSymmetryCommand();
-  Command* clone() const override { return new ResetSymmetryCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -83,9 +82,9 @@ void ResetSymmetryCommand::onExecute(Context* context)
     current_editor->invalidate();
 }
 
-Command* CommandFactory::createResetSymmetryCommand()
+std::unique_ptr<Command> CommandFactory::createResetSymmetryCommand()
 {
-  return new ResetSymmetryCommand;
+  return std::make_unique<ResetSymmetryCommand>();
 }
 
 } // namespace app

@@ -28,7 +28,6 @@ class ClearCelCommand : public Command
 {
 public:
   ClearCelCommand();
-  Command* clone() const override { return new ClearCelCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -98,9 +97,9 @@ void ClearCelCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createClearCelCommand()
+std::unique_ptr<Command> CommandFactory::createClearCelCommand()
 {
-  return new ClearCelCommand;
+  return std::make_unique<ClearCelCommand>();
 }
 
 } // namespace app

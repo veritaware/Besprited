@@ -34,7 +34,6 @@ public:
   };
 
   ZoomCommand();
-  Command* clone() const override { return new ZoomCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -131,9 +130,9 @@ std::string ZoomCommand::onGetFriendlyName() const
   return text;
 }
 
-Command* CommandFactory::createZoomCommand()
+std::unique_ptr<Command> CommandFactory::createZoomCommand()
 {
-  return new ZoomCommand;
+  return std::make_unique<ZoomCommand>();
 }
 
 } // namespace app

@@ -24,7 +24,6 @@ class FlattenLayersCommand : public Command
 {
 public:
   FlattenLayersCommand();
-  Command* clone() const override { return new FlattenLayersCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -54,9 +53,9 @@ void FlattenLayersCommand::onExecute(Context* context)
   update_screen_for_document(writer.document());
 }
 
-Command* CommandFactory::createFlattenLayersCommand()
+std::unique_ptr<Command> CommandFactory::createFlattenLayersCommand()
 {
-  return new FlattenLayersCommand;
+  return std::make_unique<FlattenLayersCommand>();
 }
 
 } // namespace app

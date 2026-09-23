@@ -22,7 +22,6 @@ class ScrollCenterCommand : public Command
 {
 public:
   ScrollCenterCommand();
-  Command* clone() const override { return new ScrollCenterCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -38,9 +37,9 @@ void ScrollCenterCommand::onExecute(Context* context)
   current_editor->setDefaultScroll();
 }
 
-Command* CommandFactory::createScrollCenterCommand()
+std::unique_ptr<Command> CommandFactory::createScrollCenterCommand()
 {
-  return new ScrollCenterCommand;
+  return std::make_unique<ScrollCenterCommand>();
 }
 
 } // namespace app

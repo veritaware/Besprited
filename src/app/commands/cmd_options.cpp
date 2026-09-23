@@ -652,7 +652,6 @@ class OptionsCommand : public Command
 {
 public:
   OptionsCommand();
-  Command* clone() const override { return new OptionsCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -677,9 +676,9 @@ void OptionsCommand::onExecute(Context* context)
     window.saveConfig();
 }
 
-Command* CommandFactory::createOptionsCommand()
+std::unique_ptr<Command> CommandFactory::createOptionsCommand()
 {
-  return new OptionsCommand;
+  return std::make_unique<OptionsCommand>();
 }
 
 } // namespace app

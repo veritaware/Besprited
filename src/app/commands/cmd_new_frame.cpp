@@ -47,7 +47,6 @@ public:
   };
 
   NewFrameCommand();
-  Command* clone() const override { return new NewFrameCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -222,9 +221,9 @@ std::string NewFrameCommand::onGetFriendlyName() const
   return text;
 }
 
-Command* CommandFactory::createNewFrameCommand()
+std::unique_ptr<Command> CommandFactory::createNewFrameCommand()
 {
-  return new NewFrameCommand;
+  return std::make_unique<NewFrameCommand>();
 }
 
 } // namespace app

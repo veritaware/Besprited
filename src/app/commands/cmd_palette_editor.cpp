@@ -142,7 +142,6 @@ class PaletteEditorCommand : public Command
 {
 public:
   PaletteEditorCommand();
-  Command* clone() const override { return new PaletteEditorCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -842,9 +841,9 @@ void PaletteEntryEditor::getPicks(PalettePicks& picks)
   }
 }
 
-Command* CommandFactory::createPaletteEditorCommand()
+std::unique_ptr<Command> CommandFactory::createPaletteEditorCommand()
 {
-  return new PaletteEditorCommand;
+  return std::make_unique<PaletteEditorCommand>();
 }
 
 } // namespace app

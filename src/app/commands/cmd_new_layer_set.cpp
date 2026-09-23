@@ -32,7 +32,6 @@ class NewLayerSetCommand : public Command
 {
 public:
   NewLayerSetCommand();
-  Command* clone() const override { return new NewLayerSetCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -80,9 +79,9 @@ void NewLayerSetCommand::onExecute(Context* context)
   StatusBar::instance()->showTip(1000, "Layer `%s' created", name.c_str());
 }
 
-Command* CommandFactory::createNewLayerSetCommand()
+std::unique_ptr<Command> CommandFactory::createNewLayerSetCommand()
 {
-  return new NewLayerSetCommand;
+  return std::make_unique<NewLayerSetCommand>();
 }
 
 } // namespace app

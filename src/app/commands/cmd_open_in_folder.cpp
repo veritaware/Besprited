@@ -22,7 +22,6 @@ class OpenInFolderCommand : public Command
 {
 public:
   OpenInFolderCommand();
-  Command* clone() const override { return new OpenInFolderCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -45,9 +44,9 @@ void OpenInFolderCommand::onExecute(Context* context)
   launcher::open_folder(context->activeDocument()->filename());
 }
 
-Command* CommandFactory::createOpenInFolderCommand()
+std::unique_ptr<Command> CommandFactory::createOpenInFolderCommand()
 {
-  return new OpenInFolderCommand;
+  return std::make_unique<OpenInFolderCommand>();
 }
 
 } // namespace app

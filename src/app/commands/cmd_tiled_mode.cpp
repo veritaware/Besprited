@@ -24,7 +24,6 @@ class TiledModeCommand : public Command
 {
 public:
   TiledModeCommand();
-  Command* clone() const override { return new TiledModeCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -72,9 +71,9 @@ void TiledModeCommand::onExecute(Context* ctx)
   tiled.mode(tiled.mode() == m_mode ? filters::TiledMode::NONE : m_mode);
 }
 
-Command* CommandFactory::createTiledModeCommand()
+std::unique_ptr<Command> CommandFactory::createTiledModeCommand()
 {
-  return new TiledModeCommand;
+  return std::make_unique<TiledModeCommand>();
 }
 
 } // namespace app

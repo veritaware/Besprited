@@ -25,9 +25,13 @@ class Command
 {
 public:
   Command(const char* id, const char* friendlyName, CommandFlags flags);
-  virtual ~Command();
+  virtual ~Command() = default;
 
-  virtual Command* clone() const { return new Command(*this); }
+  // Commands are singletons owned by CommandsModule; nothing ever needs to
+  // copy one, and deleting these turns "does anything still copy commands?"
+  // into a compile error (see issue #224).
+  Command(const Command&) = delete;
+  Command& operator=(const Command&) = delete;
 
   const std::string& id() const { return m_id; }
   std::string friendlyName() const;

@@ -27,7 +27,6 @@ namespace app
 class AlternateToolbarCommand : public Command
 {
 public:
-  Command* clone() const override { return new AlternateToolbarCommand(*this); }
 
   AlternateToolbarCommand()
     : Command{"AlternateToolbar", "Alternate Toolbar", CmdUIOnlyFlag}
@@ -50,9 +49,9 @@ protected:
   }
 };
 
-Command* CommandFactory::createAlternateToolbarCommand()
+std::unique_ptr<Command> CommandFactory::createAlternateToolbarCommand()
 {
-  return new AlternateToolbarCommand;
+  return std::make_unique<AlternateToolbarCommand>();
 }
 
 } // namespace app

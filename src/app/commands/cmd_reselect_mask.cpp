@@ -24,7 +24,6 @@ class ReselectMaskCommand : public Command
 {
 public:
   ReselectMaskCommand();
-  Command* clone() const override { return new ReselectMaskCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -60,9 +59,9 @@ void ReselectMaskCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createReselectMaskCommand()
+std::unique_ptr<Command> CommandFactory::createReselectMaskCommand()
 {
-  return new ReselectMaskCommand;
+  return std::make_unique<ReselectMaskCommand>();
 }
 
 } // namespace app

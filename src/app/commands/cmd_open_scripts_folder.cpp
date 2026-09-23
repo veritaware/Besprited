@@ -27,7 +27,6 @@ class OpenScriptsFolder : public Command
 {
 public:
   OpenScriptsFolder();
-  Command* clone() const override { return new OpenScriptsFolder(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -46,9 +45,9 @@ void OpenScriptsFolder::onExecute(Context* context)
   launcher::open_folder(scriptsDir);
 }
 
-Command* CommandFactory::createOpenScriptsFolderCommand()
+std::unique_ptr<Command> CommandFactory::createOpenScriptsFolderCommand()
 {
-  return new OpenScriptsFolder;
+  return std::make_unique<OpenScriptsFolder>();
 }
 
 } // namespace app

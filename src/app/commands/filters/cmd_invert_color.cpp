@@ -47,7 +47,6 @@ class InvertColorCommand : public Command
 {
 public:
   InvertColorCommand();
-  Command* clone() const override { return new InvertColorCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -76,9 +75,9 @@ void InvertColorCommand::onExecute(Context* context)
   window.doModal();
 }
 
-Command* CommandFactory::createInvertColorCommand()
+std::unique_ptr<Command> CommandFactory::createInvertColorCommand()
 {
-  return new InvertColorCommand;
+  return std::make_unique<InvertColorCommand>();
 }
 
 } // namespace app

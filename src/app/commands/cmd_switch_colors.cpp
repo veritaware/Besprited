@@ -67,9 +67,9 @@ void SwitchColorsCommand::onExecute(Context* context)
   colorbar->setFgColor(bg);
 }
 
-Command* CommandFactory::createSwitchColorsCommand()
+std::unique_ptr<Command> CommandFactory::createSwitchColorsCommand()
 {
-  return new SwitchColorsCommand;
+  return std::make_unique<SwitchColorsCommand>();
 }
 
 } // namespace app

@@ -36,7 +36,6 @@ class NewLayerCommand : public Command
 {
 public:
   NewLayerCommand();
-  Command* clone() const override { return new NewLayerCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -156,9 +155,9 @@ static int get_max_layer_num(Layer* layer)
   return max;
 }
 
-Command* CommandFactory::createNewLayerCommand()
+std::unique_ptr<Command> CommandFactory::createNewLayerCommand()
 {
-  return new NewLayerCommand;
+  return std::make_unique<NewLayerCommand>();
 }
 
 } // namespace app

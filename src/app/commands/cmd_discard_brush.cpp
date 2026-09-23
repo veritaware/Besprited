@@ -25,7 +25,6 @@ class DiscardBrushCommand : public Command
 {
 public:
   DiscardBrushCommand();
-  Command* clone() const override { return new DiscardBrushCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -49,9 +48,9 @@ void DiscardBrushCommand::onExecute(Context* context)
   ctxBar->discardActiveBrush();
 }
 
-Command* CommandFactory::createDiscardBrushCommand()
+std::unique_ptr<Command> CommandFactory::createDiscardBrushCommand()
 {
-  return new DiscardBrushCommand();
+  return std::make_unique<DiscardBrushCommand>();
 }
 
 } // namespace app

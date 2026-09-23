@@ -30,7 +30,6 @@ class NewFrameTagCommand : public Command
 {
 public:
   NewFrameTagCommand();
-  Command* clone() const override { return new NewFrameTagCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -85,9 +84,9 @@ void NewFrameTagCommand::onExecute(Context* context)
   App::instance()->timeline()->invalidate();
 }
 
-Command* CommandFactory::createNewFrameTagCommand()
+std::unique_ptr<Command> CommandFactory::createNewFrameTagCommand()
 {
-  return new NewFrameTagCommand;
+  return std::make_unique<NewFrameTagCommand>();
 }
 
 } // namespace app

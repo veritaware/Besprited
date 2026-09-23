@@ -52,9 +52,9 @@ void SetPaletteCommand::onExecute(Context* context)
   ui::Manager::getDefault()->invalidate();
 }
 
-Command* CommandFactory::createSetPaletteCommand()
+std::unique_ptr<Command> CommandFactory::createSetPaletteCommand()
 {
-  return new SetPaletteCommand;
+  return std::make_unique<SetPaletteCommand>();
 }
 
 } // namespace app

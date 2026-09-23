@@ -24,7 +24,6 @@ class RepeatLastExportCommand : public Command
 {
 public:
   RepeatLastExportCommand();
-  Command* clone() const override { return new RepeatLastExportCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -60,9 +59,9 @@ void RepeatLastExportCommand::onExecute(Context* context)
   context->executeCommand(cmd, params);
 }
 
-Command* CommandFactory::createRepeatLastExportCommand()
+std::unique_ptr<Command> CommandFactory::createRepeatLastExportCommand()
 {
-  return new RepeatLastExportCommand;
+  return std::make_unique<RepeatLastExportCommand>();
 }
 
 } // namespace app

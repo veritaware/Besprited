@@ -38,7 +38,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new SnapToGridCommand(*this); }
 
 protected:
   bool onChecked(Context* ctx) override
@@ -67,7 +66,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new SelectionAsGridCommand(*this); }
 
 protected:
   bool onEnabled(Context* ctx) override
@@ -95,7 +93,6 @@ class GridSettingsCommand : public Command
 {
 public:
   GridSettingsCommand();
-  Command* clone() const override { return new GridSettingsCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -150,19 +147,19 @@ void GridSettingsCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createSnapToGridCommand()
+std::unique_ptr<Command> CommandFactory::createSnapToGridCommand()
 {
-  return new SnapToGridCommand;
+  return std::make_unique<SnapToGridCommand>();
 }
 
-Command* CommandFactory::createGridSettingsCommand()
+std::unique_ptr<Command> CommandFactory::createGridSettingsCommand()
 {
-  return new GridSettingsCommand;
+  return std::make_unique<GridSettingsCommand>();
 }
 
-Command* CommandFactory::createSelectionAsGridCommand()
+std::unique_ptr<Command> CommandFactory::createSelectionAsGridCommand()
 {
-  return new SelectionAsGridCommand;
+  return std::make_unique<SelectionAsGridCommand>();
 }
 
 } // namespace app

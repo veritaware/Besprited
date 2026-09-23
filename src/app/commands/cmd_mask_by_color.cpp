@@ -50,7 +50,6 @@ class MaskByColorCommand : public Command
 {
 public:
   MaskByColorCommand();
-  Command* clone() const override { return new MaskByColorCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -61,8 +60,10 @@ private:
                      int ypos);
   void maskPreview(const ContextReader& reader);
 
-  Window* m_window; // TODO we cannot use a unique_ptr because clone() needs a
-                    // copy ctor
+  // Command::clone() is gone and Command is now non-copyable (#224), so
+  // this could become a unique_ptr<Window> - left as a raw pointer here
+  // since that conversion is tracked separately (#229).
+  Window* m_window;
   ColorButton* m_buttonColor;
   CheckBox* m_checkPreview;
   Slider* m_sliderTolerance;
@@ -232,9 +233,9 @@ void MaskByColorCommand::maskPreview(const ContextReader& reader)
   }
 }
 
-Command* CommandFactory::createMaskByColorCommand()
+std::unique_ptr<Command> CommandFactory::createMaskByColorCommand()
 {
-  return new MaskByColorCommand;
+  return std::make_unique<MaskByColorCommand>();
 }
 
 } // namespace app

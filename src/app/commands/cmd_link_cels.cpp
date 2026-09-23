@@ -28,7 +28,6 @@ class LinkCelsCommand : public Command
 {
 public:
   LinkCelsCommand();
-  Command* clone() const override { return new LinkCelsCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -106,9 +105,9 @@ void LinkCelsCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createLinkCelsCommand()
+std::unique_ptr<Command> CommandFactory::createLinkCelsCommand()
 {
-  return new LinkCelsCommand;
+  return std::make_unique<LinkCelsCommand>();
 }
 
 } // namespace app

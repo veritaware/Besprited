@@ -46,7 +46,6 @@ public:
   };
 
   ModifySelectionCommand();
-  Command* clone() const override { return new ModifySelectionCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -269,9 +268,9 @@ void ModifySelectionCommand::applyModifier(const Mask* srcMask, Mask* dstMask,
   }
 }
 
-Command* CommandFactory::createModifySelectionCommand()
+std::unique_ptr<Command> CommandFactory::createModifySelectionCommand()
 {
-  return new ModifySelectionCommand;
+  return std::make_unique<ModifySelectionCommand>();
 }
 
 } // namespace app

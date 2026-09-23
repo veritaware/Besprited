@@ -40,7 +40,6 @@ public:
   };
 
   MoveMaskCommand();
-  Command* clone() const override { return new MoveMaskCommand(*this); }
 
   Target getTarget() const { return m_target; }
   gfx::Point getDelta(Context* context) const;

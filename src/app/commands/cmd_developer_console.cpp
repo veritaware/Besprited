@@ -38,9 +38,9 @@ void DeveloperConsoleCommand::onExecute(Context* context)
   App::instance()->mainWindow()->showDevConsole();
 }
 
-Command* CommandFactory::createDeveloperConsoleCommand()
+std::unique_ptr<Command> CommandFactory::createDeveloperConsoleCommand()
 {
-  return new DeveloperConsoleCommand;
+  return std::make_unique<DeveloperConsoleCommand>();
 }
 
 } // namespace app

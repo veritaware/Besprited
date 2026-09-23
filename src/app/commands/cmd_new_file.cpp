@@ -44,7 +44,6 @@ class NewFileCommand : public Command
 {
 public:
   NewFileCommand();
-  Command* clone() const override { return new NewFileCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -264,9 +263,9 @@ void NewFileCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createNewFileCommand()
+std::unique_ptr<Command> CommandFactory::createNewFileCommand()
 {
-  return new NewFileCommand;
+  return std::make_unique<NewFileCommand>();
 }
 
 } // namespace app

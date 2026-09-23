@@ -37,7 +37,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new CloseFileCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override
@@ -65,7 +64,6 @@ public:
     m_quitting = false;
   }
 
-  Command* clone() const override { return new CloseAllFilesCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override
@@ -97,14 +95,14 @@ private:
   bool m_quitting;
 };
 
-Command* CommandFactory::createCloseFileCommand()
+std::unique_ptr<Command> CommandFactory::createCloseFileCommand()
 {
-  return new CloseFileCommand;
+  return std::make_unique<CloseFileCommand>();
 }
 
-Command* CommandFactory::createCloseAllFilesCommand()
+std::unique_ptr<Command> CommandFactory::createCloseAllFilesCommand()
 {
-  return new CloseAllFilesCommand;
+  return std::make_unique<CloseAllFilesCommand>();
 }
 
 } // namespace app

@@ -27,10 +27,6 @@ namespace app
 class AlternateTimelineCommand : public Command
 {
 public:
-  Command* clone() const override
-  {
-    return new AlternateTimelineCommand(*this);
-  }
 
   AlternateTimelineCommand()
     : Command{"AlternateTimeline", "Alternate Timeline", CmdUIOnlyFlag}
@@ -53,9 +49,9 @@ protected:
   }
 };
 
-Command* CommandFactory::createAlternateTimelineCommand()
+std::unique_ptr<Command> CommandFactory::createAlternateTimelineCommand()
 {
-  return new AlternateTimelineCommand;
+  return std::make_unique<AlternateTimelineCommand>();
 }
 
 } // namespace app

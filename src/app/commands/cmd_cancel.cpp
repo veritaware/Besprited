@@ -30,7 +30,6 @@ public:
   };
 
   CancelCommand();
-  Command* clone() const override { return new CancelCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -77,9 +76,9 @@ void CancelCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createCancelCommand()
+std::unique_ptr<Command> CommandFactory::createCancelCommand()
 {
-  return new CancelCommand;
+  return std::make_unique<CancelCommand>();
 }
 
 } // namespace app

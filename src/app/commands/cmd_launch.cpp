@@ -21,7 +21,6 @@ class LaunchCommand : public Command
 {
 public:
   LaunchCommand();
-  Command* clone() const override { return new LaunchCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -63,9 +62,9 @@ void LaunchCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createLaunchCommand()
+std::unique_ptr<Command> CommandFactory::createLaunchCommand()
 {
-  return new LaunchCommand;
+  return std::make_unique<LaunchCommand>();
 }
 
 } // namespace app

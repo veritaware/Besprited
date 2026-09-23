@@ -21,7 +21,6 @@ class SetColorSelectorCommand : public Command
 {
 public:
   SetColorSelectorCommand();
-  Command* clone() const override { return new SetColorSelectorCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -96,9 +95,9 @@ std::string SetColorSelectorCommand::onGetFriendlyName() const
   return result;
 }
 
-Command* CommandFactory::createSetColorSelectorCommand()
+std::unique_ptr<Command> CommandFactory::createSetColorSelectorCommand()
 {
-  return new SetColorSelectorCommand;
+  return std::make_unique<SetColorSelectorCommand>();
 }
 
 } // namespace app

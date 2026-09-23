@@ -44,9 +44,9 @@ bool HomeCommand::onEnabled(Context* context)
   return !App::instance()->mainWindow()->isHomeSelected();
 }
 
-Command* CommandFactory::createHomeCommand()
+std::unique_ptr<Command> CommandFactory::createHomeCommand()
 {
-  return new HomeCommand;
+  return std::make_unique<HomeCommand>();
 }
 
 } // namespace app

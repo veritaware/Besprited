@@ -277,10 +277,6 @@ class FullscreenPreviewCommand : public Command
 {
 public:
   FullscreenPreviewCommand();
-  Command* clone() const override
-  {
-    return new FullscreenPreviewCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -311,9 +307,9 @@ void FullscreenPreviewCommand::onExecute(Context* context)
   window.openWindowInForeground();
 }
 
-Command* CommandFactory::createFullscreenPreviewCommand()
+std::unique_ptr<Command> CommandFactory::createFullscreenPreviewCommand()
 {
-  return new FullscreenPreviewCommand;
+  return std::make_unique<FullscreenPreviewCommand>();
 }
 
 } // namespace app

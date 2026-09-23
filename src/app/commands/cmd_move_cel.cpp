@@ -22,7 +22,6 @@ class MoveCelCommand : public Command
 {
 public:
   MoveCelCommand();
-  Command* clone() const override { return new MoveCelCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -44,9 +43,9 @@ void MoveCelCommand::onExecute(Context* context)
   App::instance()->timeline()->dropRange(Timeline::kMove);
 }
 
-Command* CommandFactory::createMoveCelCommand()
+std::unique_ptr<Command> CommandFactory::createMoveCelCommand()
 {
-  return new MoveCelCommand;
+  return std::make_unique<MoveCelCommand>();
 }
 
 } // namespace app

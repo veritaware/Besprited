@@ -20,7 +20,6 @@ class CopyCommand : public Command
 {
 public:
   CopyCommand();
-  Command* clone() const override { return new CopyCommand(*this); }
 
 protected:
   bool onEnabled(Context* ctx) override;
@@ -42,9 +41,9 @@ void CopyCommand::onExecute(Context* ctx)
   App::instance()->inputChain().copy(ctx);
 }
 
-Command* CommandFactory::createCopyCommand()
+std::unique_ptr<Command> CommandFactory::createCopyCommand()
 {
-  return new CopyCommand;
+  return std::make_unique<CopyCommand>();
 }
 
 } // namespace app
