@@ -17,6 +17,8 @@
 #include <archive_entry.h>
 
 #include <memory>
+#include <random>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -48,6 +50,21 @@ inline bool isSafeArchiveEntryPath(const std::string& fileName)
       "com5", "com6", "com7", "com8", "com9", "lpt1", "lpt2", "lpt3",
       "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9"};
 
+  // Windows has historically also treated certain Unicode superscript
+  // digits as equivalent to the corresponding ASCII digit in COM/LPT
+  // device names (e.g. "COM¹" behaves like "COM1").
+  static const std::string kReservedSuperscriptDigits[] = {
+      "\xC2\xB9",     // U+00B9 SUPERSCRIPT ONE   -> 1
+      "\xC2\xB2",     // U+00B2 SUPERSCRIPT TWO   -> 2
+      "\xC2\xB3",     // U+00B3 SUPERSCRIPT THREE -> 3
+      "\xE2\x81\xB4", // U+2074 SUPERSCRIPT FOUR
+      "\xE2\x81\xB5", // U+2075 SUPERSCRIPT FIVE
+      "\xE2\x81\xB6", // U+2076 SUPERSCRIPT SIX
+      "\xE2\x81\xB7", // U+2077 SUPERSCRIPT SEVEN
+      "\xE2\x81\xB8", // U+2078 SUPERSCRIPT EIGHT
+      "\xE2\x81\xB9", // U+2079 SUPERSCRIPT NINE
+  };
+
   size_t start = 0;
   while (start <= fileName.size())
   {
@@ -57,6 +74,14 @@ inline bool isSafeArchiveEntryPath(const std::string& fileName)
     std::string component = fileName.substr(start, end - start);
     if (component == "..")
       return false;
+
+    // Windows strips trailing spaces and dots off a path component
+    // before resolving it, so "con " and "con." are treated exactly
+    // like "con" for the reserved-device-name check below.
+    while (!component.empty() &&
+           (component.back() == ' ' || component.back() == '.'))
+      component.pop_back();
+
     // Compare the component up to a trailing extension too (Windows
     // treats "NUL.txt" the same as "NUL").
     std::string baseName =
@@ -66,9 +91,48 @@ inline bool isSafeArchiveEntryPath(const std::string& fileName)
       if (baseName == reserved)
         return false;
     }
+    for (auto& digit : kReservedSuperscriptDigits)
+    {
+      if (baseName == "com" + digit || baseName == "lpt" + digit)
+        return false;
+    }
     start = end + 1;
   }
   return true;
+}
+
+// Creates a fresh directory with an unpredictable name as a sibling of
+// parentDir's own eventual contents (so a later move_file() onto a path
+// under parentDir stays on the same filesystem and is atomic), and
+// returns its path. Used to extract an archive into before moving it
+// into place: since the name is unguessable and freshly created by us,
+// nothing else can have planted a symlink inside it beforehand, closing
+// the TOCTOU window a plain mkdir(destination)+extract would leave open
+// between destination's creation and the first write into it.
+inline std::string makeStagingDirectory(const std::string& parentDir)
+{
+  std::random_device rd;
+  std::mt19937_64 rng(rd());
+  std::runtime_error lastError("Could not create a staging directory");
+  for (int attempt = 0; attempt < 8; ++attempt)
+  {
+    std::ostringstream name;
+    name << ".besprited-extract-" << std::hex << rng() << rng();
+    auto path = base::fix_path_separators(
+        parentDir + base::path_separator + name.str());
+    try
+    {
+      base::make_directory(path);
+      return path;
+    }
+    catch (const std::exception& ex)
+    {
+      // Name collision (astronomically unlikely) or a transient
+      // failure; retry with a fresh random name.
+      lastError = std::runtime_error(ex.what());
+    }
+  }
+  throw lastError;
 }
 
 } // namespace extension_format_detail
@@ -104,7 +168,11 @@ public:
     // amount of data on disk (a "zip bomb", CWE-409). Cap the total bytes
     // written across the whole archive (see issue #219).
     constexpr uint64_t kMaxExtractedBytes = 1ull << 30; // 1 GiB
+    // A byte cap alone doesn't stop an archive with millions of
+    // zero-byte entries from exhausting inodes/directory entries.
+    constexpr uint64_t kMaxEntries = 100000;
     uint64_t totalWritten = 0;
+    uint64_t entryCount = 0;
 
     for (;;)
     {
@@ -114,7 +182,12 @@ public:
         break;
       if (r != ARCHIVE_OK)
         throw std::runtime_error("Error reading archive");
-      std::string fileName = archive_entry_pathname(entry);
+      if (++entryCount > kMaxEntries)
+        throw std::runtime_error("Archive contains too many entries");
+      const char* rawName = archive_entry_pathname(entry);
+      if (!rawName)
+        throw std::runtime_error("Archive entry has no name");
+      std::string fileName = rawName;
       if (!extension_format_detail::isSafeArchiveEntryPath(fileName))
         throw std::runtime_error(
             "Archive entry escapes destination directory: " + fileName);
