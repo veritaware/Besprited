@@ -170,9 +170,9 @@ void EyedropperCommand::onExecute(Context* context)
     pref.colorBar.fgColor(color);
 }
 
-Command* CommandFactory::createEyedropperCommand()
+std::unique_ptr<Command> CommandFactory::createEyedropperCommand()
 {
-  return new EyedropperCommand;
+  return std::make_unique<EyedropperCommand>();
 }
 
 } // namespace app

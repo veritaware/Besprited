@@ -282,9 +282,9 @@ std::string MoveMaskCommand::onGetFriendlyName() const
   return text;
 }
 
-Command* CommandFactory::createMoveMaskCommand()
+std::unique_ptr<Command> CommandFactory::createMoveMaskCommand()
 {
-  return new MoveMaskCommand;
+  return std::make_unique<MoveMaskCommand>();
 }
 
 } // namespace app

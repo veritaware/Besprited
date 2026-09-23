@@ -78,7 +78,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new ShareCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override
@@ -112,9 +111,9 @@ protected:
   }
 };
 
-Command* CommandFactory::createShareCommand()
+std::unique_ptr<Command> CommandFactory::createShareCommand()
 {
-  return new ShareCommand;
+  return std::make_unique<ShareCommand>();
 }
 
 } // namespace app

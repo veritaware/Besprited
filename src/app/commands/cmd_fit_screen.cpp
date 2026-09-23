@@ -25,7 +25,6 @@ class FitScreenCommand : public Command
 {
 public:
   FitScreenCommand();
-  Command* clone() const override { return new FitScreenCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -63,9 +62,9 @@ void FitScreenCommand::onExecute(Context* context)
                                   Editor::ZoomBehavior::CENTER);
 }
 
-Command* CommandFactory::createFitScreenCommand()
+std::unique_ptr<Command> CommandFactory::createFitScreenCommand()
 {
-  return new FitScreenCommand;
+  return std::make_unique<FitScreenCommand>();
 }
 
 } // namespace app

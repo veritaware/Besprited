@@ -27,7 +27,6 @@ public:
   };
 
   SetPaletteCommand();
-  Command* clone() const override { return new SetPaletteCommand(*this); }
 
   void setPalette(const doc::Palette* palette) { m_palette = palette; }
 

@@ -24,7 +24,6 @@ class DeselectMaskCommand : public Command
 {
 public:
   DeselectMaskCommand();
-  Command* clone() const override { return new DeselectMaskCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -55,9 +54,9 @@ void DeselectMaskCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createDeselectMaskCommand()
+std::unique_ptr<Command> CommandFactory::createDeselectMaskCommand()
 {
-  return new DeselectMaskCommand;
+  return std::make_unique<DeselectMaskCommand>();
 }
 
 } // namespace app

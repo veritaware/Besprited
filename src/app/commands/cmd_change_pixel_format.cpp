@@ -31,10 +31,6 @@ class ChangePixelFormatCommand : public Command
 
 public:
   ChangePixelFormatCommand();
-  Command* clone() const override
-  {
-    return new ChangePixelFormatCommand(*this);
-  }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -105,9 +101,9 @@ void ChangePixelFormatCommand::onExecute(Context* context)
   app_refresh_screen();
 }
 
-Command* CommandFactory::createChangePixelFormatCommand()
+std::unique_ptr<Command> CommandFactory::createChangePixelFormatCommand()
 {
-  return new ChangePixelFormatCommand;
+  return std::make_unique<ChangePixelFormatCommand>();
 }
 
 } // namespace app

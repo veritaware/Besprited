@@ -51,7 +51,6 @@ class RemoveLayerCommand : public Command
 {
 public:
   RemoveLayerCommand();
-  Command* clone() const override { return new RemoveLayerCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -144,9 +143,9 @@ void RemoveLayerCommand::onExecute(Context* context)
     StatusBar::instance()->showTip(1000, "Layers removed");
 }
 
-Command* CommandFactory::createRemoveLayerCommand()
+std::unique_ptr<Command> CommandFactory::createRemoveLayerCommand()
 {
-  return new RemoveLayerCommand;
+  return std::make_unique<RemoveLayerCommand>();
 }
 
 } // namespace app

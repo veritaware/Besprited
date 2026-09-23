@@ -25,7 +25,6 @@ class SpriteSizeCommand : public Command
 {
 public:
   SpriteSizeCommand();
-  Command* clone() const override;
 
   void setScale(double x, double y)
   {

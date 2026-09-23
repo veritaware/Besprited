@@ -9,6 +9,7 @@
 
 #include "ui/base.h"
 
+#include <memory>
 #include <vector>
 
 namespace app
@@ -23,7 +24,7 @@ struct CommandId
 };
 
 class Command;
-using CommandsList = std::vector<Command*>;
+using CommandsList = std::vector<std::unique_ptr<Command>>;
 
 class CommandsModule
 {

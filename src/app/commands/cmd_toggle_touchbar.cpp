@@ -26,7 +26,6 @@ namespace app
 class ToggleTouchbarCommand : public Command
 {
 public:
-  Command* clone() const override { return new ToggleTouchbarCommand(*this); }
 
   ToggleTouchbarCommand()
     : Command{"ToggleTouchbar", "Toggle Touchbar", CmdUIOnlyFlag}
@@ -49,9 +48,9 @@ protected:
   }
 };
 
-Command* CommandFactory::createToggleTouchbarCommand()
+std::unique_ptr<Command> CommandFactory::createToggleTouchbarCommand()
 {
-  return new ToggleTouchbarCommand;
+  return std::make_unique<ToggleTouchbarCommand>();
 }
 
 } // namespace app

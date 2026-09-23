@@ -20,7 +20,6 @@ class CopyMergedCommand : public Command
 {
 public:
   CopyMergedCommand();
-  Command* clone() const override { return new CopyMergedCommand(*this); }
 
 protected:
   bool onEnabled(Context* ctx) override;
@@ -44,9 +43,9 @@ void CopyMergedCommand::onExecute(Context* ctx)
   clipboard::copy_merged(reader);
 }
 
-Command* CommandFactory::createCopyMergedCommand()
+std::unique_ptr<Command> CommandFactory::createCopyMergedCommand()
 {
-  return new CopyMergedCommand;
+  return std::make_unique<CopyMergedCommand>();
 }
 
 } // namespace app

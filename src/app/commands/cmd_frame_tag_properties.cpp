@@ -34,10 +34,6 @@ class FrameTagPropertiesCommand : public Command
 {
 public:
   FrameTagPropertiesCommand();
-  Command* clone() const override
-  {
-    return new FrameTagPropertiesCommand(*this);
-  }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -118,9 +114,9 @@ void FrameTagPropertiesCommand::onExecute(Context* context)
   transaction.commit();
 }
 
-Command* CommandFactory::createFrameTagPropertiesCommand()
+std::unique_ptr<Command> CommandFactory::createFrameTagPropertiesCommand()
 {
-  return new FrameTagPropertiesCommand;
+  return std::make_unique<FrameTagPropertiesCommand>();
 }
 
 } // namespace app

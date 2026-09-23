@@ -261,9 +261,9 @@ std::string RotateCommand::onGetFriendlyName() const
   return text;
 }
 
-Command* CommandFactory::createRotateCommand()
+std::unique_ptr<Command> CommandFactory::createRotateCommand()
 {
-  return new RotateCommand;
+  return std::make_unique<RotateCommand>();
 }
 
 } // namespace app

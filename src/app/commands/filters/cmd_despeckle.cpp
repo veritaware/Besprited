@@ -86,7 +86,6 @@ class DespeckleCommand : public Command
 {
 public:
   DespeckleCommand();
-  Command* clone() const override { return new DespeckleCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -126,9 +125,9 @@ void DespeckleCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createDespeckleCommand()
+std::unique_ptr<Command> CommandFactory::createDespeckleCommand()
 {
-  return new DespeckleCommand;
+  return std::make_unique<DespeckleCommand>();
 }
 
 } // namespace app

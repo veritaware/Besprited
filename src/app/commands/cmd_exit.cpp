@@ -24,7 +24,6 @@ class ExitCommand : public Command
 {
 public:
   ExitCommand();
-  Command* clone() const override { return new ExitCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override
@@ -62,9 +61,9 @@ void ExitCommand::onExecute(Context* ctx)
   App::instance()->mainWindow()->closeWindow(nullptr);
 }
 
-Command* CommandFactory::createExitCommand()
+std::unique_ptr<Command> CommandFactory::createExitCommand()
 {
-  return new ExitCommand;
+  return std::make_unique<ExitCommand>();
 }
 
 } // namespace app

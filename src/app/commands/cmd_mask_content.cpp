@@ -33,7 +33,6 @@ class MaskContentCommand : public Command
 {
 public:
   MaskContentCommand();
-  Command* clone() const override { return new MaskContentCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -103,9 +102,9 @@ void MaskContentCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createMaskContentCommand()
+std::unique_ptr<Command> CommandFactory::createMaskContentCommand()
 {
-  return new MaskContentCommand;
+  return std::make_unique<MaskContentCommand>();
 }
 
 } // namespace app

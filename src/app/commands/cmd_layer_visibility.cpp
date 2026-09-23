@@ -24,7 +24,6 @@ class LayerVisibilityCommand : public Command
 {
 public:
   LayerVisibilityCommand();
-  Command* clone() const override { return new LayerVisibilityCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -60,9 +59,9 @@ void LayerVisibilityCommand::onExecute(Context* context)
   update_screen_for_document(writer.document());
 }
 
-Command* CommandFactory::createLayerVisibilityCommand()
+std::unique_ptr<Command> CommandFactory::createLayerVisibilityCommand()
 {
-  return new LayerVisibilityCommand;
+  return std::make_unique<LayerVisibilityCommand>();
 }
 
 } // namespace app

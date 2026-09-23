@@ -36,7 +36,6 @@ class SpritePropertiesCommand : public Command
 {
 public:
   SpritePropertiesCommand();
-  Command* clone() const override { return new SpritePropertiesCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -149,9 +148,9 @@ void SpritePropertiesCommand::onExecute(Context* context)
   save_window_pos(&window, "SpriteProperties");
 }
 
-Command* CommandFactory::createSpritePropertiesCommand()
+std::unique_ptr<Command> CommandFactory::createSpritePropertiesCommand()
 {
-  return new SpritePropertiesCommand;
+  return std::make_unique<SpritePropertiesCommand>();
 }
 
 } // namespace app

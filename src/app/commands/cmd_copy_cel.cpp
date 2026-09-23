@@ -22,7 +22,6 @@ class CopyCelCommand : public Command
 {
 public:
   CopyCelCommand();
-  Command* clone() const override { return new CopyCelCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -44,9 +43,9 @@ void CopyCelCommand::onExecute(Context* context)
   App::instance()->timeline()->dropRange(Timeline::kCopy);
 }
 
-Command* CommandFactory::createCopyCelCommand()
+std::unique_ptr<Command> CommandFactory::createCopyCelCommand()
 {
-  return new CopyCelCommand;
+  return std::make_unique<CopyCelCommand>();
 }
 
 } // namespace app

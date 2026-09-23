@@ -137,9 +137,9 @@ std::string ChangeBrushCommand::onGetFriendlyName() const
   return text;
 }
 
-Command* CommandFactory::createChangeBrushCommand()
+std::unique_ptr<Command> CommandFactory::createChangeBrushCommand()
 {
-  return new ChangeBrushCommand;
+  return std::make_unique<ChangeBrushCommand>();
 }
 
 } // namespace app

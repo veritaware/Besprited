@@ -30,7 +30,6 @@ class SavePaletteCommand : public Command
 {
 public:
   SavePaletteCommand();
-  Command* clone() const override { return new SavePaletteCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -80,9 +79,9 @@ void SavePaletteCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createSavePaletteCommand()
+std::unique_ptr<Command> CommandFactory::createSavePaletteCommand()
 {
-  return new SavePaletteCommand;
+  return std::make_unique<SavePaletteCommand>();
 }
 
 } // namespace app

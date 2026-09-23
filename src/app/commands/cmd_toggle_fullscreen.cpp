@@ -27,7 +27,6 @@ class ToggleFullscreenCommand : public Command
 {
 public:
   ToggleFullscreenCommand();
-  Command* clone() const override { return new ToggleFullscreenCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -60,9 +59,9 @@ std::string ToggleFullscreenCommand::onGetFriendlyName() const
   return "Toggle Fullscreen";
 }
 
-Command* CommandFactory::createToggleFullscreenCommand()
+std::unique_ptr<Command> CommandFactory::createToggleFullscreenCommand()
 {
-  return new ToggleFullscreenCommand;
+  return std::make_unique<ToggleFullscreenCommand>();
 }
 
 } // namespace app

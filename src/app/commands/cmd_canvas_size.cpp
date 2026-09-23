@@ -317,7 +317,6 @@ class CanvasSizeCommand : public Command
 
 public:
   CanvasSizeCommand();
-  Command* clone() const override { return new CanvasSizeCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -390,9 +389,9 @@ void CanvasSizeCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createCanvasSizeCommand()
+std::unique_ptr<Command> CommandFactory::createCanvasSizeCommand()
 {
-  return new CanvasSizeCommand;
+  return std::make_unique<CanvasSizeCommand>();
 }
 
 } // namespace app

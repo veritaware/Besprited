@@ -26,7 +26,6 @@ class SaveMaskCommand : public Command
 {
 public:
   SaveMaskCommand();
-  Command* clone() const override { return new SaveMaskCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -59,9 +58,9 @@ void SaveMaskCommand::onExecute(Context* context)
                     filename.c_str());
 }
 
-Command* CommandFactory::createSaveMaskCommand()
+std::unique_ptr<Command> CommandFactory::createSaveMaskCommand()
 {
-  return new SaveMaskCommand;
+  return std::make_unique<SaveMaskCommand>();
 }
 
 } // namespace app

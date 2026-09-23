@@ -23,7 +23,6 @@ class SetInkTypeCommand : public Command
 {
 public:
   SetInkTypeCommand();
-  Command* clone() const override { return new SetInkTypeCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -73,9 +72,9 @@ std::string SetInkTypeCommand::onGetFriendlyName() const
   return "Set Ink Type: " + tools::ink_type_to_string(m_type);
 }
 
-Command* CommandFactory::createSetInkTypeCommand()
+std::unique_ptr<Command> CommandFactory::createSetInkTypeCommand()
 {
-  return new SetInkTypeCommand;
+  return std::make_unique<SetInkTypeCommand>();
 }
 
 } // namespace app

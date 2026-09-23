@@ -25,10 +25,6 @@ class LayerFromBackgroundCommand : public Command
 {
 public:
   LayerFromBackgroundCommand();
-  Command* clone() const override
-  {
-    return new LayerFromBackgroundCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -61,9 +57,9 @@ void LayerFromBackgroundCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createLayerFromBackgroundCommand()
+std::unique_ptr<Command> CommandFactory::createLayerFromBackgroundCommand()
 {
-  return new LayerFromBackgroundCommand;
+  return std::make_unique<LayerFromBackgroundCommand>();
 }
 
 } // namespace app

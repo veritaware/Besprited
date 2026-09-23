@@ -24,7 +24,6 @@ class SetSameInkCommand : public Command
 {
 public:
   SetSameInkCommand();
-  Command* clone() const override { return new SetSameInkCommand(*this); }
 
 protected:
   bool onChecked(Context* context) override;
@@ -64,9 +63,9 @@ void SetSameInkCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createSetSameInkCommand()
+std::unique_ptr<Command> CommandFactory::createSetSameInkCommand()
 {
-  return new SetSameInkCommand;
+  return std::make_unique<SetSameInkCommand>();
 }
 
 } // namespace app

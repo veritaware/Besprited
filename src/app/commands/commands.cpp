@@ -46,9 +46,6 @@ CommandsModule::~CommandsModule()
 {
   ASSERT(m_instance == this);
 
-  for (Command* cmd : m_commands)
-    delete cmd;
-
   m_commands.clear();
   m_instance = nullptr;
 }
@@ -65,10 +62,10 @@ Command* CommandsModule::getCommandByName(const char* name)
     return nullptr;
 
   std::string lname = base::string_to_lower(name);
-  for (Command* cmd : m_commands)
+  for (const auto& cmd : m_commands)
   {
     if (base::utf8_icmp(cmd->id(), lname) == 0)
-      return cmd;
+      return cmd.get();
   }
 
   return nullptr;

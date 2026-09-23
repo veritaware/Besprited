@@ -28,7 +28,6 @@ class RefreshCommand : public Command
 {
 public:
   RefreshCommand();
-  Command* clone() const override { return new RefreshCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -62,9 +61,9 @@ void RefreshCommand::onExecute(Context* context)
 #endif
 }
 
-Command* CommandFactory::createRefreshCommand()
+std::unique_ptr<Command> CommandFactory::createRefreshCommand()
 {
-  return new RefreshCommand;
+  return std::make_unique<RefreshCommand>();
 }
 
 } // namespace app

@@ -25,7 +25,6 @@ class TimelineCommand : public Command
 {
 public:
   TimelineCommand();
-  Command* clone() const override { return new TimelineCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -92,9 +91,9 @@ bool TimelineCommand::onChecked(Context* ctx)
   return (timelineWin && timelineWin->isVisible());
 }
 
-Command* CommandFactory::createTimelineCommand()
+std::unique_ptr<Command> CommandFactory::createTimelineCommand()
 {
-  return new TimelineCommand;
+  return std::make_unique<TimelineCommand>();
 }
 
 } // namespace app

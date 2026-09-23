@@ -34,10 +34,6 @@ class NewSpriteFromSelectionCommand : public Command
 {
 public:
   NewSpriteFromSelectionCommand();
-  Command* clone() const override
-  {
-    return new NewSpriteFromSelectionCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -90,9 +86,9 @@ void NewSpriteFromSelectionCommand::onExecute(Context* context)
   dstDoc.release();
 }
 
-Command* CommandFactory::createNewSpriteFromSelectionCommand()
+std::unique_ptr<Command> CommandFactory::createNewSpriteFromSelectionCommand()
 {
-  return new NewSpriteFromSelectionCommand();
+  return std::make_unique<NewSpriteFromSelectionCommand>();
 }
 
 } // namespace app

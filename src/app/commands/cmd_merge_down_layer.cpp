@@ -36,7 +36,6 @@ class MergeDownLayerCommand : public Command
 {
 public:
   MergeDownLayerCommand();
-  Command* clone() const override { return new MergeDownLayerCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -162,9 +161,9 @@ void MergeDownLayerCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createMergeDownLayerCommand()
+std::unique_ptr<Command> CommandFactory::createMergeDownLayerCommand()
 {
-  return new MergeDownLayerCommand;
+  return std::make_unique<MergeDownLayerCommand>();
 }
 
 } // namespace app

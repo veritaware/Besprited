@@ -24,7 +24,6 @@ class PixelPerfectModeCommand : public Command
 {
 public:
   PixelPerfectModeCommand();
-  Command* clone() const override { return new PixelPerfectModeCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -66,9 +65,9 @@ void PixelPerfectModeCommand::onExecute(Context* ctx)
                                  : tools::FreehandAlgorithm::DEFAULT);
 }
 
-Command* CommandFactory::createPixelPerfectModeCommand()
+std::unique_ptr<Command> CommandFactory::createPixelPerfectModeCommand()
 {
-  return new PixelPerfectModeCommand;
+  return std::make_unique<PixelPerfectModeCommand>();
 }
 
 } // namespace app

@@ -170,10 +170,6 @@ class StrokeCommand : public Command
 {
 public:
   StrokeCommand();
-  [[nodiscard]] Command* clone() const override
-  {
-    return new StrokeCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -230,19 +226,15 @@ void StrokeCommand::onExecute(Context* context)
   stroke_mask(context, color, opacity, width, position, "Stroke Selection");
 }
 
-Command* CommandFactory::createStrokeCommand()
+std::unique_ptr<Command> CommandFactory::createStrokeCommand()
 {
-  return new StrokeCommand;
+  return std::make_unique<StrokeCommand>();
 }
 
 class QuickStrokeCommand : public Command
 {
 public:
   QuickStrokeCommand();
-  [[nodiscard]] Command* clone() const override
-  {
-    return new QuickStrokeCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -268,9 +260,9 @@ void QuickStrokeCommand::onExecute(Context* context)
               app::gen::StrokePosition::INSIDE, "Quick Stroke Selection");
 }
 
-Command* CommandFactory::createQuickStrokeCommand()
+std::unique_ptr<Command> CommandFactory::createQuickStrokeCommand()
 {
-  return new QuickStrokeCommand;
+  return std::make_unique<QuickStrokeCommand>();
 }
 
 } // namespace app

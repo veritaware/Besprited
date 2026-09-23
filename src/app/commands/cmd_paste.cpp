@@ -20,7 +20,6 @@ class PasteCommand : public Command
 {
 public:
   PasteCommand();
-  Command* clone() const override { return new PasteCommand(*this); }
 
 protected:
   bool onEnabled(Context* ctx) override;
@@ -42,9 +41,9 @@ void PasteCommand::onExecute(Context* ctx)
   App::instance()->inputChain().paste(ctx);
 }
 
-Command* CommandFactory::createPasteCommand()
+std::unique_ptr<Command> CommandFactory::createPasteCommand()
 {
-  return new PasteCommand;
+  return std::make_unique<PasteCommand>();
 }
 
 } // namespace app

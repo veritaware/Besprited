@@ -246,7 +246,6 @@ class UndoHistoryCommand : public Command
 {
 public:
   UndoHistoryCommand();
-  Command* clone() const override { return new UndoHistoryCommand(*this); }
 
 protected:
   void onExecute(Context* ctx) override;
@@ -270,9 +269,9 @@ void UndoHistoryCommand::onExecute(Context* ctx)
     g_window->openWindow();
 }
 
-Command* CommandFactory::createUndoHistoryCommand()
+std::unique_ptr<Command> CommandFactory::createUndoHistoryCommand()
 {
-  return new UndoHistoryCommand;
+  return std::make_unique<UndoHistoryCommand>();
 }
 
 } // namespace app

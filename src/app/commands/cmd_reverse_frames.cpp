@@ -23,7 +23,6 @@ class ReverseFramesCommand : public Command
 {
 public:
   ReverseFramesCommand();
-  Command* clone() const override { return new ReverseFramesCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -56,9 +55,9 @@ void ReverseFramesCommand::onExecute(Context* context)
   update_screen_for_document(doc);
 }
 
-Command* CommandFactory::createReverseFramesCommand()
+std::unique_ptr<Command> CommandFactory::createReverseFramesCommand()
 {
-  return new ReverseFramesCommand;
+  return std::make_unique<ReverseFramesCommand>();
 }
 
 } // namespace app

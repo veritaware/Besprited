@@ -22,7 +22,6 @@ class TogglePreviewCommand : public Command
 {
 public:
   TogglePreviewCommand();
-  Command* clone() const override { return new TogglePreviewCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -60,9 +59,9 @@ void TogglePreviewCommand::onExecute(Context* context)
   previewWin->setPreviewEnabled(!state);
 }
 
-Command* CommandFactory::createTogglePreviewCommand()
+std::unique_ptr<Command> CommandFactory::createTogglePreviewCommand()
 {
-  return new TogglePreviewCommand;
+  return std::make_unique<TogglePreviewCommand>();
 }
 
 } // namespace app

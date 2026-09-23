@@ -36,7 +36,6 @@ public:
   };
 
   SetLoopSectionCommand();
-  Command* clone() const override { return new SetLoopSectionCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -156,9 +155,9 @@ void SetLoopSectionCommand::onExecute(Context* ctx)
   App::instance()->timeline()->invalidate();
 }
 
-Command* CommandFactory::createSetLoopSectionCommand()
+std::unique_ptr<Command> CommandFactory::createSetLoopSectionCommand()
 {
-  return new SetLoopSectionCommand;
+  return std::make_unique<SetLoopSectionCommand>();
 }
 
 } // namespace app

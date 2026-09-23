@@ -25,7 +25,6 @@ class PlayAnimationCommand : public Command
 {
 public:
   PlayAnimationCommand();
-  Command* clone() const override { return new PlayAnimationCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -63,9 +62,9 @@ void PlayAnimationCommand::onExecute(Context* context)
     current_editor->play(Preferences::instance().editor.playOnce());
 }
 
-Command* CommandFactory::createPlayAnimationCommand()
+std::unique_ptr<Command> CommandFactory::createPlayAnimationCommand()
 {
-  return new PlayAnimationCommand;
+  return std::make_unique<PlayAnimationCommand>();
 }
 
 } // namespace app

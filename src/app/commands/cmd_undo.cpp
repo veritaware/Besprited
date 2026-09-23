@@ -39,7 +39,6 @@ public:
   };
 
   UndoCommand(Type type);
-  Command* clone() const override { return new UndoCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -135,14 +134,14 @@ void UndoCommand::onExecute(Context* context)
   set_current_palette(writer.palette(), false);
 }
 
-Command* CommandFactory::createUndoCommand()
+std::unique_ptr<Command> CommandFactory::createUndoCommand()
 {
-  return new UndoCommand(UndoCommand::Undo);
+  return std::make_unique<UndoCommand>(UndoCommand::Undo);
 }
 
-Command* CommandFactory::createRedoCommand()
+std::unique_ptr<Command> CommandFactory::createRedoCommand()
 {
-  return new UndoCommand(UndoCommand::Redo);
+  return std::make_unique<UndoCommand>(UndoCommand::Redo);
 }
 
 } // namespace app

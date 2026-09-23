@@ -28,7 +28,6 @@ class UnlinkCelCommand : public Command
 {
 public:
   UnlinkCelCommand();
-  Command* clone() const override { return new UnlinkCelCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -103,9 +102,9 @@ void UnlinkCelCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createUnlinkCelCommand()
+std::unique_ptr<Command> CommandFactory::createUnlinkCelCommand()
 {
-  return new UnlinkCelCommand;
+  return std::make_unique<UnlinkCelCommand>();
 }
 
 } // namespace app

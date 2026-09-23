@@ -27,7 +27,6 @@ class RunScriptCommand : public Command
 {
 public:
   RunScriptCommand();
-  Command* clone() const override { return new RunScriptCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -53,9 +52,9 @@ void RunScriptCommand::onExecute(Context* context)
   ui::Manager::getDefault()->invalidate();
 }
 
-Command* CommandFactory::createRunScriptCommand()
+std::unique_ptr<Command> CommandFactory::createRunScriptCommand()
 {
-  return new RunScriptCommand;
+  return std::make_unique<RunScriptCommand>();
 }
 
 } // namespace app

@@ -44,7 +44,6 @@ class LayerPropertiesCommand : public Command
 {
 public:
   LayerPropertiesCommand();
-  Command* clone() const override { return new LayerPropertiesCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -330,9 +329,9 @@ void LayerPropertiesCommand::onExecute(Context* context)
   g_window->name()->requestFocus();
 }
 
-Command* CommandFactory::createLayerPropertiesCommand()
+std::unique_ptr<Command> CommandFactory::createLayerPropertiesCommand()
 {
-  return new LayerPropertiesCommand;
+  return std::make_unique<LayerPropertiesCommand>();
 }
 
 } // namespace app

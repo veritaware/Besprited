@@ -898,10 +898,6 @@ class ExportSpriteSheetCommand : public Command
 {
 public:
   ExportSpriteSheetCommand();
-  Command* clone() const override
-  {
-    return new ExportSpriteSheetCommand(*this);
-  }
 
   void setUseUI(bool useUI) { m_useUI = useUI; }
 
@@ -1203,9 +1199,9 @@ void ExportSpriteSheetCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createExportSpriteSheetCommand()
+std::unique_ptr<Command> CommandFactory::createExportSpriteSheetCommand()
 {
-  return new ExportSpriteSheetCommand;
+  return std::make_unique<ExportSpriteSheetCommand>();
 }
 
 } // namespace app

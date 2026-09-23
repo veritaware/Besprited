@@ -24,7 +24,6 @@ class MaskAllCommand : public Command
 {
 public:
   MaskAllCommand();
-  Command* clone() const override { return new MaskAllCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -60,9 +59,9 @@ void MaskAllCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createMaskAllCommand()
+std::unique_ptr<Command> CommandFactory::createMaskAllCommand()
 {
-  return new MaskAllCommand;
+  return std::make_unique<MaskAllCommand>();
 }
 
 } // namespace app

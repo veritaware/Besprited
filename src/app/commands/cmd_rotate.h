@@ -16,7 +16,6 @@ class RotateCommand : public Command
 {
 public:
   RotateCommand();
-  Command* clone() const override { return new RotateCommand(*this); }
 
   bool flipMask() const { return m_flipMask; }
   int angle() const { return m_angle; }

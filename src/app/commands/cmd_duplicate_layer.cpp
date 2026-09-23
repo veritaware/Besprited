@@ -30,7 +30,6 @@ class DuplicateLayerCommand : public Command
 {
 public:
   DuplicateLayerCommand();
-  Command* clone() const override { return new DuplicateLayerCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -65,9 +64,9 @@ void DuplicateLayerCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createDuplicateLayerCommand()
+std::unique_ptr<Command> CommandFactory::createDuplicateLayerCommand()
 {
-  return new DuplicateLayerCommand;
+  return std::make_unique<DuplicateLayerCommand>();
 }
 
 } // namespace app

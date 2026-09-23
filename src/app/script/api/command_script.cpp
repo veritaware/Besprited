@@ -57,8 +57,9 @@ public:
     // throws a catchable error instead of dereferencing freed memory (issue
     // #232). Re-exposing the raw commands here is left disabled rather than
     // re-litigated as part of that fix (see issue #219).
-    for (auto cmd : *app::CommandsModule::instance())
+    for (auto& cmdPtr : *app::CommandsModule::instance())
     {
+      app::Command* cmd = cmdPtr.get();
       std::string id = cmd->id();
       // Exit executes CloseAllFiles internally (cmd_exit.cpp) when there
       // are modified documents, reaching the same UAF class as CloseFile/

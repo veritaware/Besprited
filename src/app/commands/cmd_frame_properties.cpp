@@ -31,7 +31,6 @@ class FramePropertiesCommand : public Command
 {
 public:
   FramePropertiesCommand();
-  Command* clone() const override { return new FramePropertiesCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -141,9 +140,9 @@ void FramePropertiesCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createFramePropertiesCommand()
+std::unique_ptr<Command> CommandFactory::createFramePropertiesCommand()
 {
-  return new FramePropertiesCommand;
+  return std::make_unique<FramePropertiesCommand>();
 }
 
 } // namespace app

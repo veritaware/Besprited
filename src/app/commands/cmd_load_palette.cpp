@@ -31,7 +31,6 @@ class LoadPaletteCommand : public Command
 {
 public:
   LoadPaletteCommand();
-  Command* clone() const override { return new LoadPaletteCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -85,9 +84,9 @@ void LoadPaletteCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createLoadPaletteCommand()
+std::unique_ptr<Command> CommandFactory::createLoadPaletteCommand()
 {
-  return new LoadPaletteCommand;
+  return std::make_unique<LoadPaletteCommand>();
 }
 
 } // namespace app

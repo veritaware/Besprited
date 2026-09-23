@@ -25,7 +25,6 @@ class DuplicateViewCommand : public Command
 {
 public:
   DuplicateViewCommand();
-  Command* clone() const override { return new DuplicateViewCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -49,9 +48,9 @@ void DuplicateViewCommand::onExecute(Context* context)
   App::instance()->workspace()->duplicateActiveView();
 }
 
-Command* CommandFactory::createDuplicateViewCommand()
+std::unique_ptr<Command> CommandFactory::createDuplicateViewCommand()
 {
-  return new DuplicateViewCommand;
+  return std::make_unique<DuplicateViewCommand>();
 }
 
 } // namespace app

@@ -38,7 +38,6 @@ class OpenFileCommand : public Command
 {
 public:
   OpenFileCommand();
-  Command* clone() const override { return new OpenFileCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -177,9 +176,9 @@ void OpenFileCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createOpenFileCommand()
+std::unique_ptr<Command> CommandFactory::createOpenFileCommand()
 {
-  return new OpenFileCommand;
+  return std::make_unique<OpenFileCommand>();
 }
 
 } // namespace app

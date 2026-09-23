@@ -22,7 +22,6 @@ class SymmetryModeCommand : public Command
 {
 public:
   SymmetryModeCommand();
-  Command* clone() const override { return new SymmetryModeCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -52,9 +51,9 @@ void SymmetryModeCommand::onExecute(Context* ctx)
   enabled(!enabled());
 }
 
-Command* CommandFactory::createSymmetryModeCommand()
+std::unique_ptr<Command> CommandFactory::createSymmetryModeCommand()
 {
-  return new SymmetryModeCommand;
+  return std::make_unique<SymmetryModeCommand>();
 }
 
 } // namespace app

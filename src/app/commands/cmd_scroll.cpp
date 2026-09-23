@@ -45,7 +45,6 @@ public:
   };
 
   ScrollCommand();
-  Command* clone() const override { return new ScrollCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -215,9 +214,9 @@ std::string ScrollCommand::onGetFriendlyName() const
   return text;
 }
 
-Command* CommandFactory::createScrollCommand()
+std::unique_ptr<Command> CommandFactory::createScrollCommand()
 {
-  return new ScrollCommand;
+  return std::make_unique<ScrollCommand>();
 }
 
 } // namespace app

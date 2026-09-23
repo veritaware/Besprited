@@ -21,10 +21,6 @@ class SetPaletteEntrySizeCommand : public Command
 {
 public:
   SetPaletteEntrySizeCommand();
-  Command* clone() const override
-  {
-    return new SetPaletteEntrySizeCommand(*this);
-  }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -56,9 +52,9 @@ void SetPaletteEntrySizeCommand::onExecute(Context* context)
   ColorBar::instance()->getPaletteView()->setBoxSize(m_size);
 }
 
-Command* CommandFactory::createSetPaletteEntrySizeCommand()
+std::unique_ptr<Command> CommandFactory::createSetPaletteEntrySizeCommand()
 {
-  return new SetPaletteEntrySizeCommand;
+  return std::make_unique<SetPaletteEntrySizeCommand>();
 }
 
 } // namespace app

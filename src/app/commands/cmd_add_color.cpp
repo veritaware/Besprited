@@ -158,9 +158,9 @@ std::string AddColorCommand::onGetFriendlyName() const
   return text;
 }
 
-Command* CommandFactory::createAddColorCommand()
+std::unique_ptr<Command> CommandFactory::createAddColorCommand()
 {
-  return new AddColorCommand;
+  return std::make_unique<AddColorCommand>();
 }
 
 } // namespace app

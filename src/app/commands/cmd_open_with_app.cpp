@@ -22,7 +22,6 @@ class OpenWithAppCommand : public Command
 {
 public:
   OpenWithAppCommand();
-  Command* clone() const override { return new OpenWithAppCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -45,9 +44,9 @@ void OpenWithAppCommand::onExecute(Context* context)
   launcher::open_file(context->activeDocument()->filename());
 }
 
-Command* CommandFactory::createOpenWithAppCommand()
+std::unique_ptr<Command> CommandFactory::createOpenWithAppCommand()
 {
-  return new OpenWithAppCommand;
+  return std::make_unique<OpenWithAppCommand>();
 }
 
 } // namespace app

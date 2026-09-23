@@ -98,10 +98,6 @@ class FillCommand : public Command
 {
 public:
   FillCommand();
-  [[nodiscard]] Command* clone() const override
-  {
-    return new FillCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -143,19 +139,15 @@ void FillCommand::onExecute(Context* context)
   fill_mask(context, color, opacity, "Fill Selection");
 }
 
-Command* CommandFactory::createFillCommand()
+std::unique_ptr<Command> CommandFactory::createFillCommand()
 {
-  return new FillCommand;
+  return std::make_unique<FillCommand>();
 }
 
 class QuickFillCommand : public Command
 {
 public:
   QuickFillCommand();
-  [[nodiscard]] Command* clone() const override
-  {
-    return new QuickFillCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -181,9 +173,9 @@ void QuickFillCommand::onExecute(Context* context)
             "Quick Fill Selection");
 }
 
-Command* CommandFactory::createQuickFillCommand()
+std::unique_ptr<Command> CommandFactory::createQuickFillCommand()
 {
-  return new QuickFillCommand;
+  return std::make_unique<QuickFillCommand>();
 }
 
 } // namespace app

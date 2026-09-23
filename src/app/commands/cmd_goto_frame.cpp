@@ -57,7 +57,6 @@ public:
     : GotoCommandBase("GotoFirstFrame", "Go to First Frame")
   {
   }
-  Command* clone() const override { return new GotoFirstFrameCommand(*this); }
 
 protected:
   frame_t onGetFrame(Editor* editor) override { return 0; }
@@ -69,10 +68,6 @@ public:
   GotoPreviousFrameCommand()
     : GotoCommandBase("GotoPreviousFrame", "Go to Previous Frame")
   {
-  }
-  Command* clone() const override
-  {
-    return new GotoPreviousFrameCommand(*this);
   }
 
 protected:
@@ -92,7 +87,6 @@ public:
     : GotoCommandBase("GotoNextFrame", "Go to Next Frame")
   {
   }
-  Command* clone() const override { return new GotoNextFrameCommand(*this); }
 
 protected:
   frame_t onGetFrame(Editor* editor) override
@@ -111,10 +105,6 @@ public:
     : GotoCommandBase("GotoNextFrameWithSameTag",
                       "Go to Next Frame with same tag")
   {
-  }
-  Command* clone() const override
-  {
-    return new GotoNextFrameWithSameTagCommand(*this);
   }
 
 protected:
@@ -137,10 +127,6 @@ public:
                       "Go to Previous Frame with same tag")
   {
   }
-  Command* clone() const override
-  {
-    return new GotoPreviousFrameWithSameTagCommand(*this);
-  }
 
 protected:
   frame_t onGetFrame(Editor* editor) override
@@ -161,7 +147,6 @@ public:
     : GotoCommandBase("GotoLastFrame", "Go to Last Frame")
   {
   }
-  Command* clone() const override { return new GotoLastFrameCommand(*this); }
 
 protected:
   frame_t onGetFrame(Editor* editor) override
@@ -177,7 +162,6 @@ public:
     : GotoCommandBase("GotoFrame", "Go to Frame")
   {
   }
-  Command* clone() const override { return new GotoFrameCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override
@@ -214,39 +198,39 @@ private:
   int m_frame = 0;
 };
 
-Command* CommandFactory::createGotoFirstFrameCommand()
+std::unique_ptr<Command> CommandFactory::createGotoFirstFrameCommand()
 {
-  return new GotoFirstFrameCommand;
+  return std::make_unique<GotoFirstFrameCommand>();
 }
 
-Command* CommandFactory::createGotoPreviousFrameCommand()
+std::unique_ptr<Command> CommandFactory::createGotoPreviousFrameCommand()
 {
-  return new GotoPreviousFrameCommand;
+  return std::make_unique<GotoPreviousFrameCommand>();
 }
 
-Command* CommandFactory::createGotoNextFrameCommand()
+std::unique_ptr<Command> CommandFactory::createGotoNextFrameCommand()
 {
-  return new GotoNextFrameCommand;
+  return std::make_unique<GotoNextFrameCommand>();
 }
 
-Command* CommandFactory::createGotoLastFrameCommand()
+std::unique_ptr<Command> CommandFactory::createGotoLastFrameCommand()
 {
-  return new GotoLastFrameCommand;
+  return std::make_unique<GotoLastFrameCommand>();
 }
 
-Command* CommandFactory::createGotoNextFrameWithSameTagCommand()
+std::unique_ptr<Command> CommandFactory::createGotoNextFrameWithSameTagCommand()
 {
-  return new GotoNextFrameWithSameTagCommand;
+  return std::make_unique<GotoNextFrameWithSameTagCommand>();
 }
 
-Command* CommandFactory::createGotoPreviousFrameWithSameTagCommand()
+std::unique_ptr<Command> CommandFactory::createGotoPreviousFrameWithSameTagCommand()
 {
-  return new GotoPreviousFrameWithSameTagCommand;
+  return std::make_unique<GotoPreviousFrameWithSameTagCommand>();
 }
 
-Command* CommandFactory::createGotoFrameCommand()
+std::unique_ptr<Command> CommandFactory::createGotoFrameCommand()
 {
-  return new GotoFrameCommand;
+  return std::make_unique<GotoFrameCommand>();
 }
 
 } // namespace app

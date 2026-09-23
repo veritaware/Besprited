@@ -26,7 +26,6 @@ class RemoveFrameCommand : public Command
 {
 public:
   RemoveFrameCommand();
-  Command* clone() const override { return new RemoveFrameCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -74,9 +73,9 @@ void RemoveFrameCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createRemoveFrameCommand()
+std::unique_ptr<Command> CommandFactory::createRemoveFrameCommand()
 {
-  return new RemoveFrameCommand;
+  return std::make_unique<RemoveFrameCommand>();
 }
 
 } // namespace app

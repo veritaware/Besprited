@@ -270,7 +270,6 @@ class SaveFileCommand : public SaveFileBaseCommand
 {
 public:
   SaveFileCommand();
-  Command* clone() const override { return new SaveFileCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -310,7 +309,6 @@ class SaveFileAsCommand : public SaveFileBaseCommand
 {
 public:
   SaveFileAsCommand();
-  Command* clone() const override { return new SaveFileAsCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -330,7 +328,6 @@ class SaveFileCopyAsCommand : public SaveFileBaseCommand
 {
 public:
   SaveFileCopyAsCommand();
-  Command* clone() const override { return new SaveFileCopyAsCommand(*this); }
 
 protected:
   void onExecute(Context* context) override;
@@ -375,19 +372,19 @@ void SaveFileCopyAsCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createSaveFileCommand()
+std::unique_ptr<Command> CommandFactory::createSaveFileCommand()
 {
-  return new SaveFileCommand;
+  return std::make_unique<SaveFileCommand>();
 }
 
-Command* CommandFactory::createSaveFileAsCommand()
+std::unique_ptr<Command> CommandFactory::createSaveFileAsCommand()
 {
-  return new SaveFileAsCommand;
+  return std::make_unique<SaveFileAsCommand>();
 }
 
-Command* CommandFactory::createSaveFileCopyAsCommand()
+std::unique_ptr<Command> CommandFactory::createSaveFileCopyAsCommand()
 {
-  return new SaveFileCopyAsCommand;
+  return std::make_unique<SaveFileCopyAsCommand>();
 }
 
 } // namespace app

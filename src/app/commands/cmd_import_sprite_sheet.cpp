@@ -304,10 +304,6 @@ class ImportSpriteSheetCommand : public Command
 {
 public:
   ImportSpriteSheetCommand();
-  Command* clone() const override
-  {
-    return new ImportSpriteSheetCommand(*this);
-  }
 
 protected:
   void onExecute(Context* context) override;
@@ -473,9 +469,9 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
   update_screen_for_document(document);
 }
 
-Command* CommandFactory::createImportSpriteSheetCommand()
+std::unique_ptr<Command> CommandFactory::createImportSpriteSheetCommand()
 {
-  return new ImportSpriteSheetCommand;
+  return std::make_unique<ImportSpriteSheetCommand>();
 }
 
 } // namespace app

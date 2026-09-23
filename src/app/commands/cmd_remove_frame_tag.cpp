@@ -28,7 +28,6 @@ class RemoveFrameTagCommand : public Command
 {
 public:
   RemoveFrameTagCommand();
-  Command* clone() const override { return new RemoveFrameTagCommand(*this); }
 
 protected:
   void onLoadParams(const Params& params) override;
@@ -87,9 +86,9 @@ void RemoveFrameTagCommand::onExecute(Context* context)
   App::instance()->timeline()->invalidate();
 }
 
-Command* CommandFactory::createRemoveFrameTagCommand()
+std::unique_ptr<Command> CommandFactory::createRemoveFrameTagCommand()
 {
-  return new RemoveFrameTagCommand;
+  return std::make_unique<RemoveFrameTagCommand>();
 }
 
 } // namespace app

@@ -80,7 +80,6 @@ class ColorCurveCommand : public Command
 {
 public:
   ColorCurveCommand();
-  Command* clone() const override { return new ColorCurveCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -117,9 +116,9 @@ void ColorCurveCommand::onExecute(Context* context)
   window.doModal();
 }
 
-Command* CommandFactory::createColorCurveCommand()
+std::unique_ptr<Command> CommandFactory::createColorCurveCommand()
 {
-  return new ColorCurveCommand;
+  return std::make_unique<ColorCurveCommand>();
 }
 
 } // namespace app

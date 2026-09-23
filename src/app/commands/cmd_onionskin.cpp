@@ -28,7 +28,6 @@ public:
   {
   }
 
-  Command* clone() const override { return new ShowOnionSkinCommand(*this); }
 
 protected:
   bool onChecked(Context* context) override
@@ -46,9 +45,9 @@ protected:
   }
 };
 
-Command* CommandFactory::createShowOnionSkinCommand()
+std::unique_ptr<Command> CommandFactory::createShowOnionSkinCommand()
 {
-  return new ShowOnionSkinCommand;
+  return std::make_unique<ShowOnionSkinCommand>();
 }
 
 } // namespace app

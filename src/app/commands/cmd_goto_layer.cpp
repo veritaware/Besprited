@@ -44,10 +44,6 @@ class GotoPreviousLayerCommand : public GotoCommand
 {
 public:
   GotoPreviousLayerCommand();
-  Command* clone() const override
-  {
-    return new GotoPreviousLayerCommand(*this);
-  }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -84,7 +80,6 @@ class GotoNextLayerCommand : public GotoCommand
 {
 public:
   GotoNextLayerCommand();
-  Command* clone() const override { return new GotoNextLayerCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -117,14 +112,14 @@ void GotoNextLayerCommand::onExecute(Context* context)
   updateStatusBar(site);
 }
 
-Command* CommandFactory::createGotoPreviousLayerCommand()
+std::unique_ptr<Command> CommandFactory::createGotoPreviousLayerCommand()
 {
-  return new GotoPreviousLayerCommand;
+  return std::make_unique<GotoPreviousLayerCommand>();
 }
 
-Command* CommandFactory::createGotoNextLayerCommand()
+std::unique_ptr<Command> CommandFactory::createGotoNextLayerCommand()
 {
-  return new GotoNextLayerCommand;
+  return std::make_unique<GotoNextLayerCommand>();
 }
 
 } // namespace app

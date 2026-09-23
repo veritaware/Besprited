@@ -17,7 +17,6 @@ class FlipCommand : public Command
 {
 public:
   FlipCommand();
-  Command* clone() const override { return new FlipCommand(*this); }
 
   doc::algorithm::FlipType getFlipType() const { return m_flipType; }
 

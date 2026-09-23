@@ -30,7 +30,6 @@ class InstallScriptCommand : public Command
 {
 public:
   InstallScriptCommand();
-  Command* clone() const override { return new InstallScriptCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override
@@ -96,9 +95,9 @@ void InstallScriptCommand::onExecute(Context* ctx)
   ctx->executeCommand(CommandId::RescanScripts);
 }
 
-Command* CommandFactory::createInstallScriptCommand()
+std::unique_ptr<Command> CommandFactory::createInstallScriptCommand()
 {
-  return new InstallScriptCommand;
+  return std::make_unique<InstallScriptCommand>();
 }
 
 } // namespace app

@@ -126,7 +126,6 @@ class ReplaceColorCommand : public Command
 {
 public:
   ReplaceColorCommand();
-  Command* clone() const override { return new ReplaceColorCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -169,9 +168,9 @@ void ReplaceColorCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createReplaceColorCommand()
+std::unique_ptr<Command> CommandFactory::createReplaceColorCommand()
 {
-  return new ReplaceColorCommand;
+  return std::make_unique<ReplaceColorCommand>();
 }
 
 } // namespace app

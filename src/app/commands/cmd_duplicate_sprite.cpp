@@ -32,7 +32,6 @@ class DuplicateSpriteCommand : public Command
 {
 public:
   DuplicateSpriteCommand();
-  Command* clone() const override { return new DuplicateSpriteCommand(*this); }
 
 protected:
   bool onEnabled(Context* context) override;
@@ -85,9 +84,9 @@ void DuplicateSpriteCommand::onExecute(Context* context)
   }
 }
 
-Command* CommandFactory::createDuplicateSpriteCommand()
+std::unique_ptr<Command> CommandFactory::createDuplicateSpriteCommand()
 {
-  return new DuplicateSpriteCommand;
+  return std::make_unique<DuplicateSpriteCommand>();
 }
 
 } // namespace app
