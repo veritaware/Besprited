@@ -45,7 +45,7 @@ Object::~Object()
     setId(0);
 }
 
-int Object::getMemSize() const
+size_t Object::getMemSize() const
 {
   return sizeof(Object);
 }

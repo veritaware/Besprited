@@ -41,7 +41,11 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
   // (-1); treating that as a huge unsigned size would wrap `size - 8` and
   // ultimately feed a bogus color count into Palette::create() below (see
   // issue #219), so reject outright instead.
-  std::fseek(f, 0, SEEK_END);
+  if (std::fseek(f, 0, SEEK_END) != 0)
+  {
+    fclose(f);
+    return nullptr;
+  }
   const long rawSize = std::ftell(f);
   if (rawSize < 8)
   {
@@ -49,11 +53,18 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
     return nullptr;
   }
   const std::size_t size = static_cast<std::size_t>(rawSize);
-  std::div_t d = std::div(static_cast<int>(size - 8), 3);
-  std::fseek(f, 0, SEEK_SET);
+  // Computed directly on size_t rather than via std::div() (which is
+  // int-only) so that files >= 2 GiB don't truncate the color count (#236).
+  const std::size_t quot = (size - 8) / 3;
+  const std::size_t rem = (size - 8) % 3;
+  if (std::fseek(f, 0, SEEK_SET) != 0)
+  {
+    fclose(f);
+    return nullptr;
+  }
 
   const bool pro = (size == 768) ? false : true; // is Animator Pro format?
-  if (!(size) || (pro && d.rem))
+  if (!(size) || (pro && rem))
   { // Invalid format
     fclose(f);
     return nullptr;
@@ -97,7 +108,7 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
       return nullptr;
     }
 
-    pal = Palette::create(MIN(d.quot, 256));
+    pal = Palette::create(static_cast<int>(MIN(quot, static_cast<std::size_t>(256))));
 
     for (c = 0; c < pal->size(); c++)
     {

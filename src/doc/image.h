@@ -48,7 +48,7 @@ public:
   color_t maskColor() const { return m_maskColor; }
   void setMaskColor(color_t c) { m_maskColor = c; }
 
-  virtual int getMemSize() const override;
+  virtual size_t getMemSize() const override;
   int getRowStrideSize() const;
   int getRowStrideSize(int pixels_per_row) const;
 

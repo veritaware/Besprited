@@ -36,7 +36,7 @@ Layer::Layer(ObjectType type, Sprite* sprite)
 
 Layer::~Layer() = default;
 
-int Layer::getMemSize() const
+size_t Layer::getMemSize() const
 {
   return sizeof(Layer);
 }
@@ -94,9 +94,9 @@ LayerImage::~LayerImage()
   destroyAllCels();
 }
 
-int LayerImage::getMemSize() const
+size_t LayerImage::getMemSize() const
 {
-  int size = sizeof(LayerImage);
+  size_t size = sizeof(LayerImage);
   auto it = getCelBegin();
   auto end = getCelEnd();
 
@@ -293,9 +293,9 @@ void LayerFolder::destroyAllLayers()
   m_layers.clear();
 }
 
-int LayerFolder::getMemSize() const
+size_t LayerFolder::getMemSize() const
 {
-  int size = sizeof(LayerFolder);
+  size_t size = sizeof(LayerFolder);
   auto it = getLayerBegin();
   auto end = getLayerEnd();
 

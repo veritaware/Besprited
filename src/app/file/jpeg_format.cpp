@@ -262,8 +262,11 @@ bool JpegFormat::onSave(FileOp* fop)
   struct jpeg_compress_struct cinfo;
   struct error_mgr jerr = {};
   const Image* image = fop->sequenceImage();
-  JSAMPARRAY buffer;
-  JDIMENSION buffer_height;
+  // volatile: both are modified between setjmp() and a longjmp() that can
+  // land back here - without it, a compiler is free to keep their
+  // post-longjmp values undefined (see the matching comment in onLoad()).
+  JSAMPARRAY volatile buffer = nullptr;
+  JDIMENSION volatile buffer_height = 0;
   const base::SharedPtr<JpegOptions> jpeg_options =
       fop->sequenceGetFormatOptions();
   int c;
@@ -275,6 +278,25 @@ bool JpegFormat::onSave(FileOp* fop)
   // Allocate and initialize JPEG compression object.
   jerr.fop = fop;
   cinfo.err = jpeg_std_error(&jerr.head);
+
+  // Without overriding these, a libjpeg fatal error during compression
+  // falls through to the default handler, which prints a message and calls
+  // exit(), killing the whole process instead of failing this save (#237).
+  jerr.head.error_exit = error_exit;
+  jerr.head.output_message = output_message;
+
+  if (setjmp(jerr.setjmp_buffer))
+  {
+    if (buffer)
+    {
+      for (c = 0; c < (int)buffer_height; c++)
+        base_free(buffer[c]);
+      base_free(buffer);
+    }
+    jpeg_destroy_compress(&cinfo);
+    return false;
+  }
+
   jpeg_create_compress(&cinfo);
 
   // SPECIFY data destination file.

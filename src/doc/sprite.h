@@ -81,7 +81,7 @@ public:
   color_t transparentColor() const { return m_transparentColor; }
   void setTransparentColor(color_t color);
 
-  virtual int getMemSize() const override;
+  virtual size_t getMemSize() const override;
 
   ////////////////////////////////////////
   // Layers

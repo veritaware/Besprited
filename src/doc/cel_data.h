@@ -35,7 +35,7 @@ public:
   void setPosition(const gfx::Point& pos) { m_position = pos; }
   void setOpacity(int opacity) { m_opacity = opacity; }
 
-  virtual int getMemSize() const override
+  virtual size_t getMemSize() const override
   {
     ASSERT(m_image);
     // cppcheck-suppress nullPointerRedundantCheck

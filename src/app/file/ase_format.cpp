@@ -839,10 +839,7 @@ ase_file_read_palette_chunk(FILE* f, const Palette& prevPal, frame_t frame)
 
     // Skip name
     if (flags & ASE_PALETTE_FLAG_HAS_NAME)
-    {
-      std::string name = ase_file_read_string(f);
-      // Ignore color entry name
-    }
+      ase_file_read_string(f); // Ignore color entry name
   }
 
   return pal;

@@ -45,7 +45,7 @@ void Mask::initialize()
   m_bounds = gfx::Rect(0, 0, 0, 0);
 }
 
-int Mask::getMemSize() const
+size_t Mask::getMemSize() const
 {
   return sizeof(Mask) + (m_bitmap ? m_bitmap->getMemSize() : 0);
 }

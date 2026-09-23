@@ -89,20 +89,6 @@ typedef struct BITMAPINFOHEADER
   uint32_t biCompression;
 } BITMAPINFOHEADER;
 
-typedef struct WINBMPINFOHEADER // Size: 40.
-{
-  uint32_t biWidth;
-  uint32_t biHeight;
-  uint16_t biPlanes;
-  uint16_t biBitCount;
-  uint32_t biCompression;
-  uint32_t biSizeImage;
-  uint32_t biXPelsPerMeter;
-  uint32_t biYPelsPerMeter;
-  uint32_t biClrUsed;
-  uint32_t biClrImportant;
-} WINBMPINFOHEADER;
-
 typedef struct OS2BMPINFOHEADER // Size: 12.
 {
   uint16_t biWidth;
@@ -133,23 +119,16 @@ static int read_bmfileheader(FILE* f, BITMAPFILEHEADER* fileheader)
  */
 static int read_win_bminfoheader(FILE* f, BITMAPINFOHEADER* infoheader)
 {
-  WINBMPINFOHEADER win_infoheader;
-
-  win_infoheader.biWidth = fgetl(f);
-  win_infoheader.biHeight = fgetl(f);
-  win_infoheader.biPlanes = fgetw(f);
-  win_infoheader.biBitCount = fgetw(f);
-  win_infoheader.biCompression = fgetl(f);
-  win_infoheader.biSizeImage = fgetl(f);
-  win_infoheader.biXPelsPerMeter = fgetl(f);
-  win_infoheader.biYPelsPerMeter = fgetl(f);
-  win_infoheader.biClrUsed = fgetl(f);
-  win_infoheader.biClrImportant = fgetl(f);
-
-  infoheader->biWidth = win_infoheader.biWidth;
-  infoheader->biHeight = win_infoheader.biHeight;
-  infoheader->biBitCount = win_infoheader.biBitCount;
-  infoheader->biCompression = win_infoheader.biCompression;
+  infoheader->biWidth = fgetl(f);
+  infoheader->biHeight = fgetl(f);
+  fgetw(f); // biPlanes - not consulted after loading
+  infoheader->biBitCount = fgetw(f);
+  infoheader->biCompression = fgetl(f);
+  fgetl(f); // biSizeImage - not consulted after loading
+  fgetl(f); // biXPelsPerMeter - not consulted after loading
+  fgetl(f); // biYPelsPerMeter - not consulted after loading
+  fgetl(f); // biClrUsed - not consulted after loading
+  fgetl(f); // biClrImportant - not consulted after loading
 
   return 0;
 }

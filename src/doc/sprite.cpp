@@ -187,14 +187,15 @@ void Sprite::setTransparentColor(color_t color)
     image->setMaskColor(color);
 }
 
-int Sprite::getMemSize() const
+size_t Sprite::getMemSize() const
 {
-  int size = 0;
+  size_t size = 0;
 
   std::vector<Image*> images;
   getImages(images);
   for (const Image* image : images)
-    size += image->getRowStrideSize() * image->height();
+    size += static_cast<size_t>(image->getRowStrideSize()) *
+            static_cast<size_t>(image->height());
 
   return size;
 }
