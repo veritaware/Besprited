@@ -126,6 +126,11 @@ void FilterWindow::restartPreview()
     m_preview.restartPreview();
 }
 
+void FilterWindow::insertExtraButton(ui::Widget* widget)
+{
+  m_vbox.insertChild(1, widget);
+}
+
 void FilterWindow::setNewTarget(Target target)
 {
   m_filterMgr->setTarget(target);

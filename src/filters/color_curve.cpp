@@ -21,6 +21,14 @@ ColorCurve::ColorCurve(Type type)
 {
 }
 
+ColorCurve ColorCurve::Default()
+{
+  ColorCurve curve(Linear);
+  curve.addPoint(gfx::Point(0, 0));
+  curve.addPoint(gfx::Point(255, 255));
+  return curve;
+}
+
 void ColorCurve::addPoint(const gfx::Point& point)
 {
   for (auto it = begin(), end = this->end(); it != end; ++it)

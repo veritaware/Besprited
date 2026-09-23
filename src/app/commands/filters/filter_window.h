@@ -58,6 +58,11 @@ protected:
   // Returns the container where derived classes should put controls.
   ui::Widget* getContainer() { return &m_container; }
 
+  // Inserts an extra widget in the button column, right after "OK"
+  // and before "Cancel". Used by filters that need an extra action
+  // button (e.g. "Reset").
+  void insertExtraButton(ui::Widget* widget);
+
   void onOk(ui::Event& ev);
   void onCancel(ui::Event& ev);
   void onShowPreview(ui::Event& ev);
