@@ -23,7 +23,11 @@
 #include "she/system.h"
 #include "she/surface.h"
 #include "she/surface_format.h"
+
+#include <chrono>
+#include <future>
 #include <memory>
+#include <thread>
 
 namespace app
 {
@@ -50,8 +54,45 @@ bool SheFormat::onLoad(FileOp* fop)
 {
   try
   {
-    auto surface = std::shared_ptr<she::Surface>(
-        she::instance()->loadRgbaSurface(fop->filename().c_str()));
+    // loadRgbaSurface() delegates to SDL_image for any format we don't
+    // have a native decoder for. Fuzzing found a malformed GIF that made
+    // SDL_image's own decoder attempt a ~3.8 GB allocation, plus separate
+    // multi-minute hangs on other malformed inputs (issue #235) - bugs in
+    // SDL_image itself, outside this repo's control, with no hook to
+    // validate the file before it decodes. Run the decode on its own
+    // thread with a wall-clock timeout so a malformed file can wedge
+    // that thread but not this one; there's no safe way to cancel a
+    // decode mid-flight, so on timeout we detach it and give up waiting
+    // rather than hang the app.
+    constexpr auto kLoadTimeout = std::chrono::seconds(15);
+
+    auto promise =
+        std::make_shared<std::promise<std::shared_ptr<she::Surface>>>();
+    std::future<std::shared_ptr<she::Surface>> future = promise->get_future();
+    std::string filename = fop->filename();
+
+    std::thread worker(
+        [promise, filename]
+        {
+          try
+          {
+            promise->set_value(std::shared_ptr<she::Surface>(
+                she::instance()->loadRgbaSurface(filename.c_str())));
+          }
+          catch (...)
+          {
+            promise->set_exception(std::current_exception());
+          }
+        });
+
+    if (future.wait_for(kLoadTimeout) != std::future_status::ready)
+    {
+      worker.detach();
+      return false;
+    }
+    worker.join();
+
+    auto surface = future.get();
     if (!surface)
       return false;
     auto width = surface->width();
