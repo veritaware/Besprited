@@ -73,6 +73,14 @@ public:
 
   void setInkType(tools::InkType type);
 
+  // True while updateForTool() is pushing ToolPreferences values into the
+  // tool-option widgets - lets a widget's own onValueChange()/onClick()
+  // handler tell "this change came from the user" apart from "this change
+  // is us loading the value for a newly-selected tool" and skip writing
+  // straight back to Preferences in the latter case. Used by
+  // ToolPrefField<> (app/ui/context_bar_fields.h, issue #227).
+  static bool updatingFromCode();
+
   // Signals
   base::Signal0<void> BrushChange;
 
