@@ -1,11 +1,10 @@
 // Undo Library
 // Copyright (C) 2015-2016 David Capello
+// Besprited | Copyright (C) 2026      Veritaware
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-#ifndef UNDO_STATE_H_INCLUDED
-#define UNDO_STATE_H_INCLUDED
 #pragma once
 
 #include "undo_command.h"
@@ -41,5 +40,3 @@ namespace undo {
   };
 
 } // namespace undo
-
-#endif  // STATE_H_INCLUDED

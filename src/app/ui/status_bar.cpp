@@ -557,6 +557,7 @@ StatusBar::StatusBar()
   , m_tipwindow(nullptr)
   , m_snapToGridWindow(nullptr)
 {
+  ASSERT(m_instance == nullptr);
   m_instance = this;
 
   setDoubleBuffered(true);
@@ -617,12 +618,15 @@ StatusBar::StatusBar()
 
 StatusBar::~StatusBar()
 {
+  ASSERT(m_instance == this);
   App::instance()->activeToolManager()->removeObserver(this);
   UIContext::instance()->documents().removeObserver(this);
   UIContext::instance()->removeObserver(this);
 
   delete m_tipwindow; // widget
   delete m_snapToGridWindow;
+
+  m_instance = nullptr;
 }
 
 void StatusBar::onSelectedToolChange(tools::Tool* tool)

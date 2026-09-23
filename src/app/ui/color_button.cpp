@@ -269,7 +269,7 @@ void ColorButton::openSelectorDialog()
   gfx::Rect rc = bounds().createUnion(m_window->bounds());
   rc.enlarge(8);
   gfx::Region rgn(rc);
-  static_cast<PopupWindow*>(m_window)->setHotRegion(rgn);
+  m_window->setHotRegion(rgn);
 }
 
 void ColorButton::closeSelectorDialog()
