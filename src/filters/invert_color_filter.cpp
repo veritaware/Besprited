@@ -13,6 +13,7 @@
 
 #include "filters/filter_indexed_data.h"
 #include "filters/filter_manager.h"
+#include "filters/pixel_row.h"
 #include "doc/image.h"
 #include "doc/palette.h"
 #include "doc/rgbmap.h"
@@ -29,122 +30,50 @@ const char* InvertColorFilter::getName()
 
 void InvertColorFilter::applyToRgba(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint32_t*>(filterMgr->getSourceAddress());
-  auto* dst_address =
-      static_cast<uint32_t*>(filterMgr->getDestinationAddress());
-  const int w = filterMgr->getWidth();
   const Target target = filterMgr->getTarget();
-  int x, c, r, g, b, a;
 
-  for (x = 0; x < w; x++)
-  {
-    if (filterMgr->skipPixel())
-    {
-      ++src_address;
-      ++dst_address;
-      continue;
-    }
-
-    c = static_cast<int>(*(src_address++));
-
-    r = rgba_getr(c);
-    g = rgba_getg(c);
-    b = rgba_getb(c);
-    a = rgba_geta(c);
-
-    if (target & TARGET_RED_CHANNEL)
-      r ^= 0xff;
-    if (target & TARGET_GREEN_CHANNEL)
-      g ^= 0xff;
-    if (target & TARGET_BLUE_CHANNEL)
-      b ^= 0xff;
-    if (target & TARGET_ALPHA_CHANNEL)
-      a ^= 0xff;
-
-    *(dst_address++) = rgba(r, g, b, a);
-  }
+  detail::for_each_pixel<uint32_t>(
+      *filterMgr,
+      [target](int c, int)
+      {
+        return detail::map_rgba_channels(
+            static_cast<color_t>(c), target,
+            [](int v, Target) { return v ^ 0xff; });
+      });
 }
 
 void InvertColorFilter::applyToGrayscale(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint16_t*>(filterMgr->getSourceAddress());
-  auto* dst_address =
-      static_cast<uint16_t*>(filterMgr->getDestinationAddress());
-  const int w = filterMgr->getWidth();
   const Target target = filterMgr->getTarget();
-  int x, c, k, a;
 
-  for (x = 0; x < w; x++)
-  {
-    if (filterMgr->skipPixel())
-    {
-      ++src_address;
-      ++dst_address;
-      continue;
-    }
-
-    c = static_cast<int>(*(src_address++));
-
-    k = graya_getv(c);
-    a = graya_geta(c);
-
-    if (target & TARGET_GRAY_CHANNEL)
-      k ^= 0xff;
-    if (target & TARGET_ALPHA_CHANNEL)
-      a ^= 0xff;
-
-    *(dst_address++) = graya(k, a);
-  }
+  detail::for_each_pixel<uint16_t>(
+      *filterMgr,
+      [target](int c, int)
+      {
+        return detail::map_gray_channels(
+            static_cast<uint16_t>(c), target,
+            [](int v, Target) { return v ^ 0xff; });
+      });
 }
 
 void InvertColorFilter::applyToIndexed(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint8_t*>(filterMgr->getSourceAddress());
-  auto* dst_address = static_cast<uint8_t*>(filterMgr->getDestinationAddress());
+  const Target target = filterMgr->getTarget();
   const Palette* pal = filterMgr->getIndexedData()->getPalette();
   const RgbMap* rgbmap = filterMgr->getIndexedData()->getRgbMap();
-  const int w = filterMgr->getWidth();
-  const Target target = filterMgr->getTarget();
-  int x, c, r, g, b, a;
 
-  for (x = 0; x < w; x++)
-  {
-    if (filterMgr->skipPixel())
-    {
-      ++src_address;
-      ++dst_address;
-      continue;
-    }
+  detail::for_each_pixel<uint8_t>(
+      *filterMgr,
+      [target, pal, rgbmap](int c, int) -> int
+      {
+        if (target & TARGET_INDEX_CHANNEL)
+          return c ^ 0xff;
 
-    c = static_cast<int>(*(src_address++));
-
-    if (target & TARGET_INDEX_CHANNEL)
-      c ^= 0xff;
-    else
-    {
-      c = pal->getEntry(c);
-      r = rgba_getr(c);
-      g = rgba_getg(c);
-      b = rgba_getb(c);
-      a = rgba_geta(c);
-
-      if (target & TARGET_RED_CHANNEL)
-        r ^= 0xff;
-      if (target & TARGET_GREEN_CHANNEL)
-        g ^= 0xff;
-      if (target & TARGET_BLUE_CHANNEL)
-        b ^= 0xff;
-      if (target & TARGET_ALPHA_CHANNEL)
-        a ^= 0xff;
-
-      c = rgbmap->mapColor(r, g, b, a);
-    }
-
-    *(dst_address++) = c;
-  }
+        color_t rgbaColor = detail::map_rgba_channels(
+            pal->getEntry(c), target, [](int v, Target) { return v ^ 0xff; });
+        return rgbmap->mapColor(rgba_getr(rgbaColor), rgba_getg(rgbaColor),
+                                rgba_getb(rgbaColor), rgba_geta(rgbaColor));
+      });
 }
 
 } // namespace filters
