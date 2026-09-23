@@ -15,6 +15,12 @@
 #include "app/ui/editor/symmetry_handles.h"
 #include "base/connection.h"
 
+namespace doc
+{
+class Layer;
+class Site;
+}
+
 namespace app
 {
 namespace tools
@@ -22,7 +28,9 @@ namespace tools
 class Ink;
 }
 
+class Document;
 class TransformHandles;
+class UIContext;
 
 class StandbyState : public StateWithWheelBehavior
 {
@@ -81,6 +89,19 @@ protected:
   };
 
 private:
+  // Each of these is one named early-return block of onMouseDown(), cut out
+  // verbatim so the dispatcher reads as a list of cases instead of one long
+  // function - no behavior change (see issue #225). Each returns true if it
+  // handled the click and onMouseDown() should return immediately.
+  bool tryStartCelMovement(Editor* editor, ui::MouseMessage* msg,
+                           const doc::Site& site, doc::Layer* layer);
+  bool tryStartSelectionTransform(Editor* editor, ui::MouseMessage* msg,
+                                  const doc::Site& site, doc::Layer* layer,
+                                  Document* document);
+  bool tryStartSymmetryDrag(Editor* editor, ui::MouseMessage* msg);
+  bool startToolLoop(Editor* editor, ui::MouseMessage* msg,
+                     UIContext* context, doc::Layer* layer);
+
   void transformSelection(Editor* editor, ui::MouseMessage* msg,
                           HandleType handle);
   void onPivotChange(Editor* editor);
