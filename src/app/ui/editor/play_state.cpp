@@ -18,9 +18,12 @@
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/scrolling_state.h"
 #include "app/ui_context.h"
+#include "base/bind.h"
+#include "base/convert_to.h"
 #include "doc/frame_tag.h"
 #include "doc/handle_anidir.h"
 #include "ui/manager.h"
+#include "ui/menu.h"
 #include "ui/message.h"
 #include "ui/system.h"
 
@@ -235,6 +238,50 @@ double PlayState::getNextFrameTime()
   return m_editor->sprite()->frameDuration(m_editor->frame()) /
          m_editor->getAnimationSpeedMultiplier(); // The "speed multiplier" is a
                                                   // "duration divider"
+}
+
+void show_animation_speed_multiplier_popup(Editor* editor,
+                                           Option<bool>& playOnce,
+                                           bool withStopBehaviorOptions)
+{
+  double options[] = {0.25, 0.5, 1.0, 1.5, 2.0, 3.0};
+  Menu menu;
+
+  for (double option : options)
+  {
+    MenuItem* item =
+        new MenuItem("Speed x" + base::convert_to<std::string>(option));
+    item->Click.connect(
+        base::Bind<void>(&Editor::setAnimationSpeedMultiplier, editor, option));
+    item->setSelected(editor->getAnimationSpeedMultiplier() == option);
+    menu.addChild(item);
+  }
+
+  menu.addChild(new MenuSeparator);
+
+  // Play once option
+  {
+    MenuItem* item = new MenuItem("Play Once");
+    item->Click.connect([&playOnce]() { playOnce(!playOnce()); });
+    item->setSelected(playOnce());
+    menu.addChild(item);
+  }
+
+  if (withStopBehaviorOptions)
+  {
+    MenuItem* item = new MenuItem("Rewind on Stop");
+    item->Click.connect(
+        []()
+        {
+          // Switch the "rewind_on_stop" option
+          Preferences::instance().general.rewindOnStop(
+              !Preferences::instance().general.rewindOnStop());
+        });
+    item->setSelected(Preferences::instance().general.rewindOnStop());
+    menu.addChild(item);
+  }
+
+  menu.showPopup(ui::get_mouse_position());
 }
 
 } // namespace app
