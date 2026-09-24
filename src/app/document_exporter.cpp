@@ -528,7 +528,7 @@ Document* DocumentExporter::exportSheet()
   if (samples.empty())
   {
     Console console;
-    console.printf("No documents to export");
+    console.warning("No documents to export");
     return nullptr;
   }
 

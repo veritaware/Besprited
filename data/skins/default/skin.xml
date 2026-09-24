@@ -764,6 +764,15 @@
       <background color="hot_face" />
     </style>
 
+    <!-- message_log_button (status bar warnings/errors indicator) -->
+    <style id="message_log_button">
+      <icon part="warning_box" align="left" valign="middle" x="2" />
+    </style>
+    <style id="message_log_button:hover">
+      <background color="button_hot_face" />
+      <icon part="warning_box" align="left" valign="middle" x="2" />
+    </style>
+
     <!-- tab -->
     <style id="tab">
       <background part="tab_normal" color="tab_normal_face" repeat="repeat-x" />

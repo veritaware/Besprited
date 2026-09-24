@@ -27,6 +27,7 @@
 #include "app/ui/editor/editor.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/main_window.h"
+#include "app/ui/message_log_button.h"
 #include "app/ui/skin/skin_style_property.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
@@ -552,6 +553,7 @@ StatusBar* StatusBar::m_instance = nullptr;
 StatusBar::StatusBar()
   : m_timeout(0)
   , m_indicators(new Indicators)
+  , m_messageLog(new MessageLogButton)
   , m_docControls(new HBox)
   , m_doc(nullptr)
   , m_tipwindow(nullptr)
@@ -574,6 +576,7 @@ StatusBar::StatusBar()
   m_indicators->setExpansive(true);
   m_docControls->setVisible(false);
   addChild(m_indicators);
+  addChild(m_messageLog);
   addChild(m_docControls);
 
   // Construct the commands box

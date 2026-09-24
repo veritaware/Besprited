@@ -1,0 +1,13 @@
+<!-- Copyright (C) 2026 Veritaware -->
+<gui>
+  <window id="messages" text="Messages">
+    <vbox>
+      <view id="view" expansive="true" width="420" height="200" />
+      <box horizontal="true" homogeneous="true" cell_align="right">
+        <button id="copy" text="&amp;Copy" minwidth="60" />
+        <button id="clear" text="C&amp;lear" minwidth="60" />
+        <button text="&amp;Close" closewindow="true" magnet="true" minwidth="60" />
+      </box>
+    </vbox>
+  </window>
+</gui>

@@ -90,7 +90,7 @@ Document* load_document(Context* context, const char* filename)
   if (fop->hasError())
   {
     Console console(context);
-    console.printf(fop->error().c_str());
+    console.error("%s", fop->error().c_str());
   }
 
   auto document = fop->releaseDocument();
@@ -129,7 +129,7 @@ int save_document(Context* context, doc::Document* document)
   if (fop->hasError())
   {
     Console console(context);
-    console.printf(fop->error().c_str());
+    console.error("%s", fop->error().c_str());
   }
 
   return (!fop->hasError() ? 0 : -1);
