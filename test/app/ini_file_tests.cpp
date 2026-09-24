@@ -8,6 +8,7 @@
 #include "tests.h"
 
 #include "app/ini_file.h"
+#include "app/message_log.h"
 #include "base/fs.h"
 
 using namespace app;
@@ -86,4 +87,43 @@ TEST(IniFile, PushPop)
   pop_config_state();
 
   EXPECT_EQ(32, get_config_int("A", "a", 0));
+}
+
+TEST(IniFile, FailedSaveIsReportedInMessageLog)
+{
+  // Regression test: a config file that couldn't be written used to fail
+  // completely silently.
+  auto* log = MessageLog::instance();
+  log->clear();
+
+  push_config_state();
+  set_config_file("_no_such_dir_for_tests/_unwritable.ini");
+  set_config_int("A", "a", 1);
+  flush_config_file();
+  pop_config_state();
+
+  auto entries = log->entries();
+  ASSERT_EQ(1u, entries.size());
+  EXPECT_EQ(MessageLog::Severity::Error, entries[0].severity);
+  EXPECT_NE(std::string::npos, entries[0].text.find("_unwritable.ini"));
+  log->clear();
+}
+
+TEST(IniFile, SuccessfulSaveIsNotReported)
+{
+  auto* log = MessageLog::instance();
+  log->clear();
+
+  if (base::is_file("_saved.ini"))
+    base::delete_file("_saved.ini");
+
+  push_config_state();
+  set_config_file("_saved.ini");
+  set_config_int("A", "a", 1);
+  flush_config_file();
+  pop_config_state();
+
+  EXPECT_EQ(0u, log->size());
+  EXPECT_TRUE(base::is_file("_saved.ini"));
+  base::delete_file("_saved.ini");
 }

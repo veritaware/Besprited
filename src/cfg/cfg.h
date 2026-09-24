@@ -37,7 +37,11 @@ public:
   void deleteValue(const char* section, const char* name);
 
   void load(const std::string& filename);
-  void save();
+
+  // Writes the configuration to the file it was loaded from. Returns false
+  // if it could not be written completely; lastError() then says why.
+  [[nodiscard]] bool save();
+  [[nodiscard]] const std::string& lastError() const;
 
 private:
   class CfgFileImpl;
