@@ -265,3 +265,79 @@ TEST(Render, ZoomAndDstBounds)
                       gfx::Clip(1, 1, 0, 0, 2, 2), Zoom(1, 1));
   EXPECT_4X4_PIXELS(dst.get(), 0, 0, 0, 0, 0, 1, 2, 0, 0, 2, 4, 0, 0, 0, 0, 0);
 }
+
+// Golden-image test for the checkered-background ordering in
+// Render::renderSprite: the checkered pattern must be composited *after*
+// the layers, onionskin and preview overlay (so blend functions see the
+// real per-pixel alpha), yet still end up underneath all of them.
+TEST(Render, CheckedBackgroundWithOnionskinAndPreviewGolden)
+{
+  Context ctx;
+  Document* doc = ctx.documents().add(4, 4, ColorMode::RGB);
+  Sprite* sprite = doc->sprite();
+  sprite->setTotalFrames(2);
+
+  const color_t transparent = rgba(0, 0, 0, 0);
+  const color_t red = rgba(255, 0, 0, 255);
+  const color_t halfGreen = rgba(0, 255, 0, 128);
+  const color_t blue = rgba(0, 0, 255, 255);
+  const color_t yellow = rgba(255, 255, 0, 255);
+
+  LayerImage* layer = static_cast<LayerImage*>(sprite->layer(0));
+
+  // Frame 0: an opaque and a half-transparent pixel, rest transparent.
+  Image* img0 = layer->cel(0)->image();
+  clear_image(img0, transparent);
+  put_pixel(img0, 1, 1, red);
+  put_pixel(img0, 2, 1, halfGreen);
+
+  // Frame 1 (only visible through the onionskin): a blue pixel over the
+  // transparent area and another hidden behind frame 0's opaque red one.
+  ImageRef image1(Image::create(IMAGE_RGB, 4, 4));
+  clear_image(image1.get(), transparent);
+  put_pixel(image1.get(), 0, 0, blue);
+  put_pixel(image1.get(), 1, 1, blue);
+  layer->addCel(std::make_shared<Cel>(frame_t(1), image1));
+
+  std::unique_ptr<Image> preview(Image::create(IMAGE_RGB, 1, 1));
+  put_pixel(preview.get(), 0, 0, yellow);
+
+  Render render;
+  render.setBgType(BgType::CHECKED);
+  render.setBgZoom(true);
+  render.setBgColor1(rgba(10, 10, 10, 255));
+  render.setBgColor2(rgba(200, 200, 200, 255));
+  render.setBgCheckedSize(gfx::Size(1, 1));
+
+  OnionskinOptions onion(OnionskinType::MERGE);
+  onion.position(OnionskinPosition::BEHIND);
+  onion.prevFrames(0);
+  onion.nextFrames(1);
+  onion.opacityBase(128);
+  onion.opacityStep(0);
+  render.setOnionskin(onion);
+  render.setPreviewImage(nullptr, frame_t(0), preview.get(), gfx::Point(3, 3),
+                         BlendMode::NORMAL);
+
+  std::unique_ptr<Image> dst(Image::create(IMAGE_RGB, 4, 4));
+  clear_image(dst.get(), 0);
+  render.renderSprite(dst.get(), sprite, frame_t(0));
+
+  const color_t d = rgba(10, 10, 10, 255);    // dark checker tile
+  const color_t l = rgba(200, 200, 200, 255); // light checker tile
+  const color_t onionBlue = rgba(5, 5, 132, 255); // 50% blue over d
+  const color_t greenOnL = rgba(100, 227, 100, 255); // half green over l
+
+  // Expected (golden) output; recorded from a run and checked by hand:
+  // - (0,0): onionskin blue at 50% blends against the checker, not
+  //          against transparency.
+  // - (1,1): opaque red covers the onionskin's blue and the checker.
+  // - (2,1): half-transparent green blends with the checker behind it.
+  // - (3,3): the opaque preview overlay covers the checker.
+  // - everything else is plain checkerboard.
+  EXPECT_4X4_PIXELS(dst.get(),
+                    onionBlue, l, d, l,
+                    l, red, greenOnL, d,
+                    d, l, d, l,
+                    l, d, l, yellow);
+}
