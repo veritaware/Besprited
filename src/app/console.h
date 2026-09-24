@@ -19,7 +19,17 @@ public:
   Console(Context* ctx = nullptr);
   ~Console();
 
+  // Shows the text in the modal Errors Console (or stdout without UI).
+  // Not recorded in the MessageLog: it's also the script console's sink.
   void printf(const char* format, ...);
+
+  // Non-critical problem: recorded in the MessageLog only (no modal
+  // window). Without UI it is also printed to stdout.
+  void warning(const char* format, ...);
+
+  // Critical problem: shown as with printf() and also recorded in the
+  // MessageLog.
+  void error(const char* format, ...);
 
   static void showException(const std::exception& e);
 

@@ -113,7 +113,7 @@ static bool save_document_in_background(const Context* context,
   if (fop->hasError())
   {
     Console console;
-    console.printf(fop->error().c_str());
+    console.error("%s", fop->error().c_str());
 
     // We don't know if the file was saved correctly or not. So mark
     // it as it should be saved again.

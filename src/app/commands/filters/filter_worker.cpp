@@ -119,7 +119,7 @@ void FilterWorker::run()
   if (!m_error.empty())
   {
     Console console;
-    console.printf("A problem has occurred.\n\nDetails:\n%s", m_error.c_str());
+    console.error("A problem has occurred.\n\nDetails:\n%s", m_error.c_str());
   }
 }
 

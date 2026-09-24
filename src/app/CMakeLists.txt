@@ -194,6 +194,7 @@ add_library(app-lib
   commands/cmd_cut.cpp
   commands/cmd_deselect_mask.cpp
   commands/cmd_developer_console.cpp
+  commands/cmd_message_log.cpp
   commands/cmd_discard_brush.cpp
   commands/cmd_duplicate_layer.cpp
   commands/cmd_duplicate_sprite.cpp
@@ -328,6 +329,7 @@ add_library(app-lib
   launcher.cpp
   log.cpp
   loop_tag.cpp
+  message_log.cpp
   modules.cpp
   modules/editors.cpp
   modules/gfx.cpp
@@ -434,6 +436,7 @@ add_library(app-lib
   ui/keyboard_shortcuts.cpp
   ui/main_menu_bar.cpp
   ui/main_window.cpp
+  ui/message_log_button.cpp
   ui/notifications.cpp
   ui/palette_popup.cpp
   ui/palette_view.cpp

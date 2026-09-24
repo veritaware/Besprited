@@ -19,6 +19,7 @@
 #include "app/app.h"
 #include "app/console.h"
 #include "app/context.h"
+#include "app/message_log.h"
 #include "app/modules/gui.h"
 #include "app/ui/status_bar.h"
 
@@ -152,14 +153,55 @@ void Console::printf(const char* format, ...)
   wid_textbox->setText(wid_textbox->text() + buf);
 }
 
+static void log_message(MessageLog::Severity severity, const char* text)
+{
+  std::string msg = text;
+  while (!msg.empty() && (msg.back() == '\n' || msg.back() == '\r'))
+    msg.pop_back();
+  if (!msg.empty())
+    MessageLog::instance()->add(severity, msg);
+}
+
+void Console::warning(const char* format, ...)
+{
+  char buf[4096];
+  va_list ap;
+
+  va_start(ap, format);
+  vsnprintf(buf, sizeof(buf), format, ap);
+  va_end(ap);
+
+  log_message(MessageLog::Severity::Warning, buf);
+
+  if (!m_withUI)
+  {
+    fputs(buf, stdout);
+    fputc('\n', stdout);
+    fflush(stdout);
+  }
+}
+
+void Console::error(const char* format, ...)
+{
+  char buf[4096];
+  va_list ap;
+
+  va_start(ap, format);
+  vsnprintf(buf, sizeof(buf), format, ap);
+  va_end(ap);
+
+  log_message(MessageLog::Severity::Error, buf);
+  printf("%s", buf);
+}
+
 // static
 void Console::showException(const std::exception& e)
 {
   Console console;
   if (typeid(e) == typeid(std::bad_alloc))
-    console.printf("There is not enough memory to complete the action.");
+    console.error("There is not enough memory to complete the action.");
   else
-    console.printf("A problem has occurred.\n\nDetails:\n%s\n", e.what());
+    console.error("A problem has occurred.\n\nDetails:\n%s\n", e.what());
 }
 
 } // namespace app

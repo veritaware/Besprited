@@ -132,7 +132,7 @@ void OpenFileCommand::onExecute(Context* context)
     {
       if (fop->hasError())
       {
-        console.printf(fop->error().c_str());
+        console.error("%s", fop->error().c_str());
         unrecent = true;
       }
       else
@@ -146,7 +146,7 @@ void OpenFileCommand::onExecute(Context* context)
 
         // Show any error
         if (fop->hasError())
-          console.printf(fop->error().c_str());
+          console.error("%s", fop->error().c_str());
 
         Document* document = fop->document();
         if (document)

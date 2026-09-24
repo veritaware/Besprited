@@ -45,6 +45,8 @@ namespace tools
 class Tool;
 }
 
+class MessageLogButton;
+
 class StatusBar : public ui::HBox,
                   public doc::ContextObserver,
                   public doc::DocumentsObserver,
@@ -96,6 +98,9 @@ private:
   class Indicators;
   class IndicatorsGeneration;
   Indicators* m_indicators;
+
+  // Unread warnings/errors counter (hidden while the MessageLog is empty)
+  MessageLogButton* m_messageLog;
 
   // Box of main commands
   ui::Widget* m_docControls;

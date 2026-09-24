@@ -800,6 +800,7 @@
         <item command="FullscreenPreview" text="&amp;Fullscreen Preview" />
         <item command="ToggleFullScreen" text="Toggle Fullscreen"/>
         <item command="Home" text="&amp;Home" />
+        <item command="MessageLog" text="&amp;Messages" />
         <separator />
         <item command="Refresh" text="&amp;Refresh &amp;&amp; Reload Skin" />
       </menu>

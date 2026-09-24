@@ -236,7 +236,7 @@ void cut(ContextWriter& writer)
   if (!copy_from_document(*writer.site()))
   {
     Console console;
-    console.printf("Can't copying an image portion from the current layer\n");
+    console.warning("Can't copy an image portion from the current layer");
   }
   else
   {
@@ -263,7 +263,7 @@ void copy(const ContextReader& reader)
   if (!copy_from_document(*reader.site()))
   {
     Console console;
-    console.printf("Can't copying an image portion from the current layer\n");
+    console.warning("Can't copy an image portion from the current layer");
     return;
   }
 }
