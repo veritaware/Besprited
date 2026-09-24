@@ -31,38 +31,36 @@ ScrollingState::~ScrollingState() = default;
 
 bool ScrollingState::onMouseDown(Editor* editor, MouseMessage* msg)
 {
-  m_oldPos = msg->position();
-
-  editor->captureMouse();
+  beginDrag(editor, msg->position());
   return true;
 }
 
-bool ScrollingState::onMouseUp(Editor* editor, MouseMessage* msg)
+// Scrolling works in screen space, not editor space.
+gfx::Point ScrollingState::dragPos(Editor* editor, MouseMessage* msg) const
 {
-  editor->backToPreviousState();
-  editor->releaseMouse();
-  return true;
+  return msg->position();
 }
 
-bool ScrollingState::onMouseMove(Editor* editor, MouseMessage* msg)
+bool ScrollingState::skipDrag(Editor* editor, MouseMessage* msg)
 {
-  View* view = View::getView(editor);
-  gfx::Point scroll = view->viewScroll();
-  gfx::Point newPos = msg->position();
-
 #ifdef _WIN32
+  gfx::Point newPos = msg->position();
   if (newPos != editor->autoScroll(msg, AutoScroll::ScrollDir))
   {
-    m_oldPos = newPos;
+    rebaseDrag(newPos);
     return true;
   }
 #endif
+  return false;
+}
 
-  scroll -= newPos - m_oldPos;
-  m_oldPos = newPos;
-
-  editor->setEditorScroll(scroll);
-  return true;
+void ScrollingState::onDrag(Editor* editor, const gfx::Point& delta)
+{
+  // The view clamps its scroll, so keep deltas incremental: apply this one
+  // to the current scroll and make the current position the new start.
+  gfx::Point scroll = View::getView(editor)->viewScroll();
+  editor->setEditorScroll(scroll - delta);
+  rebaseDrag(dragStart() + delta);
 }
 
 bool ScrollingState::onSetCursor(Editor* editor,
