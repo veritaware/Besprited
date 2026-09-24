@@ -27,11 +27,11 @@ namespace app
 // state and release the mouse. MovingSymmetryState and MovingCelState both
 // hand-wrote this exact shell. See issue #225.
 //
-// ScrollingState looks like a third candidate but works in screen space
-// (not editor space) and has a Windows-only autoScroll() short-circuit in
-// its onMouseMove() - converting it needs its own careful pass rather than
-// forcing it through this same onMouseMove() shape, so it's deliberately
-// left out here.
+// ScrollingState also builds on this, but needs screen-space positions
+// (override dragPos()) and a Windows-only autoScroll() short-circuit
+// (override skipDrag()). It also re-bases the drag start on every move
+// (rebaseDrag()) so its deltas stay incremental, as the view's scroll
+// position gets clamped. See issue #252.
 //
 // Base is whichever EditorState subclass this drag state should otherwise
 // behave like - StandbyState for a state that falls through to
@@ -50,7 +50,9 @@ public:
 
   bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override
   {
-    onDrag(editor, editor->screenToEditor(msg->position()) - m_start);
+    if (skipDrag(editor, msg))
+      return true;
+    onDrag(editor, dragPos(editor, msg) - m_start);
     return afterDrag(editor, msg);
   }
 
@@ -63,6 +65,24 @@ protected:
   }
 
   const gfx::Point& dragStart() const { return m_start; }
+
+  // Moves the drag's start point, so later deltas are relative to it.
+  void rebaseDrag(const gfx::Point& newStart) { m_start = newStart; }
+
+  // The mouse position the drag delta is computed from. Editor space by
+  // default; override to use another space (e.g. screen space), and pass
+  // a start point in that same space to beginDrag().
+  virtual gfx::Point dragPos(Editor* editor, ui::MouseMessage* msg) const
+  {
+    return editor->screenToEditor(msg->position());
+  }
+
+  // Called first on every onMouseMove(); return true to swallow the move
+  // (no onDrag()/afterDrag()). The state may rebaseDrag() here.
+  virtual bool skipDrag(Editor* editor, ui::MouseMessage* msg)
+  {
+    return false;
+  }
 
   // Applies whatever this state drags, given the delta (in editor space)
   // between the current mouse position and the drag's start point.
