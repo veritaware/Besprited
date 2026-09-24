@@ -1,5 +1,5 @@
-# Aseprite Document Library
-# Copyright (C) 2001-2016 David Capello
+# Aseprite  | Copyright (C) 2001-2016 David Capello
+# Besprited | Copyright (C) 2026      Veritaware
 
 if(WIN32)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
@@ -29,6 +29,7 @@ add_library(doc-lib
   context.cpp
   conversion_she.cpp
   document.cpp
+  document_range.cpp
   documents.cpp
   file/col_file.cpp
   file/gpl_file.cpp

@@ -9,6 +9,8 @@
 
 #include "doc/cel_list.h"
 
+#include "doc/document_range.h"
+
 #include <vector>
 
 namespace doc
@@ -20,7 +22,6 @@ namespace app
 {
 using namespace doc;
 
-class DocumentRange;
 
 doc::CelList get_unique_cels(doc::Sprite* sprite, const DocumentRange& range);
 

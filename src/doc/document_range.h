@@ -16,11 +16,6 @@ namespace doc
 {
 class Cel;
 class Sprite;
-}
-
-namespace app
-{
-using namespace doc;
 
 class DocumentRange
 {
@@ -74,4 +69,4 @@ private:
   frame_t m_frameEnd;
 };
 
-} // namespace app
+} // namespace doc

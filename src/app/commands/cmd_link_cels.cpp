@@ -43,8 +43,7 @@ bool LinkCelsCommand::onEnabled(Context* context)
 {
   if (context->checkFlags(ContextFlags::ActiveDocumentIsWritable))
   {
-    // TODO see issue #245: the range of selected frames should be in doc::Site.
-    auto range = App::instance()->timeline()->range();
+    const DocumentRange& range = context->activeSite().range();
     return (range.enabled() && range.frames() > 1);
   }
   else
@@ -57,8 +56,7 @@ void LinkCelsCommand::onExecute(Context* context)
   Document* document(writer.document());
   bool nonEditableLayers = false;
   {
-    // TODO see issue #245: the range of selected frames should be in doc::Site.
-    auto range = App::instance()->timeline()->range();
+    const DocumentRange& range = writer.site()->range();
     if (!range.enabled())
       return;
 

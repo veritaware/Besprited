@@ -19,7 +19,7 @@
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
-#include "app/document_range.h"
+#include "doc/document_range.h"
 #include "app/modules/gui.h"
 #include "app/transaction.h"
 #include "app/ui/timeline.h"

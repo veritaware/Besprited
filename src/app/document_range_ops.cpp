@@ -14,7 +14,7 @@
 #include "app/app.h" // TODO remove this dependency
 #include "app/context_access.h"
 #include "app/document_api.h"
-#include "app/document_range.h"
+#include "doc/document_range.h"
 #include "app/transaction.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"

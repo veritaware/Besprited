@@ -17,7 +17,7 @@
 #include "app/context_access.h"
 #include "app/document.h"
 #include "app/document_api.h"
-#include "app/document_range.h"
+#include "doc/document_range.h"
 #include "app/document_range_ops.h"
 #include "app/modules/editors.h"
 #include "app/modules/gfx.h"

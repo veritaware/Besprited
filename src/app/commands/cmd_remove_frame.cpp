@@ -53,8 +53,7 @@ void RemoveFrameCommand::onExecute(Context* context)
     Transaction transaction(writer.context(), "Remove Frame");
     DocumentApi api = document->getApi(transaction);
 
-    // TODO see issue #245: the range of selected frames should be in doc::Site.
-    auto range = App::instance()->timeline()->range();
+    const DocumentRange& range = writer.site()->range();
     if (range.enabled())
     {
       for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1;

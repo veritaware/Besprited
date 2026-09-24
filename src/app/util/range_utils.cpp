@@ -13,7 +13,7 @@
 
 #include "app/context_access.h"
 #include "app/document.h"
-#include "app/document_range.h"
+#include "doc/document_range.h"
 #include "doc/cel.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"

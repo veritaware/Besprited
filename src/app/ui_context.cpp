@@ -237,6 +237,9 @@ void UIContext::onGetActiveSite(Site* site) const
   if (view)
   {
     view->getSite(site);
+    // The selected range lives in the (UI-only) timeline.
+    if (Timeline* timeline = App::instance()->timeline())
+      site->range(timeline->range());
   }
   // Default/dummy site (maybe for batch/command line mode)
   else if (!isUIAvailable())
