@@ -309,7 +309,6 @@ add_library(app-lib
   document.cpp
   document_api.cpp
   document_exporter.cpp
-  document_range.cpp
   document_range_ops.cpp
   document_undo.cpp
   extra_cel.cpp

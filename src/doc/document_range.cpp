@@ -9,17 +9,15 @@
 #include "config.h"
 #endif
 
-#include "app/document_range.h"
+#include "doc/document_range.h"
 
 #include "doc/cel.h"
 #include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"
 
-namespace app
+namespace doc
 {
-
-using namespace doc;
 
 DocumentRange::DocumentRange()
   : m_type(kNone)
@@ -125,4 +123,4 @@ bool DocumentRange::convertToCels(Sprite* sprite)
   return true;
 }
 
-} // namespace app
+} // namespace doc

@@ -7,12 +7,13 @@
 
 #pragma once
 
+#include "doc/document_range.h"
+
 #include <vector>
 
 namespace app
 {
 class Document;
-class DocumentRange;
 
 enum DocumentRangePlace
 {
@@ -23,11 +24,13 @@ enum DocumentRangePlace
 // These functions returns the new location of the "from" range or
 // throws an std::runtime_error() in case that the operation cannot
 // be done. (E.g. the background layer cannot be moved.)
-DocumentRange move_range(Document* doc, const DocumentRange& from,
-                         const DocumentRange& to, DocumentRangePlace place);
-DocumentRange copy_range(Document* doc, const DocumentRange& from,
-                         const DocumentRange& to, DocumentRangePlace place);
+doc::DocumentRange move_range(Document* doc, const doc::DocumentRange& from,
+                              const doc::DocumentRange& to,
+                              DocumentRangePlace place);
+doc::DocumentRange copy_range(Document* doc, const doc::DocumentRange& from,
+                              const doc::DocumentRange& to,
+                              DocumentRangePlace place);
 
-void reverse_frames(Document* doc, const DocumentRange& range);
+void reverse_frames(Document* doc, const doc::DocumentRange& range);
 
 } // namespace app

@@ -17,7 +17,7 @@
 #include "app/commands/cmd_eyedropper.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
-#include "app/document_range.h"
+#include "doc/document_range.h"
 #include "app/ini_file.h"
 #include "app/pref/preferences.h"
 #include "app/tools/ink.h"

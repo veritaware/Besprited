@@ -10,7 +10,7 @@
 #include "app/context.h"
 #include "app/document.h"
 #include "app/document_api.h"
-#include "app/document_range.h"
+#include "doc/document_range.h"
 #include "app/document_range_ops.h"
 #include "app/document_undo.h"
 #include "app/transaction.h"
@@ -22,7 +22,7 @@
 using namespace app;
 using namespace doc;
 
-namespace app
+namespace doc
 {
 
 std::ostream& operator<<(std::ostream& os, const DocumentRange& range)
@@ -33,7 +33,7 @@ std::ostream& operator<<(std::ostream& os, const DocumentRange& range)
             << "] }";
 }
 
-} // namespace app
+} // namespace doc
 
 using DocumentPtr = std::unique_ptr<app::Document>;
 

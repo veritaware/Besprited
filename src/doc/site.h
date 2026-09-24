@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "doc/document_range.h"
 #include "doc/frame.h"
 #include "doc/layer_index.h"
 #include <memory>
@@ -39,6 +40,8 @@ public:
   const Sprite* sprite() const { return m_sprite; }
   const Layer* layer() const { return m_layer; }
   frame_t frame() const { return m_frame; }
+  // The range of selected cels/frames/layers (disabled if none).
+  const DocumentRange& range() const { return m_range; }
   std::shared_ptr<const Cel> cel() const;
 
   Document* document() { return m_document; }
@@ -50,6 +53,7 @@ public:
   void sprite(Sprite* sprite) { m_sprite = sprite; }
   void layer(Layer* layer) { m_layer = layer; }
   void frame(frame_t frame) { m_frame = frame; }
+  void range(const DocumentRange& range) { m_range = range; }
 
   LayerIndex layerIndex() const;
   void layerIndex(LayerIndex layerIndex);
@@ -63,6 +67,7 @@ private:
   Sprite* m_sprite;
   Layer* m_layer;
   frame_t m_frame;
+  DocumentRange m_range;
 };
 
 } // namespace doc

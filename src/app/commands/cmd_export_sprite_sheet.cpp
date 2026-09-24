@@ -248,10 +248,8 @@ bool ask_overwrite(bool askFilename, std::string filename, bool askDataname,
 class SelectedFrameTag
 {
 public:
-  static frame_t From()
+  static frame_t From(const DocumentRange& range)
   {
-    // TODO see issue #245: the range of selected frames should be in doc::Site.
-    auto range = App::instance()->timeline()->range();
     if (range.enabled())
     {
       return range.frameBegin();
@@ -264,9 +262,8 @@ public:
       return 0;
   }
 
-  static frame_t To()
+  static frame_t To(const DocumentRange& range)
   {
-    auto range = App::instance()->timeline()->range();
     if (range.enabled())
     {
       return range.frameEnd();
@@ -290,9 +287,9 @@ public:
     }
   }
 
-  FrameTag* create(Sprite* sprite)
+  FrameTag* create(Sprite* sprite, const DocumentRange& range)
   {
-    m_frameTag = new FrameTag(From(), To());
+    m_frameTag = new FrameTag(From(range), To(range));
     sprite->frameTags().add(m_frameTag);
     return m_frameTag;
   }
@@ -310,10 +307,8 @@ public:
       item.first->setVisible(item.second);
   }
 
-  void showSelectedLayers(Sprite* sprite)
+  void showSelectedLayers(Sprite* sprite, DocumentRange range)
   {
-    // TODO see issue #245: the range of selected frames should be in doc::Site.
-    auto range = App::instance()->timeline()->range();
     if (!range.enabled())
     {
       if (current_editor)
@@ -840,8 +835,10 @@ private:
     std::string tagName = frameTagValue();
     if (tagName == kSelectedFrames)
     {
-      bframe = SelectedFrameTag::From();
-      nframes = SelectedFrameTag::To() - SelectedFrameTag::From() + 1;
+      const DocumentRange& range =
+          m_sprite->document()->context()->activeSite().range();
+      bframe = SelectedFrameTag::From(range);
+      nframes = SelectedFrameTag::To(range) - bframe + 1;
     }
     else
     {
@@ -1014,7 +1011,7 @@ void ExportSpriteSheetCommand::onExecute(Context* context)
   SelectedFrameTag selectedFrameTag;
   if (frameTagName == kSelectedFrames)
   {
-    frameTag = selectedFrameTag.create(sprite);
+    frameTag = selectedFrameTag.create(sprite, context->activeSite().range());
     isTemporalTag = true;
   }
   else if (frameTagName != kAllFrames)
@@ -1028,7 +1025,8 @@ void ExportSpriteSheetCommand::onExecute(Context* context)
   SelectedLayers layersVisibility;
   if (layerName == kSelectedLayers)
   {
-    layersVisibility.showSelectedLayers(sprite);
+    layersVisibility.showSelectedLayers(sprite,
+                                        context->activeSite().range());
   }
   else
   {

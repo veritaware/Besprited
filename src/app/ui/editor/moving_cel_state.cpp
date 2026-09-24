@@ -14,7 +14,7 @@
 #include "app/app.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
-#include "app/document_range.h"
+#include "doc/document_range.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
 #include "app/ui/main_window.h"

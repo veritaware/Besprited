@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "app/document_range.h"
+#include "doc/document_range.h"
 #include "app/pref/preferences.h"
 #include "app/ui/ani_controls.h"
 #include "app/ui/editor/editor_observer.h"

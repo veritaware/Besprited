@@ -11,6 +11,8 @@
 #include "gfx/size.h"
 #include "ui/base.h"
 
+#include "doc/document_range.h"
+
 #include <memory>
 
 namespace doc
@@ -26,7 +28,6 @@ namespace app
 class Document;
 class ContextReader;
 class ContextWriter;
-class DocumentRange;
 
 namespace clipboard
 {
