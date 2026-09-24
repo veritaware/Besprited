@@ -46,7 +46,6 @@
 #include "app/ui/toolbar.h"
 #include "app/ui_context.h"
 #include "base/bind.h"
-#include "base/convert_to.h"
 #include "doc/conversion_she.h"
 #include "doc/doc.h"
 #include "doc/document_event.h"
@@ -1796,44 +1795,7 @@ bool Editor::isPlaying() const
 void Editor::showAnimationSpeedMultiplierPopup(Option<bool>& playOnce,
                                                bool withStopBehaviorOptions)
 {
-  double options[] = {0.25, 0.5, 1.0, 1.5, 2.0, 3.0};
-  Menu menu;
-
-  for (double option : options)
-  {
-    MenuItem* item =
-        new MenuItem("Speed x" + base::convert_to<std::string>(option));
-    item->Click.connect(
-        base::Bind<void>(&Editor::setAnimationSpeedMultiplier, this, option));
-    item->setSelected(m_aniSpeed == option);
-    menu.addChild(item);
-  }
-
-  menu.addChild(new MenuSeparator);
-
-  // Play once option
-  {
-    MenuItem* item = new MenuItem("Play Once");
-    item->Click.connect([&playOnce]() { playOnce(!playOnce()); });
-    item->setSelected(playOnce());
-    menu.addChild(item);
-  }
-
-  if (withStopBehaviorOptions)
-  {
-    MenuItem* item = new MenuItem("Rewind on Stop");
-    item->Click.connect(
-        []()
-        {
-          // Switch the "rewind_on_stop" option
-          Preferences::instance().general.rewindOnStop(
-              !Preferences::instance().general.rewindOnStop());
-        });
-    item->setSelected(Preferences::instance().general.rewindOnStop());
-    menu.addChild(item);
-  }
-
-  menu.showPopup(ui::get_mouse_position());
+  show_animation_speed_multiplier_popup(this, playOnce, withStopBehaviorOptions);
 }
 
 double Editor::getAnimationSpeedMultiplier() const
