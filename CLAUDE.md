@@ -64,6 +64,21 @@ A few modules (`src/clip`, `src/undo`, and the vendored `third_party/observable`
 self-contained `tests/CMakeLists.txt` (with a local `add_<module>_test()` helper and a tiny in-tree
 test header) rather than the GoogleTest suite under `test/`.
 
+### Shell commands started by the agent
+
+Any shell command an agent starts that could plausibly hang or run for a long time — builds and test runs
+(`ninja`, `ctest`, test binaries), launching the app, polling/wait loops, watchers, network calls — **must
+have a timeout killswitch** so it can never be left running indefinitely:
+
+- Wrap it in `timeout <duration> <cmd>` (e.g. `timeout 300 ctest -j8`, `timeout 8 ./bin/besprited`), and/or
+  set the Bash tool's own `timeout` parameter.
+- Wait/poll loops must be bounded (a fixed iteration count or deadline), never `while true` / `until` with no
+  exit. Prefer waiting on the background task's completion notification over hand-rolled polling.
+- Don't start background commands (`run_in_background`) or watchers without a bounded lifetime, and don't
+  leave them running once their result has been read; stop them.
+- When launching the GUI for a smoke test, always give it a short `timeout` so the window can't outlive the
+  check.
+
 ## Architecture
 
 The codebase is organized under `src/` as a strict dependency-layered set of modules — each module only
