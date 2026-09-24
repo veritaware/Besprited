@@ -30,7 +30,7 @@ ninja besprited
 - Build type defaults to `RelWithDebInfo`; other types: `Debug`, `Release`, `Profile` (a custom profiling
   build type set up in the root `CMakeLists.txt`).
 - Key CMake options (see root `CMakeLists.txt`): `ENABLE_TESTS`, `WITH_WEBP_SUPPORT`,
-  `WITH_GTK_FILE_DIALOG_SUPPORT`, `WITH_DESKTOP_INTEGRATION`, `USE_SDL2_BACKEND` (on by default),
+  `WITH_GTK_FILE_DIALOG_SUPPORT`, `WITH_DESKTOP_INTEGRATION`, `USE_SDL2_BACKEND` (on by default), `USE_SDL3_BACKEND` (experimental, mutually exclusive with SDL2),
   `ENABLE_MEMLEAK`, `FULLSCREEN_PLATFORM`.
 - Install with `ninja install` from the `build` directory.
 - Full platform dependency lists (Linux/Windows/macOS/Android) are in `INSTALL.md`.

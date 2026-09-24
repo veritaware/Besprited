@@ -1,5 +1,6 @@
 # SHE
 # Copyright (C) 2012-2016  David Capello
+# Besprited | Copyright (C) 2026 Veritaware
 
 set(SHE_SOURCES
   common/freetype_font.cpp)
@@ -27,6 +28,16 @@ if(USE_SDL2_BACKEND)
     sdl2/sdl2_display.cpp
     sdl2/sdl2_surface.cpp
     sdl2/she.cpp)
+endif()
+
+######################################################################
+# SDL3 backend
+
+if(USE_SDL3_BACKEND)
+  list(APPEND SHE_SOURCES
+    sdl3/sdl3_display.cpp
+    sdl3/sdl3_surface.cpp
+    sdl3/she.cpp)
 endif()
 
 ######################################################################
@@ -62,6 +73,10 @@ target_link_libraries(she
 if(USE_SDL2_BACKEND)
   target_link_libraries(she ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
   target_compile_options(she PUBLIC ${SDL2_CFLAGS_OTHER})
+endif()
+
+if(USE_SDL3_BACKEND)
+  target_link_libraries(she SDL3::SDL3 SDL3_image::SDL3_image)
 endif()
 
 if(WITH_GTK_FILE_DIALOG_SUPPORT)
