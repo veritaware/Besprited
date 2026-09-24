@@ -67,3 +67,34 @@ jobs:
 
     - name: Run clang-tidy
       run: cd build && cmake --build . --target clang-tidy
+
+  # Experimental SDL3 backend (#73). Non-blocking until the backend is ported.
+  clang-tidy-sdl3:
+    if: ${{ !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
+    runs-on: ubuntu-26.04
+    continue-on-error: true
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Install dependencies
+      uses: ./.github/actions/install-deps
+      with:
+        sdl-version: '3'
+
+    - name: Install clang-tidy
+      run: sudo apt install -y clang-tidy
+
+    - name: Git submodules
+      run: git submodule update --init --recursive
+
+    - name: Configure CMake
+      run: mkdir build && cd build && cmake -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DUSE_SDL2_BACKEND=off -DUSE_SDL3_BACKEND=on ..
+
+    - name: Build the project (required to generate *.xml.h files)
+      run: cd build && ninja besprited
+
+    - name: Run clang-tidy
+      run: cd build && cmake --build . --target clang-tidy

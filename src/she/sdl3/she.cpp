@@ -5,8 +5,9 @@
 // Read LICENSE.txt for more information.
 
 // Phase 0 scaffolding of the SDL3 backend (see #73, #260). It only makes the
-// backend configurable, compilable and linkable; the she::System,
-// she::EventQueue and friends are ported in the following phases.
+// backend configurable, compilable and linkable (create_system() aborts for
+// now); the she::System, she::EventQueue and friends are ported in the
+// following phases.
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -21,6 +22,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
+#include <cstdlib>
 #include <iostream>
 #include <string>
 
@@ -39,7 +41,10 @@ namespace she {
   }
 
   System* create_system() {
-    return nullptr; // TODO(#73): SDL3System
+    // TODO(#73): SDL3System
+    std::cerr << "The SDL3 backend is not functional yet (SDL3 migration, #73).\n"
+              << "Build with -DUSE_SDL2_BACKEND=on for a working editor.\n";
+    std::exit(1);
   }
 
   System* instance() {
@@ -71,14 +76,11 @@ namespace she {
 // It must be defined by the user program code.
 extern int app_main(int argc, char* argv[]);
 
-int main(const int, char*[]) {
-  std::cerr << "The SDL3 backend is not functional yet (SDL3 migration, #73).\n"
-            << "Build with -DUSE_SDL2_BACKEND=on for a working editor.\n";
-
+int main(const int argc, char* argv[]) {
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     std::cerr << "Critical: Could not initialize SDL3 (" << SDL_GetError() << "). Aborting.\n";
     return -1;
   }
-  SDL_Quit();
-  return 1;
+  // Tests that link she rely on this main() calling app_main().
+  return app_main(argc, argv);
 }
