@@ -1271,167 +1271,60 @@ bool Editor::onProcessMessage(Message* msg)
   {
 
   case kTimerMessage:
-    if (static_cast<TimerMessage*>(msg)->timer() == &m_antsTimer)
-    {
-      if (isVisible() && m_sprite)
-      {
-        drawMaskSafe();
-
-        // Set offset to make selection-movement effect
-        if (m_antsOffset < 7)
-          m_antsOffset++;
-        else
-          m_antsOffset = 0;
-      }
-      else if (m_antsTimer.isRunning())
-      {
-        m_antsTimer.stop();
-      }
-    }
+    onTimerMessage(static_cast<TimerMessage*>(msg));
     break;
 
   case kMouseEnterMessage:
-    updateToolLoopModifiersIndicators();
-    updateQuicktool();
+    onMouseEnterMessage();
     break;
 
   case kMouseLeaveMessage:
-    m_brushPreview.hide();
-    StatusBar::instance()->clearText();
+    onMouseLeaveMessage();
     break;
 
   case kMouseDownMessage:
     if (m_sprite)
-    {
-      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-
-      m_oldPos = mouseMsg->position();
-      updateToolByTipProximity(mouseMsg->pointerType());
-
-      if (!m_secondaryButton && mouseMsg->right())
-      {
-        m_secondaryButton = mouseMsg->right();
-
-        updateToolLoopModifiersIndicators();
-        updateQuicktool();
-        setCursor(mouseMsg->position());
-      }
-
-      App::instance()->activeToolManager()->pressButton(
-          pointer_from_msg(this, mouseMsg));
-
-      EditorStatePtr holdState(m_state);
-      return m_state->onMouseDown(this, mouseMsg);
-    }
+      return onMouseDownMessage(static_cast<MouseMessage*>(msg));
     break;
 
   case kMouseMoveMessage:
     if (m_sprite)
-    {
-      EditorStatePtr holdState(m_state);
-      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-
-      updateToolByTipProximity(mouseMsg->pointerType());
-
-      return m_state->onMouseMove(this, static_cast<MouseMessage*>(msg));
-    }
+      return onMouseMoveMessage(static_cast<MouseMessage*>(msg));
     break;
 
   case kMouseUpMessage:
-    if (m_sprite)
-    {
-      EditorStatePtr holdState(m_state);
-      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-      bool result = m_state->onMouseUp(this, mouseMsg);
-
-      updateToolByTipProximity(mouseMsg->pointerType());
-
-      if (!hasCapture())
-      {
-        App::instance()->activeToolManager()->releaseButtons();
-        m_secondaryButton = false;
-
-        updateToolLoopModifiersIndicators();
-        updateQuicktool();
-        setCursor(mouseMsg->position());
-      }
-
-      if (result)
-        return true;
-    }
+    if (m_sprite && onMouseUpMessage(static_cast<MouseMessage*>(msg)))
+      return true;
     break;
 
   case kDoubleClickMessage:
-    if (m_sprite)
-    {
-      MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-      EditorStatePtr holdState(m_state);
-
-      updateToolByTipProximity(mouseMsg->pointerType());
-
-      bool used = m_state->onDoubleClick(this, mouseMsg);
-      if (used)
-        return true;
-    }
+    if (m_sprite && onDoubleClickMessage(static_cast<MouseMessage*>(msg)))
+      return true;
     break;
 
   case kTouchMagnifyMessage:
     if (m_sprite)
-    {
-      EditorStatePtr holdState(m_state);
-      return m_state->onTouchMagnify(this, static_cast<TouchMessage*>(msg));
-    }
+      return onTouchMagnifyMessage(static_cast<TouchMessage*>(msg));
     break;
 
   case kKeyDownMessage:
-    if (m_sprite)
-    {
-      EditorStatePtr holdState(m_state);
-      bool used = m_state->onKeyDown(this, static_cast<KeyMessage*>(msg));
-
-      updateToolLoopModifiersIndicators();
-      if (hasMouse())
-      {
-        updateQuicktool();
-        setCursor(ui::get_mouse_position());
-      }
-
-      if (used)
-        return true;
-    }
+    if (m_sprite && onKeyDownMessage(static_cast<KeyMessage*>(msg)))
+      return true;
     break;
 
   case kKeyUpMessage:
-    if (m_sprite)
-    {
-      EditorStatePtr holdState(m_state);
-      bool used = m_state->onKeyUp(this, static_cast<KeyMessage*>(msg));
-
-      updateToolLoopModifiersIndicators();
-      if (hasMouse())
-      {
-        updateQuicktool();
-        setCursor(ui::get_mouse_position());
-      }
-
-      if (used)
-        return true;
-    }
+    if (m_sprite && onKeyUpMessage(static_cast<KeyMessage*>(msg)))
+      return true;
     break;
 
   case kFocusLeaveMessage:
-    // As we use keys like Space-bar as modifier, we can clear the
-    // keyboard buffer when we lost the focus.
-    she::clear_keyboard_buffer();
+    onFocusLeaveMessage();
     break;
 
   case kMouseWheelMessage:
-    if (m_sprite && hasMouse())
-    {
-      EditorStatePtr holdState(m_state);
-      if (m_state->onMouseWheel(this, static_cast<MouseMessage*>(msg)))
-        return true;
-    }
+    if (m_sprite && hasMouse() &&
+        onMouseWheelMessage(static_cast<MouseMessage*>(msg)))
+      return true;
     break;
 
   case kSetCursorMessage:
@@ -1440,6 +1333,147 @@ bool Editor::onProcessMessage(Message* msg)
   }
 
   return Widget::onProcessMessage(msg);
+}
+
+void Editor::onTimerMessage(TimerMessage* msg)
+{
+  if (msg->timer() == &m_antsTimer)
+  {
+    if (isVisible() && m_sprite)
+    {
+      drawMaskSafe();
+
+      // Set offset to make selection-movement effect
+      if (m_antsOffset < 7)
+        m_antsOffset++;
+      else
+        m_antsOffset = 0;
+    }
+    else if (m_antsTimer.isRunning())
+    {
+      m_antsTimer.stop();
+    }
+  }
+}
+
+void Editor::onMouseEnterMessage()
+{
+  updateToolLoopModifiersIndicators();
+  updateQuicktool();
+}
+
+void Editor::onMouseLeaveMessage()
+{
+  m_brushPreview.hide();
+  StatusBar::instance()->clearText();
+}
+
+bool Editor::onMouseDownMessage(MouseMessage* mouseMsg)
+{
+  m_oldPos = mouseMsg->position();
+  updateToolByTipProximity(mouseMsg->pointerType());
+
+  if (!m_secondaryButton && mouseMsg->right())
+  {
+    m_secondaryButton = mouseMsg->right();
+
+    updateToolLoopModifiersIndicators();
+    updateQuicktool();
+    setCursor(mouseMsg->position());
+  }
+
+  App::instance()->activeToolManager()->pressButton(
+      pointer_from_msg(this, mouseMsg));
+
+  EditorStatePtr holdState(m_state);
+  return m_state->onMouseDown(this, mouseMsg);
+}
+
+bool Editor::onMouseMoveMessage(MouseMessage* mouseMsg)
+{
+  EditorStatePtr holdState(m_state);
+
+  updateToolByTipProximity(mouseMsg->pointerType());
+
+  return m_state->onMouseMove(this, mouseMsg);
+}
+
+bool Editor::onMouseUpMessage(MouseMessage* mouseMsg)
+{
+  EditorStatePtr holdState(m_state);
+  bool result = m_state->onMouseUp(this, mouseMsg);
+
+  updateToolByTipProximity(mouseMsg->pointerType());
+
+  if (!hasCapture())
+  {
+    App::instance()->activeToolManager()->releaseButtons();
+    m_secondaryButton = false;
+
+    updateToolLoopModifiersIndicators();
+    updateQuicktool();
+    setCursor(mouseMsg->position());
+  }
+
+  return result;
+}
+
+bool Editor::onDoubleClickMessage(MouseMessage* mouseMsg)
+{
+  EditorStatePtr holdState(m_state);
+
+  updateToolByTipProximity(mouseMsg->pointerType());
+
+  return m_state->onDoubleClick(this, mouseMsg);
+}
+
+bool Editor::onTouchMagnifyMessage(TouchMessage* touchMsg)
+{
+  EditorStatePtr holdState(m_state);
+  return m_state->onTouchMagnify(this, touchMsg);
+}
+
+bool Editor::onKeyDownMessage(KeyMessage* keyMsg)
+{
+  EditorStatePtr holdState(m_state);
+  bool used = m_state->onKeyDown(this, keyMsg);
+
+  updateToolLoopModifiersIndicators();
+  if (hasMouse())
+  {
+    updateQuicktool();
+    setCursor(ui::get_mouse_position());
+  }
+
+  return used;
+}
+
+bool Editor::onKeyUpMessage(KeyMessage* keyMsg)
+{
+  EditorStatePtr holdState(m_state);
+  bool used = m_state->onKeyUp(this, keyMsg);
+
+  updateToolLoopModifiersIndicators();
+  if (hasMouse())
+  {
+    updateQuicktool();
+    setCursor(ui::get_mouse_position());
+  }
+
+  return used;
+}
+
+void Editor::onFocusLeaveMessage()
+{
+  // As we use keys like Space-bar as modifier, we can clear the
+  // keyboard buffer when we lost the focus.
+  she::clear_keyboard_buffer();
+}
+
+bool Editor::onMouseWheelMessage(MouseMessage* mouseMsg)
+{
+  EditorStatePtr holdState(m_state);
+  return m_state->onMouseWheel(this, mouseMsg);
 }
 
 void Editor::onSizeHint(SizeHintEvent& ev)
