@@ -3,6 +3,11 @@ description: >
   Installs the apt packages and Python tooling needed to configure and build
   Besprited on Linux (used by the CI, CodeQL, and static-analysis workflows).
 
+inputs:
+  sdl-version:
+    description: SDL major version to install the development packages for (2 or 3).
+    default: '2'
+
 runs:
   using: composite
   steps:
@@ -10,5 +15,6 @@ runs:
       shell: bash
       run: |
         sudo apt update
-        sudo apt install -y g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev libfuse2
+        sudo apt install -y g++ libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libtinyxml2-dev libwebp-dev libx11-dev libxcursor-dev ninja-build libnode-dev zlib1g-dev libarchive-dev libfuse2
+        sudo apt install -y libsdl${{ inputs.sdl-version }}-dev libsdl${{ inputs.sdl-version }}-image-dev
         pip install cmake

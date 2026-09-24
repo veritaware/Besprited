@@ -30,3 +30,28 @@ jobs:
         SDL_VIDEODRIVER: dummy
         SDL_AUDIODRIVER: dummy
       run: ctest --test-dir build --output-on-failure
+
+  # Experimental SDL3 backend (#73). Non-blocking until the backend is ported;
+  # tests that need a live she::System abort in the placeholder backend.
+  build-unit-tests-sdl3:
+    name: build unit tests (SDL3)
+    runs-on: ubuntu-26.04
+    continue-on-error: true
+    if: ${{ !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        submodules: 'true'
+    - name: Install build dependencies
+      uses: ./.github/actions/install-deps
+      with:
+        sdl-version: '3'
+    - name: Configure with tests enabled
+      run: cmake -S . -B build -G Ninja -DENABLE_TESTS=on -DUSE_SDL2_BACKEND=off -DUSE_SDL3_BACKEND=on
+    - name: Build the unit tests
+      run: cmake --build build
+    - name: Run the unit tests
+      env:
+        SDL_VIDEODRIVER: dummy
+        SDL_AUDIODRIVER: dummy
+      run: ctest --test-dir build --output-on-failure

@@ -42,6 +42,12 @@ function(find_tests dir)
   file(GLOB testsources CONFIGURE_DEPENDS
        "${CMAKE_CURRENT_SOURCE_DIR}/${dir}/*_tests.cpp")
 
+  # This test builds she::SDL2Surface directly; skip it until the SDL3 backend
+  # has its own surface (SDL3 migration, #73).
+  if(USE_SDL3_BACKEND)
+    list(FILTER testsources EXCLUDE REGEX "/conversion_she_tests\\.cpp$")
+  endif()
+
   # base/log.cpp calls she::log(), which lives in the same translation unit as
   # she's platform main(). So any test that links both base and she pulls in
   # she's main() - such tests must define app_main() instead (via tests.h with

@@ -52,6 +52,12 @@ option(FULLSCREEN_PLATFORM "Enable fullscreen by default" off)
 option(ENABLE_PACKAGING   "Configure CPack for .deb/.rpm package generation" off)
 
 option(USE_SDL2_BACKEND "Use SDL2 backend" on)
+option(USE_SDL3_BACKEND "Use SDL3 backend (experimental, work in progress)" off)
+
+if(USE_SDL2_BACKEND AND USE_SDL3_BACKEND)
+  message(FATAL_ERROR "USE_SDL2_BACKEND and USE_SDL3_BACKEND are mutually exclusive; "
+                      "configure SDL3 with -DUSE_SDL2_BACKEND=off -DUSE_SDL3_BACKEND=on")
+endif()
 
 ######################################################################
 # Profile build type
@@ -244,6 +250,13 @@ if(USE_SDL2_BACKEND)
   include_directories(${SDL2_INCLUDE_DIRS})
   find_package(SDL2_IMAGE REQUIRED)
   include_directories(${SDL2_IMAGE_INCLUDE_DIRS})
+elseif(USE_SDL3_BACKEND)
+  add_definitions(-DUSE_SDL3_BACKEND)
+
+  # SDL3 ships proper CMake config packages (imported SDL3::SDL3 and
+  # SDL3_image::SDL3_image targets), so no custom Find module is needed.
+  find_package(SDL3 CONFIG REQUIRED)
+  find_package(SDL3_image CONFIG REQUIRED)
 endif()
 
 # -- Unix --
