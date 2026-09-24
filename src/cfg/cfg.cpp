@@ -14,7 +14,10 @@
 #include "base/file_handle.h"
 #include "base/log.h"
 
+#include <cerrno>
+#include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include "SimpleIni.h"
 
 // clang-format off
@@ -200,14 +203,17 @@ public:
     }
   }
 
-  void save()
+  bool save()
   {
+    m_lastError.clear();
+
     std::string data;
     if (const SI_Error err = m_ini.Save(data); err != SI_OK)
     {
       LOG("Error '%d' saving configuration into '%s'.", err,
           m_filename.c_str());
-      return;
+      m_lastError = "could not serialize the configuration";
+      return false;
     }
 
     // clang-format off
@@ -225,14 +231,44 @@ public:
 #endif
     // clang-format on
 
-    if (const base::FileHandle file = base::open_file(m_filename, "wb"))
-    {
-      std::fwrite(data.c_str(), 1, data.size(), file.get());
-    }
+#ifdef __EMSCRIPTEN__
+    // The browser storage above is the source of truth there.
+    writeFile(data);
+    return true;
+#else
+    return writeFile(data);
+#endif
   }
+
+  bool writeFile(const std::string& data)
+  {
+    const base::FileHandle file(base::open_file(m_filename, "wb"));
+    if (!file)
+    {
+      m_lastError = std::strerror(errno);
+      LOG("Error opening '%s' to save the configuration: %s.",
+          m_filename.c_str(), m_lastError.c_str());
+      return false;
+    }
+
+    // Check for short writes and for errors that are only reported on
+    // flush (disk full, quota exceeded, ...).
+    if (std::fwrite(data.c_str(), 1, data.size(), file.get()) != data.size() ||
+        std::fflush(file.get()) != 0)
+    {
+      m_lastError = std::strerror(errno);
+      LOG("Error writing the configuration into '%s': %s.",
+          m_filename.c_str(), m_lastError.c_str());
+      return false;
+    }
+    return true;
+  }
+
+  const std::string& lastError() const { return m_lastError; }
 
 private:
   std::string m_filename;
+  std::string m_lastError;
   CSimpleIniA m_ini;
 };
 
@@ -307,9 +343,14 @@ void CfgFile::load(const std::string& filename)
   m_impl->load(filename);
 }
 
-void CfgFile::save()
+bool CfgFile::save()
 {
-  m_impl->save();
+  return m_impl->save();
+}
+
+const std::string& CfgFile::lastError() const
+{
+  return m_impl->lastError();
 }
 
 } // namespace cfg

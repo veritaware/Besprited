@@ -12,7 +12,9 @@
 
 #include "app/ini_file.h"
 
+#include "app/message_log.h"
 #include "app/resource_finder.h"
+#include "base/log.h"
 #include "base/path.h"
 #include "base/split_string.h"
 #include "base/string.h"
@@ -80,7 +82,18 @@ void flush_config_file()
 {
   ASSERT(!g_configs.empty());
 
-  g_configs.back()->save();
+  cfg::CfgFile* cfg = g_configs.back();
+  if (cfg->save())
+    return;
+
+  // Not a modal dialog: this runs on document close/exit and would be
+  // disruptive, so surface it through the messages history instead.
+  // (Deliberately not via app::Console: it's also called from
+  // ~ConfigModule(), when App may no longer exist.)
+  const std::string msg = "Could not save preferences to \"" + cfg->filename() +
+                          "\": " + cfg->lastError();
+  LOG(ERROR) << msg << "\n";
+  MessageLog::instance()->add(MessageLog::Severity::Error, msg);
 }
 
 void set_config_file(const char* filename)
