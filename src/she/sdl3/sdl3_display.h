@@ -6,8 +6,8 @@
 
 #pragma once
 
-// SDL3 counterpart of she/sdl2/sdl2_display.h. Tablet (EasyTab/WM-info) and
-// event-loop pieces are ported in later SDL3 migration phases - see #73.
+// SDL3 counterpart of she/sdl2/sdl2_display.h. Tablet/WM-info (EasyTab,
+// nativeHandle()) is ported in a later SDL3 migration phase - see #73.
 
 #include "she/display.h"
 
@@ -60,6 +60,7 @@ public:
 
   void present() override;
   SDL_Renderer* renderer() { return m_renderer; }
+  SDL_Window* window() { return m_window; }
 
   static inline bool gpu{};
 
