@@ -17,6 +17,7 @@
 #include "base/exception.h"
 #include "base/file_handle.h"
 #include "base/fs.h"
+#include "base/path.h"
 
 #include <cstdio>
 #include <iostream>
@@ -27,21 +28,22 @@
 namespace
 {
 
-// Empty domain -> the current script file name (matches the old behavior +
-// the entry/intentry widgets, which persist under the file name).
+// Empty domain -> the script's own basename, not its full path: getFileName()
+// is absolute, and scripts normally run out of Besprited's own user scripts
+// dir, so using the full path here would re-append that same dir onto itself
+// once joined with includeUserDir() below.
 std::string normalizeDomain(const std::string& domain)
 {
-  return domain.empty() ? app::AppScripting::getFileName() : domain;
+  return domain.empty() ? base::get_file_name(app::AppScripting::getFileName())
+                        : domain;
 }
 
 // key/domain reach the filesystem as "<domain>.<key>", joined onto the
 // storage directory via plain string concatenation (base::join_path).
-// A slash embedded in key/domain (e.g. the default domain, which is the
-// active script's own - often absolute - path, see normalizeDomain) isn't
-// itself dangerous: it just becomes a normal, contained subdirectory under
-// the storage root either way. A ".." *component*, however, walks back out
-// of it (make_all_directories has no traversal protection of its own) -
-// reject only that (see issue #219).
+// A slash embedded in key/domain isn't itself dangerous: it just becomes a
+// normal, contained subdirectory under the storage root either way. A ".."
+// *component*, however, walks back out of it (make_all_directories has no
+// traversal protection of its own) - reject only that (see issue #219).
 bool hasPathTraversal(const std::string& s)
 {
   // A JS string can carry an embedded NUL that std::string preserves but
