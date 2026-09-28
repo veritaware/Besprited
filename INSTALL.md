@@ -23,8 +23,8 @@ Two downloads are published for each release:
 
 | File | Use it when |
 | --- | --- |
-| `besprited-<version>-windows-x86_64-installer.exe` | You want a normal installed application. |
-| `besprited-<version>-windows-x86_64.zip` | You want a portable copy with no installer. |
+| `besprited-v<version>-windows-x86_64.exe` | You want a normal installed application. |
+| `besprited-v<version>-windows-x86_64.zip` | You want a portable copy with no installer. |
 
 ### Installer
 
@@ -57,9 +57,10 @@ installer instead.
 Both Apple Silicon (M-series) and Intel Macs are supported. Intel support may
 be dropped in the future if GitHub stops providing Intel build runners.
 
-Download the archive for your Mac's architecture — `...-macos-silicon` for
-Apple Silicon, `...-macos-intel` for Intel — and unpack it. Double-click the
-extracted `besprited.dmg` to mount it.
+Download the disk image for your Mac's architecture —
+`besprited-v<version>-macos-silicon.dmg` for Apple Silicon,
+`besprited-v<version>-macos-intel.dmg` for Intel — and double-click the
+`.dmg` to mount it.
 
 In the Finder window that opens, choose `Go` → `Applications` from the menu
 bar to open your Applications folder alongside it.
@@ -99,15 +100,15 @@ distribution and preferences:
 
 ### AppImage
 
-The AppImage (`Besprited-anylinux-x86_64.AppImage`) bundles the `besprited`
+The AppImage (`Besprited-v<version>-anylinux-x86_64.AppImage`) bundles the `besprited`
 executable together with the libraries it needs. To run it you must have
 `libfuse2` installed (most distributions still ship it as an optional package).
 
 Make it executable and launch it:
 
 ```
-chmod +x Besprited-anylinux-x86_64.AppImage
-./Besprited-anylinux-x86_64.AppImage
+chmod +x Besprited-v<version>-anylinux-x86_64.AppImage
+./Besprited-v<version>-anylinux-x86_64.AppImage
 ```
 
 AppImages run from any location. If you want it to show up in your application
@@ -128,18 +129,18 @@ runtime libraries.
 Because a `.deb`'s library dependencies are tied to the distro release it was
 built on, one is published per supported release — pick the matching file:
 
-* `besprited_<version>_debian13_amd64.deb`
-* `besprited_<version>_ubuntu24.04_amd64.deb` (also covers Linux Mint 22)
-* `besprited_<version>_ubuntu26.04_amd64.deb`
+* `besprited-<version>-debian13_amd64.deb`
+* `besprited-<version>-ubuntu24.04_amd64.deb` (also covers Linux Mint 22)
+* `besprited-<version>-ubuntu26.04_amd64.deb`
 
 ```
-sudo apt install ./besprited_<version>_<distro>_amd64.deb
+sudo apt install ./besprited-<version>-<distro>_amd64.deb
 ```
 
 Fedora users install the `.rpm`:
 
 ```
-sudo dnf install ./besprited-<version>-1.x86_64.rpm
+sudo dnf install ./besprited-<version>-x86_64.rpm
 ```
 
 Both register the desktop entry, icons and MIME associations, and can be
@@ -147,7 +148,7 @@ removed with `apt remove besprited` / `dnf remove besprited`.
 
 ### Portable .tar.gz
 
-`besprited-<version>-linux-<arch>.tar.gz` is a portable
+`besprited-v<version>-linux-<arch>.tar.gz` is a portable
 [FHS](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard) tree with a
 bundled installer. Extract it and run the install script from the extracted
 directory:
@@ -181,7 +182,7 @@ Version=1.0
 Name=Besprited
 GenericName=Sprite Editor
 Comment=Animated sprite editor & pixel art tool
-Exec=/home/youruser/.local/bin/Besprited-anylinux-x86_64.AppImage %U
+Exec=/home/youruser/.local/bin/Besprited-v<version>-anylinux-x86_64.AppImage %U
 Icon=besprited
 Terminal=false
 Categories=Graphics;2DGraphics;RasterGraphics;
