@@ -1,0 +1,120 @@
+name: Code Similarity Check
+
+# Advisory check: flags new/changed lines that are token-identical to Aseprite's post-relicensing (EULA)
+# source. Findings need human review; legitimately shared pre-EULA code will also show up.
+
+on:
+  pull_request:
+
+env:
+  # Pin to a post-relicensing Aseprite tag/branch (kept up to date by hand).
+  ASEPRITE_REF: main
+  MIN_TOKENS: 60
+  MIN_LINES: 6
+
+jobs:
+  aseprite-similarity:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    - name: Get changed files
+      id: changed-files
+      uses: tj-actions/changed-files@v47
+      with:
+        files: |
+          src/**/*.h
+          src/**/*.hpp
+          src/**/*.c
+          src/**/*.cpp
+
+    - name: Fetch Aseprite reference source
+      if: steps.changed-files.outputs.any_changed == 'true'
+      run: |
+        git clone --depth 1 --branch "$ASEPRITE_REF" https://github.com/aseprite/aseprite.git "$RUNNER_TEMP/aseprite"
+        mkdir -p scan/ref scan/pr
+        cp -r "$RUNNER_TEMP/aseprite/src/." scan/ref/
+
+    - name: Stage changed files
+      if: steps.changed-files.outputs.any_changed == 'true'
+      env:
+        CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+      run: |
+        for file in $CHANGED_FILES; do
+          [ -f "$file" ] || continue
+          mkdir -p "scan/pr/$(dirname "$file")"
+          cp "$file" "scan/pr/$file"
+        done
+
+    - name: Collect added line ranges
+      if: steps.changed-files.outputs.any_changed == 'true'
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      run: |
+        # "<file>\t<first>\t<last>" for every added hunk, so legacy code we didn't touch is ignored.
+        git diff --unified=0 --diff-filter=AM "$BASE_SHA"...HEAD -- 'src/*.h' 'src/*.hpp' 'src/*.c' 'src/*.cpp' |
+          awk '/^\+\+\+ b\//{f=substr($0,7)}
+               /^@@/{split($3,a,","); s=substr(a[1],2); n=(a[2]==""?1:a[2]);
+                     if(n>0) printf "%s\t%d\t%d\n", f, s, s+n-1}' > scan/changed-ranges.tsv
+        wc -l scan/changed-ranges.tsv
+
+    - name: Run jscpd
+      if: steps.changed-files.outputs.any_changed == 'true'
+      working-directory: scan
+      run: |
+        # Run from inside scan/ so file names in the report are "pr/..." and "ref/...".
+        npx --yes jscpd@4 \
+          --min-tokens "$MIN_TOKENS" --min-lines "$MIN_LINES" \
+          --pattern "**/*.{h,hpp,c,cpp}" \
+          --reporters json --output report --silent .
+
+    - name: Report cross-project clones
+      if: steps.changed-files.outputs.any_changed == 'true'
+      working-directory: scan
+      run: |
+        # Keep only clones between an added PR range and an Aseprite file.
+        jq -r --rawfile ranges changed-ranges.tsv '
+          ($ranges | split("\n") | map(select(length > 0) | split("\t"))
+            | map({f: .[0], s: (.[1] | tonumber), e: (.[2] | tonumber)})) as $R
+          | [.duplicates[]
+             | select((.firstFile.name | startswith("pr/")) != (.secondFile.name | startswith("pr/")))
+             | (if (.firstFile.name | startswith("pr/")) then .firstFile else .secondFile end) as $p
+             | select(any($R[]; .f == ($p.name | ltrimstr("pr/")) and .s <= $p.end and .e >= $p.start))
+            ] as $hits
+          | if ($hits | length) == 0 then "No similarity to Aseprite source found in added lines."
+            else "### Possible similarity to Aseprite source (\($hits | length) match(es))\n" +
+              ($hits | map("- `\(.firstFile.name)` L\(.firstFile.start)-\(.firstFile.end)  ↔  `\(.secondFile.name)` L\(.secondFile.start)-\(.secondFile.end) (\(.lines) lines)") | join("\n"))
+            end' report/jscpd-report.json | tee -a "$GITHUB_STEP_SUMMARY" | tee out.md
+
+        if grep -q '^### Possible similarity' out.md; then
+          echo "::warning::Possible similarity to Aseprite source in added lines. See the job summary."
+        fi
+
+  scanoss:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+      actions: read
+    # Advisory until we see how noisy it is.
+    continue-on-error: true
+
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: SCANOSS code scan
+      uses: scanoss/code-scan-action@v1
+      with:
+        policies: copyleft, undeclared
+        policies.halt_on_failure: false
+        dependencies.enabled: false
+        # Skip vendored code with its own license.
+        # (paths are matched by the scanner; adjust as needed)
+        skipPatterns: third_party/*
