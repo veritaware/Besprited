@@ -1,41 +1,39 @@
 # Note regarding AI usage in this project
-This fork, at least currently, is mostly a single-man project. AI tools are used extensivelly
-within it for research, searching through and analysing the codebase (since the code is inherited
-from another project and it will take some time for a single person to understand the it fully),
-as well as for writing additional tools, translations and minor features to speed up the workflow.
-That being said, this is not a vibe-coded bullshit maintained by someone without any programming
-knowledge that lets agents run loose and commit whatever garbage they produce. All AI-generated
-code is heavily scrutinised and human-reviewed before being allowed in the trunk. We hate low
-quality slop as most of sane developers do, we don't trust clankers blindly. We consider it just a
-mindless tool for doing repetitive and trivial work allowing the actual human developer to focus on
-interesting tasks and features – not something that should replace critical thinking and
-professional insight. In this regard the maintainer has a pretty
-[similar world view to Linus](https://lore.kernel.org/linux-media/CAHk-=wi4zC+Ze8e+p3tMv8TtG_80KzsZ1syL9anBtmEh5Z40vg@mail.gmail.com/).
+This fork is, at least for now, mostly a one-person project. AI tools are used extensively in it: for
+research, for searching and analysing the codebase (the code is inherited from another project, and it
+takes a single person a long time to understand all of it), and for writing additional tools,
+translations and smaller features to speed up the workflow.
 
-If this is still unacceptable for you, then you might want to look for alternative open source
-pixel-art editors or contribute your own commits, so we don't have to rely on LLMs.
+That doesn't mean AI output goes into the project unchecked. Every piece of AI-generated code is
+carefully reviewed by a human before it's allowed into `trunk`, and low-quality output is rejected just
+like any other low-quality contribution. We see AI as a tool for repetitive and routine work, so that
+the developer can focus on the interesting problems and features. It doesn't replace critical thinking
+or professional judgement. On this topic the maintainer shares a view
+[similar to Linus Torvalds'](https://lore.kernel.org/linux-media/CAHk-=wi4zC+Ze8e+p3tMv8TtG_80KzsZ1syL9anBtmEh5Z40vg@mail.gmail.com/).
 
-Please, don't bother starting discussions about the topic. We're not going to waste our time
-on unproductive, non-substantive ideological discussions based on their personal feelings,
-especially if it happens to be with people who don't contribute to open-source nor support
-those projects financially yet feel entitled to harrass the developers for their choice of tools.
+Besprited itself has **no generative AI features**: the editor doesn't generate or alter artwork with
+AI. The notes above are only about how the application's code is developed.
+
+If this approach doesn't work for you, that's understandable. There are other open source pixel-art
+editors to choose from, and code contributions from people who prefer not to use AI tools are just as
+welcome, since they reduce how much the project relies on them.
+
+We're happy to discuss concrete problems with specific code, whoever or whatever wrote it. We won't,
+however, take part in general debates about whether AI tools should be used at all; such discussions
+in issues and pull requests will be closed.
 
 ## AI co-authored code contribution guidelines
-To contribute code to this repo you must first, and foremost, know programming and understand
-the code you submit. We expect you to review any AI-generated source code before setting it as
-ready for review. Pull requests that show signs of unverified low-quality slop could end up
-rejected immediately. While we allow the use of AI, admitting the benefits of its usage, at the
-same time we expect a degree of respect towards the maintainers who have to review the pull
-requests. If the contributor doesn't bother to verify the code vomited by their tool, or even
-worse, doesn't even understand it, we won't bother wasting time doing a review of utter garbage.
+To contribute code to this repository you need to know how to program and understand the code you
+submit. Review any AI-generated code yourself before marking a pull request as ready for review.
+Pull requests that look like unverified, low-quality AI output may be closed without a full review:
+reviewing takes the maintainers' time, and we expect contributors to have done their part first.
 
-Any contributions co-authored by AI (meaning changes done directly by an AI agent, or using code
-snippets provided by an LLM) should be properly marked by either implicitly saying the changes
-were made with the use of AI or by marking the co-authorship in the commit message, e.g.:
+Contributions co-authored by AI (changes made directly by an AI agent, or code snippets provided by an
+LLM) must be marked as such, either by saying so in the pull request or by adding a co-authorship line
+to the commit message, e.g.:
 
     Commit message
     # Some more context to what has been done
     Co-authored-by: Claude <noreply@anthropic.com>
 
-Pull requests that bear signs of AI-generated code that don't admit its authorship might end up
-being rejected automatically as well.
+Pull requests that show clear signs of AI-generated code without disclosing it may also be rejected.
