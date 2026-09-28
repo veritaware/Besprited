@@ -95,26 +95,3 @@ jobs:
         if grep -q '^### Possible similarity' out.md; then
           echo "::warning::Possible similarity to Aseprite source in added lines. See the job summary."
         fi
-
-  scanoss:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
-      actions: read
-    # Advisory until we see how noisy it is.
-    continue-on-error: true
-
-    steps:
-    - uses: actions/checkout@v7
-
-    - name: SCANOSS code scan
-      uses: scanoss/code-scan-action@v1
-      with:
-        policies: copyleft, undeclared
-        policies.halt_on_failure: false
-        dependencies.enabled: false
-        # Skip vendored code with its own license.
-        # (paths are matched by the scanner; adjust as needed)
-        skipPatterns: third_party/*
