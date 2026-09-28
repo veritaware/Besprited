@@ -14,6 +14,8 @@ https://docs.github.com/en/get-started/writing-on-github/getting-started-with-wr
       covering the current year (see [CONTRIBUTING.md](../blob/trunk/CONTRIBUTING.md#copyright-headers)).
 - [ ] If AI tools helped write this change, I reviewed and understand all of it, and it's marked as
       AI-co-authored (see [AI_USAGE.md](../blob/trunk/AI_USAGE.md)).
+- [ ] I did not copy, or closely reimplement from memory, code from Aseprite's post-relicensing (EULA)
+      source or any other incompatibly licensed project, and this includes code suggested by AI tools.
 - [ ] For documentation-only changes: I added the "no software change" marker line described in
       [CONTRIBUTING.md](../blob/trunk/CONTRIBUTING.md#commit-messages-and-pull-requests) to the end of
       this description. (Don't add it for code changes: it skips the build and test workflows.)
