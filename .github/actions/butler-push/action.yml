@@ -1,0 +1,52 @@
+# Pushes one or more already-built release artifacts to itch.io channels via
+# butler (https://itch.io/docs/butler). Expects BUTLER_API_KEY to already be
+# set in the environment (job-level `env:`, sourced from the repo secret).
+name: 'Push builds to itch.io'
+description: 'Downloads butler and pushes artifacts to itch.io channels'
+inputs:
+  project:
+    description: 'itch.io project, as user/game'
+    required: true
+  version:
+    description: 'Value passed to butler --userversion'
+    required: true
+  pushes:
+    description: |
+      Newline-separated list of "path|channel" pairs to push, e.g.:
+        build/bin/Besprited.AppImage|linux-appimage
+        besprited.zip|windows-zip
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: Download butler
+      shell: bash
+      run: |
+        case "${{ runner.os }}" in
+          Linux)   platform=linux-amd64 ;;
+          Windows) platform=windows-amd64 ;;
+          macOS)   if [ "${{ runner.arch }}" = "ARM64" ]; then platform=darwin-arm64; else platform=darwin-amd64; fi ;;
+          *)       echo "butler-push: unsupported runner.os '${{ runner.os }}'" >&2; exit 1 ;;
+        esac
+        dest="$RUNNER_TEMP/butler"
+        mkdir -p "$dest"
+        curl -fL -o "$RUNNER_TEMP/butler.zip" "https://broth.itch.zone/butler/$platform/LATEST/archive/default"
+        if command -v unzip >/dev/null 2>&1; then
+          unzip -q -o "$RUNNER_TEMP/butler.zip" -d "$dest"
+        else
+          # Not every runner (e.g. bare containers, some Windows images) ships
+          # unzip; pwsh is available everywhere GitHub-hosted runners run.
+          pwsh -NoProfile -Command "Expand-Archive -Path '$RUNNER_TEMP/butler.zip' -DestinationPath '$dest' -Force"
+        fi
+        chmod +x "$dest/butler" 2>/dev/null || true
+        echo "$dest" >> "$GITHUB_PATH"
+    - name: Push builds
+      shell: bash
+      run: |
+        set -e
+        butler -V
+        while IFS='|' read -r file channel; do
+          [ -z "$file" ] && continue
+          echo "Pushing '$file' -> ${{ inputs.project }}:$channel"
+          butler push "$file" "${{ inputs.project }}:$channel" --userversion "${{ inputs.version }}"
+        done <<< "${{ inputs.pushes }}"

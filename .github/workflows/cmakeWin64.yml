@@ -18,6 +18,8 @@ jobs:
   build:
     runs-on: windows-latest
     if: ${{ !contains(github.event.head_commit.message, 'NO_SW_CHANGE') && !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
+    env:
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
     steps:
     - uses: msys2/setup-msys2@v2
       with:
@@ -125,3 +127,12 @@ jobs:
           ${{ steps.portable.outputs.zip }}
           packaging/windows/besprited-*-windows-x86_64.exe
         fail_on_unmatched_files: true
+    - name: Push builds to itch.io
+      if: steps.check_tag.outputs.has_tag == 'true'
+      uses: ./.github/actions/butler-push
+      with:
+        project: nidu1309/besprited
+        version: ${{ steps.check_tag.outputs.version }}
+        pushes: |
+          ${{ steps.portable.outputs.zip }}|windows-zip
+          packaging/windows/besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.exe|windows-installer
