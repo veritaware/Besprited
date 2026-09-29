@@ -1,10 +1,18 @@
 #!/bin/sh
+# Usage: sh packaging/linux/package_linux.sh [VERSION]
+#
+# VERSION is the release tag (e.g. "v1.26.09"). When given, the AppImage is
+# built with embedded update information (gh-releases-zsync, resolved
+# against the repo's GitHub releases) and a matching .zsync file is written
+# alongside it, so it works with AppImageUpdate. Omit it for local/dev
+# builds that won't be published as a GitHub release.
 set -e
 
 rootdir=$(pwd)
 builddir="$rootdir"/build/bin/
 APP="Besprited"
 ARCH="$(uname -m)"
+VERSION="$1"
 
 cd "$builddir"
 chmod +x besprited
@@ -61,6 +69,15 @@ mv ./data ./Besprited/bin
 
 wget "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-$ARCH.AppImage" -O appimagetool
 chmod +x ./appimagetool
-./appimagetool --comp zstd \
-	--mksquashfs-opt -Xcompression-level --mksquashfs-opt 22 \
-	-n "$builddir"/Besprited "$builddir"/"$APP"-anylinux-"$ARCH".AppImage
+
+if [ -n "$VERSION" ]; then
+  outname="$APP-$VERSION-anylinux-$ARCH.AppImage"
+else
+  outname="$APP-anylinux-$ARCH.AppImage"
+fi
+
+set -- --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 22
+if [ -n "$VERSION" ]; then
+  set -- "$@" -u "gh-releases-zsync|Veritaware|Besprited|latest|$APP-*-anylinux-$ARCH.AppImage.zsync"
+fi
+./appimagetool "$@" -n "$builddir"/Besprited "$builddir"/"$outname"

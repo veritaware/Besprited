@@ -78,12 +78,12 @@ jobs:
     - name: Package the AppImage
       run: |
         export ARCH="$(uname -m)"
-        sh packaging/linux/package_linux.sh
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
-          mv build/bin/Besprited-anylinux-$ARCH.AppImage \
-             ./Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage
+          sh packaging/linux/package_linux.sh "${{ steps.check_tag.outputs.tag }}"
+          mv build/bin/Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage* .
           echo "appimage=Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage" >> $GITHUB_OUTPUT
         else
+          sh packaging/linux/package_linux.sh
           mv build/bin/Besprited-anylinux-$ARCH.AppImage .
           echo "appimage=Besprited-anylinux-$ARCH.AppImage" >> $GITHUB_OUTPUT
         fi
@@ -93,7 +93,9 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-x86_64', steps.check_tag.outputs.tag) || 'besprited-linux-x86_64' }}
-        path: ${{ steps.appimage.outputs.appimage }}
+        path: |
+          ${{ steps.appimage.outputs.appimage }}
+          ${{ steps.appimage.outputs.appimage }}.zsync
         if-no-files-found: error
     - name: Attach binaries to the release
       if: ${{ runner.arch == 'X64' && steps.check_tag.outputs.has_tag == 'true' }}
@@ -102,6 +104,7 @@ jobs:
         files: |
           ${{ steps.tarball.outputs.tarball }}
           ${{ steps.appimage.outputs.appimage }}
+          ${{ steps.appimage.outputs.appimage }}.zsync
         fail_on_unmatched_files: true
 
   # A .deb links against whatever library SONAMEs its build distro ships and
