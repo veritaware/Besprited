@@ -35,6 +35,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
+#include <cstdlib>
 #include <iostream>
 #include <cassert>
 #include <chrono>
@@ -898,6 +899,14 @@ int main(const int argc, char* argv[]) {
   // existing SDL_EVENT_FINGER_MOTION-based pressure tracking above with a
   // second, less precise pressure value - see #263 (R5).
   SDL_SetHint(SDL_HINT_PEN_TOUCH_EVENTS, "0");
+
+  #if defined(__linux__) && !defined(__ANDROID__)
+  // Prefer a native Wayland window over XWayland when running in a Wayland
+  // session (XWayland lacks e.g. drag&drop, see #145), falling back to X11.
+  // An explicit SDL video driver env var still takes precedence over this.
+  if (std::getenv("WAYLAND_DISPLAY"))
+    SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland,x11");
+  #endif
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     std::cerr << "Critical: Could not initialize SDL3 (" << SDL_GetError() << "). Aborting.\n";
