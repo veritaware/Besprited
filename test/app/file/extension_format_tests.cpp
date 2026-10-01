@@ -27,8 +27,7 @@ namespace
 void writeTestArchive(
     const std::string& archivePath,
     const std::vector<std::pair<std::string, std::string>>& files,
-    const std::string& symlinkName = "",
-    const std::string& symlinkTarget = "")
+    const std::string& symlinkName = "", const std::string& symlinkTarget = "")
 {
   archive* a = archive_write_new();
   archive_write_set_format_ustar(a);
@@ -88,8 +87,8 @@ protected:
 
 TEST_F(ExtensionFormatTest, ExtractsNestedRegularFilesAndCreatesDirectories)
 {
-  writeTestArchive(archivePath, {{"a.txt", "hello"},
-                                 {"nested/dir/b.txt", "world"}});
+  writeTestArchive(archivePath,
+                   {{"a.txt", "hello"}, {"nested/dir/b.txt", "world"}});
 
   FILE* file = fopen(archivePath.c_str(), "rb");
   ASSERT_NE(nullptr, file);
@@ -98,8 +97,8 @@ TEST_F(ExtensionFormatTest, ExtractsNestedRegularFilesAndCreatesDirectories)
   fclose(file);
 
   EXPECT_TRUE(base::is_file(destDir + base::path_separator + "a.txt"));
-  EXPECT_TRUE(base::is_file(
-      destDir + base::path_separator + "nested/dir/b.txt"));
+  EXPECT_TRUE(
+      base::is_file(destDir + base::path_separator + "nested/dir/b.txt"));
 
   std::ifstream in(destDir + base::path_separator + "nested/dir/b.txt");
   std::string content((std::istreambuf_iterator<char>(in)),
@@ -166,21 +165,21 @@ TEST_F(ExtensionFormatTest, RejectsArchiveWithTooManyEntries)
 
 TEST(ExtensionFormatPathSafetyTest, RejectsReservedNameWithTrailingSpaceOrDot)
 {
-  using app::extension_format_detail::isSafeArchiveEntryPath;
-  EXPECT_FALSE(isSafeArchiveEntryPath("con"));
-  EXPECT_FALSE(isSafeArchiveEntryPath("con "));
-  EXPECT_FALSE(isSafeArchiveEntryPath("con."));
-  EXPECT_FALSE(isSafeArchiveEntryPath("con.. "));
-  EXPECT_FALSE(isSafeArchiveEntryPath("nested/con./file.txt"));
-  EXPECT_TRUE(isSafeArchiveEntryPath("controller.txt"));
+  using base::is_safe_archive_entry_path;
+  EXPECT_FALSE(is_safe_archive_entry_path("con"));
+  EXPECT_FALSE(is_safe_archive_entry_path("con "));
+  EXPECT_FALSE(is_safe_archive_entry_path("con."));
+  EXPECT_FALSE(is_safe_archive_entry_path("con.. "));
+  EXPECT_FALSE(is_safe_archive_entry_path("nested/con./file.txt"));
+  EXPECT_TRUE(is_safe_archive_entry_path("controller.txt"));
 }
 
 TEST(ExtensionFormatPathSafetyTest, RejectsReservedNameWithSuperscriptDigit)
 {
-  using app::extension_format_detail::isSafeArchiveEntryPath;
-  EXPECT_FALSE(isSafeArchiveEntryPath("com\xC2\xB9"));     // COM¹
-  EXPECT_FALSE(isSafeArchiveEntryPath("lpt\xE2\x81\xB4")); // LPT⁴
-  EXPECT_TRUE(isSafeArchiveEntryPath("com10"));
+  using base::is_safe_archive_entry_path;
+  EXPECT_FALSE(is_safe_archive_entry_path("com\xC2\xB9"));     // COM¹
+  EXPECT_FALSE(is_safe_archive_entry_path("lpt\xE2\x81\xB4")); // LPT⁴
+  EXPECT_TRUE(is_safe_archive_entry_path("com10"));
 }
 
 TEST_F(ExtensionFormatTest, MakeStagingDirectoryCreatesDistinctDirectories)

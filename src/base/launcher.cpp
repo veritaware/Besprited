@@ -1,5 +1,5 @@
 // Aseprite    | Copyright (C) 2001-2016  David Capello
-// LibreSprite | Copyright (C) 2018-2022  LibreSprite contributors
+// LibreSprite | Copyright (C) 2018-2026  LibreSprite contributors
 // Besprited   | Copyright (C) 2026       Veritaware
 //
 // This file is released under the terms of the MIT license.
@@ -22,7 +22,7 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#if !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+#if !defined(_WIN32) && !defined(__EMSCRIPTEN__) && !defined(ANDROID)
 #include <spawn.h>
 #include <sys/wait.h>
 
@@ -132,6 +132,10 @@ bool open_file(const std::string& file)
 
   ret = spawn_and_wait({"open", file});
 
+#elif ANDROID
+
+  // No-op
+
 #else
 
   ret = spawn_and_wait({"xdg-open", file});
@@ -174,6 +178,10 @@ bool open_folder(const std::string& _file)
     ret = spawn_and_wait({"open", "--reveal", file});
   }
   return (ret == 0);
+
+#elif ANDROID
+
+  // No-op
 
 #else
 
