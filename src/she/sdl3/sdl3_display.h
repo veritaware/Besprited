@@ -6,8 +6,7 @@
 
 #pragma once
 
-// SDL3 counterpart of she/sdl2/sdl2_display.h. Tablet/WM-info (EasyTab,
-// nativeHandle()) is ported in a later SDL3 migration phase - see #73.
+// SDL3 counterpart of she/sdl2/sdl2_display.h - see #73.
 
 #include "she/display.h"
 
