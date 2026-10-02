@@ -52,9 +52,9 @@ By contributing, you agree that your contribution is released under the project'
 ## Branching Model
 We use the following branch structure to manage development:
 - `trunk`: This is the development branch for Besprited. All new features and bug fixes are merged here first.
-- `ls-develop`: This branch should track the latest changes from LibreSprite's `master` branch.
-  We periodically merge changes from LibreSprite into our `trunk` branch to stay up-to-date with their developments
-  and our repo maintainers use this branch as a base to create any feature or bug fix branches that are shared with LibreSprite's codebase.
+
+Integration of changes from and to LibreSprite is handled in the separate
+[veritaware/LibreSprite-integration](https://github.com/veritaware/LibreSprite-integration) repository.
 
 **Contributors from forks:** fork the repository, create a branch in your fork, and open your pull
 request against `trunk`.
@@ -62,12 +62,6 @@ request against `trunk`.
 #### Note for repo contributors:
 User branches for features and fixes created *directly* against the `veritaware:Besprited` repository should follow the naming convention:
 `username/short-description`, for example: `nidrax/v8-build-fix-windows`.
-
-#### Changes meant for LibreSprite
-Fixes that should also go upstream to LibreSprite are based on `ls-develop` and use branch names like
-`username/ls/short-description`. Their copyright headers follow LibreSprite's format
-(e.g. `// LibreSprite | Copyright (C) 2016-2026 LibreSprite contributors`), and their commit messages must
-**not** contain any `Co-authored-by` lines.
 
 ## Commit Messages and Pull Requests
 When committing changes, follow these guidelines:

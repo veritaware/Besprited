@@ -134,12 +134,12 @@ and `test/app/script_api_tests.cpp` (app API level).
 
 ## Contribution conventions
 
-- Branches: `trunk` is the primary development branch (this repo's default). `ls-develop` tracks upstream
-  LibreSprite's `master` for periodic merges; feature/fix branches meant to be shareable with LibreSprite
-  are usually based on `ls-develop`. Feature/PR branches for Besprited should be named
-  `username/short-description`.
+- Branches: `trunk` is the primary development branch (this repo's default). Feature/PR branches for
+  Besprited should be named `username/short-description`.
   \
-  Feature/PR branches meant upstream for LibreSprite should be named `username/ls/short-description`.
+  LibreSprite integration (merging upstream changes, preparing fixes for LibreSprite) is done in the separate
+  `veritaware/LibreSprite-integration` repository, not here; there is no more `ls-develop` branch that used
+  to exist. on this repo.
 - Commit messages: imperative mood ("Fix bug", not "Fixed bug"), subject line ≤ 50 chars, reference closed
   issues (e.g. "Fixes #123"). For non-source changes (docs, workflows, issue templates, etc.), add a
   trailing `NO_SW_CHANGE` line to skip GitHub build workflows.
