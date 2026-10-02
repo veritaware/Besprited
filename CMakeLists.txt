@@ -426,10 +426,29 @@ endif()
 find_program(CLANG_TIDY_EXECUTABLE clang-tidy)
 find_program(RUN_CLANG_TIDY_EXECUTABLE NAMES run-clang-tidy run-clang-tidy.py)
 if(CLANG_TIDY_EXECUTABLE AND RUN_CLANG_TIDY_EXECUTABLE)
+  set(CLANG_TIDY_EXTRA_ARGS "")
+  if(APPLE)
+    # A clang-tidy built outside of Xcode's toolchain (e.g. via Homebrew) doesn't
+    # inherit the implicit -isysroot that Apple's compiler driver injects, so it
+    # fails to find system headers like math.h unless we pass it explicitly.
+    set(CLANG_TIDY_SYSROOT "${CMAKE_OSX_SYSROOT}")
+    if(NOT CLANG_TIDY_SYSROOT)
+      execute_process(
+        COMMAND xcrun --sdk macosx --show-sdk-path
+        OUTPUT_VARIABLE CLANG_TIDY_SYSROOT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+      )
+    endif()
+    if(CLANG_TIDY_SYSROOT)
+      list(APPEND CLANG_TIDY_EXTRA_ARGS "-extra-arg=-isysroot${CLANG_TIDY_SYSROOT}")
+    endif()
+  endif()
+
   add_custom_target(clang-tidy
     COMMAND ${RUN_CLANG_TIDY_EXECUTABLE}
       -p ${CMAKE_BINARY_DIR}
       -quiet
+      ${CLANG_TIDY_EXTRA_ARGS}
       "${CMAKE_SOURCE_DIR}/src/.*"
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running clang-tidy static analysis"
