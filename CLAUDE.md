@@ -144,9 +144,7 @@ and `test/app/script_api_tests.cpp` (app API level).
   issues (e.g. "Fixes #123"). For non-source changes (docs, workflows, issue templates, etc.), add a
   trailing `NO_SW_CHANGE` line to skip GitHub build workflows.
 - AI-assisted contributions are allowed but must be reviewed/understood by the human submitting them, and
-  must be marked as AI-co-authored in the commit (e.g. `Co-authored-by: Claude <noreply@anthropic.com>`;
-  **does not apply to any contributions targeting LibreSprite – there the commit message should not contain
-  any `co-authored-by` lines**).
+  must be marked as AI-assisted in the commit (e.g. `Assisted-by: Claude <noreply@anthropic.com>`).
   See `AI_USAGE.md` for the full policy — unreviewed/low-quality AI output is grounds for immediate PR
   rejection.
 - **Copyright headers:** for every `.h`/`.hpp`/`.c`/`.cpp`/`.xml`/`CMakeLists.txt` file you modify, check

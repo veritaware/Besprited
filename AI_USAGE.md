@@ -22,18 +22,18 @@ We're happy to discuss concrete problems with specific code, whoever or whatever
 however, take part in general debates about whether AI tools should be used at all; such discussions
 in issues and pull requests will be closed.
 
-## AI co-authored code contribution guidelines
+## AI assisted code contribution guidelines
 To contribute code to this repository you need to know how to program and understand the code you
 submit. Review any AI-generated code yourself before marking a pull request as ready for review.
 Pull requests that look like unverified, low-quality AI output may be closed without a full review:
 reviewing takes the maintainers' time, and we expect contributors to have done their part first.
 
-Contributions co-authored by AI (changes made directly by an AI agent, or code snippets provided by an
+Contributions assisted by AI (changes made directly by an AI agent, or code snippets provided by an
 LLM) must be marked as such, either by saying so in the pull request or by adding a co-authorship line
 to the commit message, e.g.:
 
     Commit message
     # Some more context to what has been done
-    Co-authored-by: Claude <noreply@anthropic.com>
+    Assisted-by: Claude <noreply@anthropic.com>
 
 Pull requests that show clear signs of AI-generated code without disclosing it may also be rejected.
