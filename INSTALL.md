@@ -16,6 +16,7 @@ download for your platform below. If you'd rather build from source, see
   * [Native packages (.deb / .rpm)](#native-packages-deb--rpm)
   * [Portable .tar.gz](#portable-targz)
   * [Creating a desktop entry by hand](#creating-a-desktop-entry-by-hand)
+* [Verifying your download](#verifying-your-download)
 
 ## Windows
 
@@ -51,6 +52,19 @@ to run it.
 To get a Start Menu / desktop shortcut with the portable copy, right-click
 `besprited.exe`, choose *Send to → Desktop (create shortcut)*, or use the
 installer instead.
+
+### I get a "Windows protected your PC" pop-up when trying to run the application. Is it a virus?
+
+No. This is Windows SmartScreen warning about an executable that is unsigned
+and has little download history. Besprited isn't code-signed: a signing
+certificate costs hundreds of dollars a year, which is hard to justify for a
+project maintained mostly by one person for free.
+
+To run it anyway, click *More info*, then *Run anyway*. To be safe, only
+download Besprited from our
+[official website](https://besprited.veritaware.com/download.html) or the
+[GitHub releases page](https://github.com/Veritaware/Besprited/releases), and
+[verify its GPG signature](#verifying-your-download) before running it.
 
 ## macOS
 
@@ -192,3 +206,66 @@ Point `Exec` at wherever you put the AppImage (or at the installed `besprited`
 binary). If the icon doesn't resolve, replace `Icon=besprited` with an
 absolute path to a PNG. Run `update-desktop-database ~/.local/share/applications`
 afterwards if your desktop doesn't pick it up immediately.
+
+## Verifying your download
+
+Every release package is signed with the maintainer's personal GPG key.
+Verifying the signature confirms that the file you downloaded is exactly what
+was published on GitHub, and hasn't been tampered with or corrupted along the
+way. This is especially useful on Windows, where the executables themselves
+are not code-signed.
+
+1. **Install GnuPG.** You need the `gpg` command line tool.
+   * Linux: usually preinstalled; otherwise `sudo apt install gnupg` (or your
+     distro's equivalent).
+   * macOS: `brew install gnupg`
+   * Windows: install [Gpg4win](https://gpg4win.org), then use "Gpg4win
+     Compatible" or a terminal with `gpg` on the PATH.
+
+2. **Import the public key** from the Ubuntu keyserver:
+
+   ```
+   gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 05B861C404ED688D
+   ```
+
+3. **Check the fingerprint.** Don't skip this — importing a key proves nothing
+   on its own. Print the fingerprint of the key you just imported:
+
+   ```
+   gpg --fingerprint 05B861C404ED688D
+   ```
+
+   It must match this exactly:
+
+   ```
+   6B02 8B2D D159 DCE8 C418  B5BF 05B8 61C4 04ED 688D
+   ```
+
+   You can cross-check it against the
+   [public key listing](https://keyserver.ubuntu.com/pks/lookup?search=05B861C404ED688D&fingerprint=on&op=index)
+   on the keyserver. If it doesn't match, stop — do not trust the download.
+
+4. **Download the release and its signature.** Grab both the package (e.g.
+   `besprited-v1.26.09-linux-x86_64.tar.gz`) and its matching `.sig` file (e.g.
+   `gpg-besprited-v1.26.09-linux-x86_64.tar.gz.sig`) from the
+   [releases page](https://github.com/Veritaware/Besprited/releases), and place
+   them in the same folder.
+
+5. **Verify the signature**, substituting the actual filenames:
+
+   ```
+   gpg --verify gpg-besprited-v1.26.09-linux-x86_64.tar.gz.sig besprited-v1.26.09-linux-x86_64.tar.gz
+   ```
+
+6. **Read the result.** A successful check prints
+   `Good signature from "Daniel Praźmo <d.prazmo@icloud.com>"` along with the
+   same fingerprint from step 3. A warning that the key is `not certified with a
+   trusted signature` is expected and fine — that's just GPG's web of trust and
+   doesn't affect the verification. What matters is "Good signature" plus a
+   matching fingerprint.
+
+   If you instead see `BAD signature`, do not use the file — re-download it,
+   and if the problem persists, [open an issue](https://github.com/Veritaware/Besprited/issues).
+
+The same instructions are available on the project website:
+<https://besprited.veritaware.com/verify.html>.
