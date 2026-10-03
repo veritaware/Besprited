@@ -18,6 +18,6 @@ and any relevant technical information about the vulnerability.
 
 ![image of security issue template](docs/sec_2.png)
 
-Remeber to add the `👮security` label to the issue before creating the ticket so it can be easily tracked.
+Remember to add the `👮security` label to the issue before creating the ticket so it can be easily tracked.
 
 ![image of security label](docs/sec_3.png)
