@@ -415,8 +415,11 @@ namespace she {
           }
 
 
-          if (sdlEvent.motion.which == SDL_PEN_MOUSEID)
+          if (sdlEvent.motion.which == SDL_PEN_MOUSEID) {
             pointerType = PointerType::Pen;
+            if (penPressure == 0.0f)
+              penPressure = 0.0001f;
+          }
 
           event.setPressure(penPressure);
           event.setPointerType(pointerType);
@@ -444,9 +447,16 @@ namespace she {
         // enabled), so there's nothing left to do with the raw pen events
         // themselves beyond tracking pressure above.
         case SDL_EVENT_PEN_PROXIMITY_IN:
+        case SDL_EVENT_PEN_MOTION:
+          // A hovering pen sends no pressure axis events, so mark it as
+          // present here; get_pen_pressure() != 0 is what hides the brush
+          // preview (and flags pen input) while hovering.
+          if (penPressure == 0.0f)
+            penPressure = 0.0001f;
+          continue;
+
         case SDL_EVENT_PEN_DOWN:
         case SDL_EVENT_PEN_UP:
-        case SDL_EVENT_PEN_MOTION:
         case SDL_EVENT_PEN_BUTTON_DOWN:
         case SDL_EVENT_PEN_BUTTON_UP:
           continue;
