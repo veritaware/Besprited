@@ -415,6 +415,9 @@ namespace she {
           }
 
 
+          if (sdlEvent.motion.which == SDL_PEN_MOUSEID)
+            pointerType = PointerType::Pen;
+
           event.setPressure(penPressure);
           event.setPointerType(pointerType);
           return;
@@ -473,15 +476,17 @@ namespace she {
           event.setButton(mouseButtonMapping[sdlEvent.button.button]);
           event.setModifiers(getSheModifiers());
 
-          if (penPressure > 0.0f) {
+          // The synthesized mouse event tells us it came from a pen even if
+          // no pressure axis event has arrived yet (e.g. first touch after
+          // the pen re-entered proximity, which reset penPressure to 0).
+          if (sdlEvent.button.which == SDL_PEN_MOUSEID || penPressure > 0.0f) {
             pointerType = PointerType::Pen;
-            event.setPressure(penPressure);
-            event.setPointerType(pointerType);
+            event.setPressure(std::max(penPressure, 0.0001f));
           } else {
-            event.setPressure(sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? 1.0f : 0.0f);
-            event.setPointerType(pointerType);
             pointerType = PointerType::Mouse;
+            event.setPressure(sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? 1.0f : 0.0f);
           }
+          event.setPointerType(pointerType);
 
           auto now = std::chrono::steady_clock::now();
           auto delta = now - lastUpTime;
