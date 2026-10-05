@@ -139,7 +139,7 @@ private:
                      KeyModifiers modifiers, PointerType pointerType);
   void handleMouseDoubleClick(const gfx::Point& mousePos,
                               MouseButtons mouseButtons, KeyModifiers modifiers,
-                              PointerType pointerType);
+                              PointerType pointerType, float pressure);
   void handleMouseWheel(const gfx::Point& mousePos, MouseButtons mouseButtons,
                         KeyModifiers modifiers, PointerType pointerType,
                         const gfx::Point& wheelDelta, bool preciseWheel);

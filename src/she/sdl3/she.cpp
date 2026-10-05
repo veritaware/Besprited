@@ -500,14 +500,16 @@ namespace she {
 
           auto now = std::chrono::steady_clock::now();
           auto delta = now - lastUpTime;
-          if (sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+          // A double click replaces the second press (the matching release
+          // still follows). ui::Widget turns it back into a mouse down, so
+          // emitting it after the release left a press with no release,
+          // which kept a freehand stroke running after a quick double tap.
+          if (sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             using namespace std::chrono_literals;
-            if (delta < 200ms) {
-              m_events.push(event);
+            if (delta < 200ms)
               event.setType(Event::MouseDoubleClick);
-              event.setPosition(event.position());
-              event.setButton(event.button());
-            }
+          }
+          else {
             lastUpTime = now;
           }
 

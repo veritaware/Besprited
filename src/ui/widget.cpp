@@ -1504,7 +1504,8 @@ bool Widget::onProcessMessage(Message* msg)
     MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
     MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(),
                            mouseMsg->buttons(), mouseMsg->modifiers(),
-                           mouseMsg->position(), mouseMsg->wheelDelta());
+                           mouseMsg->position(), mouseMsg->wheelDelta(), false,
+                           mouseMsg->pressure());
 
     sendMessage(&mouseMsg2);
     break;
