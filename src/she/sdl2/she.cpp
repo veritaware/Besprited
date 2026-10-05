@@ -995,14 +995,6 @@ int main(const int argc, char* argv[]) {
   // https://wiki.libsdl.org/SDL2/SDL_HINT_WINDOWS_DPI_AWARENESS
   SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
 
-  #if defined(__linux__) && !defined(__ANDROID__)
-  // Prefer a native Wayland window over XWayland when running in a Wayland
-  // session (XWayland lacks e.g. drag&drop, see #145), falling back to X11.
-  // An explicit SDL video driver env var still takes precedence over this.
-  if (std::getenv("WAYLAND_DISPLAY"))
-    SDL_SetHint(SDL_HINT_VIDEODRIVER, "wayland,x11");
-  #endif
-
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
     std::cerr << "Critical: Could not initialize SDL2. Aborting." << "\n";
     return -1;
