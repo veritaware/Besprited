@@ -200,7 +200,11 @@ find_package(WEBP QUIET)
 if(WEBP_FOUND)
   message(STATUS "Enabling WEBP support")
   include_directories(${WEBP_INCLUDE_DIRS})
-  link_directories("${PACKAGE_PREFIX_DIR}/lib")
+  # PACKAGE_PREFIX_DIR is only valid inside the included WebPConfig.cmake, not here,
+  # so derive the lib dir from the (correctly resolved) include dir instead.
+  list(GET WEBP_INCLUDE_DIRS 0 WEBP_INCLUDE_DIR_FIRST)
+  get_filename_component(WEBP_PREFIX_DIR "${WEBP_INCLUDE_DIR_FIRST}" DIRECTORY)
+  link_directories("${WEBP_PREFIX_DIR}/lib")
 else()
   find_package(PkgConfig)
   if (PkgConfig_FOUND)
