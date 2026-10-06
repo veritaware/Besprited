@@ -21,8 +21,7 @@ public:
     auto& cls = addClass<void, LabelObject>("Label");
     // Labels are created by dialog.addLabel() (C++), not `new Label()` in JS,
     // but delta requires a non-null constructor.
-    cls.setConstructor() = []() -> std::shared_ptr<LabelObject>
-    { return std::make_shared<LabelObject>(); };
+    cls.setConstructor() = []() -> std::shared_ptr<LabelObject> { return std::make_shared<LabelObject>(); };
     addWidgetId<LabelObject>(cls);
     cls.addGetter("text") = [](LabelObject& self) -> JSON::Value
     {

@@ -31,25 +31,13 @@ public:
 
   void clear() { return m_params.clear(); }
 
-  bool has_param(const char* name) const
-  {
-    return m_params.find(name) != m_params.end();
-  }
+  bool has_param(const char* name) const { return m_params.find(name) != m_params.end(); }
 
-  bool operator==(const Params& params) const
-  {
-    return m_params == params.m_params;
-  }
+  bool operator==(const Params& params) const { return m_params == params.m_params; }
 
-  bool operator!=(const Params& params) const
-  {
-    return m_params != params.m_params;
-  }
+  bool operator!=(const Params& params) const { return m_params != params.m_params; }
 
-  std::string& set(const char* name, const char* value)
-  {
-    return m_params[name] = value;
-  }
+  std::string& set(const char* name, const char* value) { return m_params[name] = value; }
 
   // A failed lookup must not insert anything - callers hold onto Params
   // instances as persistent state (e.g. Key::params()) and compare them

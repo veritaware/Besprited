@@ -58,8 +58,7 @@ public:
   LayerIndex layerIndex() const;
   void layerIndex(LayerIndex layerIndex);
   Palette* palette();
-  Image* image(int* x = nullptr, int* y = nullptr,
-               int* opacity = nullptr) const;
+  Image* image(int* x = nullptr, int* y = nullptr, int* opacity = nullptr) const;
   Palette* palette() const;
 
 private:

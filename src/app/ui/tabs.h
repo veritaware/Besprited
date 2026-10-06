@@ -100,14 +100,12 @@ public:
 
   // Called when the user is dragging a tab outside the Tabs
   // bar.
-  virtual DropViewPreviewResult onFloatingTab(Tabs* tabs, TabView* tabView,
-                                              const gfx::Point& pos) = 0;
+  virtual DropViewPreviewResult onFloatingTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos) = 0;
 
   // Called when the user is dragging a tab inside the Tabs bar.
   virtual void onDockingTab(Tabs* tabs, TabView* tabView) = 0;
 
-  virtual DropTabResult onDropTab(Tabs* tabs, TabView* tabView,
-                                  const gfx::Point& pos, bool clone) = 0;
+  virtual DropTabResult onDropTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos, bool clone) = 0;
 };
 
 // Tabs control. Used to show opened documents.
@@ -194,8 +192,7 @@ private:
   void resetOldPositions(double t);
 
   void selectTabInternal(TabPtr& tab);
-  void drawTab(ui::Graphics* g, const gfx::Rect& box, Tab* tab, int dy,
-               bool hover, bool selected);
+  void drawTab(ui::Graphics* g, const gfx::Rect& box, Tab* tab, int dy, bool hover, bool selected);
   void drawFiller(ui::Graphics* g, const gfx::Rect& box);
   TabsListIterator getTabIteratorByView(TabView* tabView);
   TabPtr getTabByView(TabView* tabView);
@@ -216,10 +213,10 @@ private:
   void updateDragCopyCursor(ui::Message* msg);
 
   // Specific variables about the style
-  int m_border;     // Pixels used from the left side to draw the first tab
-  bool m_docked;    // True if tabs are inside the workspace (not the main tabs
-                    // panel)
-  int m_tabsHeight; // Number of pixels in Y-axis for each Tab
+  int m_border;           // Pixels used from the left side to draw the first tab
+  bool m_docked;          // True if tabs are inside the workspace (not the main tabs
+                          // panel)
+  int m_tabsHeight;       // Number of pixels in Y-axis for each Tab
   int m_tabsBottomHeight; // Number of pixels in the bottom part of Tabs widget
 
   // List of tabs (pointers to Tab instances).

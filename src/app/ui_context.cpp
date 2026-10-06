@@ -203,8 +203,7 @@ void UIContext::onAddDocument(doc::Document* doc)
 
   // Add a new view for this document
   DocumentView* view =
-      new DocumentView(m_lastSelectedDoc, DocumentView::Normal,
-                       App::instance()->mainWindow()->getPreviewEditor());
+      new DocumentView(m_lastSelectedDoc, DocumentView::Normal, App::instance()->mainWindow()->getPreviewEditor());
 
   // Add a tab with the new view for the document
   App::instance()->workspace()->addView(view);

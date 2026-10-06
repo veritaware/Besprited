@@ -48,8 +48,7 @@ FileList::FileList()
 
   m_itemToGenerateThumbnail = nullptr;
 
-  m_generateThumbnailTimer.Tick.connect(&FileList::onGenerateThumbnailTick,
-                                        this);
+  m_generateThumbnailTimer.Tick.connect(&FileList::onGenerateThumbnailTick, this);
   m_monitoringTimer.Tick.connect(&FileList::onMonitoringTick, this);
   m_monitoringTimer.start();
 
@@ -136,11 +135,9 @@ bool FileList::onProcessMessage(Message* msg)
         IFileItem* fi = *it;
         gfx::Size itemSize = getFileItemSize(fi);
 
-        if (((mouseMsg->position().y >= y) &&
-             (mouseMsg->position().y < y + th + 4 * guiscale())) ||
+        if (((mouseMsg->position().y >= y) && (mouseMsg->position().y < y + th + 4 * guiscale())) ||
             (it == m_list.begin() && mouseMsg->position().y < y) ||
-            (it == m_list.end() - 1 &&
-             mouseMsg->position().y >= y + th + 4 * guiscale()))
+            (it == m_list.end() - 1 && mouseMsg->position().y >= y + th + 4 * guiscale()))
         {
           m_selected = fi;
           makeSelectedFileitemVisible();
@@ -256,20 +253,16 @@ bool FileList::onProcessMessage(Message* msg)
         return true;
 
       default:
-        if (unicodeChar == ' ' ||
-            (std::tolower(unicodeChar) >= 'a' &&
-             std::tolower(unicodeChar) <= 'z') ||
+        if (unicodeChar == ' ' || (std::tolower(unicodeChar) >= 'a' && std::tolower(unicodeChar) <= 'z') ||
             (unicodeChar >= '0' && unicodeChar <= '9'))
         {
-          if ((base::current_tick() - m_isearchClock) >
-              ISEARCH_KEYPRESS_INTERVAL_MSECS)
+          if ((base::current_tick() - m_isearchClock) > ISEARCH_KEYPRESS_INTERVAL_MSECS)
             m_isearch.clear();
 
           m_isearch.push_back(unicodeChar);
 
           int i, chrs = m_isearch.size();
-          FileItemList::iterator link =
-              m_list.begin() + ((select >= 0) ? select : 0);
+          FileItemList::iterator link = m_list.begin() + ((select >= 0) ? select : 0);
 
           for (i = MAX(select, 0); i < bottom; ++i, ++link)
           {
@@ -300,8 +293,7 @@ bool FileList::onProcessMessage(Message* msg)
     if (view)
     {
       gfx::Point scroll = view->viewScroll();
-      scroll += static_cast<MouseMessage*>(msg)->wheelDelta() * 3 *
-                (textHeight() + 4 * guiscale());
+      scroll += static_cast<MouseMessage*>(msg)->wheelDelta() * 3 * (textHeight() + 4 * guiscale());
       view->setViewScroll(scroll);
     }
     break;
@@ -370,14 +362,12 @@ void FileList::onPaint(ui::PaintEvent& ev)
     }
     else
     {
-      bgcolor = evenRow ? theme->colors.filelistEvenRowFace()
-                        : theme->colors.filelistOddRowFace();
+      bgcolor = evenRow ? theme->colors.filelistEvenRowFace() : theme->colors.filelistOddRowFace();
 
       if (fi->isFolder() && !fi->isBrowsable())
         fgcolor = theme->colors.filelistDisabledRowText();
       else
-        fgcolor = evenRow ? theme->colors.filelistEvenRowText()
-                          : theme->colors.filelistOddRowText();
+        fgcolor = evenRow ? theme->colors.filelistEvenRowText() : theme->colors.filelistOddRowText();
     }
 
     x = bounds.x + 2 * guiscale();
@@ -394,23 +384,19 @@ void FileList::onPaint(ui::PaintEvent& ev)
     }
 
     // item name
-    g->drawString(fi->displayName().c_str(), fgcolor, bgcolor,
-                  gfx::Point(x, y + 2 * guiscale()));
+    g->drawString(fi->displayName().c_str(), fgcolor, bgcolor, gfx::Point(x, y + 2 * guiscale()));
 
     // draw progress bars
     double progress;
-    ThumbnailGenerator::WorkerStatus workerStatus =
-        ThumbnailGenerator::instance()->getWorkerStatus(fi, progress);
+    ThumbnailGenerator::WorkerStatus workerStatus = ThumbnailGenerator::instance()->getWorkerStatus(fi, progress);
 
     if (workerStatus == ThumbnailGenerator::WorkingOnThumbnail)
     {
       int barw = 64 * guiscale();
 
-      theme->paintProgressBar(g,
-                              gfx::Rect(bounds.x2() - 2 * guiscale() - barw,
-                                        y + itemSize.h / 2 - 3 * guiscale(),
-                                        barw, 6 * guiscale()),
-                              progress);
+      theme->paintProgressBar(
+          g, gfx::Rect(bounds.x2() - 2 * guiscale() - barw, y + itemSize.h / 2 - 3 * guiscale(), barw, 6 * guiscale()),
+          progress);
     }
 
     // Thumbnail position
@@ -440,8 +426,7 @@ gfx::Rect FileList::thumbnailBounds()
   gfx::Rect vp = view->viewportBounds();
   int x = vp.x + vp.w - 2 * guiscale() - thumbnail->width();
   int y = thumbnailY() - thumbnail->height() / 2 + bounds().y;
-  y = MID(vp.y + 2 * guiscale(), y,
-          vp.y + vp.h - 3 * guiscale() - thumbnail->height());
+  y = MID(vp.y + 2 * guiscale(), y, vp.y + vp.h - 3 * guiscale() - thumbnail->height());
   x -= bounds().x;
   y -= bounds().y;
   return gfx::Rect(x, y, thumbnail->width(), thumbnail->height());

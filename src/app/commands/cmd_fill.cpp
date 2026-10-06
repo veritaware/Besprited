@@ -41,8 +41,7 @@ class FillWindow : public app::gen::Fill
 // Fills the pixels of the active layer/cel that fall inside the current
 // selection with the given color/opacity. Used by both Fill and Quick Fill.
 // Declared in cmd_fill.h.
-void fill_mask(Context* context, const app::Color& color, int opacity,
-               const char* actionName)
+void fill_mask(Context* context, const app::Color& color, int opacity, const char* actionName)
 {
   ContextWriter writer(context);
   Document* document = writer.document();
@@ -64,8 +63,7 @@ void fill_mask(Context* context, const app::Color& color, int opacity,
   Transaction transaction(writer.context(), actionName);
   {
     Site site = *writer.site();
-    ExpandCelCanvas expand(site, layer, TiledMode::NONE, transaction,
-                           ExpandCelCanvas::None);
+    ExpandCelCanvas expand(site, layer, TiledMode::NONE, transaction, ExpandCelCanvas::None);
     expand.validateDestCanvas(gfx::Region(fillBounds));
     Image* image = expand.getDestCanvas();
 
@@ -111,10 +109,8 @@ FillCommand::FillCommand()
 
 bool FillCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::ActiveLayerIsEditable |
-                             ContextFlags::ActiveLayerIsImage |
-                             ContextFlags::HasVisibleMask);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsEditable |
+                             ContextFlags::ActiveLayerIsImage | ContextFlags::HasVisibleMask);
 }
 
 void FillCommand::onExecute(Context* context)
@@ -161,16 +157,13 @@ QuickFillCommand::QuickFillCommand()
 
 bool QuickFillCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::ActiveLayerIsEditable |
-                             ContextFlags::ActiveLayerIsImage |
-                             ContextFlags::HasVisibleMask);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsEditable |
+                             ContextFlags::ActiveLayerIsImage | ContextFlags::HasVisibleMask);
 }
 
 void QuickFillCommand::onExecute(Context* context)
 {
-  fill_mask(context, ColorBar::instance()->getFgColor(), 255,
-            "Quick Fill Selection");
+  fill_mask(context, ColorBar::instance()->getFgColor(), 255, "Quick Fill Selection");
 }
 
 std::unique_ptr<Command> CommandFactory::createQuickFillCommand()

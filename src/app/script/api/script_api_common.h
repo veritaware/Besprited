@@ -58,8 +58,7 @@ public:
   {
     if (T* obj = doc::get<T>(m_id))
       return *obj;
-    throw std::runtime_error{
-        "Object no longer exists (its document was probably closed)"};
+    throw std::runtime_error{"Object no longer exists (its document was probably closed)"};
   }
 
   doc::ObjectId id() const { return m_id; }

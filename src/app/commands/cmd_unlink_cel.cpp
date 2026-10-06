@@ -57,8 +57,7 @@ void UnlinkCelCommand::onExecute(Context* context)
     {
       Sprite* sprite = writer.sprite();
 
-      for (LayerIndex layerIdx = range.layerBegin();
-           layerIdx <= range.layerEnd(); ++layerIdx)
+      for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd(); ++layerIdx)
       {
         Layer* layer = sprite->indexToLayer(layerIdx);
         if (!layer->isImage())
@@ -66,8 +65,7 @@ void UnlinkCelCommand::onExecute(Context* context)
 
         LayerImage* layerImage = static_cast<LayerImage*>(layer);
 
-        for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1;
-             frame != begin; --frame)
+        for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1; frame != begin; --frame)
         {
           auto cel = layerImage->cel(frame);
           if (cel && cel->links())

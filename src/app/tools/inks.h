@@ -142,14 +142,10 @@ public:
 
   void prepareInk(ToolLoop* loop) override
   {
-    m_proc =
-        ink_processing[INK_SHADING][MID(0, loop->sprite()->pixelFormat(), 2)];
+    m_proc = ink_processing[INK_SHADING][MID(0, loop->sprite()->pixelFormat(), 2)];
   }
 
-  void inkHline(int x1, int y, int x2, ToolLoop* loop) override
-  {
-    (*m_proc)(x1, y, x2, loop);
-  }
+  void inkHline(int x1, int y, int x2, ToolLoop* loop) override { (*m_proc)(x1, y, x2, loop); }
 };
 
 class ScrollInk : public Ink
@@ -244,22 +240,19 @@ public:
 
       if (loop->getOpacity() == 255)
       {
-        m_proc =
-            ink_processing[INK_COPY][MID(0, loop->sprite()->pixelFormat(), 2)];
+        m_proc = ink_processing[INK_COPY][MID(0, loop->sprite()->pixelFormat(), 2)];
       }
       else
       {
         // For opaque layers
         if (loop->getLayer()->isBackground())
         {
-          m_proc = ink_processing[INK_TRANSPARENT]
-                                 [MID(0, loop->sprite()->pixelFormat(), 2)];
+          m_proc = ink_processing[INK_TRANSPARENT][MID(0, loop->sprite()->pixelFormat(), 2)];
         }
         // For transparent layers
         else
         {
-          m_proc = ink_processing[INK_MERGE]
-                                 [MID(0, loop->sprite()->pixelFormat(), 2)];
+          m_proc = ink_processing[INK_MERGE][MID(0, loop->sprite()->pixelFormat(), 2)];
 
           if (loop->sprite()->pixelFormat() == IMAGE_INDEXED)
           {
@@ -276,16 +269,14 @@ public:
     }
 
     case ReplaceFgWithBg:
-      m_proc =
-          ink_processing[INK_REPLACE][MID(0, loop->sprite()->pixelFormat(), 2)];
+      m_proc = ink_processing[INK_REPLACE][MID(0, loop->sprite()->pixelFormat(), 2)];
 
       loop->setPrimaryColor(loop->getFgColor());
       loop->setSecondaryColor(loop->getBgColor());
       break;
 
     case ReplaceBgWithFg:
-      m_proc =
-          ink_processing[INK_REPLACE][MID(0, loop->sprite()->pixelFormat(), 2)];
+      m_proc = ink_processing[INK_REPLACE][MID(0, loop->sprite()->pixelFormat(), 2)];
 
       loop->setPrimaryColor(loop->getBgColor());
       loop->setSecondaryColor(loop->getFgColor());
@@ -293,10 +284,7 @@ public:
     }
   }
 
-  void inkHline(int x1, int y, int x2, ToolLoop* loop) override
-  {
-    (*m_proc)(x1, y, x2, loop);
-  }
+  void inkHline(int x1, int y, int x2, ToolLoop* loop) override { (*m_proc)(x1, y, x2, loop); }
 };
 
 class BlurInk : public Ink
@@ -315,13 +303,9 @@ public:
     m_proc = ink_processing[INK_BLUR][MID(0, loop->sprite()->pixelFormat(), 2)];
   }
 
-  void inkHline(int x1, int y, int x2, ToolLoop* loop) override
-  {
-    (*m_proc)(x1, y, x2, loop);
-  }
+  void inkHline(int x1, int y, int x2, ToolLoop* loop) override { (*m_proc)(x1, y, x2, loop); }
 
-  void createSpecialSourceArea(const gfx::Region& dirtyArea,
-                               gfx::Region& sourceArea) const override
+  void createSpecialSourceArea(const gfx::Region& dirtyArea, gfx::Region& sourceArea) const override
   {
     // We need one pixel more for each side, to use a 3x3 convolution matrix.
     for (const auto& rc : dirtyArea)
@@ -344,17 +328,12 @@ public:
 
   void prepareInk(ToolLoop* loop) override
   {
-    m_proc =
-        ink_processing[INK_JUMBLE][MID(0, loop->sprite()->pixelFormat(), 2)];
+    m_proc = ink_processing[INK_JUMBLE][MID(0, loop->sprite()->pixelFormat(), 2)];
   }
 
-  void inkHline(int x1, int y, int x2, ToolLoop* loop) override
-  {
-    (*m_proc)(x1, y, x2, loop);
-  }
+  void inkHline(int x1, int y, int x2, ToolLoop* loop) override { (*m_proc)(x1, y, x2, loop); }
 
-  void createSpecialSourceArea(const gfx::Region& dirtyArea,
-                               gfx::Region& sourceArea) const override
+  void createSpecialSourceArea(const gfx::Region& dirtyArea, gfx::Region& sourceArea) const override
   {
     // We need one pixel more for each side.
     for (const auto& rc : dirtyArea)
@@ -378,10 +357,7 @@ public:
   Ink* clone() override { return new SelectionInk(*this); }
 
   bool isSelection() const override { return true; }
-  bool needsCelCoordinates() const override
-  {
-    return (m_modify_selection ? false : true);
-  }
+  bool needsCelCoordinates() const override { return (m_modify_selection ? false : true); }
 
   void inkHline(int x1, int y, int x2, ToolLoop* loop) override
   {
@@ -389,8 +365,7 @@ public:
     {
       int modifiers = int(loop->getModifiers());
 
-      if ((modifiers & (int(ToolLoopModifiers::kReplaceSelection) |
-                        int(ToolLoopModifiers::kAddSelection))) != 0)
+      if ((modifiers & (int(ToolLoopModifiers::kReplaceSelection) | int(ToolLoopModifiers::kAddSelection))) != 0)
       {
         m_mask.add(gfx::Rect(x1, y, x2 - x1 + 1, 1));
       }
@@ -404,8 +379,7 @@ public:
     // TODO show the selection-preview with a XOR color or something like that
     else
     {
-      ink_processing[INK_XOR][MID(0, loop->sprite()->pixelFormat(), 2)](
-          x1, y, x2, loop);
+      ink_processing[INK_XOR][MID(0, loop->sprite()->pixelFormat(), 2)](x1, y, x2, loop);
     }
   }
 
@@ -430,8 +404,7 @@ public:
       m_mask.unfreeze();
 
       loop->setMask(&m_mask);
-      loop->getDocument()->setTransformation(
-          Transformation(RectF(m_mask.bounds())));
+      loop->getDocument()->setTransformation(Transformation(RectF(m_mask.bounds())));
 
       m_mask.clear();
     }

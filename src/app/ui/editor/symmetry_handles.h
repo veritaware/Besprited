@@ -50,8 +50,7 @@ using SymmetryHandles = std::vector<SymmetryHandle>;
 // diagonal symmetry guide lines, which (unlike the horizontal/vertical
 // ones) aren't axis-aligned so they can't be clipped with a plain
 // rect intersection. Returns false if the line doesn't cross 'rect'.
-inline bool clip_diagonal_symmetry_line(const gfx::Point& origin, int slope,
-                                        const gfx::Rect& rect, gfx::Point& p1,
+inline bool clip_diagonal_symmetry_line(const gfx::Point& origin, int slope, const gfx::Rect& rect, gfx::Point& p1,
                                         gfx::Point& p2)
 {
   double tMinX = rect.x - origin.x;

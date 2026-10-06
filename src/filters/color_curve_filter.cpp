@@ -53,10 +53,8 @@ const char* ColorCurveFilter::getName()
 
 void ColorCurveFilter::applyToRgba(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint32_t*>(filterMgr->getSourceAddress());
-  auto* dst_address =
-      static_cast<uint32_t*>(filterMgr->getDestinationAddress());
+  const auto* src_address = static_cast<const uint32_t*>(filterMgr->getSourceAddress());
+  auto* dst_address = static_cast<uint32_t*>(filterMgr->getDestinationAddress());
   const int w = filterMgr->getWidth();
   const Target target = filterMgr->getTarget();
   int x, c, r, g, b, a;
@@ -92,10 +90,8 @@ void ColorCurveFilter::applyToRgba(FilterManager* filterMgr)
 
 void ColorCurveFilter::applyToGrayscale(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint16_t*>(filterMgr->getSourceAddress());
-  auto* dst_address =
-      static_cast<uint16_t*>(filterMgr->getDestinationAddress());
+  const auto* src_address = static_cast<const uint16_t*>(filterMgr->getSourceAddress());
+  auto* dst_address = static_cast<uint16_t*>(filterMgr->getDestinationAddress());
   const int w = filterMgr->getWidth();
   const Target target = filterMgr->getTarget();
   int x, c, k, a;
@@ -125,8 +121,7 @@ void ColorCurveFilter::applyToGrayscale(FilterManager* filterMgr)
 
 void ColorCurveFilter::applyToIndexed(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint8_t*>(filterMgr->getSourceAddress());
+  const auto* src_address = static_cast<const uint8_t*>(filterMgr->getSourceAddress());
   auto* dst_address = static_cast<uint8_t*>(filterMgr->getDestinationAddress());
   const int w = filterMgr->getWidth();
   const Target target = filterMgr->getTarget();

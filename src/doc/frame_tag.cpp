@@ -74,8 +74,7 @@ void FrameTag::setColor(color_t color)
 
 void FrameTag::setAniDir(AniDir aniDir)
 {
-  ASSERT(m_aniDir == AniDir::FORWARD || m_aniDir == AniDir::REVERSE ||
-         m_aniDir == AniDir::PING_PONG);
+  ASSERT(m_aniDir == AniDir::FORWARD || m_aniDir == AniDir::REVERSE || m_aniDir == AniDir::PING_PONG);
 
   m_aniDir = aniDir;
 }

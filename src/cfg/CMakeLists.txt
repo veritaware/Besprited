@@ -1,4 +1,4 @@
 # Aseprite Config Library
 # Copyright (c) 2014, 2015 David Capello
 
-add_library(cfg-lib cfg.cpp)
+add_library(cfg-lib cfg.cpp cfg_wasm.cpp)

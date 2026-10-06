@@ -17,8 +17,7 @@
 namespace app
 {
 
-FrameTagWindow::FrameTagWindow(const doc::Sprite* sprite,
-                               const doc::FrameTag* frameTag)
+FrameTagWindow::FrameTagWindow(const doc::Sprite* sprite, const doc::FrameTag* frameTag)
   : m_sprite(sprite)
 {
   name()->setText(frameTag->name());
@@ -26,13 +25,10 @@ FrameTagWindow::FrameTagWindow(const doc::Sprite* sprite,
   to()->setMax(sprite->lastFrame() + 1);
   from()->setValue(frameTag->fromFrame() + 1);
   to()->setValue(frameTag->toFrame() + 1);
-  color()->setColor(app::Color::fromRgb(doc::rgba_getr(frameTag->color()),
-                                        doc::rgba_getg(frameTag->color()),
+  color()->setColor(app::Color::fromRgb(doc::rgba_getr(frameTag->color()), doc::rgba_getg(frameTag->color()),
                                         doc::rgba_getb(frameTag->color())));
 
-  static_assert(int(doc::AniDir::FORWARD) == 0 &&
-                    int(doc::AniDir::REVERSE) == 1 &&
-                    int(doc::AniDir::PING_PONG) == 2,
+  static_assert(int(doc::AniDir::FORWARD) == 0 && int(doc::AniDir::REVERSE) == 1 && int(doc::AniDir::PING_PONG) == 2,
                 "doc::AniDir has changed");
   anidir()->addItem("Forward");
   anidir()->addItem("Reverse");

@@ -21,10 +21,8 @@ using namespace doc;
 // (width*height) matrix located in (x,y) where its center is the
 // (centerX,centerY) element of the matrix.
 template <typename Traits, typename Delegate>
-inline void get_neighboring_pixels(const doc::Image* sourceImage, int x, int y,
-                                   int width, int height, int centerX,
-                                   int centerY, TiledMode tiledMode,
-                                   Delegate& delegate)
+inline void get_neighboring_pixels(const doc::Image* sourceImage, int x, int y, int width, int height, int centerX,
+                                   int centerY, TiledMode tiledMode, Delegate& delegate)
 {
   // Y position to get pixel.
   int getx, gety = y - centerY;
@@ -71,8 +69,7 @@ inline void get_neighboring_pixels(const doc::Image* sourceImage, int x, int y,
     }
 
     typename Traits::const_address_t srcAddress =
-        reinterpret_cast<typename Traits::const_address_t>(
-            sourceImage->getPixelAddress(getx, gety));
+        reinterpret_cast<typename Traits::const_address_t>(sourceImage->getPixelAddress(getx, gety));
 
     for (int dx = 0; dx < width; dx++)
     {
@@ -91,8 +88,7 @@ inline void get_neighboring_pixels(const doc::Image* sourceImage, int x, int y,
       else if (int(tiledMode) & int(TiledMode::X_AXIS))
       {
         getx = 0;
-        srcAddress = reinterpret_cast<typename Traits::const_address_t>(
-            sourceImage->getPixelAddress(getx, gety));
+        srcAddress = reinterpret_cast<typename Traits::const_address_t>(sourceImage->getPixelAddress(getx, gety));
       }
     }
 

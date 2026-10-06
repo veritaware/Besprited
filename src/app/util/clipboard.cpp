@@ -53,15 +53,9 @@ public:
 
   ~ClipboardRange() { ASSERT(!m_doc); }
 
-  void observeUIContext()
-  {
-    UIContext::instance()->documents().addObserver(this);
-  }
+  void observeUIContext() { UIContext::instance()->documents().addObserver(this); }
 
-  void unobserveUIContext()
-  {
-    UIContext::instance()->documents().removeObserver(this);
-  }
+  void unobserveUIContext() { UIContext::instance()->documents().removeObserver(this); }
 
   bool valid() { return (m_doc != nullptr); }
 
@@ -132,9 +126,7 @@ ClipboardManager* ClipboardManager::instance()
   return g_instance;
 }
 
-static void set_clipboard_image(Image* image, Mask* mask,
-                                std::shared_ptr<Palette> palette,
-                                bool set_system_clipboard,
+static void set_clipboard_image(Image* image, Mask* mask, std::shared_ptr<Palette> palette, bool set_system_clipboard,
                                 bool image_source_is_transparent)
 {
   clipboard_palette = palette;
@@ -171,14 +163,12 @@ static void load_native_clipboard_bitmap()
   std::shared_ptr<Palette> native_palette;
   get_native_clipboard_bitmap(&native_image, &native_mask, native_palette);
   if (native_image)
-    set_clipboard_image(native_image, native_mask, native_palette, false,
-                        false);
+    set_clipboard_image(native_image, native_mask, native_palette, false, false);
 }
 
 static bool copy_from_document(const Site& site, bool merged = false)
 {
-  const app::Document* document =
-      static_cast<const app::Document*>(site.document());
+  const app::Document* document = static_cast<const app::Document*>(site.document());
   ASSERT(document);
 
   const Mask* mask = document->mask();
@@ -187,8 +177,7 @@ static bool copy_from_document(const Site& site, bool merged = false)
     return false;
 
   const Palette* pal = document->sprite()->palette(site.frame());
-  set_clipboard_image(image, (mask ? new Mask(*mask) : nullptr),
-                      (pal ? pal->clone() : nullptr), true,
+  set_clipboard_image(image, (mask ? new Mask(*mask) : nullptr), (pal ? pal->clone() : nullptr), true,
                       site.layer() && !site.layer()->isBackground());
 
   return true;
@@ -291,9 +280,8 @@ void copy_range(const ContextReader& reader, const DocumentRange& range)
 
 void copy_image(const Image* image, const Mask* mask, const Palette* pal)
 {
-  set_clipboard_image(Image::createCopy(image),
-                      (mask ? new Mask(*mask) : nullptr),
-                      (pal ? pal->clone() : nullptr), true, false);
+  set_clipboard_image(Image::createCopy(image), (mask ? new Mask(*mask) : nullptr), (pal ? pal->clone() : nullptr),
+                      true, false);
 }
 
 void copy_palette(const Palette* palette, const doc::PalettePicks& picks)
@@ -341,10 +329,9 @@ void paste()
     {
       RgbMap* dst_rgbmap = dstSpr->rgbMap(editor->frame());
 
-      src_image.reset(render::convert_pixel_format(
-          clipboard_image.get(), nullptr, dstSpr->pixelFormat(),
-          DitheringMethod::NONE, dst_rgbmap, clipboard_palette.get(), false,
-          0));
+      src_image.reset(render::convert_pixel_format(clipboard_image.get(), nullptr, dstSpr->pixelFormat(),
+                                                   DitheringMethod::NONE, dst_rgbmap, clipboard_palette.get(), false,
+                                                   0));
     }
 
     // Change to MovingPixelsState
@@ -400,19 +387,16 @@ void paste()
       while (dstFrameBegin + srcRange.frames() > dstSpr->totalFrames())
         api.addFrame(dstSpr, dstSpr->totalFrames());
 
-      for (LayerIndex i = srcRange.layerEnd(),
-                      j = dstSpr->layerToIndex(editor->layer());
-           i >= srcRange.layerBegin() && i >= LayerIndex(0) &&
-           j >= LayerIndex(0);
-           --i, --j)
+      for (LayerIndex i = srcRange.layerEnd(), j = dstSpr->layerToIndex(editor->layer());
+           i >= srcRange.layerBegin() && i >= LayerIndex(0) && j >= LayerIndex(0); --i, --j)
       {
         // Maps a linked Cel in the original sprite with its
         // corresponding copy in the new sprite. In this way
         // we can.
         std::map<Cel*, Cel*> relatedCels;
 
-        for (frame_t frame = srcRange.frameBegin(), dstFrame = dstFrameBegin;
-             frame <= srcRange.frameEnd(); ++frame, ++dstFrame)
+        for (frame_t frame = srcRange.frameBegin(), dstFrame = dstFrameBegin; frame <= srcRange.frameEnd();
+             ++frame, ++dstFrame)
         {
           auto srcCel = srcLayers[i]->cel(frame);
           std::shared_ptr<Cel> srcLink;
@@ -435,8 +419,7 @@ void paste()
                   createCopy = false;
 
                   // Create a link from dstRelated
-                  api.copyCel(static_cast<LayerImage*>(dstLayers[j]),
-                              dstRelated->frame(),
+                  api.copyCel(static_cast<LayerImage*>(dstLayers[j]), dstRelated->frame(),
                               static_cast<LayerImage*>(dstLayers[j]), dstFrame);
                 }
               }
@@ -444,8 +427,8 @@ void paste()
 
             if (createCopy)
             {
-              api.copyCel(static_cast<LayerImage*>(srcLayers[i]), frame,
-                          static_cast<LayerImage*>(dstLayers[j]), dstFrame);
+              api.copyCel(static_cast<LayerImage*>(srcLayers[i]), frame, static_cast<LayerImage*>(dstLayers[j]),
+                          dstFrame);
 
               if (srcLink)
                 relatedCels[srcLink.get()] = dstLayers[j]->cel(dstFrame).get();
@@ -478,8 +461,7 @@ void paste()
       }
 
       frame_t srcFrame = srcRange.frameBegin();
-      for (frame_t frame = srcRange.frameBegin(); frame <= srcRange.frameEnd();
-           ++frame)
+      for (frame_t frame = srcRange.frameBegin(); frame <= srcRange.frameEnd(); ++frame)
       {
         api.addEmptyFrame(dstSpr, dstFrame);
 
@@ -493,15 +475,14 @@ void paste()
 
         api.setFrameDuration(dstSpr, dstFrame, srcSpr->frameDuration(srcFrame));
 
-        for (LayerIndex i = LayerIndex(srcLayers.size() - 1),
-                        j = LayerIndex(dstLayers.size() - 1);
+        for (LayerIndex i = LayerIndex(srcLayers.size() - 1), j = LayerIndex(dstLayers.size() - 1);
              i >= LayerIndex(0) && j >= LayerIndex(0); --i, --j)
         {
           auto cel = static_cast<LayerImage*>(srcLayers[i])->cel(srcFrame);
           if (cel && cel->image())
           {
-            api.copyCel(static_cast<LayerImage*>(srcLayers[i]), srcFrame,
-                        static_cast<LayerImage*>(dstLayers[j]), dstFrame);
+            api.copyCel(static_cast<LayerImage*>(srcLayers[i]), srcFrame, static_cast<LayerImage*>(dstLayers[j]),
+                        dstFrame);
           }
         }
 
@@ -517,16 +498,14 @@ void paste()
     case DocumentRange::kLayers:
     {
       if (srcDoc->colorMode() != dstDoc->colorMode())
-        throw std::runtime_error(
-            "You cannot copy layers of document with different color modes");
+        throw std::runtime_error("You cannot copy layers of document with different color modes");
 
       Transaction transaction(UIContext::instance(), "Paste Layers");
       DocumentApi api = dstDoc->getApi(transaction);
 
       // Expand frames of dstDoc if it's needed.
       frame_t maxFrame(0);
-      for (LayerIndex i = srcRange.layerBegin();
-           i <= srcRange.layerEnd() && i < LayerIndex(srcLayers.size()); ++i)
+      for (LayerIndex i = srcRange.layerBegin(); i <= srcRange.layerEnd() && i < LayerIndex(srcLayers.size()); ++i)
       {
         auto lastCel = static_cast<LayerImage*>(srcLayers[i])->getLastCel();
         if (lastCel && maxFrame < lastCel->frame())
@@ -538,8 +517,7 @@ void paste()
       for (LayerIndex i = srcRange.layerBegin(); i <= srcRange.layerEnd(); ++i)
       {
         Layer* afterThis;
-        if (srcLayers[i]->isBackground() &&
-            !dstDoc->sprite()->backgroundLayer())
+        if (srcLayers[i]->isBackground() && !dstDoc->sprite()->backgroundLayer())
         {
           afterThis = nullptr;
         }

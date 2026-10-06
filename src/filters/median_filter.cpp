@@ -78,9 +78,7 @@ struct GetPixelsDelegateIndexed
   Target target;
   int c = 0;
 
-  GetPixelsDelegateIndexed(const Palette* pal,
-                           std::vector<std::vector<uint8_t>>& channel,
-                           Target target)
+  GetPixelsDelegateIndexed(const Palette* pal, std::vector<std::vector<uint8_t>>& channel, Target target)
     : pal(pal)
     , channel(channel)
     , target(target)
@@ -140,8 +138,7 @@ const char* MedianFilter::getName()
 void MedianFilter::applyToRgba(FilterManager* filterMgr)
 {
   const Image* src = filterMgr->getSourceImage();
-  auto* dst_address =
-      static_cast<uint32_t*>(filterMgr->getDestinationAddress());
+  auto* dst_address = static_cast<uint32_t*>(filterMgr->getDestinationAddress());
   const Target target = filterMgr->getTarget();
   int color;
   int r, g, b, a;
@@ -160,8 +157,7 @@ void MedianFilter::applyToRgba(FilterManager* filterMgr)
     }
 
     delegate.reset();
-    get_neighboring_pixels<RgbTraits>(src, x, y, m_width, m_height, m_width / 2,
-                                      m_height / 2, m_tiledMode, delegate);
+    get_neighboring_pixels<RgbTraits>(src, x, y, m_width, m_height, m_width / 2, m_height / 2, m_tiledMode, delegate);
 
     color = get_pixel_fast<RgbTraits>(src, x, y);
 
@@ -204,8 +200,7 @@ void MedianFilter::applyToRgba(FilterManager* filterMgr)
 void MedianFilter::applyToGrayscale(FilterManager* filterMgr)
 {
   const Image* src = filterMgr->getSourceImage();
-  auto* dst_address =
-      static_cast<uint16_t*>(filterMgr->getDestinationAddress());
+  auto* dst_address = static_cast<uint16_t*>(filterMgr->getDestinationAddress());
   const Target target = filterMgr->getTarget();
   int color, k, a;
   GetPixelsDelegateGrayscale delegate(m_channel);
@@ -223,9 +218,8 @@ void MedianFilter::applyToGrayscale(FilterManager* filterMgr)
     }
 
     delegate.reset();
-    get_neighboring_pixels<GrayscaleTraits>(src, x, y, m_width, m_height,
-                                            m_width / 2, m_height / 2,
-                                            m_tiledMode, delegate);
+    get_neighboring_pixels<GrayscaleTraits>(src, x, y, m_width, m_height, m_width / 2, m_height / 2, m_tiledMode,
+                                            delegate);
 
     color = get_pixel_fast<GrayscaleTraits>(src, x, y);
 
@@ -272,9 +266,8 @@ void MedianFilter::applyToIndexed(FilterManager* filterMgr)
     }
 
     delegate.reset();
-    get_neighboring_pixels<IndexedTraits>(src, x, y, m_width, m_height,
-                                          m_width / 2, m_height / 2,
-                                          m_tiledMode, delegate);
+    get_neighboring_pixels<IndexedTraits>(src, x, y, m_width, m_height, m_width / 2, m_height / 2, m_tiledMode,
+                                          delegate);
 
     if (target & TARGET_INDEX_CHANNEL)
     {

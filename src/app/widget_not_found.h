@@ -17,10 +17,9 @@ class WidgetNotFound : public std::runtime_error
 {
 public:
   WidgetNotFound(const std::string& widgetId)
-    : std::runtime_error(
-          "A data file is corrupted.\nPlease reinstall the program\n\n"
-          "Details: Widget not found: " +
-          widgetId)
+    : std::runtime_error("A data file is corrupted.\nPlease reinstall the program\n\n"
+                         "Details: Widget not found: " +
+                         widgetId)
   {
   }
 };

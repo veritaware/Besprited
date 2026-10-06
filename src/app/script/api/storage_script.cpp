@@ -34,8 +34,7 @@ namespace
 // once joined with includeUserDir() below.
 std::string normalizeDomain(const std::string& domain)
 {
-  return domain.empty() ? base::get_file_name(app::AppScripting::getFileName())
-                        : domain;
+  return domain.empty() ? base::get_file_name(app::AppScripting::getFileName()) : domain;
 }
 
 // The on-disk path for a key/domain (user dir, created if missing).
@@ -58,13 +57,11 @@ public:
   StorageExtension()
   {
     // storage.get(key, domain) -> the stored value (null if absent).
-    addFunction("__storageGet") = [](const std::string& keyV,
-                                     const std::string& domainV) -> JSON::Value
+    addFunction("__storageGet") = [](const std::string& keyV, const std::string& domainV) -> JSON::Value
     { return script::getStorage(keyV, normalizeDomain(domainV)); };
 
     // storage.set(value, key, domain) -> undefined.
-    addFunction("__storageSet") = [](JSON::Value& value,
-                                     const std::string& keyV,
+    addFunction("__storageSet") = [](JSON::Value& value, const std::string& keyV,
                                      const std::string& domainV) -> JSON::Value
     {
       script::setStorage(value, keyV, normalizeDomain(domainV));
@@ -72,16 +69,14 @@ public:
     };
 
     // storage.unload(key, domain) -> undefined (removes the key).
-    addFunction("__storageUnload") =
-        [](const std::string& keyV, const std::string& domainV) -> JSON::Value
+    addFunction("__storageUnload") = [](const std::string& keyV, const std::string& domainV) -> JSON::Value
     {
       script::removeStorage(keyV, normalizeDomain(domainV));
       return JSON::Value{JSON::Special::Undefined};
     };
 
     // storage.save(key, domain) -> the file path ("" if the key is absent).
-    addFunction("__storageSave") =
-        [](const std::string& key, const std::string& domainRaw) -> JSON::Value
+    addFunction("__storageSave") = [](const std::string& key, const std::string& domainRaw) -> JSON::Value
     {
       auto domain = normalizeDomain(domainRaw);
       auto value = script::getStorage(key, domain);
@@ -90,8 +85,7 @@ public:
       try
       {
         auto path = storagePath(key, domain);
-        const base::FileHandle handle(
-            base::open_file_with_exception(path, "wb"));
+        const base::FileHandle handle(base::open_file_with_exception(path, "wb"));
         auto str = value.toString();
         fwrite(str.c_str(), str.size(), 1, handle.get());
         return JSON::Value{path};
@@ -103,23 +97,20 @@ public:
     };
 
     // storage.load(key, domain) -> true if the file was read + stored.
-    addFunction("__storageLoad") = [](const std::string& key,
-                                      const std::string& domainV) -> JSON::Value
+    addFunction("__storageLoad") = [](const std::string& key, const std::string& domainV) -> JSON::Value
     {
       auto domain = normalizeDomain(domainV);
       try
       {
         auto path = storagePath(key, domain);
-        const base::FileHandle handle(
-            base::open_file_with_exception(path, "rb"));
+        const base::FileHandle handle(base::open_file_with_exception(path, "rb"));
         fseek(handle.get(), 0, SEEK_END);
         auto size = ftell(handle.get());
         fseek(handle.get(), 0, SEEK_SET);
         std::vector<unsigned char> data;
         data.resize(size);
         fread(data.data(), size, 1, handle.get());
-        script::setStorage(JSON::Value{std::string{data.begin(), data.end()}},
-                           key, domain);
+        script::setStorage(JSON::Value{std::string{data.begin(), data.end()}}, key, domain);
       }
       catch (...)
       {
@@ -130,8 +121,7 @@ public:
 
     // storage.decodeBase64(key, domain) -> true if the stored value was
     // base64-decoded in place.
-    addFunction("__storageDecodeBase64") =
-        [](const std::string& key, const std::string& domainV) -> JSON::Value
+    addFunction("__storageDecodeBase64") = [](const std::string& key, const std::string& domainV) -> JSON::Value
     {
       auto domain = normalizeDomain(domainV);
       auto value = script::getStorage(key, domain);
@@ -141,8 +131,7 @@ public:
       base::decode_base64(value.toString(), buffer);
       if (buffer.empty())
         return JSON::Value{false};
-      script::setStorage(JSON::Value{std::string{buffer.begin(), buffer.end()}},
-                         key, domain);
+      script::setStorage(JSON::Value{std::string{buffer.begin(), buffer.end()}}, key, domain);
       return JSON::Value{true};
     };
 
@@ -178,17 +167,15 @@ public:
         }
       }
 
-      app::HTTP::fetch(
-          url, post, headers,
-          [key, domain, fileName](app::HTTP::Result&& result)
-          {
-            script::setStorage(JSON::Value{result.body}, key, domain);
-            script::setStorage(JSON::Value{static_cast<double>(result.status)},
-                               key + "_status", domain);
-            JSON::Value event;
-            event.push_back(key + "_fetch");
-            app::AppScripting::raiseEvent(fileName, event);
-          });
+      app::HTTP::fetch(url, post, headers,
+                       [key, domain, fileName](app::HTTP::Result&& result)
+                       {
+                         script::setStorage(JSON::Value{result.body}, key, domain);
+                         script::setStorage(JSON::Value{static_cast<double>(result.status)}, key + "_status", domain);
+                         JSON::Value event;
+                         event.push_back(key + "_fetch");
+                         app::AppScripting::raiseEvent(fileName, event);
+                       });
       return JSON::Value{JSON::Special::Undefined};
     };
   }

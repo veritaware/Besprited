@@ -23,8 +23,7 @@ namespace doc
 
 class Image;
 
-template <typename ImageTraits, typename PointerType, typename ReferenceType>
-class ImageIteratorT
+template <typename ImageTraits, typename PointerType, typename ReferenceType> class ImageIteratorT
 {
 public:
   typedef typename ImageTraits::pixel_t value_type;
@@ -92,22 +91,10 @@ public:
     }
     return m_ptr != other.m_ptr;
   }
-  bool operator<(const ImageIteratorT& other) const
-  {
-    return m_ptr < other.m_ptr;
-  }
-  bool operator>(const ImageIteratorT& other) const
-  {
-    return m_ptr > other.m_ptr;
-  }
-  bool operator<=(const ImageIteratorT& other) const
-  {
-    return m_ptr <= other.m_ptr;
-  }
-  bool operator>=(const ImageIteratorT& other) const
-  {
-    return m_ptr >= other.m_ptr;
-  }
+  bool operator<(const ImageIteratorT& other) const { return m_ptr < other.m_ptr; }
+  bool operator>(const ImageIteratorT& other) const { return m_ptr > other.m_ptr; }
+  bool operator<=(const ImageIteratorT& other) const { return m_ptr <= other.m_ptr; }
+  bool operator>=(const ImageIteratorT& other) const { return m_ptr >= other.m_ptr; }
 
   ImageIteratorT& operator++()
   {
@@ -153,9 +140,7 @@ private:
 };
 
 template <typename ImageTraits>
-class ImageIterator
-  : public ImageIteratorT<ImageTraits, typename ImageTraits::pixel_t*,
-                          typename ImageTraits::pixel_t&>
+class ImageIterator : public ImageIteratorT<ImageTraits, typename ImageTraits::pixel_t*, typename ImageTraits::pixel_t&>
 {
 public:
   // GCC 4.6 needs these re-definitions here.
@@ -172,8 +157,7 @@ public:
 
 template <typename ImageTraits>
 class ImageConstIterator
-  : public ImageIteratorT<ImageTraits, const typename ImageTraits::pixel_t*,
-                          const typename ImageTraits::pixel_t&>
+  : public ImageIteratorT<ImageTraits, const typename ImageTraits::pixel_t*, const typename ImageTraits::pixel_t&>
 {
 public:
   // GCC 4.6 needs these re-definitions here.
@@ -225,28 +209,19 @@ public:
 
   // It doesn't copy the BitPixelAccess, it must copy the bit from
   // "other" to "this".
-  BitPixelAccess& operator=(const BitPixelAccess& other)
-  {
-    return this->operator=((color_t)other);
-  }
+  BitPixelAccess& operator=(const BitPixelAccess& other) { return this->operator=((color_t)other); }
 
   bool operator==(int b) const { return (color_t(*this) == color_t(b)); }
 
   bool operator==(color_t b) const { return (color_t(*this) == b); }
 
-  bool operator==(const BitPixelAccess& b) const
-  {
-    return (color_t(*this) == color_t(b));
-  }
+  bool operator==(const BitPixelAccess& b) const { return (color_t(*this) == color_t(b)); }
 
   bool operator!=(int b) const { return (color_t(*this) != color_t(b)); }
 
   bool operator!=(color_t b) const { return (color_t(*this) != b); }
 
-  bool operator!=(const BitPixelAccess& b) const
-  {
-    return (color_t(*this) != color_t(b));
-  }
+  bool operator!=(const BitPixelAccess& b) const { return (color_t(*this) != color_t(b)); }
 
 private:
   // Non-copyable by copy constructor.
@@ -276,8 +251,7 @@ inline bool operator!=(color_t a, const BitPixelAccess& b)
   return (a != color_t(b));
 }
 
-template <typename PointerType, typename ReferenceType>
-class ImageIteratorT<BitmapTraits, PointerType, ReferenceType>
+template <typename PointerType, typename ReferenceType> class ImageIteratorT<BitmapTraits, PointerType, ReferenceType>
 {
 public:
   // std::iterator<std::forward_iterator_tag, BitmapTraits::pixel_t, ptrdiff_t,
@@ -421,9 +395,7 @@ private:
   mutable BitPixelAccess m_access;
 };
 
-template <>
-class ImageIterator<BitmapTraits>
-  : public ImageIteratorT<BitmapTraits, uint8_t*, BitPixelAccess&>
+template <> class ImageIterator<BitmapTraits> : public ImageIteratorT<BitmapTraits, uint8_t*, BitPixelAccess&>
 {
 public:
   typedef ImageIteratorT<BitmapTraits, uint8_t*, BitPixelAccess&> Base;
@@ -437,12 +409,10 @@ public:
 };
 
 template <>
-class ImageConstIterator<BitmapTraits>
-  : public ImageIteratorT<BitmapTraits, const uint8_t*, const BitPixelAccess&>
+class ImageConstIterator<BitmapTraits> : public ImageIteratorT<BitmapTraits, const uint8_t*, const BitPixelAccess&>
 {
 public:
-  typedef ImageIteratorT<BitmapTraits, const uint8_t*, const BitPixelAccess&>
-      Base;
+  typedef ImageIteratorT<BitmapTraits, const uint8_t*, const BitPixelAccess&> Base;
 
   ImageConstIterator() {}
 

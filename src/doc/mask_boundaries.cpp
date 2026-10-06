@@ -33,33 +33,33 @@ MaskBoundaries::MaskBoundaries(const Image* bitmap)
   // Horizontal segment being expanded from the previous column.
   int horzSeg;
 
-#define new_hseg(open)                                                         \
-  {                                                                            \
-    m_segs.emplace_back(open, gfx::Rect(x, y, 1, 0));                          \
-    horzSeg = int(m_segs.size() - 1);                                          \
+#define new_hseg(open)                                                                                                 \
+  {                                                                                                                    \
+    m_segs.emplace_back(open, gfx::Rect(x, y, 1, 0));                                                                  \
+    horzSeg = int(m_segs.size() - 1);                                                                                  \
   }
-#define new_vseg(open)                                                         \
-  {                                                                            \
-    m_segs.emplace_back(open, gfx::Rect(x, y, 0, 1));                          \
-    vertSegs[x] = int(m_segs.size() - 1);                                      \
+#define new_vseg(open)                                                                                                 \
+  {                                                                                                                    \
+    m_segs.emplace_back(open, gfx::Rect(x, y, 0, 1));                                                                  \
+    vertSegs[x] = int(m_segs.size() - 1);                                                                              \
   }
-#define expand_hseg()                                                          \
-  {                                                                            \
-    ASSERT(hseg);                                                              \
-    ++hseg->m_bounds.w;                                                        \
+#define expand_hseg()                                                                                                  \
+  {                                                                                                                    \
+    ASSERT(hseg);                                                                                                      \
+    ++hseg->m_bounds.w;                                                                                                \
   }
-#define expand_vseg()                                                          \
-  {                                                                            \
-    ASSERT(vseg);                                                              \
-    ++vseg->m_bounds.h;                                                        \
+#define expand_vseg()                                                                                                  \
+  {                                                                                                                    \
+    ASSERT(vseg);                                                                                                      \
+    ++vseg->m_bounds.h;                                                                                                \
   }
-#define stop_expanding_hseg()                                                  \
-  {                                                                            \
-    horzSeg = -1;                                                              \
+#define stop_expanding_hseg()                                                                                          \
+  {                                                                                                                    \
+    horzSeg = -1;                                                                                                      \
   }
-#define stop_expanding_vseg()                                                  \
-  {                                                                            \
-    vertSegs[x] = -1;                                                          \
+#define stop_expanding_vseg()                                                                                          \
+  {                                                                                                                    \
+    vertSegs[x] = -1;                                                                                                  \
   }
 
   for (y = 0; y <= h; ++y)

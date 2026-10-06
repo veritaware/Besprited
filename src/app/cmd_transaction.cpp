@@ -17,8 +17,7 @@
 namespace app
 {
 
-CmdTransaction::CmdTransaction(const std::string& label, bool changeSavedState,
-                               int* savedCounter)
+CmdTransaction::CmdTransaction(const std::string& label, bool changeSavedState, int* savedCounter)
   : m_label(label)
   , m_changeSavedState(changeSavedState)
   , m_savedCounter(savedCounter)

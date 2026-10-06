@@ -87,13 +87,11 @@ bool MoveMaskCommand::onEnabled(Context* context)
   {
 
   case Boundaries:
-    return context->checkFlags(ContextFlags::HasActiveDocument |
-                               ContextFlags::HasVisibleMask);
+    return context->checkFlags(ContextFlags::HasActiveDocument | ContextFlags::HasVisibleMask);
 
   case Content:
     if (m_wrap)
-      return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                                 ContextFlags::HasVisibleMask |
+      return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasVisibleMask |
                                  ContextFlags::HasActiveImage);
     else
       return (current_editor ? true : false);
@@ -114,11 +112,9 @@ void MoveMaskCommand::onExecute(Context* context)
     ContextWriter writer(context);
     Document* document(writer.document());
     {
-      Transaction transaction(writer.context(), "Move Selection",
-                              DoesntModifyDocument);
+      Transaction transaction(writer.context(), "Move Selection", DoesntModifyDocument);
       gfx::Point pt = document->mask()->bounds().origin();
-      document->getApi(transaction)
-          .setMaskPosition(pt.x + delta.x, pt.y + delta.y);
+      document->getApi(transaction).setMaskPosition(pt.x + delta.x, pt.y + delta.y);
       transaction.commit();
     }
 
@@ -135,8 +131,7 @@ void MoveMaskCommand::onExecute(Context* context)
       {
         // Rotate content
         Transaction transaction(writer.context(), "Shift Pixels");
-        transaction.execute(
-            new cmd::ShiftMaskedCel(writer.cel(), delta.x, delta.y));
+        transaction.execute(new cmd::ShiftMaskedCel(writer.cel(), delta.x, delta.y));
         transaction.commit();
       }
       update_screen_for_document(writer.document());
@@ -155,8 +150,7 @@ gfx::Point MoveMaskCommand::getDelta(Context* context) const
   if (!view)
     return gfx::Point(0, 0);
 
-  DocumentPreferences& docPref =
-      Preferences::instance().document(view->document());
+  DocumentPreferences& docPref = Preferences::instance().document(view->document());
   Editor* editor = view->editor();
   gfx::Rect vp = view->viewWidget()->viewportBounds();
   gfx::Rect gridBounds = docPref.grid.bounds();

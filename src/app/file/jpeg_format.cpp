@@ -49,8 +49,7 @@ class JpegFormat : public FileFormat
   const char* onGetExtensions() const override { return "jpeg,jpg"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
-           FILE_SUPPORT_GRAY | FILE_SUPPORT_SEQUENCES |
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB | FILE_SUPPORT_GRAY | FILE_SUPPORT_SEQUENCES |
            FILE_SUPPORT_GET_FORMAT_OPTIONS;
   }
 
@@ -148,9 +147,8 @@ bool JpegFormat::onLoad(FileOp* fop)
   jpeg_start_decompress(&cinfo);
 
   // Create the image.
-  Image* image = fop->sequenceImage(
-      (cinfo.out_color_space == JCS_RGB ? IMAGE_RGB : IMAGE_GRAYSCALE),
-      cinfo.output_width, cinfo.output_height);
+  Image* image = fop->sequenceImage((cinfo.out_color_space == JCS_RGB ? IMAGE_RGB : IMAGE_GRAYSCALE),
+                                    cinfo.output_width, cinfo.output_height);
   if (!image)
   {
     jpeg_destroy_decompress(&cinfo);
@@ -168,8 +166,7 @@ bool JpegFormat::onLoad(FileOp* fop)
 
   for (c = 0; c < (int)buffer_height; c++)
   {
-    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * cinfo.output_width *
-                                      cinfo.output_components);
+    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * cinfo.output_width * cinfo.output_components);
     if (!buffer[c])
     {
       for (c--; c >= 0; c--)
@@ -204,8 +201,7 @@ bool JpegFormat::onLoad(FileOp* fop)
       for (y = 0; y < (int)num_scanlines; y++)
       {
         src_address = ((uint8_t**)buffer)[y];
-        dst_address =
-            (uint32_t*)image->getPixelAddress(0, cinfo.output_scanline - 1 + y);
+        dst_address = (uint32_t*)image->getPixelAddress(0, cinfo.output_scanline - 1 + y);
 
         for (x = 0; x < image->width(); x++)
         {
@@ -226,16 +222,14 @@ bool JpegFormat::onLoad(FileOp* fop)
       for (y = 0; y < (int)num_scanlines; y++)
       {
         src_address = ((uint8_t**)buffer)[y];
-        dst_address =
-            (uint16_t*)image->getPixelAddress(0, cinfo.output_scanline - 1 + y);
+        dst_address = (uint16_t*)image->getPixelAddress(0, cinfo.output_scanline - 1 + y);
 
         for (x = 0; x < image->width(); x++)
           *(dst_address++) = graya(*(src_address++), 255);
       }
     }
 
-    fop->setProgress((float)(cinfo.output_scanline + 1) /
-                     (float)(cinfo.output_height));
+    fop->setProgress((float)(cinfo.output_scanline + 1) / (float)(cinfo.output_height));
     if (fop->isStop())
       break;
   }
@@ -267,8 +261,7 @@ bool JpegFormat::onSave(FileOp* fop)
   // post-longjmp values undefined (see the matching comment in onLoad()).
   JSAMPARRAY volatile buffer = nullptr;
   JDIMENSION volatile buffer_height = 0;
-  const base::SharedPtr<JpegOptions> jpeg_options =
-      fop->sequenceGetFormatOptions();
+  const base::SharedPtr<JpegOptions> jpeg_options = fop->sequenceGetFormatOptions();
   int c;
 
   // Open the file for write in it.
@@ -318,8 +311,7 @@ bool JpegFormat::onSave(FileOp* fop)
   }
 
   jpeg_set_defaults(&cinfo);
-  jpeg_set_quality(&cinfo, (int)MID(0, 100.0f * jpeg_options->quality, 100),
-                   TRUE);
+  jpeg_set_quality(&cinfo, (int)MID(0, 100.0f * jpeg_options->quality, 100), TRUE);
   cinfo.dct_method = JDCT_ISLOW;
   cinfo.smoothing_factor = 0;
 
@@ -338,8 +330,7 @@ bool JpegFormat::onSave(FileOp* fop)
 
   for (c = 0; c < (int)buffer_height; c++)
   {
-    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * cinfo.image_width *
-                                      cinfo.num_components);
+    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * cinfo.image_width * cinfo.num_components);
     if (!buffer[c])
     {
       fop->setError("Not enough memory for buffer scanlines.\n");
@@ -362,8 +353,7 @@ bool JpegFormat::onSave(FileOp* fop)
       int x, y;
       for (y = 0; y < (int)buffer_height; y++)
       {
-        src_address =
-            (uint32_t*)image->getPixelAddress(0, cinfo.next_scanline + y);
+        src_address = (uint32_t*)image->getPixelAddress(0, cinfo.next_scanline + y);
         dst_address = ((uint8_t**)buffer)[y];
 
         for (x = 0; x < image->width(); ++x)
@@ -383,8 +373,7 @@ bool JpegFormat::onSave(FileOp* fop)
       int x, y;
       for (y = 0; y < (int)buffer_height; y++)
       {
-        src_address =
-            (uint16_t*)image->getPixelAddress(0, cinfo.next_scanline + y);
+        src_address = (uint16_t*)image->getPixelAddress(0, cinfo.next_scanline + y);
         dst_address = ((uint8_t**)buffer)[y];
         for (x = 0; x < image->width(); ++x)
           *(dst_address++) = graya_getv(*(src_address++));
@@ -392,8 +381,7 @@ bool JpegFormat::onSave(FileOp* fop)
     }
     jpeg_write_scanlines(&cinfo, buffer, buffer_height);
 
-    fop->setProgress((float)(cinfo.next_scanline + 1) /
-                     (float)(cinfo.image_height));
+    fop->setProgress((float)(cinfo.next_scanline + 1) / (float)(cinfo.image_height));
   }
 
   // Destroy all data.
@@ -416,8 +404,7 @@ base::SharedPtr<FormatOptions> JpegFormat::onGetFormatOptions(FileOp* fop)
 {
   base::SharedPtr<JpegOptions> jpeg_options;
   if (fop->document()->getFormatOptions())
-    jpeg_options =
-        base::SharedPtr<JpegOptions>(fop->document()->getFormatOptions());
+    jpeg_options = base::SharedPtr<JpegOptions>(fop->document()->getFormatOptions());
 
   if (!jpeg_options)
     jpeg_options.reset(new JpegOptions);
@@ -432,10 +419,8 @@ base::SharedPtr<FormatOptions> JpegFormat::onGetFormatOptions(FileOp* fop)
     jpeg_options->quality = get_config_float("JPEG", "Quality", 1.0f);
 
     // Load the window to ask to the user the JPEG options he wants.
-    std::unique_ptr<ui::Window> window(
-        app::load_widget<ui::Window>("jpeg_options.xml", "jpeg_options"));
-    ui::Slider* slider_quality =
-        app::find_widget<ui::Slider>(window.get(), "quality");
+    std::unique_ptr<ui::Window> window(app::load_widget<ui::Window>("jpeg_options.xml", "jpeg_options"));
+    ui::Slider* slider_quality = app::find_widget<ui::Slider>(window.get(), "quality");
     ui::Widget* ok = app::find_widget<ui::Widget>(window.get(), "ok");
 
     slider_quality->setValue(int(jpeg_options->quality * 10.0f));

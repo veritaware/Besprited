@@ -45,8 +45,7 @@ public:
   bool onLocationEntryEnter();
 
   // Shows the dialog to select a file in the program.
-  std::string show(const std::string& title, const std::string& initialPath,
-                   const std::string& showExtensions);
+  std::string show(const std::string& title, const std::string& initialPath, const std::string& showExtensions);
 
 private:
   void updateLocation();

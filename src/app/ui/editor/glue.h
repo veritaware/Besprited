@@ -18,16 +18,13 @@ namespace app
 
 inline tools::Pointer::Button button_from_msg(ui::MouseMessage* msg)
 {
-  return (msg->right() ? tools::Pointer::Right
-                       : (msg->middle() ? tools::Pointer::Middle
-                                        : tools::Pointer::Left));
+  return (msg->right() ? tools::Pointer::Right : (msg->middle() ? tools::Pointer::Middle : tools::Pointer::Left));
 }
 
 inline tools::Pointer pointer_from_msg(Editor* editor, ui::MouseMessage* msg)
 {
-  return tools::Pointer(
-      editor->screenToEditor(msg->position()), button_from_msg(msg),
-      msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
+  return tools::Pointer(editor->screenToEditor(msg->position()), button_from_msg(msg),
+                        msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
 }
 
 } // namespace app

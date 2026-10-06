@@ -49,7 +49,7 @@ class KeyMessage;
 class TimerMessage;
 class TouchMessage;
 class View;
-}
+} // namespace ui
 
 namespace app
 {
@@ -85,8 +85,7 @@ public:
     kShowOutside = 8,
     kShowDecorators = 16,
     kShowSymmetryLine = 32,
-    kDefaultEditorFlags = (kShowGrid | kShowMask | kShowOnionskin |
-                           kShowOutside | kShowDecorators | kShowSymmetryLine)
+    kDefaultEditorFlags = (kShowGrid | kShowMask | kShowOnionskin | kShowOutside | kShowDecorators | kShowSymmetryLine)
   };
 
   enum class ZoomBehavior
@@ -165,10 +164,7 @@ public:
 
   void setCustomizationDelegate(EditorCustomizationDelegate* delegate);
 
-  [[nodiscard]] EditorCustomizationDelegate* getCustomizationDelegate()
-  {
-    return m_customizationDelegate;
-  }
+  [[nodiscard]] EditorCustomizationDelegate* getCustomizationDelegate() { return m_customizationDelegate; }
 
   // Returns the visible area of the active sprite.
   [[nodiscard]] gfx::Rect getVisibleSpriteBounds();
@@ -184,17 +180,11 @@ public:
   [[nodiscard]] tools::Tool* getCurrentEditorTool();
   [[nodiscard]] std::shared_ptr<tools::Ink> getCurrentEditorInk();
 
-  [[nodiscard]] tools::ToolLoopModifiers getToolLoopModifiers() const
-  {
-    return m_toolLoopModifiers;
-  }
+  [[nodiscard]] tools::ToolLoopModifiers getToolLoopModifiers() const { return m_toolLoopModifiers; }
   [[nodiscard]] bool isAutoSelectLayer() const { return m_autoSelectLayer; }
   [[nodiscard]] bool isSecondaryButton() const { return m_secondaryButton; }
 
-  [[nodiscard]] gfx::Point lastDrawingPosition() const
-  {
-    return m_lastDrawingPosition;
-  }
+  [[nodiscard]] gfx::Point lastDrawingPosition() const { return m_lastDrawingPosition; }
   void setLastDrawingPosition(const gfx::Point& pos);
 
   // Returns true if we are able to draw in the current doc/sprite/layer/cel.
@@ -203,9 +193,7 @@ public:
   // Returns true if the cursor is inside the active mask/selection.
   [[nodiscard]] bool isInsideSelection();
 
-  void setZoomAndCenterInMouse(const render::Zoom& zoom,
-                               const gfx::Point& mousePos,
-                               ZoomBehavior zoomBehavior);
+  void setZoomAndCenterInMouse(const render::Zoom& zoom, const gfx::Point& mousePos, ZoomBehavior zoomBehavior);
 
   void pasteImage(const Image* image, const Mask* mask = nullptr);
 
@@ -222,8 +210,7 @@ public:
   [[nodiscard]] bool isPlaying() const;
 
   // Shows a popup menu to change the editor animation speed.
-  void showAnimationSpeedMultiplierPopup(Option<bool>& playOnce,
-                                         bool withStopBehaviorOptions);
+  void showAnimationSpeedMultiplierPopup(Option<bool>& playOnce, bool withStopBehaviorOptions);
   [[nodiscard]] double getAnimationSpeedMultiplier() const;
   void setAnimationSpeedMultiplier(double speed);
 
@@ -285,8 +272,7 @@ private:
 
   void drawMaskSafe();
   void drawMask(ui::Graphics* g);
-  void drawGrid(ui::Graphics* g, const gfx::Rect& spriteBounds,
-                const gfx::Rect& gridBounds, const app::Color& color,
+  void drawGrid(ui::Graphics* g, const gfx::Rect& spriteBounds, const gfx::Rect& gridBounds, const app::Color& color,
                 int alpha);
 
   void setCursor(const gfx::Point& mouseScreenPos);
@@ -294,8 +280,7 @@ private:
   // Draws the specified portion of sprite in the editor.  Warning:
   // You should setup the clip of the screen before calling this
   // routine.
-  void drawOneSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& rc, int dx,
-                                  int dy);
+  void drawOneSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& rc, int dx, int dy);
 
   gfx::Point calcExtraPadding(const render::Zoom& zoom);
 

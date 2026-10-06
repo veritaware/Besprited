@@ -28,8 +28,7 @@ public:
   bool isEmpty() const;
   std::string toString() const;
 
-  bool isPressed(KeyModifiers modifiers, KeyScancode scancode,
-                 int unicodeChar) const;
+  bool isPressed(KeyModifiers modifiers, KeyScancode scancode, int unicodeChar) const;
 
   // Returns true if the key is pressed and only its modifiers are
   // pressed.

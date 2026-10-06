@@ -49,8 +49,7 @@ SpritePropertiesCommand::SpritePropertiesCommand()
 
 bool SpritePropertiesCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void SpritePropertiesCommand::onExecute(Context* context)
@@ -78,8 +77,7 @@ void SpritePropertiesCommand::onExecute(Context* context)
       imgtype_text = "Grayscale";
       break;
     case IMAGE_INDEXED:
-      std::snprintf(buf, sizeof(buf), "Indexed (%d colors)",
-                    sprite->palette(0)->size());
+      std::snprintf(buf, sizeof(buf), "Indexed (%d colors)", sprite->palette(0)->size());
       imgtype_text = buf;
       break;
     default:
@@ -95,24 +93,21 @@ void SpritePropertiesCommand::onExecute(Context* context)
     window.type()->setText(imgtype_text.c_str());
 
     // Sprite size (width and height)
-    window.size()->setTextf(
-        "%dx%d (%s)", sprite->width(), sprite->height(),
-        base::get_pretty_memory_size(sprite->getMemSize()).c_str());
+    window.size()->setTextf("%dx%d (%s)", sprite->width(), sprite->height(),
+                            base::get_pretty_memory_size(sprite->getMemSize()).c_str());
 
     // How many frames
     window.frames()->setTextf("%d", (int)sprite->totalFrames());
 
     if (sprite->pixelFormat() == IMAGE_INDEXED)
     {
-      color_button = new ColorButton(
-          app::Color::fromIndex(sprite->transparentColor()), IMAGE_INDEXED);
+      color_button = new ColorButton(app::Color::fromIndex(sprite->transparentColor()), IMAGE_INDEXED);
 
       window.transparentColorPlaceholder()->addChild(color_button);
     }
     else
     {
-      window.transparentColorPlaceholder()->addChild(
-          new Label("(only for indexed images)"));
+      window.transparentColorPlaceholder()->addChild(new Label("(only for indexed images)"));
     }
   }
 

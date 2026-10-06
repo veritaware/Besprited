@@ -59,8 +59,7 @@ void flip_image(Image* image, const gfx::Rect& bounds, FlipType flipType)
   }
 }
 
-void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType,
-                          int bgcolor)
+void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType, int bgcolor)
 {
   const gfx::Rect bounds = mask->bounds();
 
@@ -69,8 +68,7 @@ void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType,
 
   case FlipHorizontal:
   {
-    std::unique_ptr<Image> originalRow(
-        Image::create(image->pixelFormat(), bounds.w, 1));
+    std::unique_ptr<Image> originalRow(Image::create(image->pixelFormat(), bounds.w, 1));
 
     for (int y = bounds.y; y < bounds.y + bounds.h; ++y)
     {
@@ -93,8 +91,7 @@ void flip_image_with_mask(Image* image, const Mask* mask, FlipType flipType,
 
   case FlipVertical:
   {
-    std::unique_ptr<Image> originalCol(
-        Image::create(image->pixelFormat(), 1, bounds.h));
+    std::unique_ptr<Image> originalCol(Image::create(image->pixelFormat(), 1, bounds.h));
 
     for (int x = bounds.x; x < bounds.x + bounds.w; ++x)
     {

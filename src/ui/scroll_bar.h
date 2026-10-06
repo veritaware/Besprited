@@ -44,8 +44,7 @@ protected:
   void onPaint(PaintEvent& ev) override;
 
 private:
-  void getScrollBarInfo(int* _pos, int* _len, int* _bar_size,
-                        int* _viewport_size);
+  void getScrollBarInfo(int* _pos, int* _len, int* _bar_size, int* _viewport_size);
 
   ScrollableViewDelegate* m_delegate;
   int m_barWidth;

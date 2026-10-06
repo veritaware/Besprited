@@ -23,8 +23,7 @@ using namespace ui;
 
 static inline bool is_hex_digit(char digit)
 {
-  return ((digit >= '0' && digit <= '9') || (digit >= 'a' && digit <= 'f') ||
-          (digit >= 'A' && digit <= 'F'));
+  return ((digit >= '0' && digit <= '9') || (digit >= 'a' && digit <= 'f') || (digit >= 'A' && digit <= 'F'));
 }
 
 HexColorEntry::HexColorEntry()
@@ -45,8 +44,7 @@ HexColorEntry::HexColorEntry()
 
 void HexColorEntry::setColor(const app::Color& color)
 {
-  m_entry.setTextf("%02x%02x%02x", color.getRed(), color.getGreen(),
-                   color.getBlue());
+  m_entry.setTextf("%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
 }
 
 void HexColorEntry::onEntryChange()

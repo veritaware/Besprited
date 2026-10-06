@@ -52,8 +52,8 @@ class BmpFormat : public FileFormat
   const char* onGetExtensions() const override { return "bmp"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
-           FILE_SUPPORT_GRAY | FILE_SUPPORT_INDEXED | FILE_SUPPORT_SEQUENCES;
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB | FILE_SUPPORT_GRAY | FILE_SUPPORT_INDEXED |
+           FILE_SUPPORT_SEQUENCES;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -198,8 +198,7 @@ static void read_1bit_line(int length, FILE* f, Image* image, int line)
     if (j == 0)
     {
       n = fgetl(f);
-      n = ((n & 0x000000ff) << 24) | ((n & 0x0000ff00) << 8) |
-          ((n & 0x00ff0000) >> 8) | ((n & 0xff000000) >> 24);
+      n = ((n & 0x000000ff) << 24) | ((n & 0x0000ff00) << 8) | ((n & 0x00ff0000) >> 8) | ((n & 0xff000000) >> 24);
       for (k = 0; k < 32; k++)
       {
         b[31 - k] = (char)(n & 1);
@@ -281,9 +280,7 @@ static void read_16bit_line(int length, FILE* f, Image* image, int line)
     g = (word >> 5) & 0x1f;
     b = (word) & 0x1f;
 
-    put_pixel(image, i, line,
-              rgba(scale_5bits_to_8bits(r), scale_5bits_to_8bits(g),
-                   scale_5bits_to_8bits(b), 255));
+    put_pixel(image, i, line, rgba(scale_5bits_to_8bits(r), scale_5bits_to_8bits(g), scale_5bits_to_8bits(b), 255));
   }
 
   i = (2 * i) % 4;
@@ -327,8 +324,7 @@ static void read_32bit_line(int length, FILE* f, Image* image, int line)
 /* read_image:
  *  For reading the noncompressed BMP image format.
  */
-static void read_image(FILE* f, Image* image,
-                       const BITMAPINFOHEADER* infoheader, FileOp* fop)
+static void read_image(FILE* f, Image* image, const BITMAPINFOHEADER* infoheader, FileOp* fop)
 {
   int i, line, height, dir;
 
@@ -373,8 +369,7 @@ static void read_image(FILE* f, Image* image,
  * @note This support compressed top-down bitmaps, the MSDN says that
  *       they can't exist, but Photoshop can create them.
  */
-static void read_rle8_compressed_image(FILE* f, Image* image,
-                                       const BITMAPINFOHEADER* infoheader)
+static void read_rle8_compressed_image(FILE* f, Image* image, const BITMAPINFOHEADER* infoheader)
 {
   unsigned char count, val, val0;
   int j, pos, line, height, dir;
@@ -434,7 +429,8 @@ static void read_rle8_compressed_image(FILE* f, Image* image,
           }
 
           if (j % 2 == 1)
-            val0 = fgetc(f); /* align on word boundary */ // NOLINT(clang-analyzer-deadcode.DeadStores)
+            val0 = fgetc(f);
+          /* align on word boundary */ // NOLINT(clang-analyzer-deadcode.DeadStores)
           break;
         }
       }
@@ -455,8 +451,7 @@ static void read_rle8_compressed_image(FILE* f, Image* image,
  * @note This support compressed top-down bitmaps, the MSDN says that
  *       they can't exist, but Photoshop can create them.
  */
-static void read_rle4_compressed_image(FILE* f, Image* image,
-                                       const BITMAPINFOHEADER* infoheader)
+static void read_rle4_compressed_image(FILE* f, Image* image, const BITMAPINFOHEADER* infoheader)
 {
   unsigned char b[8];
   unsigned char count;
@@ -542,24 +537,22 @@ static void read_rle4_compressed_image(FILE* f, Image* image,
   }
 }
 
-static int read_bitfields_image(FILE* f, Image* image,
-                                BITMAPINFOHEADER* infoheader,
-                                unsigned long rmask, unsigned long gmask,
-                                unsigned long bmask)
+static int read_bitfields_image(FILE* f, Image* image, BITMAPINFOHEADER* infoheader, unsigned long rmask,
+                                unsigned long gmask, unsigned long bmask)
 {
-#define CALC_SHIFT(c)                                                          \
-  mask = ~c##mask;                                                             \
-  c##shift = 0;                                                                \
-  while (mask & 1)                                                             \
-  {                                                                            \
-    ++c##shift;                                                                \
-    mask >>= 1;                                                                \
-  }                                                                            \
-  if ((c##mask >> c##shift) == 0x1f)                                           \
-    c##scale = scale_5bits_to_8bits;                                           \
-  else if ((c##mask >> c##shift) == 0x3f)                                      \
-    c##scale = scale_6bits_to_8bits;                                           \
-  else                                                                         \
+#define CALC_SHIFT(c)                                                                                                  \
+  mask = ~c##mask;                                                                                                     \
+  c##shift = 0;                                                                                                        \
+  while (mask & 1)                                                                                                     \
+  {                                                                                                                    \
+    ++c##shift;                                                                                                        \
+    mask >>= 1;                                                                                                        \
+  }                                                                                                                    \
+  if ((c##mask >> c##shift) == 0x1f)                                                                                   \
+    c##scale = scale_5bits_to_8bits;                                                                                   \
+  else if ((c##mask >> c##shift) == 0x3f)                                                                              \
+    c##scale = scale_6bits_to_8bits;                                                                                   \
+  else                                                                                                                 \
     c##scale = nullptr;
 
   unsigned long buffer, mask, rshift, gshift, bshift;
@@ -658,8 +651,7 @@ bool BmpFormat::onLoad(FileOp* fop)
     return false;
   }
 
-  if ((infoheader.biBitCount == 32) || (infoheader.biBitCount == 24) ||
-      (infoheader.biBitCount == 16))
+  if ((infoheader.biBitCount == 32) || (infoheader.biBitCount == 24) || (infoheader.biBitCount == 16))
     pixelFormat = IMAGE_RGB;
   else
     pixelFormat = IMAGE_INDEXED;
@@ -674,8 +666,7 @@ bool BmpFormat::onLoad(FileOp* fop)
   else
     rmask = gmask = bmask = 0;
 
-  Image* image = fop->sequenceImage(pixelFormat, infoheader.biWidth,
-                                    ABS((int)infoheader.biHeight));
+  Image* image = fop->sequenceImage(pixelFormat, infoheader.biWidth, ABS((int)infoheader.biHeight));
   if (!image)
   {
     return false;

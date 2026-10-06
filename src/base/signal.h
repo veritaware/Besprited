@@ -16,7 +16,6 @@ template <typename R> using Signal0 = obs::signal<R()>;
 
 template <typename R, typename A1> using Signal1 = obs::signal<R(A1)>;
 
-template <typename R, typename A1, typename A2>
-using Signal2 = obs::signal<R(A1, A2)>;
+template <typename R, typename A1, typename A2> using Signal2 = obs::signal<R(A1, A2)>;
 
 } // namespace base

@@ -202,10 +202,7 @@ public:
   operator bool() const { return m_ptr; }
   operator BaseClass*() const { return m_ptr; }
 
-  template <typename Derived = BaseClass> [[nodiscard]] Derived* get() const
-  {
-    return dynamic_cast<Derived*>(m_ptr);
-  }
+  template <typename Derived = BaseClass> [[nodiscard]] Derived* get() const { return dynamic_cast<Derived*>(m_ptr); }
 
 private:
   BaseClass* m_ptr = nullptr;
@@ -226,10 +223,7 @@ public:
     TypeMatch match;
     void* data;
     std::unordered_set<std::string> flags;
-    bool hasFlag(const std::string& flag)
-    {
-      return flags.find(flag) != flags.end();
-    }
+    bool hasFlag(const std::string& flag) { return flags.find(flag) != flags.end(); }
   };
 
   using Registry = std::unordered_map<std::string, RegistryEntry>;
@@ -291,8 +285,7 @@ public:
     return all;
   }
 
-  static bool setDefault(const std::string& name,
-                         const std::unordered_set<std::string>& flags = {})
+  static bool setDefault(const std::string& name, const std::unordered_set<std::string>& flags = {})
   {
     auto& registry = getRegistry();
     auto it = registry.find(name);
@@ -332,32 +325,28 @@ public:
   template <typename DerivedClass> class Regular
   {
   public:
-    Regular(const std::string& name,
-            const std::unordered_set<std::string>& flags = {})
+    Regular(const std::string& name, const std::unordered_set<std::string>& flags = {})
     {
 #if _DEBUG
       std::cout << "Registered [" << name << "]" << std::endl;
 #endif
-      Injectable<BaseClass>::getRegistry()[name] = {
-          []() -> BaseClass* { return new DerivedClass(); },
-          [](BaseClass* instance) { delete instance; }, matchType<DerivedClass>,
-          nullptr, flags};
+      Injectable<BaseClass>::getRegistry()[name] = {[]() -> BaseClass* { return new DerivedClass(); },
+                                                    [](BaseClass* instance) { delete instance; },
+                                                    matchType<DerivedClass>, nullptr, flags};
     }
   };
 
   template <typename DerivedClass> class Singleton
   {
   public:
-    Singleton(const std::string& name,
-              const std::unordered_set<std::string>& flags = {})
+    Singleton(const std::string& name, const std::unordered_set<std::string>& flags = {})
     {
-      Injectable<BaseClass>::getRegistry()[name] = {
-          []
-          {
-            static DerivedClass instance;
-            return &instance;
-          },
-          [](BaseClass* ptr) {}, matchType<DerivedClass>, nullptr, flags};
+      Injectable<BaseClass>::getRegistry()[name] = {[]
+                                                    {
+                                                      static DerivedClass instance;
+                                                      return &instance;
+                                                    },
+                                                    [](BaseClass* ptr) {}, matchType<DerivedClass>, nullptr, flags};
     }
   };
 
@@ -377,19 +366,16 @@ public:
     }
 
     template <typename DerivedClass>
-    Provides(DerivedClass* instance, const std::string& name = "",
-             const std::unordered_set<std::string>& flags = {})
+    Provides(DerivedClass* instance, const std::string& name = "", const std::unordered_set<std::string>& flags = {})
     {
       m_name = name;
-      Injectable<BaseClass>::getRegistry()[name] = {
-          [=] { return instance; }, [](BaseClass* ptr) {},
-          matchType<DerivedClass>, this, flags};
+      Injectable<BaseClass>::getRegistry()[name] = {[=] { return instance; }, [](BaseClass* ptr) {},
+                                                    matchType<DerivedClass>, this, flags};
     }
   };
 };
 
-template <typename BaseClass_>
-inject<BaseClass_>::inject(const std::string& name)
+template <typename BaseClass_> inject<BaseClass_>::inject(const std::string& name)
 {
   auto& registry = Injectable<BaseClass>::getRegistry();
   auto it = registry.find(name);
@@ -401,7 +387,6 @@ inject<BaseClass_>::inject(const std::string& name)
   }
   else
   {
-    std::cout << "Could not create " << typeid(BaseClass).name() << " named \""
-              << name << "\"" << std::endl;
+    std::cout << "Could not create " << typeid(BaseClass).name() << " named \"" << name << "\"" << std::endl;
   }
 }

@@ -33,14 +33,8 @@ public:
 
   Vector2d operator-() const { return Vector2d(-x, -y); }
 
-  Vector2d operator+(const Vector2d& v) const
-  {
-    return Vector2d(x + v.x, y + v.y);
-  }
-  Vector2d operator-(const Vector2d& v) const
-  {
-    return Vector2d(x - v.x, y - v.y);
-  }
+  Vector2d operator+(const Vector2d& v) const { return Vector2d(x + v.x, y + v.y); }
+  Vector2d operator-(const Vector2d& v) const { return Vector2d(x - v.x, y - v.y); }
   T operator*(const Vector2d& v) const { return dotProduct(v); }
   Vector2d operator*(const T& f) const { return Vector2d(x * f, y * f); }
   Vector2d operator/(const T& f) const { return Vector2d(x / f, y / f); }
@@ -80,10 +74,7 @@ public:
 
   T dotProduct(const Vector2d& v) const { return x * v.x + y * v.y; }
 
-  Vector2d projectOn(const Vector2d& v) const
-  {
-    return v * (this->dotProduct(v) / std::pow(v.magnitude(), 2));
-  }
+  Vector2d projectOn(const Vector2d& v) const { return v * (this->dotProduct(v) / std::pow(v.magnitude(), 2)); }
 
   T angle() const { return std::atan2(y, x); }
 
@@ -94,8 +85,7 @@ public:
 
 } // namespace base
 
-template <typename T>
-base::Vector2d<T> operator*(const T& f, const base::Vector2d<T>& v)
+template <typename T> base::Vector2d<T> operator*(const T& f, const base::Vector2d<T>& v)
 {
   return base::Vector2d<T>(v.x * f, v.y * f);
 }

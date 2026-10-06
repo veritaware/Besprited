@@ -131,31 +131,25 @@ void MergeDownLayerCommand::onExecute(Context* context)
 
         doc::color_t bgcolor = app_get_color_to_clear_layer(dst_layer);
 
-        ImageRef new_image(doc::crop_image(
-            dst_image.get(), bounds.x - dst_cel->x(), bounds.y - dst_cel->y(),
-            bounds.w, bounds.h, bgcolor));
+        ImageRef new_image(doc::crop_image(dst_image.get(), bounds.x - dst_cel->x(), bounds.y - dst_cel->y(), bounds.w,
+                                           bounds.h, bgcolor));
 
         // Merge src_image in new_image
-        render::composite_image(
-            new_image.get(), src_image, sprite->palette(src_cel->frame()),
-            src_cel->x() - bounds.x, src_cel->y() - bounds.y, opacity,
-            src_layer->blendMode());
+        render::composite_image(new_image.get(), src_image, sprite->palette(src_cel->frame()), src_cel->x() - bounds.x,
+                                src_cel->y() - bounds.y, opacity, src_layer->blendMode());
 
-        transaction.execute(
-            new cmd::SetCelPosition(dst_cel, bounds.x, bounds.y));
+        transaction.execute(new cmd::SetCelPosition(dst_cel, bounds.x, bounds.y));
 
         if (dst_cel->links())
           transaction.execute(new cmd::UnlinkCel(dst_cel));
 
-        transaction.execute(
-            new cmd::ReplaceImage(sprite, dst_cel->imageRef(), new_image));
+        transaction.execute(new cmd::ReplaceImage(sprite, dst_cel->imageRef(), new_image));
       }
     }
   }
 
   document->notifyLayerMergedDown(src_layer, dst_layer);
-  document->getApi(transaction)
-      .removeLayer(src_layer); // src_layer is deleted inside removeLayer()
+  document->getApi(transaction).removeLayer(src_layer); // src_layer is deleted inside removeLayer()
 
   transaction.commit();
   update_screen_for_document(document);

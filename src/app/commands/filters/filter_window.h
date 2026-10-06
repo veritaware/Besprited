@@ -36,8 +36,7 @@ public:
     WithoutTiledCheckBox
   };
 
-  FilterWindow(const char* title, const char* cfgSection,
-               FilterManagerImpl* filterMgr, WithChannels withChannels,
+  FilterWindow(const char* title, const char* cfgSection, FilterManagerImpl* filterMgr, WithChannels withChannels,
                WithTiled withTiled, TiledMode tiledMode = TiledMode::NONE);
   ~FilterWindow();
 

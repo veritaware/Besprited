@@ -29,8 +29,8 @@ class ToolGroup;
 class Tool
 {
 public:
-  Tool(ToolGroup* group, const std::string& id, const std::string& text,
-       const std::string& tips, int default_brush_size)
+  Tool(ToolGroup* group, const std::string& id, const std::string& text, const std::string& tips,
+       int default_brush_size)
     : m_group(group)
     , m_id(id)
     , m_text(text)
@@ -49,44 +49,17 @@ public:
 
   Fill getFill(int button) { return m_button[button].m_fill; }
   std::shared_ptr<Ink> getInk(int button) { return m_button[button].m_ink; }
-  Controller* getController(int button)
-  {
-    return m_button[button].m_controller;
-  }
-  PointShape* getPointShape(int button)
-  {
-    return m_button[button].m_point_shape;
-  }
-  Intertwine* getIntertwine(int button)
-  {
-    return m_button[button].m_intertwine;
-  }
-  TracePolicy getTracePolicy(int button)
-  {
-    return m_button[button].m_trace_policy;
-  }
+  Controller* getController(int button) { return m_button[button].m_controller; }
+  PointShape* getPointShape(int button) { return m_button[button].m_point_shape; }
+  Intertwine* getIntertwine(int button) { return m_button[button].m_intertwine; }
+  TracePolicy getTracePolicy(int button) { return m_button[button].m_trace_policy; }
 
   void setFill(int button, Fill fill) { m_button[button].m_fill = fill; }
-  void setInk(int button, std::shared_ptr<Ink> ink)
-  {
-    m_button[button].m_ink = ink;
-  }
-  void setController(int button, Controller* controller)
-  {
-    m_button[button].m_controller = controller;
-  }
-  void setPointShape(int button, PointShape* point_shape)
-  {
-    m_button[button].m_point_shape = point_shape;
-  }
-  void setIntertwine(int button, Intertwine* intertwine)
-  {
-    m_button[button].m_intertwine = intertwine;
-  }
-  void setTracePolicy(int button, TracePolicy trace_policy)
-  {
-    m_button[button].m_trace_policy = trace_policy;
-  }
+  void setInk(int button, std::shared_ptr<Ink> ink) { m_button[button].m_ink = ink; }
+  void setController(int button, Controller* controller) { m_button[button].m_controller = controller; }
+  void setPointShape(int button, PointShape* point_shape) { m_button[button].m_point_shape = point_shape; }
+  void setIntertwine(int button, Intertwine* intertwine) { m_button[button].m_intertwine = intertwine; }
+  void setTracePolicy(int button, TracePolicy trace_policy) { m_button[button].m_trace_policy = trace_policy; }
 
 private:
   ToolGroup* m_group;

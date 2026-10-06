@@ -63,8 +63,7 @@ void LoadPaletteCommand::onExecute(Context* context)
   else
   {
     std::string exts = get_readable_palette_extensions();
-    filename = app::show_file_selector("Load Palette", "", exts,
-                                       FileSelectorType::Open);
+    filename = app::show_file_selector("Load Palette", "", exts, FileSelectorType::Open);
   }
 
   if (!filename.empty())
@@ -76,8 +75,7 @@ void LoadPaletteCommand::onExecute(Context* context)
     }
     else
     {
-      auto cmd = static_cast<SetPaletteCommand*>(
-          CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
+      auto cmd = static_cast<SetPaletteCommand*>(CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
       cmd->setPalette(palette.get());
       context->executeCommand(cmd);
     }

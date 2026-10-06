@@ -20,8 +20,7 @@ struct SDL_Surface;
 namespace she
 {
 
-class SDL2Surface
-  : public GenericDrawTextSurface<GenericDrawColoredRgbaSurface<Surface>>
+class SDL2Surface : public GenericDrawTextSurface<GenericDrawColoredRgbaSurface<Surface>>
 {
 public:
   enum [[clang::flag_enum]] DestroyFlag : std::uint8_t
@@ -57,12 +56,10 @@ public:
   void putPixel(gfx::Color color, int x, int y) override;
   void drawHLine(gfx::Color color, int x, int y, int w) override;
   void drawVLine(gfx::Color color, int x, int y, int h) override;
-  void drawLine(gfx::Color color, const gfx::Point& a,
-                const gfx::Point& b) override;
+  void drawLine(gfx::Color color, const gfx::Point& a, const gfx::Point& b) override;
   void drawRect(gfx::Color color, const gfx::Rect& rc) override;
   void fillRect(gfx::Color color, const gfx::Rect& rc) override;
-  void blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty, int width,
-              int height) const override;
+  void blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty, int width, int height) const override;
   void scrollTo(const gfx::Rect& rc, int dx, int dy) override;
   void drawSurface(const Surface* src, int dstx, int dsty) override;
   void drawRgbaSurface(const Surface* src, int dstx, int dsty) override;

@@ -26,8 +26,7 @@ Win32Exception::Win32Exception(const std::string& msg) throw()
 
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | // TODO Try to use a TLS buffer
                     FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                nullptr, errcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                (LPWSTR)&buf, 0, nullptr);
+                nullptr, errcode, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&buf, 0, nullptr);
 
   setMessage((msg + "\n" + to_utf8((LPWSTR)buf)).c_str());
   LocalFree(buf);

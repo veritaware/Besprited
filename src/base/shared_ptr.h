@@ -46,8 +46,7 @@ public:
 };
 
 // A reference counter with a custom deleter.
-template <class T, class Deleter>
-class SharedPtrRefCounterImpl : public SharedPtrRefCounterBase
+template <class T, class Deleter> class SharedPtrRefCounterImpl : public SharedPtrRefCounterBase
 {
 public:
   SharedPtrRefCounterImpl(T* ptr, Deleter deleter)
@@ -181,10 +180,7 @@ public:
   T* operator->() const { return m_ptr; }
   explicit operator bool() const { return (m_ptr != nullptr); }
 
-  [[nodiscard]] long use_count() const
-  {
-    return (m_refCount ? m_refCount->use_count() : 0);
-  }
+  [[nodiscard]] long use_count() const { return (m_refCount ? m_refCount->use_count() : 0); }
   [[nodiscard]] bool unique() const { return use_count() == 1; }
 
 private:
@@ -238,16 +234,14 @@ private:
 
 // Compares if two shared-pointers points to the same place (object,
 // memory address).
-template <class T>
-bool operator==(const SharedPtr<T>& ptr1, const SharedPtr<T>& ptr2)
+template <class T> bool operator==(const SharedPtr<T>& ptr1, const SharedPtr<T>& ptr2)
 {
   return ptr1.get() == ptr2.get();
 }
 
 // Compares if two shared-pointers points to different places
 // (objects, memory addresses).
-template <class T>
-bool operator!=(const SharedPtr<T>& ptr1, const SharedPtr<T>& ptr2)
+template <class T> bool operator!=(const SharedPtr<T>& ptr1, const SharedPtr<T>& ptr2)
 {
   return ptr1.get() != ptr2.get();
 }

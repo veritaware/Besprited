@@ -54,8 +54,7 @@ void TiledModeCommand::onLoadParams(const Params& params)
 
 bool TiledModeCommand::onEnabled(Context* ctx)
 {
-  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                         ContextFlags::HasActiveSprite);
+  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 bool TiledModeCommand::onChecked(Context* ctx)

@@ -57,14 +57,8 @@ public:
 
   int* savedCounter() { return &m_savedCounter; }
 
-  const undo::UndoState* firstState() const
-  {
-    return m_undoHistory.firstState();
-  }
-  const undo::UndoState* currentState() const
-  {
-    return m_undoHistory.currentState();
-  }
+  const undo::UndoState* firstState() const { return m_undoHistory.firstState(); }
+  const undo::UndoState* currentState() const { return m_undoHistory.currentState(); }
 
   void moveToState(const undo::UndoState* state);
 

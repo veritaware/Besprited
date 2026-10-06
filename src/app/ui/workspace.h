@@ -34,8 +34,7 @@ public:
   iterator end() { return m_views.end(); }
 
   void addView(WorkspaceView* view, int pos = -1);
-  void addViewToPanel(WorkspacePanel* panel, WorkspaceView* view,
-                      bool from_drop, int pos);
+  void addViewToPanel(WorkspacePanel* panel, WorkspaceView* view, bool from_drop, int pos);
   void removeView(WorkspaceView* view);
 
   // Closes the given view. Returns false if the user cancels the
@@ -54,14 +53,11 @@ public:
 
   // Set the preview of what could happen if we drop the given
   // "view" at the "pos"?
-  DropViewPreviewResult setDropViewPreview(const gfx::Point& pos,
-                                           WorkspaceView* view,
-                                           WorkspaceTabs* tabs);
+  DropViewPreviewResult setDropViewPreview(const gfx::Point& pos, WorkspaceView* view, WorkspaceTabs* tabs);
   void removeDropViewPreview();
 
   // Returns true if the view was docked inside the workspace.
-  DropViewAtResult dropViewAt(const gfx::Point& pos, WorkspaceView* view,
-                              bool clone);
+  DropViewAtResult dropViewAt(const gfx::Point& pos, WorkspaceView* view, bool clone);
 
   // InputChainElement impl
   void onNewInputPriority(InputChainElement* element) override;

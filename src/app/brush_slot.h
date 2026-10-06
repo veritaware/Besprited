@@ -33,12 +33,9 @@ public:
     PixelPerfect = 0x0200
   };
 
-  BrushSlot(Flags flags = Flags(0),
-            const doc::BrushRef& brush = doc::BrushRef(nullptr),
-            const app::Color& fgColor = app::Color::fromMask(),
-            const app::Color& bgColor = app::Color::fromMask(),
-            tools::InkType inkType = tools::InkType::DEFAULT,
-            int inkOpacity = 255, const Shade& shade = Shade(),
+  BrushSlot(Flags flags = Flags(0), const doc::BrushRef& brush = doc::BrushRef(nullptr),
+            const app::Color& fgColor = app::Color::fromMask(), const app::Color& bgColor = app::Color::fromMask(),
+            tools::InkType inkType = tools::InkType::DEFAULT, int inkOpacity = 255, const Shade& shade = Shade(),
             bool pixelPerfect = false)
     : m_flags(flags)
     , m_brush(brush)
@@ -56,16 +53,11 @@ public:
 
   bool isEmpty() const { return int(m_flags) == 0; }
 
-  bool hasFlag(Flags flag) const
-  {
-    return ((int(m_flags) & int(flag)) == int(flag));
-  }
+  bool hasFlag(Flags flag) const { return ((int(m_flags) & int(flag)) == int(flag)); }
 
   bool hasBrush() const
   {
-    return (brush() &&
-            (hasFlag(Flags::BrushType) || hasFlag(Flags::BrushSize) ||
-             hasFlag(Flags::BrushAngle)));
+    return (brush() && (hasFlag(Flags::BrushType) || hasFlag(Flags::BrushSize) || hasFlag(Flags::BrushAngle)));
   }
 
   // Can be null if the user deletes the brush.

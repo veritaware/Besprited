@@ -97,13 +97,11 @@ private:
   FileOp* m_fop;
 };
 
-static bool save_document_in_background(const Context* context,
-                                        const Document* document,
-                                        bool mark_as_saved,
+static bool save_document_in_background(const Context* context, const Document* document, bool mark_as_saved,
                                         const std::string& fn_format)
 {
-  std::unique_ptr<FileOp> fop(FileOp::createSaveDocumentOperation(
-      context, document, document->filename().c_str(), fn_format.c_str()));
+  std::unique_ptr<FileOp> fop(
+      FileOp::createSaveDocumentOperation(context, document, document->filename().c_str(), fn_format.c_str()));
   if (!fop)
     return false;
 
@@ -134,17 +132,14 @@ static bool save_document_in_background(const Context* context,
     if (mark_as_saved)
       const_cast<Document*>(document)->markAsSaved();
 
-    StatusBar::instance()->setStatusText(2000, "File %s, saved.",
-                                         document->name().c_str());
+    StatusBar::instance()->setStatusText(2000, "File %s, saved.", document->name().c_str());
   }
   return true;
 }
 
 //////////////////////////////////////////////////////////////////////
 
-SaveFileBaseCommand::SaveFileBaseCommand(const char* short_name,
-                                         const char* friendly_name,
-                                         CommandFlags flags)
+SaveFileBaseCommand::SaveFileBaseCommand(const char* short_name, const char* friendly_name, CommandFlags flags)
   : Command(short_name, friendly_name, flags)
 {
 }
@@ -162,8 +157,7 @@ bool SaveFileBaseCommand::onEnabled(Context* context)
   return context->checkFlags(ContextFlags::ActiveDocumentIsWritable);
 }
 
-bool SaveFileBaseCommand::saveAsDialog(Context* context, const char* dlgTitle,
-                                       FileSelectorDelegate* delegate)
+bool SaveFileBaseCommand::saveAsDialog(Context* context, const char* dlgTitle, FileSelectorDelegate* delegate)
 {
   const Document* document = context->activeDocument();
   std::string filename;
@@ -183,8 +177,7 @@ bool SaveFileBaseCommand::saveAsDialog(Context* context, const char* dlgTitle,
     std::string exts = get_writable_extensions();
     filename = document->filename();
 
-    std::string newfilename = app::show_file_selector(
-        dlgTitle, filename, exts, FileSelectorType::Save, delegate);
+    std::string newfilename = app::show_file_selector(dlgTitle, filename, exts, FileSelectorType::Save, delegate);
 
     if (newfilename.empty())
       return false;
@@ -211,8 +204,7 @@ bool SaveFileBaseCommand::saveAsDialog(Context* context, const char* dlgTitle,
   bool undoResize = false;
   if (scale != 1.0)
   {
-    Command* resizeCmd =
-        CommandsModule::instance()->getCommandByName(CommandId::SpriteSize);
+    Command* resizeCmd = CommandsModule::instance()->getCommandByName(CommandId::SpriteSize);
     ASSERT(resizeCmd);
     if (resizeCmd)
     {
@@ -239,14 +231,12 @@ bool SaveFileBaseCommand::saveAsDialog(Context* context, const char* dlgTitle,
   }
 
   // Save the document
-  bool success = save_document_in_background(
-      context, const_cast<Document*>(document), markAsSaved, m_filenameFormat);
+  bool success = save_document_in_background(context, const_cast<Document*>(document), markAsSaved, m_filenameFormat);
 
   // Undo resize
   if (undoResize)
   {
-    Command* undoCmd =
-        CommandsModule::instance()->getCommandByName(CommandId::Undo);
+    Command* undoCmd = CommandsModule::instance()->getCommandByName(CommandId::Undo);
     if (undoCmd)
       context->executeCommand(undoCmd);
   }
@@ -293,8 +283,7 @@ void SaveFileCommand::onExecute(Context* context)
     ContextWriter writer(context);
     Document* documentWriter = writer.document();
 
-    save_document_in_background(context, documentWriter, true,
-                                m_filenameFormat.c_str());
+    save_document_in_background(context, documentWriter, true, m_filenameFormat.c_str());
   }
   // If the document isn't associated to a file, we must to show the
   // save-as dialog to the user to select for first time the file-name
@@ -334,8 +323,7 @@ protected:
 };
 
 SaveFileCopyAsCommand::SaveFileCopyAsCommand()
-  : SaveFileBaseCommand("SaveFileCopyAs", "Save File Copy As",
-                        CmdRecordableFlag)
+  : SaveFileBaseCommand("SaveFileCopyAs", "Save File Copy As", CmdRecordableFlag)
 {
 }
 
@@ -360,8 +348,7 @@ void SaveFileCopyAsCommand::onExecute(Context* context)
     docPref.saveCopy.filename(document->filename());
     docPref.saveCopy.resizeScale(delegate.getResizeScale());
 
-    if (auto shareCommand =
-            app::CommandsModule::instance()->getCommandByName(CommandId::Share))
+    if (auto shareCommand = app::CommandsModule::instance()->getCommandByName(CommandId::Share))
       context->executeCommand(shareCommand);
   }
 

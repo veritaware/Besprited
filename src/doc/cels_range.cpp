@@ -18,8 +18,7 @@
 namespace doc
 {
 
-CelsRange::CelsRange(const Sprite* sprite, frame_t first, frame_t last,
-                     Flags flags)
+CelsRange::CelsRange(const Sprite* sprite, frame_t first, frame_t last, Flags flags)
   : m_begin(sprite, first, last, flags)
   , m_end()
 {
@@ -30,8 +29,7 @@ CelsRange::iterator::iterator()
 {
 }
 
-CelsRange::iterator::iterator(const Sprite* sprite, frame_t first, frame_t last,
-                              CelsRange::Flags flags)
+CelsRange::iterator::iterator(const Sprite* sprite, frame_t first, frame_t last, CelsRange::Flags flags)
   : m_cel(nullptr)
   , m_first(first)
   , m_last(last)

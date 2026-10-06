@@ -37,8 +37,7 @@ ReverseFramesCommand::ReverseFramesCommand()
 bool ReverseFramesCommand::onEnabled(Context* context)
 {
   auto range = App::instance()->timeline()->range();
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable) &&
-         range.enabled() &&
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable) && range.enabled() &&
          range.frames() >= 2; // We need at least 2 frames to reverse
 }
 

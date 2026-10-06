@@ -75,8 +75,7 @@ void move_file(const std::string& src, const std::string& dst)
 
 void copy_file(const std::string& src, const std::string& dst)
 {
-  std::filesystem::copy_file(src, dst,
-                             std::filesystem::copy_options::overwrite_existing);
+  std::filesystem::copy_file(src, dst, std::filesystem::copy_options::overwrite_existing);
 }
 
 void delete_file(const std::string& path)
@@ -114,8 +113,7 @@ Time get_modification_time(const std::string& path)
     return Time();
 
   std::tm* t = std::localtime(&sts.st_mtime);
-  return Time(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour,
-              t->tm_min, t->tm_sec);
+  return Time(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec);
 }
 
 void remove_directory(const std::string& path)
@@ -210,8 +208,7 @@ std::vector<std::string> list_files(const std::string& path)
 #if defined(ANDROID)
 std::vector<std::string> get_font_paths()
 {
-  return {"/system/fonts", _AndroidDataDir + "/data/fonts",
-          _AndroidStorageDir + "/fonts"};
+  return {"/system/fonts", _AndroidDataDir + "/data/fonts", _AndroidStorageDir + "/fonts"};
 }
 
 #elif !__APPLE__

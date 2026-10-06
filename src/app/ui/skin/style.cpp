@@ -33,8 +33,7 @@ void Rule::paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text)
   onPaint(g, bounds, text);
 }
 
-void BackgroundRule::onPaint(ui::Graphics* g, const gfx::Rect& bounds,
-                             const char* text)
+void BackgroundRule::onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text)
 {
   SkinTheme* theme = static_cast<SkinTheme*>(ui::CurrentTheme::get());
 
@@ -81,21 +80,18 @@ void BackgroundRule::onPaint(ui::Graphics* g, const gfx::Rect& bounds,
   }
 }
 
-void TextRule::onPaint(ui::Graphics* g, const gfx::Rect& bounds,
-                       const char* text)
+void TextRule::onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text)
 {
   SkinTheme* theme = static_cast<SkinTheme*>(ui::CurrentTheme::get());
 
   if (text)
   {
-    g->drawAlignedUIString(
-        text, (gfx::is_transparent(m_color) ? theme->colors.text() : m_color),
-        gfx::ColorNone, gfx::Rect(bounds).shrink(m_padding), m_align);
+    g->drawAlignedUIString(text, (gfx::is_transparent(m_color) ? theme->colors.text() : m_color), gfx::ColorNone,
+                           gfx::Rect(bounds).shrink(m_padding), m_align);
   }
 }
 
-void IconRule::onPaint(ui::Graphics* g, const gfx::Rect& bounds,
-                       const char* text)
+void IconRule::onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text)
 {
   she::Surface* bmp = m_part->bitmap(0);
   int x, y;
@@ -140,8 +136,7 @@ Rules::Rules(const css::Query& query)
   css::Value paddingBottom = query[StyleSheet::paddingBottomRule()];
   css::Value none;
 
-  if (backgroundColor != none || backgroundPart != none ||
-      backgroundRepeat != none)
+  if (backgroundColor != none || backgroundPart != none || backgroundRepeat != none)
   {
     m_background = new BackgroundRule();
     m_background->setColor(StyleSheet::convertColor(backgroundColor));
@@ -158,16 +153,15 @@ Rules::Rules(const css::Query& query)
     m_icon->setY((int)iconY.number() * ui::guiscale());
   }
 
-  if (textAlign != none || textColor != none || paddingLeft != none ||
-      paddingTop != none || paddingRight != none || paddingBottom != none)
+  if (textAlign != none || textColor != none || paddingLeft != none || paddingTop != none || paddingRight != none ||
+      paddingBottom != none)
   {
     m_text = new TextRule();
     m_text->setAlign((int)textAlign.number());
     m_text->setColor(StyleSheet::convertColor(textColor));
-    m_text->setPadding(
-        gfx::Border(int(paddingLeft.number()), int(paddingTop.number()),
-                    int(paddingRight.number()), int(paddingBottom.number())) *
-        ui::guiscale());
+    m_text->setPadding(gfx::Border(int(paddingLeft.number()), int(paddingTop.number()), int(paddingRight.number()),
+                                   int(paddingBottom.number())) *
+                       ui::guiscale());
   }
 }
 
@@ -219,8 +213,7 @@ Style::Style(css::Sheet& sheet, const std::string& id)
 
 Style::~Style()
 {
-  for (RulesMap::iterator it = m_rules.begin(), end = m_rules.end(); it != end;
-       ++it)
+  for (RulesMap::iterator it = m_rules.begin(), end = m_rules.end(); it != end; ++it)
   {
     delete it->second;
   }
@@ -244,8 +237,7 @@ Rules* Style::getRulesFromState(const State& state)
   return rules;
 }
 
-void Style::paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text,
-                  const State& state)
+void Style::paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text, const State& state)
 {
   getRulesFromState(state)->paint(g, bounds, text);
 }

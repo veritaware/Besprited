@@ -46,8 +46,7 @@ MaskContentCommand::MaskContentCommand()
 
 bool MaskContentCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::ActiveLayerIsImage);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsImage);
 }
 
 void MaskContentCommand::onExecute(Context* context)
@@ -65,8 +64,7 @@ void MaskContentCommand::onExecute(Context* context)
     if (writer.layer()->isBackground())
     {
       ColorPicker picker;
-      picker.pickColor(*writer.site(), gfx::Point(0, 0),
-                       ColorPicker::FromComposition);
+      picker.pickColor(*writer.site(), gfx::Point(0, 0), ColorPicker::FromComposition);
       color = color_utils::color_for_layer(picker.color(), writer.layer());
     }
     else
@@ -83,8 +81,7 @@ void MaskContentCommand::onExecute(Context* context)
       newMask.replace(cel->bounds());
     }
 
-    Transaction transaction(writer.context(), "Select Content",
-                            DoesntModifyDocument);
+    Transaction transaction(writer.context(), "Select Content", DoesntModifyDocument);
     transaction.execute(new cmd::SetMask(document, &newMask));
     transaction.commit();
 
@@ -93,8 +90,7 @@ void MaskContentCommand::onExecute(Context* context)
   }
 
   // Select marquee tool
-  if (tools::Tool* tool = App::instance()->toolBox()->getToolById(
-          tools::WellKnownTools::RectangularMarquee))
+  if (tools::Tool* tool = App::instance()->toolBox()->getToolById(tools::WellKnownTools::RectangularMarquee))
   {
     ToolBar::instance()->selectTool(tool);
   }

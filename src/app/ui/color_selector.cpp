@@ -56,10 +56,8 @@ bool ColorSelector::onProcessMessage(ui::Message* msg)
         scale = 15.0;
       }
 
-      double newHue =
-          m_color.getHue() +
-          scale * (+static_cast<MouseMessage*>(msg)->wheelDelta().x -
-                   static_cast<MouseMessage*>(msg)->wheelDelta().y);
+      double newHue = m_color.getHue() + scale * (+static_cast<MouseMessage*>(msg)->wheelDelta().x -
+                                                  static_cast<MouseMessage*>(msg)->wheelDelta().y);
 
       while (newHue < 0.0)
         newHue += 360.0;
@@ -67,8 +65,7 @@ bool ColorSelector::onProcessMessage(ui::Message* msg)
 
       if (newHue != m_color.getHue())
       {
-        app::Color newColor = app::Color::fromHsv(
-            newHue, m_color.getSaturation(), m_color.getValue());
+        app::Color newColor = app::Color::fromHsv(newHue, m_color.getSaturation(), m_color.getValue());
 
         ColorChange(newColor, kButtonNone);
       }

@@ -49,8 +49,7 @@ private:
     if (n == 2)
       return D2[i * 2 + j];
     else
-      return +4 * Dn(i % (n / 2), j % (n / 2), n / 2) +
-             Dn(i / (n / 2), j / (n / 2), 2);
+      return +4 * Dn(i % (n / 2), j % (n / 2), n / 2) + Dn(i / (n / 2), j / (n / 2), 2);
   }
 };
 
@@ -59,8 +58,7 @@ template <int N> std::array<int, 4> BayerMatrix<N>::D2 = {0, 2, 3, 1};
 
 class OrderedDither
 {
-  [[nodiscard]] static int colorDistance(int r1, int g1, int b1, int a1, int r2,
-                                         int g2, int b2, int a2)
+  [[nodiscard]] static int colorDistance(int r1, int g1, int b1, int a1, int r2, int g2, int b2, int a2)
   {
     // The factor for RGB components came from doc::rba_luma()
     return (r1 - r2) * (r1 - r2) * 21 + // 2126
@@ -76,8 +74,7 @@ public:
   }
 
   template <typename Matrix>
-  doc::color_t ditherRgbPixelToIndex(const Matrix& matrix, doc::color_t color,
-                                     int x, int y, const doc::RgbMap* rgbmap,
+  doc::color_t ditherRgbPixelToIndex(const Matrix& matrix, doc::color_t color, int x, int y, const doc::RgbMap* rgbmap,
                                      const doc::Palette* palette)
   {
     // Alpha=0, output transparent color
@@ -91,8 +88,7 @@ public:
     const int b = doc::rgba_getb(color);
     const int a = doc::rgba_geta(color);
     const doc::color_t nearest1idx = static_cast<doc::color_t>(
-        rgbmap ? rgbmap->mapColor(r, g, b, a)
-               : palette->findBestfit(r, g, b, a, m_transparentIndex));
+        rgbmap ? rgbmap->mapColor(r, g, b, a) : palette->findBestfit(r, g, b, a, m_transparentIndex));
 
     const doc::color_t nearest1rgb = palette->getEntry(nearest1idx);
     const int r1 = doc::rgba_getr(nearest1rgb);
@@ -113,8 +109,7 @@ public:
     b2 = MID(0, b2, 255);
     a2 = MID(0, a2, 255);
     const doc::color_t nearest2idx = static_cast<doc::color_t>(
-        rgbmap ? rgbmap->mapColor(r2, g2, b2, a2)
-               : palette->findBestfit(r2, g2, b2, a2, m_transparentIndex));
+        rgbmap ? rgbmap->mapColor(r2, g2, b2, a2) : palette->findBestfit(r2, g2, b2, a2, m_transparentIndex));
 
     // If both possible RGB colors use the same index, we cannot
     // make any dither with these two colors.
@@ -145,10 +140,8 @@ public:
   }
 
   template <typename Matrix>
-  void ditherRgbImageToIndexed(const Matrix& matrix, const doc::Image* srcImage,
-                               doc::Image* dstImage, int u, int v,
-                               const doc::RgbMap* rgbmap,
-                               const doc::Palette* palette)
+  void ditherRgbImageToIndexed(const Matrix& matrix, const doc::Image* srcImage, doc::Image* dstImage, int u, int v,
+                               const doc::RgbMap* rgbmap, const doc::Palette* palette)
   {
     const doc::LockImageBits<doc::RgbTraits> srcBits(srcImage);
     doc::LockImageBits<doc::IndexedTraits> dstBits(dstImage);
@@ -163,8 +156,7 @@ public:
       {
         ASSERT(srcIt != srcBits.end());
         ASSERT(dstIt != dstBits.end());
-        *dstIt = ditherRgbPixelToIndex(matrix, *srcIt, x + u, y + v, rgbmap,
-                                       palette);
+        *dstIt = ditherRgbPixelToIndex(matrix, *srcIt, x + u, y + v, rgbmap, palette);
       }
     }
   }

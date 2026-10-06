@@ -90,8 +90,7 @@ void flush_config_file()
   // disruptive, so surface it through the messages history instead.
   // (Deliberately not via app::Console: it's also called from
   // ~ConfigModule(), when App may no longer exist.)
-  const std::string msg = "Could not save preferences to \"" + cfg->filename() +
-                          "\": " + cfg->lastError();
+  const std::string msg = "Could not save preferences to \"" + cfg->filename() + "\": " + cfg->lastError();
   LOG(ERROR) << msg << "\n";
   MessageLog::instance()->add(MessageLog::Severity::Error, msg);
 }
@@ -109,8 +108,7 @@ std::string main_config_filename()
   return g_configFilename;
 }
 
-const char* get_config_string(const char* section, const char* name,
-                              const char* value)
+const char* get_config_string(const char* section, const char* name, const char* value)
 {
   return g_configs.back()->getValue(section, name, value);
 }
@@ -160,8 +158,7 @@ void set_config_bool(const char* section, const char* name, bool value)
   g_configs.back()->setBoolValue(section, name, value);
 }
 
-Point get_config_point(const char* section, const char* name,
-                       const Point& point)
+Point get_config_point(const char* section, const char* name, const Point& point)
 {
   Point point2(point);
   const char* value = get_config_string(section, name, "");
@@ -211,15 +208,12 @@ void set_config_rect(const char* section, const char* name, const Rect& rect)
   set_config_string(section, name, buf);
 }
 
-app::Color get_config_color(const char* section, const char* name,
-                            const app::Color& value)
+app::Color get_config_color(const char* section, const char* name, const app::Color& value)
 {
-  return app::Color::fromString(
-      get_config_string(section, name, value.toString().c_str()));
+  return app::Color::fromString(get_config_string(section, name, value.toString().c_str()));
 }
 
-void set_config_color(const char* section, const char* name,
-                      const app::Color& value)
+void set_config_color(const char* section, const char* name, const app::Color& value)
 {
   set_config_string(section, name, value.toString().c_str());
 }

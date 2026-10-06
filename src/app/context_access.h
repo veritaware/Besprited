@@ -35,10 +35,7 @@ public:
   Layer* layer() { return m_site.layer(); }
   std::shared_ptr<Cel> cel() { return m_site.cel(); }
 
-  Image* image(int* x = nullptr, int* y = nullptr, int* opacity = nullptr) const
-  {
-    return m_site.image(x, y, opacity);
-  }
+  Image* image(int* x = nullptr, int* y = nullptr, int* opacity = nullptr) const { return m_site.image(x, y, opacity); }
 
   Palette* palette() const { return m_site.palette(); }
 
@@ -51,8 +48,7 @@ protected:
   }
 
   template <typename DocumentReaderT>
-  ContextAccess(const Context* context, const DocumentReaderT& documentReader,
-                int timeout)
+  ContextAccess(const Context* context, const DocumentReaderT& documentReader, int timeout)
     : m_context(context)
     , m_document(documentReader, timeout)
     , m_site(context->activeSite())
@@ -87,8 +83,7 @@ public:
   }
 
   ContextWriter(const ContextReader& reader, int timeout = 0)
-    : ContextAccess<DocumentWriter>(reader.context(), reader.document(),
-                                    timeout)
+    : ContextAccess<DocumentWriter>(reader.context(), reader.document(), timeout)
   {
   }
 };

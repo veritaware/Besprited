@@ -11,14 +11,12 @@
 
 namespace
 {
-std::unordered_map<std::string, std::unordered_map<std::string, JSON::Value>>
-    g_storage;
+std::unordered_map<std::string, std::unordered_map<std::string, JSON::Value>> g_storage;
 }
 
 namespace script
 {
-void setStorage(const JSON::Value& value, const std::string& key,
-                const std::string& domain)
+void setStorage(const JSON::Value& value, const std::string& key, const std::string& domain)
 {
   g_storage[domain][key] = value;
 }

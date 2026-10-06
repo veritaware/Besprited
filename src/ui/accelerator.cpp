@@ -64,8 +64,7 @@ Accelerator::Accelerator()
 {
 }
 
-Accelerator::Accelerator(KeyModifiers modifiers, KeyScancode scancode,
-                         int unicodeChar)
+Accelerator::Accelerator(KeyModifiers modifiers, KeyScancode scancode, int unicodeChar)
   : m_modifiers(modifiers)
   , m_scancode(scancode)
   , m_unicodeChar(unicodeChar)
@@ -288,8 +287,7 @@ bool Accelerator::operator==(const Accelerator& other) const
 
 bool Accelerator::isEmpty() const
 {
-  return (m_modifiers == kKeyNoneModifier && m_scancode == kKeyNil &&
-          m_unicodeChar == 0);
+  return (m_modifiers == kKeyNoneModifier && m_scancode == kKeyNil && m_unicodeChar == 0);
 }
 
 std::string Accelerator::toString() const
@@ -436,18 +434,14 @@ std::string Accelerator::toString() const
   return buf;
 }
 
-bool Accelerator::isPressed(KeyModifiers modifiers, KeyScancode scancode,
-                            int unicodeChar) const
+bool Accelerator::isPressed(KeyModifiers modifiers, KeyScancode scancode, int unicodeChar) const
 {
   // Preprocess the character to be compared with the accelerator
 #ifdef PREPROCESS_KEYS
   // Directly scancode
-  if ((scancode >= kKeyF1 && scancode <= kKeyF12) || (scancode == kKeyEsc) ||
-      (scancode == kKeyBackspace) || (scancode == kKeyTab) ||
-      (scancode == kKeyEnter) || (scancode == kKeyBackslash) ||
-      (scancode == kKeyBackslash2) ||
-      (scancode >= kKeySpace && scancode <= kKeyDown) ||
-      (scancode >= kKeyEnterPad && scancode <= kKeyNoconvert) ||
+  if ((scancode >= kKeyF1 && scancode <= kKeyF12) || (scancode == kKeyEsc) || (scancode == kKeyBackspace) ||
+      (scancode == kKeyTab) || (scancode == kKeyEnter) || (scancode == kKeyBackslash) || (scancode == kKeyBackslash2) ||
+      (scancode >= kKeySpace && scancode <= kKeyDown) || (scancode >= kKeyEnterPad && scancode <= kKeyNoconvert) ||
       (scancode == kKeyKanji))
   {
     unicodeChar = 0;
@@ -465,8 +459,7 @@ bool Accelerator::isPressed(KeyModifiers modifiers, KeyScancode scancode,
      Ctrl+8    35          127
      Ctrl+9    36          2
    */
-  else if ((scancode >= kKey0 && scancode <= kKey9) &&
-           (unicodeChar < 32 || unicodeChar == 127))
+  else if ((scancode >= kKey0 && scancode <= kKey9) && (unicodeChar < 32 || unicodeChar == 127))
   {
     unicodeChar = '0' + scancode - kKey0;
     scancode = kKeyNil;
@@ -492,16 +485,13 @@ bool Accelerator::isPressed(KeyModifiers modifiers, KeyScancode scancode,
 #endif
 
 #ifdef REPORT_KEYS
-  printf("%3d==%3d %3d==%3d %s==%s ", m_scancode, scancode, m_unicodeChar,
-         unicodeChar, toString().c_str(),
+  printf("%3d==%3d %3d==%3d %s==%s ", m_scancode, scancode, m_unicodeChar, unicodeChar, toString().c_str(),
          Accelerator(modifiers, scancode, unicodeChar).toString().c_str());
 #endif
 
   if ((m_modifiers == modifiers) &&
-      ((m_scancode != kKeyNil && m_scancode == scancode) ||
-       (m_unicodeChar && m_unicodeChar == unicodeChar) ||
-       (m_scancode == kKeyNil && scancode == kKeyNil && !m_unicodeChar &&
-        !unicodeChar)))
+      ((m_scancode != kKeyNil && m_scancode == scancode) || (m_unicodeChar && m_unicodeChar == unicodeChar) ||
+       (m_scancode == kKeyNil && scancode == kKeyNil && !m_unicodeChar && !unicodeChar)))
   {
 #ifdef REPORT_KEYS
     printf("true\n");
@@ -521,16 +511,14 @@ bool Accelerator::isPressed() const
 {
   KeyModifiers modifiers = get_pressed_modifiers_from_she();
 
-  return ((m_scancode == 0 || she::is_key_pressed(m_scancode)) &&
-          (m_modifiers == modifiers));
+  return ((m_scancode == 0 || she::is_key_pressed(m_scancode)) && (m_modifiers == modifiers));
 }
 
 bool Accelerator::isLooselyPressed() const
 {
   KeyModifiers modifiers = get_pressed_modifiers_from_she();
 
-  return ((m_scancode == 0 || she::is_key_pressed(m_scancode)) &&
-          (int(m_modifiers & modifiers) == m_modifiers));
+  return ((m_scancode == 0 || she::is_key_pressed(m_scancode)) && (int(m_modifiers & modifiers) == m_modifiers));
 }
 
 //////////////////////////////////////////////////////////////////////

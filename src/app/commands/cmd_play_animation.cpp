@@ -38,8 +38,7 @@ PlayAnimationCommand::PlayAnimationCommand()
 
 bool PlayAnimationCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void PlayAnimationCommand::onExecute(Context* context)

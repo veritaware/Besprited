@@ -38,19 +38,16 @@ public:
   {
   }
 
-
 protected:
   bool onChecked(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     return docPref.grid.snap();
   }
 
   void onExecute(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     bool newValue = !docPref.grid.snap();
     docPref.grid.snap(newValue);
 
@@ -66,20 +63,15 @@ public:
   {
   }
 
-
 protected:
-  bool onEnabled(Context* ctx) override
-  {
-    return (ctx->activeDocument() && ctx->activeDocument()->isMaskVisible());
-  }
+  bool onEnabled(Context* ctx) override { return (ctx->activeDocument() && ctx->activeDocument()->isMaskVisible()); }
 
   void onExecute(Context* ctx) override
   {
     const ContextReader reader(ctx);
     const Document* document = reader.document();
     const Mask* mask(document->mask());
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
 
     docPref.grid.bounds(mask->bounds());
 
@@ -111,16 +103,14 @@ bool GridSettingsCommand::onEnabled(Context* context)
 
 void GridSettingsCommand::onExecute(Context* context)
 {
-  std::unique_ptr<Window> window(
-      app::load_widget<Window>("grid_settings.xml", "grid_settings"));
+  std::unique_ptr<Window> window(app::load_widget<Window>("grid_settings.xml", "grid_settings"));
   Widget* button_ok = app::find_widget<Widget>(window.get(), "ok");
   Widget* grid_x = app::find_widget<Widget>(window.get(), "grid_x");
   Widget* grid_y = app::find_widget<Widget>(window.get(), "grid_y");
   Widget* grid_w = app::find_widget<Widget>(window.get(), "grid_w");
   Widget* grid_h = app::find_widget<Widget>(window.get(), "grid_h");
 
-  DocumentPreferences& docPref =
-      Preferences::instance().document(context->activeDocument());
+  DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
   Rect bounds = docPref.grid.bounds();
 
   grid_x->setTextf("%d", bounds.x);

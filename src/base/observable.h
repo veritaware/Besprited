@@ -12,8 +12,7 @@
 namespace base
 {
 
-template <typename Observer>
-class Observable : private obs::observable<Observer>
+template <typename Observer> class Observable : private obs::observable<Observer>
 {
   using Base = obs::observable<Observer>;
 
@@ -22,16 +21,11 @@ public:
 
   void removeObserver(Observer* observer) { Base::remove_observer(observer); }
 
-  void notifyObservers(void (Observer::*method)())
-  {
-    Base::notify_observers(method);
-  }
+  void notifyObservers(void (Observer::*method)()) { Base::notify_observers(method); }
 
-  template <typename... Args>
-  void notifyObservers(void (Observer::*method)(Args...), Args... args)
+  template <typename... Args> void notifyObservers(void (Observer::*method)(Args...), Args... args)
   {
-    Base::template notify_observers<Args...>(method,
-                                             std::forward<Args>(args)...);
+    Base::template notify_observers<Args...>(method, std::forward<Args>(args)...);
   }
 };
 

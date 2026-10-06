@@ -19,36 +19,47 @@
 #include <thread>
 #include <chrono>
 
-namespace net {
+namespace net
+{
 
-class HttpRequestImpl {
+class HttpRequestImpl
+{
   std::string m_url;
   std::string m_body;
   std::string m_headers;
   bool m_isPOST{};
   bool cancelled{};
 
-  public:
-  HttpRequestImpl(const std::string& url) : m_url{url} {}
+public:
+  HttpRequestImpl(const std::string& url)
+    : m_url{url}
+  {
+  }
 
-  void setPostBody(const std::string& body) {
+  void setPostBody(const std::string& body)
+  {
     m_isPOST = true;
     m_body = body;
   }
 
-  void setHeaders(const HttpHeaders& headers) {
+  void setHeaders(const HttpHeaders& headers)
+  {
     std::string tmp;
-    for (auto& entry : headers) {
+    for (auto& entry : headers)
+    {
       tmp = entry.first;
       tmp += ": ";
       tmp += entry.second;
-      if (!m_headers.empty()) m_headers += "\n";
+      if (!m_headers.empty())
+        m_headers += "\n";
       m_headers += tmp;
     }
   }
 
-  bool send(HttpResponse& response) {
-    struct {
+  bool send(HttpResponse& response)
+  {
+    struct
+    {
       const char* url;
       const char* body;
       uintptr_t bodySize;
@@ -56,16 +67,17 @@ class HttpRequestImpl {
       char* response;
       uintptr_t responseSize;
       uintptr_t statusCode;
-    } args {
-      m_url.c_str(), // url
-      m_body.c_str(), // body
-      m_body.size(), // bodySize
-      m_headers.c_str(), // headers
-      nullptr, // response
-      0, // responseSize
-      ~uintptr_t{}, // statusCode
+    } args{
+        m_url.c_str(),     // url
+        m_body.c_str(),    // body
+        m_body.size(),     // bodySize
+        m_headers.c_str(), // headers
+        nullptr,           // response
+        0,                 // responseSize
+        ~uintptr_t{},      // statusCode
     };
 
+    // clang-format off
     MAIN_THREAD_EM_ASM({
 	const index = 'url,body,bodySize,headers,response,responseSize,statusCode,callbackArg,callback'.split(',');
 	const HEAP32 = GROWABLE_HEAP_U32();
@@ -117,8 +129,10 @@ class HttpRequestImpl {
 	      set('statusCode', 400);
 	    });
       }, &args, sizeof(uintptr_t), m_isPOST);
+    // clang-format on
 
-    while (args.statusCode == ~uintptr_t{}) {
+    while (args.statusCode == ~uintptr_t{})
+    {
       using namespace std::chrono_literals;
       std::this_thread::sleep_for(30ms);
     }
@@ -131,13 +145,16 @@ class HttpRequestImpl {
     return true;
   }
 
-  void abort() {
-    cancelled = true;
-  }
+  void abort() { cancelled = true; }
 };
 
-HttpRequest::HttpRequest(const std::string& url) : m_impl{new HttpRequestImpl(url)} {}
-HttpRequest::~HttpRequest() {}
+HttpRequest::HttpRequest(const std::string& url)
+  : m_impl{new HttpRequestImpl(url)}
+{
+}
+HttpRequest::~HttpRequest()
+{
+}
 
 void HttpRequest::setHeaders(const HttpHeaders& headers)
 {

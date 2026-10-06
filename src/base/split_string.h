@@ -13,7 +13,6 @@
 namespace base
 {
 
-void split_string(const std::string& string, std::vector<std::string>& parts,
-                  const std::string& separators);
+void split_string(const std::string& string, std::vector<std::string>& parts, const std::string& separators);
 
 }

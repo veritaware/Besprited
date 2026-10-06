@@ -25,8 +25,7 @@ class CommandPreconditionException : public base::Exception
 {
 public:
   CommandPreconditionException() throw()
-    : base::Exception(
-          "Cannot execute the command because its pre-conditions are false.")
+    : base::Exception("Cannot execute the command because its pre-conditions are false.")
   {
   }
 };
@@ -70,8 +69,7 @@ public:
   bool hasModifiedDocuments() const;
 
   void executeCommand(const char* commandName);
-  virtual void executeCommand(Command* command,
-                              const Params& params = Params());
+  virtual void executeCommand(Command* command, const Params& params = Params());
 
   base::Signal1<void, CommandExecutionEvent&> BeforeCommandExecution;
   base::Signal1<void, CommandExecutionEvent&> AfterCommandExecution;

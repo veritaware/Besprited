@@ -112,15 +112,9 @@ public:
 
   app::crash::DataRecovery* recovery() { return m_recovery; }
 
-  bool hasRecoverySessions() const
-  {
-    return m_recovery && !m_recovery->sessions().empty();
-  }
+  bool hasRecoverySessions() const { return m_recovery && !m_recovery->sessions().empty(); }
 
-  void createDataRecovery()
-  {
-    m_recovery = new app::crash::DataRecovery(&m_ui_context);
-  }
+  void createDataRecovery() { m_recovery = new app::crash::DataRecovery(&m_ui_context); }
 
   void deleteDataRecovery() { delete m_recovery; }
 };
@@ -265,8 +259,7 @@ void App::initialize(const AppOptions& options)
         {
           if (m_exporter)
           {
-            DocumentExporter::DataFormat format =
-                DocumentExporter::DefaultDataFormat;
+            DocumentExporter::DataFormat format = DocumentExporter::DefaultDataFormat;
 
             if (value.value() == "json-hash")
               format = DocumentExporter::JsonHashDataFormat;
@@ -286,15 +279,13 @@ void App::initialize(const AppOptions& options)
         else if (opt == &options.sheetWidth())
         {
           if (m_exporter)
-            m_exporter->setTextureWidth(
-                strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setTextureWidth(strtol(value.value().c_str(), nullptr, 0));
         }
         // --sheet-height <height>
         else if (opt == &options.sheetHeight())
         {
           if (m_exporter)
-            m_exporter->setTextureHeight(
-                strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setTextureHeight(strtol(value.value().c_str(), nullptr, 0));
         }
         // --sheet-pack
         else if (opt == &options.sheetType())
@@ -351,22 +342,19 @@ void App::initialize(const AppOptions& options)
         else if (opt == &options.borderPadding())
         {
           if (m_exporter)
-            m_exporter->setBorderPadding(
-                strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setBorderPadding(strtol(value.value().c_str(), nullptr, 0));
         }
         // --shape-padding
         else if (opt == &options.shapePadding())
         {
           if (m_exporter)
-            m_exporter->setShapePadding(
-                strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setShapePadding(strtol(value.value().c_str(), nullptr, 0));
         }
         // --inner-padding
         else if (opt == &options.innerPadding())
         {
           if (m_exporter)
-            m_exporter->setInnerPadding(
-                strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setInnerPadding(strtol(value.value().c_str(), nullptr, 0));
         }
         // --trim
         else if (opt == &options.trim())
@@ -379,10 +367,9 @@ void App::initialize(const AppOptions& options)
           std::vector<std::string> parts;
           base::split_string(value.value(), parts, ",");
           if (parts.size() < 4)
-            throw std::runtime_error(
-                "--crop needs four parameters separated by comma (,)\n"
-                "Usage: --crop x,y,width,height\n"
-                "E.g. --crop 0,0,32,32");
+            throw std::runtime_error("--crop needs four parameters separated by comma (,)\n"
+                                     "Usage: --crop x,y,width,height\n"
+                                     "E.g. --crop 0,0,32,32");
 
           cropParams.set("x", parts[0].c_str());
           cropParams.set("y", parts[1].c_str());
@@ -411,15 +398,10 @@ void App::initialize(const AppOptions& options)
 
             std::string format = filenameFormat;
 
-            Command* saveAsCommand =
-                CommandsModule::instance()->getCommandByName(
-                    CommandId::SaveFileCopyAs);
-            Command* trimCommand = CommandsModule::instance()->getCommandByName(
-                CommandId::AutocropSprite);
-            Command* cropCommand = CommandsModule::instance()->getCommandByName(
-                CommandId::CropSprite);
-            Command* undoCommand =
-                CommandsModule::instance()->getCommandByName(CommandId::Undo);
+            Command* saveAsCommand = CommandsModule::instance()->getCommandByName(CommandId::SaveFileCopyAs);
+            Command* trimCommand = CommandsModule::instance()->getCommandByName(CommandId::AutocropSprite);
+            Command* cropCommand = CommandsModule::instance()->getCommandByName(CommandId::CropSprite);
+            Command* undoCommand = CommandsModule::instance()->getCommandByName(CommandId::Undo);
 
             // --save-as with --split-layers
             if (splitLayersSaveAs)
@@ -523,8 +505,7 @@ void App::initialize(const AppOptions& options)
         // --scale <factor>
         else if (opt == &options.scale())
         {
-          Command* command = CommandsModule::instance()->getCommandByName(
-              CommandId::SpriteSize);
+          Command* command = CommandsModule::instance()->getCommandByName(CommandId::SpriteSize);
           double scale = strtod(value.value().c_str(), nullptr);
           static_cast<SpriteSizeCommand*>(command)->setScale(scale, scale);
 
@@ -541,10 +522,9 @@ void App::initialize(const AppOptions& options)
           std::vector<std::string> dimensions;
           base::split_string(value.value(), dimensions, ",");
           if (dimensions.size() < 2)
-            throw std::runtime_error(
-                "--shrink-to needs two parameters separated by comma (,)\n"
-                "Usage: --shrink-to width,height\n"
-                "E.g. --shrink-to 128,64");
+            throw std::runtime_error("--shrink-to needs two parameters separated by comma (,)\n"
+                                     "Usage: --shrink-to width,height\n"
+                                     "E.g. --shrink-to 128,64");
 
           double maxWidth = base::convert_to<double>(dimensions[0]);
           double maxHeight = base::convert_to<double>(dimensions[1]);
@@ -554,15 +534,12 @@ void App::initialize(const AppOptions& options)
           for (auto doc : ctx->documents())
           {
             ctx->setActiveDocument(static_cast<app::Document*>(doc));
-            scaleWidth =
-                (doc->width() > maxWidth ? maxWidth / doc->width() : 1.0);
-            scaleHeight =
-                (doc->height() > maxHeight ? maxHeight / doc->height() : 1.0);
+            scaleWidth = (doc->width() > maxWidth ? maxWidth / doc->width() : 1.0);
+            scaleHeight = (doc->height() > maxHeight ? maxHeight / doc->height() : 1.0);
             if (scaleWidth < 1.0 || scaleHeight < 1.0)
             {
               scale = MIN(scaleWidth, scaleHeight);
-              Command* command = CommandsModule::instance()->getCommandByName(
-                  CommandId::SpriteSize);
+              Command* command = CommandsModule::instance()->getCommandByName(CommandId::SpriteSize);
               static_cast<SpriteSizeCommand*>(command)->setScale(scale, scale);
               ctx->executeCommand(command);
             }
@@ -597,8 +574,7 @@ void App::initialize(const AppOptions& options)
 
         app::Document* oldDoc = ctx->activeDocument();
 
-        Command* openCommand =
-            CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+        Command* openCommand = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
         Params params;
         params.set("filename", filename.c_str());
         ctx->executeCommand(openCommand, params);
@@ -653,9 +629,8 @@ void App::initialize(const AppOptions& options)
                                          "Usage: --frame-range from,to\n"
                                          "E.g. --frame-range 0,99");
 
-              ownedFrameTags.push_back(std::make_unique<FrameTag>(
-                  base::convert_to<frame_t>(splitRange[0]),
-                  base::convert_to<frame_t>(splitRange[1])));
+              ownedFrameTags.push_back(std::make_unique<FrameTag>(base::convert_to<frame_t>(splitRange[0]),
+                                                                  base::convert_to<frame_t>(splitRange[1])));
               frameTag = ownedFrameTags.back().get();
             }
 
@@ -840,13 +815,8 @@ App::~App()
 
 bool App::isPortable()
 {
-  static bool iniFound = ([]{
-    return base::is_file(
-      base::join_path(
-            base::get_file_path(base::get_app_path()),
-            "besprited.ini")
-      );
-  })();
+  static bool iniFound =
+      ([] { return base::is_file(base::join_path(base::get_file_path(base::get_app_path()), "besprited.ini")); })();
   return iniFound;
 }
 
@@ -971,8 +941,7 @@ PixelFormat app_get_current_pixel_format()
 
 void app_default_statusbar_message()
 {
-  StatusBar::instance()->setStatusText(250, "%s | %s", PACKAGE_AND_VERSION,
-                                       COPYRIGHT);
+  StatusBar::instance()->setStatusText(250, "%s | %s", PACKAGE_AND_VERSION, COPYRIGHT);
 }
 
 int app_get_color_to_clear_layer(Layer* layer)
@@ -987,8 +956,7 @@ int app_get_color_to_clear_layer(Layer* layer)
     if (ColorBar::instance())
       color = ColorBar::instance()->getBgColor();
     else
-      color = app::Color::fromRgb(
-          0, 0, 0); // TODO get background color color from doc::Settings
+      color = app::Color::fromRgb(0, 0, 0); // TODO get background color color from doc::Settings
   }
   else // All transparent layers are cleared with the mask color
     color = app::Color::fromMask();

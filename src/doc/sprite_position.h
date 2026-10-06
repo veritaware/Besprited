@@ -35,14 +35,8 @@ public:
   void layerIndex(LayerIndex layerIndex) { m_layerIndex = layerIndex; }
   void frame(frame_t frame) { m_frame = frame; }
 
-  bool operator==(const SpritePosition& o) const
-  {
-    return m_layerIndex == o.m_layerIndex && m_frame == o.m_frame;
-  }
-  bool operator!=(const SpritePosition& o) const
-  {
-    return m_layerIndex != o.m_layerIndex || m_frame != o.m_frame;
-  }
+  bool operator==(const SpritePosition& o) const { return m_layerIndex == o.m_layerIndex && m_frame == o.m_frame; }
+  bool operator!=(const SpritePosition& o) const { return m_layerIndex != o.m_layerIndex || m_frame != o.m_frame; }
 
 private:
   LayerIndex m_layerIndex;

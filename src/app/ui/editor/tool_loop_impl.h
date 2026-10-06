@@ -27,7 +27,6 @@ class ToolLoop;
 
 tools::ToolLoop* create_tool_loop(Editor* editor, Context* context);
 
-tools::ToolLoop* create_tool_loop_preview(Editor* editor, doc::Image* image,
-                                          const gfx::Point& celOrigin);
+tools::ToolLoop* create_tool_loop_preview(Editor* editor, doc::Image* image, const gfx::Point& celOrigin);
 
 } // namespace app

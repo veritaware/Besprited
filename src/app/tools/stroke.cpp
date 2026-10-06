@@ -56,8 +56,7 @@ gfx::Rect Stroke::bounds() const
       maxpt.y = y;
   }
 
-  return gfx::Rect(minpt.x, minpt.y, maxpt.x - minpt.x + 1,
-                   maxpt.y - minpt.y + 1);
+  return gfx::Rect(minpt.x, minpt.y, maxpt.x - minpt.x + 1, maxpt.y - minpt.y + 1);
 }
 
 } // namespace app::tools

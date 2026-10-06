@@ -33,12 +33,10 @@ namespace
 #define blend_overlay(b, s, t) (blend_hard_light(s, b, t))
 #define blend_darken(b, s) (MIN((b), (s)))
 #define blend_lighten(b, s) (MAX((b), (s)))
-#define blend_hard_light(b, s, t)                                              \
-  ((s) < 128 ? blend_multiply((b), (s) << 1, (t))                              \
-             : blend_screen((b), ((s) << 1) - 255, (t)))
+#define blend_hard_light(b, s, t)                                                                                      \
+  ((s) < 128 ? blend_multiply((b), (s) << 1, (t)) : blend_screen((b), ((s) << 1) - 255, (t)))
 #define blend_difference(b, s) (ABS((b) - (s)))
-#define blend_exclusion(b, s, t)                                               \
-  ((t) = MUL_UN8((b), (s), (t)), ((b) + (s) - 2 * (t)))
+#define blend_exclusion(b, s, t) ((t) = MUL_UN8((b), (s), (t)), ((b) + (s) - 2 * (t)))
 
 inline uint32_t blend_color_dodge(uint32_t b, uint32_t s)
 {
@@ -456,8 +454,7 @@ color_t rgba_blender_hsl_hue(color_t backdrop, color_t src, int opacity)
   set_sat(r, g, b, s);
   set_lum(r, g, b, l);
 
-  src = rgba(static_cast<int>(255.0 * r), static_cast<int>(255.0 * g),
-             static_cast<int>(255.0 * b), 0) |
+  src = rgba(static_cast<int>(255.0 * r), static_cast<int>(255.0 * g), static_cast<int>(255.0 * b), 0) |
         (src & rgba_a_mask);
   return rgba_blender_normal(backdrop, src, opacity);
 }
@@ -480,8 +477,7 @@ color_t rgba_blender_hsl_saturation(color_t backdrop, color_t src, int opacity)
   set_sat(r, g, b, s);
   set_lum(r, g, b, l);
 
-  src = rgba(static_cast<int>(255.0 * r), static_cast<int>(255.0 * g),
-             static_cast<int>(255.0 * b), 0) |
+  src = rgba(static_cast<int>(255.0 * r), static_cast<int>(255.0 * g), static_cast<int>(255.0 * b), 0) |
         (src & rgba_a_mask);
   return rgba_blender_normal(backdrop, src, opacity);
 }
@@ -502,8 +498,7 @@ color_t rgba_blender_hsl_color(color_t backdrop, color_t src, int opacity)
 
   set_lum(r, g, b, l);
 
-  src = rgba(static_cast<int>(255.0 * r), static_cast<int>(255.0 * g),
-             static_cast<int>(255.0 * b), 0) |
+  src = rgba(static_cast<int>(255.0 * r), static_cast<int>(255.0 * g), static_cast<int>(255.0 * b), 0) |
         (src & rgba_a_mask);
   return rgba_blender_normal(backdrop, src, opacity);
 }
@@ -524,8 +519,7 @@ color_t rgba_blender_hsl_luminosity(color_t backdrop, color_t src, int opacity)
 
   set_lum(r, g, b, l);
 
-  src = rgba(static_cast<int>(255.0 * r), static_cast<int>(255.0 * g),
-             static_cast<int>(255.0 * b), 0) |
+  src = rgba(static_cast<int>(255.0 * r), static_cast<int>(255.0 * g), static_cast<int>(255.0 * b), 0) |
         (src & rgba_a_mask);
   return rgba_blender_normal(backdrop, src, opacity);
 }

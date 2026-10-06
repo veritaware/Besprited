@@ -29,8 +29,7 @@ namespace app
 
 using namespace ui;
 
-SelectBoxState::SelectBoxState(SelectBoxDelegate* delegate, const gfx::Rect& rc,
-                               Flags flags)
+SelectBoxState::SelectBoxState(SelectBoxDelegate* delegate, const gfx::Rect& rc, Flags flags)
   : m_delegate(delegate)
   , m_rulers(4)
   , m_movingRuler(-1)
@@ -94,8 +93,7 @@ bool SelectBoxState::onMouseDown(Editor* editor, MouseMessage* msg)
     {
       for (int i = 0; i < (int)m_rulers.size(); ++i)
       {
-        if (touchRuler(editor, m_rulers[i], msg->position().x,
-                       msg->position().y))
+        if (touchRuler(editor, m_rulers[i], msg->position().x, msg->position().y))
         {
           m_movingRuler = i;
           break;
@@ -189,8 +187,7 @@ bool SelectBoxState::onMouseMove(Editor* editor, MouseMessage* msg)
     return StandbyState::onMouseMove(editor, msg);
 }
 
-bool SelectBoxState::onSetCursor(Editor* editor,
-                                 const gfx::Point& mouseScreenPos)
+bool SelectBoxState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
 {
   if (hasFlag(Flags::Rulers))
   {
@@ -209,8 +206,7 @@ bool SelectBoxState::onSetCursor(Editor* editor,
       }
     }
 
-    for (Rulers::iterator it = m_rulers.begin(), end = m_rulers.end();
-         it != end; ++it)
+    for (Rulers::iterator it = m_rulers.begin(), end = m_rulers.end(); it != end; ++it)
     {
       if (touchRuler(editor, *it, mouseScreenPos.x, mouseScreenPos.y))
       {
@@ -254,8 +250,7 @@ bool SelectBoxState::requireBrushPreview()
 std::shared_ptr<tools::Ink> SelectBoxState::getStateInk()
 {
   if (hasFlag(Flags::QuickBox))
-    return App::instance()->toolBox()->getInkById(
-        tools::WellKnownInks::Selection);
+    return App::instance()->toolBox()->getInkById(tools::WellKnownInks::Selection);
   else
     return nullptr;
 }
@@ -273,25 +268,19 @@ void SelectBoxState::preRenderDecorator(EditorPreRender* render)
 
   // Top band
   if (rc.y > 0)
-    render->fillRect(gfx::Rect(0, 0, sprite_w, rc.y), doc::rgba(0, 0, 0, 255),
-                     128);
+    render->fillRect(gfx::Rect(0, 0, sprite_w, rc.y), doc::rgba(0, 0, 0, 255), 128);
 
   // Bottom band
   if (rc.y + rc.h < sprite_h)
-    render->fillRect(
-        gfx::Rect(0, rc.y + rc.h, sprite_w, sprite_h - (rc.y + rc.h)),
-        doc::rgba(0, 0, 0, 255), 128);
+    render->fillRect(gfx::Rect(0, rc.y + rc.h, sprite_w, sprite_h - (rc.y + rc.h)), doc::rgba(0, 0, 0, 255), 128);
 
   // Left band
   if (rc.x > 0)
-    render->fillRect(gfx::Rect(0, rc.y, rc.x, rc.h), doc::rgba(0, 0, 0, 255),
-                     128);
+    render->fillRect(gfx::Rect(0, rc.y, rc.x, rc.h), doc::rgba(0, 0, 0, 255), 128);
 
   // Right band
   if (rc.x + rc.w < sprite_w)
-    render->fillRect(
-        gfx::Rect(rc.x + rc.w, rc.y, sprite_w - (rc.x + rc.w), rc.h),
-        doc::rgba(0, 0, 0, 255), 128);
+    render->fillRect(gfx::Rect(rc.x + rc.w, rc.y, sprite_w - (rc.x + rc.w), rc.h), doc::rgba(0, 0, 0, 255), 128);
 }
 
 void SelectBoxState::postRenderDecorator(EditorPostRender* render)
@@ -313,15 +302,13 @@ void SelectBoxState::postRenderDecorator(EditorPostRender* render)
   {
     if (boxBounds.w > 0)
     {
-      for (int x = boxBounds.x + boxBounds.w * 2; x <= sp.x + sp.w;
-           x += boxBounds.w)
+      for (int x = boxBounds.x + boxBounds.w * 2; x <= sp.x + sp.w; x += boxBounds.w)
         render->drawLine(x, boxBounds.y, x, sp.y + sp.h, gridColor);
     }
 
     if (boxBounds.h > 0)
     {
-      for (int y = boxBounds.y + boxBounds.h * 2; y <= sp.y + sp.h;
-           y += boxBounds.h)
+      for (int y = boxBounds.y + boxBounds.h * 2; y <= sp.y + sp.h; y += boxBounds.h)
         render->drawLine(boxBounds.x, y, sp.x + sp.w, y, gridColor);
     }
   }
@@ -329,40 +316,33 @@ void SelectBoxState::postRenderDecorator(EditorPostRender* render)
   {
     if (boxBounds.w > 0)
     {
-      for (int x = boxBounds.x + boxBounds.w * 2; x <= sp.x + sp.w;
-           x += boxBounds.w)
-        render->drawLine(x, boxBounds.y, x, boxBounds.y + boxBounds.h,
-                         gridColor);
+      for (int x = boxBounds.x + boxBounds.w * 2; x <= sp.x + sp.w; x += boxBounds.w)
+        render->drawLine(x, boxBounds.y, x, boxBounds.y + boxBounds.h, gridColor);
     }
   }
   else if (hasFlag(Flags::VGrid))
   {
     if (boxBounds.h > 0)
     {
-      for (int y = boxBounds.y + boxBounds.h * 2; y <= sp.y + sp.h;
-           y += boxBounds.h)
-        render->drawLine(boxBounds.x, y, boxBounds.x + boxBounds.w, y,
-                         gridColor);
+      for (int y = boxBounds.y + boxBounds.h * 2; y <= sp.y + sp.h; y += boxBounds.h)
+        render->drawLine(boxBounds.x, y, boxBounds.x + boxBounds.w, y, gridColor);
     }
   }
 
   // Draw the rulers enclosing the box
   if (hasFlag(Flags::Rulers))
   {
-    for (Rulers::iterator it = m_rulers.begin(), end = m_rulers.end();
-         it != end; ++it)
+    for (Rulers::iterator it = m_rulers.begin(), end = m_rulers.end(); it != end; ++it)
     {
       switch (it->getOrientation())
       {
 
       case Ruler::Horizontal:
-        render->drawLine(vp.x, it->getPosition(), vp.x + vp.w - 1,
-                         it->getPosition(), rulerColor);
+        render->drawLine(vp.x, it->getPosition(), vp.x + vp.w - 1, it->getPosition(), rulerColor);
         break;
 
       case Ruler::Vertical:
-        render->drawLine(it->getPosition(), vp.y, it->getPosition(),
-                         vp.y + vp.h - 1, rulerColor);
+        render->drawLine(it->getPosition(), vp.y, it->getPosition(), vp.y + vp.h - 1, rulerColor);
         break;
       }
     }
@@ -374,8 +354,7 @@ void SelectBoxState::postRenderDecorator(EditorPostRender* render)
   }
 }
 
-void SelectBoxState::getInvalidDecoratoredRegion(Editor* editor,
-                                                 gfx::Region& region)
+void SelectBoxState::getInvalidDecoratoredRegion(Editor* editor, gfx::Region& region)
 {
   // Do nothing
 }
@@ -388,8 +367,7 @@ void SelectBoxState::updateContextBar()
 
 bool SelectBoxState::touchRuler(Editor* editor, Ruler& ruler, int x, int y)
 {
-  gfx::Point pt = editor->editorToScreen(
-      gfx::Point(ruler.getPosition(), ruler.getPosition()));
+  gfx::Point pt = editor->editorToScreen(gfx::Point(ruler.getPosition(), ruler.getPosition()));
 
   switch (ruler.getOrientation())
   {

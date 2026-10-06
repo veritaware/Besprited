@@ -100,9 +100,8 @@ bool ExtensionFormat::onLoad(FileOp* fop)
         [=]
         {
           Preferences::instance().theme.selected(themeName);
-          ui::Alert::show(
-              PACKAGE "<<You must restart the program to see the selected theme"
-                      "||&OK");
+          ui::Alert::show(PACKAGE "<<You must restart the program to see the selected theme"
+                                  "||&OK");
         });
   }
 

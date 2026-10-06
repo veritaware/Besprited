@@ -31,9 +31,8 @@ class TgaFormat : public FileFormat
   const char* onGetExtensions() const override { return "tga"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
-           FILE_SUPPORT_RGBA | FILE_SUPPORT_GRAY | FILE_SUPPORT_INDEXED |
-           FILE_SUPPORT_SEQUENCES;
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB | FILE_SUPPORT_RGBA | FILE_SUPPORT_GRAY |
+           FILE_SUPPORT_INDEXED | FILE_SUPPORT_SEQUENCES;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -197,8 +196,7 @@ static void rle_tga_read16(uint32_t* address, int w, FILE* f)
         count = w - c;
       c += count;
       value = fgetw(f);
-      color = rgba(scale_5bits_to_8bits(((value >> 10) & 0x1F)),
-                   scale_5bits_to_8bits(((value >> 5) & 0x1F)),
+      color = rgba(scale_5bits_to_8bits(((value >> 10) & 0x1F)), scale_5bits_to_8bits(((value >> 5) & 0x1F)),
                    scale_5bits_to_8bits((value & 0x1F)), 255);
 
       while (count--)
@@ -213,8 +211,7 @@ static void rle_tga_read16(uint32_t* address, int w, FILE* f)
       while (count--)
       {
         value = fgetw(f);
-        color = rgba(scale_5bits_to_8bits(((value >> 10) & 0x1F)),
-                     scale_5bits_to_8bits(((value >> 5) & 0x1F)),
+        color = rgba(scale_5bits_to_8bits(((value >> 10) & 0x1F)), scale_5bits_to_8bits(((value >> 5) & 0x1F)),
                      scale_5bits_to_8bits((value & 0x1F)), 255);
         *(address++) = color;
       }
@@ -320,8 +317,7 @@ bool TgaFormat::onLoad(FileOp* fop)
 
     for (i = 0; i < palette_colors; i++)
     {
-      fop->sequenceSetColor(i, image_palette[i][2], image_palette[i][1],
-                            image_palette[i][0]);
+      fop->sequenceSetColor(i, image_palette[i][2], image_palette[i][1], image_palette[i][0]);
     }
 
     pixelFormat = IMAGE_INDEXED;
@@ -329,8 +325,7 @@ bool TgaFormat::onLoad(FileOp* fop)
 
   /* truecolor image */
   case 2:
-    if ((palette_type != 0) ||
-        ((bpp != 15) && (bpp != 16) && (bpp != 24) && (bpp != 32)))
+    if ((palette_type != 0) || ((bpp != 15) && (bpp != 16) && (bpp != 24) && (bpp != 32)))
     {
       return false;
     }
@@ -388,8 +383,7 @@ bool TgaFormat::onLoad(FileOp* fop)
       {
         if (compressed)
         {
-          rle_tga_read32((uint32_t*)image->getPixelAddress(0, yc), image_width,
-                         f);
+          rle_tga_read32((uint32_t*)image->getPixelAddress(0, yc), image_width, f);
         }
         else
         {
@@ -397,8 +391,7 @@ bool TgaFormat::onLoad(FileOp* fop)
           {
             size_t nread = fread(rgb, 1, 4, f);
             (void)nread;
-            put_pixel_fast<RgbTraits>(image, x, yc,
-                                      rgba(rgb[2], rgb[1], rgb[0], rgb[3]));
+            put_pixel_fast<RgbTraits>(image, x, yc, rgba(rgb[2], rgb[1], rgb[0], rgb[3]));
           }
         }
       }
@@ -406,8 +399,7 @@ bool TgaFormat::onLoad(FileOp* fop)
       {
         if (compressed)
         {
-          rle_tga_read24((uint32_t*)image->getPixelAddress(0, yc), image_width,
-                         f);
+          rle_tga_read24((uint32_t*)image->getPixelAddress(0, yc), image_width, f);
         }
         else
         {
@@ -415,8 +407,7 @@ bool TgaFormat::onLoad(FileOp* fop)
           {
             size_t nread = fread(rgb, 1, 3, f);
             (void)nread;
-            put_pixel_fast<RgbTraits>(image, x, yc,
-                                      rgba(rgb[2], rgb[1], rgb[0], 255));
+            put_pixel_fast<RgbTraits>(image, x, yc, rgba(rgb[2], rgb[1], rgb[0], 255));
           }
         }
       }
@@ -424,17 +415,14 @@ bool TgaFormat::onLoad(FileOp* fop)
       {
         if (compressed)
         {
-          rle_tga_read16((uint32_t*)image->getPixelAddress(0, yc), image_width,
-                         f);
+          rle_tga_read16((uint32_t*)image->getPixelAddress(0, yc), image_width, f);
         }
         else
         {
           for (x = 0; x < image_width; x++)
           {
             c = fgetw(f);
-            put_pixel_fast<RgbTraits>(
-                image, x, yc,
-                rgba(((c >> 10) & 0x1F), ((c >> 5) & 0x1F), (c & 0x1F), 255));
+            put_pixel_fast<RgbTraits>(image, x, yc, rgba(((c >> 10) & 0x1F), ((c >> 5) & 0x1F), (c & 0x1F), 255));
           }
         }
       }

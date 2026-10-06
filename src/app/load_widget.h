@@ -12,9 +12,7 @@
 namespace app
 {
 
-template <class T>
-inline T* load_widget(const char* fileName, const char* widgetId,
-                      T* widget = nullptr)
+template <class T> inline T* load_widget(const char* fileName, const char* widgetId, T* widget = nullptr)
 {
   WidgetLoader loader;
   return loader.loadWidgetT<T>(fileName, widgetId, widget);

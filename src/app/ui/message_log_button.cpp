@@ -86,8 +86,7 @@ void MessageLogButton::update()
   MessageLog::Entry latest;
   if (m_unread > prevUnread && log->latest(latest) && StatusBar::instance())
   {
-    StatusBar::instance()->showTip(2000, "%s: %s",
-                                   MessageLog::severityName(latest.severity),
+    StatusBar::instance()->showTip(2000, "%s: %s", MessageLog::severityName(latest.severity),
                                    first_line(latest.text).c_str());
   }
 }
@@ -100,12 +99,10 @@ std::string MessageLogButton::label() const
 void MessageLogButton::onSizeHint(SizeHintEvent& ev)
 {
   auto* theme = static_cast<skin::SkinTheme*>(this->theme());
-  gfx::Size sz =
-      theme->styles.messageLogButton()->sizeHint(nullptr, skin::Style::State());
+  gfx::Size sz = theme->styles.messageLogButton()->sizeHint(nullptr, skin::Style::State());
   const std::string text = label();
   if (!text.empty())
-    sz.w += (kIconOffset + kIconTextGap) * guiscale() +
-            Graphics::measureUIStringLength(text, font().get());
+    sz.w += (kIconOffset + kIconTextGap) * guiscale() + Graphics::measureUIStringLength(text, font().get());
   sz.w += 4 * guiscale();
   ev.setSizeHint(sz);
 }
@@ -126,15 +123,11 @@ void MessageLogButton::onPaint(PaintEvent& ev)
   const std::string text = label();
   if (!text.empty())
   {
-    gfx::Color color = m_hasErrors ? theme->colors.flagActive()
-                                   : theme->colors.statusBarText();
-    const int iconW = theme->styles.messageLogButton()
-                          ->sizeHint(nullptr, skin::Style::State())
-                          .w;
+    gfx::Color color = m_hasErrors ? theme->colors.flagActive() : theme->colors.statusBarText();
+    const int iconW = theme->styles.messageLogButton()->sizeHint(nullptr, skin::Style::State()).w;
     g->drawString(
         text, color, gfx::ColorNone,
-        gfx::Point(rc.x + iconW + (kIconOffset + kIconTextGap) * guiscale(),
-                   rc.y + rc.h / 2 - textHeight() / 2));
+        gfx::Point(rc.x + iconW + (kIconOffset + kIconTextGap) * guiscale(), rc.y + rc.h / 2 - textHeight() / 2));
   }
 }
 
@@ -142,8 +135,7 @@ void MessageLogButton::onClick(Event& ev)
 {
   Button::onClick(ev);
 
-  Command* cmd =
-      CommandsModule::instance()->getCommandByName(CommandId::MessageLog);
+  Command* cmd = CommandsModule::instance()->getCommandByName(CommandId::MessageLog);
   UIContext::instance()->executeCommand(cmd);
 }
 

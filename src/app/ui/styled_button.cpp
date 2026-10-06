@@ -46,8 +46,7 @@ bool StyledButton::onProcessMessage(Message* msg)
 
 void StyledButton::onSizeHint(SizeHintEvent& ev)
 {
-  ev.setSizeHint(m_style->sizeHint(nullptr, skin::Style::State()) +
-                 4 * guiscale());
+  ev.setSizeHint(m_style->sizeHint(nullptr, skin::Style::State()) + 4 * guiscale());
 }
 
 void StyledButton::onPaint(PaintEvent& ev)

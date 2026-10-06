@@ -57,14 +57,8 @@ public:
     // Getters
     [[nodiscard]] const std::string& name() const { return m_name; }
     [[nodiscard]] const std::string& alias() const { return m_alias; }
-    [[nodiscard]] const std::string& description() const
-    {
-      return m_description;
-    }
-    [[nodiscard]] const std::string& getValueName() const
-    {
-      return m_valueName;
-    }
+    [[nodiscard]] const std::string& description() const { return m_description; }
+    [[nodiscard]] const std::string& getValueName() const { return m_valueName; }
     [[nodiscard]] char mnemonic() const { return m_mnemonic; }
     [[nodiscard]] bool doesRequireValue() const { return !m_valueName.empty(); }
     // Setters
@@ -94,10 +88,10 @@ public:
     std::string m_alias;
     std::string m_description; // Description of the option (this can be used
                                // when the help is printed).
-    std::string m_valueName; // Empty if this option doesn't require a value, or
-                             // the name of the expected value.
-    char m_mnemonic; // One character that can be used in the command line to
-                     // use this option.
+    std::string m_valueName;   // Empty if this option doesn't require a value, or
+                               // the name of the expected value.
+    char m_mnemonic;           // One character that can be used in the command line to
+                               // use this option.
 
     friend class ProgramOptions;
   };

@@ -39,19 +39,14 @@ EyedropperCommand::EyedropperCommand()
   m_background = false;
 }
 
-void EyedropperCommand::pickSample(const doc::Site& site,
-                                   const gfx::Point& pixelPos,
-                                   app::Color& color)
+void EyedropperCommand::pickSample(const doc::Site& site, const gfx::Point& pixelPos, app::Color& color)
 {
   // Check if we've to grab alpha channel or the merged color.
   Preferences& pref = Preferences::instance();
-  bool allLayers =
-      (pref.eyedropper.sample() == app::gen::EyedropperSample::ALL_LAYERS);
+  bool allLayers = (pref.eyedropper.sample() == app::gen::EyedropperSample::ALL_LAYERS);
 
   ColorPicker picker;
-  picker.pickColor(site, pixelPos,
-                   (allLayers ? ColorPicker::FromComposition
-                              : ColorPicker::FromActiveLayer));
+  picker.pickColor(site, pixelPos, (allLayers ? ColorPicker::FromComposition : ColorPicker::FromActiveLayer));
 
   app::gen::EyedropperChannel channel = pref.eyedropper.channel();
 
@@ -64,8 +59,7 @@ void EyedropperCommand::pickSample(const doc::Site& site,
     break;
   case app::gen::EyedropperChannel::COLOR:
     if (picked.getAlpha() > 0)
-      color = app::Color::fromRgb(picked.getRed(), picked.getGreen(),
-                                  picked.getBlue(), color.getAlpha());
+      color = app::Color::fromRgb(picked.getRed(), picked.getGreen(), picked.getBlue(), color.getAlpha());
     break;
   case app::gen::EyedropperChannel::ALPHA:
     switch (color.getType())
@@ -73,13 +67,11 @@ void EyedropperCommand::pickSample(const doc::Site& site,
 
     case app::Color::RgbType:
     case app::Color::IndexType:
-      color = app::Color::fromRgb(color.getRed(), color.getGreen(),
-                                  color.getBlue(), picked.getAlpha());
+      color = app::Color::fromRgb(color.getRed(), color.getGreen(), color.getBlue(), picked.getAlpha());
       break;
 
     case app::Color::HsvType:
-      color = app::Color::fromHsv(color.getHue(), color.getSaturation(),
-                                  color.getValue(), picked.getAlpha());
+      color = app::Color::fromHsv(color.getHue(), color.getSaturation(), color.getValue(), picked.getAlpha());
       break;
 
     case app::Color::GrayType:
@@ -91,25 +83,21 @@ void EyedropperCommand::pickSample(const doc::Site& site,
     if (picked.getType() == app::Color::RgbType)
       color = picked;
     else
-      color = app::Color::fromRgb(picked.getRed(), picked.getGreen(),
-                                  picked.getBlue(), picked.getAlpha());
+      color = app::Color::fromRgb(picked.getRed(), picked.getGreen(), picked.getBlue(), picked.getAlpha());
     break;
   case app::gen::EyedropperChannel::RGB:
     if (picked.getAlpha() > 0)
-      color = app::Color::fromRgb(picked.getRed(), picked.getGreen(),
-                                  picked.getBlue(), color.getAlpha());
+      color = app::Color::fromRgb(picked.getRed(), picked.getGreen(), picked.getBlue(), color.getAlpha());
     break;
   case app::gen::EyedropperChannel::HSVA:
     if (picked.getType() == app::Color::HsvType)
       color = picked;
     else
-      color = app::Color::fromHsv(picked.getHue(), picked.getSaturation(),
-                                  picked.getValue(), picked.getAlpha());
+      color = app::Color::fromHsv(picked.getHue(), picked.getSaturation(), picked.getValue(), picked.getAlpha());
     break;
   case app::gen::EyedropperChannel::HSV:
     if (picked.getAlpha() > 0)
-      color = app::Color::fromHsv(picked.getHue(), picked.getSaturation(),
-                                  picked.getValue(), color.getAlpha());
+      color = app::Color::fromHsv(picked.getHue(), picked.getSaturation(), picked.getValue(), color.getAlpha());
     break;
   case app::gen::EyedropperChannel::GRAYA:
     if (picked.getType() == app::Color::GrayType)
@@ -149,8 +137,7 @@ void EyedropperCommand::onExecute(Context* context)
 
   // Discard current image brush
   {
-    Command* discardBrush =
-        CommandsModule::instance()->getCommandByName(CommandId::DiscardBrush);
+    Command* discardBrush = CommandsModule::instance()->getCommandByName(CommandId::DiscardBrush);
     context->executeCommand(discardBrush);
   }
 
@@ -159,8 +146,7 @@ void EyedropperCommand::onExecute(Context* context)
 
   // Start with fg/bg color
   Preferences& pref = Preferences::instance();
-  app::Color color =
-      m_background ? pref.colorBar.bgColor() : pref.colorBar.fgColor();
+  app::Color color = m_background ? pref.colorBar.bgColor() : pref.colorBar.fgColor();
 
   pickSample(editor->getSite(), pixelPos, color);
 

@@ -51,9 +51,7 @@ private:
 public:
   inline address_t address(int x, int y) const
   {
-    return (address_t)(m_rows[y] + x / (Traits::pixels_per_byte == 0
-                                            ? 1
-                                            : Traits::pixels_per_byte));
+    return (address_t)(m_rows[y] + x / (Traits::pixels_per_byte == 0 ? 1 : Traits::pixels_per_byte));
   }
 
   ImageImpl(int width, int height, const ImageBufferPtr& buffer)
@@ -127,8 +125,7 @@ public:
     if (!area.clip(width(), height(), src->width(), src->height()))
       return;
 
-    for (int end_y = area.dst.y + area.size.h; area.dst.y < end_y;
-         ++area.dst.y, ++area.src.y)
+    for (int end_y = area.dst.y + area.size.h; area.dst.y < end_y; ++area.dst.y, ++area.src.y)
     {
       src_address = src->address(area.src.x, area.src.y);
       dst_address = address(area.dst.x, area.dst.y);
@@ -159,15 +156,13 @@ public:
       std::copy(first, first + w, address(x1, y));
   }
 
-  void blendRect(int x1, int y1, int x2, int y2, color_t color,
-                 int opacity) override
+  void blendRect(int x1, int y1, int x2, int y2, color_t color, int opacity) override
   {
     fillRect(x1, y1, x2, y2, color);
   }
 
 private:
-  bool clip_rects(const Image* src, int& dst_x, int& dst_y, int& src_x,
-                  int& src_y, int& w, int& h) const
+  bool clip_rects(const Image* src, int& dst_x, int& dst_y, int& src_x, int& src_y, int& w, int& h) const
   {
     // Clip with destionation image
     if (dst_x < 0)
@@ -217,12 +212,10 @@ private:
     if (w < 1 || h < 1)
       return false;
 
-    if ((src_x + w <= 0) || (src_x >= src->width()) || (src_y + h <= 0) ||
-        (src_y >= src->height()))
+    if ((src_x + w <= 0) || (src_x >= src->width()) || (src_y + h <= 0) || (src_y >= src->height()))
       return false;
 
-    if ((dst_x + w <= 0) || (dst_x >= width()) || (dst_y + h <= 0) ||
-        (dst_y >= height()))
+    if ((dst_x + w <= 0) || (dst_x >= width()) || (dst_y + h <= 0) || (dst_y >= height()))
       return false;
 
     // Check this function is working correctly
@@ -242,9 +235,7 @@ template <> inline void ImageImpl<IndexedTraits>::clear(color_t color)
 
 template <> inline void ImageImpl<BitmapTraits>::clear(color_t color)
 {
-  std::fill(m_bits,
-            m_bits + BitmapTraits::getRowStrideBytes(width()) * height(),
-            (color ? 0xff : 0x00));
+  std::fill(m_bits, m_bits + BitmapTraits::getRowStrideBytes(width()) * height(), (color ? 0xff : 0x00));
 }
 
 template <> inline color_t ImageImpl<BitmapTraits>::getPixel(int x, int y) const
@@ -256,8 +247,7 @@ template <> inline color_t ImageImpl<BitmapTraits>::getPixel(int x, int y) const
   return ((*(m_rows[y] + d.quot)) & (1 << d.rem)) ? 1 : 0;
 }
 
-template <>
-inline void ImageImpl<BitmapTraits>::putPixel(int x, int y, color_t color)
+template <> inline void ImageImpl<BitmapTraits>::putPixel(int x, int y, color_t color)
 {
   ASSERT(x >= 0 && x < width());
   ASSERT(y >= 0 && y < height());
@@ -269,17 +259,13 @@ inline void ImageImpl<BitmapTraits>::putPixel(int x, int y, color_t color)
     (*(m_rows[y] + d.quot)) &= ~(1 << d.rem);
 }
 
-template <>
-inline void ImageImpl<BitmapTraits>::fillRect(int x1, int y1, int x2, int y2,
-                                              color_t color)
+template <> inline void ImageImpl<BitmapTraits>::fillRect(int x1, int y1, int x2, int y2, color_t color)
 {
   for (int y = y1; y <= y2; ++y)
     ImageImpl<BitmapTraits>::drawHLine(x1, y, x2, color);
 }
 
-template <>
-inline void ImageImpl<RgbTraits>::blendRect(int x1, int y1, int x2, int y2,
-                                            color_t color, int opacity)
+template <> inline void ImageImpl<RgbTraits>::blendRect(int x1, int y1, int x2, int y2, color_t color, int opacity)
 {
   address_t addr;
   int x, y;
@@ -296,8 +282,7 @@ inline void ImageImpl<RgbTraits>::blendRect(int x1, int y1, int x2, int y2,
 }
 
 void copy_bitmaps(Image* dst, const Image* src, gfx::Clip area);
-template <>
-inline void ImageImpl<BitmapTraits>::copy(const Image* src, gfx::Clip area)
+template <> inline void ImageImpl<BitmapTraits>::copy(const Image* src, gfx::Clip area)
 {
   copy_bitmaps(this, src, area);
 }

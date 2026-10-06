@@ -91,10 +91,7 @@ public:
 
   operator bool() const { return storage && *storage; }
 
-  template <typename Derived = Type> [[nodiscard]] Derived* get() const
-  {
-    return *storage;
-  }
+  template <typename Derived = Type> [[nodiscard]] Derived* get() const { return *storage; }
 
   Type* operator->() const { return *storage; }
 
@@ -108,9 +105,7 @@ public:
   // AssertionResult> while overload-resolving an implicit bool
   // conversion) ends up instantiating in ways that are unrelated to the
   // caller's intent and unsafe to evaluate eagerly.
-  template <typename T,
-            typename std::enable_if<std::is_scalar<T>::value, int>::type = 0>
-  operator T() const
+  template <typename T, typename std::enable_if<std::is_scalar<T>::value, int>::type = 0> operator T() const
   {
     // Guard against dereferencing empty/expired storage, same as
     // operator bool() above.
@@ -135,8 +130,7 @@ inline std::vector<std::function<void()>>& getSafePtrPurgers()
   return purgers;
 }
 
-template <typename Type>
-std::unordered_map<Type*, safe_ptr<Type>>& getSafePtrIndex()
+template <typename Type> std::unordered_map<Type*, safe_ptr<Type>>& getSafePtrIndex()
 {
   static std::unordered_map<Type*, safe_ptr<Type>> index;
   static const bool init = ([]{
@@ -183,8 +177,7 @@ inline void purgeSafePtrs()
 }
 
 template <typename Type, typename... Args,
-          typename std::enable_if<std::has_virtual_destructor<Type>::value,
-                                  bool>::type = 0>
+          typename std::enable_if<std::has_virtual_destructor<Type>::value, bool>::type = 0>
 safe_ptr<Type> make_safe(Args&&... args)
 {
   class Safe : public Type

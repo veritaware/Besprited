@@ -23,11 +23,15 @@ int main(int argc, char** argv)
   Cmd cmd4(model, 4, 3);
 
   UndoHistory history;
-  cmd1.redo(); history.add(&cmd1);
-  cmd2.redo(); history.add(&cmd2);
+  cmd1.redo();
+  history.add(&cmd1);
+  cmd2.redo();
+  history.add(&cmd2);
   history.undo();
-  cmd3.redo(); history.add(&cmd3); // Creates a branch in the history
-  cmd4.redo(); history.add(&cmd4);
+  cmd3.redo();
+  history.add(&cmd3); // Creates a branch in the history
+  cmd4.redo();
+  history.add(&cmd4);
 
   EXPECT_EQ(4, model);
   history.undo();
@@ -37,7 +41,7 @@ int main(int argc, char** argv)
   history.undo();
   EXPECT_EQ(1, model);
   history.undo();
-  EXPECT_EQ(0,  model);
+  EXPECT_EQ(0, model);
   EXPECT_FALSE(history.canUndo());
   history.redo();
   EXPECT_EQ(1, model);
@@ -46,6 +50,6 @@ int main(int argc, char** argv)
   history.redo();
   EXPECT_EQ(3, model);
   history.redo();
-  EXPECT_EQ(4,  model);
+  EXPECT_EQ(4, model);
   EXPECT_FALSE(history.canRedo());
 }

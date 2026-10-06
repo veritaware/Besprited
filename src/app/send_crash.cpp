@@ -74,15 +74,13 @@ void SendCrash::notificationClick()
   {
     dlg.official()->setVisible(false);
     dlg.devFilename()->setText(m_dumpFilename);
-    dlg.devFilename()->Click.connect(
-        base::Bind(&SendCrash::onClickDevFilename, this));
+    dlg.devFilename()->Click.connect(base::Bind(&SendCrash::onClickDevFilename, this));
   }
   else
   {
     dlg.dev()->setVisible(false);
     dlg.filename()->setText(m_dumpFilename);
-    dlg.filename()->Click.connect(
-        base::Bind(&SendCrash::onClickFilename, this));
+    dlg.filename()->Click.connect(base::Bind(&SendCrash::onClickFilename, this));
   }
 
   dlg.openWindowInForeground();

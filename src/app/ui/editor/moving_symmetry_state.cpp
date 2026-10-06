@@ -21,8 +21,7 @@ namespace app
 
 using namespace ui;
 
-MovingSymmetryState::MovingSymmetryState(Editor* editor, MouseMessage* msg,
-                                         Axis axis, Option<int>& xAxis,
+MovingSymmetryState::MovingSymmetryState(Editor* editor, MouseMessage* msg, Axis axis, Option<int>& xAxis,
                                          Option<int>& yAxis)
   : m_symmetryAxis(axis)
   , m_xAxis(xAxis)
@@ -62,17 +61,13 @@ bool MovingSymmetryState::onUpdateStatusBar(Editor* editor)
   switch (m_symmetryAxis)
   {
   case Axis::HORIZONTAL:
-    StatusBar::instance()->setStatusText(0, "Left %3d Right %3d", m_xAxis(),
-                                         editor->sprite()->width() - m_xAxis());
+    StatusBar::instance()->setStatusText(0, "Left %3d Right %3d", m_xAxis(), editor->sprite()->width() - m_xAxis());
     break;
   case Axis::VERTICAL:
-    StatusBar::instance()->setStatusText(0, "Top %3d Bottom %3d", m_yAxis(),
-                                         editor->sprite()->height() -
-                                             m_yAxis());
+    StatusBar::instance()->setStatusText(0, "Top %3d Bottom %3d", m_yAxis(), editor->sprite()->height() - m_yAxis());
     break;
   default:
-    StatusBar::instance()->setStatusText(0, "Pos %3d %3d", m_xAxis(),
-                                         m_yAxis());
+    StatusBar::instance()->setStatusText(0, "Pos %3d %3d", m_xAxis(), m_yAxis());
     break;
   }
 

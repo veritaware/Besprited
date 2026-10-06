@@ -92,20 +92,14 @@ public:
   explicit Key(KeyAction action);
 
   KeyType type() const { return m_type; }
-  const ui::Accelerators& accels() const
-  {
-    return (m_useUsers ? m_users : m_accels);
-  }
+  const ui::Accelerators& accels() const { return (m_useUsers ? m_users : m_accels); }
   const ui::Accelerators& origAccels() const { return m_accels; }
   const ui::Accelerators& userAccels() const { return m_users; }
   const ui::Accelerators& userRemovedAccels() const { return m_userRemoved; }
 
   void add(const ui::Accelerator& accel, KeySource source);
   void setLabel(const std::string& label, KeySource source, bool quiet);
-  const std::string& label() const
-  {
-    return m_userLabel.has_value() ? *m_userLabel : m_label;
-  }
+  const std::string& label() const { return m_userLabel.has_value() ? *m_userLabel : m_label; }
   bool hasUserLabel() const { return m_userLabel.has_value(); }
   bool isPressed(ui::Message* msg) const;
   bool isPressed() const;
@@ -168,8 +162,7 @@ public:
   void exportFile(const std::string& filename);
   void reset();
 
-  Key* command(const char* commandName, const Params& params = Params(),
-               KeyContext keyContext = KeyContext::Any);
+  Key* command(const char* commandName, const Params& params = Params(), KeyContext keyContext = KeyContext::Any);
   Key* tool(tools::Tool* tool);
   Key* quicktool(tools::Tool* tool);
   Key* action(KeyAction action);
@@ -177,8 +170,7 @@ public:
   void disableAccel(const ui::Accelerator& accel, KeyContext keyContext);
 
   KeyContext getCurrentKeyContext();
-  bool getCommandFromKeyMessage(ui::Message* msg, Command** command,
-                                Params* params);
+  bool getCommandFromKeyMessage(ui::Message* msg, Command** command, Params* params);
   tools::Tool* getCurrentQuicktool(tools::Tool* currentTool);
   KeyAction getCurrentActionModifiers(KeyContext context);
 
@@ -186,8 +178,7 @@ private:
   KeyboardShortcuts();
 
   void exportKeys(tinyxml2::XMLElement& parent, KeyType type);
-  void exportAccel(tinyxml2::XMLElement& parent, Key* key,
-                   const ui::Accelerator* accel, bool removed, bool& first);
+  void exportAccel(tinyxml2::XMLElement& parent, Key* key, const ui::Accelerator* accel, bool removed, bool& first);
   void importCommands(tinyxml2::XMLHandle& handle, KeySource source);
   void importTools(tinyxml2::XMLHandle& handle, KeySource source);
   void importQuickTools(tinyxml2::XMLHandle& handle, KeySource source);

@@ -38,11 +38,10 @@ LayerFromBackgroundCommand::LayerFromBackgroundCommand()
 
 bool LayerFromBackgroundCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(
-      ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite |
-      ContextFlags::HasActiveLayer | ContextFlags::ActiveLayerIsVisible |
-      ContextFlags::ActiveLayerIsEditable | ContextFlags::ActiveLayerIsImage |
-      ContextFlags::ActiveLayerIsBackground);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite |
+                             ContextFlags::HasActiveLayer | ContextFlags::ActiveLayerIsVisible |
+                             ContextFlags::ActiveLayerIsEditable | ContextFlags::ActiveLayerIsImage |
+                             ContextFlags::ActiveLayerIsBackground);
 }
 
 void LayerFromBackgroundCommand::onExecute(Context* context)

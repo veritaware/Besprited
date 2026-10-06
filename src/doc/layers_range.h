@@ -28,10 +28,7 @@ public:
     iterator();
     iterator(const Sprite* sprite, LayerIndex first, LayerIndex last);
 
-    bool operator==(const iterator& other) const
-    {
-      return m_layer == other.m_layer;
-    }
+    bool operator==(const iterator& other) const { return m_layer == other.m_layer; }
 
     bool operator!=(const iterator& other) const { return !operator==(other); }
 

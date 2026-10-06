@@ -29,8 +29,7 @@ namespace filters::detail
 // honoring skipPixel() exactly like every filter's hand-written loop did:
 // a skipped pixel's dst is left untouched and both pointers still advance.
 // `op(rawValue, x)` returns the pixel's replacement value.
-template <class PixelT, class Op>
-void for_each_pixel(FilterManager& m, Op&& op)
+template <class PixelT, class Op> void for_each_pixel(FilterManager& m, Op&& op)
 {
   const auto* src = static_cast<const PixelT*>(m.getSourceAddress());
   auto* dst = static_cast<PixelT*>(m.getDestinationAddress());
@@ -54,8 +53,7 @@ void for_each_pixel(FilterManager& m, Op&& op)
 // Decomposes an RGBA pixel, calls fn(currentValue, channelBit) for each of
 // R/G/B/A named in `target`, and recomposes. Channels not in `target` are
 // passed through unchanged.
-template <class Fn>
-doc::color_t map_rgba_channels(doc::color_t c, Target target, Fn&& fn)
+template <class Fn> doc::color_t map_rgba_channels(doc::color_t c, Target target, Fn&& fn)
 {
   int r = doc::rgba_getr(c);
   int g = doc::rgba_getg(c);
@@ -75,8 +73,7 @@ doc::color_t map_rgba_channels(doc::color_t c, Target target, Fn&& fn)
 }
 
 // Same idea for a grayscale+alpha pixel.
-template <class Fn>
-uint16_t map_gray_channels(uint16_t c, Target target, Fn&& fn)
+template <class Fn> uint16_t map_gray_channels(uint16_t c, Target target, Fn&& fn)
 {
   int v = doc::graya_getv(c);
   int a = doc::graya_geta(c);

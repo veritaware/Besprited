@@ -24,8 +24,7 @@ public:
   EyedropperCommand();
 
   // Returns the color in the given sprite pos.
-  void pickSample(const doc::Site& site, const gfx::Point& pixelPos,
-                  app::Color& color);
+  void pickSample(const doc::Site& site, const gfx::Point& pixelPos, app::Color& color);
 
 protected:
   void onLoadParams(const Params& params) override;

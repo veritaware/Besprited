@@ -28,19 +28,16 @@ public:
   {
   }
 
-
 protected:
   bool onChecked(Context* context) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(context->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
     return docPref.onionskin.active();
   }
 
   void onExecute(Context* context) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(context->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
     docPref.onionskin.active(!docPref.onionskin.active());
   }
 };

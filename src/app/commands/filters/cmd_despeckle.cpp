@@ -42,15 +42,12 @@ class DespeckleWindow : public FilterWindow
 {
 public:
   DespeckleWindow(MedianFilter& filter, FilterManagerImpl& filterMgr)
-    : FilterWindow("Median Blur", ConfigSection, &filterMgr,
-                   WithChannelsSelector, WithTiledCheckBox,
+    : FilterWindow("Median Blur", ConfigSection, &filterMgr, WithChannelsSelector, WithTiledCheckBox,
                    filter.getTiledMode())
     , m_filter(filter)
-    , m_controlsWidget(
-          app::load_widget<ui::Widget>("despeckle.xml", "controls"))
+    , m_controlsWidget(app::load_widget<ui::Widget>("despeckle.xml", "controls"))
     , m_widthEntry(app::find_widget<ui::Entry>(m_controlsWidget.get(), "width"))
-    , m_heightEntry(
-          app::find_widget<ui::Entry>(m_controlsWidget.get(), "height"))
+    , m_heightEntry(app::find_widget<ui::Entry>(m_controlsWidget.get(), "height"))
   {
     getContainer()->addChild(m_controlsWidget.get());
 
@@ -68,10 +65,7 @@ private:
     restartPreview();
   }
 
-  void setupTiledMode(TiledMode tiledMode) override
-  {
-    m_filter.setTiledMode(tiledMode);
-  }
+  void setupTiledMode(TiledMode tiledMode) override { m_filter.setTiledMode(tiledMode); }
 
   MedianFilter& m_filter;
   std::unique_ptr<ui::Widget> m_controlsWidget;
@@ -99,23 +93,19 @@ DespeckleCommand::DespeckleCommand()
 
 bool DespeckleCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void DespeckleCommand::onExecute(Context* context)
 {
-  DocumentPreferences& docPref =
-      Preferences::instance().document(context->activeDocument());
+  DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
 
   MedianFilter filter;
   filter.setTiledMode((filters::TiledMode)docPref.tiled.mode());
-  filter.setSize(get_config_int(ConfigSection, "Width", 3),
-                 get_config_int(ConfigSection, "Height", 3));
+  filter.setSize(get_config_int(ConfigSection, "Width", 3), get_config_int(ConfigSection, "Height", 3));
 
   FilterManagerImpl filterMgr(context, &filter);
-  filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL |
-                      TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL);
+  filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL | TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL);
 
   DespeckleWindow window(filter, filterMgr);
   if (window.doModal())

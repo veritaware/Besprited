@@ -31,8 +31,7 @@ public:
   {
     view()->attachToView(m_textbox);
 
-    copy()->Click.connect([this](ui::Event&)
-                          { clip::set_text(app::MessageLog::instance()->toText()); });
+    copy()->Click.connect([this](ui::Event&) { clip::set_text(app::MessageLog::instance()->toText()); });
     clear()->Click.connect(
         [this](ui::Event&)
         {

@@ -20,8 +20,7 @@ class Editor;
 class MovingSymmetryState : public DragState<StandbyState>
 {
 public:
-  MovingSymmetryState(Editor* editor, ui::MouseMessage* msg, Axis axis,
-                      Option<int>& xAxis, Option<int>& yAxis);
+  MovingSymmetryState(Editor* editor, ui::MouseMessage* msg, Axis axis, Option<int>& xAxis, Option<int>& yAxis);
   virtual ~MovingSymmetryState();
 
   virtual bool onUpdateStatusBar(Editor* editor) override;
@@ -30,10 +29,7 @@ public:
 
 protected:
   void onDrag(Editor* editor, const gfx::Point& delta) override;
-  bool afterDrag(Editor* editor, ui::MouseMessage* msg) override
-  {
-    return StandbyState::onMouseMove(editor, msg);
-  }
+  bool afterDrag(Editor* editor, ui::MouseMessage* msg) override { return StandbyState::onMouseMove(editor, msg); }
 
 private:
   Axis m_symmetryAxis;

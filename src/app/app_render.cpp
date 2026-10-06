@@ -25,8 +25,7 @@ AppRender::AppRender(app::Document* doc, doc::PixelFormat pixelFormat)
   setupBackground(doc, pixelFormat);
 }
 
-void AppRender::setupBackground(app::Document* doc,
-                                doc::PixelFormat pixelFormat)
+void AppRender::setupBackground(app::Document* doc, doc::PixelFormat pixelFormat)
 {
   DocumentPreferences& docPref = Preferences::instance().document(doc);
   render::BgType bgType;

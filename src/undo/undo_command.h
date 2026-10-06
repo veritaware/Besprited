@@ -7,14 +7,16 @@
 
 #pragma once
 
-namespace undo {
+namespace undo
+{
 
-  class UndoCommand {
-  public:
-    virtual ~UndoCommand() { }
-    virtual void undo() = 0;
-    virtual void redo() = 0;
-    virtual void dispose() = 0;
-  };
+class UndoCommand
+{
+public:
+  virtual ~UndoCommand() {}
+  virtual void undo() = 0;
+  virtual void redo() = 0;
+  virtual void dispose() = 0;
+};
 
 } // namespace undo

@@ -66,8 +66,7 @@ void CancelCommand::onExecute(Context* context)
     // TODO should the ContextBar be a InputChainElement to intercept
     // onCancel()? Discard brush
     {
-      Command* discardBrush =
-          CommandsModule::instance()->getCommandByName(CommandId::DiscardBrush);
+      Command* discardBrush = CommandsModule::instance()->getCommandByName(CommandId::DiscardBrush);
       context->executeCommand(discardBrush);
     }
 

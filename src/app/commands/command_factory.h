@@ -17,8 +17,7 @@ class CommandFactory
 {
 public:
 #undef FOR_EACH_COMMAND
-#define FOR_EACH_COMMAND(Name)                                                \
-  static std::unique_ptr<Command> create##Name##Command();
+#define FOR_EACH_COMMAND(Name) static std::unique_ptr<Command> create##Name##Command();
 
 #include "app/commands/commands_list.h"
 #undef FOR_EACH_COMMAND

@@ -10,6 +10,7 @@
 #endif
 
 #include "cfg/cfg.h"
+#include "cfg/cfg_wasm.h"
 
 #include "base/file_handle.h"
 #include "base/log.h"
@@ -20,98 +21,6 @@
 #include <cstring>
 #include "SimpleIni.h"
 
-// clang-format off
-#ifdef __EMSCRIPTEN__
-#include <emscripten/emscripten.h>
-#include "she/system.h"
-
-std::string s_cfgdata;
-
-void cfgwrite(){
-    she::instance()->gfx([&]{
-      EM_ASM((
-	self.storage.data = JSON.parse(UTF8ToString($0));
-	self.storage.dirty = true;
-	self.storage.commit();
-      ), s_cfgdata.c_str());
-    });
-}
-
-bool cfginit(){
-  auto data = (char*) EM_ASM_PTR((
-      if (self.storage)
-	return self.storage.data ? stringToNewUTF8(JSON.stringify(self.storage.data)) : 0;
-      self.storage = {
-        data:null,
-	db:null,
-	dirty:false,
-	init(){
-	  if (storage.wasInit)
-	      return;
-	  storage.wasInit = true;
-
-	  Object.assign(indexedDB.open("UserSettings", 1), {
-	    onupgradeneeded(){
-	      storage.db = this.result;
-	      console.log(storage.db);
-	      storage.db.createObjectStore('userSettings', {keyPath: 'key'});
-	    },
-	    onerror(){},
-	    onsuccess(){
-	      storage.db = this.result;
-	      let transaction = storage.db.transaction('userSettings', 'readonly');
-	      let userSettings = transaction.objectStore('userSettings');
-	      Object.assign(userSettings.get('str'), {
-		onsuccess(){
-		  storage.data = (this.result ?? {data:{}}).data;
-		}
-	      });
-	    }
-	  });
-	},
-	commit(){
-	  if (!storage.dirty) return;
-	  let transaction = storage.db.transaction('userSettings', 'readwrite');
-	  let userSettings = transaction.objectStore('userSettings');
-	  Object.assign(userSettings.put({key:'str', data:storage.data}), {
-	    onsuccess(){storage.dirty = false;},
-	    onerror(){}
-	  });
-	},
-	getItem(key){
-	  console.log(key);
-	  return storage.data[key];
-	},
-	setItem(key, value){
-	  console.log(key, value);
-	  storage.dirty = storage.data[key] != value;
-	  storage.data[key] = value;
-	}
-      };
-      storage.init();
-      return 0;
-    ));
-
-  if (!data)
-      return false;
-
-  s_cfgdata = data;
-  free(data);
-  return true;
-}
-
-void thread_init() {
-  EM_ASM((
-    self.storage = {
-    data: JSON.parse(UTF8ToString($0)),
-    getItem(key){ return storage.data[key]; },
-    setItem(key, value){ storage.data[key] = value; }
-    };
-  ), s_cfgdata.c_str());
-}
-#endif
-  // clang-format on
-
 namespace cfg
 {
 
@@ -120,54 +29,38 @@ class CfgFile::CfgFileImpl
 public:
   const std::string& filename() const { return m_filename; }
 
-  const char* getValue(const char* section, const char* name,
-                       const char* defaultValue) const
+  const char* getValue(const char* section, const char* name, const char* defaultValue) const
   {
     return m_ini.GetValue(section, name, defaultValue);
   }
 
-  bool getBoolValue(const char* section, const char* name,
-                    bool defaultValue) const
+  bool getBoolValue(const char* section, const char* name, bool defaultValue) const
   {
     return m_ini.GetBoolValue(section, name, defaultValue);
   }
 
-  int getIntValue(const char* section, const char* name,
-                  int defaultValue) const
+  int getIntValue(const char* section, const char* name, int defaultValue) const
   {
     return static_cast<int>(m_ini.GetLongValue(section, name, defaultValue));
   }
 
-  double getDoubleValue(const char* section, const char* name,
-                        double defaultValue) const
+  double getDoubleValue(const char* section, const char* name, double defaultValue) const
   {
     return m_ini.GetDoubleValue(section, name, defaultValue);
   }
 
-  void setValue(const char* section, const char* name, const char* value)
-  {
-    m_ini.SetValue(section, name, value);
-  }
+  void setValue(const char* section, const char* name, const char* value) { m_ini.SetValue(section, name, value); }
 
-  void setBoolValue(const char* section, const char* name, bool value)
-  {
-    m_ini.SetBoolValue(section, name, value);
-  }
+  void setBoolValue(const char* section, const char* name, bool value) { m_ini.SetBoolValue(section, name, value); }
 
-  void setIntValue(const char* section, const char* name, int value)
-  {
-    m_ini.SetLongValue(section, name, value);
-  }
+  void setIntValue(const char* section, const char* name, int value) { m_ini.SetLongValue(section, name, value); }
 
   void setDoubleValue(const char* section, const char* name, double value)
   {
     m_ini.SetDoubleValue(section, name, value);
   }
 
-  void deleteValue(const char* section, const char* name)
-  {
-    m_ini.Delete(section, name, true);
-  }
+  void deleteValue(const char* section, const char* name) { m_ini.Delete(section, name, true); }
 
   void load(const std::string& filename)
   {
@@ -177,27 +70,14 @@ public:
     if (file)
     {
       if (const SI_Error err = m_ini.LoadFile(file.get()); err != SI_OK)
-        LOG("Error '%d' loading configuration from '%s'.", err,
-            m_filename.c_str());
+        LOG("Error '%d' loading configuration from '%s'.", err, m_filename.c_str());
     }
     else
     {
       std::string data;
-      // clang-format off
 #ifdef __EMSCRIPTEN__
-    thread_init();
-    auto raw = (char*) EM_ASM_PTR({
-	const value = self.storage.getItem(UTF8ToString($0));
-	if (value === undefined)
-	  return 0;
-	return stringToNewUTF8(value);
-    }, m_filename.c_str());
-    if (raw) {
-	data = raw;
-	free(raw);
-    }
+      data = cfg_wasm_load(m_filename);
 #endif
-      // clang-format on
       if (!data.empty())
         m_ini.LoadData(data);
     }
@@ -210,26 +90,14 @@ public:
     std::string data;
     if (const SI_Error err = m_ini.Save(data); err != SI_OK)
     {
-      LOG("Error '%d' saving configuration into '%s'.", err,
-          m_filename.c_str());
+      LOG("Error '%d' saving configuration into '%s'.", err, m_filename.c_str());
       m_lastError = "could not serialize the configuration";
       return false;
     }
 
-    // clang-format off
 #ifdef __EMSCRIPTEN__
-  thread_init();
-  auto cfgdata = (char*) EM_ASM_PTR({
-    self.storage.setItem(UTF8ToString($0), UTF8ToString($1));
-    return stringToNewUTF8(JSON.stringify(self.storage.data));
-  }, m_filename.c_str(), data.c_str());
-  if (cfgdata) {
-	s_cfgdata = cfgdata;
-	free(cfgdata);
-	cfgwrite();
-  }
+    cfg_wasm_save(m_filename, data);
 #endif
-    // clang-format on
 
 #ifdef __EMSCRIPTEN__
     // The browser storage above is the source of truth there.
@@ -246,19 +114,16 @@ public:
     if (!file)
     {
       m_lastError = std::strerror(errno);
-      LOG("Error opening '%s' to save the configuration: %s.",
-          m_filename.c_str(), m_lastError.c_str());
+      LOG("Error opening '%s' to save the configuration: %s.", m_filename.c_str(), m_lastError.c_str());
       return false;
     }
 
     // Check for short writes and for errors that are only reported on
     // flush (disk full, quota exceeded, ...).
-    if (std::fwrite(data.c_str(), 1, data.size(), file.get()) != data.size() ||
-        std::fflush(file.get()) != 0)
+    if (std::fwrite(data.c_str(), 1, data.size(), file.get()) != data.size() || std::fflush(file.get()) != 0)
     {
       m_lastError = std::strerror(errno);
-      LOG("Error writing the configuration into '%s': %s.",
-          m_filename.c_str(), m_lastError.c_str());
+      LOG("Error writing the configuration into '%s': %s.", m_filename.c_str(), m_lastError.c_str());
       return false;
     }
     return true;
@@ -287,32 +152,27 @@ const std::string& CfgFile::filename() const
   return m_impl->filename();
 }
 
-const char* CfgFile::getValue(const char* section, const char* name,
-                              const char* defaultValue) const
+const char* CfgFile::getValue(const char* section, const char* name, const char* defaultValue) const
 {
   return m_impl->getValue(section, name, defaultValue);
 }
 
-bool CfgFile::getBoolValue(const char* section, const char* name,
-                           bool defaultValue) const
+bool CfgFile::getBoolValue(const char* section, const char* name, bool defaultValue) const
 {
   return m_impl->getBoolValue(section, name, defaultValue);
 }
 
-int CfgFile::getIntValue(const char* section, const char* name,
-                         int defaultValue) const
+int CfgFile::getIntValue(const char* section, const char* name, int defaultValue) const
 {
   return m_impl->getIntValue(section, name, defaultValue);
 }
 
-double CfgFile::getDoubleValue(const char* section, const char* name,
-                               double defaultValue) const
+double CfgFile::getDoubleValue(const char* section, const char* name, double defaultValue) const
 {
   return m_impl->getDoubleValue(section, name, defaultValue);
 }
 
-void CfgFile::setValue(const char* section, const char* name,
-                       const char* value)
+void CfgFile::setValue(const char* section, const char* name, const char* value)
 {
   m_impl->setValue(section, name, value);
 }
@@ -327,8 +187,7 @@ void CfgFile::setIntValue(const char* section, const char* name, int value)
   m_impl->setIntValue(section, name, value);
 }
 
-void CfgFile::setDoubleValue(const char* section, const char* name,
-                             double value)
+void CfgFile::setDoubleValue(const char* section, const char* name, double value)
 {
   m_impl->setDoubleValue(section, name, value);
 }

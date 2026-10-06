@@ -46,8 +46,7 @@ std::string get_file_path(const std::string& filename)
   if (rit != filename.rend())
   {
     ++rit;
-    std::copy(filename.begin(), std::string::const_iterator(rit.base()),
-              std::back_inserter(res));
+    std::copy(filename.begin(), std::string::const_iterator(rit.base()), std::back_inserter(res));
   }
 
   return res;
@@ -62,8 +61,7 @@ std::string get_file_name(const std::string& filename)
     if (is_path_separator(*rit))
       break;
 
-  std::copy(std::string::const_iterator(rit.base()), filename.end(),
-            std::back_inserter(result));
+  std::copy(std::string::const_iterator(rit.base()), filename.end(), std::back_inserter(result));
 
   return result;
 }
@@ -84,15 +82,13 @@ std::string get_file_extension(const std::string& filename)
 
   if (rit != filename.rend())
   {
-    std::copy(std::string::const_iterator(rit.base()), filename.end(),
-              std::back_inserter(result));
+    std::copy(std::string::const_iterator(rit.base()), filename.end(), std::back_inserter(result));
   }
 
   return result;
 }
 
-std::string replace_extension(const std::string& filename,
-                              const std::string& extension)
+std::string replace_extension(const std::string& filename, const std::string& extension)
 {
   std::string::const_reverse_iterator rit;
   std::string result;
@@ -108,8 +104,7 @@ std::string replace_extension(const std::string& filename,
 
   if (rit != filename.rend())
   {
-    std::copy(filename.begin(), std::string::const_iterator(rit.base()),
-              std::back_inserter(result));
+    std::copy(filename.begin(), std::string::const_iterator(rit.base()), std::back_inserter(result));
     std::copy(extension.begin(), extension.end(), std::back_inserter(result));
   }
 
@@ -170,8 +165,7 @@ std::string fix_path_separators(const std::string& filename)
   std::string result(filename);
 
   // Replace any separator with the system path separator.
-  std::replace_if(result.begin(), result.end(), is_path_separator,
-                  path_separator);
+  std::replace_if(result.begin(), result.end(), is_path_separator, path_separator);
 
   return result;
 }
@@ -183,19 +177,17 @@ std::string normalize_path(const std::string& filename)
   return fn;
 }
 
-bool has_file_extension(const std::string& filename,
-                        const std::string& csv_extensions)
+bool has_file_extension(const std::string& filename, const std::string& csv_extensions)
 {
   if (!filename.empty())
   {
     std::string ext = base::string_to_lower(get_file_extension(filename));
 
     const int extsz = static_cast<int>(ext.size());
-    const std::string::const_iterator p = std::search(
-        csv_extensions.begin(), csv_extensions.end(), ext.begin(), ext.end());
+    const std::string::const_iterator p =
+        std::search(csv_extensions.begin(), csv_extensions.end(), ext.begin(), ext.end());
 
-    if ((p != csv_extensions.end()) &&
-        ((p + extsz) == csv_extensions.end() || *(p + extsz) == ',') &&
+    if ((p != csv_extensions.end()) && ((p + extsz) == csv_extensions.end() || *(p + extsz) == ',') &&
         (p == csv_extensions.begin() || *(p - 1) == ','))
       return true;
   }
@@ -224,10 +216,8 @@ int compare_filenames(const std::string& a, const std::string& b)
       while (b_it2 != b_end && (*b_it2 >= '0') && (*b_it2 <= '9'))
         ++b_it2;
 
-      const int a_num = static_cast<int>(
-          std::strtol(std::string(a_it, a_it2).c_str(), nullptr, 10));
-      const int b_num = static_cast<int>(
-          std::strtol(std::string(b_it, b_it2).c_str(), nullptr, 10));
+      const int a_num = static_cast<int>(std::strtol(std::string(a_it, a_it2).c_str(), nullptr, 10));
+      const int b_num = static_cast<int>(std::strtol(std::string(b_it, b_it2).c_str(), nullptr, 10));
       if (a_num != b_num)
         return a_num - b_num < 0 ? -1 : 1;
 

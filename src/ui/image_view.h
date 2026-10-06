@@ -21,8 +21,7 @@ namespace ui
 class ImageView : public Widget
 {
 public:
-  ImageView(she::Surface* sur = nullptr, int align = 0,
-            bool disposeSurface = false);
+  ImageView(she::Surface* sur = nullptr, int align = 0, bool disposeSurface = false);
   ~ImageView() override { release(); }
 
   she::Surface* getSurface() const { return m_sur; }

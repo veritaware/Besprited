@@ -12,7 +12,6 @@
 namespace app
 {
 
-int split_filename(const char* filename, std::string& left, std::string& right,
-                   int& width);
+int split_filename(const char* filename, std::string& left, std::string& right, int& width);
 
 } // namespace app

@@ -21,15 +21,12 @@ public:
     auto& cls = addClass<void, ButtonObject>("Button");
     // The button is created by DialogObject::addButton() (C++), not `new
     // Button()` in JS, but delta requires a non-null constructor.
-    cls.setConstructor() = []() -> std::shared_ptr<ButtonObject>
-    { return std::make_shared<ButtonObject>(); };
+    cls.setConstructor() = []() -> std::shared_ptr<ButtonObject> { return std::make_shared<ButtonObject>(); };
 
     addWidgetId<ButtonObject>(cls);
 
     cls.addGetter("text") = [](ButtonObject& self) -> JSON::Value
-    {
-      return self.button() ? std::string{self.button()->text()} : std::string{};
-    };
+    { return self.button() ? std::string{self.button()->text()} : std::string{}; };
     cls.addSetter("text") = [](ButtonObject& self, JSON::Value& v)
     {
       if (self.button())

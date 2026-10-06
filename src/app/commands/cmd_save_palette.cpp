@@ -61,8 +61,7 @@ void SavePaletteCommand::onExecute(Context* context)
   else
   {
     std::string exts = get_writable_palette_extensions();
-    filename = app::show_file_selector("Save Palette", "", exts,
-                                       FileSelectorType::Save);
+    filename = app::show_file_selector("Save Palette", "", exts, FileSelectorType::Save);
     if (filename.empty())
       return;
   }

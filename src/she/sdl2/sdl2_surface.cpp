@@ -49,9 +49,7 @@ inline gfx::Color from_sdl(SDL_PixelFormat* format, int color)
 
 inline int to_sdl(SDL_PixelFormat* format, gfx::Color color)
 {
-  return static_cast<int>(SDL_MapRGBA(format, gfx::getr(color),
-                                      gfx::getg(color), gfx::getb(color),
-                                      gfx::geta(color)));
+  return static_cast<int>(SDL_MapRGBA(format, gfx::getr(color), gfx::getg(color), gfx::getb(color), gfx::geta(color)));
 }
 
 SDL2Surface::SDL2Surface(SDL_Surface* bmp, DestroyFlag destroy)
@@ -62,8 +60,7 @@ SDL2Surface::SDL2Surface(SDL_Surface* bmp, DestroyFlag destroy)
 }
 
 SDL2Surface::SDL2Surface(int width, int height, DestroyFlag destroy)
-  : m_bmp(SDL_CreateRGBSurface(0, width, height, 32, 0xFF, 0xFF00, 0xFF0000,
-                               0xFF000000))
+  : m_bmp(SDL_CreateRGBSurface(0, width, height, 32, 0xFF, 0xFF00, 0xFF0000, 0xFF000000))
   , m_destroy(destroy)
   , m_lock(0)
 {
@@ -74,8 +71,7 @@ SDL2Surface::SDL2Surface(int width, int height, DestroyFlag destroy)
 }
 
 SDL2Surface::SDL2Surface(int width, int height, int bpp, DestroyFlag destroy)
-  : m_bmp(SDL_CreateRGBSurface(0, width, height, bpp, 0xFF, 0xFF00, 0xFF0000,
-                               bpp == 32 ? 0xFF000000 : 0))
+  : m_bmp(SDL_CreateRGBSurface(0, width, height, bpp, 0xFF, 0xFF00, 0xFF0000, bpp == 32 ? 0xFF000000 : 0))
   , m_destroy(destroy)
   , m_lock(0)
 {
@@ -177,9 +173,8 @@ void SDL2Surface::applyScale(int scale)
   if (scale < 2)
     return;
 
-  SDL_Surface* scaled = SDL_CreateRGBSurfaceWithFormat(
-      0, m_bmp->w * scale, m_bmp->h * scale, m_bmp->format->BitsPerPixel,
-      m_bmp->format->format);
+  SDL_Surface* scaled = SDL_CreateRGBSurfaceWithFormat(0, m_bmp->w * scale, m_bmp->h * scale,
+                                                       m_bmp->format->BitsPerPixel, m_bmp->format->format);
 
   SDL_Rect drect{.x = 0, .y = 0, .w = scaled->w, .h = scaled->h};
   SDL_BlitScaled(m_bmp, nullptr, scaled, &drect);
@@ -203,8 +198,7 @@ void SDL2Surface::clear()
 
 uint8_t* SDL2Surface::getData(int x, int y) const
 {
-  return reinterpret_cast<uint8_t*>(m_bmp->pixels) + y * m_bmp->pitch +
-         x * m_bmp->format->BytesPerPixel;
+  return reinterpret_cast<uint8_t*>(m_bmp->pixels) + y * m_bmp->pitch + x * m_bmp->format->BytesPerPixel;
 }
 
 void SDL2Surface::getFormat(SurfaceFormatData* formatData) const
@@ -272,9 +266,7 @@ void SDL2Surface::drawHLine(gfx::Color color, int x, int y, int w)
     return;
   }
 
-  const int sdlColor =
-      to_sdl(m_bmp->format,
-             gfx::rgba(gfx::getr(color), gfx::getg(color), gfx::getb(color)));
+  const int sdlColor = to_sdl(m_bmp->format, gfx::rgba(gfx::getr(color), gfx::getg(color), gfx::getb(color)));
   auto data = getData(x, y);
   switch (drawMode)
   {
@@ -291,8 +283,7 @@ void SDL2Surface::drawHLine(gfx::Color color, int x, int y, int w)
         const int r = (data[0] * ia >> 8) + sr;
         const int g = (data[1] * ia >> 8) + sg;
         const int b = (data[2] * ia >> 8) + sb;
-        *reinterpret_cast<uint32_t*>(data) =
-            (r) | (g << 8) | (b << 16) | (data[3] << 24);
+        *reinterpret_cast<uint32_t*>(data) = (r) | (g << 8) | (b << 16) | (data[3] << 24);
       }
     }
     else
@@ -308,8 +299,7 @@ void SDL2Surface::drawHLine(gfx::Color color, int x, int y, int w)
     if (m_bmp->format->BytesPerPixel == 4)
     {
       for (; w--; data += 4)
-        *reinterpret_cast<uint32_t*>(data) =
-            ((++offset) & 7) < 4 ? 0xFFFFFFFF : 0xFF000000;
+        *reinterpret_cast<uint32_t*>(data) = ((++offset) & 7) < 4 ? 0xFFFFFFFF : 0xFF000000;
     }
     else if (m_bmp->format->BytesPerPixel == 2)
     {
@@ -383,8 +373,7 @@ void SDL2Surface::drawVLine(gfx::Color color, int x, int y, int h)
         const int r = (data[0] * ia >> 8) + sr;
         const int g = (data[1] * ia >> 8) + sg;
         const int b = (data[2] * ia >> 8) + sb;
-        *reinterpret_cast<uint32_t*>(data) =
-            (r) | (g << 8) | (b << 16) | (data[3] << 24);
+        *reinterpret_cast<uint32_t*>(data) = (r) | (g << 8) | (b << 16) | (data[3] << 24);
       }
     }
     else
@@ -400,8 +389,7 @@ void SDL2Surface::drawVLine(gfx::Color color, int x, int y, int h)
     if (m_bmp->format->BytesPerPixel == 4)
     {
       for (; h--; data += stride)
-        *reinterpret_cast<uint32_t*>(data) =
-            ((++offset) & 7) < 4 ? 0xFFFFFFFF : 0xFF000000;
+        *reinterpret_cast<uint32_t*>(data) = ((++offset) & 7) < 4 ? 0xFFFFFFFF : 0xFF000000;
     }
     else if (m_bmp->format->BytesPerPixel == 2)
     {
@@ -436,8 +424,7 @@ void SDL2Surface::drawVLine(gfx::Color color, int x, int y, int h)
   }
 }
 
-void SDL2Surface::drawLine(gfx::Color color, const gfx::Point& a,
-                           const gfx::Point& b)
+void SDL2Surface::drawLine(gfx::Color color, const gfx::Point& a, const gfx::Point& b)
 {
   if (a.x == b.x)
   {
@@ -507,8 +494,7 @@ void SDL2Surface::fillRect(gfx::Color color, const gfx::Rect& rc)
   {
     if (!sdl::tempSurface)
       sdl::tempSurface = new SDL2Surface(1, 1, SDL2Surface::DeleteAndDestroy);
-    SDL_FillRect(sdl::tempSurface->m_bmp, nullptr,
-                 to_sdl(sdl::tempSurface->m_bmp->format, color));
+    SDL_FillRect(sdl::tempSurface->m_bmp, nullptr, to_sdl(sdl::tempSurface->m_bmp->format, color));
     SDL_Rect rect{.x = rc.x, .y = rc.y, .w = rc.w, .h = rc.h};
     const SDL_Rect srcRect{.x = 0, .y = 0, .w = 1, .h = 1};
     SDL_BlitScaled(sdl::tempSurface->m_bmp, &srcRect, m_bmp, &rect);
@@ -520,8 +506,7 @@ void SDL2Surface::fillRect(gfx::Color color, const gfx::Rect& rc)
   }
 }
 
-void SDL2Surface::blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty,
-                         int width, int height) const
+void SDL2Surface::blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty, int width, int height) const
 {
   ASSERT(m_bmp);
   ASSERT(dest);
@@ -570,10 +555,8 @@ void SDL2Surface::scrollTo(const gfx::Rect& rc, int dx, int dy)
 
   char* dst = reinterpret_cast<char*>(m_bmp->pixels);
   const char* src = dst;
-  dst += static_cast<ptrdiff_t>(rowBytes) * clip.dst.y +
-         static_cast<ptrdiff_t>(bytesPerPixel) * clip.dst.x;
-  src += static_cast<ptrdiff_t>(rowBytes) * clip.src.y +
-         static_cast<ptrdiff_t>(bytesPerPixel) * clip.src.x;
+  dst += static_cast<ptrdiff_t>(rowBytes) * clip.dst.y + static_cast<ptrdiff_t>(bytesPerPixel) * clip.dst.x;
+  src += static_cast<ptrdiff_t>(rowBytes) * clip.src.y + static_cast<ptrdiff_t>(bytesPerPixel) * clip.src.x;
   w = bytesPerPixel * clip.size.w;
   h = clip.size.h;
 
@@ -599,8 +582,7 @@ SDL_Texture* SDL2Surface::getTexture(const SDL_Rect* rect)
 {
   const int x = rect ? rect->x : 0;
   const int y = rect ? rect->y : 0;
-  auto* pixels = reinterpret_cast<uint8_t*>(m_bmp->pixels) +
-                 static_cast<ptrdiff_t>(m_bmp->pitch) * y +
+  auto* pixels = reinterpret_cast<uint8_t*>(m_bmp->pixels) + static_cast<ptrdiff_t>(m_bmp->pitch) * y +
                  static_cast<ptrdiff_t>(m_bmp->format->BytesPerPixel) * x;
   if (m_texture && m_textureGen != textureGen)
   {
@@ -611,9 +593,7 @@ SDL_Texture* SDL2Surface::getTexture(const SDL_Rect* rect)
   {
     m_textureGen = textureGen;
     auto renderer = she::unique_display->renderer();
-    m_texture =
-        SDL_CreateTexture(renderer, m_bmp->format->format,
-                          SDL_TEXTUREACCESS_STREAMING, width(), height());
+    m_texture = SDL_CreateTexture(renderer, m_bmp->format->format, SDL_TEXTUREACCESS_STREAMING, width(), height());
     SDL_UpdateTexture(m_texture, nullptr, pixels, m_bmp->pitch);
   }
   else

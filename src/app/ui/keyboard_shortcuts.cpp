@@ -40,23 +40,18 @@ static struct
     {"CopySelection", "Copy Selection", app::KeyAction::CopySelection},
     {"SnapToGrid", "Snap To Grid", app::KeyAction::SnapToGrid},
     {"AngleSnap", "Angle Snap", app::KeyAction::AngleSnap},
-    {"MaintainAspectRatio", "Maintain Aspect Ratio",
-     app::KeyAction::MaintainAspectRatio},
+    {"MaintainAspectRatio", "Maintain Aspect Ratio", app::KeyAction::MaintainAspectRatio},
     {"ScaleFromCenter", "Scale From Center", app::KeyAction::ScaleFromCenter},
     {"LockAxis", "Lock Axis", app::KeyAction::LockAxis},
     {"AddSelection", "Add Selection", app::KeyAction::AddSelection},
-    {"SubtractSelection", "Subtract Selection",
-     app::KeyAction::SubtractSelection},
+    {"SubtractSelection", "Subtract Selection", app::KeyAction::SubtractSelection},
     {"AutoSelectLayer", "Auto Select Layer", app::KeyAction::AutoSelectLayer},
-    {"StraightLineFromLastPoint", "Straight Line from Last Point",
-     app::KeyAction::StraightLineFromLastPoint},
+    {"StraightLineFromLastPoint", "Straight Line from Last Point", app::KeyAction::StraightLineFromLastPoint},
     {"MoveOrigin", "Move Origin", app::KeyAction::MoveOrigin},
     {"SquareAspect", "Square Aspect", app::KeyAction::SquareAspect},
     {"DrawFromCenter", "Draw From Center", app::KeyAction::DrawFromCenter},
-    {"LeftMouseButton", "Trigger Left Mouse Button",
-     app::KeyAction::LeftMouseButton},
-    {"RightMouseButton", "Trigger Right Mouse Button",
-     app::KeyAction::RightMouseButton},
+    {"LeftMouseButton", "Trigger Left Mouse Button", app::KeyAction::LeftMouseButton},
+    {"RightMouseButton", "Trigger Right Mouse Button", app::KeyAction::RightMouseButton},
     {nullptr, nullptr, app::KeyAction::None}};
 
 const char* get_shortcut(tinyxml2::XMLElement* elem)
@@ -254,11 +249,9 @@ bool Key::isPressed(Message* msg) const
 
   for (const Accelerator& accel : accels())
   {
-    if (accel.isPressed(msg->modifiers(),
-                        static_cast<KeyMessage*>(msg)->scancode(),
+    if (accel.isPressed(msg->modifiers(), static_cast<KeyMessage*>(msg)->scancode(),
                         static_cast<KeyMessage*>(msg)->unicodeChar()) &&
-        (m_keycontext == KeyContext::Any ||
-         m_keycontext == KeyboardShortcuts::instance()->getCurrentKeyContext()))
+        (m_keycontext == KeyContext::Any || m_keycontext == KeyboardShortcuts::instance()->getCurrentKeyContext()))
     {
       return true;
     }
@@ -362,11 +355,9 @@ void KeyboardShortcuts::clear()
   m_keys.clear();
 }
 
-void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle,
-                                       KeySource source)
+void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle, KeySource source)
 {
-  auto xmlKey =
-      handle.FirstChildElement("commands").FirstChildElement("key").ToElement();
+  auto xmlKey = handle.FirstChildElement("commands").FirstChildElement("key").ToElement();
   while (xmlKey)
   {
     const char* command_name = xmlKey->Attribute("command");
@@ -376,8 +367,7 @@ void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle,
 
     if (command_name)
     {
-      Command* command =
-          CommandsModule::instance()->getCommandByName(command_name);
+      Command* command = CommandsModule::instance()->getCommandByName(command_name);
       if (command)
       {
         // Read context
@@ -426,8 +416,7 @@ void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle,
               // one that process keyboard shortcuts)
               if (key->accels().size() == 1)
               {
-                AppMenus::instance()->applyShortcutToMenuitemsWithCommand(
-                    command, params, key);
+                AppMenus::instance()->applyShortcutToMenuitemsWithCommand(command, params, key);
               }
             }
             else
@@ -441,13 +430,11 @@ void KeyboardShortcuts::importCommands(tinyxml2::XMLHandle& handle,
   }
 }
 
-void KeyboardShortcuts::importTools(tinyxml2::XMLHandle& handle,
-                                    KeySource source)
+void KeyboardShortcuts::importTools(tinyxml2::XMLHandle& handle, KeySource source)
 {
   // Load keyboard shortcuts for tools
   // <gui><keyboard><tools><key>
-  auto xmlKey =
-      handle.FirstChildElement("tools").FirstChildElement("key").ToElement();
+  auto xmlKey = handle.FirstChildElement("tools").FirstChildElement("key").ToElement();
   while (xmlKey)
   {
     const char* tool_id = xmlKey->Attribute("tool");
@@ -476,14 +463,11 @@ void KeyboardShortcuts::importTools(tinyxml2::XMLHandle& handle,
   }
 }
 
-void KeyboardShortcuts::importQuickTools(tinyxml2::XMLHandle& handle,
-                                         KeySource source)
+void KeyboardShortcuts::importQuickTools(tinyxml2::XMLHandle& handle, KeySource source)
 {
   // Load keyboard shortcuts for quicktools
   // <gui><keyboard><quicktools><key>
-  auto xmlKey = handle.FirstChildElement("quicktools")
-                    .FirstChildElement("key")
-                    .ToElement();
+  auto xmlKey = handle.FirstChildElement("quicktools").FirstChildElement("key").ToElement();
   while (xmlKey)
   {
     const char* tool_id = xmlKey->Attribute("tool");
@@ -512,13 +496,11 @@ void KeyboardShortcuts::importQuickTools(tinyxml2::XMLHandle& handle,
   }
 }
 
-void KeyboardShortcuts::importActions(tinyxml2::XMLHandle& handle,
-                                      KeySource source)
+void KeyboardShortcuts::importActions(tinyxml2::XMLHandle& handle, KeySource source)
 {
   // Load special keyboard shortcuts for sprite editor customization
   // <gui><keyboard><spriteeditor>
-  auto xmlKey =
-      handle.FirstChildElement("actions").FirstChildElement("key").ToElement();
+  auto xmlKey = handle.FirstChildElement("actions").FirstChildElement("key").ToElement();
   while (xmlKey)
   {
     const char* tool_action = xmlKey->Attribute("action");
@@ -547,8 +529,7 @@ void KeyboardShortcuts::importActions(tinyxml2::XMLHandle& handle,
   }
 }
 
-void KeyboardShortcuts::importFile(tinyxml2::XMLElement* rootElement,
-                                   KeySource source)
+void KeyboardShortcuts::importFile(tinyxml2::XMLElement* rootElement, KeySource source)
 {
   // <keyboard><commands><key>
   tinyxml2::XMLHandle handle(rootElement);
@@ -559,13 +540,11 @@ void KeyboardShortcuts::importFile(tinyxml2::XMLElement* rootElement,
   TouchBar::organize();
 }
 
-void KeyboardShortcuts::importFile(const std::string& filename,
-                                   KeySource source)
+void KeyboardShortcuts::importFile(const std::string& filename, KeySource source)
 {
   XmlDocumentRef doc = app::open_xml(filename);
   tinyxml2::XMLHandle handle(doc.get());
-  tinyxml2::XMLElement* xmlKey =
-      handle.FirstChildElement("keyboard").ToElement();
+  tinyxml2::XMLElement* xmlKey = handle.FirstChildElement("keyboard").ToElement();
 
   importFile(xmlKey, source);
 }
@@ -628,8 +607,7 @@ void KeyboardShortcuts::exportKeys(tinyxml2::XMLElement& parent, KeyType type)
   }
 }
 
-void KeyboardShortcuts::exportAccel(tinyxml2::XMLElement& parent, Key* key,
-                                    const ui::Accelerator* accel, bool removed,
+void KeyboardShortcuts::exportAccel(tinyxml2::XMLElement& parent, Key* key, const ui::Accelerator* accel, bool removed,
                                     bool& first)
 {
   auto doc = parent.GetDocument();
@@ -697,8 +675,7 @@ void KeyboardShortcuts::exportAccel(tinyxml2::XMLElement& parent, Key* key,
     break;
 
   case KeyType::Action:
-    elem.SetAttribute("action",
-                      base::convert_to<std::string>(key->action()).c_str());
+    elem.SetAttribute("action", base::convert_to<std::string>(key->action()).c_str());
     break;
   }
 
@@ -723,8 +700,7 @@ void KeyboardShortcuts::reset()
     key->reset();
 }
 
-Key* KeyboardShortcuts::command(const char* commandName, const Params& params,
-                                KeyContext keyContext)
+Key* KeyboardShortcuts::command(const char* commandName, const Params& params, KeyContext keyContext)
 {
   Command* command = CommandsModule::instance()->getCommandByName(commandName);
   if (!command)
@@ -732,8 +708,8 @@ Key* KeyboardShortcuts::command(const char* commandName, const Params& params,
 
   for (Key* key : m_keys)
   {
-    if (key->type() == KeyType::Command && key->keycontext() == keyContext &&
-        key->command() == command && key->params() == params)
+    if (key->type() == KeyType::Command && key->keycontext() == keyContext && key->command() == command &&
+        key->params() == params)
     {
       return key;
     }
@@ -789,8 +765,7 @@ Key* KeyboardShortcuts::action(KeyAction action)
   return key;
 }
 
-void KeyboardShortcuts::disableAccel(const ui::Accelerator& accel,
-                                     KeyContext keyContext)
+void KeyboardShortcuts::disableAccel(const ui::Accelerator& accel, KeyContext keyContext)
 {
   for (Key* key : m_keys)
   {
@@ -803,16 +778,13 @@ KeyContext KeyboardShortcuts::getCurrentKeyContext()
 {
   Document* doc = UIContext::instance()->activeDocument();
 
-  if (doc && doc->isMaskVisible() &&
-      App::instance()->activeTool()->getInk(0)->isSelection())
+  if (doc && doc->isMaskVisible() && App::instance()->activeTool()->getInk(0)->isSelection())
     return KeyContext::SelectionTool;
   else
     return KeyContext::Normal;
 }
 
-bool KeyboardShortcuts::getCommandFromKeyMessage(Message* msg,
-                                                 Command** command,
-                                                 Params* params)
+bool KeyboardShortcuts::getCommandFromKeyMessage(Message* msg, Command** command, Params* params)
 {
   for (Key* key : m_keys)
   {
@@ -860,8 +832,7 @@ KeyAction KeyboardShortcuts::getCurrentActionModifiers(KeyContext context)
 
   for (Key* key : m_keys)
   {
-    if (key->type() == KeyType::Action && key->keycontext() == context &&
-        key->isLooselyPressed())
+    if (key->type() == KeyType::Action && key->keycontext() == context && key->isLooselyPressed())
     {
       flags = static_cast<KeyAction>(int(flags) | int(key->action()));
     }

@@ -37,7 +37,6 @@ public:
   {
   }
 
-
 protected:
   bool onEnabled(Context* context) override
   {
@@ -64,12 +63,8 @@ public:
     m_quitting = false;
   }
 
-
 protected:
-  void onLoadParams(const Params& params) override
-  {
-    m_quitting = params.get_as<bool>("quitting");
-  }
+  void onLoadParams(const Params& params) override { m_quitting = params.get_as<bool>("quitting"); }
 
   void onExecute(Context* context) override
   {

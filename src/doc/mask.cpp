@@ -141,8 +141,7 @@ void Mask::add(const gfx::Rect& bounds)
   if (m_freeze_count == 0)
     reserve(bounds);
 
-  fill_rect(m_bitmap.get(), bounds.x - m_bounds.x, bounds.y - m_bounds.y,
-            bounds.x - m_bounds.x + bounds.w - 1,
+  fill_rect(m_bitmap.get(), bounds.x - m_bounds.x, bounds.y - m_bounds.y, bounds.x - m_bounds.x + bounds.w - 1,
             bounds.y - m_bounds.y + bounds.h - 1, 1);
 }
 
@@ -151,8 +150,7 @@ void Mask::subtract(const gfx::Rect& bounds)
   if (!m_bitmap)
     return;
 
-  fill_rect(m_bitmap.get(), bounds.x - m_bounds.x, bounds.y - m_bounds.y,
-            bounds.x - m_bounds.x + bounds.w - 1,
+  fill_rect(m_bitmap.get(), bounds.x - m_bounds.x, bounds.y - m_bounds.y, bounds.x - m_bounds.x + bounds.w - 1,
             bounds.y - m_bounds.y + bounds.h - 1, 0);
 
   shrink();
@@ -169,8 +167,7 @@ void Mask::intersect(const gfx::Rect& bounds)
 
   if (!newBounds.isEmpty())
   {
-    image = crop_image(m_bitmap.get(), newBounds.x - m_bounds.x,
-                       newBounds.y - m_bounds.y, newBounds.w, newBounds.h, 0);
+    image = crop_image(m_bitmap.get(), newBounds.x - m_bounds.x, newBounds.y - m_bounds.y, newBounds.w, newBounds.h, 0);
   }
 
   m_bitmap.reset(image);
@@ -192,8 +189,7 @@ void Mask::byColor(const Image* src, int color, int fuzziness)
   {
     const LockImageBits<RgbTraits> srcBits(src);
     LockImageBits<BitmapTraits> dstBits(dst, Image::WriteLock);
-    LockImageBits<RgbTraits>::const_iterator src_it = srcBits.begin(),
-                                             src_end = srcBits.end();
+    LockImageBits<RgbTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
     LockImageBits<BitmapTraits>::iterator dst_it = dstBits.begin();
 #ifdef _DEBUG
     LockImageBits<BitmapTraits>::iterator dst_end = dstBits.end();
@@ -217,9 +213,8 @@ void Mask::byColor(const Image* src, int color, int fuzziness)
       src_b = rgba_getb(c);
       src_a = rgba_geta(c);
 
-      if (!((src_r >= dst_r - fuzziness) && (src_r <= dst_r + fuzziness) &&
-            (src_g >= dst_g - fuzziness) && (src_g <= dst_g + fuzziness) &&
-            (src_b >= dst_b - fuzziness) && (src_b <= dst_b + fuzziness) &&
+      if (!((src_r >= dst_r - fuzziness) && (src_r <= dst_r + fuzziness) && (src_g >= dst_g - fuzziness) &&
+            (src_g <= dst_g + fuzziness) && (src_b >= dst_b - fuzziness) && (src_b <= dst_b + fuzziness) &&
             (src_a >= dst_a - fuzziness) && (src_a <= dst_a + fuzziness)))
         *dst_it = 0;
     }
@@ -231,8 +226,7 @@ void Mask::byColor(const Image* src, int color, int fuzziness)
   {
     const LockImageBits<GrayscaleTraits> srcBits(src);
     LockImageBits<BitmapTraits> dstBits(dst, Image::WriteLock);
-    LockImageBits<GrayscaleTraits>::const_iterator src_it = srcBits.begin(),
-                                                   src_end = srcBits.end();
+    LockImageBits<GrayscaleTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
     LockImageBits<BitmapTraits>::iterator dst_it = dstBits.begin();
 #ifdef _DEBUG
     LockImageBits<BitmapTraits>::iterator dst_end = dstBits.end();
@@ -252,8 +246,8 @@ void Mask::byColor(const Image* src, int color, int fuzziness)
       src_k = graya_getv(c);
       src_a = graya_geta(c);
 
-      if (!((src_k >= dst_k - fuzziness) && (src_k <= dst_k + fuzziness) &&
-            (src_a >= dst_a - fuzziness) && (src_a <= dst_a + fuzziness)))
+      if (!((src_k >= dst_k - fuzziness) && (src_k <= dst_k + fuzziness) && (src_a >= dst_a - fuzziness) &&
+            (src_a <= dst_a + fuzziness)))
         *dst_it = 0;
     }
     ASSERT(dst_it == dst_end);
@@ -264,8 +258,7 @@ void Mask::byColor(const Image* src, int color, int fuzziness)
   {
     const LockImageBits<IndexedTraits> srcBits(src);
     LockImageBits<BitmapTraits> dstBits(dst, Image::WriteLock);
-    LockImageBits<IndexedTraits>::const_iterator src_it = srcBits.begin(),
-                                                 src_end = srcBits.end();
+    LockImageBits<IndexedTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
     LockImageBits<BitmapTraits>::iterator dst_it = dstBits.begin();
 #ifdef _DEBUG
     LockImageBits<BitmapTraits>::iterator dst_end = dstBits.end();
@@ -296,26 +289,26 @@ void Mask::byColor(const Image* src, int color, int fuzziness)
 
 void Mask::crop(const Image* image)
 {
-#define ADVANCE(beg, end, o_end, cmp, op, getpixel1, getpixel)                 \
-  {                                                                            \
-    done = true;                                                               \
-    for (beg = beg_##beg; beg cmp beg_##end; beg op)                           \
-    {                                                                          \
-      old_color = getpixel1;                                                   \
-      done = true;                                                             \
-      for (c++; c <= beg_##o_end; c++)                                         \
-      {                                                                        \
-        if (getpixel != old_color)                                             \
-        {                                                                      \
-          done = false;                                                        \
-          break;                                                               \
-        }                                                                      \
-      }                                                                        \
-      if (!done)                                                               \
-        break;                                                                 \
-    }                                                                          \
-    if (done)                                                                  \
-      done_count++;                                                            \
+#define ADVANCE(beg, end, o_end, cmp, op, getpixel1, getpixel)                                                         \
+  {                                                                                                                    \
+    done = true;                                                                                                       \
+    for (beg = beg_##beg; beg cmp beg_##end; beg op)                                                                   \
+    {                                                                                                                  \
+      old_color = getpixel1;                                                                                           \
+      done = true;                                                                                                     \
+      for (c++; c <= beg_##o_end; c++)                                                                                 \
+      {                                                                                                                \
+        if (getpixel != old_color)                                                                                     \
+        {                                                                                                              \
+          done = false;                                                                                                \
+          break;                                                                                                       \
+        }                                                                                                              \
+      }                                                                                                                \
+      if (!done)                                                                                                       \
+        break;                                                                                                         \
+    }                                                                                                                  \
+    if (done)                                                                                                          \
+      done_count++;                                                                                                    \
   }
 
   int beg_x1, beg_y1, beg_x2, beg_y2;
@@ -338,17 +331,13 @@ void Mask::crop(const Image* image)
   beg_y2 = MID(beg_y1, beg_y2, m_bounds.h - 1);
 
   /* left */
-  ADVANCE(x1, x2, y2, <=, ++, get_pixel(image, x1, c = beg_y1),
-          get_pixel(image, x1, c));
+  ADVANCE(x1, x2, y2, <=, ++, get_pixel(image, x1, c = beg_y1), get_pixel(image, x1, c));
   /* right */
-  ADVANCE(x2, x1, y2, >=, --, get_pixel(image, x2, c = beg_y1),
-          get_pixel(image, x2, c));
+  ADVANCE(x2, x1, y2, >=, --, get_pixel(image, x2, c = beg_y1), get_pixel(image, x2, c));
   /* top */
-  ADVANCE(y1, y2, x2, <=, ++, get_pixel(image, c = beg_x1, y1),
-          get_pixel(image, c, y1));
+  ADVANCE(y1, y2, x2, <=, ++, get_pixel(image, c = beg_x1, y1), get_pixel(image, c, y1));
   /* bottom */
-  ADVANCE(y2, y1, x2, >=, --, get_pixel(image, c = beg_x1, y2),
-          get_pixel(image, c, y2));
+  ADVANCE(y2, y1, x2, >=, --, get_pixel(image, c = beg_x1, y2), get_pixel(image, c, y2));
 
   if (done_count < 4)
     intersect(gfx::Rect(x1, y1, x2 - x1 + 1, y2 - y1 + 1));
@@ -375,8 +364,7 @@ void Mask::reserve(const gfx::Rect& bounds)
     if (m_bounds != newBounds)
     {
       Image* image =
-          crop_image(m_bitmap.get(), newBounds.x - m_bounds.x,
-                     newBounds.y - m_bounds.y, newBounds.w, newBounds.h, 0);
+          crop_image(m_bitmap.get(), newBounds.x - m_bounds.x, newBounds.y - m_bounds.y, newBounds.w, newBounds.h, 0);
       m_bitmap.reset(image);
       m_bounds = newBounds;
     }
@@ -389,21 +377,20 @@ void Mask::shrink()
   if (m_freeze_count > 0)
     return;
 
-#define SHRINK_SIDE(u_begin, u_op, u_final, u_add, v_begin, v_op, v_final,     \
-                    v_add, U, V, var)                                          \
-  {                                                                            \
-    for (u = u_begin; u u_op u_final; u u_add)                                 \
-    {                                                                          \
-      for (v = v_begin; v v_op v_final; v v_add)                               \
-      {                                                                        \
-        if (get_pixel_fast<BitmapTraits>(m_bitmap.get(), U, V))                \
-          break;                                                               \
-      }                                                                        \
-      if (v == v_final)                                                        \
-        var;                                                                   \
-      else                                                                     \
-        break;                                                                 \
-    }                                                                          \
+#define SHRINK_SIDE(u_begin, u_op, u_final, u_add, v_begin, v_op, v_final, v_add, U, V, var)                           \
+  {                                                                                                                    \
+    for (u = u_begin; u u_op u_final; u u_add)                                                                         \
+    {                                                                                                                  \
+      for (v = v_begin; v v_op v_final; v v_add)                                                                       \
+      {                                                                                                                \
+        if (get_pixel_fast<BitmapTraits>(m_bitmap.get(), U, V))                                                        \
+          break;                                                                                                       \
+      }                                                                                                                \
+      if (v == v_final)                                                                                                \
+        var;                                                                                                           \
+      else                                                                                                             \
+        break;                                                                                                         \
+    }                                                                                                                  \
   }
 
   int u, v, x1, y1, x2, y2;
@@ -425,8 +412,8 @@ void Mask::shrink()
   {
     clear();
   }
-  else if ((x1 != m_bounds.x) || (x2 != m_bounds.x + m_bounds.w - 1) ||
-           (y1 != m_bounds.y) || (y2 != m_bounds.y + m_bounds.h - 1))
+  else if ((x1 != m_bounds.x) || (x2 != m_bounds.x + m_bounds.w - 1) || (y1 != m_bounds.y) ||
+           (y2 != m_bounds.y + m_bounds.h - 1))
   {
     u = m_bounds.x;
     v = m_bounds.y;
@@ -436,8 +423,7 @@ void Mask::shrink()
     m_bounds.w = x2 - x1 + 1;
     m_bounds.h = y2 - y1 + 1;
 
-    Image* image = crop_image(m_bitmap.get(), m_bounds.x - u, m_bounds.y - v,
-                              m_bounds.w, m_bounds.h, 0);
+    Image* image = crop_image(m_bitmap.get(), m_bounds.x - u, m_bounds.y - v, m_bounds.w, m_bounds.h, 0);
     m_bitmap.reset(image);
   }
 

@@ -29,8 +29,7 @@ void shift_image_with_mask(Image* image, const Mask* mask, int dx, int dy)
 
   // To simplify the algorithm we use a copy of the original image, we
   // could avoid this copy swapping rows and columns.
-  const ImageRef crop(crop_image(image, bounds.x, bounds.y, bounds.w, bounds.h,
-                                 image->maskColor()));
+  const ImageRef crop(crop_image(image, bounds.x, bounds.y, bounds.w, bounds.h, image->maskColor()));
 
   int u = dx;
   int v = dy;
@@ -43,8 +42,7 @@ void shift_image_with_mask(Image* image, const Mask* mask, int dx, int dy)
   {
     for (int x = 0; x < bounds.w; ++x)
     {
-      put_pixel(image, bounds.x + ((u + x) % bounds.w),
-                bounds.y + ((v + y) % bounds.h), get_pixel(crop.get(), x, y));
+      put_pixel(image, bounds.x + ((u + x) % bounds.w), bounds.y + ((v + y) % bounds.h), get_pixel(crop.get(), x, y));
     }
   }
 }

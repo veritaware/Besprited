@@ -101,9 +101,8 @@ void ResourceFinder::includeDataDir(const char* filename)
 #elif __APPLE__
 
   snprintf(buf, sizeof(buf), "data/%s", filename);
-  includeUserDir(
-      buf); // $HOME/Library/Application Support/Besprited/data/filename
-  includeBinDir(buf); // $BINDIR/data/filename (outside the bundle)
+  includeUserDir(buf); // $HOME/Library/Application Support/Besprited/data/filename
+  includeBinDir(buf);  // $BINDIR/data/filename (outside the bundle)
 
   snprintf(buf, sizeof(buf), "../Resources/data/%s", filename);
   includeBinDir(buf); // $BINDIR/../Resources/data/filename (inside a bundle)
@@ -193,10 +192,7 @@ void ResourceFinder::includeUserDir(const char* filename)
 #elif __APPLE__
 
   // $HOME/Library/Application Support/Besprited/filename
-  addPath(
-      base::join_path(
-          base::join_path(base::get_lib_app_support_path(), PACKAGE), filename)
-          .c_str());
+  addPath(base::join_path(base::join_path(base::get_lib_app_support_path(), PACKAGE), filename).c_str());
 
 #else
 
@@ -209,8 +205,7 @@ void ResourceFinder::includeUserDir(const char* filename)
     addPath(buf);
   }
   else
-    includeHomeDir((std::string(".config/besprited/") + filename)
-                       .c_str()); // $HOME/.config/besprited/filename
+    includeHomeDir((std::string(".config/besprited/") + filename).c_str()); // $HOME/.config/besprited/filename
 
 #endif
 }
@@ -220,8 +215,7 @@ void ResourceFinder::includeDesktopDir(const char* filename)
 #ifdef _WIN32
 
   std::vector<wchar_t> buf(MAX_PATH);
-  HRESULT hr = SHGetFolderPath(nullptr, CSIDL_DESKTOPDIRECTORY, nullptr,
-                               SHGFP_TYPE_DEFAULT, &buf[0]);
+  HRESULT hr = SHGetFolderPath(nullptr, CSIDL_DESKTOPDIRECTORY, nullptr, SHGFP_TYPE_DEFAULT, &buf[0]);
   if (hr == S_OK)
   {
     addPath(base::join_path(base::to_utf8(&buf[0]), filename));

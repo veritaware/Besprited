@@ -56,12 +56,10 @@ void ContextFlags::update(Context* context)
 
     // TODO this is a hack, try to find a better design to handle this
     // "moving pixels" state.
-    if (current_editor && current_editor->document() == document &&
-        current_editor->isMovingPixels())
+    if (current_editor && current_editor->document() == document && current_editor->isMovingPixels())
     {
       // Flags enabled when we are in MovingPixelsState
-      m_flags |=
-          HasVisibleMask | ActiveDocumentIsReadable | ActiveDocumentIsWritable;
+      m_flags |= HasVisibleMask | ActiveDocumentIsReadable | ActiveDocumentIsWritable;
 
       updateFlagsFromSite(current_editor->getSite());
     }

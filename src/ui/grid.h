@@ -57,16 +57,12 @@ private:
   };
 
   void sumStripSize(const std::vector<Strip>& strip, int& size);
-  void calculateCellSize(int start, int span, const std::vector<Strip>& strip,
-                         int& size);
+  void calculateCellSize(int start, int span, const std::vector<Strip>& strip, int& size);
   void calculateSize();
-  void calculateStripSize(std::vector<Strip>& colstrip,
-                          std::vector<Strip>& rowstrip, int align);
-  void expandStrip(std::vector<Strip>& colstrip, std::vector<Strip>& rowstrip,
-                   void (Grid::*incCol)(int, int));
+  void calculateStripSize(std::vector<Strip>& colstrip, std::vector<Strip>& rowstrip, int align);
+  void expandStrip(std::vector<Strip>& colstrip, std::vector<Strip>& rowstrip, void (Grid::*incCol)(int, int));
   void distributeSize(const gfx::Rect& rect);
-  void distributeStripSize(std::vector<Strip>& colstrip, int rect_size,
-                           int border_size, bool same_width);
+  void distributeStripSize(std::vector<Strip>& colstrip, int rect_size, int border_size, bool same_width);
   bool putWidgetInCell(Widget* child, int hspan, int vspan, int align);
   void expandRows(int rows);
   void incColSize(int col, int size);

@@ -41,8 +41,7 @@ private:
   void closeAll();
 
   MenuItem* getHighlightedItem();
-  void highlightItem(MenuItem* menuitem, bool click, bool open_submenu,
-                     bool select_first_child);
+  void highlightItem(MenuItem* menuitem, bool click, bool open_submenu, bool select_first_child);
   void unhighlightItem();
 
   MenuItem* m_menuitem; // From where the menu was open
@@ -132,9 +131,9 @@ private:
   void stopTimer();
   void executeClick();
 
-  bool m_highlighted;         // Is it highlighted?
-  Menu* m_submenu;            // The sub-menu
-  MenuBox* m_submenu_menubox; // The opened menubox for this menu-item
+  bool m_highlighted;                     // Is it highlighted?
+  Menu* m_submenu;                        // The sub-menu
+  MenuBox* m_submenu_menubox;             // The opened menubox for this menu-item
   std::unique_ptr<Timer> m_submenu_timer; // Timer to open the submenu
 
   friend class Menu;

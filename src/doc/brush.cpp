@@ -96,15 +96,12 @@ void Brush::setImage(const Image* image)
   m_mainColor.reset();
   m_bgColor.reset();
 
-  m_bounds =
-      gfx::Rect(-m_image.get()->width() / 2, -m_image.get()->height() / 2,
-                m_image.get()->width(), m_image.get()->height());
+  m_bounds = gfx::Rect(-m_image.get()->width() / 2, -m_image.get()->height() / 2, m_image.get()->width(),
+                       m_image.get()->height());
 }
 
 template <class ImageTraits, color_t color_mask, color_t alpha_mask>
-static void replace_image_colors(Image* image, const bool useMain,
-                                 color_t mainColor, const bool useBg,
-                                 color_t bgColor)
+static void replace_image_colors(Image* image, const bool useMain, color_t mainColor, const bool useBg, color_t bgColor)
 {
   LockImageBits<ImageTraits> bits(image, Image::ReadWriteLock);
   bool hasAlpha = false; // True if "image" has a pixel with alpha < 255
@@ -156,9 +153,7 @@ static void replace_image_colors(Image* image, const bool useMain,
   }
 }
 
-static void replace_image_colors_indexed(Image* image, const bool useMain,
-                                         const color_t mainColor,
-                                         const bool useBg,
+static void replace_image_colors_indexed(Image* image, const bool useMain, const color_t mainColor, const bool useBg,
                                          const color_t bgColor)
 {
   LockImageBits<IndexedTraits> bits(image, Image::ReadWriteLock);
@@ -238,23 +233,19 @@ void Brush::setImageColor(ImageColor imageColor, color_t color)
 
   case IMAGE_RGB:
     replace_image_colors<RgbTraits, rgba_rgb_mask, rgba_a_mask>(
-        m_image.get(), (m_mainColor ? true : false),
-        (m_mainColor ? *m_mainColor : 0), (m_bgColor ? true : false),
+        m_image.get(), (m_mainColor ? true : false), (m_mainColor ? *m_mainColor : 0), (m_bgColor ? true : false),
         (m_bgColor ? *m_bgColor : 0));
     break;
 
   case IMAGE_GRAYSCALE:
     replace_image_colors<GrayscaleTraits, graya_v_mask, graya_a_mask>(
-        m_image.get(), (m_mainColor ? true : false),
-        (m_mainColor ? *m_mainColor : 0), (m_bgColor ? true : false),
+        m_image.get(), (m_mainColor ? true : false), (m_mainColor ? *m_mainColor : 0), (m_bgColor ? true : false),
         (m_bgColor ? *m_bgColor : 0));
     break;
 
   case IMAGE_INDEXED:
-    replace_image_colors_indexed(m_image.get(), (m_mainColor ? true : false),
-                                 (m_mainColor ? *m_mainColor : 0),
-                                 (m_bgColor ? true : false),
-                                 (m_bgColor ? *m_bgColor : 0));
+    replace_image_colors_indexed(m_image.get(), (m_mainColor ? true : false), (m_mainColor ? *m_mainColor : 0),
+                                 (m_bgColor ? true : false), (m_bgColor ? *m_bgColor : 0));
     break;
   }
 }
@@ -269,8 +260,7 @@ void Brush::clean()
 
 static void algo_hline(int x1, int y, int x2, void* data)
 {
-  draw_hline(reinterpret_cast<Image*>(data), x1, y, x2,
-             BitmapTraits::max_value);
+  draw_hline(reinterpret_cast<Image*>(data), x1, y, x2, BitmapTraits::max_value);
 }
 
 Image* Brush::image()
@@ -308,9 +298,7 @@ void Brush::regenerate()
   m_genSize = m_size;
   int size = m_size;
   if (m_type == kSquareBrushType && m_angle != 0 && m_size > 2)
-    size =
-        static_cast<int>(std::sqrt(static_cast<double>(2) * m_size * m_size)) +
-        2;
+    size = static_cast<int>(std::sqrt(static_cast<double>(2) * m_size * m_size)) + 2;
 
   m_image.reset(Image::create(IMAGE_BITMAP, size, size));
 
@@ -326,8 +314,7 @@ void Brush::regenerate()
     {
 
     case kCircleBrushType:
-      fill_ellipse(m_image.get(), 0, 0, size - 1, size - 1,
-                   BitmapTraits::max_value);
+      fill_ellipse(m_image.get(), 0, 0, size - 1, size - 1, BitmapTraits::max_value);
       break;
 
     case kSquareBrushType:
@@ -356,13 +343,10 @@ void Brush::regenerate()
         const int x4 = -ca - sa;
         const int y4 = -sa + ca;
         const std::array<std::pair<int, int>, 4> points{
-            std::pair<int, int>{x1 + c, y1 + c},
-            std::pair<int, int>{x4 + c, y4 + c},
-            std::pair<int, int>{x3 + c, y3 + c},
-            std::pair<int, int>{x2 + c, y2 + c}};
+            std::pair<int, int>{x1 + c, y1 + c}, std::pair<int, int>{x4 + c, y4 + c},
+            std::pair<int, int>{x3 + c, y3 + c}, std::pair<int, int>{x2 + c, y2 + c}};
 
-        doc::algorithm::polygon(points, [&](int x, int y, int x2)
-                                { algo_hline(x, y, x2, m_image.get()); });
+        doc::algorithm::polygon(points, [&](int x, int y, int x2) { algo_hline(x, y, x2, m_image.get()); });
       }
       break;
 
@@ -383,8 +367,7 @@ void Brush::regenerate()
     }
   }
 
-  m_bounds = gfx::Rect(-m_image->width() / 2, -m_image->height() / 2,
-                       m_image->width(), m_image->height());
+  m_bounds = gfx::Rect(-m_image->width() / 2, -m_image->height() / 2, m_image->width(), m_image->height());
 
   m_scaledBounds = m_bounds;
 }

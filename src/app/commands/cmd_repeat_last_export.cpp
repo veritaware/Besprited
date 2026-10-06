@@ -42,8 +42,7 @@ bool RepeatLastExportCommand::onEnabled(Context* context)
 
 void RepeatLastExportCommand::onExecute(Context* context)
 {
-  Command* cmd = CommandsModule::instance()->getCommandByName(
-      CommandId::ExportSpriteSheet);
+  Command* cmd = CommandsModule::instance()->getCommandByName(CommandId::ExportSpriteSheet);
   Params params;
 
   {
@@ -51,9 +50,7 @@ void RepeatLastExportCommand::onExecute(Context* context)
     const Document* document(reader.document());
     DocumentPreferences& docPref = Preferences::instance().document(document);
 
-    params.set(
-        "ui",
-        (docPref.spriteSheet.type() == app::SpriteSheetType::None ? "1" : "0"));
+    params.set("ui", (docPref.spriteSheet.type() == app::SpriteSheetType::None ? "1" : "0"));
   }
 
   context->executeCommand(cmd, params);

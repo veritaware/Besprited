@@ -123,9 +123,7 @@ class TaskManager
   std::deque<std::shared_ptr<detail::Task>> ready;
   std::recursive_mutex readyMutex;
 
-  std::array<std::shared_ptr<detail::Task>,
-             std::tuple_size<decltype(threads)>::value>
-      processing;
+  std::array<std::shared_ptr<detail::Task>, std::tuple_size<decltype(threads)>::value> processing;
   std::mutex processingMutex;
 
   TaskManager()
@@ -253,52 +251,44 @@ public:
     if (!m_timer.isRunning())
       m_timer.start();
     std::lock_guard<std::recursive_mutex> guard(readyMutex);
-    ready.emplace_back(new detail::Task{
-        nullptr, [func = std::move(func)](std::shared_ptr<void>) { func(); }});
+    ready.emplace_back(new detail::Task{nullptr, [func = std::move(func)](std::shared_ptr<void>) { func(); }});
   }
 
   template <typename Data>
-  TaskHandle addTask(std::function<Data(std::atomic_bool& isAlive)>&& worker,
-                     std::function<void(Data&&)>&& consumer)
+  TaskHandle addTask(std::function<Data(std::atomic_bool& isAlive)>&& worker, std::function<void(Data&&)>&& consumer)
   {
     if (!m_timer.isRunning())
       m_timer.start();
     std::lock_guard<std::mutex> guard(pendingMutex);
-    pending.emplace_back(new detail::Task{
-        [worker = std::move(worker)](std::atomic_bool& isAlive)
-        {
-          return std::static_pointer_cast<void>(
-              std::make_shared<Data>(worker(isAlive)));
-        },
-        [consumer = std::move(consumer)](std::shared_ptr<void> vdata)
-        { consumer(std::move(*std::static_pointer_cast<Data>(vdata))); },
-        [](detail::Task& task) { task.isAlive = false; }});
+    pending.emplace_back(
+        new detail::Task{[worker = std::move(worker)](std::atomic_bool& isAlive)
+                         { return std::static_pointer_cast<void>(std::make_shared<Data>(worker(isAlive))); },
+                         [consumer = std::move(consumer)](std::shared_ptr<void> vdata)
+                         { consumer(std::move(*std::static_pointer_cast<Data>(vdata))); },
+                         [](detail::Task& task) { task.isAlive = false; }});
     return pending.back();
   }
 
   template <typename Data>
-  TaskHandle addTask(std::function<Data()>&& worker,
-                     std::function<void(Data&&)>&& consumer,
+  TaskHandle addTask(std::function<Data()>&& worker, std::function<void(Data&&)>&& consumer,
                      std::function<void()>&& aborter)
   {
     if (!m_timer.isRunning())
       m_timer.start();
     std::lock_guard<std::mutex> guard(pendingMutex);
-    pending.emplace_back(new detail::Task{
-        [worker = std::move(worker)](std::atomic_bool& isAlive)
-        {
-          auto ret =
-              std::static_pointer_cast<void>(std::make_shared<Data>(worker()));
-          isAlive = false;
-          return ret;
-        },
-        [consumer = std::move(consumer)](std::shared_ptr<void> vdata)
-        { consumer(std::move(*std::static_pointer_cast<Data>(vdata))); },
-        [aborter = std::move(aborter)](detail::Task& task)
-        {
-          task.isAlive = false;
-          aborter();
-        }});
+    pending.emplace_back(new detail::Task{[worker = std::move(worker)](std::atomic_bool& isAlive)
+                                          {
+                                            auto ret = std::static_pointer_cast<void>(std::make_shared<Data>(worker()));
+                                            isAlive = false;
+                                            return ret;
+                                          },
+                                          [consumer = std::move(consumer)](std::shared_ptr<void> vdata)
+                                          { consumer(std::move(*std::static_pointer_cast<Data>(vdata))); },
+                                          [aborter = std::move(aborter)](detail::Task& task)
+                                          {
+                                            task.isAlive = false;
+                                            aborter();
+                                          }});
     return pending.back();
   }
 

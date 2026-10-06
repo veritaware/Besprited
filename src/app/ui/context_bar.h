@@ -54,8 +54,7 @@ public:
   void updateForTool(tools::Tool* tool);
   void updateForMovingPixels();
   void updateForSelectingBox(const std::string& text);
-  void
-  updateToolLoopModifiersIndicators(app::tools::ToolLoopModifiers modifiers);
+  void updateToolLoopModifiersIndicators(app::tools::ToolLoopModifiers modifiers);
   void updateAutoSelectLayer(bool state);
 
   void setActiveBrush(const doc::BrushRef& brush);
@@ -64,8 +63,7 @@ public:
   void discardActiveBrush();
 
   BrushSlot createBrushSlotFromPreferences();
-  static doc::BrushRef
-  createBrushFromPreferences(ToolPreferences::Brush* brushPref = nullptr);
+  static doc::BrushRef createBrushFromPreferences(ToolPreferences::Brush* brushPref = nullptr);
 
   doc::Remap* createShadeRemap(bool left);
   void reverseShadeColors();

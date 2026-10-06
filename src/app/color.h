@@ -59,8 +59,7 @@ public:
   static Color fromString(const std::string& str);
 
   std::string toString() const;
-  std::string toHumanReadableString(PixelFormat format,
-                                    HumanReadableString type) const;
+  std::string toHumanReadableString(PixelFormat format, HumanReadableString type) const;
 
   bool operator==(const Color& other) const;
   bool operator!=(const Color& other) const { return !operator==(other); }

@@ -90,8 +90,7 @@ Mask* load_msk_file(const char* filename)
 int save_msk_file(const Mask* mask, const char* filename)
 {
   if (mask->bitmap())
-    return save_pic_file(filename, mask->bounds().x, mask->bounds().y, nullptr,
-                         mask->bitmap());
+    return save_pic_file(filename, mask->bounds().x, mask->bounds().y, nullptr, mask->bitmap());
   else
     return -1;
 }

@@ -117,22 +117,13 @@ public:
     return c;
   }
 
-  bool operator==(const utf8_iteratorT& it) const
-  {
-    return m_internal == it.m_internal;
-  }
+  bool operator==(const utf8_iteratorT& it) const { return m_internal == it.m_internal; }
 
-  bool operator!=(const utf8_iteratorT& it) const
-  {
-    return m_internal != it.m_internal;
-  }
+  bool operator!=(const utf8_iteratorT& it) const { return m_internal != it.m_internal; }
 
   pointer operator->() { return m_internal.operator->(); }
 
-  std::string::difference_type operator-(const utf8_iteratorT& it)
-  {
-    return m_internal - it.m_internal;
-  }
+  std::string::difference_type operator-(const utf8_iteratorT& it) { return m_internal - it.m_internal; }
 
 private:
   SubIterator m_internal;

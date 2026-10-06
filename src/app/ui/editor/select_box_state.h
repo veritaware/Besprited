@@ -31,10 +31,7 @@ public:
 
   // Called only in QUICKBOX mode, when the user released the mouse
   // button.
-  virtual void onQuickboxEnd(Editor* editor, const gfx::Rect& rect,
-                             ui::MouseButtons buttons)
-  {
-  }
+  virtual void onQuickboxEnd(Editor* editor, const gfx::Rect& rect, ui::MouseButtons buttons) {}
   virtual void onQuickboxCancel(Editor* editor) {}
 
   // Help text to be shown in the ContextBar
@@ -90,8 +87,7 @@ public:
   virtual bool onMouseDown(Editor* editor, ui::MouseMessage* msg) override;
   virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
   virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
-  virtual bool onSetCursor(Editor* editor,
-                           const gfx::Point& mouseScreenPos) override;
+  virtual bool onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos) override;
   virtual bool acceptQuickTool(tools::Tool* tool) override;
   virtual bool requireBrushPreview() override;
   virtual std::shared_ptr<tools::Ink> getStateInk() override;
@@ -99,8 +95,7 @@ public:
   // EditorDecorator overrides
   virtual void preRenderDecorator(EditorPreRender* render) override;
   virtual void postRenderDecorator(EditorPostRender* render) override;
-  virtual void getInvalidDecoratoredRegion(Editor* editor,
-                                           gfx::Region& region) override;
+  virtual void getInvalidDecoratoredRegion(Editor* editor, gfx::Region& region) override;
 
 private:
   using Rulers = std::vector<Ruler>;

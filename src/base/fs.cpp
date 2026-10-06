@@ -57,10 +57,9 @@ bool is_safe_archive_entry_path(const std::string& fileName)
   if (fileName.find(':') != std::string::npos)
     return false;
 
-  static const std::string kReservedNames[] = {
-      "con",  "prn",  "aux",  "nul",  "com1", "com2", "com3", "com4",
-      "com5", "com6", "com7", "com8", "com9", "lpt1", "lpt2", "lpt3",
-      "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9"};
+  static const std::string kReservedNames[] = {"con",  "prn",  "aux",  "nul",  "com1", "com2", "com3", "com4",
+                                               "com5", "com6", "com7", "com8", "com9", "lpt1", "lpt2", "lpt3",
+                                               "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9"};
 
   // Windows has historically also treated certain Unicode superscript
   // digits as equivalent to the corresponding ASCII digit in COM/LPT
@@ -90,14 +89,12 @@ bool is_safe_archive_entry_path(const std::string& fileName)
     // Windows strips trailing spaces and dots off a path component
     // before resolving it, so "con " and "con." are treated exactly
     // like "con" for the reserved-device-name check below.
-    while (!component.empty() &&
-           (component.back() == ' ' || component.back() == '.'))
+    while (!component.empty() && (component.back() == ' ' || component.back() == '.'))
       component.pop_back();
 
     // Compare the component up to a trailing extension too (Windows
     // treats "NUL.txt" the same as "NUL").
-    std::string baseName =
-        base::string_to_lower(component.substr(0, component.find('.')));
+    std::string baseName = base::string_to_lower(component.substr(0, component.find('.')));
     for (auto& reserved : kReservedNames)
     {
       if (baseName == reserved)
@@ -131,8 +128,7 @@ void make_all_directories(const std::string& path)
     intermediate = join_path(intermediate, component);
 
     if (is_file(intermediate))
-      throw std::runtime_error(
-          "Error creating directory (a component is a file name)");
+      throw std::runtime_error("Error creating directory (a component is a file name)");
     else if (!is_directory(intermediate))
       make_directory(intermediate);
   }

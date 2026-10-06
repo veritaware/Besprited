@@ -34,15 +34,9 @@ class PixelPointShape : public PointShape
 public:
   bool isPixel() override { return true; }
 
-  void transformPoint(ToolLoop* loop, int x, int y, float pressure) override
-  {
-    doInkHline(x, y, x, loop);
-  }
+  void transformPoint(ToolLoop* loop, int x, int y, float pressure) override { doInkHline(x, y, x, loop); }
 
-  void getModifiedArea(ToolLoop* loop, int x, int y, gfx::Rect& area) override
-  {
-    area = gfx::Rect(x, y, 1, 1);
-  }
+  void getModifiedArea(ToolLoop* loop, int x, int y, gfx::Rect& area) override { area = gfx::Rect(x, y, 1, 1); }
 };
 
 class BrushPointShape : public PointShape
@@ -80,8 +74,7 @@ public:
       m_firstPoint = false;
       if (m_brush->type() == kImageBrushType)
       {
-        if (m_brush->pattern() == BrushPattern::ALIGNED_TO_DST ||
-            m_brush->pattern() == BrushPattern::PAINT_BRUSH)
+        if (m_brush->pattern() == BrushPattern::ALIGNED_TO_DST || m_brush->pattern() == BrushPattern::PAINT_BRUSH)
         {
           m_brush->setPatternOrigin(gfx::Point(x, y));
         }
@@ -89,8 +82,7 @@ public:
     }
     else
     {
-      if (m_brush->type() == kImageBrushType &&
-          m_brush->pattern() == BrushPattern::PAINT_BRUSH)
+      if (m_brush->type() == kImageBrushType && m_brush->pattern() == BrushPattern::PAINT_BRUSH)
       {
         m_brush->setPatternOrigin(gfx::Point(x, y));
       }
@@ -118,17 +110,12 @@ public:
 
   void transformPoint(ToolLoop* loop, int x, int y, float pressure) override
   {
-    doc::algorithm::floodfill(loop->getFloodFillSrcImage(),
-                              (loop->useMask() ? loop->getMask() : nullptr), x,
-                              y, floodfillBounds(loop, x, y),
-                              loop->getTolerance(), loop->getContiguous(), loop,
+    doc::algorithm::floodfill(loop->getFloodFillSrcImage(), (loop->useMask() ? loop->getMask() : nullptr), x, y,
+                              floodfillBounds(loop, x, y), loop->getTolerance(), loop->getContiguous(), loop,
                               (AlgoHLine)doInkHline);
   }
 
-  void getModifiedArea(ToolLoop* loop, int x, int y, gfx::Rect& area) override
-  {
-    area = floodfillBounds(loop, x, y);
-  }
+  void getModifiedArea(ToolLoop* loop, int x, int y, gfx::Rect& area) override { area = floodfillBounds(loop, x, y); }
 
 private:
   gfx::Rect floodfillBounds(ToolLoop* loop, int x, int y) const
@@ -174,10 +161,7 @@ class SprayPointShape : public PointShape
 public:
   bool isSpray() override { return true; }
 
-  void preparePointShape(ToolLoop* loop) override
-  {
-    m_subPointShape.preparePointShape(loop);
-  }
+  void preparePointShape(ToolLoop* loop) override { m_subPointShape.preparePointShape(loop); }
 
   void transformPoint(ToolLoop* loop, int x, int y, float pressure) override
   {
@@ -186,8 +170,7 @@ public:
 
     // The number of points to spray is proportional to the spraying area, and
     // we calculate it as a float to handle very low spray rates properly.
-    float points_to_spray =
-        (spray_width * spray_width / 4.0f) * spray_speed / 100.0f;
+    float points_to_spray = (spray_width * spray_width / 4.0f) * spray_speed / 100.0f;
 
     // We add the fractional points from last time to get
     // the total number of points to paint this time.

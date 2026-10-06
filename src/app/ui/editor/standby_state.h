@@ -43,8 +43,7 @@ public:
   virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
   virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
   virtual bool onDoubleClick(Editor* editor, ui::MouseMessage* msg) override;
-  virtual bool onSetCursor(Editor* editor,
-                           const gfx::Point& mouseScreenPos) override;
+  virtual bool onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos) override;
   virtual bool onKeyDown(Editor* editor, ui::KeyMessage* msg) override;
   virtual bool onKeyUp(Editor* editor, ui::KeyMessage* msg) override;
   virtual bool onUpdateStatusBar(Editor* editor) override;
@@ -55,8 +54,7 @@ public:
 
   virtual Transformation getTransformation(Editor* editor);
 
-  void startSelectionTransformation(Editor* editor, const gfx::Point& move,
-                                    double angle);
+  void startSelectionTransformation(Editor* editor, const gfx::Point& move, double angle);
 
 protected:
   // Returns true and changes to ScrollingState when "msg" says "the
@@ -74,14 +72,12 @@ protected:
     TransformHandles* getTransformHandles(Editor* editor);
     bool getSymmetryHandles(Editor* editor, SymmetryHandles& handles);
 
-    bool onSetCursor(tools::Ink* ink, Editor* editor,
-                     const gfx::Point& mouseScreenPos);
+    bool onSetCursor(tools::Ink* ink, Editor* editor, const gfx::Point& mouseScreenPos);
 
     // EditorDecorator overrides
     void preRenderDecorator(EditorPreRender* render) override;
     void postRenderDecorator(EditorPostRender* render) override;
-    void getInvalidDecoratoredRegion(Editor* editor,
-                                     gfx::Region& region) override;
+    void getInvalidDecoratoredRegion(Editor* editor, gfx::Region& region) override;
 
   private:
     TransformHandles* m_transfHandles;
@@ -93,17 +89,13 @@ private:
   // verbatim so the dispatcher reads as a list of cases instead of one long
   // function - no behavior change (see issue #225). Each returns true if it
   // handled the click and onMouseDown() should return immediately.
-  bool tryStartCelMovement(Editor* editor, ui::MouseMessage* msg,
-                           const doc::Site& site, doc::Layer* layer);
-  bool tryStartSelectionTransform(Editor* editor, ui::MouseMessage* msg,
-                                  const doc::Site& site, doc::Layer* layer,
+  bool tryStartCelMovement(Editor* editor, ui::MouseMessage* msg, const doc::Site& site, doc::Layer* layer);
+  bool tryStartSelectionTransform(Editor* editor, ui::MouseMessage* msg, const doc::Site& site, doc::Layer* layer,
                                   Document* document);
   bool tryStartSymmetryDrag(Editor* editor, ui::MouseMessage* msg);
-  bool startToolLoop(Editor* editor, ui::MouseMessage* msg,
-                     UIContext* context, doc::Layer* layer);
+  bool startToolLoop(Editor* editor, ui::MouseMessage* msg, UIContext* context, doc::Layer* layer);
 
-  void transformSelection(Editor* editor, ui::MouseMessage* msg,
-                          HandleType handle);
+  void transformSelection(Editor* editor, ui::MouseMessage* msg, HandleType handle);
   void onPivotChange(Editor* editor);
 
   Decorator* m_decorator;

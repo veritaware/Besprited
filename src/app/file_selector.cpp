@@ -22,14 +22,10 @@
 namespace app
 {
 
-std::string show_file_selector(const std::string& title,
-                               const std::string& initialPath,
-                               const std::string& showExtensions,
-                               FileSelectorType type,
-                               FileSelectorDelegate* delegate)
+std::string show_file_selector(const std::string& title, const std::string& initialPath,
+                               const std::string& showExtensions, FileSelectorType type, FileSelectorDelegate* delegate)
 {
-  if (Preferences::instance().experimental.useNativeFileDialog() &&
-      she::instance()->nativeDialogs())
+  if (Preferences::instance().experimental.useNativeFileDialog() && she::instance()->nativeDialogs())
   {
     she::FileDialog* dlg = she::instance()->nativeDialogs()->createFileDialog();
 

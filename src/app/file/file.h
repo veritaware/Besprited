@@ -74,11 +74,8 @@ public:
 class FileOp
 {
 public:
-  static FileOp* createLoadDocumentOperation(Context* context,
-                                             const char* filename, int flags);
-  static FileOp* createSaveDocumentOperation(const Context* context,
-                                             const Document* document,
-                                             const char* filename,
+  static FileOp* createLoadDocumentOperation(Context* context, const char* filename, int flags);
+  static FileOp* createSaveDocumentOperation(const Context* context, const Document* document, const char* filename,
                                              const char* fn_format);
 
   ~FileOp();
@@ -110,8 +107,7 @@ public:
   // Helpers for file decoder/encoder (FileFormat) with
   // FILE_SUPPORT_SEQUENCES flag.
   base::SharedPtr<FormatOptions> sequenceGetFormatOptions() const;
-  void
-  sequenceSetFormatOptions(const base::SharedPtr<FormatOptions>& formatOptions);
+  void sequenceSetFormatOptions(const base::SharedPtr<FormatOptions>& formatOptions);
   void sequenceSetNColors(int ncolors);
   int sequenceGetNColors() const;
   void sequenceSetColor(int index, int r, int g, int b);

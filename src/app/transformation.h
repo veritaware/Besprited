@@ -100,8 +100,7 @@ public:
   gfx::RectF transformedBounds() const;
 
   // Static helper method to rotate points.
-  static gfx::PointF rotatePoint(const gfx::PointF& point,
-                                 const gfx::PointF& pivot, double angle);
+  static gfx::PointF rotatePoint(const gfx::PointF& point, const gfx::PointF& pivot, double angle);
 
 private:
   gfx::RectF m_bounds;

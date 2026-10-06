@@ -52,8 +52,7 @@ inline uint8_t rgba_geta(uint32_t c)
 
 inline uint32_t rgba(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-  return ((r << rgba_r_shift) | (g << rgba_g_shift) | (b << rgba_b_shift) |
-          (a << rgba_a_shift));
+  return ((r << rgba_r_shift) | (g << rgba_g_shift) | (b << rgba_b_shift) | (a << rgba_a_shift));
 }
 
 inline int rgb_luma(int r, int g, int b)

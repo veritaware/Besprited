@@ -61,12 +61,10 @@ public:
 
   CanvasSizeWindow()
     : m_editor(current_editor)
-    , m_rect(0, 0, current_editor->sprite()->width(),
-             current_editor->sprite()->height())
+    , m_rect(0, 0, current_editor->sprite()->width(), current_editor->sprite()->height())
     , m_selectBoxState(new SelectBoxState(
           this, m_rect,
-          SelectBoxState::Flags(int(SelectBoxState::Flags::Rulers) |
-                                int(SelectBoxState::Flags::DarkOutside))))
+          SelectBoxState::Flags(int(SelectBoxState::Flags::Rulers) | int(SelectBoxState::Flags::DarkOutside))))
   {
     setWidth(m_rect.w);
     setHeight(m_rect.h);
@@ -75,21 +73,14 @@ public:
     setTop(0);
     setBottom(0);
 
-    width()->Change.connect(
-        base::Bind<void>(&CanvasSizeWindow::onSizeChange, this));
-    height()->Change.connect(
-        base::Bind<void>(&CanvasSizeWindow::onSizeChange, this));
-    dir()->ItemChange.connect(
-        base::Bind<void>(&CanvasSizeWindow::onDirChange, this));
+    width()->Change.connect(base::Bind<void>(&CanvasSizeWindow::onSizeChange, this));
+    height()->Change.connect(base::Bind<void>(&CanvasSizeWindow::onSizeChange, this));
+    dir()->ItemChange.connect(base::Bind<void>(&CanvasSizeWindow::onDirChange, this));
     ;
-    left()->Change.connect(
-        base::Bind<void>(&CanvasSizeWindow::onBorderChange, this));
-    right()->Change.connect(
-        base::Bind<void>(&CanvasSizeWindow::onBorderChange, this));
-    top()->Change.connect(
-        base::Bind<void>(&CanvasSizeWindow::onBorderChange, this));
-    bottom()->Change.connect(
-        base::Bind<void>(&CanvasSizeWindow::onBorderChange, this));
+    left()->Change.connect(base::Bind<void>(&CanvasSizeWindow::onBorderChange, this));
+    right()->Change.connect(base::Bind<void>(&CanvasSizeWindow::onBorderChange, this));
+    top()->Change.connect(base::Bind<void>(&CanvasSizeWindow::onBorderChange, this));
+    bottom()->Change.connect(base::Bind<void>(&CanvasSizeWindow::onBorderChange, this));
 
     m_editor->setState(m_selectBoxState);
 
@@ -119,10 +110,7 @@ protected:
     updateIcons();
   }
 
-  std::string onGetContextBarHelp() override
-  {
-    return "Select new canvas size";
-  }
+  std::string onGetContextBarHelp() override { return "Select new canvas size"; }
 
   void onSizeChange()
   {
@@ -216,9 +204,8 @@ private:
     int left = getLeft();
     int top = getTop();
 
-    m_rect =
-        gfx::Rect(-left, -top, m_editor->sprite()->width() + left + getRight(),
-                  m_editor->sprite()->height() + top + getBottom());
+    m_rect = gfx::Rect(-left, -top, m_editor->sprite()->width() + left + getRight(),
+                       m_editor->sprite()->height() + top + getBottom());
   }
 
   void updateSizeFromRect()
@@ -331,8 +318,7 @@ CanvasSizeCommand::CanvasSizeCommand()
 
 bool CanvasSizeCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void CanvasSizeCommand::onExecute(Context* context)

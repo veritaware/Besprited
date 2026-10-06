@@ -76,18 +76,15 @@ SDL2Display::SDL2Display(int width, int height, int scale)
   instance()->gfx(
       [&]
       {
-        m_window = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED,
-                                    SDL_WINDOWPOS_UNDEFINED, width, height,
-                                    SDL_WINDOW_RESIZABLE);
+        m_window =
+            SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_RESIZABLE);
         if (!m_window)
           throw DisplayCreationException(SDL_GetError());
 
         if (gpu)
-          m_renderer =
-              SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
+          m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
 
-        sdl::windowIdToDisplay[static_cast<int>(SDL_GetWindowID(m_window))] =
-            this;
+        sdl::windowIdToDisplay[static_cast<int>(SDL_GetWindowID(m_window))] = this;
         SDL_GetWindowSize(m_window, &width, &height);
         m_width = width;
         m_height = height;
@@ -112,8 +109,7 @@ SDL2Display::SDL2Display(int width, int height, int scale)
 #elif defined(__linux__) && !defined(ANDROID)
         if (wmInfo.subsystem == SDL_SYSWM_X11)
         {
-          auto error =
-              EasyTab_Load(wmInfo.info.x11.display, wmInfo.info.x11.window);
+          auto error = EasyTab_Load(wmInfo.info.x11.display, wmInfo.info.x11.window);
           tabletSupport = error == EASYTAB_OK;
           SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
           std::cout << "EasyTab error: " << error << "\n";
@@ -126,8 +122,7 @@ SDL2Display::SDL2Display(int width, int height, int scale)
 #elif __APPLE__
         tabletSupport = osx_tablet::init();
 #endif
-        std::cout << "Tablet support: " << (tabletSupport ? "OK" : "FAILED")
-                  << "\n";
+        std::cout << "Tablet support: " << (tabletSupport ? "OK" : "FAILED") << "\n";
       },
       true);
 
@@ -159,15 +154,12 @@ void SDL2Display::dispose()
 void SDL2Display::toggleFullscreen()
 {
   m_isFullscreen = !m_isFullscreen;
-  SDL_SetWindowFullscreen(m_window,
-                          m_isFullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+  SDL_SetWindowFullscreen(m_window, m_isFullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 }
 
 bool SDL2Display::setIcon(Surface* surface)
 {
-  SDL_SetWindowIcon(m_window,
-                    static_cast<SDL_Surface*>(
-                        static_cast<SDL2Surface*>(surface)->nativeHandle()));
+  SDL_SetWindowIcon(m_window, static_cast<SDL_Surface*>(static_cast<SDL2Surface*>(surface)->nativeHandle()));
   return true;
 }
 
@@ -230,8 +222,7 @@ void SDL2Display::recreateSurface()
 {
   if (!m_scale)
     return;
-  auto newSurface = new SDL2Surface(width() / m_scale, height() / m_scale,
-                                    SDL2Surface::DeleteAndDestroy);
+  auto newSurface = new SDL2Surface(width() / m_scale, height() / m_scale, SDL2Surface::DeleteAndDestroy);
   if (m_surface)
   {
     m_surface->blitTo(newSurface, 0, 0, 0, 0, width(), height());
@@ -242,8 +233,7 @@ void SDL2Display::recreateSurface()
   she::sdl::screen = newSurface;
 
 #ifdef EMSCRIPTEN
-  newSurface = new SDL2Surface(width() / m_scale, height() / m_scale,
-                               SDL2Surface::DeleteAndDestroy);
+  newSurface = new SDL2Surface(width() / m_scale, height() / m_scale, SDL2Surface::DeleteAndDestroy);
   if (m_doublebuffer)
   {
     m_doublebuffer->blitTo(newSurface, 0, 0, 0, 0, width(), height());
@@ -267,8 +257,7 @@ void SDL2Display::present()
   if (m_renderer)
   {
 #ifdef EMSCRIPTEN
-    auto texture =
-        static_cast<SDL2Surface*>(m_doublebuffer)->getTexture(nullptr);
+    auto texture = static_cast<SDL2Surface*>(m_doublebuffer)->getTexture(nullptr);
 #else
     const SDL_Rect empty{.x = 0, .y = 0, .w = 0, .h = 0};
     auto texture = static_cast<SDL2Surface*>(m_surface)->getTexture(&empty);
@@ -285,12 +274,10 @@ void SDL2Display::flip(const gfx::Rect& bounds)
   m_dirty = true;
   if (!she::instance()->isGfxThread())
   {
-    const SDL_Rect rect{
-        .x = bounds.x, .y = bounds.y, .w = bounds.w, .h = bounds.h};
+    const SDL_Rect rect{.x = bounds.x, .y = bounds.y, .w = bounds.w, .h = bounds.h};
     SDL_Rect dst{.x = rect.x, .y = rect.y, .w = rect.w, .h = rect.h};
     SDL_BlitScaled(static_cast<SDL_Surface*>(m_surface->nativeHandle()), &rect,
-                   static_cast<SDL_Surface*>(m_doublebuffer->nativeHandle()),
-                   &dst);
+                   static_cast<SDL_Surface*>(m_doublebuffer->nativeHandle()), &dst);
     return;
   }
 
@@ -302,12 +289,8 @@ void SDL2Display::flip(const gfx::Rect& bounds)
   }
 
   auto nativeSurface = SDL_GetWindowSurface(m_window);
-  SDL_Rect dst{.x = rect.x * m_scale,
-               .y = rect.y * m_scale,
-               .w = rect.w * m_scale,
-               .h = rect.h * m_scale};
-  SDL_BlitScaled(static_cast<SDL_Surface*>(m_surface->nativeHandle()), &rect,
-                 nativeSurface, &dst);
+  SDL_Rect dst{.x = rect.x * m_scale, .y = rect.y * m_scale, .w = rect.w * m_scale, .h = rect.h * m_scale};
+  SDL_BlitScaled(static_cast<SDL_Surface*>(m_surface->nativeHandle()), &rect, nativeSurface, &dst);
 }
 
 void SDL2Display::maximize()
@@ -425,8 +408,7 @@ void SDL2Display::setLayout(const std::string& layout)
 void* SDL2Display::nativeHandle()
 {
   SDL_SysWMinfo info;
-  SDL_VERSION(
-      &info.version); /* initialize info structure with SDL version info */
+  SDL_VERSION(&info.version); /* initialize info structure with SDL version info */
   if (!SDL_GetWindowWMInfo(m_window, &info))
     return nullptr;
 

@@ -116,8 +116,7 @@ void FramePropertiesCommand::onExecute(Context* context)
   }
 
   if (firstFrame != lastFrame)
-    window.frame()->setTextf("[%d...%d]", (int)firstFrame + 1,
-                             (int)lastFrame + 1);
+    window.frame()->setTextf("[%d...%d]", (int)firstFrame + 1, (int)lastFrame + 1);
   else
     window.frame()->setTextf("%d", (int)firstFrame + 1);
 

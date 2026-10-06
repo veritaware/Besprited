@@ -29,8 +29,7 @@ public:
     clazz.setConstructor() = []() -> std::shared_ptr<void>
     { throw std::runtime_error{"Palette cannot be constructed directly"}; };
 
-    clazz.addGetter("length") = [](PaletteRef& ref) -> JSON::Value
-    { return (double)ref.get().size(); };
+    clazz.addGetter("length") = [](PaletteRef& ref) -> JSON::Value { return (double)ref.get().size(); };
     clazz.addSetter("length") = [](PaletteRef& ref, JSON::Value& v)
     {
       auto& pal = ref.get();
@@ -44,8 +43,7 @@ public:
     // `set` is variadic: `set(i, color)`, `set(i, r, g, b)`, or `set(i, r, g,
     // b, a)`. Missing trailing args are padded with `undefined`; the form is
     // disambiguated by which trailing args are defined.
-    clazz.addMethod("set") = [](PaletteRef& ref, int i, JSON::Value& a,
-                                JSON::Value& b, JSON::Value& c,
+    clazz.addMethod("set") = [](PaletteRef& ref, int i, JSON::Value& a, JSON::Value& b, JSON::Value& c,
                                 JSON::Value& d) -> JSON::Value
     {
       auto& pal = ref.get();
@@ -60,16 +58,14 @@ public:
       else if (d.isUndefined())
       {
         // set(i, r, g, b)
-        color = doc::rgba((uint8_t)static_cast<int>(a),
-                          (uint8_t)static_cast<int>(b),
-                          (uint8_t)static_cast<int>(c), 0xFF);
+        color =
+            doc::rgba((uint8_t)static_cast<int>(a), (uint8_t)static_cast<int>(b), (uint8_t)static_cast<int>(c), 0xFF);
       }
       else
       {
         // set(i, r, g, b, a)
-        color = doc::rgba(
-            (uint8_t)static_cast<int>(a), (uint8_t)static_cast<int>(b),
-            (uint8_t)static_cast<int>(c), (uint8_t)static_cast<int>(d));
+        color = doc::rgba((uint8_t)static_cast<int>(a), (uint8_t)static_cast<int>(b), (uint8_t)static_cast<int>(c),
+                          (uint8_t)static_cast<int>(d));
       }
       pal.setEntry(i, color);
       schedulePaletteUpdate(&pal);

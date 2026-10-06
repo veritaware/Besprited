@@ -80,10 +80,9 @@ void View::makeVisibleAllScrollableArea()
 {
   Size reqSize = m_viewport.calculateNeededSize();
 
-  setMinSize(
-      gfx::Size(+reqSize.w + m_viewport.border().width() + border().width(),
+  setMinSize(gfx::Size(+reqSize.w + m_viewport.border().width() + border().width(),
 
-                +reqSize.h + m_viewport.border().height() + border().height()));
+                       +reqSize.h + m_viewport.border().height() + border().height()));
 }
 
 void View::hideScrollBars()
@@ -126,7 +125,8 @@ void View::setScrollableSize(const Size& sz)
   // Setup viewport
   invalidate();
   m_viewport.setBounds(viewportArea);
-  setViewScroll(viewScroll()); // Setup the same scroll-point // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
+  setViewScroll(viewScroll()); // Setup the same scroll-point //
+                               // NOLINT(clang-analyzer-optin.cplusplus.VirtualCall)
 }
 
 Size View::visibleSize() const
@@ -181,8 +181,7 @@ Rect View::viewportBounds()
 // static
 View* View::getView(Widget* widget)
 {
-  if ((widget->parent()) && (widget->parent()->type() == kViewViewportWidget) &&
-      (widget->parent()->parent()) &&
+  if ((widget->parent()) && (widget->parent()->type() == kViewViewportWidget) && (widget->parent()->parent()) &&
       (widget->parent()->parent()->type() == kViewWidget))
     return static_cast<View*>(widget->parent()->parent());
   else
@@ -233,8 +232,7 @@ void View::onSetViewScroll(const gfx::Point& pt)
   Point oldScroll = viewScroll();
   Size maxsize = getScrollableSize();
   Size visible = visibleSize();
-  Point newScroll(MID(0, pt.x, MAX(0, maxsize.w - visible.w)),
-                  MID(0, pt.y, MAX(0, maxsize.h - visible.h)));
+  Point newScroll(MID(0, pt.x, MAX(0, maxsize.w - visible.w)), MID(0, pt.y, MAX(0, maxsize.h - visible.h)));
 
   if (newScroll == oldScroll)
     return;
@@ -245,8 +243,7 @@ void View::onSetViewScroll(const gfx::Point& pt)
 
   // Visible viewport region that is not overlapped by windows
   Region drawableRegion;
-  m_viewport.getDrawableRegion(
-      drawableRegion, DrawableRegionFlags(kCutTopWindows | kUseChildArea));
+  m_viewport.getDrawableRegion(drawableRegion, DrawableRegionFlags(kCutTopWindows | kUseChildArea));
 
   // Start the region to scroll equal to the drawable viewport region.
   Rect cpos = m_viewport.childrenBounds();
@@ -294,8 +291,7 @@ void View::onSetViewScroll(const gfx::Point& pt)
     if (cpos.w != child->bounds().w || cpos.h != child->bounds().h)
       child->setBounds(cpos);
     else
-      child->offsetWidgets(cpos.x - child->bounds().x,
-                           cpos.y - child->bounds().y);
+      child->offsetWidgets(cpos.x - child->bounds().x, cpos.y - child->bounds().y);
   }
 
   // Change scroll bar positions

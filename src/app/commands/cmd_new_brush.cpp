@@ -45,14 +45,10 @@ protected:
   void onExecute(Context* context) override;
 
   // SelectBoxDelegate impl
-  void onQuickboxEnd(Editor* editor, const gfx::Rect& rect,
-                     ui::MouseButtons buttons) override;
+  void onQuickboxEnd(Editor* editor, const gfx::Rect& rect, ui::MouseButtons buttons) override;
   void onQuickboxCancel(Editor* editor) override;
 
-  std::string onGetContextBarHelp() override
-  {
-    return "Select brush bounds | Right-click to cut";
-  }
+  std::string onGetContextBarHelp() override { return "Select brush bounds | Right-click to cut"; }
 
 private:
   void createBrush(const Site& site, const Mask* mask);
@@ -89,8 +85,7 @@ void NewBrushCommand::onExecute(Context* context)
 
     current_editor->setState(EditorStatePtr(new SelectBoxState(
         this, current_editor->sprite()->bounds(),
-        SelectBoxState::Flags(int(SelectBoxState::Flags::DarkOutside) |
-                              int(SelectBoxState::Flags::QuickBox)))));
+        SelectBoxState::Flags(int(SelectBoxState::Flags::DarkOutside) | int(SelectBoxState::Flags::QuickBox)))));
   }
   // Create a brush from the active selection
   else
@@ -99,14 +94,12 @@ void NewBrushCommand::onExecute(Context* context)
     selectPencilTool();
 
     // Deselect mask
-    Command* cmd =
-        CommandsModule::instance()->getCommandByName(CommandId::DeselectMask);
+    Command* cmd = CommandsModule::instance()->getCommandByName(CommandId::DeselectMask);
     UIContext::instance()->executeCommand(cmd);
   }
 }
 
-void NewBrushCommand::onQuickboxEnd(Editor* editor, const gfx::Rect& rect,
-                                    ui::MouseButtons buttons)
+void NewBrushCommand::onQuickboxEnd(Editor* editor, const gfx::Rect& rect, ui::MouseButtons buttons)
 {
   Mask mask;
   mask.replace(rect);
@@ -157,16 +150,14 @@ void NewBrushCommand::createBrush(const Site& site, const Mask* mask)
   brush->setPatternOrigin(mask->bounds().origin());
 
   ContextBar* ctxBar = App::instance()->contextBar();
-  int slot = App::instance()->brushes().addBrushSlot(
-      BrushSlot(BrushSlot::Flags::BrushType, brush));
+  int slot = App::instance()->brushes().addBrushSlot(BrushSlot(BrushSlot::Flags::BrushType, brush));
   ctxBar->setActiveBrush(brush);
 
   // Get the shortcut for this brush and show it to the user
   Params params;
   params.set("change", "custom");
   params.set("slot", base::convert_to<std::string>(slot).c_str());
-  Key* key =
-      KeyboardShortcuts::instance()->command(CommandId::ChangeBrush, params);
+  Key* key = KeyboardShortcuts::instance()->command(CommandId::ChangeBrush, params);
   if (key && !key->accels().empty())
   {
     std::string tooltip;
@@ -181,8 +172,7 @@ void NewBrushCommand::selectPencilTool()
   App* app = App::instance();
   if (app->activeToolManager()->selectedTool()->getInk(0)->isSelection())
   {
-    app->activeToolManager()->setSelectedTool(
-        app->toolBox()->getToolById(tools::WellKnownTools::Pencil));
+    app->activeToolManager()->setSelectedTool(app->toolBox()->getToolById(tools::WellKnownTools::Pencil));
   }
 }
 

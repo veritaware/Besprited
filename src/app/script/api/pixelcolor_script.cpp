@@ -22,18 +22,15 @@ public:
     auto& clazz = addClass<void, PixelColorSite>("PixelColor");
     clazz.setConstructor() = []() -> std::shared_ptr<PixelColorSite>
     {
-      static const std::shared_ptr<PixelColorSite> site =
-          std::make_shared<PixelColorSite>();
+      static const std::shared_ptr<PixelColorSite> site = std::make_shared<PixelColorSite>();
       return site;
     };
 
-    clazz.addMethod("rgba") = [](PixelColorSite&, double r, double g, double b,
-                                 JSON::Value& a) -> JSON::Value
+    clazz.addMethod("rgba") = [](PixelColorSite&, double r, double g, double b, JSON::Value& a) -> JSON::Value
     {
       uint8_t alpha = a.isUndefined() ? 0xFF : (uint8_t)static_cast<int>(a);
-      return (double)doc::rgba((uint8_t)static_cast<int>(r),
-                               (uint8_t)static_cast<int>(g),
-                               (uint8_t)static_cast<int>(b), alpha);
+      return (double)doc::rgba((uint8_t)static_cast<int>(r), (uint8_t)static_cast<int>(g), (uint8_t)static_cast<int>(b),
+                               alpha);
     };
 
     clazz.addMethod("rgbaR") = [](PixelColorSite&, double c) -> JSON::Value
@@ -45,8 +42,7 @@ public:
     clazz.addMethod("rgbaA") = [](PixelColorSite&, double c) -> JSON::Value
     { return (double)doc::rgba_geta((uint32_t)c); };
 
-    clazz.addMethod("graya") = [](PixelColorSite&, double v,
-                                  JSON::Value& a) -> JSON::Value
+    clazz.addMethod("graya") = [](PixelColorSite&, double v, JSON::Value& a) -> JSON::Value
     {
       uint8_t alpha = a.isUndefined() ? 0xFF : (uint8_t)static_cast<int>(a);
       return (double)doc::graya((uint8_t)static_cast<int>(v), alpha);

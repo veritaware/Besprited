@@ -24,78 +24,42 @@ template <class Histogram> class Box
   // the same generic function (i=Red channel in RAxisGetter, etc.).
   struct RAxisGetter
   {
-    static std::size_t at(const Histogram& h, int i, int j, int k, int l)
-    {
-      return h.at(i, j, k, l);
-    }
+    static std::size_t at(const Histogram& h, int i, int j, int k, int l) { return h.at(i, j, k, l); }
   };
   struct GAxisGetter
   {
-    static std::size_t at(const Histogram& h, int i, int j, int k, int l)
-    {
-      return h.at(j, i, k, l);
-    }
+    static std::size_t at(const Histogram& h, int i, int j, int k, int l) { return h.at(j, i, k, l); }
   };
   struct BAxisGetter
   {
-    static std::size_t at(const Histogram& h, int i, int j, int k, int l)
-    {
-      return h.at(j, k, i, l);
-    }
+    static std::size_t at(const Histogram& h, int i, int j, int k, int l) { return h.at(j, k, i, l); }
   };
   struct AAxisGetter
   {
-    static std::size_t at(const Histogram& h, int i, int j, int k, int l)
-    {
-      return h.at(j, k, l, i);
-    }
+    static std::size_t at(const Histogram& h, int i, int j, int k, int l) { return h.at(j, k, l, i); }
   };
 
   // These classes are used as template parameter to split a Box
   // along an axis (see splitAlongAxis)
   struct RAxisSplitter
   {
-    static Box box1(const Box& box, int r)
-    {
-      return Box(box.r1, box.g1, box.b1, box.a1, r, box.g2, box.b2, box.a2);
-    }
-    static Box box2(const Box& box, int r)
-    {
-      return Box(r, box.g1, box.b1, box.a1, box.r2, box.g2, box.b2, box.a2);
-    }
+    static Box box1(const Box& box, int r) { return Box(box.r1, box.g1, box.b1, box.a1, r, box.g2, box.b2, box.a2); }
+    static Box box2(const Box& box, int r) { return Box(r, box.g1, box.b1, box.a1, box.r2, box.g2, box.b2, box.a2); }
   };
   struct GAxisSplitter
   {
-    static Box box1(const Box& box, int g)
-    {
-      return Box(box.r1, box.g1, box.b1, box.a1, box.r2, g, box.b2, box.a2);
-    }
-    static Box box2(const Box& box, int g)
-    {
-      return Box(box.r1, g, box.b1, box.a1, box.r2, box.g2, box.b2, box.a2);
-    }
+    static Box box1(const Box& box, int g) { return Box(box.r1, box.g1, box.b1, box.a1, box.r2, g, box.b2, box.a2); }
+    static Box box2(const Box& box, int g) { return Box(box.r1, g, box.b1, box.a1, box.r2, box.g2, box.b2, box.a2); }
   };
   struct BAxisSplitter
   {
-    static Box box1(const Box& box, int b)
-    {
-      return Box(box.r1, box.g1, box.b1, box.a1, box.r2, box.g2, b, box.a2);
-    }
-    static Box box2(const Box& box, int b)
-    {
-      return Box(box.r1, box.g1, b, box.a1, box.r2, box.g2, box.b2, box.a2);
-    }
+    static Box box1(const Box& box, int b) { return Box(box.r1, box.g1, box.b1, box.a1, box.r2, box.g2, b, box.a2); }
+    static Box box2(const Box& box, int b) { return Box(box.r1, box.g1, b, box.a1, box.r2, box.g2, box.b2, box.a2); }
   };
   struct AAxisSplitter
   {
-    static Box box1(const Box& box, int a)
-    {
-      return Box(box.r1, box.g1, box.b1, box.a1, box.r2, box.g2, box.b2, a);
-    }
-    static Box box2(const Box& box, int a)
-    {
-      return Box(box.r1, box.g1, box.b1, a, box.r2, box.g2, box.b2, box.a2);
-    }
+    static Box box1(const Box& box, int a) { return Box(box.r1, box.g1, box.b1, box.a1, box.r2, box.g2, box.b2, a); }
+    static Box box2(const Box& box, int a) { return Box(box.r1, box.g1, box.b1, a, box.r2, box.g2, box.b2, box.a2); }
   };
 
 public:
@@ -133,29 +97,22 @@ public:
   bool split(const Histogram& histogram, std::priority_queue<Box>& boxes) const
   {
     // Split along the largest dimension of the box.
-    if ((r2 - r1) >= (g2 - g1) && (r2 - r1) >= (b2 - b1) &&
-        (r2 - r1) >= (a2 - a1))
+    if ((r2 - r1) >= (g2 - g1) && (r2 - r1) >= (b2 - b1) && (r2 - r1) >= (a2 - a1))
     {
-      return splitAlongAxis<RAxisGetter, RAxisSplitter>(
-          histogram, boxes, r1, r2, g1, g2, b1, b2, a1, a2);
+      return splitAlongAxis<RAxisGetter, RAxisSplitter>(histogram, boxes, r1, r2, g1, g2, b1, b2, a1, a2);
     }
 
-    if ((g2 - g1) >= (r2 - r1) && (g2 - g1) >= (b2 - b1) &&
-        (g2 - g1) >= (a2 - a1))
+    if ((g2 - g1) >= (r2 - r1) && (g2 - g1) >= (b2 - b1) && (g2 - g1) >= (a2 - a1))
     {
-      return splitAlongAxis<GAxisGetter, GAxisSplitter>(
-          histogram, boxes, g1, g2, r1, r2, b1, b2, a1, a2);
+      return splitAlongAxis<GAxisGetter, GAxisSplitter>(histogram, boxes, g1, g2, r1, r2, b1, b2, a1, a2);
     }
 
-    if ((b2 - b1) >= (r2 - r1) && (b2 - b1) >= (g2 - g1) &&
-        (b2 - b1) >= (a2 - a1))
+    if ((b2 - b1) >= (r2 - r1) && (b2 - b1) >= (g2 - g1) && (b2 - b1) >= (a2 - a1))
     {
-      return splitAlongAxis<BAxisGetter, BAxisSplitter>(
-          histogram, boxes, b1, b2, r1, r2, g1, g2, a1, a2);
+      return splitAlongAxis<BAxisGetter, BAxisSplitter>(histogram, boxes, b1, b2, r1, r2, g1, g2, a1, a2);
     }
 
-    return splitAlongAxis<AAxisGetter, AAxisSplitter>(histogram, boxes, a1, a2,
-                                                      r1, r2, g1, g2, b1, b2);
+    return splitAlongAxis<AAxisGetter, AAxisSplitter>(histogram, boxes, a1, a2, r1, r2, g1, g2, b1, b2);
   }
 
   // Returns the color enclosed by the box calculating the mean of
@@ -194,10 +151,8 @@ public:
     b /= count;
     a /= count;
 
-    return doc::rgba((255 * r / (Histogram::RElements - 1)),
-                     (255 * g / (Histogram::GElements - 1)),
-                     (255 * b / (Histogram::BElements - 1)),
-                     (255 * a / (Histogram::AElements - 1)));
+    return doc::rgba((255 * r / (Histogram::RElements - 1)), (255 * g / (Histogram::GElements - 1)),
+                     (255 * b / (Histogram::BElements - 1)), (255 * a / (Histogram::AElements - 1)));
   }
 
   // The boxes will be sort in the priority_queue by volume.
@@ -208,10 +163,7 @@ private:
   // value returned by this function is cached in the "volume"
   // variable member of Box class to avoid multiplying several
   // times.
-  int calculateVolume() const
-  {
-    return (r2 - r1 + 1) * (g2 - g1 + 1) * (b2 - b1 + 1) * (a2 - a1 + 1);
-  }
+  int calculateVolume() const { return (r2 - r1 + 1) * (g2 - g1 + 1) * (b2 - b1 + 1) * (a2 - a1 + 1); }
 
   // Returns the number of histogram's points inside the box bounds.
   std::size_t countPoints(const Histogram& histogram) const
@@ -232,8 +184,7 @@ private:
   // specified axis (if AxisGetter is RAxisGetter, then i1=r1,
   // i2=r2; if AxisGetter is GAxisGetter, then i1=g1, i2=g2).
   template <class AxisGetter>
-  static void axisShrink(const Histogram& histogram, int& i1, int& i2,
-                         const int& j1, const int& j2, const int& k1,
+  static void axisShrink(const Histogram& histogram, int& i1, int& i2, const int& j1, const int& j2, const int& k1,
                          const int& k2, const int& l1, const int& l2)
   {
     int j, k, l;
@@ -280,11 +231,8 @@ private:
   // queue contains the new two sub-boxes resulting from the split
   // operation.
   template <class AxisGetter, class AxisSplitter>
-  bool splitAlongAxis(const Histogram& histogram,
-                      std::priority_queue<Box>& boxes, const int& i1,
-                      const int& i2, const int& j1, const int& j2,
-                      const int& k1, const int& k2, const int& l1,
-                      const int& l2) const
+  bool splitAlongAxis(const Histogram& histogram, std::priority_queue<Box>& boxes, const int& i1, const int& i2,
+                      const int& j1, const int& j2, const int& k1, const int& k2, const int& l1, const int& l2) const
   {
     // These two variables will be used to count how many points are
     // in each side of the box if we split it in "i" position.
@@ -351,15 +299,13 @@ private:
 // quantization for frame buffer display,", Computer Graphics,
 // 16(3), pp. 297-307 (1982)
 template <class Histogram>
-void median_cut(const Histogram& histogram, std::size_t maxBoxes,
-                std::vector<uint32_t>& result)
+void median_cut(const Histogram& histogram, std::size_t maxBoxes, std::vector<uint32_t>& result)
 {
   // We need a priority queue to split bigger boxes first (see Box::operator<).
   std::priority_queue<Box<Histogram>> boxes;
 
   // First we start with one big box containing all histogram's samples.
-  boxes.push(Box<Histogram>(0, 0, 0, 0, Histogram::RElements - 1,
-                            Histogram::GElements - 1, Histogram::BElements - 1,
+  boxes.push(Box<Histogram>(0, 0, 0, 0, Histogram::RElements - 1, Histogram::GElements - 1, Histogram::BElements - 1,
                             Histogram::AElements - 1));
 
   // Then we split each box until we reach the maximum specified by

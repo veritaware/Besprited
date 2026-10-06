@@ -33,10 +33,8 @@ public:
     ReadWriteLock // Read and write
   };
 
-  static Image* create(PixelFormat format, int width, int height,
-                       const ImageBufferPtr& buffer = ImageBufferPtr());
-  static Image* createCopy(const Image* image,
-                           const ImageBufferPtr& buffer = ImageBufferPtr());
+  static Image* create(PixelFormat format, int width, int height, const ImageBufferPtr& buffer = ImageBufferPtr());
+  static Image* createCopy(const Image* image, const ImageBufferPtr& buffer = ImageBufferPtr());
 
   virtual ~Image();
 
@@ -52,21 +50,17 @@ public:
   int getRowStrideSize() const;
   int getRowStrideSize(int pixels_per_row) const;
 
-  template <typename ImageTraits>
-  ImageBits<ImageTraits> lockBits(LockType lockType, const gfx::Rect& bounds)
+  template <typename ImageTraits> ImageBits<ImageTraits> lockBits(LockType lockType, const gfx::Rect& bounds)
   {
     return ImageBits<ImageTraits>(this, bounds);
   }
 
-  template <typename ImageTraits>
-  ImageBits<ImageTraits> lockBits(LockType lockType,
-                                  const gfx::Rect& bounds) const
+  template <typename ImageTraits> ImageBits<ImageTraits> lockBits(LockType lockType, const gfx::Rect& bounds) const
   {
     return ImageBits<ImageTraits>(const_cast<Image*>(this), bounds);
   }
 
-  template <typename ImageTraits>
-  void unlockBits(ImageBits<ImageTraits>& imageBits)
+  template <typename ImageTraits> void unlockBits(ImageBits<ImageTraits>& imageBits)
   {
     // Do nothing
   }
@@ -81,8 +75,7 @@ public:
   virtual void copy(const Image* src, gfx::Clip area) = 0;
   virtual void drawHLine(int x1, int y, int x2, color_t color) = 0;
   virtual void fillRect(int x1, int y1, int x2, int y2, color_t color) = 0;
-  virtual void blendRect(int x1, int y1, int x2, int y2, color_t color,
-                         int opacity) = 0;
+  virtual void blendRect(int x1, int y1, int x2, int y2, color_t color, int opacity) = 0;
 
 protected:
   Image(PixelFormat format, int width, int height);
@@ -103,8 +96,7 @@ private:
 namespace doc
 {
 
-inline int calculate_rowstride_bytes(PixelFormat pixelFormat,
-                                     int pixels_per_row)
+inline int calculate_rowstride_bytes(PixelFormat pixelFormat, int pixels_per_row)
 {
   switch (pixelFormat)
   {

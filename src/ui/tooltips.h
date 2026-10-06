@@ -27,8 +27,7 @@ public:
   TooltipManager();
   ~TooltipManager() override;
 
-  void addTooltipFor(Widget* widget, const std::string& text,
-                     int arrowAlign = 0);
+  void addTooltipFor(Widget* widget, const std::string& text, int arrowAlign = 0);
   void removeTooltipFor(Widget* widget);
 
 protected:

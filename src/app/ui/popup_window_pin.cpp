@@ -28,8 +28,7 @@ namespace app
 using namespace app::skin;
 using namespace ui;
 
-PopupWindowPin::PopupWindowPin(const std::string& text,
-                               ClickBehavior clickBehavior)
+PopupWindowPin::PopupWindowPin(const std::string& text, ClickBehavior clickBehavior)
   : PopupWindow(text, clickBehavior)
   , m_pin("")
 {
@@ -37,8 +36,7 @@ PopupWindowPin::PopupWindowPin(const std::string& text,
 
   m_pin.Click.connect(&PopupWindowPin::onPinClick, this);
   m_pin.setIconInterface(
-      new ButtonIconImpl(theme->parts.unpinned(), theme->parts.pinned(),
-                         theme->parts.unpinned(), CENTER | MIDDLE));
+      new ButtonIconImpl(theme->parts.unpinned(), theme->parts.pinned(), theme->parts.unpinned(), CENTER | MIDDLE));
 }
 
 void PopupWindowPin::onPinClick(Event& ev)

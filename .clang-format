@@ -7,7 +7,7 @@ Standard: Latest
 IndentWidth: 2
 TabWidth: 2
 UseTab: Never
-ColumnLimit: 80
+ColumnLimit: 120
 
 # Allman braces everywhere: functions, classes, namespaces, if/for/while.
 BreakBeforeBraces: Allman

@@ -52,16 +52,14 @@ std::size_t MessageLog::size() const
 std::size_t MessageLog::unreadCount() const
 {
   std::lock_guard<std::mutex> lock(m_mutex);
-  return std::count_if(m_entries.begin(), m_entries.end(),
-                       [](const Entry& e) { return !e.read; });
+  return std::count_if(m_entries.begin(), m_entries.end(), [](const Entry& e) { return !e.read; });
 }
 
 bool MessageLog::hasUnreadErrors() const
 {
   std::lock_guard<std::mutex> lock(m_mutex);
   return std::any_of(m_entries.begin(), m_entries.end(),
-                     [](const Entry& e)
-                     { return !e.read && e.severity == Severity::Error; });
+                     [](const Entry& e) { return !e.read && e.severity == Severity::Error; });
 }
 
 bool MessageLog::latest(Entry& out) const

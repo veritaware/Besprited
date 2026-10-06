@@ -36,8 +36,7 @@ AboutCommand::AboutCommand()
 
 void AboutCommand::onExecute(Context* context)
 {
-  std::unique_ptr<Window> window(
-      new Window(Window::WithTitleBar, "About " PACKAGE));
+  std::unique_ptr<Window> window(new Window(Window::WithTitleBar, "About " PACKAGE));
   Box* box1 = new Box(VERTICAL);
   Grid* grid = new Grid(2, false);
   Label* title = new Label(PACKAGE_AND_VERSION);
@@ -52,11 +51,9 @@ void AboutCommand::onExecute(Context* context)
   author1->setI18N();
   Label* author1_desc = new Label("- Lead developer, graphics & maintainer");
   author1_desc->setI18N();
-  Label* author2 =
-      new LinkLabel("http://ilkke.blogspot.com/", "Ilija Melentijevic");
+  Label* author2 = new LinkLabel("http://ilkke.blogspot.com/", "Ilija Melentijevic");
   author2->setI18N();
-  Label* author2_desc =
-      new Label("- Default skin & graphics introduced in v0.8");
+  Label* author2_desc = new Label("- Default skin & graphics introduced in v0.8");
   author2_desc->setI18N();
   Label* author3 = new LinkLabel(WEBSITE_CONTRIBUTORS, "Contributors");
   author3->setI18N();
@@ -93,14 +90,11 @@ void AboutCommand::onExecute(Context* context)
   box1->addChild(grid);
   window->addChild(box1);
 
-  close_button->setBorder(
-      gfx::Border(close_button->border().left() + 16 * guiscale(),
-                  close_button->border().top(),
-                  close_button->border().right() + 16 * guiscale(),
-                  close_button->border().bottom()));
+  close_button->setBorder(gfx::Border(close_button->border().left() + 16 * guiscale(), close_button->border().top(),
+                                      close_button->border().right() + 16 * guiscale(),
+                                      close_button->border().bottom()));
 
-  close_button->Click.connect(
-      base::Bind<void>(&Window::closeWindow, window.get(), close_button));
+  close_button->Click.connect(base::Bind<void>(&Window::closeWindow, window.get(), close_button));
 
   window->openWindowInForeground();
 }

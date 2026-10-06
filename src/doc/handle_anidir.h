@@ -15,8 +15,7 @@ namespace doc
 class FrameTag;
 class Sprite;
 
-frame_t calculate_next_frame(const Sprite* sprite, frame_t frame,
-                             frame_t frameDelta, const FrameTag* tag,
+frame_t calculate_next_frame(const Sprite* sprite, frame_t frame, frame_t frameDelta, const FrameTag* tag,
                              bool& pingPongForward);
 
 } // namespace doc

@@ -44,8 +44,7 @@ std::vector<FileFormat*> FileFormatsManager::support(int flags)
     if (ff->support(flags))
       pick.push_back(ff.get());
   }
-  std::sort(pick.begin(), pick.end(), [](auto a, auto b)
-            { return a->listPriority() < b->listPriority(); });
+  std::sort(pick.begin(), pick.end(), [](auto a, auto b) { return a->listPriority() < b->listPriority(); });
   return pick;
 }
 
@@ -55,8 +54,7 @@ FileFormat* FileFormatsManager::getFileFormatByExtension(const char* extension)
   for (auto& ff : m_formats)
   {
     extensions = ff->extensions();
-    for (auto tok = std::strtok(extensions.data(), ","); tok;
-         tok = std::strtok(nullptr, ","))
+    for (auto tok = std::strtok(extensions.data(), ","); tok; tok = std::strtok(nullptr, ","))
     {
       if (base::utf8_icmp(extension, tok) == 0)
         return ff.get();

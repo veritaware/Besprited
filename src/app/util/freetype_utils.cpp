@@ -26,8 +26,7 @@
 namespace app
 {
 
-doc::Image* render_text(const std::string& fontfile, int fontsize,
-                        const std::string& text, doc::color_t color,
+doc::Image* render_text(const std::string& fontfile, int fontsize, const std::string& text, doc::color_t color,
                         bool antialias)
 {
   std::unique_ptr<doc::Image> image(nullptr);
@@ -83,13 +82,10 @@ doc::Image* render_text(const std::string& fontfile, int fontsize,
                 if (output_alpha)
                 {
                   doc::color_t output_color =
-                      doc::rgba(doc::rgba_getr(color), doc::rgba_getg(color),
-                                doc::rgba_getb(color), output_alpha);
+                      doc::rgba(doc::rgba_getr(color), doc::rgba_getg(color), doc::rgba_getb(color), output_alpha);
 
                   doc::put_pixel(image.get(), ximg, yimg,
-                                 doc::rgba_blender_normal(
-                                     doc::get_pixel(image.get(), ximg, yimg),
-                                     output_color));
+                                 doc::rgba_blender_normal(doc::get_pixel(image.get(), ximg, yimg), output_color));
                 }
               }
             }

@@ -68,8 +68,7 @@ void NewLayerCommand::onLoadParams(const Params& params)
 
 bool NewLayerCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void NewLayerCommand::onExecute(Context* context)
@@ -89,8 +88,7 @@ void NewLayerCommand::onExecute(Context* context)
   if (m_ask)
   {
     // We open the window to ask the name
-    std::unique_ptr<Window> window(
-        app::load_widget<Window>("new_layer.xml", "new_layer"));
+    std::unique_ptr<Window> window(app::load_widget<Window>("new_layer.xml", "new_layer"));
     Widget* name_widget = app::find_widget<Widget>(window.get(), "name");
     name_widget->setText(name.c_str());
     name_widget->setMinSize(gfx::Size(128, 0));
@@ -128,8 +126,7 @@ void NewLayerCommand::onExecute(Context* context)
 static std::string get_unique_layer_name(Sprite* sprite)
 {
   char buf[1024];
-  std::snprintf(buf, sizeof(buf), "Layer %d",
-                get_max_layer_num(sprite->folder()) + 1);
+  std::snprintf(buf, sizeof(buf), "Layer %d", get_max_layer_num(sprite->folder()) + 1);
   return buf;
 }
 

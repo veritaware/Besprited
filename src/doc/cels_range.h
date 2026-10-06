@@ -27,8 +27,7 @@ public:
     UNIQUE,
   };
 
-  CelsRange(const Sprite* sprite, frame_t first, frame_t last,
-            Flags flags = ALL);
+  CelsRange(const Sprite* sprite, frame_t first, frame_t last, Flags flags = ALL);
 
   class iterator
   {
@@ -36,10 +35,7 @@ public:
     iterator();
     iterator(const Sprite* sprite, frame_t first, frame_t last, Flags flags);
 
-    bool operator==(const iterator& other) const
-    {
-      return m_cel == other.m_cel;
-    }
+    bool operator==(const iterator& other) const { return m_cel == other.m_cel; }
 
     bool operator!=(const iterator& other) const { return !operator==(other); }
 

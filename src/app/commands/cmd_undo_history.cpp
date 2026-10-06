@@ -41,14 +41,12 @@ public:
   {
   public:
     Item(const undo::UndoState* state)
-      : ui::ListItem((state
-                          ? static_cast<Cmd*>(state->cmd())->label()
+      : ui::ListItem((state ? static_cast<Cmd*>(state->cmd())->label()
 #if _DEBUG
-                                + std::string(" ") +
-                                base::get_pretty_memory_size(
-                                    static_cast<Cmd*>(state->cmd())->memSize())
+                                  + std::string(" ") +
+                                  base::get_pretty_memory_size(static_cast<Cmd*>(state->cmd())->memSize())
 #endif
-                          : std::string("Initial State")))
+                            : std::string("Initial State")))
       , m_state(state)
     {
     }
@@ -101,8 +99,7 @@ private:
   {
     Item* item = static_cast<Item*>(actions()->getSelectedChild());
 
-    if (m_document &&
-        m_document->undoHistory()->currentState() != item->state())
+    if (m_document && m_document->undoHistory()->currentState() != item->state())
     {
       try
       {
@@ -131,8 +128,7 @@ private:
     if (m_document == site.document())
       return;
 
-    attachDocument(static_cast<app::Document*>(
-        const_cast<doc::Document*>(site.document())));
+    attachDocument(static_cast<app::Document*>(const_cast<doc::Document*>(site.document())));
   }
 
   // DocumentsObserver
@@ -153,15 +149,9 @@ private:
     actions()->selectChild(item);
   }
 
-  void onAfterUndo(DocumentUndo* history) override
-  {
-    selectState(history->currentState());
-  }
+  void onAfterUndo(DocumentUndo* history) override { selectState(history->currentState()); }
 
-  void onAfterRedo(DocumentUndo* history) override
-  {
-    selectState(history->currentState());
-  }
+  void onAfterRedo(DocumentUndo* history) override { selectState(history->currentState()); }
 
   void onClearRedo(DocumentUndo* history) override { refillList(history); }
 

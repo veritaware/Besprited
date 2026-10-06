@@ -30,8 +30,8 @@ class PcxFormat : public FileFormat
   const char* onGetExtensions() const override { return "pcx"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
-           FILE_SUPPORT_GRAY | FILE_SUPPORT_INDEXED | FILE_SUPPORT_SEQUENCES;
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB | FILE_SUPPORT_GRAY | FILE_SUPPORT_INDEXED |
+           FILE_SUPPORT_SEQUENCES;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -90,8 +90,7 @@ bool PcxFormat::onLoad(FileOp* fop)
   for (c = 0; c < 60; c++) /* skip some more junk */
     fgetc(f);
 
-  Image* image =
-      fop->sequenceImage(bpp == 8 ? IMAGE_INDEXED : IMAGE_RGB, width, height);
+  Image* image = fop->sequenceImage(bpp == 8 ? IMAGE_INDEXED : IMAGE_RGB, width, height);
   if (!image)
   {
     return false;
@@ -131,9 +130,7 @@ bool PcxFormat::onLoad(FileOp* fop)
         while (c--)
         {
           if (xx < image->width())
-            put_pixel_fast<RgbTraits>(image, xx, y,
-                                      get_pixel_fast<RgbTraits>(image, xx, y) |
-                                          ((ch & 0xff) << po));
+            put_pixel_fast<RgbTraits>(image, xx, y, get_pixel_fast<RgbTraits>(image, xx, y) | ((ch & 0xff) << po));
 
           x++;
           if (x == bytes_per_line)

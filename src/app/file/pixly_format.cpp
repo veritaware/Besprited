@@ -38,8 +38,8 @@ class PixlyFormat : public FileFormat
   const char* onGetExtensions() const override { return "anim"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
-           FILE_SUPPORT_RGBA | FILE_SUPPORT_LAYERS | FILE_SUPPORT_FRAMES;
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB | FILE_SUPPORT_RGBA | FILE_SUPPORT_LAYERS |
+           FILE_SUPPORT_FRAMES;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -100,26 +100,22 @@ bool PixlyFormat::onLoad(FileOp* fop)
     tinyxml2::XMLHandle xml(doc.get());
     fop->setProgress(0.25);
 
-    tinyxml2::XMLElement* xmlAnim =
-        check(xml.FirstChildElement("PixlyAnimation").ToElement());
+    tinyxml2::XMLElement* xmlAnim = check(xml.FirstChildElement("PixlyAnimation").ToElement());
     double version = check_number<double>(xmlAnim->Attribute("version"));
     if (version < 1.5)
     {
       throw Exception("version 1.5 or above required");
     }
 
-    tinyxml2::XMLElement* xmlInfo =
-        check(xmlAnim->FirstChildElement("Info"))->ToElement();
+    tinyxml2::XMLElement* xmlInfo = check(xmlAnim->FirstChildElement("Info"))->ToElement();
 
     int layerCount = check_number<int>(xmlInfo->Attribute("layerCount"));
     int frameWidth = check_number<int>(xmlInfo->Attribute("frameWidth"));
     int frameHeight = check_number<int>(xmlInfo->Attribute("frameHeight"));
 
-    std::unique_ptr<Sprite> sprite(
-        new Sprite(IMAGE_RGB, frameWidth, frameHeight, 0));
+    std::unique_ptr<Sprite> sprite(new Sprite(IMAGE_RGB, frameWidth, frameHeight, 0));
 
-    tinyxml2::XMLElement* xmlFrames =
-        check(xmlAnim->FirstChildElement("Frames"))->ToElement();
+    tinyxml2::XMLElement* xmlFrames = check(xmlAnim->FirstChildElement("Frames"))->ToElement();
     int imageCount = check_number<int>(xmlFrames->Attribute("length"));
 
     if (layerCount <= 0 || imageCount <= 0)
@@ -137,8 +133,7 @@ bool PixlyFormat::onLoad(FileOp* fop)
     }
 
     // load image sheet
-    Document* sheet_doc = load_document(
-        nullptr, base::replace_extension(fop->filename(), "png").c_str());
+    Document* sheet_doc = load_document(nullptr, base::replace_extension(fop->filename(), "png").c_str());
     fop->setProgress(0.5);
 
     if (sheet_doc == nullptr)
@@ -159,14 +154,11 @@ bool PixlyFormat::onLoad(FileOp* fop)
     // slice cels from sheet
     std::vector<int> visible(layerCount, 0);
 
-    tinyxml2::XMLElement* xmlFrame =
-        check(xmlFrames->FirstChildElement("Frame"))->ToElement();
+    tinyxml2::XMLElement* xmlFrame = check(xmlFrames->FirstChildElement("Frame"))->ToElement();
     while (xmlFrame)
     {
-      tinyxml2::XMLElement* xmlRegion =
-          check(xmlFrame->FirstChildElement("Region"))->ToElement();
-      tinyxml2::XMLElement* xmlIndex =
-          check(xmlFrame->FirstChildElement("Index"))->ToElement();
+      tinyxml2::XMLElement* xmlRegion = check(xmlFrame->FirstChildElement("Region"))->ToElement();
+      tinyxml2::XMLElement* xmlIndex = check(xmlFrame->FirstChildElement("Index"))->ToElement();
 
       int index = check_number<int>(xmlIndex->Attribute("linear"));
       frame_t frame(index / layerCount);
@@ -176,19 +168,15 @@ bool PixlyFormat::onLoad(FileOp* fop)
       const char* duration = xmlFrame->Attribute("duration");
       if (duration)
       {
-        sprite->setFrameDuration(frame,
-                                 base::convert_to<int>(std::string(duration)));
+        sprite->setFrameDuration(frame, base::convert_to<int>(std::string(duration)));
       }
 
-      visible[(int)layer_index] +=
-          (int)(std::string(check(xmlFrame->Attribute("visible"), "false")) ==
-                "true");
+      visible[(int)layer_index] += (int)(std::string(check(xmlFrame->Attribute("visible"), "false")) == "true");
 
       int x0 = check_number<int>(xmlRegion->Attribute("x"));
       int y0_up = check_number<int>(xmlRegion->Attribute("y")); // inverted
 
-      if (y0_up < 0 || y0_up + frameHeight > sheetHeight || x0 < 0 ||
-          x0 + frameWidth > sheetWidth)
+      if (y0_up < 0 || y0_up + frameHeight > sheetHeight || x0 < 0 || x0 + frameWidth > sheetWidth)
       {
         throw Exception("looking for cels outside the bounds of the PNG");
       }
@@ -211,20 +199,17 @@ bool PixlyFormat::onLoad(FileOp* fop)
       gfx::Rect bounds;
       if (algorithm::shrink_bounds(image.get(), bounds, image->maskColor()))
       {
-        ImageRef trim_image(crop_image(image.get(), bounds.x, bounds.y,
-                                       bounds.w, bounds.h, image->maskColor()));
+        ImageRef trim_image(crop_image(image.get(), bounds.x, bounds.y, bounds.w, bounds.h, image->maskColor()));
 
         std::shared_ptr<Cel> cel;
         if ((int)frame > 0)
         {
           // link identical neighbors
           auto prev_cel = static_cast<LayerImage*>(layer)->cel(frame - 1);
-          if (prev_cel && prev_cel->x() == bounds.x &&
-              prev_cel->y() == bounds.y)
+          if (prev_cel && prev_cel->x() == bounds.x && prev_cel->y() == bounds.y)
           {
             Image* prev_image = prev_cel->image();
-            if (prev_image && doc::count_diff_between_images(
-                                  prev_image, trim_image.get()) == 0)
+            if (prev_image && doc::count_diff_between_images(prev_image, trim_image.get()) == 0)
             {
               cel = Cel::createLink(prev_cel);
               cel->setFrame(frame);
@@ -259,9 +244,7 @@ bool PixlyFormat::onLoad(FileOp* fop)
   }
   catch (Exception& e)
   {
-    fop->setError(
-        (std::string("Pixly file format: ") + std::string(e.what()) + "\n")
-            .c_str());
+    fop->setError((std::string("Pixly file format: ") + std::string(e.what()) + "\n").c_str());
     return false;
   }
 
@@ -272,8 +255,7 @@ bool PixlyFormat::onSave(FileOp* fop)
 {
   const Sprite* sprite = fop->document()->sprite();
 
-  auto it = sprite->folder()->getLayerBegin(),
-       end = sprite->folder()->getLayerEnd();
+  auto it = sprite->folder()->getLayerBegin(), end = sprite->folder()->getLayerEnd();
   for (; it != end; ++it)
   { // layers
     Layer* layer = *it;
@@ -302,8 +284,7 @@ bool PixlyFormat::onSave(FileOp* fop)
   LayerImage* sheet_layer = new LayerImage(sheet_sprite);
   sheet_sprite->folder()->addLayer(sheet_layer);
   std::unique_ptr<Document> sheet_doc(new Document(sheet_sprite));
-  std::shared_ptr<Image> sheet_image(
-      Image::create(IMAGE_RGB, sheetWidth, sheetHeight));
+  std::shared_ptr<Image> sheet_image(Image::create(IMAGE_RGB, sheetWidth, sheetHeight));
   Image* sheet = sheet_image.get();
   sheet_layer->addCel(std::make_shared<Cel>(frame_t(0), sheet_image));
 
@@ -320,15 +301,13 @@ bool PixlyFormat::onSave(FileOp* fop)
           "frameWidth=\"%d\" frameHeight=\"%d\" "
           "layerCount=\"%d\"/>\n"
           "\t<Frames length=\"%d\">\n",
-          sheetWidth, sheetWidth, squareSide, squareSide, frameWidth,
-          frameHeight, layerCount, imageCount);
+          sheetWidth, sheetWidth, squareSide, squareSide, frameWidth, frameHeight, layerCount, imageCount);
 
   // write cels on XML and PNG
   int index = 0;
   for (frame_t frame(0); frame < sprite->totalFrames(); ++frame)
   {
-    auto it = sprite->folder()->getLayerBegin(),
-         end = sprite->folder()->getLayerEnd();
+    auto it = sprite->folder()->getLayerBegin(), end = sprite->folder()->getLayerEnd();
     for (; it != end; ++it, ++index)
     { // layers
       Layer* layer = *it;
@@ -347,8 +326,7 @@ bool PixlyFormat::onSave(FileOp* fop)
               "\t\t\t<Region x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\"/>\n"
               "\t\t\t<Index linear=\"%d\" collumn=\"%d\" row=\"%d\"/>\n"
               "\t\t</Frame>\n",
-              duration, layer->isVisible() ? "true" : "false", x0, y0,
-              frameWidth, frameHeight, index, col, row);
+              duration, layer->isVisible() ? "true" : "false", x0, y0, frameWidth, frameHeight, index, col, row);
 
       auto cel = layer->cel(frame);
       if (cel)
@@ -367,8 +345,7 @@ bool PixlyFormat::onSave(FileOp* fop)
             int y0_down = (sheetHeight - 1) - y0 - (frameHeight - 1) + celY + y;
             uint32_t* src_begin = (uint32_t*)image->getPixelAddress(0, y);
             uint32_t* src_end = src_begin + celWidth;
-            uint32_t* dst_begin =
-                (uint32_t*)sheet->getPixelAddress(x0 + celX, y0_down);
+            uint32_t* dst_begin = (uint32_t*)sheet->getPixelAddress(x0 + celX, y0_down);
 
             std::copy(src_begin, src_end, dst_begin);
           }

@@ -18,7 +18,6 @@ namespace app
 {
 
 doc::Image* new_image_from_mask(const doc::Site& site);
-doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* mask,
-                                bool merged = false);
+doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* mask, bool merged = false);
 
 } // namespace app

@@ -114,18 +114,16 @@ void OpenFileCommand::onExecute(Context* context)
 
     // Add backslash as show_file_selector() expected a filename as
     // initial path (and the file part is removed from the path).
-    if (!m_folder.empty() &&
-        !base::is_path_separator(m_folder[m_folder.size() - 1]))
+    if (!m_folder.empty() && !base::is_path_separator(m_folder[m_folder.size() - 1]))
       m_folder.push_back(base::path_separator);
 
-    m_filename =
-        app::show_file_selector("Open", m_folder, exts, FileSelectorType::Open);
+    m_filename = app::show_file_selector("Open", m_folder, exts, FileSelectorType::Open);
   }
 
   if (!m_filename.empty())
   {
-    std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(
-        context, m_filename.c_str(), FILE_LOAD_SEQUENCE_ASK));
+    std::unique_ptr<FileOp> fop(
+        FileOp::createLoadDocumentOperation(context, m_filename.c_str(), FILE_LOAD_SEQUENCE_ASK));
     bool unrecent = false;
 
     if (fop)
@@ -152,8 +150,7 @@ void OpenFileCommand::onExecute(Context* context)
         if (document)
         {
           if (context->isUIAvailable())
-            App::instance()->recentFiles()->addRecentFile(
-                fop->filename().c_str());
+            App::instance()->recentFiles()->addRecentFile(fop->filename().c_str());
 
           document->setContext(context);
         }

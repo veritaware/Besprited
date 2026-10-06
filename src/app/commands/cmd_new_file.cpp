@@ -76,8 +76,7 @@ void NewFileCommand::onExecute(Context* context)
   // Default values: Indexed, 320x240, Background color
   PixelFormat format = pref.newFile.colorMode();
   // Invalid format in config file.
-  if (format != IMAGE_RGB && format != IMAGE_INDEXED &&
-      format != IMAGE_GRAYSCALE)
+  if (format != IMAGE_RGB && format != IMAGE_INDEXED && format != IMAGE_GRAYSCALE)
   {
     format = IMAGE_INDEXED;
   }
@@ -153,12 +152,10 @@ void NewFileCommand::onExecute(Context* context)
       pref.newFile.backgroundColor(bg);
 
       // Create the new sprite
-      ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE ||
-             format == IMAGE_INDEXED);
+      ASSERT(format == IMAGE_RGB || format == IMAGE_GRAYSCALE || format == IMAGE_INDEXED);
       ASSERT(w > 0 && h > 0);
 
-      std::unique_ptr<Sprite> sprite(
-          Sprite::createBasicSprite(format, w, h, ncolors));
+      std::unique_ptr<Sprite> sprite(Sprite::createBasicSprite(format, w, h, ncolors));
 
       if (sprite->pixelFormat() != IMAGE_GRAYSCALE)
         get_default_palette()->copyColorsTo(*sprite->palette(frame_t(0)));
@@ -180,11 +177,9 @@ void NewFileCommand::onExecute(Context* context)
           auto oldPal = get_current_palette()->clone();
           set_current_palette(get_default_palette(), false);
 
-          doc::clear_image(image,
-                           color_utils::color_for_target(
-                               color, ColorTarget(ColorTarget::BackgroundLayer,
-                                                  sprite->pixelFormat(),
-                                                  sprite->transparentColor())));
+          doc::clear_image(image, color_utils::color_for_target(color, ColorTarget(ColorTarget::BackgroundLayer,
+                                                                                   sprite->pixelFormat(),
+                                                                                   sprite->transparentColor())));
 
           set_current_palette(oldPal.get(), false);
         }
@@ -219,10 +214,9 @@ void NewFileCommand::onExecute(Context* context)
             }
             else
             {
-              srcImage.reset(render::convert_pixel_format(
-                  clipImage.get(), nullptr, sprite->pixelFormat(),
-                  DitheringMethod::NONE, sprite->rgbMap(frame_t(0)),
-                  clipPalette.get(), layerImage->isBackground(), 0));
+              srcImage.reset(render::convert_pixel_format(clipImage.get(), nullptr, sprite->pixelFormat(),
+                                                          DitheringMethod::NONE, sprite->rgbMap(frame_t(0)),
+                                                          clipPalette.get(), layerImage->isBackground(), 0));
             }
 
             doc::copy_image(dstImage, srcImage.get());
@@ -253,8 +247,7 @@ void NewFileCommand::onExecute(Context* context)
       // what creates the editor view for the document.
       if (newTopLayer)
       {
-        Preferences::instance().document(doc.get()).site.layer(
-            spritePtr->layerToIndex(newTopLayer));
+        Preferences::instance().document(doc.get()).site.layer(spritePtr->layerToIndex(newTopLayer));
       }
 
       doc->setContext(context);

@@ -36,8 +36,7 @@ SymmetryModeCommand::SymmetryModeCommand()
 
 bool SymmetryModeCommand::onEnabled(Context* ctx)
 {
-  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                         ContextFlags::HasActiveSprite);
+  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 bool SymmetryModeCommand::onChecked(Context* ctx)

@@ -24,8 +24,7 @@ public:
   virtual ~Symmetry() {}
 
   // The "stroke" must be relative to the sprite origin.
-  virtual void generateStrokes(const Stroke& stroke, Strokes& strokes,
-                               ToolLoop* loop) = 0;
+  virtual void generateStrokes(const Stroke& stroke, Strokes& strokes, ToolLoop* loop) = 0;
 };
 
 class HorizontalSymmetry : public Symmetry
@@ -35,8 +34,7 @@ public:
     : m_x(x)
   {
   }
-  void generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                       ToolLoop* loop) override;
+  void generateStrokes(const Stroke& mainStroke, Strokes& strokes, ToolLoop* loop) override;
 
 private:
   int m_x;
@@ -49,8 +47,7 @@ public:
     : m_y(y)
   {
   }
-  void generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                       ToolLoop* loop) override;
+  void generateStrokes(const Stroke& mainStroke, Strokes& strokes, ToolLoop* loop) override;
 
 private:
   int m_y;
@@ -65,8 +62,7 @@ public:
     , m_y(y)
   {
   }
-  void generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                       ToolLoop* loop) override;
+  void generateStrokes(const Stroke& mainStroke, Strokes& strokes, ToolLoop* loop) override;
 
 private:
   int m_x, m_y;
@@ -81,8 +77,7 @@ public:
     , m_y(y)
   {
   }
-  void generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                       ToolLoop* loop) override;
+  void generateStrokes(const Stroke& mainStroke, Strokes& strokes, ToolLoop* loop) override;
 
 private:
   int m_x, m_y;
@@ -99,8 +94,7 @@ public:
     , m_y(y)
   {
   }
-  void generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                       ToolLoop* loop) override;
+  void generateStrokes(const Stroke& mainStroke, Strokes& strokes, ToolLoop* loop) override;
 
 private:
   int m_x, m_y;
@@ -117,8 +111,7 @@ public:
     , m_y(y)
   {
   }
-  void generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                       ToolLoop* loop) override;
+  void generateStrokes(const Stroke& mainStroke, Strokes& strokes, ToolLoop* loop) override;
 
 private:
   int m_x, m_y;
@@ -137,8 +130,7 @@ public:
     , m_y(y)
   {
   }
-  void generateStrokes(const Stroke& mainStroke, Strokes& strokes,
-                       ToolLoop* loop) override;
+  void generateStrokes(const Stroke& mainStroke, Strokes& strokes, ToolLoop* loop) override;
 
 private:
   int m_flags;

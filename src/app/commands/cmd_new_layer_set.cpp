@@ -45,8 +45,7 @@ NewLayerSetCommand::NewLayerSetCommand()
 
 bool NewLayerSetCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void NewLayerSetCommand::onExecute(Context* context)
@@ -56,8 +55,7 @@ void NewLayerSetCommand::onExecute(Context* context)
   Sprite* sprite(writer.sprite());
 
   // load the window widget
-  std::unique_ptr<Window> window(
-      app::load_widget<Window>("new_layer.xml", "new_layer_set"));
+  std::unique_ptr<Window> window(app::load_widget<Window>("new_layer.xml", "new_layer_set"));
 
   window->openWindowInForeground();
 

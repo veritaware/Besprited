@@ -59,10 +59,7 @@ public:
   // Called just before this state is replaced by a new state in the
   // Editor::setState() method.  Returns true if this state should be
   // kept in the EditorStatesHistory.
-  virtual LeaveAction onLeaveState(Editor* editor, EditorState* newState)
-  {
-    return KeepState;
-  }
+  virtual LeaveAction onLeaveState(Editor* editor, EditorState* newState) { return KeepState; }
 
   // Called when this instance is set as the new Editor's state when
   // Editor::setState() method is used.
@@ -80,49 +77,28 @@ public:
   virtual void onActiveToolChange(Editor* editor, tools::Tool* tool) {}
 
   // Called when the user presses a mouse button over the editor.
-  virtual bool onMouseDown(Editor* editor, ui::MouseMessage* msg)
-  {
-    return false;
-  }
+  virtual bool onMouseDown(Editor* editor, ui::MouseMessage* msg) { return false; }
 
   // Called when the user releases a mouse button.
-  virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg)
-  {
-    return false;
-  }
+  virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) { return false; }
 
   // Called when the user moves the mouse over the editor.
-  virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg)
-  {
-    return false;
-  }
+  virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) { return false; }
 
   // Called when the user moves the mouse wheel over the editor.
-  virtual bool onMouseWheel(Editor* editor, ui::MouseMessage* msg)
-  {
-    return false;
-  }
+  virtual bool onMouseWheel(Editor* editor, ui::MouseMessage* msg) { return false; }
 
   // Called when the user wants to zoom in/out using a pinch gesture in the
   // trackpad.
-  virtual bool onTouchMagnify(Editor* editor, ui::TouchMessage* msg)
-  {
-    return false;
-  }
+  virtual bool onTouchMagnify(Editor* editor, ui::TouchMessage* msg) { return false; }
 
   // Called when the user moves the mouse wheel over the editor.
-  virtual bool onDoubleClick(Editor* editor, ui::MouseMessage* msg)
-  {
-    return false;
-  }
+  virtual bool onDoubleClick(Editor* editor, ui::MouseMessage* msg) { return false; }
 
   // Called each time the mouse changes its position so we can set an
   // appropiated cursor depending on the new coordinates of the mouse
   // pointer.
-  virtual bool onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
-  {
-    return false;
-  }
+  virtual bool onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos) { return false; }
 
   // Called when a key is pressed over the current editor.
   virtual bool onKeyDown(Editor* editor, ui::KeyMessage* msg) { return false; }

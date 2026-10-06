@@ -10,22 +10,26 @@
 
 #include <cstdint>
 
-namespace clip {
-namespace details {
+namespace clip
+{
+namespace details
+{
 
-inline void divide_rgb_by_alpha(image& img,
-                                bool hasAlphaGreaterThanZero = false) {
+inline void divide_rgb_by_alpha(image& img, bool hasAlphaGreaterThanZero = false)
+{
   const image_spec& spec = img.spec();
 
   bool hasValidPremultipliedAlpha = true;
 
-  for (unsigned long y=0; y<spec.height; ++y) {
-    const uint32_t* dst = (uint32_t*)(img.data()+y*spec.bytes_per_row);
-    for (unsigned long x=0; x<spec.width; ++x, ++dst) {
+  for (unsigned long y = 0; y < spec.height; ++y)
+  {
+    const uint32_t* dst = (uint32_t*)(img.data() + y * spec.bytes_per_row);
+    for (unsigned long x = 0; x < spec.width; ++x, ++dst)
+    {
       const uint32_t c = *dst;
-      const int r = ((c & spec.red_mask  ) >> spec.red_shift  );
+      const int r = ((c & spec.red_mask) >> spec.red_shift);
       const int g = ((c & spec.green_mask) >> spec.green_shift);
-      const int b = ((c & spec.blue_mask ) >> spec.blue_shift );
+      const int b = ((c & spec.blue_mask) >> spec.blue_shift);
       const int a = ((c & spec.alpha_mask) >> spec.alpha_shift);
 
       if (a > 0)
@@ -35,17 +39,20 @@ inline void divide_rgb_by_alpha(image& img,
     }
   }
 
-  for (unsigned long y=0; y<spec.height; ++y) {
-    uint32_t* dst = (uint32_t*)(img.data()+y*spec.bytes_per_row);
-    for (unsigned long x=0; x<spec.width; ++x, ++dst) {
+  for (unsigned long y = 0; y < spec.height; ++y)
+  {
+    uint32_t* dst = (uint32_t*)(img.data() + y * spec.bytes_per_row);
+    for (unsigned long x = 0; x < spec.width; ++x, ++dst)
+    {
       const uint32_t c = *dst;
-      int r = ((c & spec.red_mask  ) >> spec.red_shift  );
+      int r = ((c & spec.red_mask) >> spec.red_shift);
       int g = ((c & spec.green_mask) >> spec.green_shift);
-      int b = ((c & spec.blue_mask ) >> spec.blue_shift );
+      int b = ((c & spec.blue_mask) >> spec.blue_shift);
       int a = ((c & spec.alpha_mask) >> spec.alpha_shift);
 
       // If all alpha values = 0, we make the image opaque.
-      if (!hasAlphaGreaterThanZero) {
+      if (!hasAlphaGreaterThanZero)
+      {
         a = 255;
 
         // We cannot change the image spec (e.g. spec.alpha_mask=0) to
@@ -54,8 +61,10 @@ inline void divide_rgb_by_alpha(image& img,
         // returned by get_image_spec().
       }
       // If there is alpha information and it's pre-multiplied alpha
-      else if (hasValidPremultipliedAlpha) {
-        if (a > 0) {
+      else if (hasValidPremultipliedAlpha)
+      {
+        if (a > 0)
+        {
           // Convert it to straight alpha
           r = r * 255 / a;
           g = g * 255 / a;
@@ -63,11 +72,7 @@ inline void divide_rgb_by_alpha(image& img,
         }
       }
 
-      *dst =
-        (r << spec.red_shift  ) |
-        (g << spec.green_shift) |
-        (b << spec.blue_shift ) |
-        (a << spec.alpha_shift);
+      *dst = (r << spec.red_shift) | (g << spec.green_shift) | (b << spec.blue_shift) | (a << spec.alpha_shift);
     }
   }
 }

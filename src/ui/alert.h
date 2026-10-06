@@ -31,8 +31,7 @@ public:
   static int show(const char* format, ...);
 
 private:
-  void processString(char* buf, std::vector<Widget*>& labels,
-                     std::vector<Widget*>& buttons);
+  void processString(char* buf, std::vector<Widget*>& labels, std::vector<Widget*>& buttons);
 
   Slider* m_progress;
   Box* m_progressPlaceholder;

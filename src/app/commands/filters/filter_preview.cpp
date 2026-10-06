@@ -69,10 +69,9 @@ bool FilterPreview::onProcessMessage(Message* msg)
   {
 
   case kOpenMessage:
-    current_editor->renderEngine().setPreviewImage(
-        m_filterMgr->layer(), m_filterMgr->frame(),
-        m_filterMgr->destinationImage(), m_filterMgr->position(),
-        static_cast<doc::LayerImage*>(m_filterMgr->layer())->blendMode());
+    current_editor->renderEngine().setPreviewImage(m_filterMgr->layer(), m_filterMgr->frame(),
+                                                   m_filterMgr->destinationImage(), m_filterMgr->position(),
+                                                   static_cast<doc::LayerImage*>(m_filterMgr->layer())->blendMode());
     break;
 
   case kCloseMessage:

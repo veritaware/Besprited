@@ -140,8 +140,7 @@ void TouchBar::internalOrganize()
   for (auto& entry : touches)
   {
     auto& button = *m_touches[entry.first]->button;
-    w = std::max(w, button.textWidth() * ui::guiscale() +
-                        button.border().width() * 2);
+    w = std::max(w, button.textWidth() * ui::guiscale() + button.border().width() * 2);
     if (!h)
       h = button.textHeight() * ui::guiscale() + button.border().height() * 2;
     removeChild(&button);

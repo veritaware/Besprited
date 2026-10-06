@@ -45,15 +45,12 @@
 namespace app
 {
 
-template <typename T>
-static inline const base::Vector2d<double>
-point2Vector(const gfx::PointT<T>& pt)
+template <typename T> static inline const base::Vector2d<double> point2Vector(const gfx::PointT<T>& pt)
 {
   return base::Vector2d<double>(pt.x, pt.y);
 }
 
-PixelsMovement::PixelsMovement(Context* context, Site site,
-                               const Image* moveThis, const Mask* mask,
+PixelsMovement::PixelsMovement(Context* context, Site site, const Image* moveThis, const Mask* mask,
                                const char* operationName)
   : m_reader(context)
   , m_site(site)
@@ -78,15 +75,12 @@ PixelsMovement::PixelsMovement(Context* context, Site site,
   m_initialMask = new Mask(*mask);
   m_currentMask = new Mask(*mask);
 
-  m_pivotVisConn =
-      Preferences::instance().selection.pivotVisibility.AfterChange.connect(
-          base::Bind<void>(&PixelsMovement::onPivotChange, this));
-  m_pivotPosConn =
-      Preferences::instance().selection.pivotPosition.AfterChange.connect(
-          base::Bind<void>(&PixelsMovement::onPivotChange, this));
-  m_rotAlgoConn =
-      Preferences::instance().selection.rotationAlgorithm.AfterChange.connect(
-          base::Bind<void>(&PixelsMovement::onRotationAlgorithmChange, this));
+  m_pivotVisConn = Preferences::instance().selection.pivotVisibility.AfterChange.connect(
+      base::Bind<void>(&PixelsMovement::onPivotChange, this));
+  m_pivotPosConn = Preferences::instance().selection.pivotPosition.AfterChange.connect(
+      base::Bind<void>(&PixelsMovement::onPivotChange, this));
+  m_rotAlgoConn = Preferences::instance().selection.rotationAlgorithm.AfterChange.connect(
+      base::Bind<void>(&PixelsMovement::onRotationAlgorithmChange, this));
 
   // The extra cel must be null, because if it's not null, it means
   // that someone else is using it (e.g. the editor brush preview),
@@ -136,15 +130,12 @@ void PixelsMovement::flipImage(doc::algorithm::FlipType flipType)
 {
   // Flip the image.
   doc::algorithm::flip_image(
-      m_originalImage,
-      gfx::Rect(gfx::Point(0, 0),
-                gfx::Size(m_originalImage->width(), m_originalImage->height())),
+      m_originalImage, gfx::Rect(gfx::Point(0, 0), gfx::Size(m_originalImage->width(), m_originalImage->height())),
       flipType);
 
   // Flip the mask.
-  doc::algorithm::flip_image(
-      m_initialMask->bitmap(),
-      gfx::Rect(gfx::Point(0, 0), m_initialMask->bounds().size()), flipType);
+  doc::algorithm::flip_image(m_initialMask->bitmap(), gfx::Rect(gfx::Point(0, 0), m_initialMask->bounds().size()),
+                             flipType);
 
   {
     ContextWriter writer(m_reader, 1000);
@@ -239,10 +230,8 @@ void PixelsMovement::moveImage(const gfx::Point& pos, MoveModifier moveModifier)
   bool updateBounds = false;
   double dx, dy;
 
-  dx = ((pos.x - m_catchPos.x) * cos(m_currentData.angle()) +
-        (pos.y - m_catchPos.y) * -sin(m_currentData.angle()));
-  dy = ((pos.x - m_catchPos.x) * sin(m_currentData.angle()) +
-        (pos.y - m_catchPos.y) * cos(m_currentData.angle()));
+  dx = ((pos.x - m_catchPos.x) * cos(m_currentData.angle()) + (pos.y - m_catchPos.y) * -sin(m_currentData.angle()));
+  dy = ((pos.x - m_catchPos.x) * sin(m_currentData.angle()) + (pos.y - m_catchPos.y) * cos(m_currentData.angle()));
 
   switch (m_handle)
   {
@@ -262,11 +251,8 @@ void PixelsMovement::moveImage(const gfx::Point& pos, MoveModifier moveModifier)
     if ((moveModifier & SnapToGridMovement) == SnapToGridMovement)
     {
       // Snap the x1,y1 point to the grid.
-      gfx::Rect gridBounds =
-          App::instance()->preferences().document(m_document).grid.bounds();
-      gfx::PointF gridOffset(snap_to_grid(gridBounds,
-                                          gfx::Point(bounds.origin()),
-                                          PreferSnapTo::ClosestGridVertex));
+      gfx::Rect gridBounds = App::instance()->preferences().document(m_document).grid.bounds();
+      gfx::PointF gridOffset(snap_to_grid(gridBounds, gfx::Point(bounds.origin()), PreferSnapTo::ClosestGridVertex));
 
       // Now we calculate the difference from x1,y1 point and we can
       // use it to adjust all coordinates (x1, y1, x2, y2).
@@ -284,12 +270,10 @@ void PixelsMovement::moveImage(const gfx::Point& pos, MoveModifier moveModifier)
   case ScaleSHandle:
   case ScaleSEHandle:
   {
-    static double handles[][2] = {{0.0, 0.0}, {0.5, 0.0}, {1.0, 0.0},
-                                  {0.0, 0.5}, {1.0, 0.5}, {0.0, 1.0},
-                                  {0.5, 1.0}, {1.0, 1.0}};
+    static double handles[][2] = {{0.0, 0.0}, {0.5, 0.0}, {1.0, 0.0}, {0.0, 0.5},
+                                  {1.0, 0.5}, {0.0, 1.0}, {0.5, 1.0}, {1.0, 1.0}};
     gfx::PointF pivot;
-    gfx::PointF handle(handles[m_handle - ScaleNWHandle][0],
-                       handles[m_handle - ScaleNWHandle][1]);
+    gfx::PointF handle(handles[m_handle - ScaleNWHandle][0], handles[m_handle - ScaleNWHandle][1]);
 
     if ((moveModifier & ScaleFromPivot) == ScaleFromPivot)
     {
@@ -307,16 +291,14 @@ void PixelsMovement::moveImage(const gfx::Point& pos, MoveModifier moveModifier)
     gfx::PointF a = bounds.origin();
     gfx::PointF b = bounds.point2();
 
-    if ((moveModifier & MaintainAspectRatioMovement) ==
-        MaintainAspectRatioMovement)
+    if ((moveModifier & MaintainAspectRatioMovement) == MaintainAspectRatioMovement)
     {
       auto u = point2Vector(gfx::PointF(m_catchPos) - pivot);
       auto v = point2Vector(gfx::PointF(pos) - pivot);
       auto w = v.projectOn(u);
       double scale = u.magnitude();
       if (scale != 0.0)
-        scale = (std::fabs(w.angle() - u.angle()) < PI / 2.0 ? 1.0 : -1.0) *
-                w.magnitude() / scale;
+        scale = (std::fabs(w.angle() - u.angle()) < PI / 2.0 ? 1.0 : -1.0) * w.magnitude() / scale;
       else
         scale = 1.0;
 
@@ -375,10 +357,8 @@ void PixelsMovement::moveImage(const gfx::Point& pos, MoveModifier moveModifier)
     gfx::PointF abs_pivot = m_currentData.pivot();
 
     double newAngle =
-        m_initialData.angle() +
-        atan2((double)(-pos.y + abs_pivot.y), (double)(+pos.x - abs_pivot.x)) -
-        atan2((double)(-m_catchPos.y + abs_initial_pivot.y),
-              (double)(+m_catchPos.x - abs_initial_pivot.x));
+        m_initialData.angle() + atan2((double)(-pos.y + abs_pivot.y), (double)(+pos.x - abs_pivot.x)) -
+        atan2((double)(-m_catchPos.y + abs_initial_pivot.y), (double)(+m_catchPos.x - abs_initial_pivot.x));
 
     // Put the angle in -180 to 180 range.
     while (newAngle < -PI)
@@ -391,10 +371,8 @@ void PixelsMovement::moveImage(const gfx::Point& pos, MoveModifier moveModifier)
     if ((moveModifier & AngleSnapMovement) == AngleSnapMovement)
     {
       // TODO make this configurable
-      static const double keyAngles[] = {
-          0.0,   26.565,  45.0,    63.435, 90.0,     116.565,
-          135.0, 153.435, 180.0,   180.0,  -153.435, -135.0,
-          -116,  -90.0,   -63.435, -45.0,  -26.565};
+      static const double keyAngles[] = {0.0,   26.565,   45.0,   63.435, 90.0,  116.565, 135.0, 153.435, 180.0,
+                                         180.0, -153.435, -135.0, -116,   -90.0, -63.435, -45.0, -26.565};
 
       double newAngleDegrees = 180.0 * newAngle / PI;
 
@@ -402,8 +380,7 @@ void PixelsMovement::moveImage(const gfx::Point& pos, MoveModifier moveModifier)
       int last = sizeof(keyAngles) / sizeof(keyAngles[0]) - 1;
       for (int i = 0; i <= last; ++i)
       {
-        if (std::fabs(newAngleDegrees - keyAngles[closest]) >
-            std::fabs(newAngleDegrees - keyAngles[i]))
+        if (std::fabs(newAngleDegrees - keyAngles[closest]) > std::fabs(newAngleDegrees - keyAngles[i]))
           closest = i;
       }
 
@@ -445,27 +422,22 @@ void PixelsMovement::moveImage(const gfx::Point& pos, MoveModifier moveModifier)
   gfx::Rect fullBounds;
   for (int i = 0; i < Transformation::Corners::NUM_OF_CORNERS; ++i)
   {
-    fullBounds = fullBounds.createUnion(
-        gfx::Rect((int)oldCorners[i].x, (int)oldCorners[i].y, 1, 1));
-    fullBounds = fullBounds.createUnion(
-        gfx::Rect((int)newCorners[i].x, (int)newCorners[i].y, 1, 1));
+    fullBounds = fullBounds.createUnion(gfx::Rect((int)oldCorners[i].x, (int)oldCorners[i].y, 1, 1));
+    fullBounds = fullBounds.createUnion(gfx::Rect((int)newCorners[i].x, (int)newCorners[i].y, 1, 1));
   }
 
   // If "fullBounds" is empty is because the cel was not moved
   if (!fullBounds.isEmpty())
   {
     // Notify the modified region.
-    m_document->notifySpritePixelsModified(m_sprite, gfx::Region(fullBounds),
-                                           m_site.frame());
+    m_document->notifySpritePixelsModified(m_sprite, gfx::Region(fullBounds), m_site.frame());
   }
 }
 
-void PixelsMovement::getDraggedImageCopy(std::unique_ptr<Image>& outputImage,
-                                         std::unique_ptr<Mask>& outputMask)
+void PixelsMovement::getDraggedImageCopy(std::unique_ptr<Image>& outputImage, std::unique_ptr<Mask>& outputMask)
 {
   gfx::Rect bounds = m_currentData.transformedBounds();
-  std::unique_ptr<Image> image(
-      Image::create(m_sprite->pixelFormat(), bounds.w, bounds.h));
+  std::unique_ptr<Image> image(Image::create(m_sprite->pixelFormat(), bounds.w, bounds.h));
 
   drawImage(image.get(), bounds.origin(), false);
 
@@ -482,8 +454,7 @@ void PixelsMovement::getDraggedImageCopy(std::unique_ptr<Image>& outputImage,
   {
     newMaskBounds.x -= oldMaskBounds.x;
     newMaskBounds.y -= oldMaskBounds.y;
-    image.reset(crop_image(image.get(), newMaskBounds.x, newMaskBounds.y,
-                           newMaskBounds.w, newMaskBounds.h, 0));
+    image.reset(crop_image(image.get(), newMaskBounds.x, newMaskBounds.y, newMaskBounds.w, newMaskBounds.h, 0));
   }
 
   outputImage.reset(image.release());
@@ -502,19 +473,16 @@ void PixelsMovement::stampImage()
     {
       // Expand the canvas to paste the image in the fully visible
       // portion of sprite.
-      ExpandCelCanvas expand(m_site, m_site.layer(), TiledMode::NONE,
-                             m_transaction, ExpandCelCanvas::None);
+      ExpandCelCanvas expand(m_site, m_site.layer(), TiledMode::NONE, m_transaction, ExpandCelCanvas::None);
 
       // We cannot use cel->bounds() because cel->image() is nullptr
-      gfx::Rect modifiedRect(cel->x(), cel->y(), image->width(),
-                             image->height());
+      gfx::Rect modifiedRect(cel->x(), cel->y(), image->width(), image->height());
 
       gfx::Region modifiedRegion(modifiedRect);
       expand.validateDestCanvas(modifiedRegion);
 
       expand.getDestCanvas()->copy(
-          image, gfx::Clip(cel->x() - expand.getCel()->x(),
-                           cel->y() - expand.getCel()->y(), image->bounds()));
+          image, gfx::Clip(cel->x() - expand.getCel()->x(), cel->y() - expand.getCel()->y(), image->bounds()));
 
       expand.commit();
     }
@@ -537,8 +505,7 @@ void PixelsMovement::dropImageTemporarily()
 
       // Get the a factor for the X/Y position of the initial pivot
       // position inside the initial non-rotated bounds.
-      gfx::PointF pivotPosFactor(m_initialData.pivot() -
-                                 m_initialData.bounds().origin());
+      gfx::PointF pivotPosFactor(m_initialData.pivot() - m_initialData.bounds().origin());
       pivotPosFactor.x /= m_initialData.bounds().w;
       pivotPosFactor.y /= m_initialData.bounds().h;
 
@@ -551,10 +518,8 @@ void PixelsMovement::dropImageTemporarily()
       // width/height multiplied with the previously calculated X/Y
       // factor.
       base::Vector2d<double> newPivot(corners.leftTop().x, corners.leftTop().y);
-      newPivot += pivotPosFactor.x *
-                  point2Vector(corners.rightTop() - corners.leftTop());
-      newPivot += pivotPosFactor.y *
-                  point2Vector(corners.leftBottom() - corners.leftTop());
+      newPivot += pivotPosFactor.x * point2Vector(corners.rightTop() - corners.leftTop());
+      newPivot += pivotPosFactor.y * point2Vector(corners.leftBottom() - corners.leftTop());
 
       m_currentData.displacePivotTo(gfx::PointF(newPivot.x, newPivot.y));
     }
@@ -655,8 +620,7 @@ void PixelsMovement::redrawCurrentMask()
   drawMask(m_currentMask, true);
 }
 
-void PixelsMovement::drawImage(doc::Image* dst, const gfx::Point& pt,
-                               bool renderOriginalLayer)
+void PixelsMovement::drawImage(doc::Image* dst, const gfx::Point& pt, bool renderOriginalLayer)
 {
   ASSERT(dst);
 
@@ -668,9 +632,8 @@ void PixelsMovement::drawImage(doc::Image* dst, const gfx::Point& pt,
   dst->clear(dst->maskColor());
 
   if (renderOriginalLayer)
-    render::Render().renderLayer(
-        dst, m_layer, m_site.frame(),
-        gfx::Clip(bounds.x - pt.x, bounds.y - pt.y, bounds), BlendMode::SRC);
+    render::Render().renderLayer(dst, m_layer, m_site.frame(), gfx::Clip(bounds.x - pt.x, bounds.y - pt.y, bounds),
+                                 BlendMode::SRC);
 
   color_t maskColor = m_maskColor;
 
@@ -700,25 +663,20 @@ void PixelsMovement::drawMask(doc::Mask* mask, bool shrink)
   if (shrink)
     mask->freeze();
   clear_image(mask->bitmap(), 0);
-  drawParallelogram(mask->bitmap(), m_initialMask->bitmap(), nullptr, corners,
-                    bounds.origin());
+  drawParallelogram(mask->bitmap(), m_initialMask->bitmap(), nullptr, corners, bounds.origin());
   if (shrink)
     mask->unfreeze();
 }
 
-void PixelsMovement::drawParallelogram(doc::Image* dst, const doc::Image* src,
-                                       const doc::Mask* mask,
-                                       const Transformation::Corners& corners,
-                                       const gfx::Point& leftTop)
+void PixelsMovement::drawParallelogram(doc::Image* dst, const doc::Image* src, const doc::Mask* mask,
+                                       const Transformation::Corners& corners, const gfx::Point& leftTop)
 {
-  tools::RotationAlgorithm rotAlgo =
-      Preferences::instance().selection.rotationAlgorithm();
+  tools::RotationAlgorithm rotAlgo = Preferences::instance().selection.rotationAlgorithm();
 
   // If the angle and the scale weren't modified, we should use the
   // fast rotation algorithm, as it's pixel-perfect match with the
   // original selection when just a translation is applied.
-  if (m_currentData.angle() == 0.0 &&
-      gfx::Rect(m_currentData.bounds()).size() == src->size())
+  if (m_currentData.angle() == 0.0 && gfx::Rect(m_currentData.bounds()).size() == src->size())
   {
     rotAlgo = tools::RotationAlgorithm::FAST;
   }
@@ -730,29 +688,20 @@ retry:; // In case that we don't have enough memory for RotSprite
   {
 
   case tools::RotationAlgorithm::FAST:
-    doc::algorithm::parallelogram(dst, src, (mask ? mask->bitmap() : nullptr),
-                                  int(corners.leftTop().x - leftTop.x),
-                                  int(corners.leftTop().y - leftTop.y),
-                                  int(corners.rightTop().x - leftTop.x),
-                                  int(corners.rightTop().y - leftTop.y),
-                                  int(corners.rightBottom().x - leftTop.x),
-                                  int(corners.rightBottom().y - leftTop.y),
-                                  int(corners.leftBottom().x - leftTop.x),
+    doc::algorithm::parallelogram(dst, src, (mask ? mask->bitmap() : nullptr), int(corners.leftTop().x - leftTop.x),
+                                  int(corners.leftTop().y - leftTop.y), int(corners.rightTop().x - leftTop.x),
+                                  int(corners.rightTop().y - leftTop.y), int(corners.rightBottom().x - leftTop.x),
+                                  int(corners.rightBottom().y - leftTop.y), int(corners.leftBottom().x - leftTop.x),
                                   int(corners.leftBottom().y - leftTop.y));
     break;
 
   case tools::RotationAlgorithm::ROTSPRITE:
     try
     {
-      doc::algorithm::rotsprite_image(dst, src,
-                                      (mask ? mask->bitmap() : nullptr),
-                                      int(corners.leftTop().x - leftTop.x),
-                                      int(corners.leftTop().y - leftTop.y),
-                                      int(corners.rightTop().x - leftTop.x),
-                                      int(corners.rightTop().y - leftTop.y),
-                                      int(corners.rightBottom().x - leftTop.x),
-                                      int(corners.rightBottom().y - leftTop.y),
-                                      int(corners.leftBottom().x - leftTop.x),
+      doc::algorithm::rotsprite_image(dst, src, (mask ? mask->bitmap() : nullptr), int(corners.leftTop().x - leftTop.x),
+                                      int(corners.leftTop().y - leftTop.y), int(corners.rightTop().x - leftTop.x),
+                                      int(corners.rightTop().y - leftTop.y), int(corners.rightBottom().x - leftTop.x),
+                                      int(corners.rightBottom().y - leftTop.y), int(corners.leftBottom().x - leftTop.x),
                                       int(corners.leftBottom().y - leftTop.y));
     }
     catch (const std::bad_alloc&)

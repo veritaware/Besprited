@@ -15,8 +15,7 @@ namespace base
 
 #ifdef ASEPRITE_LITTLE_ENDIAN
 
-template <typename PTR, typename VALUE>
-inline void write24bits(PTR* ptr, VALUE value)
+template <typename PTR, typename VALUE> inline void write24bits(PTR* ptr, VALUE value)
 {
   ((uint8_t*)ptr)[0] = value;
   ((uint8_t*)ptr)[1] = value >> 8;
@@ -25,8 +24,7 @@ inline void write24bits(PTR* ptr, VALUE value)
 
 #elif defined(ASEPRITE_BIG_ENDIAN)
 
-template <typename PTR, typename VALUE>
-inline void write24bits(PTR* ptr, VALUE value)
+template <typename PTR, typename VALUE> inline void write24bits(PTR* ptr, VALUE value)
 {
   ((uint8_t*)ptr)[0] = value >> 16;
   ((uint8_t*)ptr)[1] = value >> 8;

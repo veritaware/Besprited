@@ -40,8 +40,7 @@ public:
   int size() const { return (int)m_sprites.size(); }
   bool empty() const { return m_sprites.empty(); }
 
-  Sprite* add(int width, int height, ColorMode mode = ColorMode::RGB,
-              int ncolors = 256);
+  Sprite* add(int width, int height, ColorMode mode = ColorMode::RGB, int ncolors = 256);
   Sprite* add(Sprite* spr);
   void remove(Sprite* spr);
   void move(Sprite* spr, int index);

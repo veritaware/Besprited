@@ -14,12 +14,11 @@
 namespace ui
 {
 
-void setup_scrollbars(const gfx::Size& scrollableSize, gfx::Rect& viewportArea,
-                      Widget& parent, ScrollBar& hbar, ScrollBar& vbar)
+void setup_scrollbars(const gfx::Size& scrollableSize, gfx::Rect& viewportArea, Widget& parent, ScrollBar& hbar,
+                      ScrollBar& vbar)
 {
-#define NEED_BAR(w, h, width)                                                  \
-  ((scrollableSize.w > viewportArea.w) &&                                      \
-   (vbar.getBarWidth() < fullViewportArea.w) &&                                \
+#define NEED_BAR(w, h, width)                                                                                          \
+  ((scrollableSize.w > viewportArea.w) && (vbar.getBarWidth() < fullViewportArea.w) &&                                 \
    (hbar.getBarWidth() < fullViewportArea.h))
 
   const gfx::Rect fullViewportArea = viewportArea;
@@ -71,8 +70,7 @@ void setup_scrollbars(const gfx::Size& scrollableSize, gfx::Rect& viewportArea,
 
   if (parent.hasChild(&hbar))
   {
-    hbar.setBounds(gfx::Rect(viewportArea.x, viewportArea.y2(), viewportArea.w,
-                             hbar.getBarWidth()));
+    hbar.setBounds(gfx::Rect(viewportArea.x, viewportArea.y2(), viewportArea.w, hbar.getBarWidth()));
     hbar.setVisible(true);
   }
   else
@@ -80,8 +78,7 @@ void setup_scrollbars(const gfx::Size& scrollableSize, gfx::Rect& viewportArea,
 
   if (parent.hasChild(&vbar))
   {
-    vbar.setBounds(gfx::Rect(viewportArea.x2(), viewportArea.y,
-                             vbar.getBarWidth(), viewportArea.h));
+    vbar.setBounds(gfx::Rect(viewportArea.x2(), viewportArea.y, vbar.getBarWidth(), viewportArea.h));
     vbar.setVisible(true);
   }
   else

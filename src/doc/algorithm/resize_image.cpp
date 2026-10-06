@@ -21,13 +21,10 @@
 namespace doc::algorithm
 {
 
-template <typename ImageTraits>
-void resize_image_nearest(const Image* src, Image* dst)
+template <typename ImageTraits> void resize_image_nearest(const Image* src, Image* dst)
 {
-  const double x_ratio =
-      static_cast<double>(src->width()) / static_cast<double>(dst->width());
-  const double y_ratio =
-      static_cast<double>(src->height()) / static_cast<double>(dst->height());
+  const double x_ratio = static_cast<double>(src->width()) / static_cast<double>(dst->width());
+  const double y_ratio = static_cast<double>(src->height()) / static_cast<double>(dst->height());
   double px, py;
 
   LockImageBits<ImageTraits> dstBits(dst);
@@ -44,8 +41,8 @@ void resize_image_nearest(const Image* src, Image* dst)
   }
 }
 
-void resize_image(const Image* src, Image* dst, ResizeMethod method,
-                  const Palette* pal, const RgbMap* rgbmap, color_t maskColor)
+void resize_image(const Image* src, Image* dst, ResizeMethod method, const Palette* pal, const RgbMap* rgbmap,
+                  color_t maskColor)
 {
   switch (method)
   {
@@ -128,29 +125,23 @@ void resize_image(const Image* src, Image* dst, ResizeMethod method,
         {
         case IMAGE_RGB:
         {
-          const int r = static_cast<int>(
-              (rgba_getr(color[0]) * u2 + rgba_getr(color[1]) * u1) * v2 +
-              (rgba_getr(color[2]) * u2 + rgba_getr(color[3]) * u1) * v1);
-          const int g = static_cast<int>(
-              (rgba_getg(color[0]) * u2 + rgba_getg(color[1]) * u1) * v2 +
-              (rgba_getg(color[2]) * u2 + rgba_getg(color[3]) * u1) * v1);
-          const int b = static_cast<int>(
-              (rgba_getb(color[0]) * u2 + rgba_getb(color[1]) * u1) * v2 +
-              (rgba_getb(color[2]) * u2 + rgba_getb(color[3]) * u1) * v1);
-          const int a = static_cast<int>(
-              (rgba_geta(color[0]) * u2 + rgba_geta(color[1]) * u1) * v2 +
-              (rgba_geta(color[2]) * u2 + rgba_geta(color[3]) * u1) * v1);
+          const int r = static_cast<int>((rgba_getr(color[0]) * u2 + rgba_getr(color[1]) * u1) * v2 +
+                                         (rgba_getr(color[2]) * u2 + rgba_getr(color[3]) * u1) * v1);
+          const int g = static_cast<int>((rgba_getg(color[0]) * u2 + rgba_getg(color[1]) * u1) * v2 +
+                                         (rgba_getg(color[2]) * u2 + rgba_getg(color[3]) * u1) * v1);
+          const int b = static_cast<int>((rgba_getb(color[0]) * u2 + rgba_getb(color[1]) * u1) * v2 +
+                                         (rgba_getb(color[2]) * u2 + rgba_getb(color[3]) * u1) * v1);
+          const int a = static_cast<int>((rgba_geta(color[0]) * u2 + rgba_geta(color[1]) * u1) * v2 +
+                                         (rgba_geta(color[2]) * u2 + rgba_geta(color[3]) * u1) * v1);
           dst_color = rgba(r, g, b, a);
           break;
         }
         case IMAGE_GRAYSCALE:
         {
-          const int v = static_cast<int>(
-              (graya_getv(color[0]) * u2 + graya_getv(color[1]) * u1) * v2 +
-              (graya_getv(color[2]) * u2 + graya_getv(color[3]) * u1) * v1);
-          const int a = static_cast<int>(
-              (graya_geta(color[0]) * u2 + graya_geta(color[1]) * u1) * v2 +
-              (graya_geta(color[2]) * u2 + graya_geta(color[3]) * u1) * v1);
+          const int v = static_cast<int>((graya_getv(color[0]) * u2 + graya_getv(color[1]) * u1) * v2 +
+                                         (graya_getv(color[2]) * u2 + graya_getv(color[3]) * u1) * v1);
+          const int a = static_cast<int>((graya_geta(color[0]) * u2 + graya_geta(color[1]) * u1) * v2 +
+                                         (graya_geta(color[2]) * u2 + graya_geta(color[3]) * u1) * v1);
           dst_color = graya(v, a);
           break;
         }
@@ -160,24 +151,19 @@ void resize_image(const Image* src, Image* dst, ResizeMethod method,
           for (int i = 0; i < 4; ++i)
           {
             if (color[i] == maskColor)
-              color[i] =
-                  pal->getEntry(color[i]) & rgba_rgb_mask; // Set alpha = 0
+              color[i] = pal->getEntry(color[i]) & rgba_rgb_mask; // Set alpha = 0
             else
               color[i] = pal->getEntry(color[i]);
           }
 
-          const int r = static_cast<int>(
-              (rgba_getr(color[0]) * u2 + rgba_getr(color[1]) * u1) * v2 +
-              (rgba_getr(color[2]) * u2 + rgba_getr(color[3]) * u1) * v1);
-          const int g = static_cast<int>(
-              (rgba_getg(color[0]) * u2 + rgba_getg(color[1]) * u1) * v2 +
-              (rgba_getg(color[2]) * u2 + rgba_getg(color[3]) * u1) * v1);
-          const int b = static_cast<int>(
-              (rgba_getb(color[0]) * u2 + rgba_getb(color[1]) * u1) * v2 +
-              (rgba_getb(color[2]) * u2 + rgba_getb(color[3]) * u1) * v1);
-          const int a = static_cast<int>(
-              (rgba_geta(color[0]) * u2 + rgba_geta(color[1]) * u1) * v2 +
-              (rgba_geta(color[2]) * u2 + rgba_geta(color[3]) * u1) * v1);
+          const int r = static_cast<int>((rgba_getr(color[0]) * u2 + rgba_getr(color[1]) * u1) * v2 +
+                                         (rgba_getr(color[2]) * u2 + rgba_getr(color[3]) * u1) * v1);
+          const int g = static_cast<int>((rgba_getg(color[0]) * u2 + rgba_getg(color[1]) * u1) * v2 +
+                                         (rgba_getg(color[2]) * u2 + rgba_getg(color[3]) * u1) * v1);
+          const int b = static_cast<int>((rgba_getb(color[0]) * u2 + rgba_getb(color[1]) * u1) * v2 +
+                                         (rgba_getb(color[2]) * u2 + rgba_getb(color[3]) * u1) * v1);
+          const int a = static_cast<int>((rgba_geta(color[0]) * u2 + rgba_geta(color[1]) * u1) * v2 +
+                                         (rgba_geta(color[2]) * u2 + rgba_geta(color[3]) * u1) * v1);
           dst_color = rgbmap->mapColor(r, g, b, a);
           break;
         }
@@ -194,8 +180,7 @@ void resize_image(const Image* src, Image* dst, ResizeMethod method,
 
   case RESIZE_METHOD_ROTSPRITE:
   {
-    rotsprite_image(dst, src, nullptr, 0, 0, dst->width(), 0, dst->width(),
-                    dst->height(), 0, dst->height());
+    rotsprite_image(dst, src, nullptr, 0, 0, dst->width(), 0, dst->width(), dst->height(), 0, dst->height());
     break;
   }
   }
@@ -226,8 +211,7 @@ void fixup_image_transparent_colors(Image* image)
           count = 0;
           r = g = b = 0;
 
-          const gfx::Rect area =
-              gfx::Rect(x - 1, y - 1, 3, 3).createIntersection(image->bounds());
+          const gfx::Rect area = gfx::Rect(x - 1, y - 1, 3, 3).createIntersection(image->bounds());
           LockImageBits<RgbTraits>::iterator it2 = bits.begin_area(area);
           const LockImageBits<RgbTraits>::iterator end2 = bits.end_area(area);
 
@@ -274,11 +258,9 @@ void fixup_image_transparent_colors(Image* image)
           count = 0;
           k = 0;
 
-          const gfx::Rect area =
-              gfx::Rect(x - 1, y - 1, 3, 3).createIntersection(image->bounds());
+          const gfx::Rect area = gfx::Rect(x - 1, y - 1, 3, 3).createIntersection(image->bounds());
           LockImageBits<GrayscaleTraits>::iterator it2 = bits.begin_area(area);
-          const LockImageBits<GrayscaleTraits>::iterator end2 =
-              bits.end_area(area);
+          const LockImageBits<GrayscaleTraits>::iterator end2 = bits.end_area(area);
 
           for (; it2 != end2; ++it2)
           {

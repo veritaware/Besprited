@@ -18,8 +18,7 @@
 namespace doc
 {
 
-LayersRange::LayersRange(const Sprite* sprite, LayerIndex first,
-                         LayerIndex last)
+LayersRange::LayersRange(const Sprite* sprite, LayerIndex first, LayerIndex last)
   : m_begin(sprite, first, last)
   , m_end()
 {
@@ -32,8 +31,7 @@ LayersRange::iterator::iterator()
 {
 }
 
-LayersRange::iterator::iterator(const Sprite* sprite, LayerIndex first,
-                                LayerIndex last)
+LayersRange::iterator::iterator(const Sprite* sprite, LayerIndex first, LayerIndex last)
   : m_layer(nullptr)
   , m_cur(first)
   , m_last(last)

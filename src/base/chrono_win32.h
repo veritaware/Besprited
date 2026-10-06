@@ -23,8 +23,7 @@ public:
   {
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
-    return static_cast<double>(now.QuadPart - m_point.QuadPart) /
-           static_cast<double>(m_freq.QuadPart);
+    return static_cast<double>(now.QuadPart - m_point.QuadPart) / static_cast<double>(m_freq.QuadPart);
   }
 
 private:

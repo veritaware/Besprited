@@ -52,12 +52,9 @@ public:
     : m_timer(250, this)
     , m_cel(nullptr)
   {
-    opacity()->Change.connect(
-        base::Bind<void>(&CelPropertiesWindow::onStartTimer, this));
-    userData()->Click.connect(
-        base::Bind<void>(&CelPropertiesWindow::onPopupUserData, this));
-    m_timer.Tick.connect(
-        base::Bind<void>(&CelPropertiesWindow::onCommitChange, this));
+    opacity()->Change.connect(base::Bind<void>(&CelPropertiesWindow::onStartTimer, this));
+    userData()->Click.connect(base::Bind<void>(&CelPropertiesWindow::onPopupUserData, this));
+    m_timer.Tick.connect(base::Bind<void>(&CelPropertiesWindow::onCommitChange, this));
 
     remapWindow();
     centerWindow();
@@ -66,10 +63,7 @@ public:
     UIContext::instance()->addObserver(this);
   }
 
-  ~CelPropertiesWindow() override
-  {
-    UIContext::instance()->removeObserver(this);
-  }
+  ~CelPropertiesWindow() override { UIContext::instance()->removeObserver(this); }
 
   void setCel(Document* doc, std::shared_ptr<Cel> cel)
   {
@@ -101,8 +95,7 @@ private:
 
     if (!m_document)
       return 0;
-    else if (m_cel && (!m_range.enabled() ||
-                       (m_range.frames() == 1 && m_range.layers() == 1)))
+    else if (m_cel && (!m_range.enabled() || (m_range.frames() == 1 && m_range.layers() == 1)))
     {
       if (backgroundCount && m_cel->layer()->isBackground())
         *backgroundCount = 1;
@@ -112,8 +105,7 @@ private:
     {
       Sprite* sprite = m_document->sprite();
       int count = 0;
-      for (auto cel :
-           sprite->uniqueCels(m_range.frameBegin(), m_range.frameEnd()))
+      for (auto cel : sprite->uniqueCels(m_range.frameBegin(), m_range.frameEnd()))
       {
         if (m_range.inRange(sprite->layerToIndex(cel->layer())))
         {
@@ -174,9 +166,8 @@ private:
     int newOpacity = opacityValue();
     int count = countCels();
 
-    if ((count > 1) || (count == 1 && m_cel &&
-                        (newOpacity != m_cel->opacity() ||
-                         m_userData != m_cel->data()->userData())))
+    if ((count > 1) ||
+        (count == 1 && m_cel && (newOpacity != m_cel->opacity() || m_userData != m_cel->data()->userData())))
     {
       try
       {
@@ -187,14 +178,12 @@ private:
         {
           if (!m_cel->layer()->isBackground() && newOpacity != m_cel->opacity())
           {
-            transaction.execute(
-                new cmd::SetCelOpacity(writer.cel(), newOpacity));
+            transaction.execute(new cmd::SetCelOpacity(writer.cel(), newOpacity));
           }
 
           if (m_userData != m_cel->data()->userData())
           {
-            transaction.execute(
-                new cmd::SetUserData(writer.cel()->data(), m_userData));
+            transaction.execute(new cmd::SetUserData(writer.cel()->data(), m_userData));
 
             // Redraw timeline because the cel's user data/color
             // might have changed.
@@ -204,8 +193,7 @@ private:
         else if (m_range.enabled())
         {
           Sprite* sprite = m_document->sprite();
-          for (auto cel :
-               sprite->uniqueCels(m_range.frameBegin(), m_range.frameEnd()))
+          for (auto cel : sprite->uniqueCels(m_range.frameBegin(), m_range.frameEnd()))
           {
             if (m_range.inRange(sprite->layerToIndex(cel->layer())))
             {
@@ -216,8 +204,7 @@ private:
 
               if (m_newUserData && m_userData != cel->data()->userData())
               {
-                transaction.execute(
-                    new cmd::SetUserData(cel->data(), m_userData));
+                transaction.execute(new cmd::SetUserData(cel->data(), m_userData));
 
                 // Redraw timeline because the cel's user data/color
                 // might have changed.
@@ -260,9 +247,7 @@ private:
   void onActiveSiteChange(const Site& site) override
   {
     if (isVisible())
-      setCel(static_cast<app::Document*>(
-                 const_cast<doc::Document*>(site.document())),
-             const_cast<Site*>(&site)->cel());
+      setCel(static_cast<app::Document*>(const_cast<doc::Document*>(site.document())), const_cast<Site*>(&site)->cel());
     else if (m_document)
       setCel(nullptr, nullptr);
   }
@@ -330,8 +315,7 @@ CelPropertiesCommand::CelPropertiesCommand()
 
 bool CelPropertiesCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::ActiveLayerIsImage);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsImage);
 }
 
 void CelPropertiesCommand::onExecute(Context* context)

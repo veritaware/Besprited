@@ -26,11 +26,9 @@ color_t get_sprite_pixel(const Sprite* sprite, int x, int y, frame_t frame)
 
   if ((x >= 0) && (y >= 0) && (x < sprite->width()) && (y < sprite->height()))
   {
-    const std::unique_ptr<Image> image(
-        Image::create(sprite->pixelFormat(), 1, 1));
+    const std::unique_ptr<Image> image(Image::create(sprite->pixelFormat(), 1, 1));
 
-    render::Render().renderSprite(image.get(), sprite, frame,
-                                  gfx::Clip(0, 0, x, y, 1, 1));
+    render::Render().renderSprite(image.get(), sprite, frame, gfx::Clip(0, 0, x, y, 1, 1));
 
     color = get_pixel(image.get(), 0, 0);
   }

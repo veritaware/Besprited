@@ -30,9 +30,7 @@ enum Op
   Copy
 };
 
-static DocumentRange drop_range_op(Document* doc, Op op,
-                                   const DocumentRange& from,
-                                   DocumentRangePlace place,
+static DocumentRange drop_range_op(Document* doc, Op op, const DocumentRange& from, DocumentRangePlace place,
                                    const DocumentRange& to)
 {
   if (place != kDocumentRangeBefore && place != kDocumentRangeAfter)
@@ -54,24 +52,18 @@ static DocumentRange drop_range_op(Document* doc, Op op,
   case DocumentRange::kFrames:
     if (op == Move)
     {
-      if ((to.frameBegin() >= from.frameBegin() &&
-           to.frameEnd() <= from.frameEnd()) ||
-          (place == kDocumentRangeBefore &&
-           to.frameBegin() == from.frameEnd() + 1) ||
-          (place == kDocumentRangeAfter &&
-           to.frameEnd() == from.frameBegin() - 1))
+      if ((to.frameBegin() >= from.frameBegin() && to.frameEnd() <= from.frameEnd()) ||
+          (place == kDocumentRangeBefore && to.frameBegin() == from.frameEnd() + 1) ||
+          (place == kDocumentRangeAfter && to.frameEnd() == from.frameBegin() - 1))
         return from;
     }
     break;
   case DocumentRange::kLayers:
     if (op == Move)
     {
-      if ((to.layerBegin() >= from.layerBegin() &&
-           to.layerEnd() <= from.layerEnd()) ||
-          (place == kDocumentRangeBefore &&
-           to.layerBegin() == from.layerEnd() + 1) ||
-          (place == kDocumentRangeAfter &&
-           to.layerEnd() == from.layerBegin() - 1))
+      if ((to.layerBegin() >= from.layerBegin() && to.layerEnd() <= from.layerEnd()) ||
+          (place == kDocumentRangeBefore && to.layerBegin() == from.layerEnd() + 1) ||
+          (place == kDocumentRangeAfter && to.layerEnd() == from.layerBegin() - 1))
         return from;
 
       // We cannot move the background
@@ -85,8 +77,7 @@ static DocumentRange drop_range_op(Document* doc, Op op,
     {
       Layer* background = sprite->indexToLayer(to.layerBegin());
       if (background && background->isBackground())
-        throw std::runtime_error(
-            "You cannot move or copy something below the background layer");
+        throw std::runtime_error("You cannot move or copy something below the background layer");
     }
     break;
   }
@@ -164,14 +155,12 @@ static DocumentRange drop_range_op(Document* doc, Op op,
         dstFrameStep = frame_t(-1);
       }
 
-      for (int srcLayerIdx = srcLayerBegin, dstLayerIdx = dstLayerBegin;
-           srcLayerIdx != srcLayerEnd;)
+      for (int srcLayerIdx = srcLayerBegin, dstLayerIdx = dstLayerBegin; srcLayerIdx != srcLayerEnd;)
       {
-        for (frame_t srcFrame = srcFrameBegin, dstFrame = dstFrameBegin;
-             srcFrame != srcFrameEnd;)
+        for (frame_t srcFrame = srcFrameBegin, dstFrame = dstFrameBegin; srcFrame != srcFrameEnd;)
         {
-          if (dstLayerIdx < 0 || dstLayerIdx >= int(layers.size()) ||
-              srcLayerIdx < 0 || srcLayerIdx >= int(layers.size()))
+          if (dstLayerIdx < 0 || dstLayerIdx >= int(layers.size()) || srcLayerIdx < 0 ||
+              srcLayerIdx >= int(layers.size()))
             break;
 
           LayerImage* srcLayer = static_cast<LayerImage*>(layers[srcLayerIdx]);
@@ -289,8 +278,7 @@ static DocumentRange drop_range_op(Document* doc, Op op,
         break;
       }
 
-      for (frame_t srcFrame = srcFrameBegin, dstFrame = dstFrameBegin;
-           srcFrame != srcFrameEnd;)
+      for (frame_t srcFrame = srcFrameBegin, dstFrame = dstFrameBegin; srcFrame != srcFrameEnd;)
       {
         switch (op)
         {
@@ -307,17 +295,13 @@ static DocumentRange drop_range_op(Document* doc, Op op,
 
       if (place == kDocumentRangeBefore)
       {
-        resultRange.startRange(LayerIndex::NoLayer, frame_t(to.frameBegin()),
-                               from.type());
-        resultRange.endRange(LayerIndex::NoLayer,
-                             frame_t(to.frameBegin() + from.frames() - 1));
+        resultRange.startRange(LayerIndex::NoLayer, frame_t(to.frameBegin()), from.type());
+        resultRange.endRange(LayerIndex::NoLayer, frame_t(to.frameBegin() + from.frames() - 1));
       }
       else if (place == kDocumentRangeAfter)
       {
-        resultRange.startRange(LayerIndex::NoLayer, frame_t(to.frameEnd() + 1),
-                               from.type());
-        resultRange.endRange(LayerIndex::NoLayer,
-                             frame_t(to.frameEnd() + 1 + from.frames() - 1));
+        resultRange.startRange(LayerIndex::NoLayer, frame_t(to.frameEnd() + 1), from.type());
+        resultRange.endRange(LayerIndex::NoLayer, frame_t(to.frameEnd() + 1 + from.frames() - 1));
       }
 
       if (op == Move && from.frameBegin() < to.frameBegin())
@@ -373,17 +357,13 @@ static DocumentRange drop_range_op(Document* doc, Op op,
 
       if (place == kDocumentRangeBefore)
       {
-        resultRange.startRange(LayerIndex(to.layerBegin()), frame_t(-1),
-                               from.type());
-        resultRange.endRange(LayerIndex(to.layerBegin() + from.layers() - 1),
-                             frame_t(-1));
+        resultRange.startRange(LayerIndex(to.layerBegin()), frame_t(-1), from.type());
+        resultRange.endRange(LayerIndex(to.layerBegin() + from.layers() - 1), frame_t(-1));
       }
       else if (place == kDocumentRangeAfter)
       {
-        resultRange.startRange(LayerIndex(to.layerEnd() + 1), frame_t(-1),
-                               from.type());
-        resultRange.endRange(LayerIndex(to.layerEnd() + 1 + from.layers() - 1),
-                             frame_t(-1));
+        resultRange.startRange(LayerIndex(to.layerEnd() + 1), frame_t(-1), from.type());
+        resultRange.endRange(LayerIndex(to.layerEnd() + 1 + from.layers() - 1), frame_t(-1));
       }
 
       if (op == Move && from.layerBegin() < to.layerBegin())
@@ -398,14 +378,12 @@ static DocumentRange drop_range_op(Document* doc, Op op,
   return resultRange;
 }
 
-DocumentRange move_range(Document* doc, const DocumentRange& from,
-                         const DocumentRange& to, DocumentRangePlace place)
+DocumentRange move_range(Document* doc, const DocumentRange& from, const DocumentRange& to, DocumentRangePlace place)
 {
   return drop_range_op(doc, Move, from, place, to);
 }
 
-DocumentRange copy_range(Document* doc, const DocumentRange& from,
-                         const DocumentRange& to, DocumentRangePlace place)
+DocumentRange copy_range(Document* doc, const DocumentRange& from, const DocumentRange& to, DocumentRangePlace place)
 {
   return drop_range_op(doc, Copy, from, place, to);
 }
@@ -460,8 +438,8 @@ void reverse_frames(Document* doc, const DocumentRange& range)
 
     for (int layerIdx = layerBegin; layerIdx != layerEnd; ++layerIdx)
     {
-      for (frame_t frame = frameBegin, frameRev = frameEnd;
-           frame != (frameBegin + frameEnd) / 2 + 1; ++frame, --frameRev)
+      for (frame_t frame = frameBegin, frameRev = frameEnd; frame != (frameBegin + frameEnd) / 2 + 1;
+           ++frame, --frameRev)
       {
         if (frame == frameRev)
           continue;

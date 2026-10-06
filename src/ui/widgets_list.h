@@ -9,19 +9,15 @@
 
 #include <vector>
 
-#define UI_FOREACH_WIDGET_BACKWARD(list_name, iterator_name)                   \
-  for (WidgetsList::const_reverse_iterator                                     \
-           iterator_name = (list_name).rbegin(),                               \
-           __end = (list_name).rend();                                         \
+#define UI_FOREACH_WIDGET_BACKWARD(list_name, iterator_name)                                                           \
+  for (WidgetsList::const_reverse_iterator iterator_name = (list_name).rbegin(), __end = (list_name).rend();           \
        iterator_name != __end; ++iterator_name)
 
-#define UI_FOREACH_WIDGET_WITH_END(list_name, iterator_name, end_name)         \
-  for (WidgetsList::const_iterator iterator_name = (list_name).begin(),        \
-                                   end_name = (list_name).end();               \
+#define UI_FOREACH_WIDGET_WITH_END(list_name, iterator_name, end_name)                                                 \
+  for (WidgetsList::const_iterator iterator_name = (list_name).begin(), end_name = (list_name).end();                  \
        iterator_name != end_name; ++iterator_name)
 
-#define UI_FIRST_WIDGET(list_name)                                             \
-  ((list_name).empty() ? nullptr : (list_name).front())
+#define UI_FIRST_WIDGET(list_name) ((list_name).empty() ? nullptr : (list_name).front())
 
 namespace ui
 {

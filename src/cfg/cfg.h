@@ -20,14 +20,10 @@ public:
 
   [[nodiscard]] const std::string& filename() const;
 
-  const char* getValue(const char* section, const char* name,
-                       const char* defaultValue) const;
-  bool getBoolValue(const char* section, const char* name,
-                    bool defaultValue) const;
-  int getIntValue(const char* section, const char* name,
-                  int defaultValue) const;
-  double getDoubleValue(const char* section, const char* name,
-                        double defaultValue) const;
+  const char* getValue(const char* section, const char* name, const char* defaultValue) const;
+  bool getBoolValue(const char* section, const char* name, bool defaultValue) const;
+  int getIntValue(const char* section, const char* name, int defaultValue) const;
+  double getDoubleValue(const char* section, const char* name, double defaultValue) const;
 
   void setValue(const char* section, const char* name, const char* value);
   void setBoolValue(const char* section, const char* name, bool value);

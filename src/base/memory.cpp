@@ -63,8 +63,7 @@ char* base_strdup(const char* string)
 #include <windows.h>
 #include <dbghelp.h>
 
-using RtlCaptureStackBackTraceType = USHORT(WINAPI*)(ULONG, ULONG, PVOID*,
-                                                     PULONG);
+using RtlCaptureStackBackTraceType = USHORT(WINAPI*)(ULONG, ULONG, PVOID*, PULONG);
 static RtlCaptureStackBackTraceType pRtlCaptureStackBackTrace;
 #endif
 
@@ -83,8 +82,8 @@ static base::mutex* mutex = nullptr;
 void base_memleak_init()
 {
 #ifdef _MSC_VER
-  pRtlCaptureStackBackTrace = (RtlCaptureStackBackTraceType)(::GetProcAddress(
-      ::LoadLibrary(L"kernel32.dll"), "RtlCaptureStackBackTrace"));
+  pRtlCaptureStackBackTrace =
+      (RtlCaptureStackBackTraceType)(::GetProcAddress(::LoadLibrary(L"kernel32.dll"), "RtlCaptureStackBackTrace"));
 #endif
 
   assert(!memleak_status);
@@ -121,12 +120,10 @@ void base_memleak_exit()
 
     HANDLE hproc = ::GetCurrentProcess();
     if (!::SymInitialize(hproc, nullptr, TRUE))
-      fprintf(f, "Error initializing SymInitialize()\nGetLastError = %d\n",
-              ::GetLastError());
+      fprintf(f, "Error initializing SymInitialize()\nGetLastError = %d\n", ::GetLastError());
 
     char filename[MAX_PATH];
-    ::GetModuleFileNameA(nullptr, filename,
-                         sizeof(filename) / sizeof(filename[0]));
+    ::GetModuleFileNameA(nullptr, filename, sizeof(filename) / sizeof(filename[0]));
     ::SymLoadModule64(hproc, nullptr, filename, nullptr, 0, 0);
 #endif
 
@@ -140,16 +137,13 @@ void base_memleak_exit()
 #ifdef _MSC_VER
         DWORD displacement;
 
-        if (::SymGetLineFromAddr64(hproc, (DWORD)it->backtrace[c],
-                                   &displacement, &line))
+        if (::SymGetLineFromAddr64(hproc, (DWORD)it->backtrace[c], &displacement, &line))
         {
           si.header.Name[0] = 0;
 
-          ::SymGetSymFromAddr64(hproc, (DWORD)it->backtrace[c], nullptr,
-                                &si.header);
+          ::SymGetSymFromAddr64(hproc, (DWORD)it->backtrace[c], nullptr, &si.header);
 
-          fprintf(f, "%p : %s(%lu) [%s]\n", it->backtrace[c], line.FileName,
-                  line.LineNumber, si.header.Name);
+          fprintf(f, "%p : %s(%lu) [%s]\n", it->backtrace[c], line.FileName, line.LineNumber, si.header.Name);
         }
         else
 #endif

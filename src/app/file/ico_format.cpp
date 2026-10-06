@@ -38,8 +38,8 @@ class IcoFormat : public FileFormat
   const char* onGetExtensions() const override { return "ico"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
-           FILE_SUPPORT_GRAY | FILE_SUPPORT_SEQUENCES | FILE_SUPPORT_INDEXED;
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB | FILE_SUPPORT_GRAY | FILE_SUPPORT_SEQUENCES |
+           FILE_SUPPORT_INDEXED;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -86,8 +86,7 @@ bool IcoFormat::onLoad(FileOp* fop)
 {
   try
   {
-    auto surface = std::shared_ptr<she::Surface>(
-        she::instance()->loadSurface(fop->filename().c_str()));
+    auto surface = std::shared_ptr<she::Surface>(she::instance()->loadSurface(fop->filename().c_str()));
     if (!surface)
       throw std::runtime_error("she::loadSurface returned null");
     she::SurfaceFormatData data;
@@ -311,8 +310,7 @@ bool IcoFormat::onSave(FileOp* fop)
     offset += size;
   }
 
-  std::unique_ptr<Image> image(
-      Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
+  std::unique_ptr<Image> image(Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
 
   render::Render render;
   for (n = frame_t(0); n < num; ++n)

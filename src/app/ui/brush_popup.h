@@ -25,10 +25,7 @@ public:
   void setBrush(doc::Brush* brush);
   void regenerate(const gfx::Rect& box);
 
-  void setupTooltips(ui::TooltipManager* tooltipManager)
-  {
-    m_tooltipManager = tooltipManager;
-  }
+  void setupTooltips(ui::TooltipManager* tooltipManager) { m_tooltipManager = tooltipManager; }
 
   static she::Surface* createSurfaceForBrush(const doc::BrushRef& brush);
 

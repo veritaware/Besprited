@@ -68,8 +68,7 @@ using namespace render;
 class EditorPreRenderImpl : public EditorPreRender
 {
 public:
-  EditorPreRenderImpl(Editor* editor, Image* image, const Point& offset,
-                      Zoom zoom)
+  EditorPreRenderImpl(Editor* editor, Image* image, const Point& offset, Zoom zoom)
     : m_editor(editor)
     , m_image(image)
     , m_offset(offset)
@@ -83,11 +82,9 @@ public:
 
   void fillRect(const gfx::Rect& rect, uint32_t rgbaColor, int opacity) override
   {
-    blend_rect(m_image, m_offset.x + m_zoom.apply(rect.x),
-               m_offset.y + m_zoom.apply(rect.y),
-               m_offset.x + m_zoom.apply(rect.x + rect.w) - 1,
-               m_offset.y + m_zoom.apply(rect.y + rect.h) - 1, rgbaColor,
-               opacity);
+    blend_rect(m_image, m_offset.x + m_zoom.apply(rect.x), m_offset.y + m_zoom.apply(rect.y),
+               m_offset.x + m_zoom.apply(rect.x + rect.w) - 1, m_offset.y + m_zoom.apply(rect.y + rect.h) - 1,
+               rgbaColor, opacity);
   }
 
 private:
@@ -177,12 +174,10 @@ Editor::Editor(Document* document, EditorFlags flags)
   App::instance()->activeToolManager()->addObserver(this);
 
   m_fgColorChangeConn =
-      Preferences::instance().colorBar.fgColor.AfterChange.connect(
-          base::Bind<void>(&Editor::onFgColorChange, this));
+      Preferences::instance().colorBar.fgColor.AfterChange.connect(base::Bind<void>(&Editor::onFgColorChange, this));
 
   m_contextBarBrushChangeConn =
-      App::instance()->contextBar()->BrushChange.connect(
-          base::Bind<void>(&Editor::onContextBarBrushChange, this));
+      App::instance()->contextBar()->BrushChange.connect(base::Bind<void>(&Editor::onContextBarBrushChange, this));
 
   // Restore last site in preferences
   frame_t preferredFrame = m_docPref.site.frame();
@@ -192,23 +187,15 @@ Editor::Editor(Document* document, EditorFlags flags)
   if (preferredLayer)
     setLayer(preferredLayer);
 
-  m_tiledConn = m_docPref.tiled.AfterChange.connect(
-      base::Bind<void>(&Editor::invalidate, this));
-  m_gridConn = m_docPref.grid.AfterChange.connect(
-      base::Bind<void>(&Editor::invalidate, this));
-  m_pixelGridConn = m_docPref.pixelGrid.AfterChange.connect(
-      base::Bind<void>(&Editor::invalidate, this));
-  m_bgConn = m_docPref.bg.AfterChange.connect(
-      base::Bind<void>(&Editor::invalidate, this));
-  m_onionskinConn = m_docPref.onionskin.AfterChange.connect(
-      base::Bind<void>(&Editor::invalidate, this));
-  m_symmetryModeConn =
-      Preferences::instance().symmetryMode.enabled.AfterChange.connect(
-          base::Bind<void>(&Editor::invalidateIfActive, this));
-  m_showExtrasConnDoc = m_docPref.show.AfterChange.connect(
-      base::Bind<void>(&Editor::onShowExtrasChange, this));
-  m_showExtrasConnGlob = m_globPref.show.AfterChange.connect(
-      base::Bind<void>(&Editor::onShowExtrasChange, this));
+  m_tiledConn = m_docPref.tiled.AfterChange.connect(base::Bind<void>(&Editor::invalidate, this));
+  m_gridConn = m_docPref.grid.AfterChange.connect(base::Bind<void>(&Editor::invalidate, this));
+  m_pixelGridConn = m_docPref.pixelGrid.AfterChange.connect(base::Bind<void>(&Editor::invalidate, this));
+  m_bgConn = m_docPref.bg.AfterChange.connect(base::Bind<void>(&Editor::invalidate, this));
+  m_onionskinConn = m_docPref.onionskin.AfterChange.connect(base::Bind<void>(&Editor::invalidate, this));
+  m_symmetryModeConn = Preferences::instance().symmetryMode.enabled.AfterChange.connect(
+      base::Bind<void>(&Editor::invalidateIfActive, this));
+  m_showExtrasConnDoc = m_docPref.show.AfterChange.connect(base::Bind<void>(&Editor::onShowExtrasChange, this));
+  m_showExtrasConnGlob = m_globPref.show.AfterChange.connect(base::Bind<void>(&Editor::onShowExtrasChange, this));
 
   m_document->addObserver(this);
 
@@ -256,8 +243,7 @@ void Editor::setStateInternal(const EditorStatePtr& newState)
 
   // Fire before change state event, set the state, and fire after
   // change state event.
-  EditorState::LeaveAction leaveAction =
-      m_state->onLeaveState(this, newState.get());
+  EditorState::LeaveAction leaveAction = m_state->onLeaveState(this, newState.get());
 
   // Push a new state
   if (newState)
@@ -397,9 +383,8 @@ void Editor::setDefaultScroll()
   View* view = View::getView(this);
   Rect vp = view->viewportBounds();
 
-  setEditorScroll(gfx::Point(
-      m_padding.x - vp.w / 2 + m_zoom.apply(m_sprite->width()) / 2,
-      m_padding.y - vp.h / 2 + m_zoom.apply(m_sprite->height()) / 2));
+  setEditorScroll(gfx::Point(m_padding.x - vp.w / 2 + m_zoom.apply(m_sprite->width()) / 2,
+                             m_padding.y - vp.h / 2 + m_zoom.apply(m_sprite->height()) / 2));
 }
 
 // Sets the scroll position of the editor
@@ -410,8 +395,7 @@ void Editor::setEditorScroll(const gfx::Point& scroll)
 
 void Editor::setEditorZoom(const render::Zoom& zoom)
 {
-  setZoomAndCenterInMouse(zoom, ui::get_mouse_position(),
-                          Editor::ZoomBehavior::CENTER);
+  setZoomAndCenterInMouse(zoom, ui::get_mouse_position(), Editor::ZoomBehavior::CENTER);
 }
 
 void Editor::updateEditor()
@@ -419,9 +403,7 @@ void Editor::updateEditor()
   View::getView(this)->updateView();
 }
 
-void Editor::drawOneSpriteUnclippedRect(ui::Graphics* g,
-                                        const gfx::Rect& spriteRectToDraw,
-                                        int dx, int dy)
+void Editor::drawOneSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& spriteRectToDraw, int dx, int dy)
 {
   // Clip from sprite and apply zoom
   gfx::Rect rc = m_sprite->bounds().createIntersection(spriteRectToDraw);
@@ -496,13 +478,11 @@ void Editor::drawOneSpriteUnclippedRect(ui::Graphics* g,
     {
       if (m_docPref.onionskin.active())
       {
-        OnionskinOptions opts(
-            (m_docPref.onionskin.type() == app::gen::OnionskinType::MERGE
-                 ? render::OnionskinType::MERGE
-                 : (m_docPref.onionskin.type() ==
-                            app::gen::OnionskinType::RED_BLUE_TINT
-                        ? render::OnionskinType::RED_BLUE_TINT
-                        : render::OnionskinType::NONE)));
+        OnionskinOptions opts((m_docPref.onionskin.type() == app::gen::OnionskinType::MERGE
+                                   ? render::OnionskinType::MERGE
+                                   : (m_docPref.onionskin.type() == app::gen::OnionskinType::RED_BLUE_TINT
+                                          ? render::OnionskinType::RED_BLUE_TINT
+                                          : render::OnionskinType::NONE)));
 
         opts.position(m_docPref.onionskin.position());
         opts.prevFrames(m_docPref.onionskin.prevFrames());
@@ -523,13 +503,11 @@ void Editor::drawOneSpriteUnclippedRect(ui::Graphics* g,
     ExtraCelRef extraCel = m_document->extraCel();
     if (extraCel && extraCel->type() != render::ExtraType::NONE)
     {
-      m_renderEngine.setExtraImage(extraCel->type(), extraCel->cel(),
-                                   extraCel->image(), extraCel->blendMode(),
-                                   m_layer, m_frame);
+      m_renderEngine.setExtraImage(extraCel->type(), extraCel->cel(), extraCel->image(), extraCel->blendMode(), m_layer,
+                                   m_frame);
     }
 
-    m_renderEngine.renderSprite(rendered.get(), m_sprite, m_frame,
-                                gfx::Clip(0, 0, rc), m_zoom);
+    m_renderEngine.renderSprite(rendered.get(), m_sprite, m_frame, gfx::Clip(0, 0, rc), m_zoom);
 
     m_renderEngine.removeExtraImage();
   }
@@ -543,8 +521,7 @@ void Editor::drawOneSpriteUnclippedRect(ui::Graphics* g,
     // Pre-render decorator.
     if ((m_flags & kShowDecorators) && m_decorator)
     {
-      EditorPreRenderImpl preRender(this, rendered.get(), Point(-rc.x, -rc.y),
-                                    m_zoom);
+      EditorPreRenderImpl preRender(this, rendered.get(), Point(-rc.x, -rc.y), m_zoom);
       m_decorator->preRenderDecorator(&preRender);
     }
 
@@ -560,13 +537,11 @@ void Editor::drawOneSpriteUnclippedRect(ui::Graphics* g,
 
     if (tmp->nativeHandle())
     {
-      convert_image_to_surface(rendered.get(), m_sprite->palette(m_frame), tmp,
-                               0, 0, 0, 0, rc.w, rc.h);
+      convert_image_to_surface(rendered.get(), m_sprite->palette(m_frame), tmp, 0, 0, 0, 0, rc.w, rc.h);
 
       g->blit(tmp, 0, 0, dest_x, dest_y, rc.w, rc.h);
 
-      m_brushPreview.invalidateRegion(
-          gfx::Region(gfx::Rect(dest_x, dest_y, rc.w, rc.h)));
+      m_brushPreview.invalidateRegion(gfx::Region(gfx::Rect(dest_x, dest_y, rc.w, rc.h)));
     }
   }
 }
@@ -580,8 +555,7 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
     rc.inflate(int(1. / m_zoom.scale()), int(1. / m_zoom.scale()));
 
   gfx::Rect client = clientBounds();
-  gfx::Rect spriteRect(client.x + m_padding.x, client.y + m_padding.y,
-                       m_zoom.apply(m_sprite->width()),
+  gfx::Rect spriteRect(client.x + m_padding.x, client.y + m_padding.y, m_zoom.apply(m_sprite->width()),
                        m_zoom.apply(m_sprite->height()));
   gfx::Rect enclosingRect = spriteRect;
 
@@ -597,8 +571,7 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
     drawOneSpriteUnclippedRect(g, rc, -spriteRect.w, 0);
     drawOneSpriteUnclippedRect(g, rc, +spriteRect.w, 0);
 
-    enclosingRect = gfx::Rect(spriteRect.x - spriteRect.w, spriteRect.y,
-                              spriteRect.w * 3, spriteRect.h);
+    enclosingRect = gfx::Rect(spriteRect.x - spriteRect.w, spriteRect.y, spriteRect.w * 3, spriteRect.h);
     outside.createSubtraction(outside, gfx::Region(enclosingRect));
   }
 
@@ -607,8 +580,7 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
     drawOneSpriteUnclippedRect(g, rc, 0, -spriteRect.h);
     drawOneSpriteUnclippedRect(g, rc, 0, +spriteRect.h);
 
-    enclosingRect = gfx::Rect(spriteRect.x, spriteRect.y - spriteRect.h,
-                              spriteRect.w, spriteRect.h * 3);
+    enclosingRect = gfx::Rect(spriteRect.x, spriteRect.y - spriteRect.h, spriteRect.w, spriteRect.h * 3);
     outside.createSubtraction(outside, gfx::Region(enclosingRect));
   }
 
@@ -620,8 +592,7 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
     drawOneSpriteUnclippedRect(g, rc, +spriteRect.w, +spriteRect.h);
 
     enclosingRect =
-        gfx::Rect(spriteRect.x - spriteRect.w, spriteRect.y - spriteRect.h,
-                  spriteRect.w * 3, spriteRect.h * 3);
+        gfx::Rect(spriteRect.x - spriteRect.w, spriteRect.y - spriteRect.h, spriteRect.w * 3, spriteRect.h * 3);
     outside.createSubtraction(outside, gfx::Region(enclosingRect));
   }
 
@@ -643,8 +614,7 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
       IntersectClip clip(g, cliprc);
 
       // Draw the pixel grid
-      if ((m_zoom.scale() > 2.0) &&
-          (m_docPref.show.pixelGrid() && m_globPref.show.showExtras()))
+      if ((m_zoom.scale() > 2.0) && (m_docPref.show.pixelGrid() && m_globPref.show.showExtras()))
       {
         int alpha = m_docPref.pixelGrid.opacity();
 
@@ -654,8 +624,7 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
           alpha = MID(0, alpha, 255);
         }
 
-        drawGrid(g, enclosingRect, Rect(0, 0, 1, 1),
-                 m_docPref.pixelGrid.color(), alpha);
+        drawGrid(g, enclosingRect, Rect(0, 0, 1, 1), m_docPref.pixelGrid.color(), alpha);
       }
 
       // Draw the grid
@@ -674,23 +643,20 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
           }
 
           if (alpha > 8)
-            drawGrid(g, spriteRect, m_docPref.grid.bounds(),
-                     m_docPref.grid.color(), alpha);
+            drawGrid(g, spriteRect, m_docPref.grid.bounds(), m_docPref.grid.color(), alpha);
         }
       }
     }
   }
 
   // Symmetry mode
-  if (isActive() && (m_flags & Editor::kShowSymmetryLine) &&
-      Preferences::instance().symmetryMode.enabled())
+  if (isActive() && (m_flags & Editor::kShowSymmetryLine) && Preferences::instance().symmetryMode.enabled())
   {
 
     auto symmetryMode = (int)m_docPref.symmetry.mode();
     int x = m_docPref.symmetry.xAxis();
     int y = m_docPref.symmetry.yAxis();
-    gfx::Point origin(spriteRect.x + m_zoom.apply(x),
-                      spriteRect.y + m_zoom.apply(y));
+    gfx::Point origin(spriteRect.x + m_zoom.apply(x), spriteRect.y + m_zoom.apply(y));
 
     // Rotational-90 and rotational-180 both render as a horizontal + vertical
     // guide line pair, since their quadrants/point reflection pivot around
@@ -698,21 +664,18 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
     // given different colors (vertical=green, horizontal=blue) to distinguis it
     // from the 90deg case and to hint that only one apparent stroke copy will
     // be generated along 'either one' of the two axes.
-    if (symmetryMode & ((int)app::gen::SymmetryMode::HORIZONTAL |
-                        (int)app::gen::SymmetryMode::ROTATIONAL_90 |
+    if (symmetryMode & ((int)app::gen::SymmetryMode::HORIZONTAL | (int)app::gen::SymmetryMode::ROTATIONAL_90 |
                         (int)app::gen::SymmetryMode::ROTATIONAL_180))
     {
       if (x > 0)
       {
-        gfx::Color color =
-            (symmetryMode & (int)app::gen::SymmetryMode::ROTATIONAL_180)
-                ? gfx::rgba(0, 255, 0)
-                : color_utils::color_for_ui(m_docPref.grid.color());
+        gfx::Color color = (symmetryMode & (int)app::gen::SymmetryMode::ROTATIONAL_180)
+                               ? gfx::rgba(0, 255, 0)
+                               : color_utils::color_for_ui(m_docPref.grid.color());
         g->drawVLine(color, origin.x, enclosingRect.y, enclosingRect.h);
       }
     }
-    if (symmetryMode & ((int)app::gen::SymmetryMode::VERTICAL |
-                        (int)app::gen::SymmetryMode::ROTATIONAL_90 |
+    if (symmetryMode & ((int)app::gen::SymmetryMode::VERTICAL | (int)app::gen::SymmetryMode::ROTATIONAL_90 |
                         (int)app::gen::SymmetryMode::ROTATIONAL_180))
     {
       if (y > 0)
@@ -747,10 +710,8 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
       {
         gfx::Color color = color_utils::color_for_ui(m_docPref.grid.color());
         const int r = 6;
-        g->drawLine(color, gfx::Point(origin.x - r, origin.y - r),
-                    gfx::Point(origin.x + r, origin.y + r));
-        g->drawLine(color, gfx::Point(origin.x - r, origin.y + r),
-                    gfx::Point(origin.x + r, origin.y - r));
+        g->drawLine(color, gfx::Point(origin.x - r, origin.y - r), gfx::Point(origin.x + r, origin.y + r));
+        g->drawLine(color, gfx::Point(origin.x - r, origin.y + r), gfx::Point(origin.x + r, origin.y - r));
       }
     }
   }
@@ -760,8 +721,8 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
     // Draw the borders that enclose the sprite.
     enclosingRect.enlarge(1);
     g->drawRect(theme->colors.editorSpriteBorder(), enclosingRect);
-    g->drawHLine(theme->colors.editorSpriteBottomBorder(), enclosingRect.x,
-                 enclosingRect.y + enclosingRect.h, enclosingRect.w);
+    g->drawHLine(theme->colors.editorSpriteBottomBorder(), enclosingRect.x, enclosingRect.y + enclosingRect.h,
+                 enclosingRect.w);
   }
 
   // Draw active cel edges
@@ -774,8 +735,7 @@ void Editor::drawSpriteUnclippedRect(ui::Graphics* g, const gfx::Rect& _rc)
     auto cel = (m_layer ? m_layer->cel(m_frame) : nullptr);
     if (cel)
     {
-      g->drawRect(theme->colors.editorLayerEdges(),
-                  editorToScreen(cel->bounds()).offset(-bounds().origin()));
+      g->drawRect(theme->colors.editorLayerEdges(), editorToScreen(cel->bounds()).offset(-bounds().origin()));
     }
   }
 
@@ -819,8 +779,7 @@ void Editor::drawSpriteClipped(const gfx::Region& updateRegion)
  */
 void Editor::drawMask(Graphics* g)
 {
-  if ((m_flags & kShowMask) == 0 ||
-      !(m_docPref.show.selectionEdges() && m_globPref.show.showExtras()))
+  if ((m_flags & kShowMask) == 0 || !(m_docPref.show.selectionEdges() && m_globPref.show.showExtras()))
     return;
 
   ASSERT(m_document->getMaskBoundaries());
@@ -875,8 +834,7 @@ void Editor::drawMaskSafe()
   }
 }
 
-void Editor::drawGrid(Graphics* g, const gfx::Rect& spriteBounds,
-                      const Rect& gridBounds, const app::Color& color,
+void Editor::drawGrid(Graphics* g, const gfx::Rect& spriteBounds, const Rect& gridBounds, const app::Color& color,
                       int alpha)
 {
   if ((m_flags & kShowGrid) == 0)
@@ -916,8 +874,7 @@ void Editor::drawGrid(Graphics* g, const gfx::Rect& spriteBounds,
 
   // Get the grid's color
   gfx::Color grid_color = color_utils::color_for_ui(color);
-  grid_color = gfx::rgba(gfx::getr(grid_color), gfx::getg(grid_color),
-                         gfx::getb(grid_color), alpha);
+  grid_color = gfx::rgba(gfx::getr(grid_color), gfx::getg(grid_color), gfx::getb(grid_color), alpha);
 
   // Draw horizontal lines
   int x1 = grid.x;
@@ -961,8 +918,7 @@ void Editor::flashCurrentLayer()
     {
       ExtraCelRef oldExtraCel = m_document->extraCel();
       m_document->setExtraCel(extraCel);
-      drawSpriteClipped(
-          gfx::Region(gfx::Rect(0, 0, m_sprite->width(), m_sprite->height())));
+      drawSpriteClipped(gfx::Region(gfx::Rect(0, 0, m_sprite->width(), m_sprite->height())));
       manager()->requestRedraw();
       m_document->setExtraCel(oldExtraCel);
     }
@@ -984,14 +940,12 @@ gfx::Point Editor::autoScroll(MouseMessage* msg, AutoScroll dir)
     gfx::Point delta = (mousePos - m_oldPos);
     gfx::Point deltaScroll = delta;
 
-    if (!((mousePos.x < vp.x && delta.x < 0) ||
-          (mousePos.x >= vp.x + vp.w && delta.x > 0)))
+    if (!((mousePos.x < vp.x && delta.x < 0) || (mousePos.x >= vp.x + vp.w && delta.x > 0)))
     {
       delta.x = 0;
     }
 
-    if (!((mousePos.y < vp.y && delta.y < 0) ||
-          (mousePos.y >= vp.y + vp.h && delta.y > 0)))
+    if (!((mousePos.y < vp.y && delta.y < 0) || (mousePos.y >= vp.y + vp.h && delta.y > 0)))
     {
       delta.y = 0;
     }
@@ -1013,8 +967,7 @@ gfx::Point Editor::autoScroll(MouseMessage* msg, AutoScroll dir)
 #endif
 
     m_oldPos = mousePos;
-    mousePos = gfx::Point(MID(vp.x, mousePos.x, vp.x + vp.w - 1),
-                          MID(vp.y, mousePos.y, vp.y + vp.h - 1));
+    mousePos = gfx::Point(MID(vp.x, mousePos.x, vp.x + vp.w - 1), MID(vp.y, mousePos.y, vp.y + vp.h - 1));
   }
   else
     m_oldPos = mousePos;
@@ -1105,10 +1058,8 @@ void Editor::centerInSpritePoint(const gfx::Point& spritePos)
   View* view = View::getView(this);
   Rect vp = view->viewportBounds();
 
-  gfx::Point scroll(m_padding.x - (vp.w / 2) + m_zoom.apply(1) / 2 +
-                        m_zoom.apply(spritePos.x),
-                    m_padding.y - (vp.h / 2) + m_zoom.apply(1) / 2 +
-                        m_zoom.apply(spritePos.y));
+  gfx::Point scroll(m_padding.x - (vp.w / 2) + m_zoom.apply(1) / 2 + m_zoom.apply(spritePos.x),
+                    m_padding.y - (vp.h / 2) + m_zoom.apply(1) / 2 + m_zoom.apply(spritePos.y));
 
   updateEditor();
   setEditorScroll(scroll);
@@ -1134,12 +1085,10 @@ void Editor::updateQuicktool()
     // Don't change quicktools if we are in a selection tool and using
     // the selection modifiers.
     if (selectedTool->getInk(0)->isSelection() &&
-        int(m_customizationDelegate->getPressedKeyAction(
-            KeyContext::SelectionTool)) != 0)
+        int(m_customizationDelegate->getPressedKeyAction(KeyContext::SelectionTool)) != 0)
       return;
 
-    tools::Tool* newQuicktool =
-        m_customizationDelegate->getQuickTool(selectedTool);
+    tools::Tool* newQuicktool = m_customizationDelegate->getQuickTool(selectedTool);
 
     // Check if the current state accept the given quicktool.
     if (newQuicktool && !m_state->acceptQuickTool(newQuicktool))
@@ -1177,14 +1126,12 @@ void Editor::updateToolLoopModifiersIndicators()
     if (hasCapture())
     {
       modifiers |= (int(m_toolLoopModifiers) &
-                    (int(tools::ToolLoopModifiers::kReplaceSelection) |
-                     int(tools::ToolLoopModifiers::kAddSelection) |
+                    (int(tools::ToolLoopModifiers::kReplaceSelection) | int(tools::ToolLoopModifiers::kAddSelection) |
                      int(tools::ToolLoopModifiers::kSubtractSelection)));
       autoSelectLayer = m_autoSelectLayer;
 
       // Shape tools (line, curves, rectangles, etc.)
-      action =
-          m_customizationDelegate->getPressedKeyAction(KeyContext::ShapeTool);
+      action = m_customizationDelegate->getPressedKeyAction(KeyContext::ShapeTool);
       if (int(action & KeyAction::MoveOrigin))
         modifiers |= int(tools::ToolLoopModifiers::kMoveOrigin);
       if (int(action & KeyAction::SquareAspect))
@@ -1195,8 +1142,7 @@ void Editor::updateToolLoopModifiersIndicators()
     else
     {
       // We update the selection mode only if we're not selecting.
-      action = m_customizationDelegate->getPressedKeyAction(
-          KeyContext::SelectionTool);
+      action = m_customizationDelegate->getPressedKeyAction(KeyContext::SelectionTool);
 
       gen::SelectionMode mode = Preferences::instance().selection.mode();
       if (int(action & KeyAction::AddSelection))
@@ -1217,8 +1163,7 @@ void Editor::updateToolLoopModifiersIndicators()
       }
 
       // For move tool
-      action =
-          m_customizationDelegate->getPressedKeyAction(KeyContext::MoveTool);
+      action = m_customizationDelegate->getPressedKeyAction(KeyContext::MoveTool);
       if (int(action & KeyAction::AutoSelectLayer))
         autoSelectLayer = true;
     }
@@ -1321,8 +1266,7 @@ bool Editor::onProcessMessage(Message* msg)
     break;
 
   case kMouseWheelMessage:
-    if (m_sprite && hasMouse() &&
-        onMouseWheelMessage(static_cast<MouseMessage*>(msg)))
+    if (m_sprite && hasMouse() && onMouseWheelMessage(static_cast<MouseMessage*>(msg)))
       return true;
     break;
 
@@ -1381,8 +1325,7 @@ bool Editor::onMouseDownMessage(MouseMessage* mouseMsg)
     setCursor(mouseMsg->position());
   }
 
-  App::instance()->activeToolManager()->pressButton(
-      pointer_from_msg(this, mouseMsg));
+  App::instance()->activeToolManager()->pressButton(pointer_from_msg(this, mouseMsg));
 
   EditorStatePtr holdState(m_state);
   return m_state->onMouseDown(this, mouseMsg);
@@ -1520,8 +1463,7 @@ void Editor::onPaint(ui::PaintEvent& ev)
       DocumentReader documentReader(m_document, 0);
 
       // Draw the sprite in the editor
-      drawSpriteUnclippedRect(
-          g, gfx::Rect(0, 0, m_sprite->width(), m_sprite->height()));
+      drawSpriteUnclippedRect(g, gfx::Rect(0, 0, m_sprite->width(), m_sprite->height()));
 
       // Draw the mask boundaries
       if (m_document->getMaskBoundaries())
@@ -1595,23 +1537,18 @@ void Editor::setLastDrawingPosition(const gfx::Point& pos)
 
 bool Editor::canDraw()
 {
-  return (m_layer != nullptr && m_layer->isImage() && m_layer->isVisible() &&
-          m_layer->isEditable());
+  return (m_layer != nullptr && m_layer->isImage() && m_layer->isVisible() && m_layer->isEditable());
 }
 
 bool Editor::isInsideSelection()
 {
   gfx::Point spritePos = screenToEditor(ui::get_mouse_position());
-  KeyAction action =
-      m_customizationDelegate->getPressedKeyAction(KeyContext::SelectionTool);
-  return (action == KeyAction::None) && m_document &&
-         m_document->isMaskVisible() &&
+  KeyAction action = m_customizationDelegate->getPressedKeyAction(KeyContext::SelectionTool);
+  return (action == KeyAction::None) && m_document && m_document->isMaskVisible() &&
          m_document->mask()->containsPoint(spritePos.x, spritePos.y);
 }
 
-void Editor::setZoomAndCenterInMouse(const Zoom& zoom,
-                                     const gfx::Point& mousePos,
-                                     ZoomBehavior zoomBehavior)
+void Editor::setZoomAndCenterInMouse(const Zoom& zoom, const gfx::Point& mousePos, ZoomBehavior zoomBehavior)
 {
   HideBrushPreview hide(m_brushPreview);
   View* view = View::getView(this);
@@ -1649,12 +1586,9 @@ void Editor::setZoomAndCenterInMouse(const Zoom& zoom,
   }
 
   gfx::Point padding = calcExtraPadding(zoom);
-  gfx::Point scrollPos(padding.x - (screenPos.x - vp.x) +
-                           zoom.apply(spritePos.x + zoom.remove(1) / 2) +
-                           int(zoom.apply(subpixelPos.x)),
-                       padding.y - (screenPos.y - vp.y) +
-                           zoom.apply(spritePos.y + zoom.remove(1) / 2) +
-                           int(zoom.apply(subpixelPos.y)));
+  gfx::Point scrollPos(
+      padding.x - (screenPos.x - vp.x) + zoom.apply(spritePos.x + zoom.remove(1) / 2) + int(zoom.apply(subpixelPos.x)),
+      padding.y - (screenPos.y - vp.y) + zoom.apply(spritePos.y + zoom.remove(1) / 2) + int(zoom.apply(subpixelPos.y)));
 
   setZoom(zoom);
 
@@ -1678,10 +1612,9 @@ void Editor::pasteImage(const Image* image, const Mask* mask)
     gfx::Rect imageBounds = image->bounds();
 
     temp_mask.reset(new Mask);
-    temp_mask->replace(
-        gfx::Rect(visibleBounds.x + visibleBounds.w / 2 - imageBounds.w / 2,
-                  visibleBounds.y + visibleBounds.h / 2 - imageBounds.h / 2,
-                  imageBounds.w, imageBounds.h));
+    temp_mask->replace(gfx::Rect(visibleBounds.x + visibleBounds.w / 2 - imageBounds.w / 2,
+                                 visibleBounds.y + visibleBounds.h / 2 - imageBounds.h / 2, imageBounds.w,
+                                 imageBounds.h));
 
     mask = temp_mask.get();
   }
@@ -1692,8 +1625,8 @@ void Editor::pasteImage(const Image* image, const Mask* mask)
   // the extra cel.
   if (!getCurrentEditorInk()->isSelection())
   {
-    tools::Tool* defaultSelectionTool = App::instance()->toolBox()->getToolById(
-        tools::WellKnownTools::RectangularMarquee);
+    tools::Tool* defaultSelectionTool =
+        App::instance()->toolBox()->getToolById(tools::WellKnownTools::RectangularMarquee);
 
     ToolBar::instance()->selectTool(defaultSelectionTool);
   }
@@ -1717,10 +1650,8 @@ void Editor::pasteImage(const Image* image, const Mask* mask)
     // image in its original location.
     else
     {
-      x = MID(visibleBounds.x - image->width(), x,
-              visibleBounds.x + visibleBounds.w - 1);
-      y = MID(visibleBounds.y - image->height(), y,
-              visibleBounds.y + visibleBounds.h - 1);
+      x = MID(visibleBounds.x - image->width(), x, visibleBounds.x + visibleBounds.w - 1);
+      y = MID(visibleBounds.y - image->height(), y, visibleBounds.y + visibleBounds.h - 1);
     }
 
     // Also we always limit the image inside the sprite's bounds.
@@ -1735,17 +1666,14 @@ void Editor::pasteImage(const Image* image, const Mask* mask)
   Mask mask2(*mask);
   mask2.setOrigin(x, y);
 
-  PixelsMovementPtr pixelsMovement(new PixelsMovement(
-      UIContext::instance(), getSite(), image, &mask2, "Paste"));
+  PixelsMovementPtr pixelsMovement(new PixelsMovement(UIContext::instance(), getSite(), image, &mask2, "Paste"));
 
-  setState(EditorStatePtr(
-      new MovingPixelsState(this, nullptr, pixelsMovement, NoHandle)));
+  setState(EditorStatePtr(new MovingPixelsState(this, nullptr, pixelsMovement, NoHandle)));
 }
 
 void Editor::startSelectionTransformation(const gfx::Point& move, double angle)
 {
-  if (MovingPixelsState* movingPixels =
-          dynamic_cast<MovingPixelsState*>(m_state.get()))
+  if (MovingPixelsState* movingPixels = dynamic_cast<MovingPixelsState*>(m_state.get()))
   {
     movingPixels->translate(move);
     if (std::fabs(angle) > 1e-5)
@@ -1792,8 +1720,7 @@ bool Editor::isPlaying() const
   return (dynamic_cast<PlayState*>(m_state.get()) != nullptr);
 }
 
-void Editor::showAnimationSpeedMultiplierPopup(Option<bool>& playOnce,
-                                               bool withStopBehaviorOptions)
+void Editor::showAnimationSpeedMultiplierPopup(Option<bool>& playOnce, bool withStopBehaviorOptions)
 {
   show_animation_speed_multiplier_popup(this, playOnce, withStopBehaviorOptions);
 }
@@ -1833,9 +1760,8 @@ gfx::Point Editor::calcExtraPadding(const Zoom& zoom)
   if (view)
   {
     Rect vp = view->viewportBounds();
-    return gfx::Point(
-        std::max<int>(vp.w / 2, vp.w - zoom.apply(m_sprite->width())),
-        std::max<int>(vp.h / 2, vp.h - zoom.apply(m_sprite->height())));
+    return gfx::Point(std::max<int>(vp.w / 2, vp.w - zoom.apply(m_sprite->width())),
+                      std::max<int>(vp.h / 2, vp.h - zoom.apply(m_sprite->height())));
   }
   else
     return gfx::Point(0, 0);

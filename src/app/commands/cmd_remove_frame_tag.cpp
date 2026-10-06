@@ -58,8 +58,7 @@ void RemoveFrameTagCommand::onLoadParams(const Params& params)
 
 bool RemoveFrameTagCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void RemoveFrameTagCommand::onExecute(Context* context)

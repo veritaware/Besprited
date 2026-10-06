@@ -35,16 +35,14 @@ CelList get_unique_cels(Sprite* sprite, const DocumentRange& inrange)
 
   std::set<ObjectId> visited;
 
-  for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd();
-       ++layerIdx)
+  for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd(); ++layerIdx)
   {
     Layer* layer = sprite->indexToLayer(layerIdx);
     if (!layer || !layer->isImage())
       continue;
 
     LayerImage* layerImage = static_cast<LayerImage*>(layer);
-    for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1;
-         frame != begin; --frame)
+    for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1; frame != begin; --frame)
     {
       auto cel = layerImage->cel(frame);
       if (!cel)

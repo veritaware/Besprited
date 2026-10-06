@@ -27,8 +27,7 @@ SkinPart::~SkinPart()
 
 void SkinPart::clear()
 {
-  for (Bitmaps::iterator it = m_bitmaps.begin(), end = m_bitmaps.end();
-       it != end; ++it)
+  for (Bitmaps::iterator it = m_bitmaps.begin(), end = m_bitmaps.end(); it != end; ++it)
   {
     ASSERT(*it != nullptr);
 

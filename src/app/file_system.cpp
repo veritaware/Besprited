@@ -128,12 +128,10 @@ static LPITEMIDLIST remove_last_pidl(LPITEMIDLIST pidl);
 static void free_pidl(LPITEMIDLIST pidl);
 static std::string get_key_for_pidl(LPITEMIDLIST pidl);
 
-static FileItem* get_fileitem_by_fullpidl(LPITEMIDLIST pidl,
-                                          bool create_if_not);
+static FileItem* get_fileitem_by_fullpidl(LPITEMIDLIST pidl, bool create_if_not);
 static void put_fileitem(FileItem* fileitem);
 #else
-static FileItem* get_fileitem_by_path(const std::string& path,
-                                      bool create_if_not);
+static FileItem* get_fileitem_by_path(const std::string& path, bool create_if_not);
 static std::string remove_backslash_if_needed(const std::string& filename);
 static std::string get_key_for_filename(const std::string& filename);
 static void put_fileitem(FileItem* fileitem);
@@ -178,15 +176,13 @@ FileSystemModule::~FileSystemModule()
   LOG("File system module: uninstalling\n");
   ASSERT(m_instance == this);
 
-  for (FileItemMap::iterator it = fileitems_map->begin();
-       it != fileitems_map->end(); ++it)
+  for (FileItemMap::iterator it = fileitems_map->begin(); it != fileitems_map->end(); ++it)
   {
     delete it->second;
   }
   fileitems_map->clear();
 
-  for (ThumbnailMap::iterator it = thumbnail_map->begin();
-       it != thumbnail_map->end(); ++it)
+  for (ThumbnailMap::iterator it = thumbnail_map->begin(); it != thumbnail_map->end(); ++it)
   {
     it->second->dispose();
   }
@@ -283,9 +279,8 @@ IFileItem* FileSystemModule::getFileItemFromPath(const std::string& path)
       return fileitem;
     }
 
-    if (shl_idesktop->ParseDisplayName(
-            nullptr, nullptr, const_cast<LPWSTR>(base::from_utf8(path).c_str()),
-            &cbEaten, &fullpidl, &attrib) != S_OK)
+    if (shl_idesktop->ParseDisplayName(nullptr, nullptr, const_cast<LPWSTR>(base::from_utf8(path).c_str()), &cbEaten,
+                                       &fullpidl, &attrib) != S_OK)
     {
       // LOG("FS: > (null)\n");
       return nullptr;
@@ -394,8 +389,7 @@ const FileItemList& FileItem::children()
         pFolder = shl_idesktop;
       else
       {
-        hr = shl_idesktop->BindToObject(m_fullpidl, nullptr, IID_IShellFolder,
-                                        (LPVOID*)&pFolder);
+        hr = shl_idesktop->BindToObject(m_fullpidl, nullptr, IID_IShellFolder, (LPVOID*)&pFolder);
 
         if (hr != S_OK)
           pFolder = nullptr;
@@ -407,10 +401,8 @@ const FileItemList& FileItem::children()
         ULONG c, fetched;
 
         /* get the interface to enumerate subitems */
-        hr = pFolder->EnumObjects(
-            reinterpret_cast<HWND>(
-                she::instance()->defaultDisplay()->nativeHandle()),
-            SHCONTF_FOLDERS | SHCONTF_NONFOLDERS, &pEnum);
+        hr = pFolder->EnumObjects(reinterpret_cast<HWND>(she::instance()->defaultDisplay()->nativeHandle()),
+                                  SHCONTF_FOLDERS | SHCONTF_NONFOLDERS, &pEnum);
 
         if (hr == S_OK && pEnum != nullptr)
         {
@@ -425,8 +417,7 @@ const FileItemList& FileItem::children()
             for (c = 0; c < fetched; ++c)
             {
               attribs[c] = SFGAO_FOLDER;
-              pFolder->GetAttributesOf(1, (LPCITEMIDLIST*)itempidl,
-                                       attribs + c);
+              pFolder->GetAttributesOf(1, (LPCITEMIDLIST*)itempidl, attribs + c);
             }
 
             /* generate the FileItems */
@@ -615,8 +606,7 @@ void FileItem::insertChildSorted(FileItem* child)
   child->m_removed = false;
 
   // if the fileitem is already in the list we can go back
-  if (std::find(m_children.begin(), m_children.end(), child) !=
-      m_children.end())
+  if (std::find(m_children.begin(), m_children.end(), child) != m_children.end())
     return;
 
   for (auto it = m_children.begin(), end = m_children.end(); it != end; ++it)
@@ -652,10 +642,8 @@ int FileItem::compare(const FileItem& that) const
 
 static bool calc_is_folder(std::string filename, SFGAOF attrib)
 {
-  return ((attrib & SFGAO_FOLDER) == SFGAO_FOLDER) &&
-         (base::get_file_extension(filename) != "zip") &&
-         ((!filename.empty() && (*filename.begin()) != ':') ||
-          (filename == MYPC_CSLID));
+  return ((attrib & SFGAO_FOLDER) == SFGAO_FOLDER) && (base::get_file_extension(filename) != "zip") &&
+         ((!filename.empty() && (*filename.begin()) != ':') || (filename == MYPC_CSLID));
 }
 
 // Updates the names of the file-item through its PIDL
@@ -671,8 +659,7 @@ static void update_by_pidl(FileItem* fileitem, SFGAOF attrib)
   else
   {
     ASSERT(fileitem->m_parent);
-    hr = shl_idesktop->BindToObject(fileitem->m_parent->m_fullpidl, nullptr,
-                                    IID_IShellFolder, (LPVOID*)&pFolder);
+    hr = shl_idesktop->BindToObject(fileitem->m_parent->m_fullpidl, nullptr, IID_IShellFolder, (LPVOID*)&pFolder);
     if (hr != S_OK)
       pFolder = nullptr;
   }
@@ -680,15 +667,12 @@ static void update_by_pidl(FileItem* fileitem, SFGAOF attrib)
   // Get the file name
 
   if (pFolder != nullptr &&
-      pFolder->GetDisplayNameOf(
-          fileitem->m_pidl, SHGDN_NORMAL | SHGDN_FORPARSING, &strret) == S_OK)
+      pFolder->GetDisplayNameOf(fileitem->m_pidl, SHGDN_NORMAL | SHGDN_FORPARSING, &strret) == S_OK)
   {
     StrRetToBuf(&strret, fileitem->m_pidl, pszName, MAX_PATH);
     fileitem->m_filename = base::to_utf8(pszName);
   }
-  else if (shl_idesktop->GetDisplayNameOf(fileitem->m_fullpidl,
-                                          SHGDN_NORMAL | SHGDN_FORPARSING,
-                                          &strret) == S_OK)
+  else if (shl_idesktop->GetDisplayNameOf(fileitem->m_fullpidl, SHGDN_NORMAL | SHGDN_FORPARSING, &strret) == S_OK)
   {
     StrRetToBuf(&strret, fileitem->m_fullpidl, pszName, MAX_PATH);
     fileitem->m_filename = base::to_utf8(pszName);
@@ -702,16 +686,13 @@ static void update_by_pidl(FileItem* fileitem, SFGAOF attrib)
 
   // Get the name to display
 
-  if (fileitem->isFolder() && pFolder &&
-      pFolder->GetDisplayNameOf(fileitem->m_pidl, SHGDN_INFOLDER, &strret) ==
-          S_OK)
+  if (fileitem->isFolder() && pFolder && pFolder->GetDisplayNameOf(fileitem->m_pidl, SHGDN_INFOLDER, &strret) == S_OK)
   {
     StrRetToBuf(&strret, fileitem->m_pidl, pszName, MAX_PATH);
     fileitem->m_displayname = base::to_utf8(pszName);
   }
   else if (fileitem->isFolder() &&
-           shl_idesktop->GetDisplayNameOf(fileitem->m_fullpidl, SHGDN_INFOLDER,
-                                          &strret) == S_OK)
+           shl_idesktop->GetDisplayNameOf(fileitem->m_fullpidl, SHGDN_INFOLDER, &strret) == S_OK)
   {
     StrRetToBuf(&strret, fileitem->m_fullpidl, pszName, MAX_PATH);
     fileitem->m_displayname = base::to_utf8(pszName);
@@ -860,8 +841,7 @@ static std::string get_key_for_pidl(LPITEMIDLIST pidl)
   pidl = clone_pidl(pidl);
   while (pidl->mkid.cb > 0)
   {
-    if (shl_idesktop->GetDisplayNameOf(pidl, SHGDN_INFOLDER | SHGDN_FORPARSING,
-                                       &strret) == S_OK)
+    if (shl_idesktop->GetDisplayNameOf(pidl, SHGDN_INFOLDER | SHGDN_FORPARSING, &strret) == S_OK)
     {
       if (StrRetToBuf(&strret, pidl, pszName, MAX_PATH) != S_OK)
         pszName[0] = 0;
@@ -896,8 +876,7 @@ static std::string get_key_for_pidl(LPITEMIDLIST pidl)
 #endif
 }
 
-static FileItem* get_fileitem_by_fullpidl(LPITEMIDLIST fullpidl,
-                                          bool create_if_not)
+static FileItem* get_fileitem_by_fullpidl(LPITEMIDLIST fullpidl, bool create_if_not)
 {
   FileItemMap::iterator it = fileitems_map->find(get_key_for_pidl(fullpidl));
   if (it != fileitems_map->end())
@@ -911,8 +890,7 @@ static FileItem* get_fileitem_by_fullpidl(LPITEMIDLIST fullpidl,
   fileitem->m_fullpidl = clone_pidl(fullpidl);
 
   SFGAOF attrib = SFGAO_FOLDER;
-  HRESULT hr = shl_idesktop->GetAttributesOf(
-      1, (LPCITEMIDLIST*)&fileitem->m_fullpidl, &attrib);
+  HRESULT hr = shl_idesktop->GetAttributesOf(1, (LPCITEMIDLIST*)&fileitem->m_fullpidl, &attrib);
   if (hr == S_OK)
   {
     LPITEMIDLIST parent_fullpidl = clone_pidl(fileitem->m_fullpidl);
@@ -960,8 +938,7 @@ static void put_fileitem(FileItem* fileitem)
 // POSIX functions
 //////////////////////////////////////////////////////////////////////
 
-static FileItem* get_fileitem_by_path(const std::string& path,
-                                      bool create_if_not)
+static FileItem* get_fileitem_by_path(const std::string& path, bool create_if_not)
 {
   if (path.empty())
     return rootitem;
@@ -992,8 +969,7 @@ static FileItem* get_fileitem_by_path(const std::string& path,
 
   // get the parent
   {
-    std::string parent_path = remove_backslash_if_needed(
-        base::join_path(base::get_file_path(path), ""));
+    std::string parent_path = remove_backslash_if_needed(base::join_path(base::get_file_path(path), ""));
     fileitem->m_parent = get_fileitem_by_path(parent_path, true);
   }
 

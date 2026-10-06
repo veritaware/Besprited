@@ -36,8 +36,7 @@ public:
     Tool* newTool = m_manager->activeTool();
     if (m_oldTool != newTool)
     {
-      m_manager->notifyObservers(&ActiveToolObserver::onActiveToolChange,
-                                 newTool);
+      m_manager->notifyObservers(&ActiveToolObserver::onActiveToolChange, newTool);
     }
   }
 
@@ -53,8 +52,7 @@ ActiveToolManager::ActiveToolManager(ToolBox* toolbox)
   , m_rightClickTool(nullptr)
   , m_rightClickInk(nullptr)
   , m_proximityTool(nullptr)
-  , m_selectedTool(m_toolbox->getToolById(
-        WellKnownTools::Pencil)) // "pencil" is the active tool by default
+  , m_selectedTool(m_toolbox->getToolById(WellKnownTools::Pencil)) // "pencil" is the active tool by default
 {
 }
 
@@ -94,8 +92,7 @@ std::shared_ptr<Ink> ActiveToolManager::activeInk() const
       id = tools::WellKnownInks::Paint;
 
       ColorBar* colorbar = ColorBar::instance();
-      app::Color color =
-          (m_rightClick ? colorbar->getBgColor() : colorbar->getFgColor());
+      app::Color color = (m_rightClick ? colorbar->getBgColor() : colorbar->getFgColor());
       if (color.getAlpha() == 0)
         id = tools::WellKnownInks::PaintCopy;
       break;
@@ -224,10 +221,8 @@ void ActiveToolManager::setSelectedTool(Tool* tool)
 // static
 bool ActiveToolManager::isToolAffectedByRightClickMode(Tool* tool)
 {
-  bool shadingMode =
-      (Preferences::instance().tool(tool).ink() == InkType::SHADING);
-  return ((tool->getInk(0)->isPaint() && !shadingMode) ||
-          (tool->getInk(0)->isEffect())) &&
+  bool shadingMode = (Preferences::instance().tool(tool).ink() == InkType::SHADING);
+  return ((tool->getInk(0)->isPaint() && !shadingMode) || (tool->getInk(0)->isEffect())) &&
          (!tool->getInk(0)->isEraser());
 }
 

@@ -50,8 +50,7 @@ HomeView::HomeView()
 
   newFile()->Click.connect(base::Bind(&HomeView::onNewFile, this));
   openFile()->Click.connect(base::Bind(&HomeView::onOpenFile, this));
-  recoverSprites()->Click.connect(
-      base::Bind(&HomeView::onRecoverSprites, this));
+  recoverSprites()->Click.connect(base::Bind(&HomeView::onRecoverSprites, this));
 
   filesView()->attachToView(m_files);
   foldersView()->attachToView(m_folders);
@@ -106,15 +105,13 @@ void HomeView::onWorkspaceViewSelected()
 
 void HomeView::onNewFile()
 {
-  Command* command =
-      CommandsModule::instance()->getCommandByName(CommandId::NewFile);
+  Command* command = CommandsModule::instance()->getCommandByName(CommandId::NewFile);
   UIContext::instance()->executeCommand(command);
 }
 
 void HomeView::onOpenFile()
 {
-  Command* command =
-      CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+  Command* command = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
   UIContext::instance()->executeCommand(command);
 }
 

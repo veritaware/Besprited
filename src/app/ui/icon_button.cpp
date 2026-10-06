@@ -61,8 +61,7 @@ void IconButton::onPaint(PaintEvent& ev)
   g->fillRect(bg, g->getClipBounds());
 
   gfx::Rect bounds = clientBounds();
-  g->drawColoredRgbaSurface(m_icon, fg,
-                            bounds.x + bounds.w / 2 - m_icon->width() / 2,
+  g->drawColoredRgbaSurface(m_icon, fg, bounds.x + bounds.w / 2 - m_icon->width() / 2,
                             bounds.y + bounds.h / 2 - m_icon->height() / 2);
 }
 

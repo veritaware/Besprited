@@ -34,8 +34,7 @@ public:
   {
   }
 
-  template <typename Type, typename Derived = Type>
-  [[nodiscard]] Derived* get() const
+  template <typename Type, typename Derived = Type> [[nodiscard]] Derived* get() const
   {
     if (ref.expired())
       return nullptr;

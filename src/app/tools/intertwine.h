@@ -38,10 +38,8 @@ public:
 protected:
   // The given point must be relative to the cel origin.
   static void doPointshapePoint(int x, int y, float pressure, ToolLoop* loop);
-  static void doPointshapeHline(int x1, int y, int x2, float pressure,
-                                ToolLoop* loop);
-  static void doPointshapeLine(int x1, int y1, int x2, int y2, float pressure,
-                               ToolLoop* loop);
+  static void doPointshapeHline(int x1, int y, int x2, float pressure, ToolLoop* loop);
+  static void doPointshapeLine(int x1, int y1, int x2, int y2, float pressure, ToolLoop* loop);
 };
 
 } // namespace tools

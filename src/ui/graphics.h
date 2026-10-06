@@ -68,16 +68,13 @@ public:
   void drawRect(gfx::Color color, const gfx::Rect& rc);
   void fillRect(gfx::Color color, const gfx::Rect& rc);
   void fillRegion(gfx::Color color, const gfx::Region& rgn);
-  void fillAreaBetweenRects(gfx::Color color, const gfx::Rect& outer,
-                            const gfx::Rect& inner);
+  void fillAreaBetweenRects(gfx::Color color, const gfx::Rect& outer, const gfx::Rect& inner);
 
   void drawSurface(she::Surface* surface, int x, int y);
   void drawRgbaSurface(she::Surface* surface, int x, int y);
-  void drawColoredRgbaSurface(she::Surface* surface, gfx::Color color, int x,
-                              int y);
+  void drawColoredRgbaSurface(she::Surface* surface, gfx::Color color, int x, int y);
 
-  void blit(she::Surface* src, int srcx, int srcy, int dstx, int dsty, int w,
-            int h);
+  void blit(she::Surface* src, int srcx, int srcy, int dstx, int dsty, int w, int h);
 
   // ======================================================================
   // FONT & TEXT
@@ -87,12 +84,10 @@ public:
   void setFont(std::shared_ptr<she::Font> font);
 
   void drawChar(int chr, gfx::Color fg, gfx::Color bg, int x, int y);
-  void drawString(const std::string& str, gfx::Color fg, gfx::Color bg,
-                  const gfx::Point& pt);
-  void drawUIString(const std::string& str, gfx::Color fg, gfx::Color bg,
-                    const gfx::Point& pt, bool drawUnderscore = true);
-  void drawAlignedUIString(const std::string& str, gfx::Color fg, gfx::Color bg,
-                           const gfx::Rect& rc, int align);
+  void drawString(const std::string& str, gfx::Color fg, gfx::Color bg, const gfx::Point& pt);
+  void drawUIString(const std::string& str, gfx::Color fg, gfx::Color bg, const gfx::Point& pt,
+                    bool drawUnderscore = true);
+  void drawAlignedUIString(const std::string& str, gfx::Color fg, gfx::Color bg, const gfx::Rect& rc, int align);
 
   gfx::Size measureChar(int chr);
   gfx::Size measureUIString(const std::string& str);
@@ -100,8 +95,7 @@ public:
   gfx::Size fitString(const std::string& str, int maxWidth, int align);
 
 private:
-  gfx::Size doUIStringAlgorithm(const std::string& str, gfx::Color fg,
-                                gfx::Color bg, const gfx::Rect& rc, int align,
+  gfx::Size doUIStringAlgorithm(const std::string& str, gfx::Color fg, gfx::Color bg, const gfx::Rect& rc, int align,
                                 bool draw);
 
   void dirty(const gfx::Rect& bounds) { m_dirtyBounds |= bounds; }

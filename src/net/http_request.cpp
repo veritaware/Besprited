@@ -34,8 +34,7 @@ public:
     // CURLOPT_CAINFO rather than skipping verification.
     curl_easy_setopt(m_curl, CURLOPT_BUFFERSIZE, 102400L);
     curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, this);
-    curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION,
-                     &HttpRequestImpl::writeBodyCallback);
+    curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, &HttpRequestImpl::writeBodyCallback);
     curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
     // CURLOPT_PROTOCOLS_STR needs libcurl >= 7.85.0; fall back to the
     // older (but equivalent) bitmask option on earlier versions so this
@@ -61,8 +60,7 @@ public:
   {
     m_body = body;
     curl_easy_setopt(m_curl, CURLOPT_POSTFIELDS, m_body.c_str());
-    curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE_LARGE,
-                     static_cast<curl_off_t>(m_body.size()));
+    curl_easy_setopt(m_curl, CURLOPT_POSTFIELDSIZE_LARGE, static_cast<curl_off_t>(m_body.size()));
   }
 
   void setHeaders(const HttpHeaders& headers)
@@ -112,8 +110,7 @@ private:
     return bytes;
   }
 
-  static std::size_t writeBodyCallback(char* ptr, std::size_t size,
-                                       std::size_t nmemb, void* userdata)
+  static std::size_t writeBodyCallback(char* ptr, std::size_t size, std::size_t nmemb, void* userdata)
   {
     auto* req = reinterpret_cast<HttpRequestImpl*>(userdata);
     return req->writeBody(ptr, size * nmemb);

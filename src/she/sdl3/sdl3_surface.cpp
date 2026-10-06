@@ -44,8 +44,7 @@ inline gfx::Color from_sdl(const SDL_PixelFormatDetails* format, unsigned int co
 
 inline unsigned int to_sdl(const SDL_PixelFormatDetails* format, gfx::Color color)
 {
-  return SDL_MapRGBA(format, nullptr, gfx::getr(color),
-                     gfx::getg(color), gfx::getb(color), gfx::geta(color));
+  return SDL_MapRGBA(format, nullptr, gfx::getr(color), gfx::getg(color), gfx::getb(color), gfx::geta(color));
 }
 
 const SDL_PixelFormatDetails* SDL3Surface::fmt() const
@@ -61,9 +60,7 @@ SDL3Surface::SDL3Surface(SDL_Surface* bmp, DestroyFlag destroy)
 }
 
 SDL3Surface::SDL3Surface(int width, int height, DestroyFlag destroy)
-  : m_bmp(SDL_CreateSurface(
-        width, height,
-        SDL_GetPixelFormatForMasks(32, 0xFF, 0xFF00, 0xFF0000, 0xFF000000)))
+  : m_bmp(SDL_CreateSurface(width, height, SDL_GetPixelFormatForMasks(32, 0xFF, 0xFF00, 0xFF0000, 0xFF000000)))
   , m_destroy(destroy)
   , m_lock(0)
 {
@@ -74,10 +71,8 @@ SDL3Surface::SDL3Surface(int width, int height, DestroyFlag destroy)
 }
 
 SDL3Surface::SDL3Surface(int width, int height, int bpp, DestroyFlag destroy)
-  : m_bmp(SDL_CreateSurface(
-        width, height,
-        SDL_GetPixelFormatForMasks(bpp, 0xFF, 0xFF00, 0xFF0000,
-                                   bpp == 32 ? 0xFF000000 : 0)))
+  : m_bmp(SDL_CreateSurface(width, height,
+                            SDL_GetPixelFormatForMasks(bpp, 0xFF, 0xFF00, 0xFF0000, bpp == 32 ? 0xFF000000 : 0)))
   , m_destroy(destroy)
   , m_lock(0)
 {
@@ -179,8 +174,7 @@ void SDL3Surface::applyScale(int scale)
   if (scale < 2)
     return;
 
-  SDL_Surface* scaled =
-      SDL_CreateSurface(m_bmp->w * scale, m_bmp->h * scale, m_bmp->format);
+  SDL_Surface* scaled = SDL_CreateSurface(m_bmp->w * scale, m_bmp->h * scale, m_bmp->format);
 
   SDL_Rect drect{.x = 0, .y = 0, .w = scaled->w, .h = scaled->h};
   SDL_BlitSurfaceScaled(m_bmp, nullptr, scaled, &drect, SDL_SCALEMODE_NEAREST);
@@ -204,8 +198,7 @@ void SDL3Surface::clear()
 
 uint8_t* SDL3Surface::getData(int x, int y) const
 {
-  return reinterpret_cast<uint8_t*>(m_bmp->pixels) + y * m_bmp->pitch +
-         x * fmt()->bytes_per_pixel;
+  return reinterpret_cast<uint8_t*>(m_bmp->pixels) + y * m_bmp->pitch + x * fmt()->bytes_per_pixel;
 }
 
 void SDL3Surface::getFormat(SurfaceFormatData* formatData) const
@@ -282,9 +275,7 @@ void SDL3Surface::drawHLine(gfx::Color color, int x, int y, int w)
   }
 
   auto format = fmt();
-  const unsigned int sdlColor =
-      to_sdl(format,
-             gfx::rgba(gfx::getr(color), gfx::getg(color), gfx::getb(color)));
+  const unsigned int sdlColor = to_sdl(format, gfx::rgba(gfx::getr(color), gfx::getg(color), gfx::getb(color)));
   auto data = getData(x, y);
   switch (drawMode)
   {
@@ -301,8 +292,7 @@ void SDL3Surface::drawHLine(gfx::Color color, int x, int y, int w)
         const int r = (data[0] * ia >> 8) + sr;
         const int g = (data[1] * ia >> 8) + sg;
         const int b = (data[2] * ia >> 8) + sb;
-        *reinterpret_cast<uint32_t*>(data) =
-            (r) | (g << 8) | (b << 16) | (data[3] << 24);
+        *reinterpret_cast<uint32_t*>(data) = (r) | (g << 8) | (b << 16) | (data[3] << 24);
       }
     }
     else
@@ -318,8 +308,7 @@ void SDL3Surface::drawHLine(gfx::Color color, int x, int y, int w)
     if (format->bytes_per_pixel == 4)
     {
       for (; w--; data += 4)
-        *reinterpret_cast<uint32_t*>(data) =
-            ((++offset) & 7) < 4 ? 0xFFFFFFFF : 0xFF000000;
+        *reinterpret_cast<uint32_t*>(data) = ((++offset) & 7) < 4 ? 0xFFFFFFFF : 0xFF000000;
     }
     else if (format->bytes_per_pixel == 2)
     {
@@ -394,8 +383,7 @@ void SDL3Surface::drawVLine(gfx::Color color, int x, int y, int h)
         const int r = (data[0] * ia >> 8) + sr;
         const int g = (data[1] * ia >> 8) + sg;
         const int b = (data[2] * ia >> 8) + sb;
-        *reinterpret_cast<uint32_t*>(data) =
-            (r) | (g << 8) | (b << 16) | (data[3] << 24);
+        *reinterpret_cast<uint32_t*>(data) = (r) | (g << 8) | (b << 16) | (data[3] << 24);
       }
     }
     else
@@ -411,8 +399,7 @@ void SDL3Surface::drawVLine(gfx::Color color, int x, int y, int h)
     if (format->bytes_per_pixel == 4)
     {
       for (; h--; data += stride)
-        *reinterpret_cast<uint32_t*>(data) =
-            ((++offset) & 7) < 4 ? 0xFFFFFFFF : 0xFF000000;
+        *reinterpret_cast<uint32_t*>(data) = ((++offset) & 7) < 4 ? 0xFFFFFFFF : 0xFF000000;
     }
     else if (format->bytes_per_pixel == 2)
     {
@@ -447,8 +434,7 @@ void SDL3Surface::drawVLine(gfx::Color color, int x, int y, int h)
   }
 }
 
-void SDL3Surface::drawLine(gfx::Color color, const gfx::Point& a,
-                           const gfx::Point& b)
+void SDL3Surface::drawLine(gfx::Color color, const gfx::Point& a, const gfx::Point& b)
 {
   if (a.x == b.x)
   {
@@ -518,12 +504,10 @@ void SDL3Surface::fillRect(gfx::Color color, const gfx::Rect& rc)
   {
     if (!sdl::tempSurface)
       sdl::tempSurface = new SDL3Surface(1, 1, SDL3Surface::DeleteAndDestroy);
-    SDL_FillSurfaceRect(sdl::tempSurface->m_bmp, nullptr,
-                        to_sdl(sdl::tempSurface->fmt(), color));
+    SDL_FillSurfaceRect(sdl::tempSurface->m_bmp, nullptr, to_sdl(sdl::tempSurface->fmt(), color));
     SDL_Rect rect{.x = rc.x, .y = rc.y, .w = rc.w, .h = rc.h};
     const SDL_Rect srcRect{.x = 0, .y = 0, .w = 1, .h = 1};
-    SDL_BlitSurfaceScaled(sdl::tempSurface->m_bmp, &srcRect, m_bmp, &rect,
-                          SDL_SCALEMODE_NEAREST);
+    SDL_BlitSurfaceScaled(sdl::tempSurface->m_bmp, &srcRect, m_bmp, &rect, SDL_SCALEMODE_NEAREST);
   }
   else
   {
@@ -532,8 +516,7 @@ void SDL3Surface::fillRect(gfx::Color color, const gfx::Rect& rc)
   }
 }
 
-void SDL3Surface::blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty,
-                         int width, int height) const
+void SDL3Surface::blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty, int width, int height) const
 {
   ASSERT(m_bmp);
   ASSERT(dest);
@@ -582,10 +565,8 @@ void SDL3Surface::scrollTo(const gfx::Rect& rc, int dx, int dy)
 
   char* dst = reinterpret_cast<char*>(m_bmp->pixels);
   const char* src = dst;
-  dst += static_cast<ptrdiff_t>(rowBytes) * clip.dst.y +
-         static_cast<ptrdiff_t>(bytesPerPixel) * clip.dst.x;
-  src += static_cast<ptrdiff_t>(rowBytes) * clip.src.y +
-         static_cast<ptrdiff_t>(bytesPerPixel) * clip.src.x;
+  dst += static_cast<ptrdiff_t>(rowBytes) * clip.dst.y + static_cast<ptrdiff_t>(bytesPerPixel) * clip.dst.x;
+  src += static_cast<ptrdiff_t>(rowBytes) * clip.src.y + static_cast<ptrdiff_t>(bytesPerPixel) * clip.src.x;
   w = bytesPerPixel * clip.size.w;
   h = clip.size.h;
 
@@ -612,8 +593,7 @@ SDL_Texture* SDL3Surface::getTexture(const SDL_Rect* rect)
   auto format = fmt();
   const int x = rect ? rect->x : 0;
   const int y = rect ? rect->y : 0;
-  auto* pixels = reinterpret_cast<uint8_t*>(m_bmp->pixels) +
-                 static_cast<ptrdiff_t>(m_bmp->pitch) * y +
+  auto* pixels = reinterpret_cast<uint8_t*>(m_bmp->pixels) + static_cast<ptrdiff_t>(m_bmp->pitch) * y +
                  static_cast<ptrdiff_t>(format->bytes_per_pixel) * x;
   if (m_texture && m_textureGen != textureGen)
   {
@@ -624,9 +604,7 @@ SDL_Texture* SDL3Surface::getTexture(const SDL_Rect* rect)
   {
     m_textureGen = textureGen;
     auto renderer = she::unique_display->renderer();
-    m_texture =
-        SDL_CreateTexture(renderer, m_bmp->format,
-                          SDL_TEXTUREACCESS_STREAMING, width(), height());
+    m_texture = SDL_CreateTexture(renderer, m_bmp->format, SDL_TEXTUREACCESS_STREAMING, width(), height());
     // SDL3 textures default to linear filtering; SDL2 was nearest. Force
     // nearest to keep the canvas/UI pixel-crisp at scale >= 2 (see #261).
     SDL_SetTextureScaleMode(m_texture, SDL_SCALEMODE_NEAREST);

@@ -30,8 +30,7 @@ class MovingPixelsState : public StandbyState,
                           ContextBarObserver
 {
 public:
-  MovingPixelsState(Editor* editor, ui::MouseMessage* msg,
-                    PixelsMovementPtr pixelsMovement, HandleType handle);
+  MovingPixelsState(Editor* editor, ui::MouseMessage* msg, PixelsMovementPtr pixelsMovement, HandleType handle);
   virtual ~MovingPixelsState();
 
   void translate(const gfx::Point& delta);
@@ -39,14 +38,12 @@ public:
 
   // EditorState
   virtual void onEnterState(Editor* editor) override;
-  virtual LeaveAction onLeaveState(Editor* editor,
-                                   EditorState* newState) override;
+  virtual LeaveAction onLeaveState(Editor* editor, EditorState* newState) override;
   virtual void onActiveToolChange(Editor* editor, tools::Tool* tool) override;
   virtual bool onMouseDown(Editor* editor, ui::MouseMessage* msg) override;
   virtual bool onMouseUp(Editor* editor, ui::MouseMessage* msg) override;
   virtual bool onMouseMove(Editor* editor, ui::MouseMessage* msg) override;
-  virtual bool onSetCursor(Editor* editor,
-                           const gfx::Point& mouseScreenPos) override;
+  virtual bool onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos) override;
   virtual bool onKeyDown(Editor* editor, ui::KeyMessage* msg) override;
   virtual bool onKeyUp(Editor* editor, ui::KeyMessage* msg) override;
   virtual bool onUpdateStatusBar(Editor* editor) override;

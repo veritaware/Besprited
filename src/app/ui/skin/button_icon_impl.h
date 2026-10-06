@@ -20,8 +20,8 @@ class SkinTheme;
 class ButtonIconImpl : public ui::IButtonIcon
 {
 public:
-  ButtonIconImpl(const SkinPartPtr& normalIcon, const SkinPartPtr& selectedIcon,
-                 const SkinPartPtr& disabledIcon, int iconAlign);
+  ButtonIconImpl(const SkinPartPtr& normalIcon, const SkinPartPtr& selectedIcon, const SkinPartPtr& disabledIcon,
+                 int iconAlign);
 
   // IButtonIcon implementation
   void destroy() override;

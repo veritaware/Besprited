@@ -55,9 +55,7 @@ protected:
           modifiers = (KeyModifiers)(modifiers & ~kKeySpaceModifier);
 
         m_accel = Accelerator(modifiers, keymsg->scancode(),
-                              keymsg->unicodeChar() > 32
-                                  ? std::tolower(keymsg->unicodeChar())
-                                  : 0);
+                              keymsg->unicodeChar() > 32 ? std::tolower(keymsg->unicodeChar()) : 0);
 
         // Convert the accelerator to a string, and parse it
         // again. Just to obtain the exact accelerator we'll read
@@ -76,17 +74,13 @@ protected:
 
   void updateText()
   {
-    setText(
-        Accelerator(kKeyNoneModifier, m_accel.scancode(), m_accel.unicodeChar())
-            .toString()
-            .c_str());
+    setText(Accelerator(kKeyNoneModifier, m_accel.scancode(), m_accel.unicodeChar()).toString().c_str());
   }
 
   Accelerator m_accel;
 };
 
-SelectAccelerator::SelectAccelerator(const ui::Accelerator& accel,
-                                     KeyContext keyContext)
+SelectAccelerator::SelectAccelerator(const ui::Accelerator& accel, KeyContext keyContext)
   : m_keyField(new KeyField(accel))
   , m_keyContext(keyContext)
   , m_accel(accel)
@@ -97,31 +91,22 @@ SelectAccelerator::SelectAccelerator(const ui::Accelerator& accel,
 
   keyPlaceholder()->addChild(m_keyField);
 
-  alt()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange,
-                                        this, kKeyAltModifier, alt()));
-  cmd()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange,
-                                        this, kKeyCmdModifier, cmd()));
-  ctrl()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange,
-                                         this, kKeyCtrlModifier, ctrl()));
-  shift()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange,
-                                          this, kKeyShiftModifier, shift()));
-  space()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange,
-                                          this, kKeySpaceModifier, space()));
-  win()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange,
-                                        this, kKeyWinModifier, win()));
+  alt()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange, this, kKeyAltModifier, alt()));
+  cmd()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange, this, kKeyCmdModifier, cmd()));
+  ctrl()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange, this, kKeyCtrlModifier, ctrl()));
+  shift()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange, this, kKeyShiftModifier, shift()));
+  space()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange, this, kKeySpaceModifier, space()));
+  win()->Click.connect(base::Bind<void>(&SelectAccelerator::onModifierChange, this, kKeyWinModifier, win()));
 
   m_keyField->AccelChange.connect(&SelectAccelerator::onAccelChange, this);
-  clearButton()->Click.connect(
-      base::Bind<void>(&SelectAccelerator::onClear, this));
+  clearButton()->Click.connect(base::Bind<void>(&SelectAccelerator::onClear, this));
   okButton()->Click.connect(base::Bind<void>(&SelectAccelerator::onOK, this));
-  cancelButton()->Click.connect(
-      base::Bind<void>(&SelectAccelerator::onCancel, this));
+  cancelButton()->Click.connect(base::Bind<void>(&SelectAccelerator::onCancel, this));
 
   addChild(&m_tooltipManager);
 }
 
-void SelectAccelerator::onModifierChange(KeyModifiers modifier,
-                                         CheckBox* checkbox)
+void SelectAccelerator::onModifierChange(KeyModifiers modifier, CheckBox* checkbox)
 {
   bool state = (checkbox->isSelected());
   KeyModifiers modifiers = m_accel.modifiers();
@@ -180,9 +165,7 @@ void SelectAccelerator::updateModifiers()
 #else
 #if __linux__
   win()->setText(kWinKeyName);
-  m_tooltipManager.addTooltipFor(
-      win(),
-      "Also known as Windows key, logo key,\ncommand key, or system key.", TOP);
+  m_tooltipManager.addTooltipFor(win(), "Also known as Windows key, logo key,\ncommand key, or system key.", TOP);
 #endif
   win()->setSelected(m_accel.modifiers() & kKeyWinModifier ? true : false);
   cmd()->setVisible(false);

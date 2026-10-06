@@ -81,16 +81,11 @@ public:
     mode()->addItem("Color");
     mode()->addItem("Luminosity");
 
-    name()->Change.connect(
-        base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
-    mode()->Change.connect(
-        base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
-    opacity()->Change.connect(
-        base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
-    m_timer.Tick.connect(
-        base::Bind<void>(&LayerPropertiesWindow::onCommitChange, this));
-    userData()->Click.connect(
-        base::Bind<void>(&LayerPropertiesWindow::onPopupUserData, this));
+    name()->Change.connect(base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
+    mode()->Change.connect(base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
+    opacity()->Change.connect(base::Bind<void>(&LayerPropertiesWindow::onStartTimer, this));
+    m_timer.Tick.connect(base::Bind<void>(&LayerPropertiesWindow::onCommitChange, this));
+    userData()->Click.connect(base::Bind<void>(&LayerPropertiesWindow::onPopupUserData, this));
 
     remapWindow();
     centerWindow();
@@ -99,10 +94,7 @@ public:
     UIContext::instance()->addObserver(this);
   }
 
-  ~LayerPropertiesWindow() override
-  {
-    UIContext::instance()->removeObserver(this);
-  }
+  ~LayerPropertiesWindow() override { UIContext::instance()->removeObserver(this); }
 
   void setLayer(LayerImage* layer)
   {
@@ -133,10 +125,7 @@ private:
 
   std::string nameValue() const { return name()->text(); }
 
-  BlendMode blendModeValue() const
-  {
-    return (BlendMode)mode()->getSelectedItemIndex();
-  }
+  BlendMode blendModeValue() const { return (BlendMode)mode()->getSelectedItemIndex(); }
 
   int opacityValue() const { return opacity()->getValue(); }
 
@@ -188,8 +177,7 @@ private:
     int newOpacity = opacityValue();
     BlendMode newBlendMode = blendModeValue();
 
-    if (newName != m_layer->name() || newOpacity != m_layer->opacity() ||
-        newBlendMode != m_layer->blendMode() ||
+    if (newName != m_layer->name() || newOpacity != m_layer->opacity() || newBlendMode != m_layer->blendMode() ||
         m_userData != m_layer->userData())
     {
       try
@@ -201,12 +189,10 @@ private:
           transaction.execute(new cmd::SetLayerName(writer.layer(), newName));
 
         if (newOpacity != m_layer->opacity())
-          transaction.execute(new cmd::SetLayerOpacity(
-              static_cast<LayerImage*>(writer.layer()), newOpacity));
+          transaction.execute(new cmd::SetLayerOpacity(static_cast<LayerImage*>(writer.layer()), newOpacity));
 
         if (newBlendMode != m_layer->blendMode())
-          transaction.execute(new cmd::SetLayerBlendMode(
-              static_cast<LayerImage*>(writer.layer()), newBlendMode));
+          transaction.execute(new cmd::SetLayerBlendMode(static_cast<LayerImage*>(writer.layer()), newBlendMode));
 
         if (m_userData != m_layer->userData())
         {
@@ -310,8 +296,7 @@ LayerPropertiesCommand::LayerPropertiesCommand()
 
 bool LayerPropertiesCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveLayer);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveLayer);
 }
 
 void LayerPropertiesCommand::onExecute(Context* context)

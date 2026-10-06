@@ -27,8 +27,7 @@ namespace app
 // Note: The layer is not added to the given sprite, but is related to
 // it, so you'll be able to add the flatten layer only into the given
 // sprite.
-LayerImage* create_flatten_layer_copy(Sprite* dstSprite, const Layer* srcLayer,
-                                      const gfx::Rect& bounds, frame_t frmin,
+LayerImage* create_flatten_layer_copy(Sprite* dstSprite, const Layer* srcLayer, const gfx::Rect& bounds, frame_t frmin,
                                       frame_t frmax);
 
 } // namespace app

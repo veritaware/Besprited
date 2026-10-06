@@ -38,8 +38,7 @@ LayerVisibilityCommand::LayerVisibilityCommand()
 
 bool LayerVisibilityCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveLayer);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveLayer);
 }
 
 bool LayerVisibilityCommand::onChecked(Context* context)

@@ -68,8 +68,8 @@ bool ChangePixelFormatCommand::onEnabled(Context* context)
   ContextWriter writer(context);
   Sprite* sprite(writer.sprite());
 
-  if (sprite != nullptr && sprite->pixelFormat() == IMAGE_INDEXED &&
-      m_format == IMAGE_INDEXED && m_dithering == DitheringMethod::ORDERED)
+  if (sprite != nullptr && sprite->pixelFormat() == IMAGE_INDEXED && m_format == IMAGE_INDEXED &&
+      m_dithering == DitheringMethod::ORDERED)
     return false;
 
   return sprite != nullptr;
@@ -80,8 +80,8 @@ bool ChangePixelFormatCommand::onChecked(Context* context)
   const ContextReader reader(context);
   const Sprite* sprite = reader.sprite();
 
-  if (sprite != nullptr && sprite->pixelFormat() == IMAGE_INDEXED &&
-      m_format == IMAGE_INDEXED && m_dithering == DitheringMethod::ORDERED)
+  if (sprite != nullptr && sprite->pixelFormat() == IMAGE_INDEXED && m_format == IMAGE_INDEXED &&
+      m_dithering == DitheringMethod::ORDERED)
     return false;
 
   return sprite != nullptr && sprite->pixelFormat() == m_format;

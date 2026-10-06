@@ -133,8 +133,7 @@ int Alert::show(const char* format, ...)
   return ret;
 }
 
-void Alert::processString(char* buf, std::vector<Widget*>& labels,
-                          std::vector<Widget*>& buttons)
+void Alert::processString(char* buf, std::vector<Widget*>& labels, std::vector<Widget*>& buttons)
 {
   Box *box1, *box2, *box3, *box4, *box5;
   Grid* grid;
@@ -152,8 +151,7 @@ void Alert::processString(char* buf, std::vector<Widget*>& labels,
   for (;; c++)
   {
     if ((!buf[c]) || ((buf[c] == buf[c + 1]) &&
-                      ((buf[c] == '<') || (buf[c] == '=') || (buf[c] == '>') ||
-                       (buf[c] == '-') || (buf[c] == '|'))))
+                      ((buf[c] == '<') || (buf[c] == '=') || (buf[c] == '>') || (buf[c] == '-') || (buf[c] == '|'))))
     {
       if (title || label || separator || button)
       {
@@ -183,8 +181,7 @@ void Alert::processString(char* buf, std::vector<Widget*>& labels,
 
           snprintf(buttonId, sizeof(buttonId), "button-%zu", buttons.size());
           button_widget->setId(buttonId);
-          button_widget->Click.connect(
-              base::Bind<void>(&Window::closeWindow, this, button_widget));
+          button_widget->Click.connect(base::Bind<void>(&Window::closeWindow, this, button_widget));
         }
 
         buf[c] = chr;
@@ -260,12 +257,10 @@ void Alert::processString(char* buf, std::vector<Widget*>& labels,
 
   grid->addChildInCell(box3, 1, 1, CENTER | BOTTOM);
 
-  for (std::vector<Widget*>::iterator it = labels.begin(); it != labels.end();
-       ++it)
+  for (std::vector<Widget*>::iterator it = labels.begin(); it != labels.end(); ++it)
     box2->addChild(*it);
 
-  for (std::vector<Widget*>::iterator it = buttons.begin(); it != buttons.end();
-       ++it)
+  for (std::vector<Widget*>::iterator it = buttons.begin(); it != buttons.end(); ++it)
     box3->addChild(*it);
 
   // Default button is the last one

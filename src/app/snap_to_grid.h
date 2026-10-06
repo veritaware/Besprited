@@ -18,7 +18,6 @@ enum class PreferSnapTo
   BoxOrigin
 };
 
-gfx::Point snap_to_grid(const gfx::Rect& grid, const gfx::Point& point,
-                        const PreferSnapTo prefer);
+gfx::Point snap_to_grid(const gfx::Rect& grid, const gfx::Point& point, const PreferSnapTo prefer);
 
 } // namespace app

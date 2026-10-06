@@ -27,16 +27,24 @@ int main(int argc, char** argv)
   Cmd cmd8(model, 8, 7);
 
   UndoHistory history;
-  cmd1.redo(); history.add(&cmd1);
-  cmd2.redo(); history.add(&cmd2);
-  cmd3.redo(); history.add(&cmd3);
-  cmd4.redo(); history.add(&cmd4);
+  cmd1.redo();
+  history.add(&cmd1);
+  cmd2.redo();
+  history.add(&cmd2);
+  cmd3.redo();
+  history.add(&cmd3);
+  cmd4.redo();
+  history.add(&cmd4);
   history.undo();
-  cmd5.redo(); history.add(&cmd5);
-  cmd6.redo(); history.add(&cmd6);
+  cmd5.redo();
+  history.add(&cmd5);
+  cmd6.redo();
+  history.add(&cmd6);
   history.undo();
-  cmd7.redo(); history.add(&cmd7);
-  cmd8.redo(); history.add(&cmd8);
+  cmd7.redo();
+  history.add(&cmd7);
+  cmd8.redo();
+  history.add(&cmd8);
 
   EXPECT_EQ(8, model);
   history.undo();
@@ -54,7 +62,7 @@ int main(int argc, char** argv)
   history.undo();
   EXPECT_EQ(1, model);
   history.undo();
-  EXPECT_EQ(0,  model);
+  EXPECT_EQ(0, model);
   EXPECT_FALSE(history.canUndo());
   history.redo();
   EXPECT_EQ(1, model);
@@ -63,14 +71,14 @@ int main(int argc, char** argv)
   history.redo();
   EXPECT_EQ(3, model);
   history.redo();
-  EXPECT_EQ(4,  model);
+  EXPECT_EQ(4, model);
   history.redo();
-  EXPECT_EQ(5,  model);
+  EXPECT_EQ(5, model);
   history.redo();
-  EXPECT_EQ(6,  model);
+  EXPECT_EQ(6, model);
   history.redo();
-  EXPECT_EQ(7,  model);
+  EXPECT_EQ(7, model);
   history.redo();
-  EXPECT_EQ(8,  model);
+  EXPECT_EQ(8, model);
   EXPECT_FALSE(history.canRedo());
 }

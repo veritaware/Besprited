@@ -65,9 +65,8 @@ ColorWheel::ColorWheel()
 
   m_options.Click.connect(base::Bind<void>(&ColorWheel::onOptions, this));
   m_options.setBgColor(theme->colors.editorFace());
-  m_options.setIconInterface(
-      new ButtonIconImpl(theme->parts.palOptions(), theme->parts.palOptions(),
-                         theme->parts.palOptions(), CENTER | MIDDLE));
+  m_options.setIconInterface(new ButtonIconImpl(theme->parts.palOptions(), theme->parts.palOptions(),
+                                                theme->parts.palOptions(), CENTER | MIDDLE));
 
   addChild(&m_options);
 }
@@ -128,14 +127,11 @@ app::Color ColorWheel::getColorInClientPos(const gfx::Point& pos)
     {
       app::Color color = getColorInHarmony(i);
 
-      if (gfx::Rect(rc.x + rc.w - (n - i) * boxsize, rc.y + rc.h - boxsize,
-                    boxsize, boxsize)
-              .contains(pos))
+      if (gfx::Rect(rc.x + rc.w - (n - i) * boxsize, rc.y + rc.h - boxsize, boxsize, boxsize).contains(pos))
       {
         m_harmonyPicked = true;
 
-        color = app::Color::fromHsv(convertHueAngle(int(color.getHue()), 1),
-                                    color.getSaturation(), color.getValue());
+        color = app::Color::fromHsv(convertHueAngle(int(color.getHue()), 1), color.getSaturation(), color.getValue());
         return color;
       }
     }
@@ -178,11 +174,9 @@ app::Color ColorWheel::getColorInHarmony(int j) const
 {
   int i = MID(0, (int)m_harmony, (int)Harmony::LAST);
   j = MID(0, j, harmonies[i].n - 1);
-  double hue =
-      convertHueAngle(int(m_color.getHue()), -1) + harmonies[i].hues[j];
+  double hue = convertHueAngle(int(m_color.getHue()), -1) + harmonies[i].hues[j];
   double sat = m_color.getSaturation() * harmonies[i].sats[j] / 100.0;
-  return app::Color::fromHsv(std::fmod(hue, 360), MID(0.0, sat, 100.0),
-                             m_color.getValue());
+  return app::Color::fromHsv(std::fmod(hue, 360), MID(0.0, sat, 100.0), m_color.getValue());
 }
 
 void ColorWheel::onResize(ui::ResizeEvent& ev)
@@ -194,8 +188,7 @@ void ColorWheel::onResize(ui::ResizeEvent& ev)
 
   m_clientBounds = rc;
   m_wheelRadius = r;
-  m_wheelBounds =
-      gfx::Rect(rc.x + rc.w / 2 - r, rc.y + rc.h / 2 - r, r * 2, r * 2);
+  m_wheelBounds = gfx::Rect(rc.x + rc.w / 2 - r, rc.y + rc.h / 2 - r, r * 2, r * 2);
 
   gfx::Size prefSize = m_options.sizeHint();
   rc = childrenBounds();
@@ -210,8 +203,7 @@ void ColorWheel::onPaint(ui::PaintEvent& ev)
   ui::Graphics* g = ev.graphics();
   SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
 
-  theme->drawRect(g, clientBounds(), theme->parts.editorNormal().get(),
-                  bgColor());
+  theme->drawRect(g, clientBounds(), theme->parts.editorNormal().get(), bgColor());
 
   const gfx::Rect& rc = m_clientBounds;
 
@@ -246,23 +238,17 @@ void ColorWheel::onPaint(ui::PaintEvent& ev)
       double angle = color.getHue() - 30.0;
       double dist = color.getSaturation();
 
-      color = app::Color::fromHsv(convertHueAngle(int(color.getHue()), 1),
-                                  color.getSaturation(), color.getValue());
+      color = app::Color::fromHsv(convertHueAngle(int(color.getHue()), 1), color.getSaturation(), color.getValue());
 
       gfx::Point pos = m_wheelBounds.center() +
-                       gfx::Point(int(+std::cos(PI * angle / 180.0) *
-                                      double(m_wheelRadius) * dist / 100.0),
-                                  int(-std::sin(PI * angle / 180.0) *
-                                      double(m_wheelRadius) * dist / 100.0));
+                       gfx::Point(int(+std::cos(PI * angle / 180.0) * double(m_wheelRadius) * dist / 100.0),
+                                  int(-std::sin(PI * angle / 180.0) * double(m_wheelRadius) * dist / 100.0));
 
       she::Surface* icon = theme->parts.colorWheelIndicator()->bitmap(0);
-      g->drawRgbaSurface(icon, pos.x - icon->width() / 2,
-                         pos.y - icon->height() / 2);
+      g->drawRgbaSurface(icon, pos.x - icon->width() / 2, pos.y - icon->height() / 2);
 
-      g->fillRect(
-          gfx::rgba(color.getRed(), color.getGreen(), color.getBlue(), 255),
-          gfx::Rect(rc.x + rc.w - (n - i) * boxsize, rc.y + rc.h - boxsize,
-                    boxsize, boxsize));
+      g->fillRect(gfx::rgba(color.getRed(), color.getGreen(), color.getBlue(), 255),
+                  gfx::Rect(rc.x + rc.w - (n - i) * boxsize, rc.y + rc.h - boxsize, boxsize, boxsize));
     }
   }
 }
@@ -280,8 +266,7 @@ bool ColorWheel::onProcessMessage(ui::Message* msg)
   {
     MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
 
-    app::Color color =
-        getColorInClientPos(mouseMsg->position() - bounds().origin());
+    app::Color color = getColorInClientPos(mouseMsg->position() - bounds().origin());
 
     if (color != app::Color::fromMask())
     {
@@ -304,8 +289,7 @@ bool ColorWheel::onProcessMessage(ui::Message* msg)
   case kSetCursorMessage:
   {
     MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-    app::Color color =
-        getColorInClientPos(mouseMsg->position() - bounds().origin());
+    app::Color color = getColorInClientPos(mouseMsg->position() - bounds().origin());
 
     if (color.getType() != app::Color::MaskType)
     {
@@ -372,24 +356,15 @@ void ColorWheel::onOptions()
     break;
   }
 
-  discrete.Click.connect(
-      base::Bind<void>(&ColorWheel::setDiscrete, this, !isDiscrete()));
-  none.Click.connect(
-      base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::NONE));
-  complementary.Click.connect(
-      base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::COMPLEMENTARY));
-  monochromatic.Click.connect(
-      base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::MONOCHROMATIC));
-  analogous.Click.connect(
-      base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::ANALOGOUS));
-  split.Click.connect(
-      base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::SPLIT));
-  triadic.Click.connect(
-      base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::TRIADIC));
-  tetradic.Click.connect(
-      base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::TETRADIC));
-  square.Click.connect(
-      base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::SQUARE));
+  discrete.Click.connect(base::Bind<void>(&ColorWheel::setDiscrete, this, !isDiscrete()));
+  none.Click.connect(base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::NONE));
+  complementary.Click.connect(base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::COMPLEMENTARY));
+  monochromatic.Click.connect(base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::MONOCHROMATIC));
+  analogous.Click.connect(base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::ANALOGOUS));
+  split.Click.connect(base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::SPLIT));
+  triadic.Click.connect(base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::TRIADIC));
+  tetradic.Click.connect(base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::TETRADIC));
+  square.Click.connect(base::Bind<void>(&ColorWheel::setHarmony, this, Harmony::SQUARE));
 
   gfx::Rect rc = m_options.bounds();
   menu.showPopup(gfx::Point(rc.x + rc.w, rc.y));

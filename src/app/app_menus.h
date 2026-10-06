@@ -62,16 +62,14 @@ public:
   Menu* getPalettePopupMenu() { return getById("palette_popup"); }
   Menu* getInkPopupMenu() { return getById("ink_popup"); }
 
-  void applyShortcutToMenuitemsWithCommand(Command* command,
-                                           const Params& params, Key* key);
+  void applyShortcutToMenuitemsWithCommand(Command* command, const Params& params, Key* key);
 
 private:
   void loadMenus(tinyxml2::XMLHandle& handle);
   Menu* convertXmlelemToMenu(tinyxml2::XMLElement* elem);
   Widget* convertXmlelemToMenuitem(tinyxml2::XMLElement* elem);
   Widget* createInvalidVersionMenuitem();
-  void applyShortcutToMenuitemsWithCommand(Menu* menu, Command* command,
-                                           const Params& params, Key* key);
+  void applyShortcutToMenuitemsWithCommand(Menu* menu, Command* command, const Params& params, Key* key);
   void clearIdentifiedWidgets();
   RecentFilesMenu m_recentFilesMenu;
   ScriptMenu m_scriptMenu;

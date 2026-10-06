@@ -64,21 +64,18 @@ void AdvancedModeCommand::onExecute(Context* context)
 
   mainWindow->setMode(newMode);
 
-  if (oldMode == MainWindow::NormalMode &&
-      get_config_bool("AdvancedMode", "Warning", true))
+  if (oldMode == MainWindow::NormalMode && get_config_bool("AdvancedMode", "Warning", true))
   {
     Key* key = KeyboardShortcuts::instance()->command(this->id().c_str());
     if (!key->accels().empty())
     {
       app::gen::AdvancedMode window;
 
-      window.warningLabel()->setTextf("You can go back pressing \"%s\" key.",
-                                      key->accels().front().toString().c_str());
+      window.warningLabel()->setTextf("You can go back pressing \"%s\" key.", key->accels().front().toString().c_str());
 
       window.openWindowInForeground();
 
-      set_config_bool("AdvancedMode", "Warning",
-                      !window.donotShow()->isSelected());
+      set_config_bool("AdvancedMode", "Warning", !window.donotShow()->isSelected());
     }
   }
 }

@@ -1,16 +1,16 @@
 #include <random>
 #pragma once
 
-class RandomInt {
+class RandomInt
+{
 public:
   RandomInt(int a, int b)
     : m_mt(m_device())
-    , m_dist(a, b) {
+    , m_dist(a, b)
+  {
   }
 
-  int generate() {
-    return m_dist(m_mt);
-  }
+  int generate() { return m_dist(m_mt); }
 
 private:
   std::random_device m_device;

@@ -37,8 +37,8 @@ Sprites::~Sprites()
 
 Sprite* Sprites::add(int width, int height, ColorMode mode, int ncolors)
 {
-  std::unique_ptr<Sprite> spr(doc::Sprite::createBasicSprite(
-      static_cast<doc::PixelFormat>(mode), width, height, ncolors));
+  std::unique_ptr<Sprite> spr(
+      doc::Sprite::createBasicSprite(static_cast<doc::PixelFormat>(mode), width, height, ncolors));
 
   add(spr.get());
 

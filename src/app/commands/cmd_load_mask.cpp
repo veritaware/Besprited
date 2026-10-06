@@ -63,8 +63,7 @@ void LoadMaskCommand::onExecute(Context* context)
 
   if (context->isUIAvailable())
   {
-    filename = app::show_file_selector("Load .msk File", filename, "msk",
-                                       FileSelectorType::Open);
+    filename = app::show_file_selector("Load .msk File", filename, "msk", FileSelectorType::Open);
 
     if (filename.empty())
       return;
@@ -74,14 +73,12 @@ void LoadMaskCommand::onExecute(Context* context)
 
   std::unique_ptr<Mask> mask(load_msk_file(m_filename.c_str()));
   if (!mask)
-    throw base::Exception("Error loading .msk file: %s",
-                          static_cast<const char*>(m_filename.c_str()));
+    throw base::Exception("Error loading .msk file: %s", static_cast<const char*>(m_filename.c_str()));
 
   {
     ContextWriter writer(reader);
     Document* document = writer.document();
-    Transaction transaction(writer.context(), "Mask Load",
-                            DoesntModifyDocument);
+    Transaction transaction(writer.context(), "Mask Load", DoesntModifyDocument);
     transaction.execute(new cmd::SetMask(document, mask.get()));
     transaction.commit();
 

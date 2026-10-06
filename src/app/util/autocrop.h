@@ -17,9 +17,7 @@ class Image;
 namespace app
 {
 
-bool get_shrink_rect(int* x1, int* y1, int* x2, int* y2, doc::Image* image,
-                     doc::color_t refpixel);
-bool get_shrink_rect2(int* x1, int* y1, int* x2, int* y2, doc::Image* image,
-                      doc::Image* regimage);
+bool get_shrink_rect(int* x1, int* y1, int* x2, int* y2, doc::Image* image, doc::color_t refpixel);
+bool get_shrink_rect2(int* x1, int* y1, int* x2, int* y2, doc::Image* image, doc::Image* regimage);
 
 } // namespace app

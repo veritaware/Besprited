@@ -77,8 +77,7 @@ void write_image(std::ostream& os, const Image* image)
         const int output_bytes = compressed.size() - zstream.avail_out;
         if (output_bytes > 0)
         {
-          if (os.write(reinterpret_cast<char*>(&compressed[0]), output_bytes)
-                  .fail())
+          if (os.write(reinterpret_cast<char*>(&compressed[0]), output_bytes).fail())
             throw base::Exception("Error writing compressed image pixels.\n");
 
           total_output_bytes += output_bytes;
@@ -112,14 +111,12 @@ Image* read_image(std::istream& is, bool setId)
   // image is still a ~17 GB single allocation attempt from a ~15-byte
   // record (see issue #219); use a real ceiling instead.
   constexpr int kMaxDimension = 16384;
-  if ((pixelFormat != IMAGE_RGB && pixelFormat != IMAGE_GRAYSCALE &&
-       pixelFormat != IMAGE_INDEXED && pixelFormat != IMAGE_BITMAP) ||
-      (width < 1 || height < 1) ||
-      (width > kMaxDimension || height > kMaxDimension))
+  if ((pixelFormat != IMAGE_RGB && pixelFormat != IMAGE_GRAYSCALE && pixelFormat != IMAGE_INDEXED &&
+       pixelFormat != IMAGE_BITMAP) ||
+      (width < 1 || height < 1) || (width > kMaxDimension || height > kMaxDimension))
     return nullptr;
 
-  std::unique_ptr<Image> image(
-      Image::create(static_cast<PixelFormat>(pixelFormat), width, height));
+  std::unique_ptr<Image> image(Image::create(static_cast<PixelFormat>(pixelFormat), width, height));
   const int rowSize = image->getRowStrideSize();
 
 #if 0
@@ -146,8 +143,7 @@ Image* read_image(std::istream& is, bool setId)
 
     std::vector<uint8_t> compressed(4096);
     uint8_t* address = image->getPixelAddress(0, 0);
-    const uint8_t* address_end =
-        image->getPixelAddress(0, 0) + uncompressed_size;
+    const uint8_t* address_end = image->getPixelAddress(0, 0) + uncompressed_size;
 
     while (remain > 0)
     {
@@ -179,8 +175,7 @@ Image* read_image(std::istream& is, bool setId)
         if (err != Z_OK && err != Z_STREAM_END && err != Z_BUF_ERROR)
           throw base::Exception("ZLib error %d in inflate().", err);
 
-        const int uncompressed_bytes =
-            static_cast<int>((address_end - address) - zstream.avail_out);
+        const int uncompressed_bytes = static_cast<int>((address_end - address) - zstream.avail_out);
         if (uncompressed_bytes > 0)
         {
           if (uncompressed_offset + uncompressed_bytes > uncompressed_size)

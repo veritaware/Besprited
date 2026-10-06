@@ -43,8 +43,7 @@ NewFrameTagCommand::NewFrameTagCommand()
 
 bool NewFrameTagCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void NewFrameTagCommand::onExecute(Context* context)
@@ -55,8 +54,7 @@ void NewFrameTagCommand::onExecute(Context* context)
   frame_t to = reader.frame();
 
   auto range = App::instance()->timeline()->range();
-  if (range.enabled() && (range.type() == DocumentRange::kFrames ||
-                          range.type() == DocumentRange::kCels))
+  if (range.enabled() && (range.type() == DocumentRange::kFrames || range.type() == DocumentRange::kCels))
   {
     from = range.frameBegin();
     to = range.frameEnd();
@@ -76,8 +74,7 @@ void NewFrameTagCommand::onExecute(Context* context)
   {
     ContextWriter writer(reader);
     Transaction transaction(writer.context(), "New Frames Tag");
-    transaction.execute(
-        new cmd::AddFrameTag(writer.sprite(), frameTag.release()));
+    transaction.execute(new cmd::AddFrameTag(writer.sprite(), frameTag.release()));
     transaction.commit();
   }
 

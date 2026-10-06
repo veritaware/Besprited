@@ -84,8 +84,7 @@ bool Splitter::onProcessMessage(Message* msg)
             y2 = c2->bounds().y;
           }
 
-          if ((mousePos.x >= x1) && (mousePos.x < x2) && (mousePos.y >= y1) &&
-              (mousePos.y < y2))
+          if ((mousePos.x >= x1) && (mousePos.x < x2) && (mousePos.y >= y1) && (mousePos.y < y2))
             click_bar = bar;
         }
       }
@@ -175,8 +174,7 @@ bool Splitter::onProcessMessage(Message* msg)
             y2 = c2->bounds().y;
           }
 
-          if ((mousePos.x >= x1) && (mousePos.x < x2) && (mousePos.y >= y1) &&
-              (mousePos.y < y2))
+          if ((mousePos.x >= x1) && (mousePos.x < x2) && (mousePos.y >= y1) && (mousePos.y < y2))
           {
             change_cursor = true;
             break;
@@ -201,35 +199,35 @@ bool Splitter::onProcessMessage(Message* msg)
 
 void Splitter::onResize(ResizeEvent& ev)
 {
-#define LAYOUT_TWO_CHILDREN(x, y, w, h, l, t, r, b)                            \
-  {                                                                            \
-    avail = rc.w - this->childSpacing();                                       \
-                                                                               \
-    pos.x = rc.x;                                                              \
-    pos.y = rc.y;                                                              \
-    switch (m_type)                                                            \
-    {                                                                          \
-    case ByPercentage:                                                         \
-      pos.w = int(avail * m_pos / 100);                                        \
-      break;                                                                   \
-    case ByPixel:                                                              \
-      pos.w = int(m_pos);                                                      \
-      break;                                                                   \
-    }                                                                          \
-                                                                               \
-    /* TODO uncomment this to make a restricted splitter */                    \
-    /* pos.w = MID(reqSize1.w, pos.w, avail-reqSize2.w); */                    \
-    pos.h = rc.h;                                                              \
-                                                                               \
-    child1->setBounds(pos);                                                    \
-    gfx::Rect child1Pos = child1->bounds();                                    \
-                                                                               \
-    pos.x = child1Pos.x + child1Pos.w + this->childSpacing();                  \
-    pos.y = rc.y;                                                              \
-    pos.w = avail - child1Pos.w;                                               \
-    pos.h = rc.h;                                                              \
-                                                                               \
-    child2->setBounds(pos);                                                    \
+#define LAYOUT_TWO_CHILDREN(x, y, w, h, l, t, r, b)                                                                    \
+  {                                                                                                                    \
+    avail = rc.w - this->childSpacing();                                                                               \
+                                                                                                                       \
+    pos.x = rc.x;                                                                                                      \
+    pos.y = rc.y;                                                                                                      \
+    switch (m_type)                                                                                                    \
+    {                                                                                                                  \
+    case ByPercentage:                                                                                                 \
+      pos.w = int(avail * m_pos / 100);                                                                                \
+      break;                                                                                                           \
+    case ByPixel:                                                                                                      \
+      pos.w = int(m_pos);                                                                                              \
+      break;                                                                                                           \
+    }                                                                                                                  \
+                                                                                                                       \
+    /* TODO uncomment this to make a restricted splitter */                                                            \
+    /* pos.w = MID(reqSize1.w, pos.w, avail-reqSize2.w); */                                                            \
+    pos.h = rc.h;                                                                                                      \
+                                                                                                                       \
+    child1->setBounds(pos);                                                                                            \
+    gfx::Rect child1Pos = child1->bounds();                                                                            \
+                                                                                                                       \
+    pos.x = child1Pos.x + child1Pos.w + this->childSpacing();                                                          \
+    pos.y = rc.y;                                                                                                      \
+    pos.w = avail - child1Pos.w;                                                                                       \
+    pos.h = rc.h;                                                                                                      \
+                                                                                                                       \
+    child2->setBounds(pos);                                                                                            \
   }
 
   gfx::Rect rc(ev.bounds());
@@ -266,18 +264,18 @@ void Splitter::onPaint(PaintEvent& ev)
 
 void Splitter::onSizeHint(SizeHintEvent& ev)
 {
-#define GET_CHILD_SIZE(w, h)                                                   \
-  do                                                                           \
-  {                                                                            \
-    w = MAX(w, reqSize.w);                                                     \
-    h = MAX(h, reqSize.h);                                                     \
+#define GET_CHILD_SIZE(w, h)                                                                                           \
+  do                                                                                                                   \
+  {                                                                                                                    \
+    w = MAX(w, reqSize.w);                                                                                             \
+    h = MAX(h, reqSize.h);                                                                                             \
   } while (0)
 
-#define FINAL_SIZE(w)                                                          \
-  do                                                                           \
-  {                                                                            \
-    w *= visibleChildren;                                                      \
-    w += this->childSpacing() * (visibleChildren - 1);                         \
+#define FINAL_SIZE(w)                                                                                                  \
+  do                                                                                                                   \
+  {                                                                                                                    \
+    w *= visibleChildren;                                                                                              \
+    w += this->childSpacing() * (visibleChildren - 1);                                                                 \
   } while (0)
 
   int visibleChildren;

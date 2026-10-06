@@ -72,13 +72,10 @@ private:
 // If "replaceFrame" is false, this function doesn't replace all the
 // information that depends on the current frame ({frame},
 // {tagframe}, {tag}, etc.)
-std::string filename_formatter(const std::string& format, FilenameInfo& info,
-                               bool replaceFrame = true);
+std::string filename_formatter(const std::string& format, FilenameInfo& info, bool replaceFrame = true);
 
-std::string set_frame_format(const std::string& format,
-                             const std::string& newFrameFormat);
+std::string set_frame_format(const std::string& format, const std::string& newFrameFormat);
 
-std::string add_frame_format(const std::string& format,
-                             const std::string& newFrameFormat);
+std::string add_frame_format(const std::string& format, const std::string& newFrameFormat);
 
 } // namespace app

@@ -34,10 +34,11 @@ using BackendSurface = she::SDL2Surface;
 #endif
 
 // The backend surface can be built directly, without a live she::System: its
-// (width, height, destroy) constructor just creates an SDL surface with masks that match doc::rgba's own byte layout (r/g/b/a at shift 0/8/16/24),
-// so the "fast path" in convert_image_to_surface (which requires the
-// surface's shifts to equal doc::rgba_*_shift) is exercised - same as what
-// she's own backend hands out in the real app.
+// (width, height, destroy) constructor just creates an SDL surface with masks
+// that match doc::rgba's own byte layout (r/g/b/a at shift 0/8/16/24), so the
+// "fast path" in convert_image_to_surface (which requires the surface's shifts
+// to equal doc::rgba_*_shift) is exercised - same as what she's own backend
+// hands out in the real app.
 std::unique_ptr<BackendSurface> makeSurface(int w, int h)
 {
   return std::make_unique<BackendSurface>(w, h, BackendSurface::DestroyHandle);

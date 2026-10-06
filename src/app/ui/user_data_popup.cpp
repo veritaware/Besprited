@@ -51,15 +51,13 @@ bool show_user_data_popup(const gfx::Rect& bounds, doc::UserData& userData)
   doc::color_t color = userData.color();
   window.color()->setPixelFormat(IMAGE_RGB);
   window.color()->setColor(
-      app::Color::fromRgb(doc::rgba_getr(color), doc::rgba_getg(color),
-                          doc::rgba_getb(color), doc::rgba_geta(color)));
+      app::Color::fromRgb(doc::rgba_getr(color), doc::rgba_getg(color), doc::rgba_getb(color), doc::rgba_geta(color)));
 
   window.pointAt(TOP, bounds);
   window.openWindowInForeground();
 
   app::Color appColor = window.color()->getColor();
-  color = doc::rgba(appColor.getRed(), appColor.getGreen(), appColor.getBlue(),
-                    appColor.getAlpha());
+  color = doc::rgba(appColor.getRed(), appColor.getGreen(), appColor.getBlue(), appColor.getAlpha());
 
   if (userData.text() != window.text()->text() || userData.color() != color)
   {

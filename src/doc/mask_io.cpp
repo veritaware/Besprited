@@ -45,8 +45,7 @@ void write_mask(std::ostream& os, const Mask* mask)
     const int size = BitmapTraits::getRowStrideBytes(bounds.w);
 
     for (int c = 0; c < bounds.h; c++)
-      os.write(reinterpret_cast<char*>(mask->bitmap()->getPixelAddress(0, c)),
-               size);
+      os.write(reinterpret_cast<char*>(mask->bitmap()->getPixelAddress(0, c)), size);
   }
 }
 
@@ -65,8 +64,7 @@ Mask* read_mask(std::istream& is)
 
     mask->add(gfx::Rect(x, y, w, h));
     for (int c = 0; c < mask->bounds().h; c++)
-      is.read(reinterpret_cast<char*>(mask->bitmap()->getPixelAddress(0, c)),
-              size);
+      is.read(reinterpret_cast<char*>(mask->bitmap()->getPixelAddress(0, c)), size);
   }
 
   return mask.release();

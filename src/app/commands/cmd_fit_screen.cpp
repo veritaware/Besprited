@@ -57,9 +57,7 @@ void FitScreenCommand::onExecute(Context* context)
 
   render::Zoom zoom = render::Zoom::fromScale(scale);
 
-  editor->setZoomAndCenterInMouse(zoom,
-                                  gfx::Point(vp.x + vp.w / 2, vp.y + vp.h / 2),
-                                  Editor::ZoomBehavior::CENTER);
+  editor->setZoomAndCenterInMouse(zoom, gfx::Point(vp.x + vp.w / 2, vp.y + vp.h / 2), Editor::ZoomBehavior::CENTER);
 }
 
 std::unique_ptr<Command> CommandFactory::createFitScreenCommand()

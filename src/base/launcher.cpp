@@ -62,8 +62,7 @@ int spawn_and_wait(const std::vector<std::string>& args)
 #define SEE_MASK_DEFAULT 0x00000000
 #endif
 
-static int win32_shell_execute(const wchar_t* verb, const wchar_t* file,
-                               const wchar_t* params)
+static int win32_shell_execute(const wchar_t* verb, const wchar_t* file, const wchar_t* params)
 {
   SHELLEXECUTEINFOW sh;
   ZeroMemory((LPVOID)&sh, sizeof(sh));
@@ -154,15 +153,11 @@ bool open_folder(const std::string& _file)
   int ret;
   if (base::is_directory(file))
   {
-    ret = win32_shell_execute(
-        nullptr, L"explorer",
-        (L"/n,/e,\"" + base::from_utf8(file) + L"\"").c_str());
+    ret = win32_shell_execute(nullptr, L"explorer", (L"/n,/e,\"" + base::from_utf8(file) + L"\"").c_str());
   }
   else
   {
-    ret = win32_shell_execute(
-        nullptr, L"explorer",
-        (L"/e,/select,\"" + base::from_utf8(file) + L"\"").c_str());
+    ret = win32_shell_execute(nullptr, L"explorer", (L"/e,/select,\"" + base::from_utf8(file) + L"\"").c_str());
   }
   return (ret == 0);
 

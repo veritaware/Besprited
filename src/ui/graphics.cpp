@@ -113,8 +113,7 @@ void Graphics::drawVLine(gfx::Color color, int x, int y, int h)
   m_surface->drawVLine(color, m_dx + x, m_dy + y, h);
 }
 
-void Graphics::drawLine(gfx::Color color, const gfx::Point& _a,
-                        const gfx::Point& _b)
+void Graphics::drawLine(gfx::Color color, const gfx::Point& _a, const gfx::Point& _b)
 {
   gfx::Point a(m_dx + _a.x, m_dy + _a.y);
   gfx::Point b(m_dx + _b.x, m_dy + _b.y);
@@ -150,8 +149,7 @@ void Graphics::fillRegion(gfx::Color color, const gfx::Region& rgn)
     fillRect(color, *it);
 }
 
-void Graphics::fillAreaBetweenRects(gfx::Color color, const gfx::Rect& outer,
-                                    const gfx::Rect& inner)
+void Graphics::fillAreaBetweenRects(gfx::Color color, const gfx::Rect& outer, const gfx::Rect& inner)
 {
   if (!outer.intersects(inner))
     fillRect(color, outer);
@@ -181,20 +179,17 @@ void Graphics::drawRgbaSurface(she::Surface* surface, int x, int y)
   m_surface->drawRgbaSurface(surface, m_dx + x, m_dy + y);
 }
 
-void Graphics::drawColoredRgbaSurface(she::Surface* surface, gfx::Color color,
-                                      int x, int y)
+void Graphics::drawColoredRgbaSurface(she::Surface* surface, gfx::Color color, int x, int y)
 {
   dirty(gfx::Rect(m_dx + x, m_dy + y, surface->width(), surface->height()));
 
   she::SurfaceLock lockSrc(surface);
   she::SurfaceLock lockDst(m_surface);
-  m_surface->drawColoredRgbaSurface(
-      surface, color, gfx::ColorNone,
-      gfx::Clip(m_dx + x, m_dy + y, 0, 0, surface->width(), surface->height()));
+  m_surface->drawColoredRgbaSurface(surface, color, gfx::ColorNone,
+                                    gfx::Clip(m_dx + x, m_dy + y, 0, 0, surface->width(), surface->height()));
 }
 
-void Graphics::blit(she::Surface* srcSurface, int srcx, int srcy, int dstx,
-                    int dsty, int w, int h)
+void Graphics::blit(she::Surface* srcSurface, int srcx, int srcy, int dstx, int dsty, int w, int h)
 {
   dirty(gfx::Rect(m_dx + dstx, m_dy + dsty, w, h));
 
@@ -216,8 +211,7 @@ void Graphics::drawChar(int chr, gfx::Color fg, gfx::Color bg, int x, int y)
   m_surface->drawChar(m_font.get(), fg, bg, m_dx + x, m_dy + y, chr);
 }
 
-void Graphics::drawString(const std::string& str, gfx::Color fg, gfx::Color bg,
-                          const gfx::Point& ptOrig)
+void Graphics::drawString(const std::string& str, gfx::Color fg, gfx::Color bg, const gfx::Point& ptOrig)
 {
   gfx::Point pt(m_dx + ptOrig.x, m_dy + ptOrig.y);
   dirty(gfx::Rect(pt.x, pt.y, m_font->textLength(str), m_font->height()));
@@ -226,8 +220,7 @@ void Graphics::drawString(const std::string& str, gfx::Color fg, gfx::Color bg,
   m_surface->drawString(m_font.get(), fg, bg, pt.x, pt.y, str);
 }
 
-void Graphics::drawUIString(const std::string& str, gfx::Color fg,
-                            gfx::Color bg, const gfx::Point& pt,
+void Graphics::drawUIString(const std::string& str, gfx::Color fg, gfx::Color bg, const gfx::Point& pt,
                             bool drawUnderscore)
 {
   she::SurfaceLock lock(m_surface);
@@ -256,17 +249,14 @@ void Graphics::drawUIString(const std::string& str, gfx::Color fg,
   y += m_font->height();
   if (drawUnderscore && underscored_w > 0)
   {
-    m_surface->fillRect(fg,
-                        gfx::Rect(underscored_x, y, underscored_w, guiscale()));
+    m_surface->fillRect(fg, gfx::Rect(underscored_x, y, underscored_w, guiscale()));
     y += guiscale();
   }
 
   dirty(gfx::Rect(pt, gfx::Point(x, y)));
 }
 
-void Graphics::drawAlignedUIString(const std::string& str, gfx::Color fg,
-                                   gfx::Color bg, const gfx::Rect& rc,
-                                   int align)
+void Graphics::drawAlignedUIString(const std::string& str, gfx::Color fg, gfx::Color bg, const gfx::Rect& rc, int align)
 {
   doUIStringAlgorithm(str, fg, bg, rc, align, true);
 }
@@ -278,8 +268,7 @@ gfx::Size Graphics::measureChar(int chr)
 
 gfx::Size Graphics::measureUIString(const std::string& str)
 {
-  return gfx::Size(Graphics::measureUIStringLength(str, m_font.get()),
-                   m_font->height());
+  return gfx::Size(Graphics::measureUIStringLength(str, m_font.get()), m_font->height());
 }
 
 // static
@@ -302,20 +291,17 @@ int Graphics::measureUIStringLength(const std::string& str, she::Font* font)
 
 gfx::Size Graphics::fitString(const std::string& str, int maxWidth, int align)
 {
-  return doUIStringAlgorithm(str, gfx::ColorNone, gfx::ColorNone,
-                             gfx::Rect(0, 0, maxWidth, 0), align, false);
+  return doUIStringAlgorithm(str, gfx::ColorNone, gfx::ColorNone, gfx::Rect(0, 0, maxWidth, 0), align, false);
 }
 
-gfx::Size Graphics::doUIStringAlgorithm(const std::string& str, gfx::Color fg,
-                                        gfx::Color bg, const gfx::Rect& rc,
+gfx::Size Graphics::doUIStringAlgorithm(const std::string& str, gfx::Color fg, gfx::Color bg, const gfx::Rect& rc,
                                         int align, bool draw)
 {
   gfx::Point pt(0, rc.y);
 
   if ((align & (MIDDLE | BOTTOM)) != 0)
   {
-    gfx::Size preSize =
-        doUIStringAlgorithm(str, gfx::ColorNone, gfx::ColorNone, rc, 0, false);
+    gfx::Size preSize = doUIStringAlgorithm(str, gfx::ColorNone, gfx::ColorNone, rc, 0, false);
     if (align & MIDDLE)
       pt.y = rc.y + rc.h / 2 - preSize.h / 2;
     else if (align & BOTTOM)
@@ -348,8 +334,7 @@ gfx::Size Graphics::doUIStringAlgorithm(const std::string& str, gfx::Color fg,
         // If we have already a word to print (old_end != npos), and
         // we are out of the available width (rc.w) using the new "end",
         if ((old_end != std::string::npos) && (rc.w > 0) &&
-            (pt.x + m_font->textLength(str.substr(beg, end - beg).c_str()) >
-             rc.w))
+            (pt.x + m_font->textLength(str.substr(beg, end - beg).c_str()) > rc.w))
         {
           // We go back to the "old_end" and paint from "beg" to "end"
           end = old_end;
@@ -376,8 +361,7 @@ gfx::Size Graphics::doUIStringAlgorithm(const std::string& str, gfx::Color fg,
     // Get the entire line to be painted
     line = str.substr(beg, end - beg);
 
-    gfx::Size lineSize(m_font->textLength(line.c_str()),
-                       m_font->height() + lineSeparation);
+    gfx::Size lineSize(m_font->textLength(line.c_str()), m_font->height() + lineSeparation);
     calculatedSize.w = MAX(calculatedSize.w, lineSize.w);
 
     // Render the text

@@ -42,8 +42,7 @@ InvertMaskCommand::InvertMaskCommand()
 
 bool InvertMaskCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void InvertMaskCommand::onExecute(Context* context)
@@ -59,8 +58,7 @@ void InvertMaskCommand::onExecute(Context* context)
   if (!hasMask)
   {
     // so we select all
-    Command* mask_all_cmd =
-        CommandsModule::instance()->getCommandByName(CommandId::MaskAll);
+    Command* mask_all_cmd = CommandsModule::instance()->getCommandByName(CommandId::MaskAll);
     context->executeCommand(mask_all_cmd);
   }
   // invert the current mask
@@ -76,8 +74,7 @@ void InvertMaskCommand::onExecute(Context* context)
 
     // Remove in the new mask the current sprite marked region
     const gfx::Rect& maskBounds = document->mask()->bounds();
-    doc::fill_rect(mask->bitmap(), maskBounds.x, maskBounds.y,
-                   maskBounds.x + maskBounds.w - 1,
+    doc::fill_rect(mask->bitmap(), maskBounds.x, maskBounds.y, maskBounds.x + maskBounds.w - 1,
                    maskBounds.y + maskBounds.h - 1, 0);
 
     Mask* curMask = document->mask();
@@ -87,8 +84,7 @@ void InvertMaskCommand::onExecute(Context* context)
       // document's mask temporaly here)
       curMask->freeze();
       curMask->invert();
-      doc::copy_image(mask->bitmap(), curMask->bitmap(), curMask->bounds().x,
-                      curMask->bounds().y);
+      doc::copy_image(mask->bitmap(), curMask->bitmap(), curMask->bounds().x, curMask->bounds().y);
       curMask->invert();
       curMask->unfreeze();
     }
@@ -97,8 +93,7 @@ void InvertMaskCommand::onExecute(Context* context)
     mask->intersect(sprite->bounds());
 
     // Set the new mask
-    Transaction transaction(writer.context(), "Mask Invert",
-                            DoesntModifyDocument);
+    Transaction transaction(writer.context(), "Mask Invert", DoesntModifyDocument);
     transaction.execute(new cmd::SetMask(document, mask.get()));
     transaction.commit();
 

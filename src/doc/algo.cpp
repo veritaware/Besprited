@@ -28,35 +28,35 @@ void algo_line(int x1, int y1, int x2, int y2, void* data, AlgoPixel proc)
   int dd;
 
   /* worker macro */
-#define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)          \
-  {                                                                            \
-    if (d##pri_c == 0)                                                         \
-    {                                                                          \
-      proc(x1, y1, data);                                                      \
-      return;                                                                  \
-    }                                                                          \
-                                                                               \
-    i1 = 2 * d##sec_c;                                                         \
-    dd = i1 - (sec_sign(pri_sign d##pri_c));                                   \
-    i2 = dd - (sec_sign(pri_sign d##pri_c));                                   \
-                                                                               \
-    x = x1;                                                                    \
-    y = y1;                                                                    \
-                                                                               \
-    while (pri_c pri_cond pri_c##2)                                            \
-    {                                                                          \
-      proc(x, y, data);                                                        \
-                                                                               \
-      if (dd sec_cond 0)                                                       \
-      {                                                                        \
-        sec_c sec_sign## = 1;                                                  \
-        dd += i2;                                                              \
-      }                                                                        \
-      else                                                                     \
-        dd += i1;                                                              \
-                                                                               \
-      pri_c pri_sign## = 1;                                                    \
-    }                                                                          \
+#define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)                                                  \
+  {                                                                                                                    \
+    if (d##pri_c == 0)                                                                                                 \
+    {                                                                                                                  \
+      proc(x1, y1, data);                                                                                              \
+      return;                                                                                                          \
+    }                                                                                                                  \
+                                                                                                                       \
+    i1 = 2 * d##sec_c;                                                                                                 \
+    dd = i1 - (sec_sign(pri_sign d##pri_c));                                                                           \
+    i2 = dd - (sec_sign(pri_sign d##pri_c));                                                                           \
+                                                                                                                       \
+    x = x1;                                                                                                            \
+    y = y1;                                                                                                            \
+                                                                                                                       \
+    while (pri_c pri_cond pri_c##2)                                                                                    \
+    {                                                                                                                  \
+      proc(x, y, data);                                                                                                \
+                                                                                                                       \
+      if (dd sec_cond 0)                                                                                               \
+      {                                                                                                                \
+        sec_c sec_sign## = 1;                                                                                          \
+        dd += i2;                                                                                                      \
+      }                                                                                                                \
+      else                                                                                                             \
+        dd += i1;                                                                                                      \
+                                                                                                                       \
+      pri_c pri_sign## = 1;                                                                                            \
+    }                                                                                                                  \
   }
 
   if (dx >= 0)
@@ -121,8 +121,7 @@ void algo_line(int x1, int y1, int x2, int y2, void* data, AlgoPixel proc)
 
 #undef DO_LINE
 
-void algo_line_float(int x1, int y1, int x2, int y2, void* data,
-                     AlgoPixelFloat proc)
+void algo_line_float(int x1, int y1, int x2, int y2, void* data, AlgoPixelFloat proc)
 {
   const int dx = x2 - x1;
   const int dy = y2 - y1;
@@ -133,36 +132,36 @@ void algo_line_float(int x1, int y1, int x2, int y2, void* data,
   int dd;
 
   /* worker macro */
-#define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)          \
-  {                                                                            \
-    if (d##pri_c == 0)                                                         \
-    {                                                                          \
-      proc(x1, y1, f, data);                                                   \
-      return;                                                                  \
-    }                                                                          \
-                                                                               \
-    fstep = pri_sign 1.0f / d##pri_c;                                          \
-    i1 = 2 * d##sec_c;                                                         \
-    dd = i1 - (sec_sign(pri_sign d##pri_c));                                   \
-    i2 = dd - (sec_sign(pri_sign d##pri_c));                                   \
-                                                                               \
-    x = x1;                                                                    \
-    y = y1;                                                                    \
-                                                                               \
-    while (pri_c pri_cond pri_c##2)                                            \
-    {                                                                          \
-      proc(x, y, f += fstep, data);                                            \
-                                                                               \
-      if (dd sec_cond 0)                                                       \
-      {                                                                        \
-        sec_c sec_sign## = 1;                                                  \
-        dd += i2;                                                              \
-      }                                                                        \
-      else                                                                     \
-        dd += i1;                                                              \
-                                                                               \
-      pri_c pri_sign## = 1;                                                    \
-    }                                                                          \
+#define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)                                                  \
+  {                                                                                                                    \
+    if (d##pri_c == 0)                                                                                                 \
+    {                                                                                                                  \
+      proc(x1, y1, f, data);                                                                                           \
+      return;                                                                                                          \
+    }                                                                                                                  \
+                                                                                                                       \
+    fstep = pri_sign 1.0f / d##pri_c;                                                                                  \
+    i1 = 2 * d##sec_c;                                                                                                 \
+    dd = i1 - (sec_sign(pri_sign d##pri_c));                                                                           \
+    i2 = dd - (sec_sign(pri_sign d##pri_c));                                                                           \
+                                                                                                                       \
+    x = x1;                                                                                                            \
+    y = y1;                                                                                                            \
+                                                                                                                       \
+    while (pri_c pri_cond pri_c##2)                                                                                    \
+    {                                                                                                                  \
+      proc(x, y, f += fstep, data);                                                                                    \
+                                                                                                                       \
+      if (dd sec_cond 0)                                                                                               \
+      {                                                                                                                \
+        sec_c sec_sign## = 1;                                                                                          \
+        dd += i2;                                                                                                      \
+      }                                                                                                                \
+      else                                                                                                             \
+        dd += i1;                                                                                                      \
+                                                                                                                       \
+      pri_c pri_sign## = 1;                                                                                            \
+    }                                                                                                                  \
   }
 
   if (dx >= 0)
@@ -386,8 +385,7 @@ void algo_ellipse(int x1, int y1, int x2, int y2, void* data, AlgoPixel proc)
     }
 }
 
-void algo_ellipsefill(int x1, int y1, int x2, int y2, void* data,
-                      AlgoHLine proc)
+void algo_ellipsefill(int x1, int y1, int x2, int y2, void* data, AlgoHLine proc)
 {
   int mx, my, rx, ry;
 
@@ -547,8 +545,8 @@ void algo_ellipsefill(int x1, int y1, int x2, int y2, void* data,
 
 // Algorightm from Allegro (allegro/src/spline.c)
 // Adapted for Aseprite by David Capello.
-void algo_spline(double x0, double y0, double x1, double y1, double x2,
-                 double y2, double x3, double y3, void* data, AlgoLine proc)
+void algo_spline(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3, void* data,
+                 AlgoLine proc)
 {
   int npts;
   int out_x1, out_x2;
@@ -567,9 +565,7 @@ void algo_spline(double x0, double y0, double x1, double y1, double x2,
 #define MAX_POINTS 64
 #undef DIST
 #define DIST(x, y) (sqrt((x) * (x) + (y) * (y)))
-  npts = static_cast<int>(sqrt(DIST(x1 - x0, y1 - y0) + DIST(x2 - x1, y2 - y1) +
-                               DIST(x3 - x2, y3 - y2)) *
-                          1.2);
+  npts = static_cast<int>(sqrt(DIST(x1 - x0, y1 - y0) + DIST(x2 - x1, y2 - y1) + DIST(x3 - x2, y3 - y2)) * 1.2);
   if (npts > MAX_POINTS)
     npts = MAX_POINTS;
   else if (npts < 4)
@@ -622,8 +618,8 @@ void algo_spline(double x0, double y0, double x1, double y1, double x2,
   }
 }
 
-double algo_spline_get_y(double x0, double y0, double x1, double y1, double x2,
-                         double y2, double x3, double y3, double in_x)
+double algo_spline_get_y(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3,
+                         double in_x)
 {
   int npts;
   double out_x, old_x;
@@ -642,9 +638,7 @@ double algo_spline_get_y(double x0, double y0, double x1, double y1, double x2,
 #define MAX_POINTS 64
 #undef DIST
 #define DIST(x, y) (sqrt((x) * (x) + (y) * (y)))
-  npts = static_cast<int>(sqrt(DIST(x1 - x0, y1 - y0) + DIST(x2 - x1, y2 - y1) +
-                               DIST(x3 - x2, y3 - y2)) *
-                          1.2);
+  npts = static_cast<int>(sqrt(DIST(x1 - x0, y1 - y0) + DIST(x2 - x1, y2 - y1) + DIST(x3 - x2, y3 - y2)) * 1.2);
   if (npts > MAX_POINTS)
     npts = MAX_POINTS;
   else if (npts < 4)
@@ -701,8 +695,7 @@ double algo_spline_get_y(double x0, double y0, double x1, double y1, double x2,
   return out_y;
 }
 
-double algo_spline_get_tan(double x0, double y0, double x1, double y1,
-                           double x2, double y2, double x3, double y3,
+double algo_spline_get_tan(double x0, double y0, double x1, double y1, double x2, double y2, double x3, double y3,
                            double in_x)
 {
   double old_x, old_dx, old_dy;
@@ -721,9 +714,7 @@ double algo_spline_get_tan(double x0, double y0, double x1, double y1,
 #define MAX_POINTS 64
 #undef DIST
 #define DIST(x, y) (sqrt((x) * (x) + (y) * (y)))
-  npts = static_cast<int>(sqrt(DIST(x1 - x0, y1 - y0) + DIST(x2 - x1, y2 - y1) +
-                               DIST(x3 - x2, y3 - y2)) *
-                          1.2);
+  npts = static_cast<int>(sqrt(DIST(x1 - x0, y1 - y0) + DIST(x2 - x1, y2 - y1) + DIST(x3 - x2, y3 - y2)) * 1.2);
   if (npts > MAX_POINTS)
     npts = MAX_POINTS;
   else if (npts < 4)

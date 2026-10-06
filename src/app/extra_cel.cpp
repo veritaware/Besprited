@@ -22,18 +22,16 @@ ExtraCel::ExtraCel()
 {
 }
 
-void ExtraCel::create(doc::Sprite* sprite, const gfx::Rect& bounds,
-                      doc::frame_t frame, int opacity)
+void ExtraCel::create(doc::Sprite* sprite, const gfx::Rect& bounds, doc::frame_t frame, int opacity)
 {
   ASSERT(sprite);
 
-  if (!m_image || m_image->pixelFormat() != sprite->pixelFormat() ||
-      m_image->width() != bounds.w || m_image->height() != bounds.h)
+  if (!m_image || m_image->pixelFormat() != sprite->pixelFormat() || m_image->width() != bounds.w ||
+      m_image->height() != bounds.h)
   {
     if (!m_imageBuffer)
       m_imageBuffer.reset(new doc::ImageBuffer(1));
-    doc::Image* newImage = doc::Image::create(sprite->pixelFormat(), bounds.w,
-                                              bounds.h, m_imageBuffer);
+    doc::Image* newImage = doc::Image::create(sprite->pixelFormat(), bounds.w, bounds.h, m_imageBuffer);
     m_image.reset(newImage);
   }
 

@@ -25,8 +25,7 @@ public:
 private:
   using Digits = std::vector<int>;
   Digits m_digits;
-  std::string
-      m_prerelease; // alpha, beta, dev, rc (empty if it's official release)
+  std::string m_prerelease; // alpha, beta, dev, rc (empty if it's official release)
   int m_prereleaseDigit;
 };
 

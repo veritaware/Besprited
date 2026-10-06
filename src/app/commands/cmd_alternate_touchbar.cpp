@@ -26,7 +26,6 @@ namespace app
 class AlternateTouchbarCommand : public Command
 {
 public:
-
   AlternateTouchbarCommand()
     : Command{"AlternateTouchbar", "Alternate Touchbar", CmdUIOnlyFlag}
   {
@@ -37,15 +36,9 @@ protected:
 
   bool onEnabled(Context* context) override { return true; }
 
-  bool onChecked(Context* context) override
-  {
-    return Preferences::instance().touchBar.alternatePosition();
-  }
+  bool onChecked(Context* context) override { return Preferences::instance().touchBar.alternatePosition(); }
 
-  void onExecute(Context* context) override
-  {
-    App::instance()->mainWindow()->alternateTouchbar();
-  }
+  void onExecute(Context* context) override { App::instance()->mainWindow()->alternateTouchbar(); }
 };
 
 std::unique_ptr<Command> CommandFactory::createAlternateTouchbarCommand()

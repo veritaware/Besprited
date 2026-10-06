@@ -24,8 +24,7 @@
 namespace ui
 {
 
-ButtonBase::ButtonBase(const std::string& text, WidgetType type,
-                       WidgetType behaviorType, WidgetType drawType)
+ButtonBase::ButtonBase(const std::string& text, WidgetType type, WidgetType behaviorType, WidgetType drawType)
   : Widget(type)
   , m_pressedStatus(false)
   , m_behaviorType(behaviorType)
@@ -107,8 +106,7 @@ bool ButtonBase::onProcessMessage(Message* msg)
     if (isEnabled())
     {
       bool mnemonicPressed =
-          (msg->altPressed() && mnemonicChar() &&
-           mnemonicChar() == she::scancode_to_ascii(scancode));
+          (msg->altPressed() && mnemonicChar() && mnemonicChar() == she::scancode_to_ascii(scancode));
 
       // For kButtonWidget
       if (m_behaviorType == kButtonWidget)
@@ -116,8 +114,7 @@ bool ButtonBase::onProcessMessage(Message* msg)
         // Has focus and press enter/space
         if (hasFocus())
         {
-          if ((scancode == kKeyEnter) || (scancode == kKeyEnterPad) ||
-              (scancode == kKeySpace))
+          if ((scancode == kKeyEnter) || (scancode == kKeyEnterPad) || (scancode == kKeySpace))
           {
             setSelected(true);
             return true;
@@ -131,8 +128,7 @@ bool ButtonBase::onProcessMessage(Message* msg)
           return true;
         }
         // Magnetic widget catches ENTERs
-        else if (isFocusMagnet() &&
-                 ((scancode == kKeyEnter) || (scancode == kKeyEnterPad)))
+        else if (isFocusMagnet() && ((scancode == kKeyEnter) || (scancode == kKeyEnterPad)))
         {
           manager()->setFocus(this);
 
@@ -274,8 +270,7 @@ bool ButtonBase::onProcessMessage(Message* msg)
       m_handleSelect = false;
 
       // Switch state when the mouse go out
-      if ((hasMouse && isSelected() != m_pressedStatus) ||
-          (!hasMouse && isSelected() == m_pressedStatus))
+      if ((hasMouse && isSelected() != m_pressedStatus) || (!hasMouse && isSelected() == m_pressedStatus))
       {
         if (hasMouse)
           setSelected(m_pressedStatus);
@@ -301,11 +296,8 @@ bool ButtonBase::onProcessMessage(Message* msg)
 void ButtonBase::onSizeHint(SizeHintEvent& ev)
 {
   gfx::Rect box;
-  gfx::Size iconSize =
-      (m_iconInterface ? m_iconInterface->size() : gfx::Size(0, 0));
-  getTextIconInfo(&box, nullptr, nullptr,
-                  m_iconInterface ? m_iconInterface->iconAlign() : 0,
-                  iconSize.w, iconSize.h);
+  gfx::Size iconSize = (m_iconInterface ? m_iconInterface->size() : gfx::Size(0, 0));
+  getTextIconInfo(&box, nullptr, nullptr, m_iconInterface ? m_iconInterface->iconAlign() : 0, iconSize.w, iconSize.h);
 
   ev.setSizeHint(box.w + border().width(), box.h + border().height());
 }
@@ -360,8 +352,7 @@ CheckBox::CheckBox(const std::string& text, WidgetType drawType)
 // RadioButton class
 // ======================================================================
 
-RadioButton::RadioButton(const std::string& text, int radioGroup,
-                         WidgetType drawType)
+RadioButton::RadioButton(const std::string& text, int radioGroup, WidgetType drawType)
   : ButtonBase(text, kRadioWidget, kRadioWidget, drawType)
 {
   setAlign(LEFT | MIDDLE);
