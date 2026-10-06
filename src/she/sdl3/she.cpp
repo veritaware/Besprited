@@ -4,10 +4,19 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-// Phase 2 of the SDL3 migration (see #73, #262): ports the event loop
+// Phase 2 of the SDL3 migration (see #73, #262) ported the event loop
 // (SDL_PollEvent translation, key/mouse mapping) on top of Phase 1's
-// window/renderer/surface port. SDL_SYSWMEVENT and tablet/WM-info code
-// (EasyTab, nativeHandle()) are still a separate phase.
+// window/renderer/surface port.
+//
+// Phase 3 (see #73, #263) adds pen/pressure input. SDL2's SDL_SYSWMEVENT +
+// SDL_GetWindowWMInfo + the vendored EasyTab library have no direct SDL3
+// equivalent reachable without per-platform native message hooks, so this
+// backend drops EasyTab entirely in favor of SDL3's own SDL_EVENT_PEN_*
+// events (broader native coverage: Windows Ink, XInput2, Wayland tablet-v2,
+// Cocoa) - see the SDL_EVENT_PEN_* cases in getEventInternal() below. This
+// direction (and the rest of this phase) has not been validated against
+// real tablet hardware; SDL2's EasyTab path remains untouched as a fallback
+// reference and is not affected by anything in this file.
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -26,6 +35,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
+#include <cstdlib>
 #include <iostream>
 #include <cassert>
 #include <chrono>
@@ -405,12 +415,50 @@ namespace she {
           }
 
 
+          if (sdlEvent.motion.which == SDL_PEN_MOUSEID) {
+            pointerType = PointerType::Pen;
+            if (penPressure == 0.0f)
+              penPressure = 0.0001f;
+          }
+
           event.setPressure(penPressure);
           event.setPointerType(pointerType);
           return;
 
         case SDL_EVENT_FINGER_MOTION:
           penPressure = std::max<>(sdlEvent.tfinger.pressure, 0.0001f);
+          continue;
+
+        case SDL_EVENT_PEN_AXIS:
+          if (sdlEvent.paxis.axis == SDL_PEN_AXIS_PRESSURE)
+            penPressure = std::max(sdlEvent.paxis.value, 0.0001f);
+          continue;
+
+        case SDL_EVENT_PEN_PROXIMITY_OUT:
+          // Unlike EasyTab (which never reset this), this is what stops a
+          // later plain mouse click from being misreported as pen input
+          // with stale pressure once a pen has touched the tablet.
+          penPressure = 0.0f;
+          pointerType = PointerType::Mouse;
+          continue;
+
+        // Position/clicks for these already arrive as ordinary
+        // SDL_EVENT_MOUSE_* events (SDL_HINT_PEN_MOUSE_EVENTS defaults to
+        // enabled), so there's nothing left to do with the raw pen events
+        // themselves beyond tracking pressure above.
+        case SDL_EVENT_PEN_PROXIMITY_IN:
+        case SDL_EVENT_PEN_MOTION:
+          // A hovering pen sends no pressure axis events, so mark it as
+          // present here; get_pen_pressure() != 0 is what hides the brush
+          // preview (and flags pen input) while hovering.
+          if (penPressure == 0.0f)
+            penPressure = 0.0001f;
+          continue;
+
+        case SDL_EVENT_PEN_DOWN:
+        case SDL_EVENT_PEN_UP:
+        case SDL_EVENT_PEN_BUTTON_DOWN:
+        case SDL_EVENT_PEN_BUTTON_UP:
           continue;
 
         case SDL_EVENT_MOUSE_WHEEL:
@@ -438,26 +486,30 @@ namespace she {
           event.setButton(mouseButtonMapping[sdlEvent.button.button]);
           event.setModifiers(getSheModifiers());
 
-          if (penPressure > 0.0f) {
+          // The synthesized mouse event tells us it came from a pen even if
+          // no pressure axis event has arrived yet (e.g. first touch after
+          // the pen re-entered proximity, which reset penPressure to 0).
+          if (sdlEvent.button.which == SDL_PEN_MOUSEID || penPressure > 0.0f) {
             pointerType = PointerType::Pen;
-            event.setPressure(penPressure);
-            event.setPointerType(pointerType);
+            event.setPressure(std::max(penPressure, 0.0001f));
           } else {
-            event.setPressure(sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? 1.0f : 0.0f);
-            event.setPointerType(pointerType);
             pointerType = PointerType::Mouse;
+            event.setPressure(sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? 1.0f : 0.0f);
           }
+          event.setPointerType(pointerType);
 
           auto now = std::chrono::steady_clock::now();
           auto delta = now - lastUpTime;
-          if (sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+          // A double click replaces the second press (the matching release
+          // still follows). ui::Widget turns it back into a mouse down, so
+          // emitting it after the release left a press with no release,
+          // which kept a freehand stroke running after a quick double tap.
+          if (sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
             using namespace std::chrono_literals;
-            if (delta < 200ms) {
-              m_events.push(event);
+            if (delta < 200ms)
               event.setType(Event::MouseDoubleClick);
-              event.setPosition(event.position());
-              event.setButton(event.button());
-            }
+          }
+          else {
             lastUpTime = now;
           }
 
@@ -856,6 +908,22 @@ int main(const int argc, char* argv[]) {
   // know about and would silently drop. "unmodified" restores SDL2's
   // behavior of reporting the base, unshifted keycode (see #262).
   SDL_SetHint(SDL_HINT_KEYCODE_OPTIONS, "unmodified");
+
+  // Pen input already reaches getEventInternal() as real SDL_EVENT_PEN_*
+  // events (pressure) plus synthesized SDL_EVENT_MOUSE_* events (position/
+  // clicks, SDL_HINT_PEN_MOUSE_EVENTS, left at its default-enabled value).
+  // Also synthesizing touch events for the same pen input would fight the
+  // existing SDL_EVENT_FINGER_MOTION-based pressure tracking above with a
+  // second, less precise pressure value - see #263 (R5).
+  SDL_SetHint(SDL_HINT_PEN_TOUCH_EVENTS, "0");
+
+  #if defined(__linux__) && !defined(__ANDROID__)
+  // Prefer a native Wayland window over XWayland when running in a Wayland
+  // session (XWayland lacks e.g. drag&drop, see #145), falling back to X11.
+  // An explicit SDL video driver env var still takes precedence over this.
+  if (std::getenv("WAYLAND_DISPLAY"))
+    SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "wayland,x11");
+  #endif
 
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     std::cerr << "Critical: Could not initialize SDL3 (" << SDL_GetError() << "). Aborting.\n";

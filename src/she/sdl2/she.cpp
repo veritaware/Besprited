@@ -32,6 +32,7 @@
 #include <SDL_syswm.h>
 #endif
 
+#include <cstdlib>
 #include <iostream>
 #include <cassert>
 #include <list>
@@ -533,14 +534,14 @@ namespace she {
 
 	  auto now = std::chrono::steady_clock::now();
 	  auto delta = now - lastUpTime;
-          if (sdlEvent.type == SDL_MOUSEBUTTONUP) {
+	  // A double click replaces the second press (the matching release
+	  // still follows); see the SDL3 backend for why.
+          if (sdlEvent.type == SDL_MOUSEBUTTONDOWN) {
 	    using namespace std::chrono_literals;
-	    if (delta < 200ms) {
-	      m_events.push(event);
+	    if (delta < 200ms)
 	      event.setType(Event::MouseDoubleClick);
-	      event.setPosition(event.position());
-	      event.setButton(event.button());
-	    }
+          }
+	  else {
 	    lastUpTime = now;
           }
 

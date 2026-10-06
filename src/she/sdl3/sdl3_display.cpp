@@ -22,14 +22,18 @@
 
 #include <SDL3/SDL.h>
 
+#include <cstdint>
 #include <sstream>
-#include <iostream>
 #include <unordered_map>
 #include <memory>
 #include <vector>
 
-// Tablet (EasyTab/osx_tablet) and native-WM-handle support are ported in a
-// later SDL3 migration phase (nativeHandle()/WM info) - see #73.
+// Phase 3 of the SDL3 migration (see #73, #263): pen/pressure input drops
+// EasyTab (SDL_GetWindowWMInfo/SDL_SYSWMEVENT have no SDL3 equivalent
+// reachable without per-platform native message hooks) in favor of SDL3's
+// own SDL_EVENT_PEN_* events, handled in she.cpp - no per-window tablet
+// loading is needed here anymore. nativeHandle() now goes through
+// SDL_GetWindowProperties() instead of the removed SDL_GetWindowWMInfo().
 
 namespace she
 {
@@ -76,9 +80,6 @@ SDL3Display::SDL3Display(int width, int height, int scale)
         m_height = height;
 
         SDL_HideCursor();
-
-        // TODO(#73): tablet support (EasyTab/osx_tablet) - separate phase.
-        std::cout << "Tablet support: FAILED" << "\n";
       },
       true);
 
@@ -359,12 +360,24 @@ void SDL3Display::setLayout(const std::string& layout)
 
 void* SDL3Display::nativeHandle()
 {
-  // TODO(#73): SDL3 exposes the native window handle through
-  // SDL_GetWindowProperties() (SDL_PROP_WINDOW_WIN32_HWND_POINTER,
-  // SDL_PROP_WINDOW_X11_WINDOW_NUMBER, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER,
-  // ...) rather than SDL_GetWindowWMInfo(). Wired up together with the
-  // WM-info-dependent tablet code in a later phase.
+  SDL_PropertiesID props = SDL_GetWindowProperties(m_window);
+  if (!props)
+    return nullptr;
+
+#if defined(_WIN32)
+  return SDL_GetPointerProperty(props, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+#elif defined(__APPLE__)
+  return SDL_GetPointerProperty(props, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
+#elif defined(ANDROID)
+  return SDL_GetPointerProperty(props, SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr);
+#elif defined(__linux__)
+  // Only meaningful under X11; a Wayland-native session (no XWayland
+  // fallback) has no numeric handle here, callers must tolerate nullptr.
+  Sint64 xid = SDL_GetNumberProperty(props, SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
+  return xid ? reinterpret_cast<void*>(static_cast<uintptr_t>(xid)) : nullptr;
+#else
   return nullptr;
+#endif
 }
 
 } // namespace she
