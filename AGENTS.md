@@ -31,7 +31,8 @@ ninja besprited
   build type set up in the root `CMakeLists.txt`).
 - Key CMake options (see root `CMakeLists.txt`): `ENABLE_TESTS`, `WITH_WEBP_SUPPORT`,
   `WITH_GTK_FILE_DIALOG_SUPPORT`, `WITH_DESKTOP_INTEGRATION`,
-  `USE_SDL2_BACKEND` (on by default), `USE_SDL3_BACKEND` (experimental, mutually exclusive with SDL2),
+  `USE_SDL3_BACKEND` (on by default), `USE_SDL2_BACKEND` (deprecated fallback, off by default; selecting it
+  turns SDL3 off; to be removed after the 1.27.03 release),
   `ENABLE_MEMLEAK`, `FULLSCREEN_PLATFORM`.
 - Install with `ninja install` from the `build` directory.
 - Full platform dependency lists (Linux/Windows/macOS/Android) are in `INSTALL.md`.
@@ -94,7 +95,7 @@ for the canonical version):
 - **Level 1:** `cfg` (INI-style settings load/save, depends on `base`), `gen` (depends on `base`; a
   build-time code generator, see below).
 - **Level 2:** `doc` (the document/sprite data model; depends on `base`, `fixmath`, `gfx`), `she`
-  (platform abstraction layer over SDL2; depends on `base`, `gfx`, `wacom`).
+  (platform abstraction layer over SDL3, with a deprecated SDL2 fallback; depends on `base`, `gfx`, `wacom`).
 - **Level 3:** `filters` (image effects), `render` (renders documents to bitmaps), `ui` (the portable
   widget toolkit — buttons, windows, text fields — built on `she`).
 - **Level 4:** `app` — the actual application: commands (`app/commands/cmd_*.cpp`, one file per editor

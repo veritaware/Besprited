@@ -51,12 +51,24 @@ option(ENABLE_TESTS       "Enable the unit tests" off)
 option(FULLSCREEN_PLATFORM "Enable fullscreen by default" off)
 option(ENABLE_PACKAGING   "Configure CPack for .deb/.rpm package generation" off)
 
-option(USE_SDL2_BACKEND "Use SDL2 backend" on)
-option(USE_SDL3_BACKEND "Use SDL3 backend (experimental, work in progress)" off)
+# SDL3 is the default backend. SDL2 is a deprecated fallback that will be
+# removed after the 1.27.03 release (#73).
+option(USE_SDL3_BACKEND "Use SDL3 backend (default)" on)
+option(USE_SDL2_BACKEND "Use SDL2 backend (deprecated fallback)" off)
 
-if(USE_SDL2_BACKEND AND USE_SDL3_BACKEND)
-  message(FATAL_ERROR "USE_SDL2_BACKEND and USE_SDL3_BACKEND are mutually exclusive; "
-                      "configure SDL3 with -DUSE_SDL2_BACKEND=off -DUSE_SDL3_BACKEND=on")
+# Opting into the SDL2 fallback is enough, SDL3 needn't be turned off as well
+if(USE_SDL2_BACKEND)
+  set(USE_SDL3_BACKEND off CACHE BOOL "Use SDL3 backend (default)" FORCE)
+endif()
+
+if(NOT USE_SDL2_BACKEND AND NOT USE_SDL3_BACKEND)
+  message(FATAL_ERROR "No she backend selected; enable USE_SDL3_BACKEND (default) or USE_SDL2_BACKEND")
+endif()
+
+if(USE_SDL2_BACKEND)
+  message(STATUS "she backend: SDL2 (DEPRECATED fallback, to be removed after the 1.27.03 release; SDL3 is the default)")
+else()
+  message(STATUS "she backend: SDL3 (use -DUSE_SDL2_BACKEND=on to fall back to the deprecated SDL2 backend)")
 endif()
 
 ######################################################################
@@ -246,7 +258,7 @@ include_directories(${DELTA_DIR})
 
 set(PLATFORM_LIBS)
 
-# SDL2 backend
+# SDL2 backend (deprecated fallback)
 if(USE_SDL2_BACKEND)
   add_definitions(-DUSE_SDL2_BACKEND)
 
@@ -259,7 +271,8 @@ elseif(USE_SDL3_BACKEND)
 
   # SDL3 ships proper CMake config packages (imported SDL3::SDL3 and
   # SDL3_image::SDL3_image targets), so no custom Find module is needed.
-  find_package(SDL3 CONFIG REQUIRED)
+  # 3.2.12 added SDL_MouseWheelEvent::integer_x/y, used by she/sdl3.
+  find_package(SDL3 3.2.12 CONFIG REQUIRED)
   # IMG_SavePNG_IO() is available since SDL3_image 3.0.0, i.e. its first
   # release, but pin it explicitly since we rely on it (see #264).
   find_package(SDL3_image 3.0 CONFIG REQUIRED)

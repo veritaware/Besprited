@@ -40,8 +40,8 @@ jobs:
           mingw-w64-x86_64-libpng
           mingw-w64-x86_64-libwebp
           mingw-w64-x86_64-pixman
-          mingw-w64-x86_64-SDL2
-          mingw-w64-x86_64-SDL2_image
+          mingw-w64-x86_64-sdl3
+          mingw-w64-x86_64-sdl3-image
           mingw-w64-x86_64-tinyxml2
           mingw-w64-x86_64-zlib
           mingw-w64-x86_64-libarchive

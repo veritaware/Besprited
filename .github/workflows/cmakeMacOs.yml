@@ -51,7 +51,7 @@ jobs:
         # macos-latest runner images come with this tap pre-added; Homebrew's
         # tap-trust check then warns on every brew invocation since it's untrusted.
         brew untap aws/tap || true
-        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl2 sdl2_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
+        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
         pip3 install --break-system-packages dmgbuild
         echo "Building and Installing GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
@@ -123,10 +123,8 @@ jobs:
       run: |
         dylibbundler -od -b -ns -x bundle/besprited.app/Contents/MacOS/besprited -d bundle/besprited.app/Contents/libs/
         echo "Manually bundling libSDL3.dylib..."
-        # Homebrew's sdl2 formula now installs sdl2-compat, whose libSDL2 dylib
-        # dlopen()s SDL3 at runtime instead of linking it (checks @loader_path,
-        # @executable_path, then plain name). dylibbundler only reads LC_LOAD_DYLIB
-        # entries via otool, so it never sees this dependency and skips it.
+        # dylibbundler may skip libSDL3 (e.g. when it is loaded indirectly rather than
+        # via LC_LOAD_DYLIB), so make sure it is bundled explicitly.
         cp -L "$(brew --prefix sdl3)/lib/libSDL3.dylib" bundle/besprited.app/Contents/libs/libSDL3.dylib
         install_name_tool -id "@rpath/libSDL3.dylib" bundle/besprited.app/Contents/libs/libSDL3.dylib
         echo "RPATH entries after dylibbundler:"
@@ -243,7 +241,7 @@ jobs:
         # macos-latest runner images come with this tap pre-added; Homebrew's
         # tap-trust check then warns on every brew invocation since it's untrusted.
         brew untap aws/tap || true
-        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl2 sdl2_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
+        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
         pip3 install --break-system-packages dmgbuild
         echo "Building and Installing GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
@@ -315,10 +313,8 @@ jobs:
       run: |
         dylibbundler -od -b -ns -x bundle/besprited.app/Contents/MacOS/besprited -d bundle/besprited.app/Contents/libs/
         echo "Manually bundling libSDL3.dylib..."
-        # Homebrew's sdl2 formula now installs sdl2-compat, whose libSDL2 dylib
-        # dlopen()s SDL3 at runtime instead of linking it (checks @loader_path,
-        # @executable_path, then plain name). dylibbundler only reads LC_LOAD_DYLIB
-        # entries via otool, so it never sees this dependency and skips it.
+        # dylibbundler may skip libSDL3 (e.g. when it is loaded indirectly rather than
+        # via LC_LOAD_DYLIB), so make sure it is bundled explicitly.
         cp -L "$(brew --prefix sdl3)/lib/libSDL3.dylib" bundle/besprited.app/Contents/libs/libSDL3.dylib
         install_name_tool -id "@rpath/libSDL3.dylib" bundle/besprited.app/Contents/libs/libSDL3.dylib
         echo "RPATH entries after dylibbundler:"

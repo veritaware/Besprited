@@ -41,35 +41,40 @@ To update an existing clone, use the following commands:
 
 ## Dependencies
 
-You'll need the following dependencies to compile Besprited:
+You'll need the following dependencies to compile Besprited.
+
+Besprited uses SDL3 by default. The older SDL2 backend is still available as a
+deprecated fallback until the 1.27.03 release (March 2027); to use it, install the
+SDL2 development packages (e.g. `libsdl2-dev libsdl2-image-dev` on Debian/Ubuntu)
+instead of the SDL3 ones and configure with `-DUSE_SDL2_BACKEND=on`.
 
 ### Linux dependencies
 
 Debian/Ubuntu/Mint:
 
-    sudo apt-get install g++ cmake git libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl2-dev libsdl2-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev
+    sudo apt-get install g++ cmake git libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl3-dev libsdl3-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev
 
 Fedora:
 
-    sudo dnf install g++ cmake git libcurl-devel freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL2-devel SDL2_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel libXi-devel
+    sudo dnf install g++ cmake git libcurl-devel freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL3-devel SDL3_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel libXi-devel
 
 Arch Linux:
 
-    sudo pacman -Syu base-devel cmake ninja git sdl3 sdl2-compat sdl2_image sdl2_ttf tinyxml2 freetype2 curl giflib gtest libjpeg-turbo pixman libpng zlib nodejs libarchive
+    sudo pacman -Syu base-devel cmake ninja git sdl3 sdl3_image tinyxml2 freetype2 curl giflib gtest libjpeg-turbo pixman libpng zlib nodejs libarchive
     
 
 ### Windows dependencies
 
 To install the required dependencies with msys2, run the following in mingw32:
 
-    pacman -S base-devel mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-make mingw-w64-i686-curl mingw-w64-i686-freetype mingw-w64-i686-giflib mingw-w64-i686-libjpeg-turbo mingw-w64-i686-libpng mingw-w64-i686-libwebp mingw-w64-i686-pixman mingw-w64-i686-SDL2 mingw-w64-i686-SDL2_image mingw-w64-i686-tinyxml2 mingw-w64-i686-zlib mingw-w64-i686-libarchive
+    pacman -S base-devel mingw-w64-i686-gcc mingw-w64-i686-cmake mingw-w64-i686-make mingw-w64-i686-curl mingw-w64-i686-freetype mingw-w64-i686-giflib mingw-w64-i686-libjpeg-turbo mingw-w64-i686-libpng mingw-w64-i686-libwebp mingw-w64-i686-pixman mingw-w64-i686-sdl3 mingw-w64-i686-sdl3-image mingw-w64-i686-tinyxml2 mingw-w64-i686-zlib mingw-w64-i686-libarchive
 
 ### MacOS dependencies
 
 On MacOS you will need Mac OS X 11.0 SDK and the corresponding Xcode.
 In a terminal, install the dependencies using brew:
 
-    brew install gnutls freetype jpeg webp pixman sdl2 sdl2_image tinyxml2 libarchive ninja zlib xmlto dylibbundler cmake
+    brew install gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler cmake
 
 ## Compiling
 

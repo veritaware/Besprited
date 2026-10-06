@@ -6,7 +6,7 @@ description: >
 inputs:
   sdl-version:
     description: SDL major version to install the development packages for (2 or 3).
-    default: '2'
+    default: '3'
 
 runs:
   using: composite
