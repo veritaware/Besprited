@@ -13,7 +13,12 @@
 #include "doc/image.h"
 #include "doc/palette.h"
 #include "gfx/color.h"
+
+#if defined(USE_SDL3_BACKEND)
+#include "she/sdl3/sdl3_surface.h"
+#else
 #include "she/sdl2/sdl2_surface.h"
+#endif
 
 #include <memory>
 
@@ -22,16 +27,20 @@ using namespace doc;
 namespace
 {
 
-// SDL2Surface can be built directly, without a live she::System: its
-// (width, height, destroy) constructor just calls SDL_CreateRGBSurface with
-// masks that match doc::rgba's own byte layout (r/g/b/a at shift 0/8/16/24),
+#if defined(USE_SDL3_BACKEND)
+using BackendSurface = she::SDL3Surface;
+#else
+using BackendSurface = she::SDL2Surface;
+#endif
+
+// The backend surface can be built directly, without a live she::System: its
+// (width, height, destroy) constructor just creates an SDL surface with masks that match doc::rgba's own byte layout (r/g/b/a at shift 0/8/16/24),
 // so the "fast path" in convert_image_to_surface (which requires the
 // surface's shifts to equal doc::rgba_*_shift) is exercised - same as what
-// she's own SDL2 backend hands out in the real app.
-std::unique_ptr<she::SDL2Surface> makeSurface(int w, int h)
+// she's own backend hands out in the real app.
+std::unique_ptr<BackendSurface> makeSurface(int w, int h)
 {
-  return std::make_unique<she::SDL2Surface>(w, h,
-                                            she::SDL2Surface::DestroyHandle);
+  return std::make_unique<BackendSurface>(w, h, BackendSurface::DestroyHandle);
 }
 
 gfx::Color pixelAt(she::Surface* surface, int x, int y)
