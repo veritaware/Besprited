@@ -116,8 +116,7 @@ class StatusBar::Indicators : public HBox
       g->fillRect(bgColor(), rc);
       if (textLength() > 0)
       {
-        g->drawString(text(), textColor, ColorNone,
-                      Point(rc.x, rc.y + rc.h / 2 - font()->height() / 2));
+        g->drawString(text(), textColor, ColorNone, Point(rc.x, rc.y + rc.h / 2 - font()->height() / 2));
       }
     }
   };
@@ -142,8 +141,7 @@ class StatusBar::Indicators : public HBox
 
       m_icon = icon;
       m_colored = colored;
-      setMinSize(
-          minSize().createUnion(Size(m_icon->width(), m_icon->height())));
+      setMinSize(minSize().createUnion(Size(m_icon->width(), m_icon->height())));
     }
 
   private:
@@ -156,11 +154,9 @@ class StatusBar::Indicators : public HBox
 
       g->fillRect(bgColor(), rc);
       if (m_colored)
-        g->drawColoredRgbaSurface(m_icon, textColor, rc.x,
-                                  rc.y + rc.h / 2 - m_icon->height() / 2);
+        g->drawColoredRgbaSurface(m_icon, textColor, rc.x, rc.y + rc.h / 2 - m_icon->height() / 2);
       else
-        g->drawRgbaSurface(m_icon, rc.x,
-                           rc.y + rc.h / 2 - m_icon->height() / 2);
+        g->drawRgbaSurface(m_icon, rc.x, rc.y + rc.h / 2 - m_icon->height() / 2);
     }
 
     she::Surface* m_icon;
@@ -194,8 +190,7 @@ class StatusBar::Indicators : public HBox
 
       g->fillRect(bgColor(), rc);
       draw_color_button(g, Rect(rc.x, rc.y, 32 * guiscale(), rc.h), m_color,
-                        (doc::ColorMode)app_get_current_pixel_format(), false,
-                        false);
+                        (doc::ColorMode)app_get_current_pixel_format(), false, false);
     }
 
     app::Color m_color;
@@ -239,8 +234,7 @@ public:
     {
       if ((*m_iterator)->indicatorType() == Indicator::kIcon)
       {
-        static_cast<IconIndicator*>(*m_iterator)
-            ->updateIndicator(icon, colored);
+        static_cast<IconIndicator*>(*m_iterator)->updateIndicator(icon, colored);
         ++m_iterator;
         return;
       }
@@ -314,12 +308,10 @@ std::vector<StatusBarTextToken> tokenizeStatusBarText(const std::string& text)
         if (i != start)
         {
           // Here i is ':' and i-1 is a whitespace ' '
-          tokens.push_back(
-              {StatusBarTextToken::Kind::Text, std::string(start, i - 1)});
+          tokens.push_back({StatusBarTextToken::Kind::Text, std::string(start, i - 1)});
         }
 
-        tokens.push_back(
-            {StatusBarTextToken::Kind::Icon, std::string(i + 1, j)});
+        tokens.push_back({StatusBarTextToken::Kind::Icon, std::string(i + 1, j)});
 
         start = i = (*(j + 1) == ' ' ? j + 2 : j + 1);
         continue;
@@ -373,10 +365,7 @@ public:
     return *this;
   }
 
-  IndicatorsGeneration& add(const skin::SkinPart* part, bool colored)
-  {
-    return add(part->bitmap(0), colored);
-  }
+  IndicatorsGeneration& add(const skin::SkinPart* part, bool colored) { return add(part->bitmap(0), colored); }
 
   IndicatorsGeneration& add(const app::Color& color)
   {
@@ -389,8 +378,7 @@ public:
     m_indicators->addColorIndicator(color);
 
     // Color description
-    std::string str = color.toHumanReadableString(
-        app_get_current_pixel_format(), app::Color::LongHumanReadableString);
+    std::string str = color.toHumanReadableString(app_get_current_pixel_format(), app::Color::LongHumanReadableString);
     if (color.getAlpha() < 255)
     {
       char buf[256];
@@ -472,8 +460,7 @@ public:
     makeFloating();
 
     addChild(&m_button);
-    m_button.Click.connect(
-        base::Bind<void>(&SnapToGridWindow::onDisableSnapToGrid, this));
+    m_button.Click.connect(base::Bind<void>(&SnapToGridWindow::onDisableSnapToGrid, this));
   }
 
   void setDocument(app::Document* doc) { m_doc = doc; }
@@ -521,8 +508,7 @@ public:
       if (hasFocus() && (scancode == kKeyEnter || // TODO customizable keys
                          scancode == kKeyEnterPad))
       {
-        Command* cmd =
-            CommandsModule::instance()->getCommandByName(CommandId::GotoFrame);
+        Command* cmd = CommandsModule::instance()->getCommandByName(CommandId::GotoFrame);
         Params params;
         int frame = textInt();
         if (frame > 0)
@@ -748,8 +734,7 @@ void StatusBar::showSnapToGridWarning(bool state)
       Rect rc = bounds();
       int toolBarWidth = ToolBar::instance()->sizeHint().w;
 
-      m_snapToGridWindow->positionWindow(rc.x + rc.w - toolBarWidth -
-                                             m_snapToGridWindow->bounds().w,
+      m_snapToGridWindow->positionWindow(rc.x + rc.w - toolBarWidth - m_snapToGridWindow->bounds().w,
                                          rc.y - m_snapToGridWindow->bounds().h);
     }
 
@@ -794,9 +779,7 @@ void StatusBar::onActiveSiteChange(const doc::Site& site)
     }
 
     m_docControls->setVisible(true);
-    showSnapToGridWarning(Preferences::instance()
-                              .document(static_cast<app::Document*>(m_doc))
-                              .grid.snap());
+    showSnapToGridWarning(Preferences::instance().document(static_cast<app::Document*>(m_doc)).grid.snap());
 
     // Current frame
     m_currentFrame->setTextf("%d", site.frame() + 1);
@@ -826,8 +809,7 @@ void StatusBar::onPixelFormatChanged(DocumentEvent& ev)
 
 void StatusBar::newFrame()
 {
-  Command* cmd =
-      CommandsModule::instance()->getCommandByName(CommandId::NewFrame);
+  Command* cmd = CommandsModule::instance()->getCommandByName(CommandId::NewFrame);
   UIContext::instance()->executeCommand(cmd);
 }
 

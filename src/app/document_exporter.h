@@ -52,15 +52,9 @@ public:
   DocumentExporter();
 
   void setDataFormat(DataFormat format) { m_dataFormat = format; }
-  void setDataFilename(const std::string& filename)
-  {
-    m_dataFilename = filename;
-  }
+  void setDataFilename(const std::string& filename) { m_dataFilename = filename; }
   void setTextureFormat(TextureFormat format) { m_textureFormat = format; }
-  void setTextureFilename(const std::string& filename)
-  {
-    m_textureFilename = filename;
-  }
+  void setTextureFilename(const std::string& filename) { m_textureFilename = filename; }
   void setTextureWidth(int width) { m_textureWidth = width; }
   void setTextureHeight(int height) { m_textureHeight = height; }
   void setSpriteSheetType(SpriteSheetType type) { m_sheetType = type; }
@@ -72,15 +66,12 @@ public:
   void setShapePadding(int padding) { m_shapePadding = padding; }
   void setInnerPadding(int padding) { m_innerPadding = padding; }
   void setTrimCels(bool trim) { m_trimCels = trim; }
-  void setFilenameFormat(const std::string& format)
-  {
-    m_filenameFormat = format;
-  }
+  void setFilenameFormat(const std::string& format) { m_filenameFormat = format; }
   void setListFrameTags(bool value) { m_listFrameTags = value; }
   void setListLayers(bool value) { m_listLayers = value; }
 
-  void addDocument(Document* document, doc::Layer* layer = nullptr,
-                   doc::FrameTag* tag = nullptr, bool temporalTag = false)
+  void addDocument(Document* document, doc::Layer* layer = nullptr, doc::FrameTag* tag = nullptr,
+                   bool temporalTag = false)
   {
     m_documents.push_back(Item(document, layer, tag, temporalTag));
   }
@@ -98,8 +89,7 @@ private:
   void captureSamples(Samples& samples);
   Document* createEmptyTexture(const Samples& samples);
   void renderTexture(const Samples& samples, doc::Image* textureImage);
-  void createDataFile(const Samples& samples, std::ostream& os,
-                      doc::Image* textureImage);
+  void createDataFile(const Samples& samples, std::ostream& os, doc::Image* textureImage);
   void renderSample(const Sample& sample, doc::Image* dst, int x, int y);
 
   class Item
@@ -110,8 +100,7 @@ private:
     doc::FrameTag* frameTag;
     bool temporalTag;
 
-    Item(Document* doc, doc::Layer* layer, doc::FrameTag* frameTag,
-         bool temporalTag)
+    Item(Document* doc, doc::Layer* layer, doc::FrameTag* frameTag, bool temporalTag)
       : doc(doc)
       , layer(layer)
       , frameTag(frameTag)

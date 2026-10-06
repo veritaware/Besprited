@@ -79,10 +79,7 @@ public:
   void removeMessagesFor(Widget* widget, MessageType type);
   void removeMessagesForTimer(Timer* timer);
 
-  void addMessageListener(Widget* widget)
-  {
-    m_messageListeners.push_back(widget);
-  }
+  void addMessageListener(Widget* widget) { m_messageListeners.push_back(widget); }
   void removeMessageListener(Widget* widget);
 
   void addMessageFilter(int message, Widget* widget);
@@ -125,39 +122,29 @@ protected:
   virtual void onNewDisplayConfiguration();
 
 private:
-  void generateSetCursorMessage(const gfx::Point& mousePos,
-                                KeyModifiers modifiers,
-                                PointerType pointerType);
+  void generateSetCursorMessage(const gfx::Point& mousePos, KeyModifiers modifiers, PointerType pointerType);
   void generateMessagesFromSheEvents();
-  void handleMouseMove(const gfx::Point& mousePos, MouseButtons mouseButtons,
-                       KeyModifiers modifiers, PointerType pointerType,
-                       float pressure);
-  void handleMouseDown(const gfx::Point& mousePos, MouseButtons mouseButtons,
-                       KeyModifiers modifiers, PointerType pointerType,
-                       float pressure);
-  void handleMouseUp(const gfx::Point& mousePos, MouseButtons mouseButtons,
-                     KeyModifiers modifiers, PointerType pointerType);
-  void handleMouseDoubleClick(const gfx::Point& mousePos,
-                              MouseButtons mouseButtons, KeyModifiers modifiers,
+  void handleMouseMove(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
+                       PointerType pointerType, float pressure);
+  void handleMouseDown(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
+                       PointerType pointerType, float pressure);
+  void handleMouseUp(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
+                     PointerType pointerType);
+  void handleMouseDoubleClick(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
                               PointerType pointerType, float pressure);
-  void handleMouseWheel(const gfx::Point& mousePos, MouseButtons mouseButtons,
-                        KeyModifiers modifiers, PointerType pointerType,
-                        const gfx::Point& wheelDelta, bool preciseWheel);
-  void handleTouchMagnify(const gfx::Point& mousePos,
-                          const KeyModifiers modifiers,
-                          const double magnification);
+  void handleMouseWheel(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
+                        PointerType pointerType, const gfx::Point& wheelDelta, bool preciseWheel);
+  void handleTouchMagnify(const gfx::Point& mousePos, const KeyModifiers modifiers, const double magnification);
   void handleWindowZOrder();
 
   void pumpQueue();
   static void removeWidgetFromRecipients(Widget* widget, Message* msg);
   static bool someParentIsFocusStop(Widget* widget);
   static Widget* findMagneticWidget(Widget* widget);
-  static Message*
-  newMouseMessage(MessageType type, Widget* widget, const gfx::Point& mousePos,
-                  PointerType pointerType, MouseButtons buttons,
-                  KeyModifiers modifiers,
-                  const gfx::Point& wheelDelta = gfx::Point(0, 0),
-                  bool preciseWheel = false, float pressure = 1.0f);
+  static Message* newMouseMessage(MessageType type, Widget* widget, const gfx::Point& mousePos, PointerType pointerType,
+                                  MouseButtons buttons, KeyModifiers modifiers,
+                                  const gfx::Point& wheelDelta = gfx::Point(0, 0), bool preciseWheel = false,
+                                  float pressure = 1.0f);
 
   void broadcastKeyMsg(Message* msg);
 

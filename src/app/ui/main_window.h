@@ -91,11 +91,9 @@ public:
   void onCloneTab(Tabs* tabs, TabView* tabView, int pos) override;
   void onContextMenuTab(Tabs* tabs, TabView* tabView) override;
   void onMouseOverTab(Tabs* tabs, TabView* tabView) override;
-  DropViewPreviewResult onFloatingTab(Tabs* tabs, TabView* tabView,
-                                      const gfx::Point& pos) override;
+  DropViewPreviewResult onFloatingTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos) override;
   void onDockingTab(Tabs* tabs, TabView* tabView) override;
-  DropTabResult onDropTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos,
-                          bool clone) override;
+  DropTabResult onDropTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos, bool clone) override;
 
 protected:
   bool onProcessMessage(ui::Message* msg) override;

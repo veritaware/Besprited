@@ -48,24 +48,15 @@ ConfigureTimelinePopup::ConfigureTimelinePopup()
   m_box = new app::gen::TimelineConf();
   addChild(m_box);
 
-  m_box->merge()->Click.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onChangeType, this));
-  m_box->tint()->Click.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onChangeType, this));
-  m_box->opacity()->Change.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onOpacity, this));
-  m_box->opacityStep()->Change.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onOpacityStep, this));
-  m_box->resetOnionskin()->Click.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onResetOnionskin, this));
-  m_box->loopTag()->Click.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onLoopTagChange, this));
-  m_box->currentLayer()->Click.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onCurrentLayerChange, this));
-  m_box->behind()->Click.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onPositionChange, this));
-  m_box->infront()->Click.connect(
-      base::Bind<void>(&ConfigureTimelinePopup::onPositionChange, this));
+  m_box->merge()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onChangeType, this));
+  m_box->tint()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onChangeType, this));
+  m_box->opacity()->Change.connect(base::Bind<void>(&ConfigureTimelinePopup::onOpacity, this));
+  m_box->opacityStep()->Change.connect(base::Bind<void>(&ConfigureTimelinePopup::onOpacityStep, this));
+  m_box->resetOnionskin()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onResetOnionskin, this));
+  m_box->loopTag()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onLoopTagChange, this));
+  m_box->currentLayer()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onCurrentLayerChange, this));
+  m_box->behind()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onPositionChange, this));
+  m_box->infront()->Click.connect(base::Bind<void>(&ConfigureTimelinePopup::onPositionChange, this));
 }
 
 app::Document* ConfigureTimelinePopup::doc()
@@ -137,9 +128,8 @@ void ConfigureTimelinePopup::onChangeType()
   if (m_lockUpdates)
     return;
 
-  docPref().onionskin.type(m_box->merge()->isSelected()
-                               ? app::gen::OnionskinType::MERGE
-                               : app::gen::OnionskinType::RED_BLUE_TINT);
+  docPref().onionskin.type(m_box->merge()->isSelected() ? app::gen::OnionskinType::MERGE
+                                                        : app::gen::OnionskinType::RED_BLUE_TINT);
 }
 
 void ConfigureTimelinePopup::onOpacity()
@@ -184,9 +174,8 @@ void ConfigureTimelinePopup::onCurrentLayerChange()
 
 void ConfigureTimelinePopup::onPositionChange()
 {
-  docPref().onionskin.position(m_box->behind()->isSelected()
-                                   ? render::OnionskinPosition::BEHIND
-                                   : render::OnionskinPosition::INFRONT);
+  docPref().onionskin.position(m_box->behind()->isSelected() ? render::OnionskinPosition::BEHIND
+                                                             : render::OnionskinPosition::INFRONT);
 }
 
 } // namespace app

@@ -66,20 +66,18 @@ std::shared_ptr<Palette> load_palette(const char* filename)
   }
   else
   {
-    FileFormat* ff =
-        FileFormatsManager::instance()->getFileFormatByExtension(ext.c_str());
+    FileFormat* ff = FileFormatsManager::instance()->getFileFormatByExtension(ext.c_str());
     if (ff && ff->support(FILE_SUPPORT_LOAD))
     {
-      std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(
-          nullptr, filename, FILE_LOAD_SEQUENCE_NONE | FILE_LOAD_ONE_FRAME));
+      std::unique_ptr<FileOp> fop(
+          FileOp::createLoadDocumentOperation(nullptr, filename, FILE_LOAD_SEQUENCE_NONE | FILE_LOAD_ONE_FRAME));
 
       if (fop && !fop->hasError())
       {
         fop->operate(nullptr);
         fop->postLoad();
 
-        if (fop->document() && fop->document()->sprite() &&
-            fop->document()->sprite()->palette(frame_t(0)))
+        if (fop->document() && fop->document()->sprite() && fop->document()->sprite()->palette(frame_t(0)))
         {
           pal = fop->document()->sprite()->palette(frame_t(0))->clone();
         }
@@ -115,8 +113,7 @@ bool save_palette(const char* filename, const Palette& pal, int columns)
   }
   else
   {
-    FileFormat* ff =
-        FileFormatsManager::instance()->getFileFormatByExtension(ext.c_str());
+    FileFormat* ff = FileFormatsManager::instance()->getFileFormatByExtension(ext.c_str());
     if (ff && ff->support(FILE_SUPPORT_SAVE))
     {
       int w = (columns > 0 ? columns : pal.size());
@@ -124,9 +121,7 @@ bool save_palette(const char* filename, const Palette& pal, int columns)
 
       app::Context tmpContext;
       doc::Document* doc = tmpContext.documents().add(
-          w, h,
-          (pal.size() <= 256 ? doc::ColorMode::INDEXED : doc::ColorMode::RGB),
-          pal.size());
+          w, h, (pal.size() <= 256 ? doc::ColorMode::INDEXED : doc::ColorMode::RGB), pal.size());
 
       Sprite* sprite = doc->sprite();
       doc->sprite()->setPalette(pal, false);

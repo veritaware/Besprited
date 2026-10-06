@@ -36,8 +36,7 @@ public:
 
     // addPalette(name) -> create a 1-color doc::Palette, add it to the listbox
     // under `name`, and return it as a `Palette` JS object.
-    cls.addMethod("addPalette") = [](PaletteListBoxObject& self,
-                                     const std::string& name) -> JSON::Value
+    cls.addMethod("addPalette") = [](PaletteListBoxObject& self, const std::string& name) -> JSON::Value
     {
       auto* lb = self.listbox();
       if (!lb)
@@ -49,5 +48,4 @@ public:
   }
 };
 
-static di::provide<Extension, PaletteListBoxExtension> paletteListBoxExt{
-    "palettelistbox"};
+static di::provide<Extension, PaletteListBoxExtension> paletteListBoxExt{"palettelistbox"};

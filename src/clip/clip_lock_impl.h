@@ -7,9 +7,11 @@
 #ifndef CLIP_LOCK_IMPL_H_INCLUDED
 #define CLIP_LOCK_IMPL_H_INCLUDED
 
-namespace clip {
+namespace clip
+{
 
-class lock::impl {
+class lock::impl
+{
 public:
   impl(void* native_window_handle);
   ~impl();

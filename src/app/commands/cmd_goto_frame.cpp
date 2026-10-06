@@ -35,10 +35,7 @@ protected:
   {
   }
 
-  bool onEnabled(Context* context) override
-  {
-    return (current_editor != nullptr);
-  }
+  bool onEnabled(Context* context) override { return (current_editor != nullptr); }
 
   void onExecute(Context* context) override
   {
@@ -102,8 +99,7 @@ class GotoNextFrameWithSameTagCommand : public GotoCommandBase
 {
 public:
   GotoNextFrameWithSameTagCommand()
-    : GotoCommandBase("GotoNextFrameWithSameTag",
-                      "Go to Next Frame with same tag")
+    : GotoCommandBase("GotoNextFrameWithSameTag", "Go to Next Frame with same tag")
   {
   }
 
@@ -123,8 +119,7 @@ class GotoPreviousFrameWithSameTagCommand : public GotoCommandBase
 {
 public:
   GotoPreviousFrameWithSameTagCommand()
-    : GotoCommandBase("GotoPreviousFrameWithSameTag",
-                      "Go to Previous Frame with same tag")
+    : GotoCommandBase("GotoPreviousFrameWithSameTag", "Go to Previous Frame with same tag")
   {
   }
 
@@ -149,10 +144,7 @@ public:
   }
 
 protected:
-  frame_t onGetFrame(Editor* editor) override
-  {
-    return editor->sprite()->lastFrame();
-  }
+  frame_t onGetFrame(Editor* editor) override { return editor->sprite()->lastFrame(); }
 };
 
 class GotoFrameCommand : public GotoCommandBase

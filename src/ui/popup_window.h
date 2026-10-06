@@ -28,10 +28,8 @@ public:
     CloseOnEnter,
   };
 
-  PopupWindow(
-      const std::string& text = "",
-      ClickBehavior clickBehavior = ClickBehavior::CloseOnClickOutsideHotRegion,
-      EnterBehavior enterBehavior = EnterBehavior::CloseOnEnter);
+  PopupWindow(const std::string& text = "", ClickBehavior clickBehavior = ClickBehavior::CloseOnClickOutsideHotRegion,
+              EnterBehavior enterBehavior = EnterBehavior::CloseOnEnter);
   ~PopupWindow() override;
 
   // Sets the hot region. This region indicates the area where the

@@ -48,8 +48,7 @@ public:
     UseModifiedRegionAsUndoInfo = 2,
   };
 
-  ExpandCelCanvas(Site site, Layer* layer, TiledMode tiledMode,
-                  Transaction& undo, Flags flags);
+  ExpandCelCanvas(Site site, Layer* layer, TiledMode tiledMode, Transaction& undo, Flags flags);
   ~ExpandCelCanvas();
 
   // Commit changes made in getDestCanvas() in the cel's image. Adds

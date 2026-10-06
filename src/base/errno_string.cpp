@@ -63,9 +63,7 @@ std::string get_errno_string(int errnum)
       "Illegal byte sequence",    /* errno = 42 (EILSEQ) */
   };
 
-  if (errnum >= 0 &&
-      errnum < static_cast<int>(sizeof(errors) / sizeof(char*)) &&
-      errors[errnum] != nullptr)
+  if (errnum >= 0 && errnum < static_cast<int>(sizeof(errors) / sizeof(char*)) && errors[errnum] != nullptr)
   {
     return errors[errnum];
   }

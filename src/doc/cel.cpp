@@ -38,8 +38,7 @@ Cel::Cel(frame_t frame, const CelDataRef& celData)
 // static
 std::shared_ptr<Cel> Cel::createCopy(std::shared_ptr<const Cel> other)
 {
-  auto cel = std::make_shared<Cel>(other->frame(),
-                                   ImageRef(Image::createCopy(other->image())));
+  auto cel = std::make_shared<Cel>(other->frame(), ImageRef(Image::createCopy(other->image())));
   cel->setPosition(other->position());
   cel->setOpacity(other->opacity());
   return cel;

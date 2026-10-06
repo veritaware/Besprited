@@ -27,7 +27,6 @@ namespace app
 class AlternateTimelineCommand : public Command
 {
 public:
-
   AlternateTimelineCommand()
     : Command{"AlternateTimeline", "Alternate Timeline", CmdUIOnlyFlag}
   {
@@ -38,15 +37,9 @@ protected:
 
   bool onEnabled(Context* context) override { return true; }
 
-  bool onChecked(Context* context) override
-  {
-    return Preferences::instance().general.verticalTimeline();
-  }
+  bool onChecked(Context* context) override { return Preferences::instance().general.verticalTimeline(); }
 
-  void onExecute(Context* context) override
-  {
-    App::instance()->mainWindow()->alternateTimeline();
-  }
+  void onExecute(Context* context) override { App::instance()->mainWindow()->alternateTimeline(); }
 };
 
 std::unique_ptr<Command> CommandFactory::createAlternateTimelineCommand()

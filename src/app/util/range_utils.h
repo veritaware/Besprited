@@ -22,7 +22,6 @@ namespace app
 {
 using namespace doc;
 
-
 doc::CelList get_unique_cels(doc::Sprite* sprite, const DocumentRange& range);
 
 } // namespace app

@@ -134,8 +134,7 @@ void Window::onHitTest(HitTestEvent& ev)
   gfx::Rect cpos = childrenBounds();
 
   // Move
-  if ((hasText()) && (((x >= cpos.x) && (x < cpos.x2()) &&
-                       (y >= pos.y + border().bottom()) && (y < cpos.y))))
+  if ((hasText()) && (((x >= cpos.x) && (x < cpos.x2()) && (y >= pos.y + border().bottom()) && (y < cpos.y))))
   {
     ht = HitTestCaption;
   }
@@ -216,8 +215,7 @@ void Window::centerWindow()
   if (m_isAutoRemap)
     remapWindow();
 
-  positionWindow(manager->bounds().w / 2 - bounds().w / 2,
-                 manager->bounds().h / 2 - bounds().h / 2);
+  positionWindow(manager->bounds().w / 2 - bounds().w / 2, manager->bounds().h / 2 - bounds().h / 2);
 }
 
 void Window::positionWindow(int x, int y)
@@ -365,18 +363,10 @@ bool Window::onProcessMessage(Message* msg)
         w = clickedWindowPos->w;
         h = clickedWindowPos->h;
 
-        bool hitLeft =
-            (m_hitTest == HitTestBorderNW || m_hitTest == HitTestBorderW ||
-             m_hitTest == HitTestBorderSW);
-        bool hitTop =
-            (m_hitTest == HitTestBorderNW || m_hitTest == HitTestBorderN ||
-             m_hitTest == HitTestBorderNE);
-        bool hitRight =
-            (m_hitTest == HitTestBorderNE || m_hitTest == HitTestBorderE ||
-             m_hitTest == HitTestBorderSE);
-        bool hitBottom =
-            (m_hitTest == HitTestBorderSW || m_hitTest == HitTestBorderS ||
-             m_hitTest == HitTestBorderSE);
+        bool hitLeft = (m_hitTest == HitTestBorderNW || m_hitTest == HitTestBorderW || m_hitTest == HitTestBorderSW);
+        bool hitTop = (m_hitTest == HitTestBorderNW || m_hitTest == HitTestBorderN || m_hitTest == HitTestBorderNE);
+        bool hitRight = (m_hitTest == HitTestBorderNE || m_hitTest == HitTestBorderE || m_hitTest == HitTestBorderSE);
+        bool hitBottom = (m_hitTest == HitTestBorderSW || m_hitTest == HitTestBorderS || m_hitTest == HitTestBorderSE);
 
         if (hitLeft)
         {

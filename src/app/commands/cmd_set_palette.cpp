@@ -41,9 +41,7 @@ void SetPaletteCommand::onExecute(Context* context)
   if (writer.document())
   {
     Transaction transaction(writer.context(), "Set Palette");
-    writer.document()
-        ->getApi(transaction)
-        .setPalette(writer.sprite(), writer.frame(), m_palette);
+    writer.document()->getApi(transaction).setPalette(writer.sprite(), writer.frame(), m_palette);
     transaction.commit();
   }
   set_current_palette(m_palette, false);

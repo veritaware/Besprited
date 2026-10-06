@@ -40,8 +40,7 @@ ImageRef load_xml_image(const tinyxml2::XMLElement* imageElem)
   ImageRef image;
   int w, h;
   if (imageElem->QueryIntAttribute("width", &w) != tinyxml2::XML_SUCCESS ||
-      imageElem->QueryIntAttribute("height", &h) != tinyxml2::XML_SUCCESS ||
-      w < 0 || w > 9999 || h < 0 || h > 9999)
+      imageElem->QueryIntAttribute("height", &h) != tinyxml2::XML_SUCCESS || w < 0 || w > 9999 || h < 0 || h > 9999)
     return image;
 
   auto formatValue = imageElem->Attribute("format");
@@ -310,17 +309,14 @@ bool AppBrushes::isBrushSlotLocked(slot_id slot) const
     return false;
 }
 
-static const int kBrushFlags = int(BrushSlot::Flags::BrushType) |
-                               int(BrushSlot::Flags::BrushSize) |
-                               int(BrushSlot::Flags::BrushAngle);
+static const int kBrushFlags =
+    int(BrushSlot::Flags::BrushType) | int(BrushSlot::Flags::BrushSize) | int(BrushSlot::Flags::BrushAngle);
 
 void AppBrushes::load(const std::string& filename)
 {
   XmlDocumentRef doc = app::open_xml(filename);
   tinyxml2::XMLHandle handle(doc.get());
-  tinyxml2::XMLElement* brushElem = handle.FirstChildElement("brushes")
-                                        .FirstChildElement("brush")
-                                        .ToElement();
+  tinyxml2::XMLElement* brushElem = handle.FirstChildElement("brushes").FirstChildElement("brush").ToElement();
 
   while (brushElem)
   {
@@ -346,10 +342,9 @@ void AppBrushes::load(const std::string& filename)
         flags |= int(BrushSlot::Flags::BrushSize);
       if (angle)
         flags |= int(BrushSlot::Flags::BrushAngle);
-      brush.reset(
-          new Brush((type ? string_id_to_brush_type(type) : kFirstBrushType),
-                    (size ? base::convert_to<int>(std::string(size)) : 1),
-                    (angle ? base::convert_to<int>(std::string(angle)) : 0)));
+      brush.reset(new Brush((type ? string_id_to_brush_type(type) : kFirstBrushType),
+                            (size ? base::convert_to<int>(std::string(size)) : 1),
+                            (angle ? base::convert_to<int>(std::string(angle)) : 0)));
     }
 
     // Brush image
@@ -365,8 +360,7 @@ void AppBrushes::load(const std::string& filename)
     }
 
     // Colors
-    if (tinyxml2::XMLElement* fgcolorElem =
-            brushElem->FirstChildElement("fgcolor"))
+    if (tinyxml2::XMLElement* fgcolorElem = brushElem->FirstChildElement("fgcolor"))
     {
       if (auto value = fgcolorElem->Attribute("value"))
       {
@@ -375,8 +369,7 @@ void AppBrushes::load(const std::string& filename)
       }
     }
 
-    if (tinyxml2::XMLElement* bgcolorElem =
-            brushElem->FirstChildElement("bgcolor"))
+    if (tinyxml2::XMLElement* bgcolorElem = brushElem->FirstChildElement("bgcolor"))
     {
       if (auto value = bgcolorElem->Attribute("value"))
       {
@@ -386,8 +379,7 @@ void AppBrushes::load(const std::string& filename)
     }
 
     // Ink
-    if (tinyxml2::XMLElement* inkTypeElem =
-            brushElem->FirstChildElement("inktype"))
+    if (tinyxml2::XMLElement* inkTypeElem = brushElem->FirstChildElement("inktype"))
     {
       if (auto value = inkTypeElem->Attribute("value"))
       {
@@ -396,8 +388,7 @@ void AppBrushes::load(const std::string& filename)
       }
     }
 
-    if (tinyxml2::XMLElement* inkOpacityElem =
-            brushElem->FirstChildElement("inkopacity"))
+    if (tinyxml2::XMLElement* inkOpacityElem = brushElem->FirstChildElement("inkopacity"))
     {
       if (auto value = inkOpacityElem->Attribute("value"))
       {
@@ -417,8 +408,7 @@ void AppBrushes::load(const std::string& filename)
     }
 
     // Pixel-perfect
-    if (tinyxml2::XMLElement* pixelPerfectElem =
-            brushElem->FirstChildElement("pixelperfect"))
+    if (tinyxml2::XMLElement* pixelPerfectElem = brushElem->FirstChildElement("pixelperfect"))
     {
       pixelPerfect = bool_attr_is_true(pixelPerfectElem, "value");
       flags |= int(BrushSlot::Flags::PixelPerfect);
@@ -427,8 +417,7 @@ void AppBrushes::load(const std::string& filename)
     if (flags != 0)
       flags |= int(BrushSlot::Flags::Locked);
 
-    BrushSlot brushSlot(BrushSlot::Flags(flags), brush, fgColor, bgColor,
-                        inkType, inkOpacity, shade, pixelPerfect);
+    BrushSlot brushSlot(BrushSlot::Flags(flags), brush, fgColor, bgColor, inkType, inkOpacity, shade, pixelPerfect);
     m_slots.push_back(brushSlot);
 
     brushElem = brushElem->NextSiblingElement();
@@ -462,8 +451,7 @@ void AppBrushes::save(const std::string& filename) const
 
         if (flags & int(BrushSlot::Flags::BrushType))
         {
-          brushElem->SetAttribute(
-              "type", brush_type_to_string_id(slot.brush()->type()).c_str());
+          brushElem->SetAttribute("type", brush_type_to_string_id(slot.brush()->type()).c_str());
         }
 
         if (flags & int(BrushSlot::Flags::BrushSize))
@@ -503,8 +491,7 @@ void AppBrushes::save(const std::string& filename) const
       if (flags & int(BrushSlot::Flags::InkType))
       {
         auto elem = doc->NewElement("inktype");
-        elem->SetAttribute(
-            "value", app::tools::ink_type_to_string_id(slot.inkType()).c_str());
+        elem->SetAttribute("value", app::tools::ink_type_to_string_id(slot.inkType()).c_str());
         brushElem->InsertEndChild(elem);
       }
 

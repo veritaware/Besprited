@@ -21,8 +21,7 @@ public:
     auto& cls = addClass<void, EntryObject>("Entry");
     // The entry is created by DialogObject::addEntry() (C++), not `new Entry()`
     // in JS, but delta requires a non-null constructor.
-    cls.setConstructor() = []() -> std::shared_ptr<EntryObject>
-    { return std::make_shared<EntryObject>(); };
+    cls.setConstructor() = []() -> std::shared_ptr<EntryObject> { return std::make_shared<EntryObject>(); };
 
     addWidgetId<EntryObject>(cls);
 
@@ -38,9 +37,7 @@ public:
     // value: the entry text. Setting it does not raise the change event
     // (setTextSilent); user edits do.
     cls.addGetter("value") = [](EntryObject& self) -> JSON::Value
-    {
-      return self.entry() ? std::string{self.entry()->text()} : std::string{};
-    };
+    { return self.entry() ? std::string{self.entry()->text()} : std::string{}; };
     cls.addSetter("value") = [](EntryObject& self, JSON::Value& v)
     {
       if (self.entry())

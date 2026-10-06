@@ -49,8 +49,7 @@ namespace app
 using namespace ui;
 using namespace app::skin;
 
-PaletteView::PaletteView(bool editable, PaletteViewStyle style,
-                         PaletteViewDelegate* delegate, int boxsize)
+PaletteView::PaletteView(bool editable, PaletteViewStyle style, PaletteViewDelegate* delegate, int boxsize)
   : Widget(kGenericWidget)
   , m_state(State::WAITING)
   , m_editable(editable)
@@ -70,8 +69,7 @@ PaletteView::PaletteView(bool editable, PaletteViewStyle style,
   setBorder(gfx::Border(1 * guiscale()));
   setChildSpacing(1 * guiscale());
 
-  m_conn = App::instance()->PaletteChange.connect(
-      &PaletteView::onAppPaletteChange, this);
+  m_conn = App::instance()->PaletteChange.connect(&PaletteView::onAppPaletteChange, this);
 }
 
 void PaletteView::setColumns(int columns)
@@ -256,9 +254,7 @@ void PaletteView::pasteFromClipboard()
   if (clipboard::get_current_format() == clipboard::ClipboardPaletteEntries)
   {
     if (m_delegate)
-      m_delegate->onPaletteViewPasteColors(clipboard::get_palette(),
-                                           clipboard::get_palette_picks(),
-                                           m_selectedEntries);
+      m_delegate->onPaletteViewPasteColors(clipboard::get_palette(), clipboard::get_palette_picks(), m_selectedEntries);
 
     // We just hide the marching ants, the user can paste multiple
     // times.
@@ -326,9 +322,8 @@ bool PaletteView::onProcessMessage(Message* msg)
 
       MouseButtons buttons = mouseMsg->buttons();
 
-      if (hasCapture() &&
-          ((idx != m_currentEntry) || (msg->type() == kMouseDownMessage) ||
-           ((buttons & kButtonMiddle) == kButtonMiddle)))
+      if (hasCapture() && ((idx != m_currentEntry) || (msg->type() == kMouseDownMessage) ||
+                           ((buttons & kButtonMiddle) == kButtonMiddle)))
       {
         if ((buttons & kButtonMiddle) == 0)
         {
@@ -380,8 +375,7 @@ bool PaletteView::onProcessMessage(Message* msg)
           int newPalSize = MAX(1, m_hot.color);
           auto newPalette = currentPalette()->clone();
           newPalette->resize(newPalSize);
-          setNewPalette(*currentPalette(), *newPalette,
-                        PaletteViewModification::RESIZE);
+          setNewPalette(*currentPalette(), *newPalette, PaletteViewModification::RESIZE);
         }
         break;
       }
@@ -446,8 +440,7 @@ void PaletteView::onPaint(ui::PaintEvent& ev)
   int fgIndex = -1;
   int bgIndex = -1;
   int transparentIndex = -1;
-  bool hotColor =
-      (m_hot.part == Hit::COLOR || m_hot.part == Hit::POSSIBLE_COLOR);
+  bool hotColor = (m_hot.part == Hit::COLOR || m_hot.part == Hit::POSSIBLE_COLOR);
   bool dragging = (m_state == State::DRAGGING_OUTLINE && hotColor);
   bool resizing = (m_state == State::RESIZING_PALETTE && hotColor);
 
@@ -456,8 +449,7 @@ void PaletteView::onPaint(ui::PaintEvent& ev)
     fgIndex = findExactIndex(m_delegate->onPaletteViewGetForegroundIndex());
     bgIndex = findExactIndex(m_delegate->onPaletteViewGetBackgroundIndex());
 
-    if (current_editor &&
-        current_editor->sprite()->pixelFormat() == IMAGE_INDEXED)
+    if (current_editor && current_editor->sprite()->pixelFormat() == IMAGE_INDEXED)
       transparentIndex = current_editor->sprite()->transparentColor();
   }
 
@@ -479,8 +471,7 @@ void PaletteView::onPaint(ui::PaintEvent& ev)
     {
       if (!m_copy)
       {
-        while (i + idxOffset < m_selectedEntries.size() &&
-               m_selectedEntries[i + idxOffset])
+        while (i + idxOffset < m_selectedEntries.size() && m_selectedEntries[i + idxOffset])
           ++idxOffset;
       }
       if (!boxOffset && m_hot.color == i)
@@ -497,8 +488,7 @@ void PaletteView::onPaint(ui::PaintEvent& ev)
 
     case SelectOneColor:
       if (m_currentEntry == i)
-        g->fillRect(color_utils::blackandwhite_neg(gfxColor),
-                    gfx::Rect(box.center(), gfx::Size(1, 1)));
+        g->fillRect(color_utils::blackandwhite_neg(gfxColor), gfx::Rect(box.center(), gfx::Size(1, 1)));
       break;
 
     case FgBgColors:
@@ -513,13 +503,11 @@ void PaletteView::onPaint(ui::PaintEvent& ev)
       {
         gfx::Color neg = color_utils::blackandwhite_neg(gfxColor);
         for (int i = 0; i < m_boxsize / 4; ++i)
-          g->drawHLine(neg, box.x + box.w - (i + 1),
-                       box.y + box.h - m_boxsize / 4 + i, i + 1);
+          g->drawHLine(neg, box.x + box.w - (i + 1), box.y + box.h - m_boxsize / 4 + i, i + 1);
       }
 
       if (transparentIndex == i)
-        g->fillRect(color_utils::blackandwhite_neg(gfxColor),
-                    gfx::Rect(box.center(), gfx::Size(1, 1)));
+        g->fillRect(color_utils::blackandwhite_neg(gfxColor), gfx::Rect(box.center(), gfx::Size(1, 1)));
       break;
     }
   }
@@ -530,8 +518,7 @@ void PaletteView::onPaint(ui::PaintEvent& ev)
   {
     she::Surface* handle = theme->parts.palResize()->bitmap(0);
     gfx::Rect box = getPaletteEntryBounds(palSize);
-    g->drawRgbaSurface(handle, box.x + box.w / 2 - handle->width() / 2,
-                       box.y + box.h / 2 - handle->height() / 2);
+    g->drawRgbaSurface(handle, box.x + box.w / 2 - handle->width() / 2, box.y + box.h / 2 - handle->height() / 2);
   }
 
   // Draw selected entries
@@ -572,10 +559,9 @@ void PaletteView::onPaint(ui::PaintEvent& ev)
         auto minifont = theme->getMiniFont();
         std::string text = base::convert_to<std::string>(k);
         g->setFont(minifont);
-        g->drawString(
-            text, neg, gfx::ColorNone,
-            gfx::Point(box2.x + box2.w / 2 - minifont->textLength(text) / 2,
-                       box2.y + box2.h / 2 - minifont->height() / 2));
+        g->drawString(text, neg, gfx::ColorNone,
+                      gfx::Point(box2.x + box2.w / 2 - minifont->textLength(text) / 2,
+                                 box2.y + box2.h / 2 - minifont->height() / 2));
       }
 
       // Draw outlines
@@ -592,8 +578,7 @@ void PaletteView::onPaint(ui::PaintEvent& ev)
     Palette* clipboardPalette = clipboard::get_palette();
     const PalettePicks& clipboardPicks = clipboard::get_palette_picks();
 
-    if (clipboardPalette &&
-        clipboardPalette->countDiff(*palette, nullptr, nullptr) == 0)
+    if (clipboardPalette && clipboardPalette->countDiff(*palette, nullptr, nullptr) == 0)
     {
       for (int i = 0; i < clipboardPicks.size(); ++i)
       {
@@ -622,8 +607,7 @@ void PaletteView::onResize(ui::ResizeEvent& ev)
     View* view = View::getView(this);
     if (view)
     {
-      int columns = (view->viewportBounds().w - this->childSpacing() * 2) /
-                    (m_boxsize + this->childSpacing());
+      int columns = (view->viewportBounds().w - this->childSpacing() * 2) / (m_boxsize + this->childSpacing());
       setColumns(MAX(1, columns));
     }
     m_isUpdatingColumns = false;
@@ -703,10 +687,8 @@ gfx::Rect PaletteView::getPaletteEntryBounds(int index) const
   int col = index % cols;
   int row = index / cols;
 
-  return gfx::Rect(
-      bounds.x + border().left() + col * (m_boxsize + childSpacing()),
-      bounds.y + border().top() + row * (m_boxsize + childSpacing()), m_boxsize,
-      m_boxsize);
+  return gfx::Rect(bounds.x + border().left() + col * (m_boxsize + childSpacing()),
+                   bounds.y + border().top() + row * (m_boxsize + childSpacing()), m_boxsize, m_boxsize);
 }
 
 PaletteView::Hit PaletteView::hitTest(const gfx::Point& pos)
@@ -724,31 +706,18 @@ PaletteView::Hit PaletteView::hitTest(const gfx::Point& pos)
         continue;
 
       const int max = palette->size();
-      bool top = (i >= m_columns && i - m_columns >= 0
-                      ? m_selectedEntries[i - m_columns]
-                      : false);
-      bool bottom = (i < max - m_columns && i + m_columns < max
-                         ? m_selectedEntries[i + m_columns]
-                         : false);
-      bool left = ((i % m_columns) > 0 && i - 1 >= 0 ? m_selectedEntries[i - 1]
-                                                     : false);
-      bool right = ((i % m_columns) < m_columns - 1 && i + 1 < max
-                        ? m_selectedEntries[i + 1]
-                        : false);
+      bool top = (i >= m_columns && i - m_columns >= 0 ? m_selectedEntries[i - m_columns] : false);
+      bool bottom = (i < max - m_columns && i + m_columns < max ? m_selectedEntries[i + m_columns] : false);
+      bool left = ((i % m_columns) > 0 && i - 1 >= 0 ? m_selectedEntries[i - 1] : false);
+      bool right = ((i % m_columns) < m_columns - 1 && i + 1 < max ? m_selectedEntries[i + 1] : false);
 
       gfx::Rect box = getPaletteEntryBounds(i);
       box.enlarge(outlineWidth);
 
-      if ((!top &&
-           gfx::Rect(box.x, box.y, box.w, outlineWidth).contains(pos)) ||
-          (!bottom &&
-           gfx::Rect(box.x, box.y + box.h - outlineWidth, box.w, outlineWidth)
-               .contains(pos)) ||
-          (!left &&
-           gfx::Rect(box.x, box.y, outlineWidth, box.h).contains(pos)) ||
-          (!right &&
-           gfx::Rect(box.x + box.w - outlineWidth, box.y, outlineWidth, box.h)
-               .contains(pos)))
+      if ((!top && gfx::Rect(box.x, box.y, box.w, outlineWidth).contains(pos)) ||
+          (!bottom && gfx::Rect(box.x, box.y + box.h - outlineWidth, box.w, outlineWidth).contains(pos)) ||
+          (!left && gfx::Rect(box.x, box.y, outlineWidth, box.h).contains(pos)) ||
+          (!right && gfx::Rect(box.x + box.w - outlineWidth, box.y, outlineWidth, box.h).contains(pos)))
         return Hit(Hit::OUTLINE, i);
     }
 
@@ -781,8 +750,7 @@ PaletteView::Hit PaletteView::hitTest(const gfx::Point& pos)
   int colsLimit = m_columns;
   if (m_state == State::DRAGGING_OUTLINE)
     --colsLimit;
-  int i = MID(0, (pos.x - vp.x) / box.w, colsLimit) +
-          MAX(0, pos.y / box.h) * m_columns;
+  int i = MID(0, (pos.x - vp.x) / box.w, colsLimit) + MAX(0, pos.y / box.h) * m_columns;
   return Hit(Hit::POSSIBLE_COLOR, i);
 }
 
@@ -804,8 +772,7 @@ void PaletteView::dropColors(int beforeIndex)
     int picks = m_selectedEntries.picks();
     ASSERT(picks >= 1);
 
-    remap = create_remap_to_expand_palette(palette->size() + picks, picks,
-                                           beforeIndex);
+    remap = create_remap_to_expand_palette(palette->size() + picks, picks, beforeIndex);
 
     newPalette->resize(palette->size() + picks);
     for (int i = 0; i < palette->size(); ++i)
@@ -851,8 +818,7 @@ void PaletteView::dropColors(int beforeIndex)
   setNewPalette(*palette, *newPalette, PaletteViewModification::DRAGANDDROP);
 }
 
-void PaletteView::getEntryBoundsAndClip(int i, const PalettePicks& entries,
-                                        gfx::Rect& box, gfx::Rect& clip,
+void PaletteView::getEntryBoundsAndClip(int i, const PalettePicks& entries, gfx::Rect& box, gfx::Rect& clip,
                                         int outlineWidth) const
 {
   box = clip = getPaletteEntryBounds(i);
@@ -891,8 +857,7 @@ void PaletteView::getEntryBoundsAndClip(int i, const PalettePicks& entries,
   }
 }
 
-bool PaletteView::pickedXY(const doc::PalettePicks& entries, int i, int dx,
-                           int dy) const
+bool PaletteView::pickedXY(const doc::PalettePicks& entries, int i, int dx, int dy) const
 {
   int x = (i % m_columns) + dx;
   int y = (i / m_columns) + dy;
@@ -922,16 +887,14 @@ void PaletteView::updateCopyFlag(ui::Message* msg)
 
 void PaletteView::setCursor()
 {
-  if (m_state == State::DRAGGING_OUTLINE ||
-      (m_state == State::WAITING && m_hot.part == Hit::OUTLINE))
+  if (m_state == State::DRAGGING_OUTLINE || (m_state == State::WAITING && m_hot.part == Hit::OUTLINE))
   {
     if (m_copy)
       ui::set_mouse_cursor(kArrowPlusCursor);
     else
       ui::set_mouse_cursor(kMoveCursor);
   }
-  else if (m_state == State::RESIZING_PALETTE ||
-           (m_state == State::WAITING && m_hot.part == Hit::RESIZE_HANDLE))
+  else if (m_state == State::RESIZING_PALETTE || (m_state == State::WAITING && m_hot.part == Hit::RESIZE_HANDLE))
   {
     ui::set_mouse_cursor(kSizeWECursor);
   }
@@ -969,12 +932,10 @@ void PaletteView::setStatusBar()
         destIndex -= picks;
 
       int palSize = currentPalette()->size();
-      int newPalSize = (m_copy ? MAX(palSize + picks, destIndex + picks)
-                               : MAX(palSize, destIndex + picks));
+      int newPalSize = (m_copy ? MAX(palSize + picks, destIndex + picks) : MAX(palSize, destIndex + picks));
 
-      StatusBar::instance()->setStatusText(0, "%s to %d - New Palette Size %d",
-                                           (m_copy ? "Copy" : "Move"),
-                                           destIndex, newPalSize);
+      StatusBar::instance()->setStatusText(0, "%s to %d - New Palette Size %d", (m_copy ? "Copy" : "Move"), destIndex,
+                                           newPalSize);
     }
     else
     {
@@ -983,12 +944,10 @@ void PaletteView::setStatusBar()
     break;
 
   case State::RESIZING_PALETTE:
-    if (m_hot.part == Hit::COLOR || m_hot.part == Hit::POSSIBLE_COLOR ||
-        m_hot.part == Hit::RESIZE_HANDLE)
+    if (m_hot.part == Hit::COLOR || m_hot.part == Hit::POSSIBLE_COLOR || m_hot.part == Hit::RESIZE_HANDLE)
     {
       int newPalSize = MAX(1, m_hot.color);
-      StatusBar::instance()->setStatusText(0, "New Palette Size %d",
-                                           newPalSize);
+      StatusBar::instance()->setStatusText(0, "New Palette Size %d", newPalSize);
     }
     else
     {
@@ -1014,9 +973,7 @@ int PaletteView::findExactIndex(const app::Color& color) const
   case Color::RgbType:
   case Color::HsvType:
   case Color::GrayType:
-    return currentPalette()->findExactMatch(color.getRed(), color.getGreen(),
-                                            color.getBlue(), color.getAlpha(),
-                                            -1);
+    return currentPalette()->findExactMatch(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(), -1);
 
   case Color::IndexType:
     return color.getIndex();
@@ -1026,8 +983,7 @@ int PaletteView::findExactIndex(const app::Color& color) const
   return -1;
 }
 
-void PaletteView::setNewPalette(const doc::Palette& oldPalette,
-                                const doc::Palette& newPalette,
+void PaletteView::setNewPalette(const doc::Palette& oldPalette, const doc::Palette& newPalette,
                                 PaletteViewModification mod)
 {
   // No differences
@@ -1044,17 +1000,12 @@ void PaletteView::setNewPalette(const doc::Palette& oldPalette,
   manager()->invalidate();
 }
 
-gfx::Color PaletteView::drawEntry(ui::Graphics* g, const gfx::Rect& box,
-                                  int palIdx)
+gfx::Color PaletteView::drawEntry(ui::Graphics* g, const gfx::Rect& box, int palIdx)
 {
-  doc::color_t palColor =
-      (palIdx < currentPalette()->size() ? currentPalette()->getEntry(palIdx)
-                                         : rgba(0, 0, 0, 255));
+  doc::color_t palColor = (palIdx < currentPalette()->size() ? currentPalette()->getEntry(palIdx) : rgba(0, 0, 0, 255));
   app::Color appColor =
-      app::Color::fromRgb(rgba_getr(palColor), rgba_getg(palColor),
-                          rgba_getb(palColor), rgba_geta(palColor));
-  gfx::Color gfxColor = gfx::rgba(rgba_getr(palColor), rgba_getg(palColor),
-                                  rgba_getb(palColor), rgba_geta(palColor));
+      app::Color::fromRgb(rgba_getr(palColor), rgba_getg(palColor), rgba_getb(palColor), rgba_geta(palColor));
+  gfx::Color gfxColor = gfx::rgba(rgba_getr(palColor), rgba_getg(palColor), rgba_getb(palColor), rgba_geta(palColor));
 
   g->drawRect(gfx::rgba(0, 0, 0), gfx::Rect(box).enlarge(guiscale()));
   draw_color(g, box, appColor, doc::ColorMode::RGB);

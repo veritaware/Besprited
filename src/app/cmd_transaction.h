@@ -17,19 +17,12 @@ namespace app
 class CmdTransaction : public CmdSequence
 {
 public:
-  CmdTransaction(const std::string& label, bool changeSavedState,
-                 int* savedCounter);
+  CmdTransaction(const std::string& label, bool changeSavedState, int* savedCounter);
 
   void commit();
 
-  doc::SpritePosition spritePositionBeforeExecute() const
-  {
-    return m_spritePositionBefore;
-  }
-  doc::SpritePosition spritePositionAfterExecute() const
-  {
-    return m_spritePositionAfter;
-  }
+  doc::SpritePosition spritePositionBeforeExecute() const { return m_spritePositionBefore; }
+  doc::SpritePosition spritePositionAfterExecute() const { return m_spritePositionAfter; }
 
 protected:
   void onExecute() override;

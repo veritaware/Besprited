@@ -89,8 +89,7 @@ ColorPopup::ColorPopup()
   m_vbox.addChild(&m_maskLabel);
   addChild(&m_vbox);
 
-  m_colorType.ItemChange.connect(
-      base::Bind<void>(&ColorPopup::onColorTypeClick, this));
+  m_colorType.ItemChange.connect(base::Bind<void>(&ColorPopup::onColorTypeClick, this));
 
   m_rgbSliders.ColorChange.connect(&ColorPopup::onColorSlidersChange, this);
   m_hsvSliders.ColorChange.connect(&ColorPopup::onColorSlidersChange, this);
@@ -100,8 +99,7 @@ ColorPopup::ColorPopup()
   selectColorType(app::Color::RgbType);
   setSizeHint(gfx::Size(300 * guiscale(), sizeHint().h));
 
-  m_onPaletteChangeConn = App::instance()->PaletteChange.connect(
-      &ColorPopup::onPaletteChange, this);
+  m_onPaletteChangeConn = App::instance()->PaletteChange.connect(&ColorPopup::onPaletteChange, this);
 
   initTheme();
 }
@@ -169,12 +167,11 @@ void ColorPopup::onColorTypeClick()
     newColor = app::Color::fromIndex(newColor.getIndex());
     break;
   case RGB_MODE:
-    newColor = app::Color::fromRgb(newColor.getRed(), newColor.getGreen(),
-                                   newColor.getBlue(), newColor.getAlpha());
+    newColor = app::Color::fromRgb(newColor.getRed(), newColor.getGreen(), newColor.getBlue(), newColor.getAlpha());
     break;
   case HSB_MODE:
-    newColor = app::Color::fromHsv(newColor.getHue(), newColor.getSaturation(),
-                                   newColor.getValue(), newColor.getAlpha());
+    newColor =
+        app::Color::fromHsv(newColor.getHue(), newColor.getSaturation(), newColor.getValue(), newColor.getAlpha());
     break;
   case GRAY_MODE:
     newColor = app::Color::fromGray(newColor.getGray(), newColor.getAlpha());

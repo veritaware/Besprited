@@ -37,8 +37,7 @@ bool SearchEntry::onProcessMessage(ui::Message* msg)
   case kMouseDownMessage:
   {
     Rect closeBounds = getCloseIconBounds();
-    Point mousePos =
-        static_cast<MouseMessage*>(msg)->position() - bounds().origin();
+    Point mousePos = static_cast<MouseMessage*>(msg)->position() - bounds().origin();
 
     if (closeBounds.contains(mousePos))
     {
@@ -59,17 +58,15 @@ void SearchEntry::onPaint(ui::PaintEvent& ev)
 
   auto icon = theme->parts.iconSearch()->bitmap(0);
   Rect bounds = clientBounds();
-  ev.graphics()->drawColoredRgbaSurface(
-      icon, theme->colors.text(), bounds.x + border().left(),
-      bounds.y + bounds.h / 2 - icon->height() / 2);
+  ev.graphics()->drawColoredRgbaSurface(icon, theme->colors.text(), bounds.x + border().left(),
+                                        bounds.y + bounds.h / 2 - icon->height() / 2);
 
   if (!text().empty())
   {
     icon = theme->parts.iconClose()->bitmap(0);
-    ev.graphics()->drawColoredRgbaSurface(
-        icon, theme->colors.text(),
-        bounds.x + bounds.w - border().right() - childSpacing() - icon->width(),
-        bounds.y + bounds.h / 2 - icon->height() / 2);
+    ev.graphics()->drawColoredRgbaSurface(icon, theme->colors.text(),
+                                          bounds.x + bounds.w - border().right() - childSpacing() - icon->width(),
+                                          bounds.y + bounds.h / 2 - icon->height() / 2);
   }
 }
 

@@ -25,9 +25,7 @@ class CommandExecutionEvent;
 // toolbar (app/ui/ani_controls.cpp) - moved here from Editor since it's
 // playback UI, not editor-state machinery, and PlayState already owns the
 // rest of the playback logic (see issue #225).
-void show_animation_speed_multiplier_popup(Editor* editor,
-                                           Option<bool>& playOnce,
-                                           bool withStopBehaviorOptions);
+void show_animation_speed_multiplier_popup(Editor* editor, Option<bool>& playOnce, bool withStopBehaviorOptions);
 
 class PlayState : public StateWithWheelBehavior
 {

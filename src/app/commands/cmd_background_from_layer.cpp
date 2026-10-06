@@ -38,10 +38,8 @@ BackgroundFromLayerCommand::BackgroundFromLayerCommand()
 
 bool BackgroundFromLayerCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::ActiveLayerIsVisible |
-                             ContextFlags::ActiveLayerIsEditable |
-                             ContextFlags::ActiveLayerIsImage) &&
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsVisible |
+                             ContextFlags::ActiveLayerIsEditable | ContextFlags::ActiveLayerIsImage) &&
          // Doesn't have a background layer
          !context->checkFlags(ContextFlags::HasBackgroundLayer);
 }
@@ -53,8 +51,7 @@ void BackgroundFromLayerCommand::onExecute(Context* context)
 
   {
     Transaction transaction(writer.context(), "Background from Layer");
-    document->getApi(transaction)
-        .backgroundFromLayer(static_cast<LayerImage*>(writer.layer()));
+    document->getApi(transaction).backgroundFromLayer(static_cast<LayerImage*>(writer.layer()));
     transaction.commit();
   }
 

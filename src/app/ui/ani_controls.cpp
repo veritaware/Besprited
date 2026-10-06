@@ -91,9 +91,7 @@ AniControls::AniControls()
 void AniControls::updateUsingEditor(Editor* editor)
 {
   SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
-  getItem(ACTION_PLAY)
-      ->setIcon((editor && editor->isPlaying() ? theme->parts.aniStop()
-                                               : theme->parts.aniPlay()));
+  getItem(ACTION_PLAY)->setIcon((editor && editor->isPlaying() ? theme->parts.aniStop() : theme->parts.aniPlay()));
 }
 
 void AniControls::onClickButton()
@@ -101,8 +99,7 @@ void AniControls::onClickButton()
   int item = selectedItem();
   deselectItems();
 
-  Command* cmd =
-      CommandsModule::instance()->getCommandByName(getCommandId(item));
+  Command* cmd = CommandsModule::instance()->getCommandByName(getCommandId(item));
   if (cmd)
   {
     UIContext::instance()->executeCommand(cmd);
@@ -115,8 +112,7 @@ void AniControls::onRightClick(Item* item)
   ButtonSet::onRightClick(item);
 
   if (item == getItem(ACTION_PLAY) && current_editor)
-    current_editor->showAnimationSpeedMultiplierPopup(
-        Preferences::instance().editor.playOnce, true);
+    current_editor->showAnimationSpeedMultiplierPopup(Preferences::instance().editor.playOnce, true);
 }
 
 const char* AniControls::getCommandId(int index) const
@@ -142,8 +138,7 @@ std::string AniControls::getTooltipFor(int index) const
 {
   std::string tooltip;
 
-  Command* cmd =
-      CommandsModule::instance()->getCommandByName(getCommandId(index));
+  Command* cmd = CommandsModule::instance()->getCommandByName(getCommandId(index));
   if (cmd)
   {
     tooltip = cmd->friendlyName();

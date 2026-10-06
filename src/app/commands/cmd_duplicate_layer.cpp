@@ -43,8 +43,7 @@ DuplicateLayerCommand::DuplicateLayerCommand()
 
 bool DuplicateLayerCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveLayer |
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveLayer |
                              ContextFlags::ActiveLayerIsImage);
 }
 

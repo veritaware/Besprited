@@ -38,8 +38,7 @@ public:
 class ButtonBase : public Widget
 {
 public:
-  ButtonBase(const std::string& text, WidgetType type, WidgetType behaviorType,
-             WidgetType drawType);
+  ButtonBase(const std::string& text, WidgetType type, WidgetType behaviorType, WidgetType drawType);
   ~ButtonBase() override;
 
   WidgetType behaviorType() const;
@@ -94,8 +93,7 @@ public:
 class RadioButton : public ButtonBase
 {
 public:
-  RadioButton(const std::string& text, int radioGroup,
-              WidgetType drawType = kRadioWidget);
+  RadioButton(const std::string& text, int radioGroup, WidgetType drawType = kRadioWidget);
 
   int getRadioGroup() const;
   void setRadioGroup(int radioGroup);

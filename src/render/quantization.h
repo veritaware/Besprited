@@ -40,8 +40,7 @@ class PaletteOptimizer
 public:
   void feedWithImage(Image* image, bool withAlpha);
   void feedWithRgbaColor(color_t color);
-  void calculate(Palette& palette, int maskIndex,
-                 PaletteOptimizerDelegate* delegate);
+  void calculate(Palette& palette, int maskIndex, PaletteOptimizerDelegate* delegate);
 
 private:
   ColorHistogram<5, 6, 5, 5> m_histogram;
@@ -49,18 +48,16 @@ private:
 
 // Creates a new palette suitable to quantize the given RGB sprite to Indexed
 // color.
-std::shared_ptr<Palette> create_palette_from_sprite(
-    const Sprite* sprite, frame_t fromFrame, frame_t toFrame, bool withAlpha,
-    Palette* newPalette, // Can be NULL to create a new palette
-    PaletteOptimizerDelegate* delegate);
+std::shared_ptr<Palette> create_palette_from_sprite(const Sprite* sprite, frame_t fromFrame, frame_t toFrame,
+                                                    bool withAlpha,
+                                                    Palette* newPalette, // Can be NULL to create a new palette
+                                                    PaletteOptimizerDelegate* delegate);
 
 // Changes the image pixel format. The dithering method is used only
 // when you want to convert from RGB to Indexed.
 Image* convert_pixel_format(const Image* src,
                             Image* dst, // Can be NULL to create a new image
-                            PixelFormat pixelFormat,
-                            DitheringMethod ditheringMethod,
-                            const RgbMap* rgbmap, const Palette* palette,
-                            bool is_background, color_t new_mask_color);
+                            PixelFormat pixelFormat, DitheringMethod ditheringMethod, const RgbMap* rgbmap,
+                            const Palette* palette, bool is_background, color_t new_mask_color);
 
 } // namespace render

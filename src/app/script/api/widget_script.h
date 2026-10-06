@@ -65,8 +65,7 @@ protected:
 template <typename T> void addWidgetId(Extension::ExportableClass& cls)
 {
   cls.addGetter("id") = [](T& self) -> JSON::Value { return self.id(); };
-  cls.addSetter("id") = [](T& self, JSON::Value& v)
-  { self.setId(v.toString()); };
+  cls.addSetter("id") = [](T& self, JSON::Value& v) { self.setId(v.toString()); };
 }
 
 // A text label (ui::Label). Created with empty text; the text is set via the
@@ -280,8 +279,7 @@ public:
     return obj;
   }
 
-  std::shared_ptr<LabelObject> addLabel(const std::string& text,
-                                        const std::string& id)
+  std::shared_ptr<LabelObject> addLabel(const std::string& text, const std::string& id)
   {
     auto obj = addWidget<LabelObject>(id);
     if (obj)
@@ -289,8 +287,7 @@ public:
     return obj;
   }
 
-  std::shared_ptr<ButtonObject> addButton(const std::string& text,
-                                          const std::string& id)
+  std::shared_ptr<ButtonObject> addButton(const std::string& text, const std::string& id)
   {
     auto obj = addWidget<ButtonObject>(id);
     if (obj)
@@ -300,8 +297,7 @@ public:
 
   // addEntry(text, id): if text is non-empty, also add a label (id + "-label")
   // with that text, then add the entry (id). Matches the old Aseprite API.
-  std::shared_ptr<EntryObject> addEntry(const std::string& text,
-                                        const std::string& id)
+  std::shared_ptr<EntryObject> addEntry(const std::string& text, const std::string& id)
   {
     if (!text.empty())
       addLabel(text, id + "-label");
@@ -311,8 +307,7 @@ public:
   // addIntEntry(text, id, min, max): add a label (id + "-label") with text,
   // then an int entry (id) with the given min/max. Matches the old Aseprite
   // API.
-  std::shared_ptr<IntEntryObject>
-  addIntEntry(const std::string& text, const std::string& id, int min, int max)
+  std::shared_ptr<IntEntryObject> addIntEntry(const std::string& text, const std::string& id, int min, int max)
   {
     if (!text.empty())
       addLabel(text, id + "-label");
@@ -332,10 +327,7 @@ public:
       m_dialog->addBreak();
   }
 
-  std::shared_ptr<ImageViewObject> addImageView(const std::string& id)
-  {
-    return addWidget<ImageViewObject>(id);
-  }
+  std::shared_ptr<ImageViewObject> addImageView(const std::string& id) { return addWidget<ImageViewObject>(id); }
 
   std::shared_ptr<PaletteListBoxObject> addPaletteListBox(const std::string& id)
   {
@@ -377,7 +369,6 @@ inline JSON::Value widgetToNative(std::shared_ptr<WidgetObject> base)
   if (auto* imageView = dynamic_cast<ImageViewObject*>(base.get()))
     return JSON::makeNative(std::shared_ptr<ImageViewObject>(base, imageView));
   if (auto* paletteListBox = dynamic_cast<PaletteListBoxObject*>(base.get()))
-    return JSON::makeNative(
-        std::shared_ptr<PaletteListBoxObject>(base, paletteListBox));
+    return JSON::makeNative(std::shared_ptr<PaletteListBoxObject>(base, paletteListBox));
   return JSON::Value{JSON::Special::Null};
 }

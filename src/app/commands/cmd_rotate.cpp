@@ -48,8 +48,7 @@ class RotateJob : public Job
   bool m_rotateSprite;
 
 public:
-  RotateJob(const ContextReader& reader, int angle, CelList cels,
-            bool rotateSprite)
+  RotateJob(const ContextReader& reader, int angle, CelList cels, bool rotateSprite)
     : Job("Rotate Canvas")
     , m_writer(reader)
     , m_document(m_writer.document())
@@ -77,18 +76,14 @@ protected:
       switch (m_angle)
       {
       case 180:
-        api.setCelPosition(m_sprite, cel,
-                           m_sprite->width() - cel->x() - image->width(),
+        api.setCelPosition(m_sprite, cel, m_sprite->width() - cel->x() - image->width(),
                            m_sprite->height() - cel->y() - image->height());
         break;
       case 90:
-        api.setCelPosition(m_sprite, cel,
-                           m_sprite->height() - cel->y() - image->height(),
-                           cel->x());
+        api.setCelPosition(m_sprite, cel, m_sprite->height() - cel->y() - image->height(), cel->x());
         break;
       case -90:
-        api.setCelPosition(m_sprite, cel, cel->y(),
-                           m_sprite->width() - cel->x() - image->width());
+        api.setCelPosition(m_sprite, cel, cel->y(), m_sprite->width() - cel->x() - image->width());
         break;
       default:
         break;
@@ -102,10 +97,8 @@ protected:
       Image* image = cel->image();
       if (image)
       {
-        ImageRef new_image(
-            Image::create(image->pixelFormat(),
-                          m_angle == 180 ? image->width() : image->height(),
-                          m_angle == 180 ? image->height() : image->width()));
+        ImageRef new_image(Image::create(image->pixelFormat(), m_angle == 180 ? image->width() : image->height(),
+                                         m_angle == 180 ? image->height() : image->width()));
         new_image->setMaskColor(image->maskColor());
 
         doc::rotate_image(image, new_image.get(), m_angle);
@@ -146,8 +139,7 @@ protected:
 
       // create the new rotated mask
       new_mask->replace(
-          gfx::Rect(x, y, m_angle == 180 ? origBounds.w : origBounds.h,
-                    m_angle == 180 ? origBounds.h : origBounds.w));
+          gfx::Rect(x, y, m_angle == 180 ? origBounds.w : origBounds.h, m_angle == 180 ? origBounds.h : origBounds.w));
       doc::rotate_image(origMask->bitmap(), new_mask->bitmap(), m_angle);
 
       // Copy new mask
@@ -187,8 +179,7 @@ void RotateCommand::onLoadParams(const Params& params)
 
 bool RotateCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void RotateCommand::onExecute(Context* context)
@@ -211,12 +202,10 @@ void RotateCommand::onExecute(Context* context)
         if (static_cast<app::Document*>(site.document())->isMaskVisible())
         {
           // Select marquee tool
-          if (tools::Tool* tool = App::instance()->toolBox()->getToolById(
-                  tools::WellKnownTools::RectangularMarquee))
+          if (tools::Tool* tool = App::instance()->toolBox()->getToolById(tools::WellKnownTools::RectangularMarquee))
           {
             ToolBar::instance()->selectTool(tool);
-            current_editor->startSelectionTransformation(gfx::Point(0, 0),
-                                                         m_angle);
+            current_editor->startSelectionTransformation(gfx::Point(0, 0), m_angle);
             return;
           }
         }

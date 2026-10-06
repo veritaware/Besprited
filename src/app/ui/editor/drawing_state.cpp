@@ -60,29 +60,24 @@ void DrawingState::initToolLoop(Editor* editor, MouseMessage* msg)
 
   // Prepare preview image (the destination image will be our preview
   // in the tool-loop time, so we can see what we are drawing)
-  editor->renderEngine().setPreviewImage(
-      m_toolLoop->getLayer(), m_toolLoop->getFrame(), m_toolLoop->getDstImage(),
-      m_toolLoop->getCelOrigin(),
-      (m_toolLoop->getLayer() && m_toolLoop->getLayer()->isImage()
-           ? static_cast<LayerImage*>(m_toolLoop->getLayer())->blendMode()
-           : BlendMode::NEG_BW));
+  editor->renderEngine().setPreviewImage(m_toolLoop->getLayer(), m_toolLoop->getFrame(), m_toolLoop->getDstImage(),
+                                         m_toolLoop->getCelOrigin(),
+                                         (m_toolLoop->getLayer() && m_toolLoop->getLayer()->isImage()
+                                              ? static_cast<LayerImage*>(m_toolLoop->getLayer())->blendMode()
+                                              : BlendMode::NEG_BW));
 
   m_lastPoint = editor->lastDrawingPosition();
 
   tools::Pointer pointer;
   bool movement = false;
 
-  if (m_toolLoop->getController()->isFreehand() &&
-      m_toolLoop->getInk()->isPaint() &&
-      (editor->getCustomizationDelegate()->getPressedKeyAction(
-           KeyContext::FreehandTool) &
-       KeyAction::StraightLineFromLastPoint) ==
-          KeyAction::StraightLineFromLastPoint &&
+  if (m_toolLoop->getController()->isFreehand() && m_toolLoop->getInk()->isPaint() &&
+      (editor->getCustomizationDelegate()->getPressedKeyAction(KeyContext::FreehandTool) &
+       KeyAction::StraightLineFromLastPoint) == KeyAction::StraightLineFromLastPoint &&
       m_lastPoint.x >= 0)
   {
-    pointer = tools::Pointer(
-        m_lastPoint, button_from_msg(msg),
-        msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
+    pointer = tools::Pointer(m_lastPoint, button_from_msg(msg),
+                             msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
     movement = true;
   }
   else
@@ -132,8 +127,7 @@ bool DrawingState::onMouseUp(Editor* editor, MouseMessage* msg)
   // Selection tools are cancelled with a simple click (only "one
   // point" controller selection tools aren't cancelled with one click,
   // i.e. the magic wand).
-  if (!m_toolLoop->getInk()->isSelection() ||
-      m_toolLoop->getController()->isOnePoint() || m_mouseMoveReceived)
+  if (!m_toolLoop->getInk()->isSelection() || m_toolLoop->getController()->isOnePoint() || m_mouseMoveReceived)
   {
     // Notify the release of the mouse button to the tool loop
     // manager. This is the correct way to say "the user finishes the
@@ -167,9 +161,8 @@ bool DrawingState::onMouseMove(Editor* editor, MouseMessage* msg)
 
   // Infinite scroll
   gfx::Point mousePos = editor->autoScroll(msg, AutoScroll::MouseDir);
-  tools::Pointer pointer(
-      editor->screenToEditor(mousePos), button_from_msg(msg),
-      msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
+  tools::Pointer pointer(editor->screenToEditor(mousePos), button_from_msg(msg),
+                         msg->pointerType() == she::PointerType::Pen ? msg->pressure() : 1.0f);
 
   // Notify mouse movement to the tool
   ASSERT(m_toolLoopManager != nullptr);
@@ -198,8 +191,7 @@ bool DrawingState::onKeyDown(Editor* editor, KeyMessage* msg)
 {
   Command* command = nullptr;
   Params params;
-  if (KeyboardShortcuts::instance()->getCommandFromKeyMessage(msg, &command,
-                                                              &params))
+  if (KeyboardShortcuts::instance()->getCommandFromKeyMessage(msg, &command, &params))
   {
     // We accept zoom commands.
     if (command->id() == CommandId::Zoom)

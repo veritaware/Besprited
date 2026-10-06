@@ -32,8 +32,8 @@ void consolePrint(const std::string& text)
 {
   static app::Console console;
   console.printf("%s\n", text.c_str());
-  if (app::App::instance() && app::App::instance()->isGui() &&
-      ui::Manager::getDefault() && ui::Manager::getDefault()->getDisplay())
+  if (app::App::instance() && app::App::instance()->isGui() && ui::Manager::getDefault() &&
+      ui::Manager::getDefault()->getDisplay())
   {
     std::cout << text << '\n';
   }
@@ -90,8 +90,7 @@ public:
       consolePrint(joinArgs(args));
       return {};
     };
-    addFunction("__consoleAssert") = [](JSON::Value& cond,
-                                        JSON::Value& msg) -> JSON::Value
+    addFunction("__consoleAssert") = [](JSON::Value& cond, JSON::Value& msg) -> JSON::Value
     {
       if (!static_cast<bool>(cond))
         consolePrint(msg.isUndefined() ? std::string{} : msg.string());

@@ -36,8 +36,7 @@ namespace app
 //       commit(getValue());
 //     }
 //   };
-template <class WidgetBase, class T, app::Option<T> ToolPreferences::*Member>
-class ToolPrefField : public WidgetBase
+template <class WidgetBase, class T, app::Option<T> ToolPreferences::* Member> class ToolPrefField : public WidgetBase
 {
 protected:
   using WidgetBase::WidgetBase;

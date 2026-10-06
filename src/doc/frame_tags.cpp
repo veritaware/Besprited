@@ -82,8 +82,7 @@ FrameTag* FrameTags::innerTag(frame_t frame) const
   {
     if (frame >= tag->fromFrame() && frame <= tag->toFrame())
     {
-      if (!found || (tag->toFrame() - tag->fromFrame()) <
-                        (found->toFrame() - found->fromFrame()))
+      if (!found || (tag->toFrame() - tag->fromFrame()) < (found->toFrame() - found->fromFrame()))
       {
         found = tag;
       }
@@ -99,8 +98,7 @@ FrameTag* FrameTags::outerTag(frame_t frame) const
   {
     if (frame >= tag->fromFrame() && frame <= tag->toFrame())
     {
-      if (!found || (tag->toFrame() - tag->fromFrame()) >
-                        (found->toFrame() - found->fromFrame()))
+      if (!found || (tag->toFrame() - tag->fromFrame()) > (found->toFrame() - found->fromFrame()))
       {
         found = tag;
       }

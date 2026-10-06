@@ -69,9 +69,7 @@ Remap create_remap_to_move_picks(const PalettePicks& picks, int beforeIndex);
 
 Remap create_remap_to_expand_palette(int size, int count, int beforeIndex);
 
-Remap create_remap_to_change_palette(const Palette* oldPalette,
-                                     const Palette* newPalette,
-                                     const int oldMaskIndex,
+Remap create_remap_to_change_palette(const Palette* oldPalette, const Palette* newPalette, const int oldMaskIndex,
                                      const bool remapMaskIndex);
 
 } // namespace doc

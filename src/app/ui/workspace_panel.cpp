@@ -118,8 +118,7 @@ void WorkspacePanel::removeView(WorkspaceView* view)
 
     Widget* parent = splitter->parent();
 
-    Widget* side = (splitter->firstChild() == self ? splitter->lastChild()
-                                                   : splitter->firstChild());
+    Widget* side = (splitter->firstChild() == self ? splitter->lastChild() : splitter->firstChild());
 
     splitter->removeChild(side);
     parent->replaceChild(splitter, side);
@@ -174,10 +173,8 @@ void WorkspacePanel::adjustActiveViewBounds()
 
     rc.x += int(inbetween(0.0, threshold, left));
     rc.y += int(inbetween(0.0, threshold, top));
-    rc.w -=
-        int(inbetween(0.0, threshold, left) + inbetween(0.0, threshold, right));
-    rc.h -=
-        int(inbetween(0.0, threshold, top) + inbetween(0.0, threshold, bottom));
+    rc.w -= int(inbetween(0.0, threshold, left) + inbetween(0.0, threshold, right));
+    rc.h -= int(inbetween(0.0, threshold, top) + inbetween(0.0, threshold, bottom));
   }
 
   for (auto child : children())
@@ -185,8 +182,7 @@ void WorkspacePanel::adjustActiveViewBounds()
       child->setBounds(rc);
 }
 
-void WorkspacePanel::setDropViewPreview(const gfx::Point& pos,
-                                        WorkspaceView* view)
+void WorkspacePanel::setDropViewPreview(const gfx::Point& pos, WorkspaceView* view)
 {
   int newDropArea = calculateDropArea(pos);
   if (newDropArea != m_dropArea)
@@ -234,9 +230,8 @@ void WorkspacePanel::adjustTime(int& time, int flag)
     --time;
 }
 
-DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& pos,
-                                            WorkspacePanel* from,
-                                            WorkspaceView* view, bool clone)
+DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& pos, WorkspacePanel* from, WorkspaceView* view,
+                                            bool clone)
 {
   int dropArea = calculateDropArea(pos);
   if (!dropArea)
@@ -354,8 +349,7 @@ int WorkspacePanel::calculateDropArea(const gfx::Point& pos) const
     {
       return RIGHT;
     }
-    else if (bottom < threshold && bottom < left && bottom < top &&
-             bottom < right)
+    else if (bottom < threshold && bottom < left && bottom < top && bottom < right)
     {
       return BOTTOM;
     }

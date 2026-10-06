@@ -31,13 +31,11 @@ public:
   CommandExtension()
   {
     auto& cls = addClass<void, CommandObject>("Command");
-    cls.setConstructor() = []() -> std::shared_ptr<CommandObject>
-    { return std::make_shared<CommandObject>(); };
+    cls.setConstructor() = []() -> std::shared_ptr<CommandObject> { return std::make_shared<CommandObject>(); };
 
     // setParameter / clearParameters mutate the persistent bag and return
     // `this` (the same native object) so calls can be chained.
-    cls.addMethod("setParameter") = [](CommandObject& self,
-                                       const std::string& key,
+    cls.addMethod("setParameter") = [](CommandObject& self, const std::string& key,
                                        const std::string& value) -> JSON::Value
     {
       self.params.set(key.c_str(), value.c_str());
@@ -71,8 +69,7 @@ public:
       if (id == "CloseFile" || id == "CloseAllFiles" || id == "Exit")
         continue;
 
-      cls.addMethod(cmd->id()) = [cmd](CommandObject& self,
-                                       JSON::Value& mapArg) -> JSON::Value
+      cls.addMethod(cmd->id()) = [cmd](CommandObject& self, JSON::Value& mapArg) -> JSON::Value
       {
         app::UIContext* ctx = app::UIContext::instance();
         if (!ctx)
@@ -96,10 +93,7 @@ public:
     }
   }
 
-  std::string init(const std::string&, JSON::Value&) override
-  {
-    return "globalThis.command = new Command();";
-  }
+  std::string init(const std::string&, JSON::Value&) override { return "globalThis.command = new Command();"; }
 };
 
 static di::provide<Extension, CommandExtension> commandExt{"command"};

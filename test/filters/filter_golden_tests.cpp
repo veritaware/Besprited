@@ -47,7 +47,8 @@ namespace
 // app::FilterManagerImpl (which needs a real Context/Document/Transaction).
 // See the FilterManager interface comment in filters/filter_manager.h for
 // the exact per-call contract this implements.
-class TestFilterManager : public FilterManager, public FilterIndexedData
+class TestFilterManager : public FilterManager,
+                          public FilterIndexedData
 {
 public:
   TestFilterManager(Image* src, Image* dst, Target target,
@@ -129,9 +130,9 @@ std::unique_ptr<Image> makeSeededImage(PixelFormat format, int w, int h)
                        (x * 7 + y * 53) & 0xff, ((x + y) % 2) ? 255 : 200));
         break;
       case IMAGE_GRAYSCALE:
-        put_pixel(img.get(), x, y,
-                  graya((x * 23 + y * 17) & 0xff,
-                        ((x + y) % 3 == 0) ? 255 : 180));
+        put_pixel(
+            img.get(), x, y,
+            graya((x * 23 + y * 17) & 0xff, ((x + y) % 3 == 0) ? 255 : 180));
         break;
       case IMAGE_INDEXED:
         put_pixel(img.get(), x, y, (x * 3 + y * 5) & 0xff);
@@ -164,7 +165,7 @@ std::string sha1Hex(const void* data, std::size_t size)
   SHA1Context ctx;
   SHA1Reset(&ctx);
   SHA1Input(&ctx, static_cast<const uint8_t*>(data),
-           static_cast<unsigned int>(size));
+            static_cast<unsigned int>(size));
   uint8_t digest[SHA1HashSize];
   SHA1Result(&ctx, digest);
 

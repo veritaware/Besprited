@@ -49,8 +49,7 @@ private:
 };
 
 UndoCommand::UndoCommand(Type type)
-  : Command((type == Undo ? "Undo" : "Redo"), (type == Undo ? "Undo" : "Redo"),
-            CmdUIOnlyFlag)
+  : Command((type == Undo ? "Undo" : "Redo"), (type == Undo ? "Undo" : "Redo"), CmdUIOnlyFlag)
   , m_type(type)
 {
 }
@@ -60,8 +59,7 @@ bool UndoCommand::onEnabled(Context* context)
   ContextWriter writer(context);
   Document* document(writer.document());
   return document != nullptr &&
-         ((m_type == Undo ? document->undoHistory()->canUndo()
-                          : document->undoHistory()->canRedo()));
+         ((m_type == Undo ? document->undoHistory()->canUndo() : document->undoHistory()->canRedo()));
 }
 
 void UndoCommand::onExecute(Context* context)
@@ -75,8 +73,7 @@ void UndoCommand::onExecute(Context* context)
 
   if (gotoModified)
   {
-    SpritePosition currentPosition(writer.site()->layerIndex(),
-                                   writer.site()->frame());
+    SpritePosition currentPosition(writer.site()->layerIndex(), writer.site()->frame());
 
     if (m_type == Undo)
       spritePosition = undo->nextUndoSpritePosition();
@@ -85,14 +82,12 @@ void UndoCommand::onExecute(Context* context)
 
     if (spritePosition != currentPosition)
     {
-      current_editor->setLayer(
-          sprite->indexToLayer(spritePosition.layerIndex()));
+      current_editor->setLayer(sprite->indexToLayer(spritePosition.layerIndex()));
       current_editor->setFrame(spritePosition.frame());
 
       // Draw the current layer/frame (which is not undone yet) so the
       // user can see the doUndo/doRedo effect.
-      current_editor->drawSpriteClipped(
-          gfx::Region(gfx::Rect(0, 0, sprite->width(), sprite->height())));
+      current_editor->drawSpriteClipped(gfx::Region(gfx::Rect(0, 0, sprite->width(), sprite->height())));
 
       current_editor->manager()->requestRedraw();
       base::this_thread::sleep_for(0.01);
@@ -102,8 +97,7 @@ void UndoCommand::onExecute(Context* context)
   StatusBar* statusbar = StatusBar::instance();
   if (statusbar)
     statusbar->showTip(1000, "%s %s", (m_type == Undo ? "Undid" : "Redid"),
-                       (m_type == Undo ? undo->nextUndoLabel().c_str()
-                                       : undo->nextRedoLabel().c_str()));
+                       (m_type == Undo ? undo->nextUndoLabel().c_str() : undo->nextRedoLabel().c_str()));
 
   // Effectively undo/redo.
   if (m_type == Undo)
@@ -116,13 +110,11 @@ void UndoCommand::onExecute(Context* context)
   // weren't able to reach before the undo).
   if (gotoModified)
   {
-    SpritePosition currentPosition(writer.site()->layerIndex(),
-                                   writer.site()->frame());
+    SpritePosition currentPosition(writer.site()->layerIndex(), writer.site()->frame());
 
     if (spritePosition != currentPosition)
     {
-      current_editor->setLayer(
-          sprite->indexToLayer(spritePosition.layerIndex()));
+      current_editor->setLayer(sprite->indexToLayer(spritePosition.layerIndex()));
       current_editor->setFrame(spritePosition.frame());
     }
   }

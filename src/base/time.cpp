@@ -37,8 +37,7 @@ Time current_time()
 
   std::time_t now = std::time(nullptr);
   std::tm* t = std::localtime(&now);
-  return {t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-          t->tm_hour,        t->tm_min,     t->tm_sec};
+  return {t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec};
 
 #endif
 }
@@ -52,8 +51,7 @@ tick_t current_tick()
   static mach_timebase_info_data_t timebase = {0, 0};
   if (timebase.denom == 0)
     (void)mach_timebase_info(&timebase);
-  return tick_t(double(mach_absolute_time()) * double(timebase.numer) /
-                double(timebase.denom) / 1.0e6);
+  return tick_t(double(mach_absolute_time()) * double(timebase.numer) / double(timebase.denom) / 1.0e6);
 #else
   // TODO use clock_gettime(CLOCK_MONOTONIC, &now); if it's possible
   struct timeval now;

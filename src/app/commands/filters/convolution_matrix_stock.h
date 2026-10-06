@@ -25,8 +25,7 @@ class ConvolutionMatrixStock
 {
 public:
   typedef std::vector<base::SharedPtr<ConvolutionMatrix>>::iterator iterator;
-  typedef std::vector<base::SharedPtr<ConvolutionMatrix>>::const_iterator
-      const_iterator;
+  typedef std::vector<base::SharedPtr<ConvolutionMatrix>>::const_iterator const_iterator;
 
   ConvolutionMatrixStock();
   virtual ~ConvolutionMatrixStock();

@@ -25,8 +25,7 @@ enum class InkType : std::uint8_t
 
 inline bool inkHasOpacity(InkType inkType)
 {
-  return (inkType == InkType::ALPHA_COMPOSITING ||
-          inkType == InkType::LOCK_ALPHA);
+  return (inkType == InkType::ALPHA_COMPOSITING || inkType == InkType::LOCK_ALPHA);
 }
 
 std::string ink_type_to_string(InkType inkType);

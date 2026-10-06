@@ -29,23 +29,12 @@ Message::Message(MessageType type, KeyModifiers modifiers)
     // Get modifiers from the deprecated API
     // TODO remove this
     m_modifiers =
-        (KeyModifiers)((she::is_key_pressed(kKeyLShift) ||
-                                she::is_key_pressed(kKeyRShift)
-                            ? kKeyShiftModifier
-                            : 0) |
-                       (she::is_key_pressed(kKeyLControl) ||
-                                she::is_key_pressed(kKeyRControl)
-                            ? kKeyCtrlModifier
-                            : 0) |
+        (KeyModifiers)((she::is_key_pressed(kKeyLShift) || she::is_key_pressed(kKeyRShift) ? kKeyShiftModifier : 0) |
+                       (she::is_key_pressed(kKeyLControl) || she::is_key_pressed(kKeyRControl) ? kKeyCtrlModifier : 0) |
                        (she::is_key_pressed(kKeyAlt) ? kKeyAltModifier : 0) |
-                       (she::is_key_pressed(kKeyCommand) ? kKeyCmdModifier
-                                                         : 0) |
-                       (she::is_key_pressed(kKeySpace) ? kKeySpaceModifier
-                                                       : 0) |
-                       (she::is_key_pressed(kKeyLWin) ||
-                                she::is_key_pressed(kKeyRWin)
-                            ? kKeyWinModifier
-                            : 0));
+                       (she::is_key_pressed(kKeyCommand) ? kKeyCmdModifier : 0) |
+                       (she::is_key_pressed(kKeySpace) ? kKeySpaceModifier : 0) |
+                       (she::is_key_pressed(kKeyLWin) || she::is_key_pressed(kKeyRWin) ? kKeyWinModifier : 0));
   }
   else
   {
@@ -71,9 +60,7 @@ void Message::prependRecipient(Widget* widget)
 
 void Message::removeRecipient(Widget* widget)
 {
-  for (WidgetsList::iterator it = m_recipients.begin(),
-                             end = m_recipients.end();
-       it != end; ++it)
+  for (WidgetsList::iterator it = m_recipients.begin(), end = m_recipients.end(); it != end; ++it)
   {
     if (*it == widget)
       *it = nullptr;
@@ -91,8 +78,7 @@ void Message::broadcastToChildren(Widget* widget)
   addRecipient(widget);
 }
 
-KeyMessage::KeyMessage(MessageType type, KeyScancode scancode,
-                       KeyModifiers modifiers, int unicodeChar, int repeat)
+KeyMessage::KeyMessage(MessageType type, KeyScancode scancode, KeyModifiers modifiers, int unicodeChar, int repeat)
   : Message(type, modifiers)
   , m_scancode(scancode)
   , m_unicodeChar(unicodeChar)

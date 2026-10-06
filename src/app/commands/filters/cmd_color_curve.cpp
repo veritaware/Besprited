@@ -34,8 +34,7 @@ class ColorCurveWindow : public FilterWindow
 {
 public:
   ColorCurveWindow(ColorCurveFilter& filter, FilterManagerImpl& filterMgr)
-    : FilterWindow("Color Curve", "ColorCurve", &filterMgr,
-                   WithChannelsSelector, WithoutTiledCheckBox)
+    : FilterWindow("Color Curve", "ColorCurve", &filterMgr, WithChannelsSelector, WithoutTiledCheckBox)
     , m_filter(filter)
     , m_editor(filter.getCurve(), gfx::Rect(0, 0, 256, 256))
     , m_resetButton("&Reset")
@@ -64,10 +63,7 @@ protected:
     restartPreview();
   }
 
-  void onReset(ui::Event& ev)
-  {
-    m_editor.resetToDefault();
-  }
+  void onReset(ui::Event& ev) { m_editor.resetToDefault(); }
 
 private:
   ColorCurveFilter& m_filter;
@@ -93,8 +89,7 @@ ColorCurveCommand::ColorCurveCommand()
 
 bool ColorCurveCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void ColorCurveCommand::onExecute(Context* context)
@@ -108,8 +103,7 @@ void ColorCurveCommand::onExecute(Context* context)
   filter.setCurve(&curve);
 
   FilterManagerImpl filterMgr(context, &filter);
-  filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL |
-                      TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL |
+  filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL | TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL |
                       TARGET_ALPHA_CHANNEL);
 
   ColorCurveWindow window(filter, filterMgr);

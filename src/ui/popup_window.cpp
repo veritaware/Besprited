@@ -21,8 +21,7 @@ namespace ui
 
 using namespace gfx;
 
-PopupWindow::PopupWindow(const std::string& text, ClickBehavior clickBehavior,
-                         EnterBehavior enterBehavior)
+PopupWindow::PopupWindow(const std::string& text, ClickBehavior clickBehavior, EnterBehavior enterBehavior)
   : Window(text.empty() ? WithoutTitleBar : WithTitleBar, text)
   , m_clickBehavior(clickBehavior)
   , m_enterBehavior(enterBehavior)
@@ -106,8 +105,7 @@ bool PopupWindow::onProcessMessage(Message* msg)
       if (scancode == kKeyEsc)
         closeWindow(nullptr);
 
-      if (m_enterBehavior == EnterBehavior::CloseOnEnter &&
-          (scancode == kKeyEnter || scancode == kKeyEnterPad))
+      if (m_enterBehavior == EnterBehavior::CloseOnEnter && (scancode == kKeyEnter || scancode == kKeyEnterPad))
       {
         closeWindow(this);
         return true;
@@ -146,8 +144,7 @@ bool PopupWindow::onProcessMessage(Message* msg)
     break;
 
   case kMouseMoveMessage:
-    if (!isMoveable() && !m_hotRegion.isEmpty() &&
-        manager()->getCapture() == nullptr)
+    if (!isMoveable() && !m_hotRegion.isEmpty() && manager()->getCapture() == nullptr)
     {
       gfx::Point mousePos = static_cast<MouseMessage*>(msg)->position();
 
@@ -212,8 +209,8 @@ void PopupWindow::onHitTest(HitTestEvent& ev)
   if (picked)
   {
     WidgetType type = picked->type();
-    if ((type == kWindowWidget && picked == this) || type == kBoxWidget ||
-        type == kLabelWidget || type == kGridWidget || type == kSeparatorWidget)
+    if ((type == kWindowWidget && picked == this) || type == kBoxWidget || type == kLabelWidget ||
+        type == kGridWidget || type == kSeparatorWidget)
     {
       ev.setHit(HitTestCaption);
       return;

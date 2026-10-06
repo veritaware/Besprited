@@ -27,15 +27,13 @@ public:
     auto& cls = addClass<void, ImageViewObject>("ImageView");
     // The image view is created by DialogObject::addImageView() (C++), not
     // `new ImageView()` in JS, but delta requires a non-null constructor.
-    cls.setConstructor() = []() -> std::shared_ptr<ImageViewObject>
-    { return std::make_shared<ImageViewObject>(); };
+    cls.setConstructor() = []() -> std::shared_ptr<ImageViewObject> { return std::make_shared<ImageViewObject>(); };
 
     addWidgetId<ImageViewObject>(cls);
 
     // putImageData(data, width, height) -> copy RGBA pixel data into the view.
     // data is a Uint8Array (JSON ByteArray) of width*height*4 bytes.
-    cls.addMethod("putImageData") = [](ImageViewObject& self, JSON::Value& data,
-                                       double width,
+    cls.addMethod("putImageData") = [](ImageViewObject& self, JSON::Value& data, double width,
                                        double height) -> JSON::Value
     {
       const int w = static_cast<int>(width);
@@ -46,8 +44,8 @@ public:
       auto& bytes = data.byteArray();
       if (bytes.size() != static_cast<std::size_t>(w) * h * 4)
       {
-        std::cout << "Error: data size " << bytes.size() << " does not match "
-                  << w << " * " << h << " * 4 (" << (w * h * 4) << ")." << '\n';
+        std::cout << "Error: data size " << bytes.size() << " does not match " << w << " * " << h << " * 4 ("
+                  << (w * h * 4) << ")." << '\n';
         return JSON::Value{JSON::Special::Null};
       }
       auto* surface = view->getSurface();

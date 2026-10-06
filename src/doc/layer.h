@@ -79,10 +79,7 @@ public:
 
   LayerFlags flags() const { return m_flags; }
 
-  bool hasFlags(LayerFlags flags) const
-  {
-    return (int(m_flags) & int(flags)) == int(flags);
-  }
+  bool hasFlags(LayerFlags flags) const { return (int(m_flags) & int(flags)) == int(flags); }
 
   void setFlags(LayerFlags flags) { m_flags = flags; }
 
@@ -176,10 +173,7 @@ public:
   void removeLayer(Layer* layer);
   void stackLayer(Layer* layer, Layer* after);
 
-  Layer* getFirstLayer()
-  {
-    return (m_layers.empty() ? NULL : m_layers.front());
-  }
+  Layer* getFirstLayer() { return (m_layers.empty() ? NULL : m_layers.front()); }
   Layer* getLastLayer() { return (m_layers.empty() ? NULL : m_layers.back()); }
 
   void getCels(CelList& cels) const override;

@@ -26,16 +26,14 @@ public:
     clazz.setConstructor() = []() -> std::shared_ptr<void>
     { throw std::runtime_error{"Cel cannot be constructed directly"}; };
 
-    clazz.addGetter("x") = [](CelRef& ref) -> JSON::Value
-    { return (double)ref.get().x(); };
+    clazz.addGetter("x") = [](CelRef& ref) -> JSON::Value { return (double)ref.get().x(); };
     clazz.addSetter("x") = [](CelRef& ref, JSON::Value& v)
     {
       auto& cel = ref.get();
       cel.setPosition(static_cast<int>(v), cel.y());
     };
 
-    clazz.addGetter("y") = [](CelRef& ref) -> JSON::Value
-    { return (double)ref.get().y(); };
+    clazz.addGetter("y") = [](CelRef& ref) -> JSON::Value { return (double)ref.get().y(); };
     clazz.addSetter("y") = [](CelRef& ref, JSON::Value& v)
     {
       auto& cel = ref.get();
@@ -45,11 +43,9 @@ public:
     clazz.addGetter("image") = [](CelRef& ref) -> JSON::Value
     { return JSON::makeNative(script_api::wrap(ref.get().image())); };
 
-    clazz.addGetter("frame") = [](CelRef& ref) -> JSON::Value
-    { return (double)ref.get().frame(); };
+    clazz.addGetter("frame") = [](CelRef& ref) -> JSON::Value { return (double)ref.get().frame(); };
 
-    clazz.addMethod("setPosition") = [](CelRef& ref, double x,
-                                        double y) -> JSON::Value
+    clazz.addMethod("setPosition") = [](CelRef& ref, double x, double y) -> JSON::Value
     {
       ref.get().setPosition((int)x, (int)y);
       return {};

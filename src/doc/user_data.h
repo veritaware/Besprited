@@ -31,10 +31,7 @@ public:
   void setText(const std::string& text) { m_text = text; }
   void setColor(color_t color) { m_color = color; }
 
-  bool operator==(const UserData& other) const
-  {
-    return (m_text == other.m_text && m_color == other.m_color);
-  }
+  bool operator==(const UserData& other) const { return (m_text == other.m_text && m_color == other.m_color); }
 
   bool operator!=(const UserData& other) const { return !operator==(other); }
 

@@ -56,10 +56,7 @@ public:
   void setImage(const Image* image);
   void setImageColor(ImageColor imageColor, color_t color);
   void setPattern(BrushPattern pattern) { m_pattern = pattern; }
-  void setPatternOrigin(const gfx::Point& patternOrigin)
-  {
-    m_patternOrigin = patternOrigin;
-  }
+  void setPatternOrigin(const gfx::Point& patternOrigin) { m_patternOrigin = patternOrigin; }
 
 private:
   void clean();
@@ -79,10 +76,8 @@ private:
   // Extra data used for setImageColor()
   std::shared_ptr<Image> m_backupImage; // Backup image to avoid losing original
                                         // brush colors/pattern
-  std::unique_ptr<color_t>
-      m_mainColor; // Main image brush color (nullptr if it wasn't specified)
-  std::unique_ptr<color_t>
-      m_bgColor; // Background color (nullptr if it wasn't specified)
+  std::unique_ptr<color_t> m_mainColor; // Main image brush color (nullptr if it wasn't specified)
+  std::unique_ptr<color_t> m_bgColor;   // Background color (nullptr if it wasn't specified)
 };
 
 typedef base::SharedPtr<Brush> BrushRef;

@@ -32,8 +32,7 @@ public:
   std::size_t size() const { return m_items.size(); }
   std::size_t limit() const { return m_limit; }
 
-  template <typename T2, typename Predicate>
-  void addItem(const T2& item, Predicate p)
+  template <typename T2, typename Predicate> void addItem(const T2& item, Predicate p)
   {
     iterator it = std::find_if(m_items.begin(), m_items.end(), p);
 
@@ -56,8 +55,7 @@ public:
     m_items.insert(m_items.begin(), item);
   }
 
-  template <typename T2, typename Predicate>
-  void removeItem(const T2& item, Predicate p)
+  template <typename T2, typename Predicate> void removeItem(const T2& item, Predicate p)
   {
     iterator it = std::find_if(m_items.begin(), m_items.end(), p);
     if (it != m_items.end())

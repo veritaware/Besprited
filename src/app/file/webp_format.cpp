@@ -48,8 +48,7 @@ class WebPFormat : public FileFormat
   const char* onGetExtensions() const override { return "webp"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
-           FILE_SUPPORT_RGBA | FILE_SUPPORT_SEQUENCES |
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB | FILE_SUPPORT_RGBA | FILE_SUPPORT_SEQUENCES |
            FILE_SUPPORT_GET_FORMAT_OPTIONS;
   }
 
@@ -137,17 +136,15 @@ bool WebPFormat::onLoad(FileOp* fop)
 
   fop->sequenceSetHasAlpha(config.input.has_alpha != 0);
 
-  Image* image =
-      fop->sequenceImage(IMAGE_RGB, config.input.width, config.input.height);
+  Image* image = fop->sequenceImage(IMAGE_RGB, config.input.width, config.input.height);
   if (!image)
     return false;
 
   config.output.colorspace = MODE_RGBA;
   config.output.u.RGBA.rgba = (uint8_t*)image->getPixelAddress(0, 0);
   config.output.u.RGBA.stride = config.input.width * sizeof(uint32_t);
-  config.output.u.RGBA.size = static_cast<size_t>(config.input.width) *
-                              static_cast<size_t>(config.input.height) *
-                              sizeof(uint32_t);
+  config.output.u.RGBA.size =
+      static_cast<size_t>(config.input.width) * static_cast<size_t>(config.input.height) * sizeof(uint32_t);
   config.output.is_external_memory = 1;
 
   WebPIDecoder* idec = WebPIDecode(nullptr, 0, &config);
@@ -169,13 +166,11 @@ bool WebPFormat::onLoad(FileOp* fop)
       data += bytes_read;
       if (bytes_remaining < bytes_read)
         bytes_read = bytes_remaining;
-      fop->setProgress(1.0f -
-                       ((float)std::max(bytes_remaining, 0l) / (float)len));
+      fop->setProgress(1.0f - ((float)std::max(bytes_remaining, 0l) / (float)len));
     }
     else
     {
-      fop->setError("Error decoding WebP data: %s\n",
-                    getDecoderErrorMessage(status));
+      fop->setError("Error decoding WebP data: %s\n", getDecoderErrorMessage(status));
       WebPIDelete(idec);
       WebPFreeDecBuffer(&config.output);
       return false;
@@ -268,9 +263,8 @@ static const struct
 {
   uint8_t method_;
   uint8_t quality_;
-} kLosslessPresets[MAX_LEVEL + 1] = {{0, 0},  {1, 20}, {2, 25}, {3, 30},
-                                     {3, 50}, {4, 50}, {4, 75}, {4, 90},
-                                     {5, 90}, {6, 100}};
+} kLosslessPresets[MAX_LEVEL + 1] = {{0, 0},  {1, 20}, {2, 25}, {3, 30}, {3, 50},
+                                     {4, 50}, {4, 75}, {4, 90}, {5, 90}, {6, 100}};
 int WebPConfigLosslessPreset(WebPConfig* config, int level)
 {
   if (config == nullptr || level < 0 || level > MAX_LEVEL)
@@ -292,12 +286,9 @@ static int ProgressReport(int percent, const WebPPicture* const pic)
     return true;
 }
 
-static int FileWriter(const uint8_t* data, size_t data_size,
-                      const WebPPicture* const pic)
+static int FileWriter(const uint8_t* data, size_t data_size, const WebPPicture* const pic)
 {
-  return (data_size ? (fwrite(data, data_size, 1,
-                              ((WriterData*)pic->custom_ptr)->fp) == 1)
-                    : 1);
+  return (data_size ? (fwrite(data, data_size, 1, ((WriterData*)pic->custom_ptr)->fp) == 1) : 1);
 }
 
 bool WebPFormat::onSave(FileOp* fop)
@@ -308,13 +299,11 @@ bool WebPFormat::onSave(FileOp* fop)
   WriterData wd = {fp, fop};
 
   const Image* image = fop->sequenceImage();
-  if (image->width() > WEBP_MAX_DIMENSION ||
-      image->height() > WEBP_MAX_DIMENSION)
+  if (image->width() > WEBP_MAX_DIMENSION || image->height() > WEBP_MAX_DIMENSION)
   {
     fop->setError("WebP format cannot store %dx%d images. The maximum allowed "
                   "size is %dx%d\n",
-                  image->width(), image->height(), WEBP_MAX_DIMENSION,
-                  WEBP_MAX_DIMENSION);
+                  image->width(), image->height(), WEBP_MAX_DIMENSION, WEBP_MAX_DIMENSION);
     return false;
   }
 
@@ -324,8 +313,7 @@ bool WebPFormat::onSave(FileOp* fop)
 
   if (webp_options->lossless())
   {
-    if (!(WebPConfigInit(&config) &&
-          WebPConfigLosslessPreset(&config, webp_options->getMethod())))
+    if (!(WebPConfigInit(&config) && WebPConfigLosslessPreset(&config, webp_options->getMethod())))
     {
       fop->setError("Error in WebP configuration\n");
       return false;
@@ -334,8 +322,7 @@ bool WebPFormat::onSave(FileOp* fop)
   }
   else
   {
-    if (!WebPConfigPreset(&config, webp_options->getImagePreset(),
-                          static_cast<float>(webp_options->getQuality())))
+    if (!WebPConfigPreset(&config, webp_options->getImagePreset(), static_cast<float>(webp_options->getQuality())))
     {
       fop->setError("Error in WebP configuration preset\n");
       return false;
@@ -370,8 +357,7 @@ bool WebPFormat::onSave(FileOp* fop)
 
   ScopedWebPPicture scopedPic(pic); // Calls WebPPictureFree automatically
 
-  if (!WebPPictureImportRGBA(&pic, (uint8_t*)image->getPixelAddress(0, 0),
-                             image->width() * sizeof(uint32_t)))
+  if (!WebPPictureImportRGBA(&pic, (uint8_t*)image->getPixelAddress(0, 0), image->width() * sizeof(uint32_t)))
   {
     fop->setError("Error converting RGBA data into a WebP picture\n");
     return false;
@@ -383,8 +369,7 @@ bool WebPFormat::onSave(FileOp* fop)
 
   if (!WebPEncode(&config, &pic))
   {
-    fop->setError("Error encoding image into WebP: %s\n",
-                  getEncoderErrorMessage(pic.error_code));
+    fop->setError("Error encoding image into WebP: %s\n", getEncoderErrorMessage(pic.error_code));
     return false;
   }
 
@@ -396,8 +381,7 @@ base::SharedPtr<FormatOptions> WebPFormat::onGetFormatOptions(FileOp* fop)
 {
   base::SharedPtr<WebPOptions> webp_options;
   if (fop->document()->getFormatOptions())
-    webp_options =
-        base::SharedPtr<WebPOptions>(fop->document()->getFormatOptions());
+    webp_options = base::SharedPtr<WebPOptions>(fop->document()->getFormatOptions());
 
   if (!webp_options)
     webp_options.reset(new WebPOptions);
@@ -409,14 +393,10 @@ base::SharedPtr<FormatOptions> WebPFormat::onGetFormatOptions(FileOp* fop)
   try
   {
     // Configuration parameters
-    webp_options->setQuality(
-        get_config_int("WEBP", "Quality", webp_options->getQuality()));
-    webp_options->setMethod(
-        get_config_int("WEBP", "Compression", webp_options->getMethod()));
-    webp_options->setImageHint(
-        get_config_int("WEBP", "ImageHint", webp_options->getImageHint()));
-    webp_options->setImagePreset(
-        get_config_int("WEBP", "ImagePreset", webp_options->getImagePreset()));
+    webp_options->setQuality(get_config_int("WEBP", "Quality", webp_options->getQuality()));
+    webp_options->setMethod(get_config_int("WEBP", "Compression", webp_options->getMethod()));
+    webp_options->setImageHint(get_config_int("WEBP", "ImageHint", webp_options->getImageHint()));
+    webp_options->setImagePreset(get_config_int("WEBP", "ImagePreset", webp_options->getImagePreset()));
 
     // Load the window to ask to the user the WebP options he wants.
 
@@ -435,10 +415,8 @@ base::SharedPtr<FormatOptions> WebPFormat::onGetFormatOptions(FileOp* fop)
       webp_options->setQuality(win.quality()->getValue());
       webp_options->setMethod(win.compression()->getValue());
       webp_options->setLossless(win.lossless()->isSelected());
-      webp_options->setImageHint(
-          base::convert_to<int>(win.imageHint()->getValue()));
-      webp_options->setImagePreset(
-          base::convert_to<int>(win.imagePreset()->getValue()));
+      webp_options->setImageHint(base::convert_to<int>(win.imageHint()->getValue()));
+      webp_options->setImagePreset(base::convert_to<int>(win.imagePreset()->getValue()));
 
       set_config_int("WEBP", "Quality", webp_options->getQuality());
       set_config_int("WEBP", "Compression", webp_options->getMethod());

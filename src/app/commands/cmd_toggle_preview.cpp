@@ -36,8 +36,7 @@ TogglePreviewCommand::TogglePreviewCommand()
 
 bool TogglePreviewCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 bool TogglePreviewCommand::onChecked(Context* context)
@@ -52,8 +51,7 @@ bool TogglePreviewCommand::onChecked(Context* context)
 
 void TogglePreviewCommand::onExecute(Context* context)
 {
-  PreviewEditorWindow* previewWin =
-      App::instance()->mainWindow()->getPreviewEditor();
+  PreviewEditorWindow* previewWin = App::instance()->mainWindow()->getPreviewEditor();
 
   bool state = previewWin->isPreviewEnabled();
   previewWin->setPreviewEnabled(!state);

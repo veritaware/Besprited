@@ -33,10 +33,8 @@
 namespace doc
 {
 
-static Layer* index2layer(const Layer* layer, const LayerIndex& index,
-                          int* index_count);
-static LayerIndex layer2index(const Layer* layer, const Layer* find_layer,
-                              int* index_count);
+static Layer* index2layer(const Layer* layer, const LayerIndex& index, int* index_count);
+static LayerIndex layer2index(const Layer* layer, const Layer* find_layer, int* index_count);
 
 //////////////////////////////////////////////////////////////////////
 // Constructors/Destructor
@@ -98,12 +96,10 @@ Sprite::~Sprite()
 }
 
 // static
-Sprite* Sprite::createBasicSprite(doc::PixelFormat format, int width,
-                                  int height, int ncolors)
+Sprite* Sprite::createBasicSprite(doc::PixelFormat format, int width, int height, int ncolors)
 {
   // Create the sprite.
-  std::unique_ptr<doc::Sprite> sprite =
-      std::make_unique<doc::Sprite>(format, width, height, ncolors);
+  std::unique_ptr<doc::Sprite> sprite = std::make_unique<doc::Sprite>(format, width, height, ncolors);
   sprite->setTotalFrames(static_cast<doc::frame_t>(1));
 
   // Create the main image.
@@ -112,14 +108,12 @@ Sprite* Sprite::createBasicSprite(doc::PixelFormat format, int width,
 
   // Create the first transparent layer.
   {
-    std::unique_ptr<doc::LayerImage> layer =
-        std::make_unique<doc::LayerImage>(sprite.get());
+    std::unique_ptr<doc::LayerImage> layer = std::make_unique<doc::LayerImage>(sprite.get());
     layer->setName("Layer 1");
 
     // Create the cel.
     {
-      auto cel =
-          std::make_shared<doc::Cel>(static_cast<doc::frame_t>(0), image);
+      auto cel = std::make_shared<doc::Cel>(static_cast<doc::frame_t>(0), image);
       cel->setPosition(0, 0);
 
       // Add the cel in the layer.
@@ -127,8 +121,7 @@ Sprite* Sprite::createBasicSprite(doc::PixelFormat format, int width,
     }
 
     // Add the layer in the sprite.
-    sprite->folder()->addLayer(
-        layer.release()); // Release the layer because it's owned by the sprite
+    sprite->folder()->addLayer(layer.release()); // Release the layer because it's owned by the sprite
   }
 
   return sprite.release();
@@ -194,8 +187,7 @@ size_t Sprite::getMemSize() const
   std::vector<Image*> images;
   getImages(images);
   for (const Image* image : images)
-    size += static_cast<size_t>(image->getRowStrideSize()) *
-            static_cast<size_t>(image->height());
+    size += static_cast<size_t>(image->getRowStrideSize()) * static_cast<size_t>(image->height());
 
   return size;
 }
@@ -348,22 +340,19 @@ void Sprite::deletePalette(frame_t frame)
 
 RgbMap* Sprite::rgbMap(frame_t frame) const
 {
-  return rgbMap(frame, backgroundLayer() ? RgbMapFor::OpaqueLayer
-                                         : RgbMapFor::TransparentLayer);
+  return rgbMap(frame, backgroundLayer() ? RgbMapFor::OpaqueLayer : RgbMapFor::TransparentLayer);
 }
 
 RgbMap* Sprite::rgbMap(frame_t frame, RgbMapFor forLayer) const
 {
-  const int maskIndex =
-      (forLayer == RgbMapFor::OpaqueLayer ? -1 : transparentColor());
+  const int maskIndex = (forLayer == RgbMapFor::OpaqueLayer ? -1 : transparentColor());
 
   if (m_rgbMap == nullptr)
   {
     m_rgbMap = new RgbMap();
     m_rgbMap->regenerate(palette(frame), maskIndex);
   }
-  else if (!m_rgbMap->match(palette(frame)) ||
-           m_rgbMap->maskIndex() != maskIndex)
+  else if (!m_rgbMap->match(palette(frame)) || m_rgbMap->maskIndex() != maskIndex)
   {
     m_rgbMap->regenerate(palette(frame), maskIndex);
   }
@@ -423,8 +412,7 @@ void Sprite::setFrameDuration(frame_t frame, int msecs)
 
 void Sprite::setFrameRangeDuration(frame_t from, frame_t to, int msecs)
 {
-  std::fill(m_frlens.begin() + static_cast<std::size_t>(from),
-            m_frlens.begin() + static_cast<std::size_t>(to) + 1,
+  std::fill(m_frlens.begin() + static_cast<std::size_t>(from), m_frlens.begin() + static_cast<std::size_t>(to) + 1,
             MID(1, msecs, 65535));
 }
 
@@ -493,8 +481,7 @@ void Sprite::remapImages(frame_t frameFrom, frame_t frameTo, const Remap& remap)
 //////////////////////////////////////////////////////////////////////
 // Drawing
 
-void Sprite::pickCels(int x, int y, frame_t frame, int opacityThreshold,
-                      CelList& cels) const
+void Sprite::pickCels(int x, int y, frame_t frame, int opacityThreshold, CelList& cels) const
 {
   std::vector<Layer*> layers;
   getLayersList(layers);
@@ -571,8 +558,7 @@ CelsRange Sprite::uniqueCels(frame_t from, frame_t to) const
 
 //////////////////////////////////////////////////////////////////////
 
-static Layer* index2layer(const Layer* layer, const LayerIndex& index,
-                          int* index_count)
+static Layer* index2layer(const Layer* layer, const LayerIndex& index, int* index_count)
 {
   if (index == *index_count)
     return const_cast<Layer*>(layer);
@@ -598,8 +584,7 @@ static Layer* index2layer(const Layer* layer, const LayerIndex& index,
   }
 }
 
-static LayerIndex layer2index(const Layer* layer, const Layer* find_layer,
-                              int* index_count)
+static LayerIndex layer2index(const Layer* layer, const Layer* find_layer, int* index_count)
 {
   if (layer == find_layer)
     return LayerIndex(*index_count);

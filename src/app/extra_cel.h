@@ -31,8 +31,7 @@ class ExtraCel
 public:
   ExtraCel();
 
-  void create(doc::Sprite* sprite, const gfx::Rect& bounds, doc::frame_t frame,
-              int opacity);
+  void create(doc::Sprite* sprite, const gfx::Rect& bounds, doc::frame_t frame, int opacity);
   void destroy();
 
   render::ExtraType type() const { return m_type; }

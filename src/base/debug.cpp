@@ -33,8 +33,8 @@ int base_assert(const char* condition, const char* file, int lineNum)
   std::vector<wchar_t> buf(MAX_PATH);
   GetModuleFileNameW(nullptr, &buf[0], MAX_PATH);
 
-  int ret = _CrtDbgReportW(_CRT_ASSERT, base::from_utf8(file).c_str(), lineNum,
-                           &buf[0], base::from_utf8(condition).c_str());
+  int ret =
+      _CrtDbgReportW(_CRT_ASSERT, base::from_utf8(file).c_str(), lineNum, &buf[0], base::from_utf8(condition).c_str());
 
   return (ret == 1 ? 1 : 0);
 

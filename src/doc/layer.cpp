@@ -26,8 +26,7 @@ Layer::Layer(ObjectType type, Sprite* sprite)
   : WithUserData(type)
   , m_sprite(sprite)
   , m_parent(nullptr)
-  , m_flags(LayerFlags(static_cast<int>(LayerFlags::Visible) |
-                       static_cast<int>(LayerFlags::Editable)))
+  , m_flags(LayerFlags(static_cast<int>(LayerFlags::Visible) | static_cast<int>(LayerFlags::Editable)))
 {
   ASSERT(type == ObjectType::LayerImage || type == ObjectType::LayerFolder);
 
@@ -45,8 +44,7 @@ Layer* Layer::getPrevious() const
 {
   if (m_parent != nullptr)
   {
-    auto it =
-        std::find(m_parent->getLayerBegin(), m_parent->getLayerEnd(), this);
+    auto it = std::find(m_parent->getLayerBegin(), m_parent->getLayerEnd(), this);
 
     if (it != m_parent->getLayerEnd() && it != m_parent->getLayerBegin())
     {
@@ -61,8 +59,7 @@ Layer* Layer::getNext() const
 {
   if (m_parent != nullptr)
   {
-    auto it =
-        std::find(m_parent->getLayerBegin(), m_parent->getLayerEnd(), this);
+    auto it = std::find(m_parent->getLayerBegin(), m_parent->getLayerEnd(), this);
 
     if (it != m_parent->getLayerEnd())
     {
@@ -156,8 +153,7 @@ CelIterator LayerImage::findCelIterator(frame_t frame)
 
   // Here we use a binary search to find the first cel equal to "frame" (or
   // after frame)
-  first = std::lower_bound(first, end, nullptr, [frame](auto cel, auto) -> bool
-                           { return cel->frame() < frame; });
+  first = std::lower_bound(first, end, nullptr, [frame](auto cel, auto) -> bool { return cel->frame() < frame; });
 
   // We return the iterator only if it's an exact match
   if (first != end && (*first)->frame() == frame)
@@ -173,8 +169,7 @@ CelIterator LayerImage::findFirstCelIteratorAfter(frame_t firstAfterFrame)
 
   // Here we use a binary search to find the first cel after the given frame
   first = std::lower_bound(first, end, nullptr,
-                           [firstAfterFrame](auto cel, auto) -> bool
-                           { return cel->frame() <= firstAfterFrame; });
+                           [firstAfterFrame](auto cel, auto) -> bool { return cel->frame() <= firstAfterFrame; });
 
   return first;
 }

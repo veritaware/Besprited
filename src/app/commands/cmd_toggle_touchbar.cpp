@@ -26,7 +26,6 @@ namespace app
 class ToggleTouchbarCommand : public Command
 {
 public:
-
   ToggleTouchbarCommand()
     : Command{"ToggleTouchbar", "Toggle Touchbar", CmdUIOnlyFlag}
   {
@@ -37,15 +36,9 @@ protected:
 
   bool onEnabled(Context* context) override { return true; }
 
-  bool onChecked(Context* context) override
-  {
-    return Preferences::instance().touchBar.visible();
-  }
+  bool onChecked(Context* context) override { return Preferences::instance().touchBar.visible(); }
 
-  void onExecute(Context* context) override
-  {
-    App::instance()->mainWindow()->toggleTouchbar();
-  }
+  void onExecute(Context* context) override { App::instance()->mainWindow()->toggleTouchbar(); }
 };
 
 std::unique_ptr<Command> CommandFactory::createToggleTouchbarCommand()

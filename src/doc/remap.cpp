@@ -74,9 +74,7 @@ Remap create_remap_to_expand_palette(int size, int count, int beforeIndex)
   return map;
 }
 
-Remap create_remap_to_change_palette(const Palette* oldPalette,
-                                     const Palette* newPalette,
-                                     const int oldMaskIndex,
+Remap create_remap_to_change_palette(const Palette* oldPalette, const Palette* newPalette, const int oldMaskIndex,
                                      const bool remapMaskIndex)
 {
   Remap remap(MAX(oldPalette->size(), newPalette->size()));
@@ -84,8 +82,7 @@ Remap create_remap_to_change_palette(const Palette* oldPalette,
 
   if (maskIndex >= 0)
   {
-    if (remapMaskIndex &&
-        oldPalette->getEntry(maskIndex) != newPalette->getEntry(maskIndex))
+    if (remapMaskIndex && oldPalette->getEntry(maskIndex) != newPalette->getEntry(maskIndex))
     {
       const color_t maskColor = oldPalette->getEntry(maskIndex);
       const int r = rgba_getr(maskColor);
@@ -122,14 +119,11 @@ Remap create_remap_to_change_palette(const Palette* oldPalette,
       continue;
     }
 
-    int j = newPalette->findExactMatch(rgba_getr(color), rgba_getg(color),
-                                       rgba_getb(color), rgba_geta(color),
-                                       maskIndex);
+    int j =
+        newPalette->findExactMatch(rgba_getr(color), rgba_getg(color), rgba_getb(color), rgba_geta(color), maskIndex);
 
     if (j < 0)
-      j = newPalette->findBestfit(rgba_getr(color), rgba_getg(color),
-                                  rgba_getb(color), rgba_geta(color),
-                                  maskIndex);
+      j = newPalette->findBestfit(rgba_getr(color), rgba_getg(color), rgba_getb(color), rgba_geta(color), maskIndex);
 
     remap.map(i, j);
   }

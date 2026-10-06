@@ -67,8 +67,7 @@ void copy_image(Image* dst, const Image* src, int x, int y)
   dst->copy(src, gfx::Clip(x, y, 0, 0, src->width(), src->height()));
 }
 
-Image* crop_image(const Image* image, int x, int y, int w, int h, color_t bg,
-                  const ImageBufferPtr& buffer)
+Image* crop_image(const Image* image, int x, int y, int w, int h, color_t bg, const ImageBufferPtr& buffer)
 {
   ASSERT(image);
 
@@ -86,8 +85,7 @@ Image* crop_image(const Image* image, int x, int y, int w, int h, color_t bg,
   return trim;
 }
 
-Image* crop_image(const Image* image, const gfx::Rect& bounds, color_t bg,
-                  const ImageBufferPtr& buffer)
+Image* crop_image(const Image* image, const gfx::Rect& bounds, color_t bg, const ImageBufferPtr& buffer)
 {
   return crop_image(image, bounds.x, bounds.y, bounds.w, bounds.h, bg, buffer);
 }
@@ -107,8 +105,7 @@ void rotate_image(const Image* src, Image* dst, int angle)
 
     for (y = 0; y < src->height(); ++y)
       for (x = 0; x < src->width(); ++x)
-        dst->putPixel(src->width() - x - 1, src->height() - y - 1,
-                      src->getPixel(x, y));
+        dst->putPixel(src->width() - x - 1, src->height() - y - 1, src->getPixel(x, y));
     break;
 
   case 90:
@@ -254,12 +251,10 @@ void fill_rect(Image* image, const gfx::Rect& rc, color_t c)
   // cppcheck-suppress nullPointerRedundantCheck
   const gfx::Rect clip = rc.createIntersection(image->bounds());
   if (!clip.isEmpty())
-    image->fillRect(clip.x, clip.y, clip.x + clip.w - 1, clip.y + clip.h - 1,
-                    c);
+    image->fillRect(clip.x, clip.y, clip.x + clip.w - 1, clip.y + clip.h - 1, c);
 }
 
-void blend_rect(Image* image, int x1, int y1, int x2, int y2, color_t color,
-                int opacity)
+void blend_rect(Image* image, int x1, int y1, int x2, int y2, color_t color, int opacity)
 {
   ASSERT(image);
   int t;
@@ -312,37 +307,32 @@ static void hline_for_image(int x1, int y, int x2, Data* data)
 void draw_line(Image* image, int x1, int y1, int x2, int y2, color_t color)
 {
   Data data = {.image = image, .color = color};
-  algo_line(x1, y1, x2, y2, &data,
-            reinterpret_cast<AlgoPixel>(pixel_for_image));
+  algo_line(x1, y1, x2, y2, &data, reinterpret_cast<AlgoPixel>(pixel_for_image));
 }
 
 void draw_ellipse(Image* image, int x1, int y1, int x2, int y2, color_t color)
 {
   Data data = {.image = image, .color = color};
-  algo_ellipse(x1, y1, x2, y2, &data,
-               reinterpret_cast<AlgoPixel>(pixel_for_image));
+  algo_ellipse(x1, y1, x2, y2, &data, reinterpret_cast<AlgoPixel>(pixel_for_image));
 }
 
 void fill_ellipse(Image* image, int x1, int y1, int x2, int y2, color_t color)
 {
   Data data = {.image = image, .color = color};
-  algo_ellipsefill(x1, y1, x2, y2, &data,
-                   reinterpret_cast<AlgoHLine>(hline_for_image));
+  algo_ellipsefill(x1, y1, x2, y2, &data, reinterpret_cast<AlgoHLine>(hline_for_image));
 }
 
 namespace
 {
 
-template <typename ImageTraits>
-int count_diff_between_images_templ(const Image* i1, const Image* i2)
+template <typename ImageTraits> int count_diff_between_images_templ(const Image* i1, const Image* i2)
 {
   int diff = 0;
   const LockImageBits<ImageTraits> bits1(i1);
   const LockImageBits<ImageTraits> bits2(i2);
   typename LockImageBits<ImageTraits>::const_iterator it1, it2, end1, end2;
-  for (it1 = bits1.begin(), end1 = bits1.end(), it2 = bits2.begin(),
-      end2 = bits2.end();
-       it1 != end1 && it2 != end2; ++it1, ++it2)
+  for (it1 = bits1.begin(), end1 = bits1.end(), it2 = bits2.begin(), end2 = bits2.end(); it1 != end1 && it2 != end2;
+       ++it1, ++it2)
   {
     if (*it1 != *it2)
       diff++;
@@ -357,8 +347,7 @@ int count_diff_between_images_templ(const Image* i1, const Image* i2)
 
 int count_diff_between_images(const Image* i1, const Image* i2)
 {
-  if ((i1->pixelFormat() != i2->pixelFormat()) ||
-      (i1->width() != i2->width()) || (i1->height() != i2->height()))
+  if ((i1->pixelFormat() != i2->pixelFormat()) || (i1->width() != i2->width()) || (i1->height() != i2->height()))
     return -1;
 
   switch (i1->pixelFormat())

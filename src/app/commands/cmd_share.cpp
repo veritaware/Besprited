@@ -78,7 +78,6 @@ public:
   {
   }
 
-
 protected:
   bool onEnabled(Context* context) override
   {
@@ -95,8 +94,7 @@ protected:
     if (!document->isAssociatedToFile() || document->isModified())
     {
       ui::Alert::show("Notice<<You must save before you share!||&OK");
-      auto saveAsCommand = app::CommandsModule::instance()->getCommandByName(
-          CommandId::SaveFile);
+      auto saveAsCommand = app::CommandsModule::instance()->getCommandByName(CommandId::SaveFile);
       context->executeCommand(saveAsCommand);
       return;
     }

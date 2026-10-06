@@ -38,24 +38,14 @@ class PaletteViewDelegate
 public:
   virtual ~PaletteViewDelegate() {}
   virtual void onPaletteViewIndexChange(int index, ui::MouseButtons buttons) {}
-  virtual void onPaletteViewModification(const doc::Palette& newPalette,
-                                         PaletteViewModification mod)
-  {
-  }
+  virtual void onPaletteViewModification(const doc::Palette& newPalette, PaletteViewModification mod) {}
   virtual void onPaletteViewChangeSize(int boxsize) {}
-  virtual void onPaletteViewPasteColors(const doc::Palette* fromPal,
-                                        const doc::PalettePicks& from,
+  virtual void onPaletteViewPasteColors(const doc::Palette* fromPal, const doc::PalettePicks& from,
                                         const doc::PalettePicks& to)
   {
   }
-  virtual app::Color onPaletteViewGetForegroundIndex()
-  {
-    return app::Color::fromMask();
-  }
-  virtual app::Color onPaletteViewGetBackgroundIndex()
-  {
-    return app::Color::fromMask();
-  }
+  virtual app::Color onPaletteViewGetForegroundIndex() { return app::Color::fromMask(); }
+  virtual app::Color onPaletteViewGetBackgroundIndex() { return app::Color::fromMask(); }
 };
 
 class PaletteView : public ui::Widget,
@@ -69,8 +59,7 @@ public:
     FgBgColors
   };
 
-  PaletteView(bool editable, PaletteViewStyle style,
-              PaletteViewDelegate* delegate, int boxsize);
+  PaletteView(bool editable, PaletteViewStyle style, PaletteViewDelegate* delegate, int boxsize);
 
   bool isEditable() const { return m_editable; }
 
@@ -136,10 +125,7 @@ private:
     {
     }
 
-    bool operator==(const Hit& hit) const
-    {
-      return (part == hit.part && color == hit.color);
-    }
+    bool operator==(const Hit& hit) const { return (part == hit.part && color == hit.color); }
     bool operator!=(const Hit& hit) const { return !operator==(hit); }
   };
 
@@ -148,8 +134,7 @@ private:
   gfx::Rect getPaletteEntryBounds(int index) const;
   Hit hitTest(const gfx::Point& pos);
   void dropColors(int beforeIndex);
-  void getEntryBoundsAndClip(int i, const doc::PalettePicks& entries,
-                             gfx::Rect& box, gfx::Rect& clip,
+  void getEntryBoundsAndClip(int i, const doc::PalettePicks& entries, gfx::Rect& box, gfx::Rect& clip,
                              int outlineWidth) const;
   bool pickedXY(const doc::PalettePicks& entries, int i, int dx, int dy) const;
   void updateCopyFlag(ui::Message* msg);
@@ -157,9 +142,7 @@ private:
   void setStatusBar();
   doc::Palette* currentPalette() const;
   int findExactIndex(const app::Color& color) const;
-  void setNewPalette(const doc::Palette& oldPalette,
-                     const doc::Palette& newPalette,
-                     PaletteViewModification mod);
+  void setNewPalette(const doc::Palette& oldPalette, const doc::Palette& newPalette, PaletteViewModification mod);
   gfx::Color drawEntry(ui::Graphics* g, const gfx::Rect& box, int palIdx);
 
   State m_state;

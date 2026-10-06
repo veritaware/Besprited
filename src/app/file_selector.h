@@ -27,10 +27,8 @@ public:
   virtual void setResizeScale(double scale) = 0;
 };
 
-std::string show_file_selector(const std::string& title,
-                               const std::string& initialPath,
-                               const std::string& showExtensions,
-                               FileSelectorType type,
+std::string show_file_selector(const std::string& title, const std::string& initialPath,
+                               const std::string& showExtensions, FileSelectorType type,
                                FileSelectorDelegate* delegate = nullptr);
 
 } // namespace app

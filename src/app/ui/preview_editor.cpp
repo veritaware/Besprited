@@ -47,10 +47,9 @@ class MiniCenterButton : public SkinButton<CheckBox>
 {
 public:
   MiniCenterButton()
-    : SkinButton<CheckBox>(
-          SkinTheme::instance()->parts.windowCenterButtonNormal(),
-          SkinTheme::instance()->parts.windowCenterButtonHot(),
-          SkinTheme::instance()->parts.windowCenterButtonSelected())
+    : SkinButton<CheckBox>(SkinTheme::instance()->parts.windowCenterButtonNormal(),
+                           SkinTheme::instance()->parts.windowCenterButtonHot(),
+                           SkinTheme::instance()->parts.windowCenterButtonSelected())
   {
     setup_bevels(this, 0, 0, 0, 0);
     setDecorative(true);
@@ -69,8 +68,8 @@ protected:
     rect.w = iconSize.w;
     rect.h = iconSize.h;
 
-    rect.offset(window->bounds().x2() - 3 * guiscale() - iconSize.w -
-                    1 * guiscale() - iconSize.w - 1 * guiscale() - closeSize.w,
+    rect.offset(window->bounds().x2() - 3 * guiscale() - iconSize.w - 1 * guiscale() - iconSize.w - 1 * guiscale() -
+                    closeSize.w,
                 window->bounds().y + 3 * guiscale());
 
     setBounds(rect);
@@ -94,8 +93,7 @@ class MiniPlayButton : public SkinButton<Button>
 {
 public:
   MiniPlayButton()
-    : SkinButton<Button>(SkinPartPtr(nullptr), SkinPartPtr(nullptr),
-                         SkinPartPtr(nullptr))
+    : SkinButton<Button>(SkinPartPtr(nullptr), SkinPartPtr(nullptr), SkinPartPtr(nullptr))
     , m_isPlaying(false)
   {
     enableFlags(CTRL_RIGHT_CLICK);
@@ -134,8 +132,7 @@ private:
     rect.w = playSize.w;
     rect.h = playSize.h;
 
-    rect.offset(window->bounds().x2() - 3 * guiscale() - playSize.w -
-                    1 * guiscale() - closeSize.w,
+    rect.offset(window->bounds().x2() - 3 * guiscale() - playSize.w - 1 * guiscale() - closeSize.w,
                 window->bounds().y + 3 * guiscale());
 
     setBounds(rect);
@@ -176,12 +173,10 @@ private:
     SkinTheme* theme = SkinTheme::instance();
 
     if (m_isPlaying)
-      setParts(theme->parts.windowStopButtonNormal(),
-               theme->parts.windowStopButtonHot(),
+      setParts(theme->parts.windowStopButtonNormal(), theme->parts.windowStopButtonHot(),
                theme->parts.windowStopButtonSelected());
     else
-      setParts(theme->parts.windowPlayButtonNormal(),
-               theme->parts.windowPlayButtonHot(),
+      setParts(theme->parts.windowPlayButtonNormal(), theme->parts.windowPlayButtonHot(),
                theme->parts.windowPlayButtonSelected());
   }
 
@@ -215,12 +210,9 @@ PreviewEditorWindow::PreviewEditorWindow()
 #endif
   }
 
-  m_centerButton->Click.connect(
-      base::Bind<void>(&PreviewEditorWindow::onCenterClicked, this));
-  m_playButton->Click.connect(
-      base::Bind<void>(&PreviewEditorWindow::onPlayClicked, this));
-  m_playButton->Popup.connect(
-      base::Bind<void>(&PreviewEditorWindow::onPopupSpeed, this));
+  m_centerButton->Click.connect(base::Bind<void>(&PreviewEditorWindow::onCenterClicked, this));
+  m_playButton->Click.connect(base::Bind<void>(&PreviewEditorWindow::onPlayClicked, this));
+  m_playButton->Popup.connect(base::Bind<void>(&PreviewEditorWindow::onPopupSpeed, this));
 
   addChild(m_centerButton);
   addChild(m_playButton);
@@ -251,10 +243,8 @@ bool PreviewEditorWindow::onProcessMessage(ui::Message* msg)
     int width = ui::display_w() / 4;
     int height = ui::display_h() / 4;
     int extra = 2 * theme->dimensions.miniScrollbarSize();
-    setBounds(gfx::Rect(
-        ui::display_w() - width - ToolBar::instance()->bounds().w - extra,
-        ui::display_h() - height - StatusBar::instance()->bounds().h - extra,
-        width, height));
+    setBounds(gfx::Rect(ui::display_w() - width - ToolBar::instance()->bounds().w - extra,
+                        ui::display_h() - height - StatusBar::instance()->bounds().h - extra, width, height));
 
     load_window_pos(this, "MiniEditor");
     invalidate();
@@ -272,8 +262,7 @@ bool PreviewEditorWindow::onProcessMessage(ui::Message* msg)
 void PreviewEditorWindow::onClose(ui::CloseEvent& ev)
 {
   Button* closeButton = dynamic_cast<Button*>(ev.getSource());
-  if (closeButton != nullptr &&
-      closeButton->id() == SkinTheme::kThemeCloseButtonId)
+  if (closeButton != nullptr && closeButton->id() == SkinTheme::kThemeCloseButtonId)
   {
     // Here we don't use "setMiniEditorEnabled" to change the state of
     // "m_isEnabled" because we're coming from a close event of the
@@ -340,8 +329,7 @@ void PreviewEditorWindow::onPopupSpeed()
   if (!miniEditor || !miniEditor->document())
     return;
 
-  miniEditor->showAnimationSpeedMultiplierPopup(
-      Preferences::instance().preview.playOnce, false);
+  miniEditor->showAnimationSpeedMultiplierPopup(Preferences::instance().preview.playOnce, false);
   m_aniSpeed = miniEditor->getAnimationSpeedMultiplier();
 }
 
@@ -410,8 +398,7 @@ void PreviewEditorWindow::updateUsingEditor(Editor* editor)
     if (miniEditor->isPlaying())
     {
       doc::FrameTag* tag = get_animation_tag(editor->sprite(), editor->frame());
-      doc::FrameTag* playingTag =
-          get_animation_tag(editor->sprite(), m_refFrame);
+      doc::FrameTag* playingTag = get_animation_tag(editor->sprite(), m_refFrame);
       if (tag != playingTag)
         miniEditor->stop();
     }

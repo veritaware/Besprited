@@ -58,9 +58,8 @@ void CropSpriteCommand::onLoadParams(const Params& params)
 
 bool CropSpriteCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(
-      ContextFlags::ActiveDocumentIsWritable |
-      (m_bounds.isEmpty() ? ContextFlags::HasVisibleMask : 0));
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
+                             (m_bounds.isEmpty() ? ContextFlags::HasVisibleMask : 0));
 }
 
 void CropSpriteCommand::onExecute(Context* context)
@@ -101,8 +100,7 @@ AutocropSpriteCommand::AutocropSpriteCommand()
 
 bool AutocropSpriteCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void AutocropSpriteCommand::onExecute(Context* context)

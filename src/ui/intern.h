@@ -40,7 +40,6 @@ void reinitThemeForAllWidgets();
 
 // theme.cpp
 
-void drawTextBox(Graphics* g, Widget* textbox, int* w, int* h, gfx::Color bg,
-                 gfx::Color fg);
+void drawTextBox(Graphics* g, Widget* textbox, int* w, int* h, gfx::Color bg, gfx::Color fg);
 
 } // namespace ui

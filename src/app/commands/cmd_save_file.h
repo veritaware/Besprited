@@ -18,8 +18,7 @@ class FileSelectorDelegate;
 class SaveFileBaseCommand : public Command
 {
 public:
-  SaveFileBaseCommand(const char* shortName, const char* friendlyName,
-                      CommandFlags flags);
+  SaveFileBaseCommand(const char* shortName, const char* friendlyName, CommandFlags flags);
 
   std::string selectedFilename() const { return m_selectedFilename; }
 
@@ -27,8 +26,7 @@ protected:
   void onLoadParams(const Params& params) override;
   bool onEnabled(Context* context) override;
 
-  bool saveAsDialog(Context* context, const char* dlgTitle,
-                    FileSelectorDelegate* delegate = nullptr);
+  bool saveAsDialog(Context* context, const char* dlgTitle, FileSelectorDelegate* delegate = nullptr);
 
   std::string m_filename;
   std::string m_filenameFormat;

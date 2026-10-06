@@ -17,9 +17,7 @@ class WidgetTypeMismatch : public std::runtime_error
 {
 public:
   WidgetTypeMismatch(const std::string& widgetId)
-    : std::runtime_error(
-          "Widget " + widgetId +
-          " of the expected type.\nPlease reinstall the program.\n\n")
+    : std::runtime_error("Widget " + widgetId + " of the expected type.\nPlease reinstall the program.\n\n")
   {
   }
 };

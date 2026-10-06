@@ -25,8 +25,7 @@ namespace app
 class GotoCommand : public Command
 {
 public:
-  GotoCommand(const char* short_name, const char* friendly_name,
-              CommandFlags flags)
+  GotoCommand(const char* short_name, const char* friendly_name, CommandFlags flags)
     : Command(short_name, friendly_name, flags)
   {
   }
@@ -35,8 +34,7 @@ protected:
   void updateStatusBar(Site& site)
   {
     if (site.layer() != nullptr)
-      StatusBar::instance()->setStatusText(1000, "Layer `%s' selected",
-                                           site.layer()->name().c_str());
+      StatusBar::instance()->setStatusText(1000, "Layer `%s' selected", site.layer()->name().c_str());
   }
 };
 

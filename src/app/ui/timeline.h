@@ -160,8 +160,7 @@ private:
     frame_t frame;
     ObjectId frameTag;
 
-    Hit(int part = 0, LayerIndex layer = LayerIndex(0), frame_t frame = 0,
-        ObjectId frameTag = NullId)
+    Hit(int part = 0, LayerIndex layer = LayerIndex(0), frame_t frame = 0, ObjectId frameTag = NullId)
       : part(part)
       , layer(layer)
       , frame(frame)
@@ -171,8 +170,7 @@ private:
 
     bool operator!=(const Hit& other) const
     {
-      return part != other.part || layer != other.layer ||
-             frame != other.frame || frameTag != other.frameTag;
+      return part != other.part || layer != other.layer || frame != other.frame || frameTag != other.frameTag;
     }
 
     FrameTag* getFrameTag() const;
@@ -217,22 +215,17 @@ private:
   bool allLayersDiscontinuous();
   void detachDocument();
   void setCursor(ui::Message* msg, const Hit& hit);
-  void getDrawableLayers(ui::Graphics* g, LayerIndex* first_layer,
-                         LayerIndex* last_layer);
-  void getDrawableFrames(ui::Graphics* g, frame_t* first_frame,
-                         frame_t* last_frame);
-  void drawPart(ui::Graphics* g, const gfx::Rect& bounds, const char* text,
-                skin::Style* style, bool is_active = false,
+  void getDrawableLayers(ui::Graphics* g, LayerIndex* first_layer, LayerIndex* last_layer);
+  void getDrawableFrames(ui::Graphics* g, frame_t* first_frame, frame_t* last_frame);
+  void drawPart(ui::Graphics* g, const gfx::Rect& bounds, const char* text, skin::Style* style, bool is_active = false,
                 bool is_hover = false, bool is_clicked = false);
   void drawTop(ui::Graphics* g);
   void drawHeader(ui::Graphics* g);
   void drawHeaderFrame(ui::Graphics* g, frame_t frame);
   void drawLayer(ui::Graphics* g, LayerIndex layerIdx);
-  void drawCel(ui::Graphics* g, LayerIndex layerIdx, frame_t frame, Cel* cel,
-               DrawCelData* data);
-  void drawCelLinkDecorators(ui::Graphics* g, const gfx::Rect& bounds, Cel* cel,
-                             frame_t frame, bool is_active, bool is_hover,
-                             DrawCelData* data);
+  void drawCel(ui::Graphics* g, LayerIndex layerIdx, frame_t frame, Cel* cel, DrawCelData* data);
+  void drawCelLinkDecorators(ui::Graphics* g, const gfx::Rect& bounds, Cel* cel, frame_t frame, bool is_active,
+                             bool is_hover, DrawCelData* data);
   void drawFrameTags(ui::Graphics* g);
   void drawRangeOutline(ui::Graphics* g);
   void drawPaddings(ui::Graphics* g);
@@ -274,14 +267,8 @@ private:
   frame_t firstFrame() const { return frame_t(0); }
   frame_t lastFrame() const { return m_sprite->lastFrame(); }
 
-  bool validLayer(LayerIndex layer) const
-  {
-    return layer >= firstLayer() && layer <= lastLayer();
-  }
-  bool validFrame(frame_t frame) const
-  {
-    return frame >= firstFrame() && frame <= lastFrame();
-  }
+  bool validLayer(LayerIndex layer) const { return layer >= firstLayer() && layer <= lastLayer(); }
+  bool validFrame(frame_t frame) const { return frame >= firstFrame() && frame <= lastFrame(); }
 
   int topHeight() const;
 

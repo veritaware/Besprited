@@ -23,10 +23,8 @@ namespace app
 using namespace filters;
 using namespace ui;
 
-FilterWindow::FilterWindow(const char* title, const char* cfgSection,
-                           FilterManagerImpl* filterMgr,
-                           WithChannels withChannels, WithTiled withTiled,
-                           TiledMode tiledMode)
+FilterWindow::FilterWindow(const char* title, const char* cfgSection, FilterManagerImpl* filterMgr,
+                           WithChannels withChannels, WithTiled withTiled, TiledMode tiledMode)
   : Window(WithTitleBar, title)
   , m_cfgSection(cfgSection)
   , m_filterMgr(filterMgr)
@@ -36,15 +34,12 @@ FilterWindow::FilterWindow(const char* title, const char* cfgSection,
   , m_okButton("&OK")
   , m_cancelButton("&Cancel")
   , m_preview(filterMgr)
-  , m_targetButton(filterMgr->pixelFormat(),
-                   (withChannels == WithChannelsSelector))
+  , m_targetButton(filterMgr->pixelFormat(), (withChannels == WithChannelsSelector))
   , m_showPreview("&Preview")
-  , m_tiledCheck(withTiled == WithTiledCheckBox ? new CheckBox("&Tiled")
-                                                : nullptr)
+  , m_tiledCheck(withTiled == WithTiledCheckBox ? new CheckBox("&Tiled") : nullptr)
 {
   m_targetButton.setTarget(filterMgr->getTarget());
-  m_targetButton.TargetChange.connect(&FilterWindow::onTargetButtonChange,
-                                      this);
+  m_targetButton.TargetChange.connect(&FilterWindow::onTargetButtonChange, this);
   m_okButton.Click.connect(&FilterWindow::onOk, this);
   m_cancelButton.Click.connect(&FilterWindow::onCancel, this);
   m_showPreview.Click.connect(&FilterWindow::onShowPreview, this);
@@ -65,8 +60,7 @@ FilterWindow::FilterWindow(const char* title, const char* cfgSection,
   if (m_tiledCheck)
   {
     m_tiledCheck->setSelected(tiledMode != TiledMode::NONE);
-    m_tiledCheck->Click.connect(
-        base::Bind<void>(&FilterWindow::onTiledChange, this));
+    m_tiledCheck->Click.connect(base::Bind<void>(&FilterWindow::onTiledChange, this));
 
     m_vbox.addChild(m_tiledCheck);
   }
@@ -166,8 +160,7 @@ void FilterWindow::onTiledChange()
 
   // Call derived class implementation of setupTiledMode() so the
   // filter is modified.
-  setupTiledMode(m_tiledCheck->isSelected() ? TiledMode::BOTH
-                                            : TiledMode::NONE);
+  setupTiledMode(m_tiledCheck->isSelected() ? TiledMode::BOTH : TiledMode::NONE);
 
   // Restart the preview.
   restartPreview();

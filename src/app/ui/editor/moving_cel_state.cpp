@@ -104,14 +104,12 @@ void MovingCelState::onDragEnd(Editor* editor)
       // And now we move the cel (or all selected range) to the new position.
       for (auto cel : m_celList)
       {
-        api.setCelPosition(writer.sprite(), cel, cel->x() + m_celOffset.x,
-                           cel->y() + m_celOffset.y);
+        api.setCelPosition(writer.sprite(), cel, cel->x() + m_celOffset.x, cel->y() + m_celOffset.y);
       }
 
       // Move selection if it was visible
       if (m_maskVisible)
-        api.setMaskPosition(document->mask()->bounds().x + m_celOffset.x,
-                            document->mask()->bounds().y + m_celOffset.y);
+        api.setMaskPosition(document->mask()->bounds().x + m_celOffset.x, document->mask()->bounds().y + m_celOffset.y);
 
       transaction.commit();
     }
@@ -135,8 +133,7 @@ void MovingCelState::onDrag(Editor* editor, const gfx::Point& delta)
 {
   m_celOffset = delta;
 
-  if (int(editor->getCustomizationDelegate()->getPressedKeyAction(
-              KeyContext::TranslatingSelection) &
+  if (int(editor->getCustomizationDelegate()->getPressedKeyAction(KeyContext::TranslatingSelection) &
           KeyAction::LockAxis))
   {
     if (ABS(m_celOffset.x) < ABS(m_celOffset.y))
@@ -163,9 +160,8 @@ void MovingCelState::onDrag(Editor* editor, const gfx::Point& delta)
 
 bool MovingCelState::onUpdateStatusBar(Editor* editor)
 {
-  StatusBar::instance()->setStatusText(
-      0, ":pos: %3d %3d :offset: %3d %3d", (int)dragStart().x,
-      (int)dragStart().y, (int)m_celOffset.x, (int)m_celOffset.y);
+  StatusBar::instance()->setStatusText(0, ":pos: %3d %3d :offset: %3d %3d", (int)dragStart().x, (int)dragStart().y,
+                                       (int)m_celOffset.x, (int)m_celOffset.y);
 
   return true;
 }

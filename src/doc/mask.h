@@ -42,9 +42,8 @@ public:
   // Returns true if the point is inside the mask
   bool containsPoint(int u, int v) const
   {
-    return (m_bitmap.get() && u >= m_bounds.x && u < m_bounds.x + m_bounds.w &&
-            v >= m_bounds.y && v < m_bounds.y + m_bounds.h &&
-            get_pixel(m_bitmap.get(), u - m_bounds.x, v - m_bounds.y));
+    return (m_bitmap.get() && u >= m_bounds.x && u < m_bounds.x + m_bounds.w && v >= m_bounds.y &&
+            v < m_bounds.y + m_bounds.h && get_pixel(m_bitmap.get(), u - m_bounds.x, v - m_bounds.y));
   }
 
   const gfx::Rect& bounds() const { return m_bounds; }

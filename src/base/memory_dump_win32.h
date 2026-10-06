@@ -27,10 +27,7 @@ public:
 
   ~MemoryDumpImpl() { ::SetUnhandledExceptionFilter(nullptr); }
 
-  void setFileName(const std::string& fileName)
-  {
-    memoryDumpFile = base::from_utf8(fileName);
-  }
+  void setFileName(const std::string& fileName) { memoryDumpFile = base::from_utf8(fileName); }
 
   static LONG WINAPI unhandledException(_EXCEPTION_POINTERS* exceptionPointers)
   {
@@ -44,9 +41,8 @@ private:
   public:
     MemoryDumpFile()
     {
-      m_handle =
-          ::CreateFileW(memoryDumpFile.c_str(), GENERIC_WRITE, 0, nullptr,
-                        CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+      m_handle = ::CreateFileW(memoryDumpFile.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL,
+                               nullptr);
     }
     ~MemoryDumpFile() { ::CloseHandle(m_handle); }
     HANDLE handle() { return m_handle; }
@@ -64,8 +60,7 @@ private:
     ei.ExceptionPointers = exceptionPointers;
     ei.ClientPointers = FALSE;
 
-    ::MiniDumpWriteDump(::GetCurrentProcess(), ::GetCurrentProcessId(),
-                        file.handle(), MiniDumpNormal,
+    ::MiniDumpWriteDump(::GetCurrentProcess(), ::GetCurrentProcessId(), file.handle(), MiniDumpNormal,
                         (exceptionPointers ? &ei : nullptr), nullptr, nullptr);
   }
 };

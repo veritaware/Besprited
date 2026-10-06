@@ -57,8 +57,7 @@ MainWindow::MainWindow()
   AppMenus::instance()->reload();
 
   bool altTouchBar = Preferences::instance().touchBar.alternatePosition();
-  auto touchbarParent =
-      altTouchBar ? touchBarAltPlaceholder() : touchBarPlaceholder();
+  auto touchbarParent = altTouchBar ? touchBarAltPlaceholder() : touchBarPlaceholder();
 
   m_menuBar = new MainMenuBar();
   m_notifications = new Notifications();
@@ -107,8 +106,7 @@ MainWindow::MainWindow()
     leftToolbar = true;
 #endif
   }
-  auto toolbarParent =
-      leftToolbar ? toolBarAltPlaceholder() : this->toolBarPlaceholder();
+  auto toolbarParent = leftToolbar ? toolBarAltPlaceholder() : this->toolBarPlaceholder();
   toolbarParent->addChild(m_toolBar);
 
   statusBarPlaceholder()->addChild(m_statusBar);
@@ -150,9 +148,7 @@ void MainWindow::alternateTimeline()
 {
   auto old = Preferences::instance().general.verticalTimeline();
   Preferences::instance().general.verticalTimeline(!old);
-  timelineSplitter()->setAlign(
-      Preferences::instance().general.verticalTimeline() ? HORIZONTAL
-                                                         : VERTICAL);
+  timelineSplitter()->setAlign(Preferences::instance().general.verticalTimeline() ? HORIZONTAL : VERTICAL);
   configureWorkspaceLayout();
 }
 
@@ -171,8 +167,7 @@ void MainWindow::alternateTouchbar()
   auto left = !Preferences::instance().touchBar.alternatePosition();
   Preferences::instance().touchBar.alternatePosition(left);
   bool altTouchBar = Preferences::instance().touchBar.alternatePosition();
-  auto touchbarParent =
-      altTouchBar ? touchBarAltPlaceholder() : touchBarPlaceholder();
+  auto touchbarParent = altTouchBar ? touchBarAltPlaceholder() : touchBarPlaceholder();
   m_touchBar->parent()->removeChild(m_touchBar.get());
   touchbarParent->addChild(m_touchBar.get());
   remapWindow();
@@ -392,8 +387,7 @@ void MainWindow::onCloneTab(Tabs* tabs, TabView* tabView, int pos)
   WorkspaceView* clone = view->cloneWorkspaceView();
   ASSERT(clone);
 
-  m_workspace->addViewToPanel(static_cast<WorkspaceTabs*>(tabs)->panel(), clone,
-                              true, pos);
+  m_workspace->addViewToPanel(static_cast<WorkspaceTabs*>(tabs)->panel(), clone, true, pos);
 
   clone->onClonedFrom(view);
 }
@@ -427,12 +421,9 @@ void MainWindow::onMouseOverTab(Tabs* tabs, TabView* tabView)
   }
 }
 
-DropViewPreviewResult MainWindow::onFloatingTab(Tabs* tabs, TabView* tabView,
-                                                const gfx::Point& pos)
+DropViewPreviewResult MainWindow::onFloatingTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos)
 {
-  return m_workspace->setDropViewPreview(pos,
-                                         dynamic_cast<WorkspaceView*>(tabView),
-                                         static_cast<WorkspaceTabs*>(tabs));
+  return m_workspace->setDropViewPreview(pos, dynamic_cast<WorkspaceView*>(tabView), static_cast<WorkspaceTabs*>(tabs));
 }
 
 void MainWindow::onDockingTab(Tabs* tabs, TabView* tabView)
@@ -440,13 +431,11 @@ void MainWindow::onDockingTab(Tabs* tabs, TabView* tabView)
   m_workspace->removeDropViewPreview();
 }
 
-DropTabResult MainWindow::onDropTab(Tabs* tabs, TabView* tabView,
-                                    const gfx::Point& pos, bool clone)
+DropTabResult MainWindow::onDropTab(Tabs* tabs, TabView* tabView, const gfx::Point& pos, bool clone)
 {
   m_workspace->removeDropViewPreview();
 
-  DropViewAtResult result = m_workspace->dropViewAt(
-      pos, dynamic_cast<WorkspaceView*>(tabView), clone);
+  DropViewAtResult result = m_workspace->dropViewAt(pos, dynamic_cast<WorkspaceView*>(tabView), clone);
 
   if (result == DropViewAtResult::MOVED_TO_OTHER_PANEL)
     return DropTabResult::REMOVE;
@@ -464,15 +453,12 @@ void MainWindow::configureWorkspaceLayout()
   m_menuBar->setVisible(normal);
   m_tabsBar->setVisible(normal);
   colorBarPlaceholder()->setVisible(normal && isDoc);
-  m_touchBar->setVisible(normal && isDoc &&
-                         Preferences::instance().touchBar.visible());
+  m_touchBar->setVisible(normal && isDoc && Preferences::instance().touchBar.visible());
   m_toolBar->setVisible(normal && isDoc);
   m_statusBar->setVisible(normal);
-  m_contextBar->setVisible(
-      isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode));
-  timelinePlaceholder()->setVisible(
-      isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode) &&
-      Preferences::instance().general.visibleTimeline());
+  m_contextBar->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode));
+  timelinePlaceholder()->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode) &&
+                                    Preferences::instance().general.visibleTimeline());
 
   if (m_contextBar->isVisible())
   {

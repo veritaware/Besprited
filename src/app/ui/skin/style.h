@@ -40,8 +40,7 @@ public:
   void paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text);
 
 protected:
-  virtual void onPaint(ui::Graphics* g, const gfx::Rect& bounds,
-                       const char* text) = 0;
+  virtual void onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text) = 0;
 };
 
 class BackgroundRule : public Rule
@@ -58,8 +57,7 @@ public:
   void setRepeat(BackgroundRepeat repeat) { m_repeat = repeat; }
 
 protected:
-  void onPaint(ui::Graphics* g, const gfx::Rect& bounds,
-               const char* text) override;
+  void onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text) override;
 
 private:
   gfx::Color m_color;
@@ -84,8 +82,7 @@ public:
   gfx::Border padding() const { return m_padding; }
 
 protected:
-  void onPaint(ui::Graphics* g, const gfx::Rect& bounds,
-               const char* text) override;
+  void onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text) override;
 
 private:
   int m_align;
@@ -109,8 +106,7 @@ public:
   SkinPartPtr getPart() { return m_part; }
 
 protected:
-  void onPaint(ui::Graphics* g, const gfx::Rect& bounds,
-               const char* text) override;
+  void onPaint(ui::Graphics* g, const gfx::Rect& bounds, const char* text) override;
 
 private:
   int m_align;
@@ -148,8 +144,7 @@ public:
   Style(css::Sheet& sheet, const std::string& id);
   ~Style();
 
-  void paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text,
-             const State& state);
+  void paint(ui::Graphics* g, const gfx::Rect& bounds, const char* text, const State& state);
 
   gfx::Size sizeHint(const char* text, const State& state, int maxWidth = 0);
 

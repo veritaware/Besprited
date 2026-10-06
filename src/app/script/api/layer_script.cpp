@@ -28,34 +28,22 @@ public:
     clazz.setConstructor() = []() -> std::shared_ptr<void>
     { throw std::runtime_error{"Layer cannot be constructed directly"}; };
 
-    clazz.addGetter("name") = [](LayerRef& ref) -> JSON::Value
-    { return std::string{ref.get().name()}; };
-    clazz.addSetter("name") = [](LayerRef& ref, JSON::Value& v)
-    { ref.get().setName(static_cast<std::string>(v)); };
+    clazz.addGetter("name") = [](LayerRef& ref) -> JSON::Value { return std::string{ref.get().name()}; };
+    clazz.addSetter("name") = [](LayerRef& ref, JSON::Value& v) { ref.get().setName(static_cast<std::string>(v)); };
 
-    clazz.addGetter("isImage") = [](LayerRef& ref) -> JSON::Value
-    { return ref.get().isImage(); };
-    clazz.addGetter("isBackground") = [](LayerRef& ref) -> JSON::Value
-    { return ref.get().isBackground(); };
-    clazz.addGetter("isTransparent") = [](LayerRef& ref) -> JSON::Value
-    { return ref.get().isTransparent(); };
+    clazz.addGetter("isImage") = [](LayerRef& ref) -> JSON::Value { return ref.get().isImage(); };
+    clazz.addGetter("isBackground") = [](LayerRef& ref) -> JSON::Value { return ref.get().isBackground(); };
+    clazz.addGetter("isTransparent") = [](LayerRef& ref) -> JSON::Value { return ref.get().isTransparent(); };
 
-    clazz.addGetter("isVisible") = [](LayerRef& ref) -> JSON::Value
-    { return ref.get().isVisible(); };
-    clazz.addSetter("isVisible") = [](LayerRef& ref, JSON::Value& v)
-    { ref.get().setVisible(static_cast<bool>(v)); };
+    clazz.addGetter("isVisible") = [](LayerRef& ref) -> JSON::Value { return ref.get().isVisible(); };
+    clazz.addSetter("isVisible") = [](LayerRef& ref, JSON::Value& v) { ref.get().setVisible(static_cast<bool>(v)); };
 
-    clazz.addGetter("isEditable") = [](LayerRef& ref) -> JSON::Value
-    { return ref.get().isEditable(); };
-    clazz.addSetter("isEditable") = [](LayerRef& ref, JSON::Value& v)
-    { ref.get().setEditable(static_cast<bool>(v)); };
+    clazz.addGetter("isEditable") = [](LayerRef& ref) -> JSON::Value { return ref.get().isEditable(); };
+    clazz.addSetter("isEditable") = [](LayerRef& ref, JSON::Value& v) { ref.get().setEditable(static_cast<bool>(v)); };
 
-    clazz.addGetter("isMovable") = [](LayerRef& ref) -> JSON::Value
-    { return ref.get().isMovable(); };
-    clazz.addGetter("isContinuous") = [](LayerRef& ref) -> JSON::Value
-    { return ref.get().isContinuous(); };
-    clazz.addGetter("flags") = [](LayerRef& ref) -> JSON::Value
-    { return (double)static_cast<int>(ref.get().flags()); };
+    clazz.addGetter("isMovable") = [](LayerRef& ref) -> JSON::Value { return ref.get().isMovable(); };
+    clazz.addGetter("isContinuous") = [](LayerRef& ref) -> JSON::Value { return ref.get().isContinuous(); };
+    clazz.addGetter("flags") = [](LayerRef& ref) -> JSON::Value { return (double)static_cast<int>(ref.get().flags()); };
 
     clazz.addGetter("celCount") = [](LayerRef& ref) -> JSON::Value
     {

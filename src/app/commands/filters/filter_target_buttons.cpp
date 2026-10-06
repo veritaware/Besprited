@@ -130,15 +130,12 @@ void FilterTargetButtons::updateFromTarget()
   m_tooltips.addTooltipFor(m_cels, celsTooltip, LEFT);
 }
 
-void FilterTargetButtons::updateComponentTooltip(Item* item,
-                                                 const char* channelName,
-                                                 int align)
+void FilterTargetButtons::updateComponentTooltip(Item* item, const char* channelName, int align)
 {
   if (item)
   {
     char buf[256];
-    std::snprintf(buf, sizeof(buf), "%s %s Component",
-                  (item->isSelected() ? "Modify" : "Ignore"), channelName);
+    std::snprintf(buf, sizeof(buf), "%s %s Component", (item->isSelected() ? "Modify" : "Ignore"), channelName);
     m_tooltips.addTooltipFor(item, buf, align);
   }
 }
@@ -157,8 +154,7 @@ void FilterTargetButtons::onItemChange(Item* item)
       m_blue->setSelected(false);
       m_alpha->setSelected(false);
     }
-    else if (item == m_red || item == m_green || item == m_blue ||
-             item == m_alpha)
+    else if (item == m_red || item == m_green || item == m_blue || item == m_alpha)
     {
       m_index->setSelected(false);
     }
@@ -211,13 +207,11 @@ SkinPartPtr FilterTargetButtons::getCelsIcon() const
 
   if (m_target & TARGET_ALL_FRAMES)
   {
-    return (m_target & TARGET_ALL_LAYERS) ? theme->parts.targetFramesLayers()
-                                          : theme->parts.targetFrames();
+    return (m_target & TARGET_ALL_LAYERS) ? theme->parts.targetFramesLayers() : theme->parts.targetFrames();
   }
   else
   {
-    return (m_target & TARGET_ALL_LAYERS) ? theme->parts.targetLayers()
-                                          : theme->parts.targetOne();
+    return (m_target & TARGET_ALL_LAYERS) ? theme->parts.targetLayers() : theme->parts.targetOne();
   }
 }
 

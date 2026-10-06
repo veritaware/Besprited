@@ -20,8 +20,7 @@ namespace skin
 template <typename Base = ui::Button> class SkinButton : public Base
 {
 public:
-  SkinButton(const SkinPartPtr& partNormal, const SkinPartPtr& partHot,
-             const SkinPartPtr& partSelected)
+  SkinButton(const SkinPartPtr& partNormal, const SkinPartPtr& partHot, const SkinPartPtr& partSelected)
     : Base("")
     , m_partNormal(partNormal)
     , m_partHot(partHot)
@@ -29,8 +28,7 @@ public:
   {
   }
 
-  void setParts(const SkinPartPtr& partNormal, const SkinPartPtr& partHot,
-                const SkinPartPtr& partSelected)
+  void setParts(const SkinPartPtr& partNormal, const SkinPartPtr& partHot, const SkinPartPtr& partSelected)
   {
     m_partNormal = partNormal;
     m_partHot = partHot;

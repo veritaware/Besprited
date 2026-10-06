@@ -6,12 +6,14 @@
 #include <cassert>
 #include <iostream>
 
-int main() {
+int main()
+{
   clip::format int_format = clip::register_format("com.github.clip.CustomInt");
 
   {
     clip::lock l;
-    if (l.is_convertible(int_format)) {
+    if (l.is_convertible(int_format))
+    {
       int data = 0;
       if (l.get_data(int_format, (char*)&data, sizeof(int)))
         std::cout << "Existing custom data in clipboard: " << data << "\n";

@@ -54,9 +54,8 @@ public:
 
   bool operator==(const DocumentRange& o) const
   {
-    return m_type == o.m_type && layerBegin() == o.layerBegin() &&
-           layerEnd() == o.layerEnd() && frameBegin() == o.frameBegin() &&
-           frameEnd() == o.frameEnd();
+    return m_type == o.m_type && layerBegin() == o.layerBegin() && layerEnd() == o.layerEnd() &&
+           frameBegin() == o.frameBegin() && frameEnd() == o.frameEnd();
   }
 
   bool convertToCels(Sprite* sprite);

@@ -63,8 +63,7 @@ void ScrollingState::onDrag(Editor* editor, const gfx::Point& delta)
   rebaseDrag(dragStart() + delta);
 }
 
-bool ScrollingState::onSetCursor(Editor* editor,
-                                 const gfx::Point& mouseScreenPos)
+bool ScrollingState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
 {
   editor->showMouseCursor(kScrollCursor);
   return true;

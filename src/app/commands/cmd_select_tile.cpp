@@ -93,8 +93,7 @@ void SelectTileCommand::onExecute(Context* ctx)
   }
 
   // Set the new mask
-  Transaction transaction(writer.context(), "Select Tile",
-                          DoesntModifyDocument);
+  Transaction transaction(writer.context(), "Select Tile", DoesntModifyDocument);
   transaction.execute(new cmd::SetMask(doc, mask.get()));
   transaction.commit();
 

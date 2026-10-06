@@ -14,9 +14,7 @@ namespace doc
 class Image;
 template <typename ImageTraits> class ImageImpl;
 
-template <class Traits>
-inline typename Traits::address_t get_pixel_address_fast(const Image* image,
-                                                         int x, int y)
+template <class Traits> inline typename Traits::address_t get_pixel_address_fast(const Image* image, int x, int y)
 {
   ASSERT(x >= 0 && x < image->width());
   ASSERT(y >= 0 && y < image->height());
@@ -24,8 +22,7 @@ inline typename Traits::address_t get_pixel_address_fast(const Image* image,
   return (((ImageImpl<Traits>*)image)->address(x, y));
 }
 
-template <class Traits>
-inline typename Traits::pixel_t get_pixel_fast(const Image* image, int x, int y)
+template <class Traits> inline typename Traits::pixel_t get_pixel_fast(const Image* image, int x, int y)
 {
   ASSERT(x >= 0 && x < image->width());
   ASSERT(y >= 0 && y < image->height());
@@ -33,9 +30,7 @@ inline typename Traits::pixel_t get_pixel_fast(const Image* image, int x, int y)
   return *(((ImageImpl<Traits>*)image)->address(x, y));
 }
 
-template <class Traits>
-inline void put_pixel_fast(Image* image, int x, int y,
-                           typename Traits::pixel_t color)
+template <class Traits> inline void put_pixel_fast(Image* image, int x, int y, typename Traits::pixel_t color)
 {
   ASSERT(x >= 0 && x < image->width());
   ASSERT(y >= 0 && y < image->height());
@@ -46,9 +41,7 @@ inline void put_pixel_fast(Image* image, int x, int y,
 //////////////////////////////////////////////////////////////////////
 // Bitmap specialization
 
-template <>
-inline BitmapTraits::pixel_t get_pixel_fast<BitmapTraits>(const Image* image,
-                                                          int x, int y)
+template <> inline BitmapTraits::pixel_t get_pixel_fast<BitmapTraits>(const Image* image, int x, int y)
 {
   ASSERT(x >= 0 && x < image->width());
   ASSERT(y >= 0 && y < image->height());
@@ -56,9 +49,7 @@ inline BitmapTraits::pixel_t get_pixel_fast<BitmapTraits>(const Image* image,
   return (*image->getPixelAddress(x, y)) & (1 << (x % 8)) ? 1 : 0;
 }
 
-template <>
-inline void put_pixel_fast<BitmapTraits>(Image* image, int x, int y,
-                                         BitmapTraits::pixel_t color)
+template <> inline void put_pixel_fast<BitmapTraits>(Image* image, int x, int y, BitmapTraits::pixel_t color)
 {
   ASSERT(x >= 0 && x < image->width());
   ASSERT(y >= 0 && y < image->height());

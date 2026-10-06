@@ -157,8 +157,8 @@ bool FilterManagerImpl::applyStep()
     if ((x >= m_bounds.w) || (y >= m_bounds.h))
       return false;
 
-    m_maskBits = m_mask->bitmap()->lockBits<BitmapTraits>(
-        Image::ReadLock, gfx::Rect(x, y, m_bounds.w - x, m_bounds.h - y));
+    m_maskBits =
+        m_mask->bitmap()->lockBits<BitmapTraits>(Image::ReadLock, gfx::Rect(x, y, m_bounds.w - x, m_bounds.h - y));
 
     m_maskIterator = m_maskBits.begin();
   }
@@ -190,8 +190,7 @@ void FilterManagerImpl::apply(Transaction& transaction)
     if (m_progressDelegate)
     {
       // Report progress.
-      m_progressDelegate->reportProgress(
-          m_progressBase + m_progressWidth * (m_row + 1) / m_bounds.h);
+      m_progressDelegate->reportProgress(m_progressBase + m_progressWidth * (m_row + 1) / m_bounds.h);
 
       // Does the user cancelled the whole process?
       cancelled = m_progressDelegate->isCancelled();
@@ -204,8 +203,7 @@ void FilterManagerImpl::apply(Transaction& transaction)
     if (algorithm::shrink_bounds2(m_src.get(), m_dst.get(), m_bounds, output))
     {
       // Patch "m_cel"
-      transaction.execute(new cmd::PatchCel(m_cel, m_dst.get(),
-                                            gfx::Region(output), position()));
+      transaction.execute(new cmd::PatchCel(m_cel, m_dst.get(), gfx::Region(output), position()));
     }
   }
 }
@@ -214,19 +212,16 @@ void FilterManagerImpl::applyToTarget()
 {
   bool cancelled = false;
 
-  ImagesCollector images(
-      (m_target & TARGET_ALL_LAYERS ? m_site.sprite()->folder()
-                                    : m_site.layer()),
-      m_site.frame(), (m_target & TARGET_ALL_FRAMES) == TARGET_ALL_FRAMES,
-      true); // we will write in each image
+  ImagesCollector images((m_target & TARGET_ALL_LAYERS ? m_site.sprite()->folder() : m_site.layer()), m_site.frame(),
+                         (m_target & TARGET_ALL_FRAMES) == TARGET_ALL_FRAMES,
+                         true); // we will write in each image
   if (images.empty())
     return;
 
   // Initialize writting operation
   ContextReader reader(m_context);
   ContextWriter writer(reader);
-  Transaction transaction(writer.context(), m_filter->getName(),
-                          ModifyDocument);
+  Transaction transaction(writer.context(), m_filter->getName(), ModifyDocument);
 
   m_progressBase = 0.0f;
   m_progressWidth = 1.0f / images.size();
@@ -261,11 +256,9 @@ void FilterManagerImpl::flush()
   if (m_row >= 0)
   {
     Editor* editor = current_editor;
-    gfx::Rect rect(
-        editor->editorToScreen(gfx::Point(m_bounds.x, m_bounds.y + m_row - 1)),
-        gfx::Size(editor->zoom().apply(m_bounds.w),
-                  (editor->zoom().scale() >= 1 ? editor->zoom().apply(1)
-                                               : editor->zoom().remove(1))));
+    gfx::Rect rect(editor->editorToScreen(gfx::Point(m_bounds.x, m_bounds.y + m_row - 1)),
+                   gfx::Size(editor->zoom().apply(m_bounds.w),
+                             (editor->zoom().scale() >= 1 ? editor->zoom().apply(1) : editor->zoom().remove(1))));
 
     gfx::Region reg1(rect);
     gfx::Region reg2;
@@ -318,9 +311,7 @@ void FilterManagerImpl::init(std::shared_ptr<Cel> cel)
     throw InvalidAreaException();
 
   m_cel = cel;
-  m_src.reset(crop_image(
-      cel->image(),
-      gfx::Rect(m_site.sprite()->bounds()).offset(-cel->position()), 0));
+  m_src.reset(crop_image(cel->image(), gfx::Rect(m_site.sprite()->bounds()).offset(-cel->position()), 0));
   m_dst.reset(Image::createCopy(m_src.get()));
 
   m_row = -1;
@@ -334,8 +325,7 @@ void FilterManagerImpl::init(std::shared_ptr<Cel> cel)
     m_target &= ~TARGET_ALPHA_CHANNEL;
 }
 
-void FilterManagerImpl::applyToCel(Transaction& transaction,
-                                   std::shared_ptr<Cel> cel)
+void FilterManagerImpl::applyToCel(Transaction& transaction, std::shared_ptr<Cel> cel)
 {
   init(cel);
   apply(transaction);

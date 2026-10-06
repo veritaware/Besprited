@@ -27,8 +27,7 @@ public:
 
   // The x, y position must be relative to the cel/src/dst image origin.
   virtual void transformPoint(ToolLoop* loop, int x, int y, float pressure) = 0;
-  virtual void getModifiedArea(ToolLoop* loop, int x, int y,
-                               gfx::Rect& area) = 0;
+  virtual void getModifiedArea(ToolLoop* loop, int x, int y, gfx::Rect& area) = 0;
 
 protected:
   // Calls loop->getInk()->inkHline() function for each horizontal-scanline

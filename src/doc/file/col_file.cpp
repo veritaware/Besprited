@@ -87,8 +87,7 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
       if (feof(f) || ferror(f))
         break;
 
-      pal->setEntry(c, rgba(scale_6bits_to_8bits(base::clamp(r, 0, 63)),
-                            scale_6bits_to_8bits(base::clamp(g, 0, 63)),
+      pal->setEntry(c, rgba(scale_6bits_to_8bits(base::clamp(r, 0, 63)), scale_6bits_to_8bits(base::clamp(g, 0, 63)),
                             scale_6bits_to_8bits(base::clamp(b, 0, 63)), 255));
     }
   }
@@ -122,8 +121,7 @@ std::shared_ptr<Palette> load_col_file(const char* filename)
       if (feof(f) || ferror(f))
         break;
 
-      pal->setEntry(c, rgba(base::clamp(r, 0, 255), base::clamp(g, 0, 255),
-                            base::clamp(b, 0, 255), 255));
+      pal->setEntry(c, rgba(base::clamp(r, 0, 255), base::clamp(g, 0, 255), base::clamp(b, 0, 255), 255));
     }
   }
 

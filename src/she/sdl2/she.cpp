@@ -47,195 +47,202 @@
 
 float penPressure = 0;
 
-namespace ui {
-  float get_pen_pressure() {
-    return penPressure;
-  }
+namespace ui
+{
+float get_pen_pressure()
+{
+  return penPressure;
 }
+} // namespace ui
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
-extern "C" {
-    void onPointerEvent(int isPen, float pressure) {
-	if (isPen) {
-	    penPressure = pressure > 0 ? pressure : 0.0001;
-	} else {
-	    penPressure = 0;
-	}
+extern "C"
+{
+  void onPointerEvent(int isPen, float pressure)
+  {
+    if (isPen)
+    {
+      penPressure = pressure > 0 ? pressure : 0.0001;
     }
+    else
+    {
+      penPressure = 0;
+    }
+  }
 }
 extern bool cfginit();
 #endif
 
 static she::System* g_instance = nullptr;
 static std::unordered_map<int, she::Event::MouseButton> mouseButtonMapping = {
-  {SDL_BUTTON_LEFT, she::Event::LeftButton},
-  {SDL_BUTTON_MIDDLE, she::Event::MiddleButton},
-  {SDL_BUTTON_RIGHT, she::Event::RightButton}
-};
+    {SDL_BUTTON_LEFT, she::Event::LeftButton},
+    {SDL_BUTTON_MIDDLE, she::Event::MiddleButton},
+    {SDL_BUTTON_RIGHT, she::Event::RightButton}};
 static she::KeyScancode lastScancode;
 static int lastScancodeSDL;
-struct Modifier {
+struct Modifier
+{
   const int sheModifier;
   int ascii;
   bool isPressed = false;
-  Modifier(int sheModifier) : sheModifier(sheModifier) {}
+  Modifier(int sheModifier)
+    : sheModifier(sheModifier)
+  {
+  }
 };
 
 static std::unordered_map<int, Modifier*> reverseKeyCodeMapping;
 
 static std::unordered_map<SDL_Keycode, Modifier> keyCodeMapping = {
-  {SDLK_UNKNOWN, she::kKeyNil},
-  {static_cast<SDL_Keycode>(13), she::kKeyEnter},
-  {SDLK_PERIOD, she::kKeyStop},
-  {SDLK_a, she::kKeyA},
-  {SDLK_b, she::kKeyB},
-  {SDLK_c, she::kKeyC},
-  {SDLK_d, she::kKeyD},
-  {SDLK_e, she::kKeyE},
-  {SDLK_f, she::kKeyF},
-  {SDLK_g, she::kKeyG},
-  {SDLK_h, she::kKeyH},
-  {SDLK_i, she::kKeyI},
-  {SDLK_j, she::kKeyJ},
-  {SDLK_k, she::kKeyK},
-  {SDLK_l, she::kKeyL},
-  {SDLK_m, she::kKeyM},
-  {SDLK_n, she::kKeyN},
-  {SDLK_o, she::kKeyO},
-  {SDLK_p, she::kKeyP},
-  {SDLK_q, she::kKeyQ},
-  {SDLK_r, she::kKeyR},
-  {SDLK_s, she::kKeyS},
-  {SDLK_t, she::kKeyT},
-  {SDLK_u, she::kKeyU},
-  {SDLK_v, she::kKeyV},
-  {SDLK_w, she::kKeyW},
-  {SDLK_x, she::kKeyX},
-  {SDLK_y, she::kKeyY},
-  {SDLK_z, she::kKeyZ},
-  {SDLK_0, she::kKey0},
-  {SDLK_1, she::kKey1},
-  {SDLK_2, she::kKey2},
-  {SDLK_3, she::kKey3},
-  {SDLK_4, she::kKey4},
-  {SDLK_5, she::kKey5},
-  {SDLK_6, she::kKey6},
-  {SDLK_7, she::kKey7},
-  {SDLK_8, she::kKey8},
-  {SDLK_9, she::kKey9},
-  {SDLK_KP_0, she::kKey0Pad},
-  {SDLK_KP_1, she::kKey1Pad},
-  {SDLK_KP_2, she::kKey2Pad},
-  {SDLK_KP_3, she::kKey3Pad},
-  {SDLK_KP_4, she::kKey4Pad},
-  {SDLK_KP_5, she::kKey5Pad},
-  {SDLK_KP_6, she::kKey6Pad},
-  {SDLK_KP_7, she::kKey7Pad},
-  {SDLK_KP_8, she::kKey8Pad},
-  {SDLK_KP_9, she::kKey9Pad},
-  {SDLK_F1, she::kKeyF1},
-  {SDLK_F2, she::kKeyF2},
-  {SDLK_F3, she::kKeyF3},
-  {SDLK_F4, she::kKeyF4},
-  {SDLK_F5, she::kKeyF5},
-  {SDLK_F6, she::kKeyF6},
-  {SDLK_F7, she::kKeyF7},
-  {SDLK_F8, she::kKeyF8},
-  {SDLK_F9, she::kKeyF9},
-  {SDLK_F10, she::kKeyF10},
-  {SDLK_F11, she::kKeyF11},
-  {SDLK_F12, she::kKeyF12},
-  {SDLK_ESCAPE, she::kKeyEsc},
-  {SDLK_QUOTE, she::kKeyTilde},
-  {SDLK_MINUS, she::kKeyMinus},
-  {SDLK_EQUALS, she::kKeyEquals},
-  {SDLK_BACKSPACE, she::kKeyBackspace},
-  {SDLK_TAB, she::kKeyTab},
-  {SDLK_LEFTBRACKET, she::kKeyOpenbrace},
-  {SDLK_RIGHTBRACKET, she::kKeyClosebrace},
-  {SDLK_KP_ENTER, she::kKeyEnter},
-  {SDLK_COLON, she::kKeyColon},
-  {SDLK_QUOTE, she::kKeyQuote},
-  {SDLK_BACKSLASH, she::kKeyBackslash},
-  // {SDLK_BACKSLASH2, she::kKeyBackslash2},
-  {SDLK_COMMA, she::kKeyComma},
-  {SDLK_STOP, she::kKeyStop},
-  {SDLK_SLASH, she::kKeySlash},
-  {SDLK_SPACE, she::kKeySpace},
-  {SDLK_INSERT, she::kKeyInsert},
-  {SDLK_DELETE, she::kKeyDel},
-  {SDLK_HOME, she::kKeyHome},
-  {SDLK_END, she::kKeyEnd},
-  {SDLK_PAGEUP, she::kKeyPageUp},
-  {SDLK_PAGEDOWN, she::kKeyPageDown},
-  {SDLK_LEFT, she::kKeyLeft},
-  {SDLK_RIGHT, she::kKeyRight},
-  {SDLK_UP, she::kKeyUp},
-  {SDLK_DOWN, she::kKeyDown},
-  {SDLK_KP_DIVIDE, she::kKeySlashPad},
-  {SDLK_ASTERISK, she::kKeyAsterisk},
-  {SDLK_KP_MINUS, she::kKeyMinusPad},
-  {SDLK_KP_PLUS, she::kKeyPlusPad},
-  // {SDLK_KP_DEL, she::kKeyDelPad},
-  {SDLK_KP_PERIOD, she::kKeyDelPad},
-  {SDLK_KP_ENTER, she::kKeyEnterPad},
-  {SDLK_PRINTSCREEN, she::kKeyPrtscr},
-  {SDLK_PAUSE, she::kKeyPause},
-  // {SDLK_ABNTC1, she::kKeyAbntC1},
-  // {SDLK_YEN, she::kKeyYen},
-  // {SDLK_KANA, she::kKeyKana},
-  // {SDLK_CONVERT, she::kKeyConvert},
-  // {SDLK_NOCONVERT, she::kKeyNoconvert},
-  {SDLK_AT, she::kKeyAt},
-  // {SDLK_CIRCUMFLEX, she::kKeyCircumflex},
-  // {SDLK_COLON2, she::kKeyColon2},
-  // {SDLK_KANJI, she::kKeyKanji},
-  {SDLK_KP_EQUALS, she::kKeyEqualsPad},
-  {SDLK_BACKQUOTE, she::kKeyBackquote},
-  {SDLK_SEMICOLON, she::kKeySemicolon},
-  // {SDLK_COMMAND, she::kKeyCommand},
-  // {SDLK_UNKNOWN1, she::kKeyUnknown1},
-  // {SDLK_UNKNOWN2, she::kKeyUnknown2},
-  // {SDLK_UNKNOWN3, she::kKeyUnknown3},
-  // {SDLK_UNKNOWN4, she::kKeyUnknown4},
-  // {SDLK_UNKNOWN5, she::kKeyUnknown5},
-  // {SDLK_UNKNOWN6, she::kKeyUnknown6},
-  // {SDLK_UNKNOWN7, she::kKeyUnknown7},
-  // {SDLK_UNKNOWN8, she::kKeyUnknown8},
-  {SDLK_LSHIFT, she::kKeyLShift},
-  {SDLK_RSHIFT, she::kKeyRShift},
-  {SDLK_LCTRL, she::kKeyLControl},
-  {SDLK_RCTRL, she::kKeyRControl},
-  {SDLK_LALT, she::kKeyAlt},
-  {SDLK_RALT, she::kKeyAltGr},
-  {static_cast<SDL_Keycode>(1073742051), she::kKeyLWin},
-  // {SDLK_RWIN, she::kKeyRWin},
-  {SDLK_MENU, she::kKeyMenu},
-  {SDLK_SCROLLLOCK, she::kKeyScrLock},
-  {SDLK_NUMLOCKCLEAR, she::kKeyNumLock},
-  {SDLK_CAPSLOCK, she::kKeyCapsLock},
+    {SDLK_UNKNOWN, she::kKeyNil},
+    {static_cast<SDL_Keycode>(13), she::kKeyEnter},
+    {SDLK_PERIOD, she::kKeyStop},
+    {SDLK_a, she::kKeyA},
+    {SDLK_b, she::kKeyB},
+    {SDLK_c, she::kKeyC},
+    {SDLK_d, she::kKeyD},
+    {SDLK_e, she::kKeyE},
+    {SDLK_f, she::kKeyF},
+    {SDLK_g, she::kKeyG},
+    {SDLK_h, she::kKeyH},
+    {SDLK_i, she::kKeyI},
+    {SDLK_j, she::kKeyJ},
+    {SDLK_k, she::kKeyK},
+    {SDLK_l, she::kKeyL},
+    {SDLK_m, she::kKeyM},
+    {SDLK_n, she::kKeyN},
+    {SDLK_o, she::kKeyO},
+    {SDLK_p, she::kKeyP},
+    {SDLK_q, she::kKeyQ},
+    {SDLK_r, she::kKeyR},
+    {SDLK_s, she::kKeyS},
+    {SDLK_t, she::kKeyT},
+    {SDLK_u, she::kKeyU},
+    {SDLK_v, she::kKeyV},
+    {SDLK_w, she::kKeyW},
+    {SDLK_x, she::kKeyX},
+    {SDLK_y, she::kKeyY},
+    {SDLK_z, she::kKeyZ},
+    {SDLK_0, she::kKey0},
+    {SDLK_1, she::kKey1},
+    {SDLK_2, she::kKey2},
+    {SDLK_3, she::kKey3},
+    {SDLK_4, she::kKey4},
+    {SDLK_5, she::kKey5},
+    {SDLK_6, she::kKey6},
+    {SDLK_7, she::kKey7},
+    {SDLK_8, she::kKey8},
+    {SDLK_9, she::kKey9},
+    {SDLK_KP_0, she::kKey0Pad},
+    {SDLK_KP_1, she::kKey1Pad},
+    {SDLK_KP_2, she::kKey2Pad},
+    {SDLK_KP_3, she::kKey3Pad},
+    {SDLK_KP_4, she::kKey4Pad},
+    {SDLK_KP_5, she::kKey5Pad},
+    {SDLK_KP_6, she::kKey6Pad},
+    {SDLK_KP_7, she::kKey7Pad},
+    {SDLK_KP_8, she::kKey8Pad},
+    {SDLK_KP_9, she::kKey9Pad},
+    {SDLK_F1, she::kKeyF1},
+    {SDLK_F2, she::kKeyF2},
+    {SDLK_F3, she::kKeyF3},
+    {SDLK_F4, she::kKeyF4},
+    {SDLK_F5, she::kKeyF5},
+    {SDLK_F6, she::kKeyF6},
+    {SDLK_F7, she::kKeyF7},
+    {SDLK_F8, she::kKeyF8},
+    {SDLK_F9, she::kKeyF9},
+    {SDLK_F10, she::kKeyF10},
+    {SDLK_F11, she::kKeyF11},
+    {SDLK_F12, she::kKeyF12},
+    {SDLK_ESCAPE, she::kKeyEsc},
+    {SDLK_QUOTE, she::kKeyTilde},
+    {SDLK_MINUS, she::kKeyMinus},
+    {SDLK_EQUALS, she::kKeyEquals},
+    {SDLK_BACKSPACE, she::kKeyBackspace},
+    {SDLK_TAB, she::kKeyTab},
+    {SDLK_LEFTBRACKET, she::kKeyOpenbrace},
+    {SDLK_RIGHTBRACKET, she::kKeyClosebrace},
+    {SDLK_KP_ENTER, she::kKeyEnter},
+    {SDLK_COLON, she::kKeyColon},
+    {SDLK_QUOTE, she::kKeyQuote},
+    {SDLK_BACKSLASH, she::kKeyBackslash},
+    // {SDLK_BACKSLASH2, she::kKeyBackslash2},
+    {SDLK_COMMA, she::kKeyComma},
+    {SDLK_STOP, she::kKeyStop},
+    {SDLK_SLASH, she::kKeySlash},
+    {SDLK_SPACE, she::kKeySpace},
+    {SDLK_INSERT, she::kKeyInsert},
+    {SDLK_DELETE, she::kKeyDel},
+    {SDLK_HOME, she::kKeyHome},
+    {SDLK_END, she::kKeyEnd},
+    {SDLK_PAGEUP, she::kKeyPageUp},
+    {SDLK_PAGEDOWN, she::kKeyPageDown},
+    {SDLK_LEFT, she::kKeyLeft},
+    {SDLK_RIGHT, she::kKeyRight},
+    {SDLK_UP, she::kKeyUp},
+    {SDLK_DOWN, she::kKeyDown},
+    {SDLK_KP_DIVIDE, she::kKeySlashPad},
+    {SDLK_ASTERISK, she::kKeyAsterisk},
+    {SDLK_KP_MINUS, she::kKeyMinusPad},
+    {SDLK_KP_PLUS, she::kKeyPlusPad},
+    // {SDLK_KP_DEL, she::kKeyDelPad},
+    {SDLK_KP_PERIOD, she::kKeyDelPad},
+    {SDLK_KP_ENTER, she::kKeyEnterPad},
+    {SDLK_PRINTSCREEN, she::kKeyPrtscr},
+    {SDLK_PAUSE, she::kKeyPause},
+    // {SDLK_ABNTC1, she::kKeyAbntC1},
+    // {SDLK_YEN, she::kKeyYen},
+    // {SDLK_KANA, she::kKeyKana},
+    // {SDLK_CONVERT, she::kKeyConvert},
+    // {SDLK_NOCONVERT, she::kKeyNoconvert},
+    {SDLK_AT, she::kKeyAt},
+    // {SDLK_CIRCUMFLEX, she::kKeyCircumflex},
+    // {SDLK_COLON2, she::kKeyColon2},
+    // {SDLK_KANJI, she::kKeyKanji},
+    {SDLK_KP_EQUALS, she::kKeyEqualsPad},
+    {SDLK_BACKQUOTE, she::kKeyBackquote},
+    {SDLK_SEMICOLON, she::kKeySemicolon},
+    // {SDLK_COMMAND, she::kKeyCommand},
+    // {SDLK_UNKNOWN1, she::kKeyUnknown1},
+    // {SDLK_UNKNOWN2, she::kKeyUnknown2},
+    // {SDLK_UNKNOWN3, she::kKeyUnknown3},
+    // {SDLK_UNKNOWN4, she::kKeyUnknown4},
+    // {SDLK_UNKNOWN5, she::kKeyUnknown5},
+    // {SDLK_UNKNOWN6, she::kKeyUnknown6},
+    // {SDLK_UNKNOWN7, she::kKeyUnknown7},
+    // {SDLK_UNKNOWN8, she::kKeyUnknown8},
+    {SDLK_LSHIFT, she::kKeyLShift},
+    {SDLK_RSHIFT, she::kKeyRShift},
+    {SDLK_LCTRL, she::kKeyLControl},
+    {SDLK_RCTRL, she::kKeyRControl},
+    {SDLK_LALT, she::kKeyAlt},
+    {SDLK_RALT, she::kKeyAltGr},
+    {static_cast<SDL_Keycode>(1073742051), she::kKeyLWin},
+    // {SDLK_RWIN, she::kKeyRWin},
+    {SDLK_MENU, she::kKeyMenu},
+    {SDLK_SCROLLLOCK, she::kKeyScrLock},
+    {SDLK_NUMLOCKCLEAR, she::kKeyNumLock},
+    {SDLK_CAPSLOCK, she::kKeyCapsLock},
 };
 
 std::unordered_map<SDL_Keycode, Modifier> modifiers = {
-  {SDLK_SPACE, she::kKeySpaceModifier},
+    {SDLK_SPACE, she::kKeySpaceModifier},
 
-  {SDLK_LALT, she::kKeyAltModifier},
-  {SDLK_RALT, she::kKeyAltModifier},
+    {SDLK_LALT, she::kKeyAltModifier},     {SDLK_RALT, she::kKeyAltModifier},
 
-  {SDLK_LCTRL, she::kKeyCtrlModifier},
-  {SDLK_RCTRL, she::kKeyCtrlModifier},
+    {SDLK_LCTRL, she::kKeyCtrlModifier},   {SDLK_RCTRL, she::kKeyCtrlModifier},
 
-  {SDLK_LGUI, she::kKeyCmdModifier},
-  {SDLK_RGUI, she::kKeyCmdModifier},
+    {SDLK_LGUI, she::kKeyCmdModifier},     {SDLK_RGUI, she::kKeyCmdModifier},
 
-  {SDLK_LSHIFT, she::kKeyShiftModifier},
-  {SDLK_RSHIFT, she::kKeyShiftModifier}
-};
+    {SDLK_LSHIFT, she::kKeyShiftModifier}, {SDLK_RSHIFT, she::kKeyShiftModifier}};
 
-she::KeyModifiers getSheModifiers() {
+she::KeyModifiers getSheModifiers()
+{
   int mod = 0;
-  for (auto& entry : modifiers) {
+  for (auto& entry : modifiers)
+  {
     if (entry.second.isPressed)
       mod |= entry.second.sheModifier;
   }
@@ -243,30 +250,40 @@ she::KeyModifiers getSheModifiers() {
 }
 
 #ifdef __EMSCRIPTEN__
+// clang-format off
 EM_JS(int, get_canvas_width, (), { return canvas.clientWidth; });
 EM_JS(int, get_canvas_height, (), { return canvas.clientHeight; });
+// clang-format on
 static int oldWidth, oldHeight;
 
-static void addEventListener(const std::string& name, void (*function)(void*), void* data = nullptr) {
+static void addEventListener(const std::string& name, void (*function)(void*), void* data = nullptr)
+{
+  // clang-format off
   EM_ASM({
     canvas.addEventListener(UTF8ToString($0), (event) => {
       window.event = event;
       dynCall('vi', $1, [$2]);
     });
   }, name.c_str(), function, data);
+  // clang-format on
 }
 
-static void cancelEvent(void*) {
+static void cancelEvent(void*)
+{
+  // clang-format off
   EM_ASM({
     event.stopPropagation();
     event.preventDefault();
   });
+  // clang-format on
 }
 
 static bool wrapped;
-static void patchEventListeners() {
+static void patchEventListeners()
+{
   if (wrapped)
     return;
+  // clang-format off
   wrapped = EM_ASM_INT({
     let handle = 0;
     JSEvents.eventHandlers.forEach(handler => {
@@ -284,32 +301,39 @@ static void patchEventListeners() {
     });
     return !!handle;
   });
+  // clang-format on
 }
 
 #endif
 
 static std::deque<she::Event> keybuffer;
 static bool display_has_mouse = false;
-namespace she {
-  void log(const std::string& text) {
+namespace she
+{
+void log(const std::string& text)
+{
 #if defined(ANDROID)
-    SDL_Log("%s", text.c_str());
+  SDL_Log("%s", text.c_str());
 #endif
-  }
+}
 
-  namespace sdl {
-    bool isMaximized;
-    bool isMinimized;
-    extern std::unordered_map<int, SDL2Display*> windowIdToDisplay;
-  }
+namespace sdl
+{
+bool isMaximized;
+bool isMinimized;
+extern std::unordered_map<int, SDL2Display*> windowIdToDisplay;
+}
 
-  class SDL2EventQueue : public EventQueue {
-  public:
-    PointerType pointerType = PointerType::Mouse;
-    std::chrono::steady_clock::time_point lastUpTime = std::chrono::steady_clock::now();
+class SDL2EventQueue : public EventQueue
+{
+public:
+  PointerType pointerType = PointerType::Mouse;
+  std::chrono::steady_clock::time_point lastUpTime = std::chrono::steady_clock::now();
 
-    SDL2EventQueue() {
+  SDL2EventQueue()
+  {
 #if defined(__EMSCRIPTEN__)
+    // clang-format off
         EM_ASM(
             const onPointerEvent = Module.cwrap("onPointerEvent", "", ["number", "number"]);
 	    const listener = event => {
@@ -319,438 +343,473 @@ namespace she {
 	    Module.canvas.addEventListener("pointermove", listener);
 	    Module.canvas.addEventListener("pointerup", listener);
             );
+    // clang-format on
 #endif
-      if (reverseKeyCodeMapping.empty()) {
-        for (auto& entry : keyCodeMapping) {
-          reverseKeyCodeMapping[entry.second.sheModifier] = &entry.second;
-          entry.second.ascii = entry.first;
-        }
+    if (reverseKeyCodeMapping.empty())
+    {
+      for (auto& entry : keyCodeMapping)
+      {
+        reverseKeyCodeMapping[entry.second.sheModifier] = &entry.second;
+        entry.second.ascii = entry.first;
       }
     }
+  }
 
-    void forceFlip() {
-      for (auto& entry : sdl::windowIdToDisplay) {
-        entry.second->flip({
-            0,
-            0,
-            entry.second->width(),
-            entry.second->height()
-          });
-        entry.second->present();
-      }
+  void forceFlip()
+  {
+    for (auto& entry : sdl::windowIdToDisplay)
+    {
+      entry.second->flip({0, 0, entry.second->width(), entry.second->height()});
+      entry.second->present();
     }
+  }
 
-    void refresh() {
-      if (!m_events.empty())
-	return;
-      Event event;
-      while (true) {
-	event.setType(Event::None);
-	getEventInternal(event, false);
-	if (event.type() == Event::None) {
-	  return;
-	}
-	m_events.push(event);
-      }
-    }
-
-    void getEvent(Event& event, bool) override {
+  void refresh()
+  {
+    if (!m_events.empty())
+      return;
+    Event event;
+    while (true)
+    {
       event.setType(Event::None);
-      if (m_events.try_pop(event))
+      getEventInternal(event, false);
+      if (event.type() == Event::None)
+      {
         return;
-      if (she::instance()->isGfxThread())
-	getEventInternal(event, false);
+      }
+      m_events.push(event);
     }
+  }
 
-    void getEventInternal(Event& event, bool) {
-      SDL_Event sdlEvent;
-      while (SDL_PollEvent(&sdlEvent)) {
-        switch (sdlEvent.type) {
-        case SDL_APP_DIDENTERFOREGROUND:
-          SDL2Surface::textureGen++;
-          forceFlip();
-          continue;
+  void getEvent(Event& event, bool) override
+  {
+    event.setType(Event::None);
+    if (m_events.try_pop(event))
+      return;
+    if (she::instance()->isGfxThread())
+      getEventInternal(event, false);
+  }
 
-	case SDL_SYSWMEVENT:
+  void getEventInternal(Event& event, bool)
+  {
+    SDL_Event sdlEvent;
+    while (SDL_PollEvent(&sdlEvent))
+    {
+      switch (sdlEvent.type)
+      {
+      case SDL_APP_DIDENTERFOREGROUND:
+        SDL2Surface::textureGen++;
+        forceFlip();
+        continue;
+
+      case SDL_SYSWMEVENT:
 #if defined(EASYTAB_H)
 #if defined(_WIN32)
-	  {
-	    auto& win = sdlEvent.syswm.msg->msg.win;
-	    if (EasyTab_HandleEvent(win.hwnd, win.msg, win.lParam, win.wParam) == EASYTAB_OK) {
-		penPressure = std::max<>(EasyTab->Pressure, 0.0001f);
-	    }
-	  }
+      {
+        auto& win = sdlEvent.syswm.msg->msg.win;
+        if (EasyTab_HandleEvent(win.hwnd, win.msg, win.lParam, win.wParam) == EASYTAB_OK)
+        {
+          penPressure = std::max<>(EasyTab->Pressure, 0.0001f);
+        }
+      }
 #endif
 #if defined(__linux__)
-	    if (EasyTab_HandleEvent(&sdlEvent.syswm.msg->msg.x11.event) == EASYTAB_OK) {
-		penPressure = std::max(EasyTab->Pressure, 0.0001f);
-	    }
+        if (EasyTab_HandleEvent(&sdlEvent.syswm.msg->msg.x11.event) == EASYTAB_OK)
+        {
+          penPressure = std::max(EasyTab->Pressure, 0.0001f);
+        }
 #endif
 #endif
-	    continue;
+        continue;
 
-        case SDL_WINDOWEVENT:
-          switch (sdlEvent.window.event) {
-          case SDL_WINDOWEVENT_EXPOSED:
-            forceFlip();
-            continue;
-          case SDL_WINDOWEVENT_SIZE_CHANGED:
-            continue;
-
-          case SDL_WINDOWEVENT_MAXIMIZED:
-            sdl::isMaximized = true;
-            sdl::isMinimized = false;
-            std::cout << "Maximized" << "\n";
-            continue;
-
-          case SDL_WINDOWEVENT_MINIMIZED:
-            sdl::isMaximized = false;
-            sdl::isMinimized = true;
-            std::cout << "Minimized" << "\n";
-            continue;
-
-          case SDL_WINDOWEVENT_RESTORED:
-            sdl::isMaximized = false;
-            sdl::isMinimized = false;
-            std::cout << "Restored" << "\n";
-            continue;
-
-          case SDL_WINDOWEVENT_RESIZED: {
-	    #ifdef __EMSCRIPTEN__
-	    continue;
-	    #else
-            auto display =
-                sdl::windowIdToDisplay[static_cast<int>(sdlEvent.window.windowID)];
-            display->setWidth(sdlEvent.window.data1);
-            display->setHeight(sdlEvent.window.data2);
-            display->recreateSurface();
-            event.setType(Event::ResizeDisplay);
-            event.setDisplay(display);
-            return;
-	    #endif
-          }
-
-          case SDL_WINDOWEVENT_LEAVE: {
-            if (display_has_mouse) {
-              display_has_mouse = false;
-
-              Event ev;
-              ev.setType(Event::MouseLeave);
-              m_events.push(ev);
-              break;
-            }
-          }
-          //silence 'Unknown windowevent' console spam for common SDL window events
-          case SDL_WINDOWEVENT_SHOWN:
-          case SDL_WINDOWEVENT_HIDDEN:
-          case SDL_WINDOWEVENT_MOVED:
-          case SDL_WINDOWEVENT_ENTER:
-          case SDL_WINDOWEVENT_FOCUS_GAINED:
-          case SDL_WINDOWEVENT_FOCUS_LOST:
-          case SDL_WINDOWEVENT_CLOSE: 
-          //closing the app is handled elsewhere so we can ignore it here
-            continue;
-
-          default:
-            std::cout << "Unknown windowevent: " << static_cast<int>(sdlEvent.window.event) << "\n";
-            continue;
-          }
+      case SDL_WINDOWEVENT:
+        switch (sdlEvent.window.event)
+        {
+        case SDL_WINDOWEVENT_EXPOSED:
+          forceFlip();
+          continue;
+        case SDL_WINDOWEVENT_SIZE_CHANGED:
           continue;
 
-        case SDL_MOUSEMOTION:
-          if (!display_has_mouse) {
-            display_has_mouse = true;
-            Event ev;
-            ev.setType(Event::MouseEnter);
-            m_events.push(ev);
-          }
+        case SDL_WINDOWEVENT_MAXIMIZED:
+          sdl::isMaximized = true;
+          sdl::isMinimized = false;
+          std::cout << "Maximized" << "\n";
+          continue;
 
-          // Drain excess SDL_MOUSEMOTION and SDL_FINGERMOTION events, keeping only the most recent
+        case SDL_WINDOWEVENT_MINIMIZED:
+          sdl::isMaximized = false;
+          sdl::isMinimized = true;
+          std::cout << "Minimized" << "\n";
+          continue;
+
+        case SDL_WINDOWEVENT_RESTORED:
+          sdl::isMaximized = false;
+          sdl::isMinimized = false;
+          std::cout << "Restored" << "\n";
+          continue;
+
+        case SDL_WINDOWEVENT_RESIZED:
+        {
+#ifdef __EMSCRIPTEN__
+          continue;
+#else
+          auto display = sdl::windowIdToDisplay[static_cast<int>(sdlEvent.window.windowID)];
+          display->setWidth(sdlEvent.window.data1);
+          display->setHeight(sdlEvent.window.data2);
+          display->recreateSurface();
+          event.setType(Event::ResizeDisplay);
+          event.setDisplay(display);
+          return;
+#endif
+        }
+
+        case SDL_WINDOWEVENT_LEAVE:
+        {
+          if (display_has_mouse)
           {
-            SDL_Event nextEvent;
-            while (SDL_PeepEvents(&nextEvent, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) > 0) {
-              sdlEvent = nextEvent;
-            }
-            while (SDL_PeepEvents(&nextEvent, 1, SDL_GETEVENT, SDL_FINGERMOTION, SDL_FINGERMOTION) > 0) {
-              penPressure = std::max(nextEvent.tfinger.pressure, 0.0001f);
-            }
-          }
+            display_has_mouse = false;
 
-          event.setType(Event::MouseMove);
-          event.setModifiers(getSheModifiers());
-          event.setPosition({
-              sdlEvent.motion.x / unique_display->scale(),
-              sdlEvent.motion.y / unique_display->scale()
-            });
-
-	  {
-	      const int hasFingerEvent = SDL_PeepEvents(&sdlEvent, 1, SDL_PEEKEVENT, SDL_FINGERMOTION, SDL_FINGERMOTION);
-	      if (hasFingerEvent) {
-		  penPressure = std::max<>(sdlEvent.tfinger.pressure, 0.0001f);
-	      }
-	  }
-
-
-	  event.setPressure(penPressure);
-	  event.setPointerType(pointerType);
-          return;
-
-        case SDL_FINGERMOTION:
-          penPressure = std::max<>(sdlEvent.tfinger.pressure, 0.0001f);
-          continue;
-
-        case SDL_MOUSEWHEEL:
-          event.setType(Event::MouseWheel);
-          event.setModifiers(getSheModifiers());
-          event.setWheelDelta({-sdlEvent.wheel.x, -sdlEvent.wheel.y});
-          int x, y;
-          SDL_GetMouseState(&x, &y);
-          event.setPosition({
-              x / unique_display->scale(),
-              y / unique_display->scale()
-            });
-          return;
-
-        case SDL_MOUSEBUTTONUP:
-        case SDL_MOUSEBUTTONDOWN: {
-          auto type = sdlEvent.type == SDL_MOUSEBUTTONDOWN ? Event::MouseDown : Event::MouseUp;
-          event.setType(type);
-          event.setPosition({
-              sdlEvent.button.x / unique_display->scale(),
-              sdlEvent.button.y / unique_display->scale()
-            });
-          event.setButton(mouseButtonMapping[sdlEvent.button.button]);
-          event.setModifiers(getSheModifiers());
-
-	  if (penPressure > 0.0f) {
-	    pointerType = PointerType::Pen;
-	    event.setPressure(penPressure);
-	    event.setPointerType(pointerType);
-	  } else {
-	    event.setPressure(sdlEvent.type == SDL_MOUSEBUTTONDOWN ? 1.0f : 0.0f);
-	    event.setPointerType(pointerType);
-	    pointerType = PointerType::Mouse;
-	  }
-
-	  auto now = std::chrono::steady_clock::now();
-	  auto delta = now - lastUpTime;
-	  // A double click replaces the second press (the matching release
-	  // still follows); see the SDL3 backend for why.
-          if (sdlEvent.type == SDL_MOUSEBUTTONDOWN) {
-	    using namespace std::chrono_literals;
-	    if (delta < 200ms)
-	      event.setType(Event::MouseDoubleClick);
-          }
-	  else {
-	    lastUpTime = now;
-          }
-
-          return;
-        }
-
-        case SDL_KEYDOWN:
-        case SDL_KEYUP: {
-          Event event;
-          const bool isPressed = sdlEvent.type == SDL_KEYDOWN;
-          auto modifierIt = modifiers.find(sdlEvent.key.keysym.sym);
-          if (modifierIt != modifiers.end()) {
-            modifierIt->second.isPressed = sdlEvent.type == SDL_KEYDOWN;
-          }
-
-          auto it = keyCodeMapping.find(sdlEvent.key.keysym.sym);
-
-          if (it == keyCodeMapping.end()) {
-            std::cout << "Unknown scancode: " << sdlEvent.key.keysym.sym << "\n";
-            continue;
-          }
-
-          event.setType(isPressed ? Event::KeyDown : Event::KeyUp);
-          auto modifiers = getSheModifiers();
-          event.setModifiers(modifiers);
-          it->second.isPressed = isPressed;
-          auto scancode = static_cast<she::KeyScancode>(it->second.sheModifier);
-          event.setScancode(scancode);
-          if (isPressed) {
-            lastScancode = scancode;
-            lastScancodeSDL = sdlEvent.key.keysym.scancode;
-          }
-          if (sdlEvent.key.repeat) {
-            event.setRepeat(sdlEvent.key.repeat);
-          }
-          keybuffer.push_back(event);
-          if (modifiers & (she::kKeyCtrlModifier | she::kKeyCmdModifier)) {
-            SDL_StopTextInput();
+            Event ev;
+            ev.setType(Event::MouseLeave);
+            m_events.push(ev);
             break;
-          } else if (!SDL_IsTextInputActive()) {
-            SDL_StartTextInput();
           }
-          continue;
         }
-
-        case SDL_DROPFILE: {
-          const std::string file(sdlEvent.drop.file);
-          event.setType(Event::DropFiles);
-          event.setFiles({file});
-          SDL_free(sdlEvent.drop.file);
-          return;
-        }
-
-          // CloseDisplay,
-          // ResizeDisplay,
-          // MouseEnter,
-          // MouseLeave,
-          // TouchMagnify,
-        case SDL_QUIT:
-          event.setType(Event::CloseDisplay);
-          return;
-
-        case SDL_TEXTEDITING:
-          continue;
-
-        case SDL_TEXTINPUT: {
-          keybuffer.clear();
-          std::string textString = sdlEvent.text.text;
-          const base::utf8_const_iterator begin{textString.begin()};
-          const base::utf8_const_iterator end{textString.end()};
-          Event event;
-          event.setModifiers(getSheModifiers());
-          for (auto it = begin; it != end; ++it) {
-            event.setType(Event::KeyDown);
-            event.setUnicodeChar(*it);
-            if (lastScancodeSDL > SDL_SCANCODE_UNKNOWN && lastScancodeSDL < SDL_SCANCODE_RETURN) {
-              event.setScancode(lastScancode);
-              lastScancodeSDL = SDL_SCANCODE_UNKNOWN;
-            }
-            keybuffer.push_back(event);
-            event.setType(Event::KeyUp);
-            keybuffer.push_back(event);
-          }
-
-          break;
-        }
-
-        case SDL_KEYMAPCHANGED:
+        // silence 'Unknown windowevent' console spam for common SDL window
+        // events
+        case SDL_WINDOWEVENT_SHOWN:
+        case SDL_WINDOWEVENT_HIDDEN:
+        case SDL_WINDOWEVENT_MOVED:
+        case SDL_WINDOWEVENT_ENTER:
+        case SDL_WINDOWEVENT_FOCUS_GAINED:
+        case SDL_WINDOWEVENT_FOCUS_LOST:
+        case SDL_WINDOWEVENT_CLOSE:
+          // closing the app is handled elsewhere so we can ignore it here
           continue;
 
         default:
-          std::cout << "Unknown event: " << sdlEvent.type << "\n";
+          std::cout << "Unknown windowevent: " << static_cast<int>(sdlEvent.window.event) << "\n";
           continue;
         }
-      }
+        continue;
 
-      if (!keybuffer.empty()) {
-        event = keybuffer.front();
-        keybuffer.pop_front();
+      case SDL_MOUSEMOTION:
+        if (!display_has_mouse)
+        {
+          display_has_mouse = true;
+          Event ev;
+          ev.setType(Event::MouseEnter);
+          m_events.push(ev);
+        }
+
+        // Drain excess SDL_MOUSEMOTION and SDL_FINGERMOTION events, keeping
+        // only the most recent
+        {
+          SDL_Event nextEvent;
+          while (SDL_PeepEvents(&nextEvent, 1, SDL_GETEVENT, SDL_MOUSEMOTION, SDL_MOUSEMOTION) > 0)
+          {
+            sdlEvent = nextEvent;
+          }
+          while (SDL_PeepEvents(&nextEvent, 1, SDL_GETEVENT, SDL_FINGERMOTION, SDL_FINGERMOTION) > 0)
+          {
+            penPressure = std::max(nextEvent.tfinger.pressure, 0.0001f);
+          }
+        }
+
+        event.setType(Event::MouseMove);
+        event.setModifiers(getSheModifiers());
+        event.setPosition({sdlEvent.motion.x / unique_display->scale(), sdlEvent.motion.y / unique_display->scale()});
+
+        {
+          const int hasFingerEvent = SDL_PeepEvents(&sdlEvent, 1, SDL_PEEKEVENT, SDL_FINGERMOTION, SDL_FINGERMOTION);
+          if (hasFingerEvent)
+          {
+            penPressure = std::max<>(sdlEvent.tfinger.pressure, 0.0001f);
+          }
+        }
+
+        event.setPressure(penPressure);
+        event.setPointerType(pointerType);
+        return;
+
+      case SDL_FINGERMOTION:
+        penPressure = std::max<>(sdlEvent.tfinger.pressure, 0.0001f);
+        continue;
+
+      case SDL_MOUSEWHEEL:
+        event.setType(Event::MouseWheel);
+        event.setModifiers(getSheModifiers());
+        event.setWheelDelta({-sdlEvent.wheel.x, -sdlEvent.wheel.y});
+        int x, y;
+        SDL_GetMouseState(&x, &y);
+        event.setPosition({x / unique_display->scale(), y / unique_display->scale()});
+        return;
+
+      case SDL_MOUSEBUTTONUP:
+      case SDL_MOUSEBUTTONDOWN:
+      {
+        auto type = sdlEvent.type == SDL_MOUSEBUTTONDOWN ? Event::MouseDown : Event::MouseUp;
+        event.setType(type);
+        event.setPosition({sdlEvent.button.x / unique_display->scale(), sdlEvent.button.y / unique_display->scale()});
+        event.setButton(mouseButtonMapping[sdlEvent.button.button]);
+        event.setModifiers(getSheModifiers());
+
+        if (penPressure > 0.0f)
+        {
+          pointerType = PointerType::Pen;
+          event.setPressure(penPressure);
+          event.setPointerType(pointerType);
+        }
+        else
+        {
+          event.setPressure(sdlEvent.type == SDL_MOUSEBUTTONDOWN ? 1.0f : 0.0f);
+          event.setPointerType(pointerType);
+          pointerType = PointerType::Mouse;
+        }
+
+        auto now = std::chrono::steady_clock::now();
+        auto delta = now - lastUpTime;
+        // A double click replaces the second press (the matching release
+        // still follows); see the SDL3 backend for why.
+        if (sdlEvent.type == SDL_MOUSEBUTTONDOWN)
+        {
+          using namespace std::chrono_literals;
+          if (delta < 200ms)
+            event.setType(Event::MouseDoubleClick);
+        }
+        else
+        {
+          lastUpTime = now;
+        }
+
         return;
       }
+
+      case SDL_KEYDOWN:
+      case SDL_KEYUP:
+      {
+        Event event;
+        const bool isPressed = sdlEvent.type == SDL_KEYDOWN;
+        auto modifierIt = modifiers.find(sdlEvent.key.keysym.sym);
+        if (modifierIt != modifiers.end())
+        {
+          modifierIt->second.isPressed = sdlEvent.type == SDL_KEYDOWN;
+        }
+
+        auto it = keyCodeMapping.find(sdlEvent.key.keysym.sym);
+
+        if (it == keyCodeMapping.end())
+        {
+          std::cout << "Unknown scancode: " << sdlEvent.key.keysym.sym << "\n";
+          continue;
+        }
+
+        event.setType(isPressed ? Event::KeyDown : Event::KeyUp);
+        auto modifiers = getSheModifiers();
+        event.setModifiers(modifiers);
+        it->second.isPressed = isPressed;
+        auto scancode = static_cast<she::KeyScancode>(it->second.sheModifier);
+        event.setScancode(scancode);
+        if (isPressed)
+        {
+          lastScancode = scancode;
+          lastScancodeSDL = sdlEvent.key.keysym.scancode;
+        }
+        if (sdlEvent.key.repeat)
+        {
+          event.setRepeat(sdlEvent.key.repeat);
+        }
+        keybuffer.push_back(event);
+        if (modifiers & (she::kKeyCtrlModifier | she::kKeyCmdModifier))
+        {
+          SDL_StopTextInput();
+          break;
+        }
+        else if (!SDL_IsTextInputActive())
+        {
+          SDL_StartTextInput();
+        }
+        continue;
+      }
+
+      case SDL_DROPFILE:
+      {
+        const std::string file(sdlEvent.drop.file);
+        event.setType(Event::DropFiles);
+        event.setFiles({file});
+        SDL_free(sdlEvent.drop.file);
+        return;
+      }
+
+        // CloseDisplay,
+        // ResizeDisplay,
+        // MouseEnter,
+        // MouseLeave,
+        // TouchMagnify,
+      case SDL_QUIT:
+        event.setType(Event::CloseDisplay);
+        return;
+
+      case SDL_TEXTEDITING:
+        continue;
+
+      case SDL_TEXTINPUT:
+      {
+        keybuffer.clear();
+        std::string textString = sdlEvent.text.text;
+        const base::utf8_const_iterator begin{textString.begin()};
+        const base::utf8_const_iterator end{textString.end()};
+        Event event;
+        event.setModifiers(getSheModifiers());
+        for (auto it = begin; it != end; ++it)
+        {
+          event.setType(Event::KeyDown);
+          event.setUnicodeChar(*it);
+          if (lastScancodeSDL > SDL_SCANCODE_UNKNOWN && lastScancodeSDL < SDL_SCANCODE_RETURN)
+          {
+            event.setScancode(lastScancode);
+            lastScancodeSDL = SDL_SCANCODE_UNKNOWN;
+          }
+          keybuffer.push_back(event);
+          event.setType(Event::KeyUp);
+          keybuffer.push_back(event);
+        }
+
+        break;
+      }
+
+      case SDL_KEYMAPCHANGED:
+        continue;
+
+      default:
+        std::cout << "Unknown event: " << sdlEvent.type << "\n";
+        continue;
+      }
     }
 
-    void queueEvent(const Event& event) override {
-      m_events.push(event);
+    if (!keybuffer.empty())
+    {
+      event = keybuffer.front();
+      keybuffer.pop_front();
+      return;
     }
-
-  private:
-    base::concurrent_queue<Event> m_events;
-  };
-
-  EventQueue* EventQueue::instance() {
-    static SDL2EventQueue g_queue;
-    return &g_queue;
   }
 
-  class SDL2System : public CommonSystem {
-  public:
-    SDL2System() {
-      g_instance = this;
+  void queueEvent(const Event& event) override { m_events.push(event); }
+
+private:
+  base::concurrent_queue<Event> m_events;
+};
+
+EventQueue* EventQueue::instance()
+{
+  static SDL2EventQueue g_queue;
+  return &g_queue;
+}
+
+class SDL2System : public CommonSystem
+{
+public:
+  SDL2System() { g_instance = this; }
+
+  ~SDL2System() override
+  {
+    shutdown = true;
+    sleeping = false;
+    if (mainThread.joinable())
+      mainThread.join();
+    IMG_Quit();
+    SDL_Quit();
+    g_instance = nullptr;
+  }
+
+  bool shutdown{false};
+  std::thread mainThread;
+  std::thread::id mainThreadId;
+  std::thread::id gfxThreadId;
+  std::vector<std::function<void()>> gfxQueue;
+  std::atomic<bool> sleeping{false};
+
+  bool isGfxThread() override { return std::this_thread::get_id() == gfxThreadId; }
+
+  bool isMainThread() override { return std::this_thread::get_id() == mainThreadId; }
+
+  void gfx(std::function<void()>&& func, bool sleep) override
+  {
+    if (isGfxThread())
+    {
+      func();
+      return;
     }
+    gfxQueue.emplace_back(std::move(func));
+    if (sleep)
+      this->sleep();
+  }
 
-    ~SDL2System() override {
-      shutdown = true;
-      sleeping = false;
-      if (mainThread.joinable())
-	mainThread.join();
-      IMG_Quit();
-      SDL_Quit();
-      g_instance = nullptr;
+  using Timestamp = std::chrono::high_resolution_clock::time_point;
+  Timestamp start = std::chrono::high_resolution_clock::now();
+
+  void sleep() override
+  {
+    using namespace std::chrono_literals;
+    if (shutdown)
+      return;
+
+    if (mainThreadId == gfxThreadId)
+    {
+      refresh();
+      auto now = std::chrono::high_resolution_clock::now();
+
+      // If the dispatching of messages was faster than 10 milliseconds,
+      // it means that the process is not using a lot of CPU, so we can
+      // wait the difference to cover those 10 milliseconds
+      // sleeping. With this code we can avoid 100% CPU usage.
+      auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+      start = now;
+
+      if (elapsed < 15ms)
+        std::this_thread::sleep_for(15ms - elapsed);
     }
-
-    bool shutdown{false};
-    std::thread mainThread;
-    std::thread::id mainThreadId;
-    std::thread::id gfxThreadId;
-    std::vector<std::function<void()>> gfxQueue;
-    std::atomic<bool> sleeping{false};
-
-    bool isGfxThread() override {
-      return std::this_thread::get_id() == gfxThreadId;
-    }
-
-    bool isMainThread() override {
-      return std::this_thread::get_id() == mainThreadId;
-    }
-
-    void gfx(std::function<void()>&& func, bool sleep) override {
-      if (isGfxThread()) {
-	func();
-	return;
+    else if (isMainThread())
+    {
+      sleeping = true;
+      while (sleeping)
+      {
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(10ms);
       }
-      gfxQueue.emplace_back(std::move(func));
-      if (sleep)
-	this->sleep();
     }
+  }
 
-    using Timestamp = std::chrono::high_resolution_clock::time_point;
-    Timestamp start = std::chrono::high_resolution_clock::now();
-
-    void sleep() override {
-      using namespace std::chrono_literals;
-      if (shutdown)
-	return;
-
-      if (mainThreadId == gfxThreadId) {
-	refresh();
-	auto now = std::chrono::high_resolution_clock::now();
-
-	// If the dispatching of messages was faster than 10 milliseconds,
-	// it means that the process is not using a lot of CPU, so we can
-	// wait the difference to cover those 10 milliseconds
-	// sleeping. With this code we can avoid 100% CPU usage.
-	auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
-	start = now;
-
-	if (elapsed < 15ms)
-	  std::this_thread::sleep_for(15ms - elapsed);
-      } else if (isMainThread()) {
-	sleeping = true;
-	while (sleeping) {
-	  using namespace std::chrono_literals;
-	  std::this_thread::sleep_for(10ms);
-	}
-      }
+  std::function<int()> m_func;
+  int run(std::function<int()>&& func) override
+  {
+    gfxThreadId = std::this_thread::get_id();
+#ifndef EMSCRIPTEN
+    mainThreadId = gfxThreadId;
+    return func();
+#elif defined(EMSCRIPTEN) && !defined(__EMSCRIPTEN__)
+    m_func = std::move(func);
+    // like emscripten, but not really
+    mainThread = std::thread{[this]
+                             {
+                               mainThreadId = std::this_thread::get_id();
+                               m_func();
+                             }};
+    while (!shutdown)
+    {
+      refresh();
     }
+#else
+    m_func = std::move(func);
 
-    std::function<int()> m_func;
-    int run(std::function<int()>&& func) override {
-      gfxThreadId = std::this_thread::get_id();
-      #ifndef EMSCRIPTEN
-      mainThreadId = gfxThreadId;
-      return func();
-      #elif defined(EMSCRIPTEN) && !defined(__EMSCRIPTEN__)
-      m_func = std::move(func);
-      // like emscripten, but not really
-      mainThread = std::thread{[this]{
-        mainThreadId = std::this_thread::get_id();
-	m_func();
-      }};
-      while (!shutdown)(
-	refresh();
-      }
-      #else
-      m_func = std::move(func);
-
-      addEventListener("dragenter", cancelEvent);
-      addEventListener("dragover", cancelEvent);
-      addEventListener("drop", [](void*){
+    addEventListener("dragenter", cancelEvent);
+    addEventListener("dragover", cancelEvent);
+    addEventListener("drop",
+                     [](void*)
+                     {
+                       // clang-format off
 	EM_ASM({
 	  event.stopPropagation();
 	  event.preventDefault();
@@ -767,239 +826,266 @@ namespace she {
 	    }
 	  }
         });
-      });
+                       // clang-format on
+                     });
 
-      addEventListener("readFile", [](void*){
+    addEventListener("readFile",
+                     [](void*)
+                     {
+                       // clang-format off
 	auto str = (char*) EM_ASM_PTR({return stringToNewUTF8(event.detail.path)});
-	std::string path = str;
-	free(str);
-	Event event;
-	event.setType(Event::DropFiles);
-	event.setFiles({path});
-	static_cast<SDL2EventQueue*>(EventQueue::instance())->queueEvent(event);
-      });
+                       // clang-format on
+                       std::string path = str;
+                       free(str);
+                       Event event;
+                       event.setType(Event::DropFiles);
+                       event.setFiles({path});
+                       static_cast<SDL2EventQueue*>(EventQueue::instance())->queueEvent(event);
+                     });
 
-      emscripten_set_main_loop([]{
-	  if (!cfginit())
-	      return;
-	  auto sys = static_cast<SDL2System*>(g_instance);
-	  sys->mainThread = std::thread{[]{
-	      auto sys = static_cast<SDL2System*>(g_instance);
-	      sys->mainThreadId = std::this_thread::get_id();
-	      sys->m_func();
-	  }};
-	  emscripten_cancel_main_loop();
-	  emscripten_set_main_loop([]{
-	      patchEventListeners();
-	      static_cast<SDL2System*>(g_instance)->refresh();
-	  }, 0, true);
-      }, 0, true);
-      #endif
-      return 0;
-    }
-
-    void refresh() {
-      if (!sleeping) {
-	static_cast<SDL2EventQueue*>(EventQueue::instance())->refresh();
-	return;
-      }
-      #ifdef __EMSCRIPTEN__
-      auto width = get_canvas_width();
-      auto height = get_canvas_height();
-      if (width && height && (oldWidth != width || oldHeight != height) && !sdl::windowIdToDisplay.empty()) {
-	oldWidth = width;
-	oldHeight = height;
-	for (auto& entry : sdl::windowIdToDisplay) {
-	  auto display = entry.second;
-	  SDL_SetWindowSize(display->m_window, width, height);
-	  display->setWidth(width);
-	  display->setHeight(height);
-	  display->recreateSurface();
-	  Event event;
-	  event.setType(Event::ResizeDisplay);
-	  event.setDisplay(display);
-	  static_cast<SDL2EventQueue*>(EventQueue::instance())->queueEvent(event);
-	}
-      }
-      #endif
-      int frames = 5;
-      do {
-	for (auto& fn : gfxQueue) {
-	  fn();
-	}
-	gfxQueue.clear();
-	sleeping = false;
-	for (auto& entry : sdl::windowIdToDisplay)
-	  entry.second->present();
-	static_cast<SDL2EventQueue*>(EventQueue::instance())->refresh();
-      } while (sleeping && --frames);
-    }
-
-    void activateApp() override {
-      // Do nothing
-    }
-
-    void finishLaunching() override {
-      // Do nothing
-    }
-
-    Capabilities capabilities() const override {
-      return (Capabilities)(int(Capabilities::CanResizeDisplay) | int(Capabilities::GpuAccelerationSwitch));
-    }
-
-    EventQueue* eventQueue() override { // TODO remove this function
-      return EventQueue::instance();
-    }
-
-    bool gpuAcceleration() const override {
-      return SDL2Display::gpu;
-    }
-
-    void setGpuAcceleration(bool state) override {
-      if (!unique_display)
-        SDL2Display::gpu = state;
-    }
-
-    gfx::Size defaultNewDisplaySize() override {
-      return {0, 0};
-    }
-
-    gfx::Size desktopSize() override {
-      // Reports the primary display's resolution in pixels (or in points on
-      // platforms where the window is not created high-DPI aware, e.g. macOS
-      // without SDL_WINDOW_ALLOW_HIGHDPI). Returns (0, 0) when SDL can't
-      // determine it or the video subsystem isn't up yet.
-      if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
-        return {0, 0};
-      SDL_DisplayMode mode;
-      if (SDL_GetDesktopDisplayMode(0, &mode) != 0)
-        return {0, 0};
-      return {mode.w, mode.h};
-    }
-
-    Display* defaultDisplay() override {
-      return unique_display;
-    }
-
-    Display* createDisplay(int width, int height, int scale) override {
-      //LOG("Creating display %dx%d (scale = %d)\n", width, height, scale);
-      return new SDL2Display(width, height, scale);
-    }
-
-    Surface* createSurface(int width, int height) override {
-      return new SDL2Surface(width, height, SDL2Surface::DeleteAndDestroy);
-    }
-
-    Surface* createRgbaSurface(int width, int height) override {
-      return new SDL2Surface(width, height, 32, SDL2Surface::DeleteAndDestroy);
-    }
-
-    std::vector<uint8_t> encodeSurfaceAsPNG(Surface* s) override {
-      auto surface = static_cast<SDL2Surface*>(s);
-      std::vector<uint8_t> data;
-      data.resize(surface->width() * surface->height() * 4 + 1024);
-      const std::shared_ptr<SDL_RWops> rops{
-        SDL_RWFromMem(data.data(), static_cast<int>(data.size())),
-        [](auto *rops){ rops->close(rops); }
-      };
-      if (IMG_SavePNG_RW(static_cast<SDL_Surface*>(surface->nativeHandle()), rops.get(), 0) != 0)
-        return {};
-      data.resize(SDL_RWtell(rops.get()));
-      return data;
-    }
-
-    Surface* loadSurface(const char* filename) override {
-      SDL_Surface* bmp = IMG_Load(filename);
-      if (!bmp)
-	throw std::runtime_error(std::string{"Error loading image "} + filename);
-      return new SDL2Surface(bmp, SDL2Surface::DeleteAndDestroy);
-    }
-
-    Surface* loadRgbaSurface(const char* filename) override {
-      SDL_Surface* bmp = IMG_Load(filename);
-      if (!bmp)
-	throw std::runtime_error(std::string{"Error loading image "} + filename);
-      if (bmp->format->BitsPerPixel < 32) {
-        auto copy = SDL_ConvertSurfaceFormat(bmp, SDL_PIXELFORMAT_RGBA8888, 0);
-        SDL_FreeSurface(bmp);
-        bmp = copy;
-      }
-      return new SDL2Surface(bmp, SDL2Surface::DeleteAndDestroy);
-    }
-
-  };
-
-  System* create_system() {
-    return new SDL2System();
+    emscripten_set_main_loop(
+        []
+        {
+          if (!cfginit())
+            return;
+          auto sys = static_cast<SDL2System*>(g_instance);
+          sys->mainThread = std::thread{[]
+                                        {
+                                          auto sys = static_cast<SDL2System*>(g_instance);
+                                          sys->mainThreadId = std::this_thread::get_id();
+                                          sys->m_func();
+                                        }};
+          emscripten_cancel_main_loop();
+          emscripten_set_main_loop(
+              []
+              {
+                patchEventListeners();
+                static_cast<SDL2System*>(g_instance)->refresh();
+              },
+              0, true);
+        },
+        0, true);
+#endif
+    return 0;
   }
 
-  System* instance()
+  void refresh()
   {
-    return g_instance;
-  }
-
-  void error_message(const char* msg)
-  {
-    if (g_instance && g_instance->logger())
-      g_instance->logger()->logError(msg);
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PACKAGE, msg, nullptr);
-  }
-
-  int scancode_to_ascii(KeyScancode scancode) {
-    auto it = reverseKeyCodeMapping.find(scancode);
-    if (it == reverseKeyCodeMapping.end())
-      return 0;
-    return it->second->ascii;
-  }
-
-  bool is_key_pressed(KeyScancode scancode) {
-    auto it = reverseKeyCodeMapping.find(scancode);
-    if (it != reverseKeyCodeMapping.end()) {
-      return it->second->isPressed;
-    }
-    return false;
-  }
-
-  void set_input_rect(const gfx::Rect& rect) {
-    if (rect.isEmpty()) {
-      SDL_StopTextInput();
+    if (!sleeping)
+    {
+      static_cast<SDL2EventQueue*>(EventQueue::instance())->refresh();
       return;
     }
-    const SDL_Rect sdlRect{
-      .x = rect.x,
-      .y = rect.y,
-      .w = rect.w,
-      .h = rect.h
-    };
-    SDL_SetTextInputRect(&sdlRect);
-    SDL_StartTextInput();
+#ifdef __EMSCRIPTEN__
+    auto width = get_canvas_width();
+    auto height = get_canvas_height();
+    if (width && height && (oldWidth != width || oldHeight != height) && !sdl::windowIdToDisplay.empty())
+    {
+      oldWidth = width;
+      oldHeight = height;
+      for (auto& entry : sdl::windowIdToDisplay)
+      {
+        auto display = entry.second;
+        SDL_SetWindowSize(display->m_window, width, height);
+        display->setWidth(width);
+        display->setHeight(height);
+        display->recreateSurface();
+        Event event;
+        event.setType(Event::ResizeDisplay);
+        event.setDisplay(display);
+        static_cast<SDL2EventQueue*>(EventQueue::instance())->queueEvent(event);
+      }
+    }
+#endif
+    int frames = 5;
+    do
+    {
+      for (auto& fn : gfxQueue)
+      {
+        fn();
+      }
+      gfxQueue.clear();
+      sleeping = false;
+      for (auto& entry : sdl::windowIdToDisplay)
+        entry.second->present();
+      static_cast<SDL2EventQueue*>(EventQueue::instance())->refresh();
+    } while (sleeping && --frames);
   }
 
-  void clear_keyboard_buffer() {
-    keybuffer.clear();
+  void activateApp() override
+  {
+    // Do nothing
   }
+
+  void finishLaunching() override
+  {
+    // Do nothing
+  }
+
+  Capabilities capabilities() const override
+  {
+    return (Capabilities)(int(Capabilities::CanResizeDisplay) | int(Capabilities::GpuAccelerationSwitch));
+  }
+
+  EventQueue* eventQueue() override
+  { // TODO remove this function
+    return EventQueue::instance();
+  }
+
+  bool gpuAcceleration() const override { return SDL2Display::gpu; }
+
+  void setGpuAcceleration(bool state) override
+  {
+    if (!unique_display)
+      SDL2Display::gpu = state;
+  }
+
+  gfx::Size defaultNewDisplaySize() override { return {0, 0}; }
+
+  gfx::Size desktopSize() override
+  {
+    // Reports the primary display's resolution in pixels (or in points on
+    // platforms where the window is not created high-DPI aware, e.g. macOS
+    // without SDL_WINDOW_ALLOW_HIGHDPI). Returns (0, 0) when SDL can't
+    // determine it or the video subsystem isn't up yet.
+    if (SDL_WasInit(SDL_INIT_VIDEO) == 0)
+      return {0, 0};
+    SDL_DisplayMode mode;
+    if (SDL_GetDesktopDisplayMode(0, &mode) != 0)
+      return {0, 0};
+    return {mode.w, mode.h};
+  }
+
+  Display* defaultDisplay() override { return unique_display; }
+
+  Display* createDisplay(int width, int height, int scale) override
+  {
+    // LOG("Creating display %dx%d (scale = %d)\n", width, height, scale);
+    return new SDL2Display(width, height, scale);
+  }
+
+  Surface* createSurface(int width, int height) override
+  {
+    return new SDL2Surface(width, height, SDL2Surface::DeleteAndDestroy);
+  }
+
+  Surface* createRgbaSurface(int width, int height) override
+  {
+    return new SDL2Surface(width, height, 32, SDL2Surface::DeleteAndDestroy);
+  }
+
+  std::vector<uint8_t> encodeSurfaceAsPNG(Surface* s) override
+  {
+    auto surface = static_cast<SDL2Surface*>(s);
+    std::vector<uint8_t> data;
+    data.resize(surface->width() * surface->height() * 4 + 1024);
+    const std::shared_ptr<SDL_RWops> rops{SDL_RWFromMem(data.data(), static_cast<int>(data.size())),
+                                          [](auto* rops) { rops->close(rops); }};
+    if (IMG_SavePNG_RW(static_cast<SDL_Surface*>(surface->nativeHandle()), rops.get(), 0) != 0)
+      return {};
+    data.resize(SDL_RWtell(rops.get()));
+    return data;
+  }
+
+  Surface* loadSurface(const char* filename) override
+  {
+    SDL_Surface* bmp = IMG_Load(filename);
+    if (!bmp)
+      throw std::runtime_error(std::string{"Error loading image "} + filename);
+    return new SDL2Surface(bmp, SDL2Surface::DeleteAndDestroy);
+  }
+
+  Surface* loadRgbaSurface(const char* filename) override
+  {
+    SDL_Surface* bmp = IMG_Load(filename);
+    if (!bmp)
+      throw std::runtime_error(std::string{"Error loading image "} + filename);
+    if (bmp->format->BitsPerPixel < 32)
+    {
+      auto copy = SDL_ConvertSurfaceFormat(bmp, SDL_PIXELFORMAT_RGBA8888, 0);
+      SDL_FreeSurface(bmp);
+      bmp = copy;
+    }
+    return new SDL2Surface(bmp, SDL2Surface::DeleteAndDestroy);
+  }
+};
+
+System* create_system()
+{
+  return new SDL2System();
+}
+
+System* instance()
+{
+  return g_instance;
+}
+
+void error_message(const char* msg)
+{
+  if (g_instance && g_instance->logger())
+    g_instance->logger()->logError(msg);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PACKAGE, msg, nullptr);
+}
+
+int scancode_to_ascii(KeyScancode scancode)
+{
+  auto it = reverseKeyCodeMapping.find(scancode);
+  if (it == reverseKeyCodeMapping.end())
+    return 0;
+  return it->second->ascii;
+}
+
+bool is_key_pressed(KeyScancode scancode)
+{
+  auto it = reverseKeyCodeMapping.find(scancode);
+  if (it != reverseKeyCodeMapping.end())
+  {
+    return it->second->isPressed;
+  }
+  return false;
+}
+
+void set_input_rect(const gfx::Rect& rect)
+{
+  if (rect.isEmpty())
+  {
+    SDL_StopTextInput();
+    return;
+  }
+  const SDL_Rect sdlRect{.x = rect.x, .y = rect.y, .w = rect.w, .h = rect.h};
+  SDL_SetTextInputRect(&sdlRect);
+  SDL_StartTextInput();
+}
+
+void clear_keyboard_buffer()
+{
+  keybuffer.clear();
+}
 
 } // namespace she
 
 // It must be defined by the user program code.
 extern int app_main(int argc, char* argv[]);
 
-int main(const int argc, char* argv[]) {
-  #ifdef SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR
+int main(const int argc, char* argv[])
+{
+#ifdef SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR
   SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
-  #endif
+#endif
   SDL_SetHint(SDL_HINT_VIDEO_ALLOW_SCREENSAVER, "1");
 
-  // If the requested DPI awareness is not available on the currently running OS,
-  // SDL will try to request the best available match.
+  // If the requested DPI awareness is not available on the currently running
+  // OS, SDL will try to request the best available match.
   // https://wiki.libsdl.org/SDL2/SDL_HINT_WINDOWS_DPI_AWARENESS
   SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0)
+  {
     std::cerr << "Critical: Could not initialize SDL2. Aborting." << "\n";
     return -1;
   }
-  if (!IMG_Init(-1)) {
+  if (!IMG_Init(-1))
+  {
     std::cerr << "Critical: Could not initialize SDL2_image (" << IMG_GetError() << "). Aborting." << "\n";
     return -2;
   }

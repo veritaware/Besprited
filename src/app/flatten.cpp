@@ -25,8 +25,7 @@ using namespace doc;
 
 static bool has_cels(const Layer* layer, frame_t frame);
 
-LayerImage* create_flatten_layer_copy(Sprite* dstSprite, const Layer* srcLayer,
-                                      const gfx::Rect& bounds, frame_t frmin,
+LayerImage* create_flatten_layer_copy(Sprite* dstSprite, const Layer* srcLayer, const gfx::Rect& bounds, frame_t frmin,
                                       frame_t frmax)
 {
   auto flatLayer = std::make_unique<LayerImage>(dstSprite);
@@ -38,8 +37,7 @@ LayerImage* create_flatten_layer_copy(Sprite* dstSprite, const Layer* srcLayer,
     if (has_cels(srcLayer, frame))
     {
       // Create a new image to render each frame.
-      ImageRef image(Image::create(flatLayer->sprite()->pixelFormat(), bounds.w,
-                                   bounds.h));
+      ImageRef image(Image::create(flatLayer->sprite()->pixelFormat(), bounds.w, bounds.h));
 
       // Create the new cel for the output layer.
       auto cel = std::make_shared<Cel>(frame, image);
@@ -71,10 +69,8 @@ static bool has_cels(const Layer* layer, frame_t frame)
 
   case ObjectType::LayerFolder:
   {
-    LayerConstIterator it =
-        static_cast<const LayerFolder*>(layer)->getLayerBegin();
-    LayerConstIterator end =
-        static_cast<const LayerFolder*>(layer)->getLayerEnd();
+    LayerConstIterator it = static_cast<const LayerFolder*>(layer)->getLayerBegin();
+    LayerConstIterator end = static_cast<const LayerFolder*>(layer)->getLayerEnd();
 
     for (; it != end; ++it)
     {

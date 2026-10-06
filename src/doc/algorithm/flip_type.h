@@ -18,5 +18,5 @@ enum FlipType
   FlipVertical,
 };
 
-}
+} // namespace algorithm
 } // namespace doc

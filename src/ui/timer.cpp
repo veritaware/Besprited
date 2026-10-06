@@ -81,8 +81,7 @@ void Timer::pollTimers()
   {
     base::tick_t t = base::current_tick();
 
-    for (Timers::iterator it = timers.begin(), end = timers.end(); it != end;
-         ++it)
+    for (Timers::iterator it = timers.begin(), end = timers.end(); it != end; ++it)
     {
       Timer* timer = *it;
       if (timer && timer->isRunning())

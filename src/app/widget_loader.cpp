@@ -43,8 +43,7 @@ using namespace ui;
 using namespace app::skin;
 
 static int convert_align_value_to_flags(const char* value);
-static int int_attr(const tinyxml2::XMLElement* elem,
-                    const char* attribute_name, int default_value);
+static int int_attr(const tinyxml2::XMLElement* elem, const char* attribute_name, int default_value);
 
 WidgetLoader::WidgetLoader()
   : m_tooltipManager(nullptr)
@@ -53,20 +52,16 @@ WidgetLoader::WidgetLoader()
 
 WidgetLoader::~WidgetLoader()
 {
-  for (TypeCreatorsMap::iterator it = m_typeCreators.begin(),
-                                 end = m_typeCreators.end();
-       it != end; ++it)
+  for (TypeCreatorsMap::iterator it = m_typeCreators.begin(), end = m_typeCreators.end(); it != end; ++it)
     it->second->dispose();
 }
 
-void WidgetLoader::addWidgetType(const char* tagName,
-                                 IWidgetTypeCreator* creator)
+void WidgetLoader::addWidgetType(const char* tagName, IWidgetTypeCreator* creator)
 {
   m_typeCreators[tagName] = creator;
 }
 
-Widget* WidgetLoader::loadWidget(const char* fileName, const char* widgetId,
-                                 ui::Widget* widget)
+Widget* WidgetLoader::loadWidget(const char* fileName, const char* widgetId, ui::Widget* widget)
 {
   std::string buf;
 
@@ -87,8 +82,7 @@ Widget* WidgetLoader::loadWidget(const char* fileName, const char* widgetId,
   return widget;
 }
 
-Widget* WidgetLoader::loadWidgetFromXmlFile(const std::string& xmlFilename,
-                                            const std::string& widgetId,
+Widget* WidgetLoader::loadWidgetFromXmlFile(const std::string& xmlFilename, const std::string& widgetId,
                                             ui::Widget* widget)
 {
   m_tooltipManager = nullptr;
@@ -97,8 +91,7 @@ Widget* WidgetLoader::loadWidgetFromXmlFile(const std::string& xmlFilename,
   tinyxml2::XMLHandle handle(doc.get());
 
   // Search the requested widget.
-  tinyxml2::XMLElement* xmlElement =
-      handle.FirstChildElement("gui").FirstChildElement().ToElement();
+  tinyxml2::XMLElement* xmlElement = handle.FirstChildElement("gui").FirstChildElement().ToElement();
 
   while (xmlElement)
   {
@@ -116,10 +109,8 @@ Widget* WidgetLoader::loadWidgetFromXmlFile(const std::string& xmlFilename,
   return widget;
 }
 
-Widget*
-WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
-                                        Widget* root, Widget* parent,
-                                        Widget* widget)
+Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem, Widget* root, Widget* parent,
+                                                Widget* widget)
 {
   const std::string elem_name = elem->Value();
 
@@ -174,9 +165,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
       {
         SkinPartPtr part = SkinTheme::instance()->getPartById(icon_name);
         if (!part)
-          throw base::Exception(
-              "<button> element found with invalid 'icon' attribute '%s'",
-              icon_name);
+          throw base::Exception("<button> element found with invalid 'icon' attribute '%s'", icon_name);
 
         widget = new IconButton(part->bitmap(0));
       }
@@ -193,8 +182,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
     bool closewindow = bool_attr_is_true(elem, "closewindow");
     const char* _bevel = elem->Attribute("bevel");
 
-    widget->setAlign((left ? LEFT : (right ? RIGHT : CENTER)) |
-                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
+    widget->setAlign((left ? LEFT : (right ? RIGHT : CENTER)) | (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
 
     if (_bevel != nullptr)
     {
@@ -205,8 +193,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
       for (c = 0; c < 4; ++c)
         b[c] = 0;
 
-      for (tok = strtok(bevel, " "), c = 0; tok;
-           tok = strtok(nullptr, " "), ++c)
+      for (tok = strtok(bevel, " "), c = 0; tok; tok = strtok(nullptr, " "), ++c)
       {
         if (c < 4)
           b[c] = strtol(tok, nullptr, 10);
@@ -218,8 +205,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
 
     if (closewindow)
     {
-      static_cast<Button*>(widget)->Click.connect(
-          base::Bind<void>(&Widget::closeWindow, widget));
+      static_cast<Button*>(widget)->Click.connect(base::Bind<void>(&Widget::closeWindow, widget));
     }
   }
   else if (elem_name == "check")
@@ -242,8 +228,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
     bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
 
-    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) |
-                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
+    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) | (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
   else if (elem_name == "combobox")
   {
@@ -276,8 +261,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
         ((Entry*)widget)->setSuffix(suffix);
     }
     else
-      throw std::runtime_error(
-          "<entry> element found without 'maxsize' attribute");
+      throw std::runtime_error("<entry> element found without 'maxsize' attribute");
   }
   else if (elem_name == "intentry")
   {
@@ -325,8 +309,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
     bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
 
-    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) |
-                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
+    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) | (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
   else if (elem_name == "link")
   {
@@ -347,8 +330,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
     bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
 
-    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) |
-                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
+    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) | (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
   else if (elem_name == "listbox")
   {
@@ -379,17 +361,12 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
     bool vertical = bool_attr_is_true(elem, "vertical");
     const char* by = elem->Attribute("by");
     const char* position = elem->Attribute("position");
-    Splitter::Type type =
-        (by && strcmp(by, "pixel") == 0 ? Splitter::ByPixel
-                                        : Splitter::ByPercentage);
+    Splitter::Type type = (by && strcmp(by, "pixel") == 0 ? Splitter::ByPixel : Splitter::ByPercentage);
 
-    Splitter* splitter = new Splitter(type, horizontal ? HORIZONTAL
-                                            : vertical ? VERTICAL
-                                                       : 0);
+    Splitter* splitter = new Splitter(type, horizontal ? HORIZONTAL : vertical ? VERTICAL : 0);
     if (position)
     {
-      splitter->setPosition(strtod(position, nullptr) *
-                            (type == Splitter::ByPixel ? guiscale() : 1));
+      splitter->setPosition(strtod(position, nullptr) * (type == Splitter::ByPixel ? guiscale() : 1));
     }
     widget = splitter;
   }
@@ -424,8 +401,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
     bool top = bool_attr_is_true(elem, "top");
     bool bottom = bool_attr_is_true(elem, "bottom");
 
-    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) |
-                     (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
+    widget->setAlign((center ? CENTER : (right ? RIGHT : LEFT)) | (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
   else if (elem_name == "separator")
   {
@@ -435,8 +411,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
     bool bottom = bool_attr_is_true(elem, "bottom");
     bool horizontal = bool_attr_is_true(elem, "horizontal");
     bool vertical = bool_attr_is_true(elem, "vertical");
-    int align = (horizontal ? HORIZONTAL : 0) | (vertical ? VERTICAL : 0) |
-                (center ? CENTER : (right ? RIGHT : LEFT)) |
+    int align = (horizontal ? HORIZONTAL : 0) | (vertical ? VERTICAL : 0) | (center ? CENTER : (right ? RIGHT : LEFT)) |
                 (middle ? MIDDLE : (bottom ? BOTTOM : TOP));
 
     if (!widget)
@@ -495,8 +470,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
   else if (elem_name == "colorpicker")
   {
     if (!widget)
-      widget =
-          new ColorButton(Color::fromMask(), app_get_current_pixel_format());
+      widget = new ColorButton(Color::fromMask(), app_get_current_pixel_format());
   }
   else if (elem_name == "dropdownbutton")
   {
@@ -537,8 +511,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
 
       if (icon)
       {
-        SkinPartPtr part =
-            SkinTheme::instance()->getPartById(std::string(icon));
+        SkinPartPtr part = SkinTheme::instance()->getPartById(std::string(icon));
         if (part)
           item->setIcon(part);
       }
@@ -566,8 +539,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
 
       try
       {
-        she::Surface* sur =
-            she::instance()->loadRgbaSurface(rf.filename().c_str());
+        she::Surface* sur = she::instance()->loadRgbaSurface(rf.filename().c_str());
         widget = new ImageView(sur, 0, true);
       }
       catch (...)
@@ -589,8 +561,7 @@ WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
   return widget;
 }
 
-void WidgetLoader::fillWidgetWithXmlElementAttributes(
-    const tinyxml2::XMLElement* elem, Widget* root, Widget* widget)
+void WidgetLoader::fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement* elem, Widget* root, Widget* widget)
 {
   const char* id = elem->Attribute("id");
   const char* text = elem->Attribute("text");
@@ -689,8 +660,7 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(
   if (minwidth || minheight)
   {
     int w = (minwidth ? guiscale() * strtol(minwidth, nullptr, 10) : reqSize.w);
-    int h =
-        (minheight ? guiscale() * strtol(minheight, nullptr, 10) : reqSize.h);
+    int h = (minheight ? guiscale() * strtol(minheight, nullptr, 10) : reqSize.h);
     widget->setMinSize(gfx::Size(w, h));
   }
 
@@ -714,8 +684,8 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(
   }
 }
 
-void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(
-    const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* widget)
+void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(const tinyxml2::XMLElement* elem, ui::Widget* root,
+                                                                  ui::Widget* widget)
 {
   fillWidgetWithXmlElementAttributes(elem, root, widget);
 
@@ -750,8 +720,7 @@ void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(
         grid->addChildInCell(child, hspan, vspan, align);
       }
       // Attach the child in the view
-      else if (widget->type() == kComboBoxWidget &&
-               child->type() == kListItemWidget)
+      else if (widget->type() == kComboBoxWidget && child->type() == kListItemWidget)
       {
         ComboBox* combo = dynamic_cast<ComboBox*>(widget);
         ASSERT(combo != nullptr);
@@ -822,8 +791,7 @@ static int convert_align_value_to_flags(const char* value)
   return flags;
 }
 
-static int int_attr(const tinyxml2::XMLElement* elem,
-                    const char* attribute_name, int default_value)
+static int int_attr(const tinyxml2::XMLElement* elem, const char* attribute_name, int default_value)
 {
   const char* value = elem->Attribute(attribute_name);
 

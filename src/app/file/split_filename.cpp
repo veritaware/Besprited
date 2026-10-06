@@ -22,11 +22,9 @@ namespace app
 // Splits a file-name like "my_ani0000.pcx" to "my_ani" and ".pcx",
 // returning the number of the center; returns "-1" if the function
 // can't split anything
-int split_filename(const char* filename, std::string& left, std::string& right,
-                   int& width)
+int split_filename(const char* filename, std::string& left, std::string& right, int& width)
 {
-  left = base::join_path(base::get_file_path(filename),
-                         base::get_file_title(filename));
+  left = base::join_path(base::get_file_path(filename), base::get_file_title(filename));
   right = base::get_file_extension(filename);
   if (!right.empty())
     right.insert(right.begin(), '.');

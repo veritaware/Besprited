@@ -23,9 +23,8 @@
 #undef MID
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
-#define MID(x, y, z)                                                           \
-  ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ? (z) : (x)))                     \
-             : ((y) > (z) ? ((z) > (x) ? (z) : (x)) : (y)))
+#define MID(x, y, z)                                                                                                   \
+  ((x) > (y) ? ((y) > (z) ? (y) : ((x) > (z) ? (z) : (x))) : ((y) > (z) ? ((z) > (x) ? (z) : (x)) : (y)))
 
 #undef CLAMP
 #define CLAMP(x, y, z) MAX((x), MIN((y), (z)))

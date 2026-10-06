@@ -82,16 +82,12 @@ protected:
     if (Preferences::instance().general.showFullPath())
     {
       gfx::Size textSize = style->sizeHint(m_name.c_str(), state);
-      gfx::Rect detailsBounds(bounds.x + textSize.w, bounds.y,
-                              bounds.w - textSize.w, bounds.h);
+      gfx::Rect detailsBounds(bounds.x + textSize.w, bounds.y, bounds.w - textSize.w, bounds.h);
       styleDetail->paint(g, detailsBounds, m_path.c_str(), state);
     }
   }
 
-  void onClick() override
-  {
-    static_cast<RecentListBox*>(parent())->onClick(text());
-  }
+  void onClick() override { static_cast<RecentListBox*>(parent())->onClick(text()); }
 
 private:
   std::string m_name;
@@ -103,12 +99,10 @@ private:
 
 RecentListBox::RecentListBox()
 {
-  m_recentFilesConn = App::instance()->recentFiles()->Changed.connect(
-      base::Bind(&RecentListBox::rebuildList, this));
+  m_recentFilesConn = App::instance()->recentFiles()->Changed.connect(base::Bind(&RecentListBox::rebuildList, this));
 
-  m_showFullPathConn =
-      Preferences::instance().general.showFullPath.AfterChange.connect(
-          base::Bind<void>(&RecentListBox::invalidate, this));
+  m_showFullPathConn = Preferences::instance().general.showFullPath.AfterChange.connect(
+      base::Bind<void>(&RecentListBox::invalidate, this));
 }
 
 void RecentListBox::rebuildList()
@@ -148,8 +142,7 @@ void RecentFilesListBox::onRebuildList()
 
 void RecentFilesListBox::onClick(const std::string& path)
 {
-  Command* command =
-      CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+  Command* command = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
   Params params;
   params.set("filename", path.c_str());
   UIContext::instance()->executeCommand(command, params);
@@ -174,8 +167,7 @@ void RecentFoldersListBox::onRebuildList()
 
 void RecentFoldersListBox::onClick(const std::string& path)
 {
-  Command* command =
-      CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+  Command* command = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
   Params params;
   params.set("folder", path.c_str());
   UIContext::instance()->executeCommand(command, params);

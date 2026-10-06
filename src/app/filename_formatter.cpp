@@ -39,8 +39,7 @@ static bool replace_frame(const char* frameKey, // E.g. = "{frame"
         std::vector<char> to(32);
         int offset = std::strtol(from.c_str() + keyLen, nullptr, 10);
 
-        std::snprintf(&to[0], to.size(), "%0*d", (int(j) - int(i + keyLen)),
-                      frameBase + offset);
+        std::snprintf(&to[0], to.size(), "%0*d", (int(j) - int(i + keyLen)), frameBase + offset);
         base::replace_string(str, from, &to[0]);
       }
       else
@@ -52,8 +51,7 @@ static bool replace_frame(const char* frameKey, // E.g. = "{frame"
     return false;
 }
 
-std::string filename_formatter(const std::string& format, FilenameInfo& info,
-                               bool replaceFrame)
+std::string filename_formatter(const std::string& format, FilenameInfo& info, bool replaceFrame)
 {
   const std::string& filename = info.filename();
   std::string path = base::get_file_path(filename);
@@ -65,8 +63,7 @@ std::string filename_formatter(const std::string& format, FilenameInfo& info,
   base::replace_string(output, "{path}", path);
   base::replace_string(output, "{name}", base::get_file_name(filename));
   base::replace_string(output, "{title}", base::get_file_title(filename));
-  base::replace_string(output, "{extension}",
-                       base::get_file_extension(filename));
+  base::replace_string(output, "{extension}", base::get_file_extension(filename));
   base::replace_string(output, "{layer}", info.layerName());
 
   if (replaceFrame)
@@ -81,8 +78,7 @@ std::string filename_formatter(const std::string& format, FilenameInfo& info,
   return output;
 }
 
-std::string set_frame_format(const std::string& format,
-                             const std::string& newFrameFormat)
+std::string set_frame_format(const std::string& format, const std::string& newFrameFormat)
 {
   std::string output = format;
 
@@ -99,8 +95,7 @@ std::string set_frame_format(const std::string& format,
   return output;
 }
 
-std::string add_frame_format(const std::string& format,
-                             const std::string& newFrameFormat)
+std::string add_frame_format(const std::string& format, const std::string& newFrameFormat)
 {
   std::string output = format;
 
@@ -108,9 +103,8 @@ std::string add_frame_format(const std::string& format,
   size_t j = output.find("{tagframe");
   if (i == std::string::npos && j == std::string::npos)
   {
-    output = base::join_path(base::get_file_path(format),
-                             base::get_file_title(format)) +
-             newFrameFormat + "." + base::get_file_extension(format);
+    output = base::join_path(base::get_file_path(format), base::get_file_title(format)) + newFrameFormat + "." +
+             base::get_file_extension(format);
   }
 
   return output;

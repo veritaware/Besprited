@@ -60,15 +60,15 @@ private:
   }
 
   FilterManagerImpl* m_filterMgr; // Effect to be applied.
-  base::mutex m_mutex;    // Mutex to access to 'pos', 'done' and 'cancelled'
-                          // fields in different threads.
-  float m_pos;            // Current progress position
-  bool m_done;            // Was the effect completelly applied?
-  bool m_cancelled;       // Was the effect cancelled by the user?
-  bool m_abort;           // An exception was thrown
-  ui::Timer m_timer;      // Monitoring timer to update the progress-bar
-  AlertPtr m_alertWindow; // Alert for the user to cancel the filter-progress if
-                          // he wants.
+  base::mutex m_mutex;            // Mutex to access to 'pos', 'done' and 'cancelled'
+                                  // fields in different threads.
+  float m_pos;                    // Current progress position
+  bool m_done;                    // Was the effect completelly applied?
+  bool m_cancelled;               // Was the effect cancelled by the user?
+  bool m_abort;                   // An exception was thrown
+  ui::Timer m_timer;              // Monitoring timer to update the progress-bar
+  AlertPtr m_alertWindow;         // Alert for the user to cancel the filter-progress if
+                                  // he wants.
   std::string m_error;
 };
 

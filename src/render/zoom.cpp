@@ -17,10 +17,9 @@ namespace render
 {
 
 static int scales[][2] = {
-    {1, 64}, {1, 48}, {1, 32}, {1, 24}, {1, 16}, {1, 12}, {1, 8},
-    {1, 6},  {1, 5},  {1, 4},  {1, 3},  {1, 2},  {1, 1}, // 100%
-    {2, 1},  {3, 1},  {4, 1},  {5, 1},  {6, 1},  {8, 1},  {12, 1},
-    {16, 1}, {24, 1}, {32, 1}, {48, 1}, {64, 1},
+    {1, 64}, {1, 48}, {1, 32}, {1, 24}, {1, 16}, {1, 12}, {1, 8},  {1, 6},  {1, 5},  {1, 4},  {1, 3},  {1, 2},
+    {1, 1}, // 100%
+    {2, 1},  {3, 1},  {4, 1},  {5, 1},  {6, 1},  {8, 1},  {12, 1}, {16, 1}, {24, 1}, {32, 1}, {48, 1}, {64, 1},
 };
 
 static int scales_size = sizeof(scales) / sizeof(scales[0]);
@@ -85,7 +84,8 @@ Zoom Zoom::fromLinearScale(int i)
   i = MID(0, i, scales_size - 1);
   // clang-analyzer doesn't see MID() (a plain min/max macro) as clamping i
   // into [0, scales_size-1] the way it would std::clamp.
-  return Zoom(scales[i][0], scales[i][1]); // NOLINT(clang-analyzer-security.ArrayBound)
+  return Zoom(scales[i][0],
+              scales[i][1]); // NOLINT(clang-analyzer-security.ArrayBound)
 }
 
 // static
@@ -93,12 +93,9 @@ int Zoom::findClosestLinearScale(double scale)
 {
   for (int i = 1; i < scales_size - 1; ++i)
   {
-    const double min = static_cast<double>(scales[i - 1][0]) /
-                       static_cast<double>(scales[i - 1][1]);
-    const double mid =
-        static_cast<double>(scales[i][0]) / static_cast<double>(scales[i][1]);
-    const double max = static_cast<double>(scales[i + 1][0]) /
-                       static_cast<double>(scales[i + 1][1]);
+    const double min = static_cast<double>(scales[i - 1][0]) / static_cast<double>(scales[i - 1][1]);
+    const double mid = static_cast<double>(scales[i][0]) / static_cast<double>(scales[i][1]);
+    const double max = static_cast<double>(scales[i + 1][0]) / static_cast<double>(scales[i + 1][1]);
 
     if (scale >= (min + mid) / 2.0 && scale <= (mid + max) / 2.0)
       return i;

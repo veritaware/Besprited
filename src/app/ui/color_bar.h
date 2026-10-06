@@ -120,11 +120,9 @@ protected:
 
   // PaletteViewDelegate impl
   void onPaletteViewIndexChange(int index, ui::MouseButtons buttons) override;
-  void onPaletteViewModification(const doc::Palette& newPalette,
-                                 PaletteViewModification mod) override;
+  void onPaletteViewModification(const doc::Palette& newPalette, PaletteViewModification mod) override;
   void onPaletteViewChangeSize(int boxsize) override;
-  void onPaletteViewPasteColors(const Palette* fromPal,
-                                const doc::PalettePicks& from,
+  void onPaletteViewPasteColors(const Palette* fromPal, const doc::PalettePicks& from,
                                 const doc::PalettePicks& to) override;
   app::Color onPaletteViewGetForegroundIndex() override;
   app::Color onPaletteViewGetBackgroundIndex() override;
@@ -132,8 +130,7 @@ protected:
 private:
   void showRemap();
   void hideRemap();
-  void setPalette(const doc::Palette& newPalette,
-                  const std::string& actionText);
+  void setPalette(const doc::Palette& newPalette, const std::string& actionText);
   void setTransparentIndex(int index);
   void updateWarningIcon(const app::Color& color, ui::Button* warningIcon);
   static void fixColorIndex(ColorButton& color);

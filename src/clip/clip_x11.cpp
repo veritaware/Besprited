@@ -24,16 +24,19 @@
 #include <vector>
 
 #ifdef HAVE_PNG_H
-  #include "clip_x11_png.h"
+#include "clip_x11_png.h"
 #endif
 
 #define CLIP_SUPPORT_SAVE_TARGETS 1
 
-namespace clip {
+namespace clip
+{
 
-namespace {
+namespace
+{
 
-enum CommonAtom {
+enum CommonAtom
+{
   ATOM,
   INCR,
   TARGETS,
@@ -50,24 +53,19 @@ enum CommonAtom {
 };
 
 const char* kCommonAtomNames[] = {
-  "ATOM",
-  "INCR",
-  "TARGETS",
-  "CLIPBOARD",
+    "ATOM",      "INCR",         "TARGETS",  "CLIPBOARD",
 #ifdef HAVE_PNG_H
-  "image/png",
+    "image/png",
 #endif
 #ifdef CLIP_SUPPORT_SAVE_TARGETS
-  "ATOM_PAIR",
-  "SAVE_TARGETS",
-  "MULTIPLE",
-  "CLIPBOARD_MANAGER",
+    "ATOM_PAIR", "SAVE_TARGETS", "MULTIPLE", "CLIPBOARD_MANAGER",
 #endif
 };
 
 const int kBaseForCustomFormats = 100;
 
-class Manager {
+class Manager
+{
 public:
   typedef std::shared_ptr<std::vector<uint8_t>> buffer_ptr;
   typedef std::vector<xcb_atom_t> atoms;
@@ -77,7 +75,8 @@ public:
     : m_lock(m_mutex, std::defer_lock)
     , m_connection(xcb_connect(nullptr, nullptr))
     , m_window(0)
-    , m_incr_process(false) {
+    , m_incr_process(false)
+  {
     if (!m_connection)
       return;
 
@@ -90,53 +89,44 @@ public:
       return;
 
     uint32_t event_mask =
-      // Just in case that some program reports SelectionNotify events
-      // with XCB_EVENT_MASK_PROPERTY_CHANGE mask.
-      XCB_EVENT_MASK_PROPERTY_CHANGE |
-      // To receive DestroyNotify event and stop the message loop.
-      XCB_EVENT_MASK_STRUCTURE_NOTIFY;
+        // Just in case that some program reports SelectionNotify events
+        // with XCB_EVENT_MASK_PROPERTY_CHANGE mask.
+        XCB_EVENT_MASK_PROPERTY_CHANGE |
+        // To receive DestroyNotify event and stop the message loop.
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY;
 
     m_window = xcb_generate_id(m_connection);
-    xcb_create_window(m_connection, 0,
-                      m_window,
-                      screen->root,
-                      0, 0, 1, 1, 0,
-                      XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                      screen->root_visual,
-                      XCB_CW_EVENT_MASK,
-                      &event_mask);
+    xcb_create_window(m_connection, 0, m_window, screen->root, 0, 0, 1, 1, 0, XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                      screen->root_visual, XCB_CW_EVENT_MASK, &event_mask);
 
-    m_thread = std::thread(
-      [this]{
-        process_x11_events();
-      });
+    m_thread = std::thread([this] { process_x11_events(); });
   }
 
-  ~Manager() {
+  ~Manager()
+  {
 #ifdef CLIP_SUPPORT_SAVE_TARGETS
-    if (!m_data.empty() &&
-        m_window &&
-        m_window == get_x11_selection_owner()) {
+    if (!m_data.empty() && m_window && m_window == get_x11_selection_owner())
+    {
       // If the CLIPBOARD_MANAGER atom is not 0, we assume that there
       // is a clipboard manager available were we can leave our data.
       xcb_atom_t x11_clipboard_manager = get_atom(CLIPBOARD_MANAGER);
-      if (x11_clipboard_manager) {
+      if (x11_clipboard_manager)
+      {
         // We have to lock the m_lock mutex that will be used to wait
         // the m_cv condition in get_data_from_selection_owner().
-        if (try_lock()) {
+        if (try_lock())
+        {
           // Start the SAVE_TARGETS mechanism so the X11
           // CLIPBOARD_MANAGER will save our clipboard data
           // from now on.
-          get_data_from_selection_owner(
-            { get_atom(SAVE_TARGETS) },
-            []() -> bool { return true; },
-            x11_clipboard_manager);
+          get_data_from_selection_owner({get_atom(SAVE_TARGETS)}, []() -> bool { return true; }, x11_clipboard_manager);
         }
       }
     }
 #endif
 
-    if (m_window) {
+    if (m_window)
+    {
       xcb_destroy_window(m_connection, m_window);
       xcb_flush(m_connection);
     }
@@ -148,11 +138,14 @@ public:
       xcb_disconnect(m_connection);
   }
 
-  bool try_lock() {
+  bool try_lock()
+  {
     bool res = m_lock.try_lock();
-    if (!res) {
+    if (!res)
+    {
       // TODO make this configurable (the same for Windows retries)
-      for (int i=0; i<5 && !res; ++i) {
+      for (int i = 0; i < 5 && !res; ++i)
+      {
         res = m_lock.try_lock();
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
       }
@@ -160,17 +153,17 @@ public:
     return res;
   }
 
-  void unlock() {
-    m_lock.unlock();
-  }
+  void unlock() { m_lock.unlock(); }
 
   // Clear our data
-  void clear_data() {
+  void clear_data()
+  {
     m_data.clear();
     m_image.reset();
   }
 
-  void clear() {
+  void clear()
+  {
     clear_data();
 
     // As we want to clear the clipboard content, we set us as the new
@@ -183,65 +176,67 @@ public:
 
     // Clear the clipboard data from the selection owner
     const xcb_window_t owner = get_x11_selection_owner();
-    if (m_window != owner) {
+    if (m_window != owner)
+    {
       xcb_selection_clear_event_t event;
       event.response_type = XCB_SELECTION_CLEAR;
-      event.pad0          = 0;
-      event.sequence      = 0;
-      event.time          = XCB_CURRENT_TIME;
-      event.owner         = owner;
-      event.selection     = get_atom(CLIPBOARD);
+      event.pad0 = 0;
+      event.sequence = 0;
+      event.time = XCB_CURRENT_TIME;
+      event.owner = owner;
+      event.selection = get_atom(CLIPBOARD);
 
-      xcb_send_event(m_connection, false,
-                     owner,
-                     XCB_EVENT_MASK_NO_EVENT,
-                     (const char*)&event);
+      xcb_send_event(m_connection, false, owner, XCB_EVENT_MASK_NO_EVENT, (const char*)&event);
 
       xcb_flush(m_connection);
     }
   }
 
-  bool is_convertible(format f) const {
+  bool is_convertible(format f) const
+  {
     const atoms atoms = get_format_atoms(f);
     const xcb_window_t owner = get_x11_selection_owner();
 
     // If we are the owner, we just can check the m_data map
-    if (owner == m_window) {
-      for (xcb_atom_t atom : atoms) {
+    if (owner == m_window)
+    {
+      for (xcb_atom_t atom : atoms)
+      {
         auto it = m_data.find(atom);
         if (it != m_data.end())
           return true;
       }
     }
     // Ask to the selection owner the available formats/atoms/targets.
-    else if (owner) {
-      return
-        get_data_from_selection_owner(
-          { get_atom(TARGETS) },
-          [this, &atoms]() -> bool {
-            assert(m_reply_data);
-            if (!m_reply_data)
-              return false;
+    else if (owner)
+    {
+      return get_data_from_selection_owner({get_atom(TARGETS)},
+                                           [this, &atoms]() -> bool
+                                           {
+                                             assert(m_reply_data);
+                                             if (!m_reply_data)
+                                               return false;
 
-            const xcb_atom_t* sel_atoms = (const xcb_atom_t*)&(*m_reply_data)[0];
-            int sel_natoms = m_reply_data->size() / sizeof(xcb_atom_t);
-            auto atoms_begin = atoms.begin();
-            auto atoms_end = atoms.end();
-            for (int i=0; i<sel_natoms; ++i) {
-              if (std::find(atoms_begin,
-                            atoms_end,
-                            sel_atoms[i]) != atoms_end) {
-                return true;
-              }
-            }
-            return false;
-          });
+                                             const xcb_atom_t* sel_atoms = (const xcb_atom_t*)&(*m_reply_data)[0];
+                                             int sel_natoms = m_reply_data->size() / sizeof(xcb_atom_t);
+                                             auto atoms_begin = atoms.begin();
+                                             auto atoms_end = atoms.end();
+                                             for (int i = 0; i < sel_natoms; ++i)
+                                             {
+                                               if (std::find(atoms_begin, atoms_end, sel_atoms[i]) != atoms_end)
+                                               {
+                                                 return true;
+                                               }
+                                             }
+                                             return false;
+                                           });
     }
 
     return false;
   }
 
-  bool set_data(format f, const char* buf, size_t len) {
+  bool set_data(format f, const char* buf, size_t len)
+  {
     if (!set_x11_selection_owner())
       return false;
 
@@ -250,28 +245,29 @@ public:
       return false;
 
     buffer_ptr shared_data_buf = std::make_shared<std::vector<uint8_t>>(len);
-    std::copy(buf,
-              buf+len,
-              shared_data_buf->begin());
+    std::copy(buf, buf + len, shared_data_buf->begin());
     for (xcb_atom_t atom : atoms)
       m_data[atom] = shared_data_buf;
 
     return true;
   }
 
-  bool get_data(format f, char* buf, size_t len) const {
+  bool get_data(format f, char* buf, size_t len) const
+  {
     const atoms atoms = get_format_atoms(f);
     const xcb_window_t owner = get_x11_selection_owner();
-    if (owner == m_window) {
-      for (xcb_atom_t atom : atoms) {
+    if (owner == m_window)
+    {
+      for (xcb_atom_t atom : atoms)
+      {
         auto it = m_data.find(atom);
-        if (it != m_data.end()) {
+        if (it != m_data.end())
+        {
           size_t n = std::min(len, it->second->size());
-          std::copy(it->second->begin(),
-                    it->second->begin()+n,
-                    buf);
+          std::copy(it->second->begin(), it->second->begin() + n, buf);
 
-          if (f == text_format()) {
+          if (f == text_format())
+          {
             // Add an extra null char
             if (n < len)
               buf[n] = 0;
@@ -281,59 +277,68 @@ public:
         }
       }
     }
-    else if (owner) {
-      if (get_data_from_selection_owner(
-            atoms,
-            [this, buf, len, f]() -> bool {
-              size_t n = std::min(len, m_reply_data->size());
-              std::copy(m_reply_data->begin(),
-                        m_reply_data->begin()+n,
-                        buf);
+    else if (owner)
+    {
+      if (get_data_from_selection_owner(atoms,
+                                        [this, buf, len, f]() -> bool
+                                        {
+                                          size_t n = std::min(len, m_reply_data->size());
+                                          std::copy(m_reply_data->begin(), m_reply_data->begin() + n, buf);
 
-              if (f == text_format()) {
-                if (n < len)
-                  buf[n] = 0; // Include a null character
-              }
+                                          if (f == text_format())
+                                          {
+                                            if (n < len)
+                                              buf[n] = 0; // Include a null character
+                                          }
 
-              return true;
-            })) {
+                                          return true;
+                                        }))
+      {
         return true;
       }
     }
     return false;
   }
 
-  size_t get_data_length(format f) const {
+  size_t get_data_length(format f) const
+  {
     size_t len = 0;
     const atoms atoms = get_format_atoms(f);
     const xcb_window_t owner = get_x11_selection_owner();
-    if (owner == m_window) {
-      for (xcb_atom_t atom : atoms) {
+    if (owner == m_window)
+    {
+      for (xcb_atom_t atom : atoms)
+      {
         auto it = m_data.find(atom);
-        if (it != m_data.end()) {
+        if (it != m_data.end())
+        {
           len = it->second->size();
           break;
         }
       }
     }
-    else if (owner) {
-      if (!get_data_from_selection_owner(
-            atoms,
-            [this, &len]() -> bool {
-              len = m_reply_data->size();
-              return true;
-            })) {
+    else if (owner)
+    {
+      if (!get_data_from_selection_owner(atoms,
+                                         [this, &len]() -> bool
+                                         {
+                                           len = m_reply_data->size();
+                                           return true;
+                                         }))
+      {
         // Error getting data length
         return 0;
       }
     }
-    if (f == text_format() && len > 0) {
+    if (f == text_format() && len > 0)
+    {
       ++len; // Add an extra byte for the null char
     }
     return len;
   }
 
-  bool set_image(const image& image) {
+  bool set_image(const image& image)
+  {
     if (!set_x11_selection_owner())
       return false;
 
@@ -348,115 +353,115 @@ public:
     return true;
   }
 
-  bool get_image(image& output_img) const {
+  bool get_image(image& output_img) const
+  {
     const xcb_window_t owner = get_x11_selection_owner();
-    if (owner == m_window) {
-      if (m_image.is_valid()) {
+    if (owner == m_window)
+    {
+      if (m_image.is_valid())
+      {
         output_img = m_image;
         return true;
       }
     }
 #ifdef HAVE_PNG_H
-    else if (owner &&
-             get_data_from_selection_owner(
-               { get_atom(MIME_IMAGE_PNG) },
-               [this, &output_img]() -> bool {
-                 return x11::read_png(&(*m_reply_data)[0],
-                                      m_reply_data->size(),
-                                      &output_img, nullptr);
-               })) {
+    else if (owner && get_data_from_selection_owner(
+                          {get_atom(MIME_IMAGE_PNG)}, [this, &output_img]() -> bool
+                          { return x11::read_png(&(*m_reply_data)[0], m_reply_data->size(), &output_img, nullptr); }))
+    {
       return true;
     }
 #endif
     return false;
   }
 
-  bool get_image_spec(image_spec& spec) const {
+  bool get_image_spec(image_spec& spec) const
+  {
     const xcb_window_t owner = get_x11_selection_owner();
-    if (owner == m_window) {
-      if (m_image.is_valid()) {
+    if (owner == m_window)
+    {
+      if (m_image.is_valid())
+      {
         spec = m_image.spec();
         return true;
       }
     }
 #ifdef HAVE_PNG_H
-    else if (owner &&
-             get_data_from_selection_owner(
-               { get_atom(MIME_IMAGE_PNG) },
-               [this, &spec]() -> bool {
-                 return x11::read_png(&(*m_reply_data)[0],
-                                      m_reply_data->size(),
-                                      nullptr, &spec);
-               })) {
+    else if (owner && get_data_from_selection_owner(
+                          {get_atom(MIME_IMAGE_PNG)}, [this, &spec]() -> bool
+                          { return x11::read_png(&(*m_reply_data)[0], m_reply_data->size(), nullptr, &spec); }))
+    {
       return true;
     }
 #endif
     return false;
   }
 
-  format register_format(const std::string& name) {
+  format register_format(const std::string& name)
+  {
     xcb_atom_t atom = get_atom(name.c_str());
     m_custom_formats.push_back(atom);
-    return (format)(m_custom_formats.size()-1) + kBaseForCustomFormats;
+    return (format)(m_custom_formats.size() - 1) + kBaseForCustomFormats;
   }
 
 private:
-
-  void process_x11_events() {
+  void process_x11_events()
+  {
     bool stop = false;
     xcb_generic_event_t* event;
-    while (!stop && (event = xcb_wait_for_event(m_connection))) {
+    while (!stop && (event = xcb_wait_for_event(m_connection)))
+    {
       int type = (event->response_type & ~0x80);
 
-      switch (type) {
+      switch (type)
+      {
 
-        case XCB_DESTROY_NOTIFY:
-          // To stop the message loop we can just destroy the window
-          stop = true;
-          break;
+      case XCB_DESTROY_NOTIFY:
+        // To stop the message loop we can just destroy the window
+        stop = true;
+        break;
 
-        // Someone else has new content in the clipboard, so is
-        // notifying us that we should delete our data now.
-        case XCB_SELECTION_CLEAR:
-          handle_selection_clear_event(
-            (xcb_selection_clear_event_t*)event);
-          break;
+      // Someone else has new content in the clipboard, so is
+      // notifying us that we should delete our data now.
+      case XCB_SELECTION_CLEAR:
+        handle_selection_clear_event((xcb_selection_clear_event_t*)event);
+        break;
 
-          // Someone is requesting the clipboard content from us.
-        case XCB_SELECTION_REQUEST:
-          handle_selection_request_event(
-            (xcb_selection_request_event_t*)event);
-          break;
+        // Someone is requesting the clipboard content from us.
+      case XCB_SELECTION_REQUEST:
+        handle_selection_request_event((xcb_selection_request_event_t*)event);
+        break;
 
-          // We've requested the clipboard content and this is the
-          // answer.
-        case XCB_SELECTION_NOTIFY:
-          handle_selection_notify_event(
-            (xcb_selection_notify_event_t*)event);
-          break;
+        // We've requested the clipboard content and this is the
+        // answer.
+      case XCB_SELECTION_NOTIFY:
+        handle_selection_notify_event((xcb_selection_notify_event_t*)event);
+        break;
 
-        case XCB_PROPERTY_NOTIFY:
-          handle_property_notify_event(
-            (xcb_property_notify_event_t*)event);
-          break;
-
+      case XCB_PROPERTY_NOTIFY:
+        handle_property_notify_event((xcb_property_notify_event_t*)event);
+        break;
       }
 
       free(event);
     }
   }
 
-  void handle_selection_clear_event(xcb_selection_clear_event_t* event) {
-    if (event->selection == get_atom(CLIPBOARD)) {
+  void handle_selection_clear_event(xcb_selection_clear_event_t* event)
+  {
+    if (event->selection == get_atom(CLIPBOARD))
+    {
       std::lock_guard<std::mutex> lock(m_mutex);
       clear_data(); // Clear our clipboard data
     }
   }
 
-  void handle_selection_request_event(xcb_selection_request_event_t* event) {
+  void handle_selection_request_event(xcb_selection_request_event_t* event)
+  {
     std::lock_guard<std::mutex> lock(m_mutex);
 
-    if (event->target == get_atom(TARGETS)) {
+    if (event->target == get_atom(TARGETS))
+    {
       atoms targets;
       targets.push_back(get_atom(TARGETS));
 #ifdef CLIP_SUPPORT_SAVE_TARGETS
@@ -468,44 +473,31 @@ private:
 
       // Set the "property" of "requestor" with the clipboard
       // formats ("targets", atoms) that we provide.
-      xcb_change_property(
-        m_connection,
-        XCB_PROP_MODE_REPLACE,
-        event->requestor,
-        event->property,
-        get_atom(ATOM),
-        8*sizeof(xcb_atom_t),
-        targets.size(),
-        &targets[0]);
+      xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, event->property, get_atom(ATOM),
+                          8 * sizeof(xcb_atom_t), targets.size(), &targets[0]);
     }
 #ifdef CLIP_SUPPORT_SAVE_TARGETS
-    else if (event->target == get_atom(SAVE_TARGETS)) {
+    else if (event->target == get_atom(SAVE_TARGETS))
+    {
       // Do nothing
     }
-    else if (event->target == get_atom(MULTIPLE)) {
+    else if (event->target == get_atom(MULTIPLE))
+    {
       xcb_get_property_reply_t* reply =
-        get_and_delete_property(event->requestor,
-                                event->property,
-                                get_atom(ATOM_PAIR),
-                                false);
-      if (reply) {
-        for (xcb_atom_t
-               *ptr=(xcb_atom_t*)xcb_get_property_value(reply),
-               *end=ptr + (xcb_get_property_value_length(reply)/sizeof(xcb_atom_t));
-             ptr<end; ) {
+          get_and_delete_property(event->requestor, event->property, get_atom(ATOM_PAIR), false);
+      if (reply)
+      {
+        for (xcb_atom_t *ptr = (xcb_atom_t*)xcb_get_property_value(reply),
+                        *end = ptr + (xcb_get_property_value_length(reply) / sizeof(xcb_atom_t));
+             ptr < end;)
+        {
           xcb_atom_t target = *ptr++;
           xcb_atom_t property = *ptr++;
 
-          if (!set_requestor_property_with_clipboard_content(
-                event->requestor,
-                property,
-                target)) {
-            xcb_change_property(
-              m_connection,
-              XCB_PROP_MODE_REPLACE,
-              event->requestor,
-              event->property,
-              XCB_ATOM_NONE, 0, 0, nullptr);
+          if (!set_requestor_property_with_clipboard_content(event->requestor, property, target))
+          {
+            xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, event->requestor, event->property, XCB_ATOM_NONE,
+                                0, 0, nullptr);
           }
         }
 
@@ -513,11 +505,10 @@ private:
       }
     }
 #endif // CLIP_SUPPORT_SAVE_TARGETS
-    else {
-      if (!set_requestor_property_with_clipboard_content(
-            event->requestor,
-            event->property,
-            event->target)) {
+    else
+    {
+      if (!set_requestor_property_with_clipboard_content(event->requestor, event->property, event->target))
+      {
         // If the requested "target" type is not present in our
         // clipboard, we continue normally sending a SelectionNotify
         // to the "requestor" anyway because some text editors
@@ -534,34 +525,35 @@ private:
     // Notify the "requestor" that we've already updated the property.
     xcb_selection_notify_event_t notify;
     notify.response_type = XCB_SELECTION_NOTIFY;
-    notify.pad0          = 0;
-    notify.sequence      = 0;
-    notify.time          = event->time;
-    notify.requestor     = event->requestor;
-    notify.selection     = event->selection;
-    notify.target        = event->target;
-    notify.property      = event->property;
+    notify.pad0 = 0;
+    notify.sequence = 0;
+    notify.time = event->time;
+    notify.requestor = event->requestor;
+    notify.selection = event->selection;
+    notify.target = event->target;
+    notify.property = event->property;
 
-    xcb_send_event(m_connection, false,
-                   event->requestor,
+    xcb_send_event(m_connection, false, event->requestor,
                    XCB_EVENT_MASK_NO_EVENT, // SelectionNotify events go without mask
                    (const char*)&notify);
 
     xcb_flush(m_connection);
   }
 
-  bool set_requestor_property_with_clipboard_content(const xcb_atom_t requestor,
-                                                     const xcb_atom_t property,
-                                                     const xcb_atom_t target) {
+  bool set_requestor_property_with_clipboard_content(const xcb_atom_t requestor, const xcb_atom_t property,
+                                                     const xcb_atom_t target)
+  {
     auto it = m_data.find(target);
-    if (it == m_data.end()) {
+    if (it == m_data.end())
+    {
       // Nothing to do (unsupported target)
       return false;
     }
 
     // This can be null of the data was set from an image but we
     // didn't encode the image yet (e.g. to image/png format).
-    if (!it->second) {
+    if (!it->second)
+    {
       encode_data_on_demand(*it);
 
       // Return nothing, the given "target" cannot be constructed
@@ -572,19 +564,13 @@ private:
 
     // Set the "property" of "requestor" with the
     // clipboard content in the requested format ("target").
-    xcb_change_property(
-      m_connection,
-      XCB_PROP_MODE_REPLACE,
-      requestor,
-      property,
-      target,
-      8,
-      it->second->size(),
-      &(*it->second)[0]);
+    xcb_change_property(m_connection, XCB_PROP_MODE_REPLACE, requestor, property, target, 8, it->second->size(),
+                        &(*it->second)[0]);
     return true;
   }
 
-  void handle_selection_notify_event(xcb_selection_notify_event_t* event) {
+  void handle_selection_notify_event(xcb_selection_notify_event_t* event)
+  {
     assert(event->requestor == m_window);
 
     if (event->target == get_atom(TARGETS))
@@ -592,21 +578,20 @@ private:
     else
       m_target_atom = event->target;
 
-    xcb_get_property_reply_t* reply =
-      get_and_delete_property(event->requestor,
-                              event->property,
-                              m_target_atom);
-    if (reply) {
+    xcb_get_property_reply_t* reply = get_and_delete_property(event->requestor, event->property, m_target_atom);
+    if (reply)
+    {
       // In this case, We're going to receive the clipboard content in
       // chunks of data with several PropertyNotify events.
-      if (reply->type == get_atom(INCR)) {
+      if (reply->type == get_atom(INCR))
+      {
         free(reply);
 
-        reply = get_and_delete_property(event->requestor,
-                                        event->property,
-                                        get_atom(INCR));
-        if (reply) {
-          if (xcb_get_property_value_length(reply) == 4) {
+        reply = get_and_delete_property(event->requestor, event->property, get_atom(INCR));
+        if (reply)
+        {
+          if (xcb_get_property_value_length(reply) == 4)
+          {
             uint32_t n = *(uint32_t*)xcb_get_property_value(reply);
             m_reply_data = std::make_shared<std::vector<uint8_t>>(n);
             m_reply_offset = 0;
@@ -616,7 +601,8 @@ private:
           free(reply);
         }
       }
-      else {
+      else
+      {
         // Simple case, the whole clipboard content in just one reply
         // (without the INCR method).
         m_reply_data.reset();
@@ -630,23 +616,23 @@ private:
     }
   }
 
-  void handle_property_notify_event(xcb_property_notify_event_t* event) {
-    if (m_incr_process &&
-        event->state == XCB_PROPERTY_NEW_VALUE &&
-        event->atom == get_atom(CLIPBOARD)) {
-      xcb_get_property_reply_t* reply =
-        get_and_delete_property(event->window,
-                                event->atom,
-                                m_target_atom);
-      if (reply) {
+  void handle_property_notify_event(xcb_property_notify_event_t* event)
+  {
+    if (m_incr_process && event->state == XCB_PROPERTY_NEW_VALUE && event->atom == get_atom(CLIPBOARD))
+    {
+      xcb_get_property_reply_t* reply = get_and_delete_property(event->window, event->atom, m_target_atom);
+      if (reply)
+      {
         m_incr_received = true;
 
         // When the length is 0 it means that the content was
         // completely sent by the selection owner.
-        if (xcb_get_property_value_length(reply) > 0) {
+        if (xcb_get_property_value_length(reply) > 0)
+        {
           copy_reply_data(reply);
         }
-        else {
+        else
+        {
           // Now that m_reply_data has the complete clipboard content,
           // we can call the m_callback.
           call_callback(reply);
@@ -657,22 +643,16 @@ private:
     }
   }
 
-  xcb_get_property_reply_t* get_and_delete_property(xcb_window_t window,
-                                                    xcb_atom_t property,
-                                                    xcb_atom_t atom,
-                                                    bool delete_prop = true) {
-    xcb_get_property_cookie_t cookie =
-      xcb_get_property(m_connection,
-                       delete_prop,
-                       window,
-                       property,
-                       atom,
-                       0, 0x1fffffff); // 0x1fffffff = INT32_MAX / 4
+  xcb_get_property_reply_t* get_and_delete_property(xcb_window_t window, xcb_atom_t property, xcb_atom_t atom,
+                                                    bool delete_prop = true)
+  {
+    xcb_get_property_cookie_t cookie = xcb_get_property(m_connection, delete_prop, window, property, atom, 0,
+                                                        0x1fffffff); // 0x1fffffff = INT32_MAX / 4
 
     xcb_generic_error_t* err = nullptr;
-    xcb_get_property_reply_t* reply =
-      xcb_get_property_reply(m_connection, cookie, &err);
-    if (err) {
+    xcb_get_property_reply_t* reply = xcb_get_property_reply(m_connection, cookie, &err);
+    if (err)
+    {
       // TODO report error
       free(err);
     }
@@ -681,28 +661,32 @@ private:
 
   // Concatenates the new data received in "reply" into "m_reply_data"
   // buffer.
-  void copy_reply_data(xcb_get_property_reply_t* reply) {
+  void copy_reply_data(xcb_get_property_reply_t* reply)
+  {
     const uint8_t* src = (const uint8_t*)xcb_get_property_value(reply);
     // n = length of "src" in bytes
     size_t n = xcb_get_property_value_length(reply);
 
-    size_t req = m_reply_offset+n;
-    if (!m_reply_data) {
+    size_t req = m_reply_offset + n;
+    if (!m_reply_data)
+    {
       m_reply_data = std::make_shared<std::vector<uint8_t>>(req);
     }
     // The "m_reply_data" size can be smaller because the size
     // specified in INCR property is just a lower bound.
-    else if (req > m_reply_data->size()) {
+    else if (req > m_reply_data->size())
+    {
       m_reply_data->resize(req);
     }
 
-    std::copy(src, src+n, m_reply_data->begin()+m_reply_offset);
+    std::copy(src, src + n, m_reply_data->begin() + m_reply_offset);
     m_reply_offset += n;
   }
 
   // Calls the current m_callback() to handle the clipboard content
   // received from the owner.
-  void call_callback(xcb_get_property_reply_t* reply) {
+  void call_callback(xcb_get_property_reply_t* reply)
+  {
     m_callback_result = false;
     if (m_callback)
       m_callback_result = m_callback();
@@ -712,9 +696,9 @@ private:
     m_reply_data.reset();
   }
 
-  bool get_data_from_selection_owner(const atoms& atoms,
-                                     const notify_callback&& callback,
-                                     xcb_atom_t selection = 0) const {
+  bool get_data_from_selection_owner(const atoms& atoms, const notify_callback&& callback,
+                                     xcb_atom_t selection = 0) const
+  {
     if (!selection)
       selection = get_atom(CLIPBOARD);
 
@@ -728,11 +712,12 @@ private:
 
     // Ask to the selection owner for its content on each known
     // text format/atom.
-    for (xcb_atom_t atom : atoms) {
+    for (xcb_atom_t atom : atoms)
+    {
       xcb_convert_selection(m_connection,
-                            m_window, // Send us the result
-                            selection, // Clipboard selection
-                            atom, // The clipboard format that we're requesting
+                            m_window,            // Send us the result
+                            selection,           // Clipboard selection
+                            atom,                // The clipboard format that we're requesting
                             get_atom(CLIPBOARD), // Leave result in this window's property
                             XCB_CURRENT_TIME);
 
@@ -741,14 +726,14 @@ private:
       // We use the "m_incr_received" to wait several timeouts in case
       // that we've received the INCR SelectionNotify or
       // PropertyNotify events.
-      do {
+      do
+      {
         m_incr_received = false;
 
         // Wait a response for 100 milliseconds
-        std::cv_status status =
-          m_cv.wait_for(m_lock,
-                        std::chrono::milliseconds(get_x11_wait_timeout()));
-        if (status == std::cv_status::no_timeout) {
+        std::cv_status status = m_cv.wait_for(m_lock, std::chrono::milliseconds(get_x11_wait_timeout()));
+        if (status == std::cv_status::no_timeout)
+        {
           // If the condition variable was notified, it means that the
           // callback was called correctly.
           return m_callback_result;
@@ -761,28 +746,27 @@ private:
     return false;
   }
 
-  atoms get_atoms(const char** names,
-                  const int n) const {
+  atoms get_atoms(const char** names, const int n) const
+  {
     atoms result(n, 0);
     std::vector<xcb_intern_atom_cookie_t> cookies(n);
 
-    for (int i=0; i<n; ++i) {
+    for (int i = 0; i < n; ++i)
+    {
       auto it = m_atoms.find(names[i]);
       if (it != m_atoms.end())
         result[i] = it->second;
       else
-        cookies[i] = xcb_intern_atom(
-          m_connection, 0,
-          std::strlen(names[i]), names[i]);
+        cookies[i] = xcb_intern_atom(m_connection, 0, std::strlen(names[i]), names[i]);
     }
 
-    for (int i=0; i<n; ++i) {
-      if (result[i] == 0) {
-        xcb_intern_atom_reply_t* reply =
-          xcb_intern_atom_reply(m_connection,
-                                cookies[i],
-                                nullptr);
-        if (reply) {
+    for (int i = 0; i < n; ++i)
+    {
+      if (result[i] == 0)
+      {
+        xcb_intern_atom_reply_t* reply = xcb_intern_atom_reply(m_connection, cookies[i], nullptr);
+        if (reply)
+        {
           result[i] = m_atoms[names[i]] = reply->atom;
           free(reply);
         }
@@ -792,56 +776,58 @@ private:
     return result;
   }
 
-  xcb_atom_t get_atom(const char* name) const {
+  xcb_atom_t get_atom(const char* name) const
+  {
     auto it = m_atoms.find(name);
     if (it != m_atoms.end())
       return it->second;
 
     xcb_atom_t result = 0;
-    xcb_intern_atom_cookie_t cookie =
-      xcb_intern_atom(m_connection, 0,
-                      std::strlen(name), name);
+    xcb_intern_atom_cookie_t cookie = xcb_intern_atom(m_connection, 0, std::strlen(name), name);
 
-    xcb_intern_atom_reply_t* reply =
-      xcb_intern_atom_reply(m_connection,
-                            cookie,
-                            nullptr);
-    if (reply) {
+    xcb_intern_atom_reply_t* reply = xcb_intern_atom_reply(m_connection, cookie, nullptr);
+    if (reply)
+    {
       result = m_atoms[name] = reply->atom;
       free(reply);
     }
     return result;
   }
 
-  xcb_atom_t get_atom(CommonAtom i) const {
-    if (m_common_atoms.empty()) {
-      m_common_atoms =
-        get_atoms(kCommonAtomNames,
-                  sizeof(kCommonAtomNames) / sizeof(kCommonAtomNames[0]));
+  xcb_atom_t get_atom(CommonAtom i) const
+  {
+    if (m_common_atoms.empty())
+    {
+      m_common_atoms = get_atoms(kCommonAtomNames, sizeof(kCommonAtomNames) / sizeof(kCommonAtomNames[0]));
     }
     return m_common_atoms[i];
   }
 
-  const atoms& get_text_format_atoms() const {
-    if (m_text_atoms.empty()) {
+  const atoms& get_text_format_atoms() const
+  {
+    if (m_text_atoms.empty())
+    {
       const char* names[] = {
-        // Prefer utf-8 formats first
-        "UTF8_STRING",
-        "text/plain;charset=utf-8",
-        "text/plain;charset=UTF-8",
-        "GTK_TEXT_BUFFER_CONTENTS", // Required for gedit (and maybe gtk+ apps)
-        // ANSI C strings?
-        "STRING",
-        "TEXT",
-        "text/plain",
+          // Prefer utf-8 formats first
+          "UTF8_STRING",
+          "text/plain;charset=utf-8",
+          "text/plain;charset=UTF-8",
+          "GTK_TEXT_BUFFER_CONTENTS", // Required for gedit (and maybe gtk+
+                                      // apps)
+          // ANSI C strings?
+          "STRING",
+          "TEXT",
+          "text/plain",
       };
       m_text_atoms = get_atoms(names, sizeof(names) / sizeof(names[0]));
     }
     return m_text_atoms;
   }
 
-  const atoms& get_image_format_atoms() const {
-    if (m_image_atoms.empty()) {
+  const atoms& get_image_format_atoms() const
+  {
+    if (m_image_atoms.empty())
+    {
 #ifdef HAVE_PNG_H
       m_image_atoms.push_back(get_atom(MIME_IMAGE_PNG));
 #endif
@@ -849,15 +835,19 @@ private:
     return m_image_atoms;
   }
 
-  atoms get_format_atoms(const format f) const {
+  atoms get_format_atoms(const format f) const
+  {
     atoms atoms;
-    if (f == text_format()) {
+    if (f == text_format())
+    {
       atoms = get_text_format_atoms();
     }
-    else if (f == image_format()) {
+    else if (f == image_format())
+    {
       atoms = get_image_format_atoms();
     }
-    else {
+    else
+    {
       xcb_atom_t atom = get_format_atom(f);
       if (atom)
         atoms.push_back(atom);
@@ -867,23 +857,25 @@ private:
 
 #if !defined(NDEBUG)
   // This can be used to print debugging messages.
-  std::string get_atom_name(xcb_atom_t atom) const {
+  std::string get_atom_name(xcb_atom_t atom) const
+  {
     std::string result;
-    xcb_get_atom_name_cookie_t cookie =
-      xcb_get_atom_name(m_connection, atom);
+    xcb_get_atom_name_cookie_t cookie = xcb_get_atom_name(m_connection, atom);
     xcb_generic_error_t* err = nullptr;
-    xcb_get_atom_name_reply_t* reply =
-      xcb_get_atom_name_reply(m_connection, cookie, &err);
-    if (err) {
+    xcb_get_atom_name_reply_t* reply = xcb_get_atom_name_reply(m_connection, cookie, &err);
+    if (err)
+    {
       free(err);
     }
-    if (reply) {
+    if (reply)
+    {
       int len = xcb_get_atom_name_name_length(reply);
-      if (len > 0) {
+      if (len > 0)
+      {
         result.resize(len);
         char* name = xcb_get_atom_name_name(reply);
         if (name)
-          std::copy(name, name+len, result.begin());
+          std::copy(name, name + len, result.begin());
       }
       free(reply);
     }
@@ -891,38 +883,35 @@ private:
   }
 #endif
 
-  bool set_x11_selection_owner() const {
+  bool set_x11_selection_owner() const
+  {
     xcb_void_cookie_t cookie =
-      xcb_set_selection_owner_checked(m_connection,
-                                      m_window,
-                                      get_atom(CLIPBOARD),
-                                      XCB_CURRENT_TIME);
-    xcb_generic_error_t* err =
-      xcb_request_check(m_connection,
-                        cookie);
-    if (err) {
+        xcb_set_selection_owner_checked(m_connection, m_window, get_atom(CLIPBOARD), XCB_CURRENT_TIME);
+    xcb_generic_error_t* err = xcb_request_check(m_connection, cookie);
+    if (err)
+    {
       free(err);
       return false;
     }
     return true;
   }
 
-  xcb_window_t get_x11_selection_owner() const {
+  xcb_window_t get_x11_selection_owner() const
+  {
     xcb_window_t result = 0;
-    xcb_get_selection_owner_cookie_t cookie =
-      xcb_get_selection_owner(m_connection,
-                              get_atom(CLIPBOARD));
+    xcb_get_selection_owner_cookie_t cookie = xcb_get_selection_owner(m_connection, get_atom(CLIPBOARD));
 
-    xcb_get_selection_owner_reply_t* reply =
-      xcb_get_selection_owner_reply(m_connection, cookie, nullptr);
-    if (reply) {
+    xcb_get_selection_owner_reply_t* reply = xcb_get_selection_owner_reply(m_connection, cookie, nullptr);
+    if (reply)
+    {
       result = reply->owner;
       free(reply);
     }
     return result;
   }
 
-  xcb_atom_t get_format_atom(const format f) const {
+  xcb_atom_t get_format_atom(const format f) const
+  {
     int i = f - kBaseForCustomFormats;
     if (i >= 0 && i < int(m_custom_formats.size()))
       return m_custom_formats[i];
@@ -930,18 +919,19 @@ private:
       return 0;
   }
 
-  void encode_data_on_demand(std::pair<const xcb_atom_t, buffer_ptr>& e) {
+  void encode_data_on_demand(std::pair<const xcb_atom_t, buffer_ptr>& e)
+  {
 #ifdef HAVE_PNG_H
-    if (e.first == get_atom(MIME_IMAGE_PNG)) {
+    if (e.first == get_atom(MIME_IMAGE_PNG))
+    {
       assert(m_image.is_valid());
       if (!m_image.is_valid())
         return;
 
       std::vector<uint8_t> output;
-      if (x11::write_png(m_image, output)) {
-        e.second =
-          std::make_shared<std::vector<uint8_t>>(
-            std::move(output));
+      if (x11::write_png(m_image, output))
+      {
+        e.second = std::make_shared<std::vector<uint8_t>>(std::move(output));
       }
       // else { TODO report png conversion errors }
     }
@@ -1037,15 +1027,19 @@ private:
 
 Manager* manager = nullptr;
 
-void delete_manager_atexit() {
-  if (manager) {
+void delete_manager_atexit()
+{
+  if (manager)
+  {
     delete manager;
     manager = nullptr;
   }
 }
 
-Manager* get_manager() {
-  if (!manager) {
+Manager* get_manager()
+{
+  if (!manager)
+  {
     manager = new Manager;
     std::atexit(delete_manager_atexit);
   }
@@ -1054,49 +1048,61 @@ Manager* get_manager() {
 
 } // anonymous namespace
 
-lock::impl::impl(void*) : m_locked(false) {
+lock::impl::impl(void*)
+  : m_locked(false)
+{
   m_locked = get_manager()->try_lock();
 }
 
-lock::impl::~impl() {
+lock::impl::~impl()
+{
   if (m_locked)
     manager->unlock();
 }
 
-bool lock::impl::clear() {
+bool lock::impl::clear()
+{
   manager->clear();
   return true;
 }
 
-bool lock::impl::is_convertible(format f) const {
+bool lock::impl::is_convertible(format f) const
+{
   return manager->is_convertible(f);
 }
 
-bool lock::impl::set_data(format f, const char* buf, size_t len) {
+bool lock::impl::set_data(format f, const char* buf, size_t len)
+{
   return manager->set_data(f, buf, len);
 }
 
-bool lock::impl::get_data(format f, char* buf, size_t len) const {
+bool lock::impl::get_data(format f, char* buf, size_t len) const
+{
   return manager->get_data(f, buf, len);
 }
 
-size_t lock::impl::get_data_length(format f) const {
+size_t lock::impl::get_data_length(format f) const
+{
   return manager->get_data_length(f);
 }
 
-bool lock::impl::set_image(const image& image) {
+bool lock::impl::set_image(const image& image)
+{
   return manager->set_image(image);
 }
 
-bool lock::impl::get_image(image& output_img) const {
+bool lock::impl::get_image(image& output_img) const
+{
   return manager->get_image(output_img);
 }
 
-bool lock::impl::get_image_spec(image_spec& spec) const {
+bool lock::impl::get_image_spec(image_spec& spec) const
+{
   return manager->get_image_spec(spec);
 }
 
-format register_format(const std::string& name) {
+format register_format(const std::string& name)
+{
   return get_manager()->register_format(name);
 }
 

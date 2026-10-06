@@ -27,8 +27,7 @@ public:
   static const ZOrder NormalZOrder = 0;
   static const ZOrder MouseZOrder = 5000;
 
-  Overlay(she::Surface* overlaySurface, const gfx::Point& pos,
-          ZOrder zorder = 0);
+  Overlay(she::Surface* overlaySurface, const gfx::Point& pos, ZOrder zorder = 0);
   ~Overlay();
 
   she::Surface* setSurface(she::Surface* newSurface);
@@ -42,10 +41,7 @@ public:
   void drawOverlay(she::Surface* screen);
   void moveOverlay(const gfx::Point& newPos);
 
-  bool operator<(const Overlay& other) const
-  {
-    return m_zorder < other.m_zorder;
-  }
+  bool operator<(const Overlay& other) const { return m_zorder < other.m_zorder; }
 
 private:
   she::Surface* m_surface;

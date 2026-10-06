@@ -80,14 +80,11 @@ public:
   // Notifications
 
   void notifyGeneralUpdate();
-  void notifySpritePixelsModified(Sprite* sprite, const gfx::Region& region,
-                                  frame_t frame);
+  void notifySpritePixelsModified(Sprite* sprite, const gfx::Region& region, frame_t frame);
   void notifyExposeSpritePixels(Sprite* sprite, const gfx::Region& region);
   void notifyLayerMergedDown(Layer* srcLayer, Layer* targetLayer);
-  void notifyCelMoved(Layer* fromLayer, frame_t fromFrame, Layer* toLayer,
-                      frame_t toFrame);
-  void notifyCelCopied(Layer* fromLayer, frame_t fromFrame, Layer* toLayer,
-                       frame_t toFrame);
+  void notifyCelMoved(Layer* fromLayer, frame_t fromFrame, Layer* toLayer, frame_t toFrame);
+  void notifyCelCopied(Layer* fromLayer, frame_t fromFrame, Layer* toLayer, frame_t toFrame);
   void notifySelectionChanged();
 
   //////////////////////////////////////////////////////////////////////
@@ -119,10 +116,7 @@ public:
 
   void generateMaskBoundaries(const Mask* mask = nullptr);
 
-  const MaskBoundaries* getMaskBoundaries() const
-  {
-    return m_maskBoundaries.get();
-  }
+  const MaskBoundaries* getMaskBoundaries() const { return m_maskBoundaries.get(); }
 
   //////////////////////////////////////////////////////////////////////
   // Extra Cel (it is used to draw pen preview, pixels in movement, etc.)
@@ -162,8 +156,7 @@ public:
   //////////////////////////////////////////////////////////////////////
   // Copying
 
-  void copyLayerContent(const Layer* sourceLayer, Document* destDoc,
-                        Layer* destLayer) const;
+  void copyLayerContent(const Layer* sourceLayer, Document* destDoc, Layer* destLayer) const;
   Document* duplicate(DuplicateType type) const;
 
   //////////////////////////////////////////////////////////////////////

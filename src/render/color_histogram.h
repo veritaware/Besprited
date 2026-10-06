@@ -44,10 +44,7 @@ public:
   // Returns the number of points in the specified histogram
   // entry. Each rgba-index is in the range of the histogram, e.g.
   // r=[0,RElements), g=[0,GElements), etc.
-  std::size_t at(int r, int g, int b, int a) const
-  {
-    return m_histogram[histogramIndex(r, g, b, a)];
-  }
+  std::size_t at(int r, int g, int b, int a) const { return m_histogram[histogramIndex(r, g, b, a)]; }
 
   // Add the specified "color" in the histogram as many times as the
   // specified value in "count".
@@ -55,8 +52,7 @@ public:
   {
     int i = histogramIndex(color);
 
-    if (m_histogram[i] <
-        std::numeric_limits<std::size_t>::max() - count) // Avoid overflow
+    if (m_histogram[i] < std::numeric_limits<std::size_t>::max() - count) // Avoid overflow
       m_histogram[i] += count;
     else
       m_histogram[i] = std::numeric_limits<std::size_t>::max();
@@ -66,8 +62,7 @@ public:
     // instead.
     if (m_useHighPrecision)
     {
-      std::vector<doc::color_t>::iterator it =
-          std::find(m_highPrecision.begin(), m_highPrecision.end(), color);
+      std::vector<doc::color_t>::iterator it = std::find(m_highPrecision.begin(), m_highPrecision.end(), color);
 
       // The color is not in the high-precision table
       if (it == m_highPrecision.end())
@@ -119,15 +114,13 @@ private:
   // parameters.
   std::size_t histogramIndex(doc::color_t color) const
   {
-    return histogramIndex(
-        (rgba_getr(color) >> (8 - RBits)), (rgba_getg(color) >> (8 - GBits)),
-        (rgba_getb(color) >> (8 - BBits)), (rgba_geta(color) >> (8 - ABits)));
+    return histogramIndex((rgba_getr(color) >> (8 - RBits)), (rgba_getg(color) >> (8 - GBits)),
+                          (rgba_getb(color) >> (8 - BBits)), (rgba_geta(color) >> (8 - ABits)));
   }
 
   std::size_t histogramIndex(int r, int g, int b, int a) const
   {
-    return r | (g << RBits) | (b << (RBits + GBits)) |
-           (a << (RBits + GBits + BBits));
+    return r | (g << RBits) | (b << (RBits + GBits)) | (a << (RBits + GBits + BBits));
   }
 
   // 3D histogram (the index in the histogram is calculated through

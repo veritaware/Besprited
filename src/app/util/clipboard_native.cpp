@@ -54,8 +54,7 @@ void custom_error_handler(clip::ErrorCode code)
                     "application is using it.||&OK");
     break;
   case clip::ErrorCode::ImageNotSupported:
-    ui::Alert::show(
-        "Error<<The current clipboard image format is not supported.||&OK");
+    ui::Alert::show("Error<<The current clipboard image format is not supported.||&OK");
     break;
   }
 }
@@ -73,8 +72,7 @@ bool has_native_clipboard_bitmap()
   return clip::has(clip::image_format());
 }
 
-bool set_native_clipboard_bitmap(const doc::Image* image, const doc::Mask* mask,
-                                 const doc::Palette* palette)
+bool set_native_clipboard_bitmap(const doc::Image* image, const doc::Mask* mask, const doc::Palette* palette)
 {
   clip::lock l(native_display_handle());
   if (!l.locked())
@@ -115,9 +113,7 @@ bool set_native_clipboard_bitmap(const doc::Image* image, const doc::Mask* mask,
   spec.width = image->width();
   spec.height = image->height();
   spec.bits_per_pixel = 32;
-  spec.bytes_per_row =
-      (image->pixelFormat() == doc::IMAGE_RGB ? image->getRowStrideSize()
-                                              : 4 * spec.width);
+  spec.bytes_per_row = (image->pixelFormat() == doc::IMAGE_RGB ? image->getRowStrideSize() : 4 * spec.width);
   spec.red_mask = doc::rgba_r_mask;
   spec.green_mask = doc::rgba_g_mask;
   spec.blue_mask = doc::rgba_b_mask;
@@ -147,8 +143,7 @@ bool set_native_clipboard_bitmap(const doc::Image* image, const doc::Mask* mask,
       for (int x = 0; x < image->width(); ++x, ++it)
       {
         doc::color_t c = *it;
-        *(dst++) = doc::rgba(doc::graya_getv(c), doc::graya_getv(c),
-                             doc::graya_getv(c), doc::graya_geta(c));
+        *(dst++) = doc::rgba(doc::graya_getv(c), doc::graya_getv(c), doc::graya_getv(c), doc::graya_geta(c));
       }
     }
     l.set_image(img);
@@ -181,8 +176,7 @@ bool set_native_clipboard_bitmap(const doc::Image* image, const doc::Mask* mask,
   return true;
 }
 
-bool get_native_clipboard_bitmap(doc::Image** image, doc::Mask** mask,
-                                 std::shared_ptr<doc::Palette>& palette)
+bool get_native_clipboard_bitmap(doc::Image** image, doc::Mask** mask, std::shared_ptr<doc::Palette>& palette)
 {
   *image = nullptr;
   *mask = nullptr;
@@ -227,8 +221,7 @@ bool get_native_clipboard_bitmap(doc::Image** image, doc::Mask** mask,
 
   const clip::image_spec& spec = img.spec();
 
-  std::unique_ptr<doc::Image> dst(
-      doc::Image::create(doc::IMAGE_RGB, spec.width, spec.height));
+  std::unique_ptr<doc::Image> dst(doc::Image::create(doc::IMAGE_RGB, spec.width, spec.height));
 
   switch (spec.bits_per_pixel)
   {
@@ -238,16 +231,14 @@ bool get_native_clipboard_bitmap(doc::Image** image, doc::Mask** mask,
     auto it = bits.begin();
     for (unsigned long y = 0; y < spec.height; ++y)
     {
-      const uint64_t* src =
-          (const uint64_t*)(img.data() + spec.bytes_per_row * y);
+      const uint64_t* src = (const uint64_t*)(img.data() + spec.bytes_per_row * y);
       for (unsigned long x = 0; x < spec.width; ++x, ++it, ++src)
       {
         uint64_t c = *((const uint64_t*)src);
-        *it =
-            doc::rgba(uint8_t((c & spec.red_mask) >> spec.red_shift >> 8),
-                      uint8_t((c & spec.green_mask) >> spec.green_shift >> 8),
-                      uint8_t((c & spec.blue_mask) >> spec.blue_shift >> 8),
-                      uint8_t((c & spec.alpha_mask) >> spec.alpha_shift >> 8));
+        *it = doc::rgba(uint8_t((c & spec.red_mask) >> spec.red_shift >> 8),
+                        uint8_t((c & spec.green_mask) >> spec.green_shift >> 8),
+                        uint8_t((c & spec.blue_mask) >> spec.blue_shift >> 8),
+                        uint8_t((c & spec.alpha_mask) >> spec.alpha_shift >> 8));
       }
     }
     break;
@@ -258,8 +249,7 @@ bool get_native_clipboard_bitmap(doc::Image** image, doc::Mask** mask,
     auto it = bits.begin();
     for (unsigned long y = 0; y < spec.height; ++y)
     {
-      const uint32_t* src =
-          (const uint32_t*)(img.data() + spec.bytes_per_row * y);
+      const uint32_t* src = (const uint32_t*)(img.data() + spec.bytes_per_row * y);
       for (unsigned long x = 0; x < spec.width; ++x, ++it, ++src)
       {
         const uint32_t c = *((const uint32_t*)src);
@@ -267,14 +257,11 @@ bool get_native_clipboard_bitmap(doc::Image** image, doc::Mask** mask,
         // On Windows, 32bpp images are used for performance only,
         // the alpha mask is always zero (which means that the image
         // is only RGB, without alpha information).
-        int alpha = (spec.alpha_mask
-                         ? uint8_t((c & spec.alpha_mask) >> spec.alpha_shift)
-                         : 255);
+        int alpha = (spec.alpha_mask ? uint8_t((c & spec.alpha_mask) >> spec.alpha_shift) : 255);
 
-        *it =
-            doc::rgba(uint8_t((c & spec.red_mask) >> spec.red_shift),
-                      uint8_t((c & spec.green_mask) >> spec.green_shift),
-                      uint8_t((c & spec.blue_mask) >> spec.blue_shift), alpha);
+        *it = doc::rgba(uint8_t((c & spec.red_mask) >> spec.red_shift),
+                        uint8_t((c & spec.green_mask) >> spec.green_shift),
+                        uint8_t((c & spec.blue_mask) >> spec.blue_shift), alpha);
       }
     }
     break;
@@ -302,17 +289,13 @@ bool get_native_clipboard_bitmap(doc::Image** image, doc::Mask** mask,
     auto it = bits.begin();
     for (unsigned long y = 0; y < spec.height; ++y)
     {
-      const uint16_t* src =
-          (const uint16_t*)(img.data() + spec.bytes_per_row * y);
+      const uint16_t* src = (const uint16_t*)(img.data() + spec.bytes_per_row * y);
       for (unsigned long x = 0; x < spec.width; ++x, ++it, ++src)
       {
         const uint16_t c = *((const uint16_t*)src);
-        *it = doc::rgba(
-            doc::scale_5bits_to_8bits((c & spec.red_mask) >> spec.red_shift),
-            doc::scale_6bits_to_8bits((c & spec.green_mask) >>
-                                      spec.green_shift),
-            doc::scale_5bits_to_8bits((c & spec.blue_mask) >> spec.blue_shift),
-            255);
+        *it = doc::rgba(doc::scale_5bits_to_8bits((c & spec.red_mask) >> spec.red_shift),
+                        doc::scale_6bits_to_8bits((c & spec.green_mask) >> spec.green_shift),
+                        doc::scale_5bits_to_8bits((c & spec.blue_mask) >> spec.blue_shift), 255);
       }
     }
     break;

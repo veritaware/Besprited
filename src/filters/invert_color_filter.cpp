@@ -33,13 +33,8 @@ void InvertColorFilter::applyToRgba(FilterManager* filterMgr)
   const Target target = filterMgr->getTarget();
 
   detail::for_each_pixel<uint32_t>(
-      *filterMgr,
-      [target](int c, int)
-      {
-        return detail::map_rgba_channels(
-            static_cast<color_t>(c), target,
-            [](int v, Target) { return v ^ 0xff; });
-      });
+      *filterMgr, [target](int c, int)
+      { return detail::map_rgba_channels(static_cast<color_t>(c), target, [](int v, Target) { return v ^ 0xff; }); });
 }
 
 void InvertColorFilter::applyToGrayscale(FilterManager* filterMgr)
@@ -47,13 +42,8 @@ void InvertColorFilter::applyToGrayscale(FilterManager* filterMgr)
   const Target target = filterMgr->getTarget();
 
   detail::for_each_pixel<uint16_t>(
-      *filterMgr,
-      [target](int c, int)
-      {
-        return detail::map_gray_channels(
-            static_cast<uint16_t>(c), target,
-            [](int v, Target) { return v ^ 0xff; });
-      });
+      *filterMgr, [target](int c, int)
+      { return detail::map_gray_channels(static_cast<uint16_t>(c), target, [](int v, Target) { return v ^ 0xff; }); });
 }
 
 void InvertColorFilter::applyToIndexed(FilterManager* filterMgr)
@@ -69,10 +59,8 @@ void InvertColorFilter::applyToIndexed(FilterManager* filterMgr)
         if (target & TARGET_INDEX_CHANNEL)
           return c ^ 0xff;
 
-        color_t rgbaColor = detail::map_rgba_channels(
-            pal->getEntry(c), target, [](int v, Target) { return v ^ 0xff; });
-        return rgbmap->mapColor(rgba_getr(rgbaColor), rgba_getg(rgbaColor),
-                                rgba_getb(rgbaColor), rgba_geta(rgbaColor));
+        color_t rgbaColor = detail::map_rgba_channels(pal->getEntry(c), target, [](int v, Target) { return v ^ 0xff; });
+        return rgbmap->mapColor(rgba_getr(rgbaColor), rgba_getg(rgbaColor), rgba_getb(rgbaColor), rgba_geta(rgbaColor));
       });
 }
 

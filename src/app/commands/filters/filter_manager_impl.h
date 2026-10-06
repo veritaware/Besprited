@@ -45,8 +45,7 @@ class InvalidAreaException : public base::Exception
 {
 public:
   InvalidAreaException() throw()
-    : base::Exception(
-          "The current mask/area to apply the effect is completelly invalid.")
+    : base::Exception("The current mask/area to apply the effect is completelly invalid.")
   {
   }
 };

@@ -92,24 +92,20 @@ void Context::executeCommand(Command* command, const Params& params)
   }
   catch (base::Exception& e)
   {
-    LOG("Context: Exception caught executing '%s' command\n%s\n",
-        command->id().c_str(), e.what());
+    LOG("Context: Exception caught executing '%s' command\n%s\n", command->id().c_str(), e.what());
 
     Console::showException(e);
   }
   catch (std::exception& e)
   {
-    LOG("Context: std::exception caught executing '%s' command\n%s\n",
-        command->id().c_str(), e.what());
+    LOG("Context: std::exception caught executing '%s' command\n%s\n", command->id().c_str(), e.what());
 
-    console.printf("An error ocurred executing the command.\n\nDetails:\n%s",
-                   e.what());
+    console.printf("An error ocurred executing the command.\n\nDetails:\n%s", e.what());
   }
 #ifdef NDEBUG
   catch (...)
   {
-    LOG("Context: Unknown exception executing '%s' command\n",
-        command->id().c_str());
+    LOG("Context: Unknown exception executing '%s' command\n", command->id().c_str());
 
     console.printf("An unknown error ocurred executing the command.\n"
                    "Please save your work, close the program, try it\n"

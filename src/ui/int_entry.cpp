@@ -38,8 +38,7 @@ IntEntry::IntEntry(int min, int max, SliderDelegate* sliderDelegate)
   , m_popupWindow(nullptr)
   , m_changeFromSlider(false)
 {
-  m_slider.setFocusStop(
-      false); // In this way the IntEntry doesn't lost the focus
+  m_slider.setFocusStop(false); // In this way the IntEntry doesn't lost the focus
   m_slider.setTransparent(true);
   m_slider.Change.connect(&IntEntry::onChangeSlider, this);
 }
@@ -95,8 +94,7 @@ bool IntEntry::onProcessMessage(Message* msg)
       {
         releaseMouse();
 
-        MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(),
-                               mouseMsg->buttons(), mouseMsg->modifiers(),
+        MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(), mouseMsg->modifiers(),
                                mouseMsg->position());
         m_slider.sendMessage(&mouseMsg2);
       }
@@ -107,9 +105,8 @@ bool IntEntry::onProcessMessage(Message* msg)
     if (isEnabled())
     {
       int oldValue = getValue();
-      int newValue = oldValue +
-                     static_cast<MouseMessage*>(msg)->wheelDelta().x -
-                     static_cast<MouseMessage*>(msg)->wheelDelta().y;
+      int newValue =
+          oldValue + static_cast<MouseMessage*>(msg)->wheelDelta().x - static_cast<MouseMessage*>(msg)->wheelDelta().y;
       newValue = MID(m_min, newValue, m_max);
       if (newValue != oldValue)
       {
@@ -178,8 +175,7 @@ void IntEntry::openPopup()
   if (rc.x + rc.w > ui::display_w())
     rc.x = rc.x - rc.w + bounds().w;
 
-  m_popupWindow = new PopupWindow(
-      "", PopupWindow::ClickBehavior::CloseOnClickInOtherWindow);
+  m_popupWindow = new PopupWindow("", PopupWindow::ClickBehavior::CloseOnClickInOtherWindow);
   m_popupWindow->setAutoRemap(false);
   m_popupWindow->setTransparent(true);
   m_popupWindow->setBgColor(gfx::ColorNone);

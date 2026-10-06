@@ -31,8 +31,7 @@ std::string get_file_name(const std::string& filename);
 std::string get_file_extension(const std::string& filename);
 
 // Returns the whole path with another extension.
-std::string replace_extension(const std::string& filename,
-                              const std::string& extension);
+std::string replace_extension(const std::string& filename, const std::string& extension);
 
 // Returns the file name without path and without extension.
 std::string get_file_title(const std::string& filename);
@@ -53,8 +52,7 @@ std::string normalize_path(const std::string& filename);
 // Returns true if the filename contains one of the specified
 // extensions. The cvs_extensions parameter must be a set of
 // possible extensions separated by comma.
-bool has_file_extension(const std::string& filename,
-                        const std::string& csv_extensions);
+bool has_file_extension(const std::string& filename, const std::string& csv_extensions);
 
 int compare_filenames(const std::string& a, const std::string& b);
 

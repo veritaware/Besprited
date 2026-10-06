@@ -50,8 +50,7 @@ public:
   void setDisallowNegative(bool state) { m_disallowNegative = state; }
 
   // for themes
-  void getEntryThemeInfo(int* scroll, int* caret, int* state, int* selbeg,
-                         int* selend);
+  void getEntryThemeInfo(int* scroll, int* caret, int* state, int* selbeg, int* selend);
   gfx::Rect getEntryTextBounds() const;
 
   // Signals
@@ -69,10 +68,7 @@ protected:
   void restoreLastValidText();
 
   double onEvalFallback() const override;
-  bool onEvalAcceptable(double value) const override
-  {
-    return isAcceptableValue(value);
-  }
+  bool onEvalAcceptable(double value) const override { return isAcceptableValue(value); }
 
   // New Events
   virtual void onChange();

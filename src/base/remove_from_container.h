@@ -12,12 +12,9 @@ namespace base
 
 // Removes all ocurrences of the specified element from the STL container.
 template <typename ContainerType>
-void remove_from_container(ContainerType& container,
-                           typename ContainerType::const_reference element)
+void remove_from_container(ContainerType& container, typename ContainerType::const_reference element)
 {
-  for (typename ContainerType::iterator it = container.begin(),
-                                        end = container.end();
-       it != end;)
+  for (typename ContainerType::iterator it = container.begin(), end = container.end(); it != end;)
   {
     if (*it == element)
     {

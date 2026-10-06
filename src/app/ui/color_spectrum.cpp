@@ -62,8 +62,7 @@ app::Color ColorSpectrum::getColorByPosition(const gfx::Point& pos)
   double sat = (v < vmid ? 100.0 * v / vmid : 100.0);
   double val = (v < vmid ? 100.0 : 100.0 - (100.0 * (v - vmid) / vmid));
 
-  return app::Color::fromHsv(MID(0.0, hue, 360.0), MID(0.0, sat, 100.0),
-                             MID(0.0, val, 100.0));
+  return app::Color::fromHsv(MID(0.0, hue, 360.0), MID(0.0, sat, 100.0), MID(0.0, val, 100.0));
 }
 
 void ColorSpectrum::onPaint(ui::PaintEvent& ev)
@@ -71,8 +70,7 @@ void ColorSpectrum::onPaint(ui::PaintEvent& ev)
   ui::Graphics* g = ev.graphics();
   SkinTheme* theme = static_cast<SkinTheme*>(this->theme());
 
-  theme->drawRect(g, clientBounds(), theme->parts.editorNormal().get(),
-                  bgColor());
+  theme->drawRect(g, clientBounds(), theme->parts.editorNormal().get(), bgColor());
 
   gfx::Rect rc = clientChildrenBounds();
   if (rc.isEmpty())
@@ -103,8 +101,8 @@ void ColorSpectrum::onPaint(ui::PaintEvent& ev)
       double sat = (v < vmid ? 100.0 * v / vmid : 100.0);
       double val = (v < vmid ? 100.0 : 100.0 - (100.0 * (v - vmid) / vmid));
 
-      gfx::Color color = color_utils::color_for_ui(app::Color::fromHsv(
-          MID(0.0, hue, 360.0), MID(0.0, sat, 100.0), MID(0.0, val, 100.0)));
+      gfx::Color color = color_utils::color_for_ui(
+          app::Color::fromHsv(MID(0.0, hue, 360.0), MID(0.0, sat, 100.0), MID(0.0, val, 100.0)));
 
       g->putPixel(color, rc.x + x, rc.y + y);
     }
@@ -116,13 +114,11 @@ void ColorSpectrum::onPaint(ui::PaintEvent& ev)
     double sat = m_color.getSaturation();
     double val = m_color.getValue();
     double lit = (200.0 - sat) * val / 200.0;
-    gfx::Point pos(rc.x + int(hue * rc.w / 360.0),
-                   rc.y + rc.h - int(lit * rc.h / 100.0));
+    gfx::Point pos(rc.x + int(hue * rc.w / 360.0), rc.y + rc.h - int(lit * rc.h / 100.0));
 
     she::Surface* icon = theme->parts.colorWheelIndicator()->bitmap(0);
-    g->drawColoredRgbaSurface(
-        icon, lit > 50.0 ? gfx::rgba(0, 0, 0) : gfx::rgba(255, 255, 255),
-        pos.x - icon->width() / 2, pos.y - icon->height() / 2);
+    g->drawColoredRgbaSurface(icon, lit > 50.0 ? gfx::rgba(0, 0, 0) : gfx::rgba(255, 255, 255),
+                              pos.x - icon->width() / 2, pos.y - icon->height() / 2);
   }
 }
 

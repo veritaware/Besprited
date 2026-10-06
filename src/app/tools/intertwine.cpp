@@ -39,8 +39,7 @@ void Intertwine::doPointshapePoint(int x, int y, float pressure, ToolLoop* loop)
     {
       // We call transformPoint() moving back each point to the cel
       // origin.
-      loop->getPointShape()->transformPoint(loop, stroke[0].x, stroke[0].y,
-                                            pressure);
+      loop->getPointShape()->transformPoint(loop, stroke[0].x, stroke[0].y, pressure);
     }
   }
   else
@@ -49,18 +48,14 @@ void Intertwine::doPointshapePoint(int x, int y, float pressure, ToolLoop* loop)
   }
 }
 
-void Intertwine::doPointshapeHline(int x1, int y, int x2, float pressure,
-                                   ToolLoop* loop)
+void Intertwine::doPointshapeHline(int x1, int y, int x2, float pressure, ToolLoop* loop)
 {
-  algo_line(x1, y, x2, y,
-            [&](auto x, auto y) { doPointshapePoint(x, y, pressure, loop); });
+  algo_line(x1, y, x2, y, [&](auto x, auto y) { doPointshapePoint(x, y, pressure, loop); });
 }
 
-void Intertwine::doPointshapeLine(int x1, int y1, int x2, int y2,
-                                  float pressure, ToolLoop* loop)
+void Intertwine::doPointshapeLine(int x1, int y1, int x2, int y2, float pressure, ToolLoop* loop)
 {
-  algo_line(x1, y1, x2, y2,
-            [&](auto x, auto y) { doPointshapePoint(x, y, pressure, loop); });
+  algo_line(x1, y1, x2, y2, [&](auto x, auto y) { doPointshapePoint(x, y, pressure, loop); });
 }
 
 } // namespace app::tools

@@ -34,8 +34,7 @@ public:
   doc::Palette* selectedPalette();
   std::string selectedPaletteName();
   base::Signal1<void, doc::Palette*> PalChange;
-  void addPalette(std::shared_ptr<doc::Palette> palette,
-                  const std::string& name);
+  void addPalette(std::shared_ptr<doc::Palette> palette, const std::string& name);
 
 protected:
   void setLoading(bool isLoading);

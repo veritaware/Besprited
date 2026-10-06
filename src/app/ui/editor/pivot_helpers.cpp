@@ -27,8 +27,7 @@ void set_pivot_from_preferences(Transformation& t)
   gfx::PointT<double> se(corners[Transformation::Corners::RIGHT_BOTTOM]);
   gfx::PointT<double> pivotPos((nw + se) / 2);
 
-  app::gen::PivotPosition pivot =
-      Preferences::instance().selection.pivotPosition();
+  app::gen::PivotPosition pivot = Preferences::instance().selection.pivotPosition();
   switch (pivot)
   {
   case app::gen::PivotPosition::NORTHWEST:

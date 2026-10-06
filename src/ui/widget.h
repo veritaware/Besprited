@@ -88,10 +88,7 @@ public:
   void disableFlags(int flags) { m_flags &= ~flags; }
 
   int align() const { return (m_flags & ALIGN_MASK); }
-  void setAlign(int align)
-  {
-    m_flags = ((m_flags & PROPERTIES_MASK) | (align & ALIGN_MASK));
-  }
+  void setAlign(int align) { m_flags = ((m_flags & PROPERTIES_MASK) | (align & ALIGN_MASK)); }
 
   // Text property.
 
@@ -203,14 +200,8 @@ public:
   Widget* at(int index) { return m_children[index]; }
 
   // Returns the first/last child or nullptr if it doesn't exist.
-  Widget* firstChild()
-  {
-    return (!m_children.empty() ? m_children.front() : nullptr);
-  }
-  Widget* lastChild()
-  {
-    return (!m_children.empty() ? m_children.back() : nullptr);
-  }
+  Widget* firstChild() { return (!m_children.empty() ? m_children.front() : nullptr); }
+  Widget* lastChild() { return (!m_children.empty() ? m_children.back() : nullptr); }
 
   // Returns the next or previous siblings.
   Widget* nextSibling();
@@ -226,10 +217,7 @@ public:
 
   // Finds a child with the specified ID and dynamic-casts it to type
   // T.
-  template <class T> T* findChildT(const char* id)
-  {
-    return dynamic_cast<T*>(findChild(id));
-  }
+  template <class T> T* findChildT(const char* id) { return dynamic_cast<T*>(findChild(id)); }
 
   template <class T> T* findFirstChildByType()
   {
@@ -265,10 +253,7 @@ public:
   gfx::Point origin() const { return m_bounds.origin(); }
   gfx::Size size() const { return m_bounds.size(); }
 
-  gfx::Rect clientBounds() const
-  {
-    return gfx::Rect(0, 0, m_bounds.w, m_bounds.h);
-  }
+  gfx::Rect clientBounds() const { return gfx::Rect(0, 0, m_bounds.w, m_bounds.h); }
 
   gfx::Rect childrenBounds() const;
   gfx::Rect clientChildrenBounds() const;
@@ -306,17 +291,10 @@ public:
   void getRegion(gfx::Region& region);
   void getDrawableRegion(gfx::Region& region, DrawableRegionFlags flags);
 
-  gfx::Point toClient(const gfx::Point& pt) const
-  {
-    return pt - m_bounds.origin();
-  }
-  gfx::Rect toClient(const gfx::Rect& rc) const
-  {
-    return gfx::Rect(rc).offset(-m_bounds.x, -m_bounds.y);
-  }
+  gfx::Point toClient(const gfx::Point& pt) const { return pt - m_bounds.origin(); }
+  gfx::Rect toClient(const gfx::Rect& rc) const { return gfx::Rect(rc).offset(-m_bounds.x, -m_bounds.y); }
 
-  void getTextIconInfo(gfx::Rect* box, gfx::Rect* text = nullptr,
-                       gfx::Rect* icon = nullptr, int icon_align = 0,
+  void getTextIconInfo(gfx::Rect* box, gfx::Rect* text = nullptr, gfx::Rect* icon = nullptr, int icon_align = 0,
                        int icon_w = 0, int icon_h = 0);
 
   // ===============================================================
@@ -444,9 +422,8 @@ private:
   // Set by textInt()/textDouble(), so a widget can tell whether anything
   // reads it as a number. Mutable because both are const getters.
   mutable bool m_textReadAsNumber = false;
-  mutable std::shared_ptr<she::Font>
-      m_font;           // Cached font returned by the theme
-  gfx::Color m_bgColor; // Background color
+  mutable std::shared_ptr<she::Font> m_font; // Cached font returned by the theme
+  gfx::Color m_bgColor;                      // Background color
   gfx::Rect m_bounds;
   gfx::Region m_updateRegion; // Region to be redrawed.
   WidgetsList m_children;     // Sub-widgets

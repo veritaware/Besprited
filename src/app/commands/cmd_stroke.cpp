@@ -45,8 +45,7 @@ class StrokeWindow : public app::gen::Stroke
 // the edge of the current selection, positioned inside/outside/centered on
 // the selection edge, with the given color/opacity. Used by both Stroke and
 // Quick Stroke. Declared in cmd_stroke.h.
-void stroke_mask(Context* context, const app::Color& color, int opacity,
-                 int width, app::gen::StrokePosition position,
+void stroke_mask(Context* context, const app::Color& color, int opacity, int width, app::gen::StrokePosition position,
                  const char* actionName)
 {
   ContextWriter writer(context);
@@ -94,8 +93,7 @@ void stroke_mask(Context* context, const app::Color& color, int opacity,
   // do plain array look-ups instead of going through Mask::containsPoint()
   // (which re-checks bounds and calls into Image::getPixel() for every
   // neighbor we look at).
-  std::vector<bool> sel(static_cast<std::size_t>(workBounds.w) * workBounds.h,
-                        false);
+  std::vector<bool> sel(static_cast<std::size_t>(workBounds.w) * workBounds.h, false);
   auto selAt = [&](int x, int y) -> bool
   {
     const int lx = x - workBounds.x;
@@ -127,8 +125,7 @@ void stroke_mask(Context* context, const app::Color& color, int opacity,
   Transaction transaction(writer.context(), actionName);
   {
     Site site = *writer.site();
-    ExpandCelCanvas expand(site, layer, TiledMode::NONE, transaction,
-                           ExpandCelCanvas::None);
+    ExpandCelCanvas expand(site, layer, TiledMode::NONE, transaction, ExpandCelCanvas::None);
     expand.validateDestCanvas(gfx::Region(paintBounds));
     Image* image = expand.getDestCanvas();
 
@@ -183,10 +180,8 @@ StrokeCommand::StrokeCommand()
 
 bool StrokeCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::ActiveLayerIsEditable |
-                             ContextFlags::ActiveLayerIsImage |
-                             ContextFlags::HasVisibleMask);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsEditable |
+                             ContextFlags::ActiveLayerIsImage | ContextFlags::HasVisibleMask);
 }
 
 void StrokeCommand::onExecute(Context* context)
@@ -213,11 +208,9 @@ void StrokeCommand::onExecute(Context* context)
   color = window.color()->getColor();
   opacity = window.opacity()->getValue();
   width = window.width()->getValue();
-  position = (window.center()->isSelected()
-                  ? app::gen::StrokePosition::CENTER
-                  : (window.outside()->isSelected()
-                         ? app::gen::StrokePosition::OUTSIDE
-                         : app::gen::StrokePosition::INSIDE));
+  position = (window.center()->isSelected() ? app::gen::StrokePosition::CENTER
+                                            : (window.outside()->isSelected() ? app::gen::StrokePosition::OUTSIDE
+                                                                              : app::gen::StrokePosition::INSIDE));
 
   pref.selection.strokeOpacity(opacity);
   pref.selection.strokeWidth(width);
@@ -248,16 +241,14 @@ QuickStrokeCommand::QuickStrokeCommand()
 
 bool QuickStrokeCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::ActiveLayerIsEditable |
-                             ContextFlags::ActiveLayerIsImage |
-                             ContextFlags::HasVisibleMask);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsEditable |
+                             ContextFlags::ActiveLayerIsImage | ContextFlags::HasVisibleMask);
 }
 
 void QuickStrokeCommand::onExecute(Context* context)
 {
-  stroke_mask(context, ColorBar::instance()->getFgColor(), 255, 1,
-              app::gen::StrokePosition::INSIDE, "Quick Stroke Selection");
+  stroke_mask(context, ColorBar::instance()->getFgColor(), 255, 1, app::gen::StrokePosition::INSIDE,
+              "Quick Stroke Selection");
 }
 
 std::unique_ptr<Command> CommandFactory::createQuickStrokeCommand()

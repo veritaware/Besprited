@@ -122,8 +122,7 @@ void ListBox::centerScroll()
     gfx::Rect vp = view->viewportBounds();
     gfx::Point scroll = view->viewScroll();
 
-    scroll.y =
-        ((item->bounds().y - bounds().y) - vp.h / 2 + item->bounds().h / 2);
+    scroll.y = ((item->bounds().y - bounds().y) - vp.h / 2 + item->bounds().h / 2);
 
     view->setViewScroll(scroll);
   }
@@ -218,8 +217,7 @@ bool ListBox::onProcessMessage(Message* msg)
     if (view)
     {
       gfx::Point scroll = view->viewScroll();
-      scroll +=
-          static_cast<MouseMessage*>(msg)->wheelDelta() * textHeight() * 3;
+      scroll += static_cast<MouseMessage*>(msg)->wheelDelta() * textHeight() * 3;
       view->setViewScroll(scroll);
     }
     break;

@@ -129,8 +129,7 @@ void Entry::setCaretPos(int pos)
   {
     c = ++m_scroll;
     auto utf8_it = utf8_begin + MID(0, c, textlen);
-    int x = bounds().x + border().left() -
-            font()->charWidth(' '); // Space for the carret
+    int x = bounds().x + border().left() - font()->charWidth(' '); // Space for the carret
     for (; utf8_it != utf8_end; ++c, ++utf8_it)
     {
       int ch = *utf8_it;
@@ -176,8 +175,7 @@ void Entry::setSuffix(const std::string& suffix)
   invalidate();
 }
 
-void Entry::getEntryThemeInfo(int* scroll, int* caret, int* state, int* selbeg,
-                              int* selend)
+void Entry::getEntryThemeInfo(int* scroll, int* caret, int* state, int* selbeg, int* selend)
 {
   if (scroll)
     *scroll = m_scroll;
@@ -367,8 +365,7 @@ bool Entry::onProcessMessage(Message* msg)
       if (cmd == EntryCmd::NoOp)
         break;
 
-      executeCmd(cmd, keymsg->unicodeChar(),
-                 (msg->shiftPressed()) ? true : false);
+      executeCmd(cmd, keymsg->unicodeChar(), (msg->shiftPressed()) ? true : false);
       return true;
     }
     break;
@@ -428,8 +425,7 @@ bool Entry::onProcessMessage(Message* msg)
 
       c = getCaretFromMouse(static_cast<MouseMessage*>(msg));
 
-      if (static_cast<MouseMessage*>(msg)->left() ||
-          (move && !isPosInSelection(c)))
+      if (static_cast<MouseMessage*>(msg)->left() || (move && !isPosInSelection(c)))
       {
         // Move caret
         if (move)
@@ -500,8 +496,7 @@ bool Entry::onProcessMessage(Message* msg)
 
 void Entry::onSizeHint(SizeHintEvent& ev)
 {
-  int w = +font()->charWidth('w') * MIN(static_cast<int>(m_maxsize), 6) +
-          2 * guiscale() + border().width();
+  int w = +font()->charWidth('w') * MIN(static_cast<int>(m_maxsize), 6) + 2 * guiscale() + border().width();
 
   w = MIN(w, ui::display_w() / 2);
 
@@ -588,8 +583,7 @@ gfx::Rect Entry::onGetEntryTextBounds() const
 
 int Entry::getCaretFromMouse(MouseMessage* mousemsg)
 {
-  base::utf8_const_iterator utf8_begin =
-      base::utf8_const_iterator(text().begin());
+  base::utf8_const_iterator utf8_begin = base::utf8_const_iterator(text().begin());
   base::utf8_const_iterator utf8_end = base::utf8_const_iterator(text().end());
   int caret = m_caret;
   int textlen = base::utf8_length(text());
@@ -775,8 +769,7 @@ void Entry::executeCmd(EntryCmd cmd, int unicodeChar, bool shift_pressed)
       for (c = 0; c < base::utf8_length(clipboard); c++)
       {
         if (text.size() < m_maxsize)
-          text.insert(m_caret + c, 1,
-                      *(base::utf8_const_iterator(clipboard.begin()) + c));
+          text.insert(m_caret + c, 1, *(base::utf8_const_iterator(clipboard.begin()) + c));
         else
           break;
       }
@@ -840,13 +833,11 @@ void Entry::executeCmd(EntryCmd cmd, int unicodeChar, bool shift_pressed)
   invalidate();
 }
 
-#define IS_WORD_CHAR(ch)                                                       \
-  (!((!ch) || (std::isspace(ch)) || ((ch) == '/') || ((ch) == '\\')))
+#define IS_WORD_CHAR(ch) (!((!ch) || (std::isspace(ch)) || ((ch) == '/') || ((ch) == '\\')))
 
 void Entry::forwardWord()
 {
-  base::utf8_const_iterator utf8_begin =
-      base::utf8_const_iterator(text().begin());
+  base::utf8_const_iterator utf8_begin = base::utf8_const_iterator(text().begin());
   int textlen = base::utf8_length(text());
   int ch;
 
@@ -870,8 +861,7 @@ void Entry::forwardWord()
 
 void Entry::backwardWord()
 {
-  base::utf8_const_iterator utf8_begin =
-      base::utf8_const_iterator(text().begin());
+  base::utf8_const_iterator utf8_begin = base::utf8_const_iterator(text().begin());
   int ch;
 
   for (--m_caret; m_caret >= 0; --m_caret)
@@ -914,12 +904,9 @@ void Entry::showEditPopupMenu(const gfx::Point& pt)
   menu.addChild(&cut);
   menu.addChild(&copy);
   menu.addChild(&paste);
-  cut.Click.connect(
-      base::Bind(&Entry::executeCmd, this, EntryCmd::Cut, 0, false));
-  copy.Click.connect(
-      base::Bind(&Entry::executeCmd, this, EntryCmd::Copy, 0, false));
-  paste.Click.connect(
-      base::Bind(&Entry::executeCmd, this, EntryCmd::Paste, 0, false));
+  cut.Click.connect(base::Bind(&Entry::executeCmd, this, EntryCmd::Cut, 0, false));
+  copy.Click.connect(base::Bind(&Entry::executeCmd, this, EntryCmd::Copy, 0, false));
+  paste.Click.connect(base::Bind(&Entry::executeCmd, this, EntryCmd::Paste, 0, false));
 
   if (isReadOnly())
   {

@@ -44,8 +44,7 @@ inline std::string makeStagingDirectory(const std::string& parentDir)
   {
     std::ostringstream name;
     name << ".besprited-extract-" << std::hex << rng() << rng();
-    auto path = base::fix_path_separators(parentDir + base::path_separator +
-                                          name.str());
+    auto path = base::fix_path_separators(parentDir + base::path_separator + name.str());
     try
     {
       base::make_directory(path);
@@ -115,12 +114,10 @@ public:
         throw std::runtime_error("Archive entry has no name");
       std::string fileName = rawName;
       if (!base::is_safe_archive_entry_path(fileName))
-        throw std::runtime_error(
-            "Archive entry escapes destination directory: " + fileName);
+        throw std::runtime_error("Archive entry escapes destination directory: " + fileName);
 
       auto fileType = archive_entry_filetype(entry);
-      if (fileType == AE_IFLNK || fileType == AE_IFSOCK ||
-          archive_entry_hardlink(entry))
+      if (fileType == AE_IFLNK || fileType == AE_IFSOCK || archive_entry_hardlink(entry))
       {
         // Symlinks/hardlinks/sockets could point outside the destination
         // directory; skip them entirely without extracting their data.
@@ -128,8 +125,7 @@ public:
         continue;
       }
 
-      auto fullPath =
-          base::fix_path_separators(path + base::path_separator + fileName);
+      auto fullPath = base::fix_path_separators(path + base::path_separator + fileName);
 
       if (fileType == AE_IFDIR)
       {

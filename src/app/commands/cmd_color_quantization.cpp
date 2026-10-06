@@ -58,16 +58,12 @@ public:
 private:
   void onJob() override
   {
-    render::create_palette_from_sprite(m_sprite, 0, m_sprite->lastFrame(),
-                                       m_withAlpha, &m_palette, this);
+    render::create_palette_from_sprite(m_sprite, 0, m_sprite->lastFrame(), m_withAlpha, &m_palette, this);
   }
 
   bool onPaletteOptimizerContinue() override { return !isCanceled(); }
 
-  void onPaletteOptimizerProgress(double progress) override
-  {
-    jobProgress(progress);
-  }
+  void onPaletteOptimizerProgress(double progress) override { jobProgress(progress); }
 
   Sprite* m_sprite;
   bool m_withAlpha;
@@ -75,9 +71,7 @@ private:
 };
 
 ColorQuantizationCommand::ColorQuantizationCommand()
-  : Command("ColorQuantization",
-            "Create Palette from Current Sprite (Color Quantization)",
-            CmdRecordableFlag)
+  : Command("ColorQuantization", "Create Palette from Current Sprite (Color Quantization)", CmdRecordableFlag)
 {
 }
 
@@ -104,23 +98,18 @@ void ColorQuantizationCommand::onExecute(Context* context)
       curPalette = sprite->palette(frame);
 
       window.newPalette()->setSelected(true);
-      window.alphaChannel()->setSelected(
-          App::instance()->preferences().quantization.withAlpha());
+      window.alphaChannel()->setSelected(App::instance()->preferences().quantization.withAlpha());
       window.ncolors()->setValue(256);
 
       ColorBar::instance()->getPaletteView()->getSelectedEntries(entries);
       if (entries.picks() > 1)
       {
-        window.currentRange()->setTextf("%s, %d color(s)",
-                                        window.currentRange()->text().c_str(),
-                                        entries.picks());
+        window.currentRange()->setTextf("%s, %d color(s)", window.currentRange()->text().c_str(), entries.picks());
       }
       else
         window.currentRange()->setEnabled(false);
 
-      window.currentPalette()->setTextf("%s, %d color(s)",
-                                        window.currentPalette()->text().c_str(),
-                                        curPalette->size());
+      window.currentPalette()->setTextf("%s, %d color(s)", window.currentPalette()->text().c_str(), curPalette->size());
     }
 
     window.openWindowInForeground();
@@ -172,8 +161,7 @@ void ColorQuantizationCommand::onExecute(Context* context)
     if (*curPalette != *newPalette)
     {
       ContextWriter writer(UIContext::instance(), 500);
-      Transaction transaction(writer.context(), "Color Quantization",
-                              ModifyDocument);
+      Transaction transaction(writer.context(), "Color Quantization", ModifyDocument);
       transaction.execute(new cmd::SetPalette(sprite, frame, *newPalette));
       transaction.commit();
 

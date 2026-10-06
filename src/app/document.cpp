@@ -81,15 +81,13 @@ color_t Document::bgColor() const
 {
   return color_utils::color_for_target(
       Preferences::instance().colorBar.bgColor(),
-      ColorTarget(ColorTarget::BackgroundLayer, sprite()->pixelFormat(),
-                  sprite()->transparentColor()));
+      ColorTarget(ColorTarget::BackgroundLayer, sprite()->pixelFormat(), sprite()->transparentColor()));
 }
 
 color_t Document::bgColor(Layer* layer) const
 {
   if (layer->isBackground())
-    return color_utils::color_for_layer(
-        Preferences::instance().colorBar.bgColor(), layer);
+    return color_utils::color_for_layer(Preferences::instance().colorBar.bgColor(), layer);
   else
     return layer->sprite()->transparentColor();
 }
@@ -100,30 +98,24 @@ color_t Document::bgColor(Layer* layer) const
 void Document::notifyGeneralUpdate()
 {
   doc::DocumentEvent ev(this);
-  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onGeneralUpdate,
-                                       ev);
+  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onGeneralUpdate, ev);
 }
 
-void Document::notifySpritePixelsModified(Sprite* sprite,
-                                          const gfx::Region& region,
-                                          frame_t frame)
+void Document::notifySpritePixelsModified(Sprite* sprite, const gfx::Region& region, frame_t frame)
 {
   doc::DocumentEvent ev(this);
   ev.sprite(sprite);
   ev.region(region);
   ev.frame(frame);
-  notifyObservers<doc::DocumentEvent&>(
-      &doc::DocumentObserver::onSpritePixelsModified, ev);
+  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onSpritePixelsModified, ev);
 }
 
-void Document::notifyExposeSpritePixels(Sprite* sprite,
-                                        const gfx::Region& region)
+void Document::notifyExposeSpritePixels(Sprite* sprite, const gfx::Region& region)
 {
   doc::DocumentEvent ev(this);
   ev.sprite(sprite);
   ev.region(region);
-  notifyObservers<doc::DocumentEvent&>(
-      &doc::DocumentObserver::onExposeSpritePixels, ev);
+  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onExposeSpritePixels, ev);
 }
 
 void Document::notifyLayerMergedDown(Layer* srcLayer, Layer* targetLayer)
@@ -132,12 +124,10 @@ void Document::notifyLayerMergedDown(Layer* srcLayer, Layer* targetLayer)
   ev.sprite(srcLayer->sprite());
   ev.layer(srcLayer);
   ev.targetLayer(targetLayer);
-  notifyObservers<doc::DocumentEvent&>(
-      &doc::DocumentObserver::onLayerMergedDown, ev);
+  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onLayerMergedDown, ev);
 }
 
-void Document::notifyCelMoved(Layer* fromLayer, frame_t fromFrame,
-                              Layer* toLayer, frame_t toFrame)
+void Document::notifyCelMoved(Layer* fromLayer, frame_t fromFrame, Layer* toLayer, frame_t toFrame)
 {
   doc::DocumentEvent ev(this);
   ev.sprite(fromLayer->sprite());
@@ -148,8 +138,7 @@ void Document::notifyCelMoved(Layer* fromLayer, frame_t fromFrame,
   notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onCelMoved, ev);
 }
 
-void Document::notifyCelCopied(Layer* fromLayer, frame_t fromFrame,
-                               Layer* toLayer, frame_t toFrame)
+void Document::notifyCelCopied(Layer* fromLayer, frame_t fromFrame, Layer* toLayer, frame_t toFrame)
 {
   doc::DocumentEvent ev(this);
   ev.sprite(fromLayer->sprite());
@@ -163,8 +152,7 @@ void Document::notifyCelCopied(Layer* fromLayer, frame_t fromFrame,
 void Document::notifySelectionChanged()
 {
   doc::DocumentEvent ev(this);
-  notifyObservers<doc::DocumentEvent&>(
-      &doc::DocumentObserver::onSelectionChanged, ev);
+  notifyObservers<doc::DocumentEvent&>(&doc::DocumentObserver::onSelectionChanged, ev);
 }
 
 bool Document::isModified() const
@@ -198,8 +186,7 @@ bool Document::needsBackup() const
 //////////////////////////////////////////////////////////////////////
 // Loaded options from file
 
-void Document::setFormatOptions(
-    const base::SharedPtr<FormatOptions>& format_options)
+void Document::setFormatOptions(const base::SharedPtr<FormatOptions>& format_options)
 {
   m_format_options = format_options;
 }
@@ -279,18 +266,15 @@ void Document::resetTransformation()
 //////////////////////////////////////////////////////////////////////
 // Copying
 
-void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc,
-                                Layer* destLayer0) const
+void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc, Layer* destLayer0) const
 {
   LayerFlags dstFlags = sourceLayer0->flags();
 
   // Remove the "background" flag if the destDoc already has a background layer.
-  if (((int)dstFlags & (int)LayerFlags::Background) ==
-          (int)LayerFlags::Background &&
+  if (((int)dstFlags & (int)LayerFlags::Background) == (int)LayerFlags::Background &&
       (destDoc->sprite()->backgroundLayer()))
   {
-    dstFlags =
-        (LayerFlags)((int)dstFlags & ~(int)(LayerFlags::BackgroundLayerFlags));
+    dstFlags = (LayerFlags)((int)dstFlags & ~(int)(LayerFlags::BackgroundLayerFlags));
   }
 
   // Copy the layer name/flags/user data
@@ -300,8 +284,7 @@ void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc,
 
   if (sourceLayer0->isImage() && destLayer0->isImage())
   {
-    const LayerImage* sourceLayer =
-        static_cast<const LayerImage*>(sourceLayer0);
+    const LayerImage* sourceLayer = static_cast<const LayerImage*>(sourceLayer0);
     LayerImage* destLayer = static_cast<LayerImage*>(destLayer0);
 
     // Copy blend mode and opacity
@@ -325,14 +308,12 @@ void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc,
       auto it = linked.find(sourceCel->data()->id());
       if (it != linked.end())
       {
-        newCel = Cel::createLink(
-            std::static_pointer_cast<Cel>(it->second->shared_from_this()));
+        newCel = Cel::createLink(std::static_pointer_cast<Cel>(it->second->shared_from_this()));
         newCel->setFrame(sourceCel->frame());
       }
       else
       {
-        newCel =
-            create_cel_copy(sourceCel, destLayer->sprite(), sourceCel->frame());
+        newCel = create_cel_copy(sourceCel, destLayer->sprite(), sourceCel->frame());
         linked.insert(std::make_pair(sourceCel->data()->id(), newCel.get()));
       }
 
@@ -341,8 +322,7 @@ void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc,
   }
   else if (sourceLayer0->isFolder() && destLayer0->isFolder())
   {
-    const LayerFolder* sourceLayer =
-        static_cast<const LayerFolder*>(sourceLayer0);
+    const LayerFolder* sourceLayer = static_cast<const LayerFolder*>(sourceLayer0);
     LayerFolder* destLayer = static_cast<LayerFolder*>(destLayer0);
 
     LayerConstIterator it = sourceLayer->getLayerBegin();
@@ -388,9 +368,8 @@ void Document::copyLayerContent(const Layer* sourceLayer0, Document* destDoc,
 Document* Document::duplicate(DuplicateType type) const
 {
   const Sprite* sourceSprite = sprite();
-  std::unique_ptr<Sprite> spriteCopyPtr(new Sprite(
-      sourceSprite->pixelFormat(), sourceSprite->width(),
-      sourceSprite->height(), sourceSprite->palette(frame_t(0))->size()));
+  std::unique_ptr<Sprite> spriteCopyPtr(new Sprite(sourceSprite->pixelFormat(), sourceSprite->width(),
+                                                   sourceSprite->height(), sourceSprite->palette(frame_t(0))->size()));
 
   std::unique_ptr<Document> documentCopy(new Document(spriteCopyPtr.get()));
   Sprite* spriteCopy = spriteCopyPtr.release();
@@ -420,12 +399,10 @@ Document* Document::duplicate(DuplicateType type) const
 
   case DuplicateExactCopy:
     // Copy the layer folder
-    copyLayerContent(sourceSprite->folder(), documentCopy.get(),
-                     spriteCopy->folder());
+    copyLayerContent(sourceSprite->folder(), documentCopy.get(), spriteCopy->folder());
 
-    ASSERT(
-        (spriteCopy->backgroundLayer() && sourceSprite->backgroundLayer()) ||
-        (!spriteCopy->backgroundLayer() && !sourceSprite->backgroundLayer()));
+    ASSERT((spriteCopy->backgroundLayer() && sourceSprite->backgroundLayer()) ||
+           (!spriteCopy->backgroundLayer() && !sourceSprite->backgroundLayer()));
     break;
 
   case DuplicateWithFlattenLayers:
@@ -433,10 +410,9 @@ Document* Document::duplicate(DuplicateType type) const
     // Flatten layers
     ASSERT(sourceSprite->folder() != nullptr);
 
-    LayerImage* flatLayer = create_flatten_layer_copy(
-        spriteCopy, sourceSprite->folder(),
-        gfx::Rect(0, 0, sourceSprite->width(), sourceSprite->height()),
-        frame_t(0), sourceSprite->lastFrame());
+    LayerImage* flatLayer = create_flatten_layer_copy(spriteCopy, sourceSprite->folder(),
+                                                      gfx::Rect(0, 0, sourceSprite->width(), sourceSprite->height()),
+                                                      frame_t(0), sourceSprite->lastFrame());
 
     // Add and select the new flat layer
     spriteCopy->folder()->addLayer(flatLayer);
@@ -505,8 +481,7 @@ bool Document::lock(LockType lockType, int timeout)
 
   TRACE("Document::lock: Cannot lock <%d> to %s (has %d read locks and %d "
         "write locks)\n",
-        id(), (lockType == ReadLock ? "read" : "write"), m_read_locks,
-        m_write_lock);
+        id(), (lockType == ReadLock ? "read" : "write"), m_read_locks, m_write_lock);
   return false;
 }
 

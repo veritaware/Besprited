@@ -79,10 +79,7 @@ protected:
 
   // Called first on every onMouseMove(); return true to swallow the move
   // (no onDrag()/afterDrag()). The state may rebaseDrag() here.
-  virtual bool skipDrag(Editor* editor, ui::MouseMessage* msg)
-  {
-    return false;
-  }
+  virtual bool skipDrag(Editor* editor, ui::MouseMessage* msg) { return false; }
 
   // Applies whatever this state drags, given the delta (in editor space)
   // between the current mouse position and the drag's start point.
@@ -97,10 +94,7 @@ protected:
   // Called after onDrag() on every onMouseMove() - lets a state chain into
   // its "normal" (non-dragging) onMouseMove behavior, e.g.
   // StandbyState::onMouseMove()'s status-bar/brush-preview updates.
-  virtual bool afterDrag(Editor* editor, ui::MouseMessage* msg)
-  {
-    return true;
-  }
+  virtual bool afterDrag(Editor* editor, ui::MouseMessage* msg) { return true; }
 
 private:
   gfx::Point m_start;

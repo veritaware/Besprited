@@ -29,10 +29,7 @@ struct compare_path
     : a(a)
   {
   }
-  bool operator()(const std::string& b) const
-  {
-    return base::compare_filenames(a, b) == 0;
-  }
+  bool operator()(const std::string& b) const { return base::compare_filenames(a, b) == 0; }
 };
 
 } // namespace

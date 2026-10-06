@@ -48,8 +48,7 @@ public:
   void setSpriteTransparentColor(Sprite* sprite, color_t maskColor);
   void cropSprite(Sprite* sprite, const gfx::Rect& bounds);
   void trimSprite(Sprite* sprite);
-  void setPixelFormat(Sprite* sprite, PixelFormat newFormat,
-                      DitheringMethod dithering);
+  void setPixelFormat(Sprite* sprite, PixelFormat newFormat, DitheringMethod dithering);
 
   // Frames API
   void addFrame(Sprite* sprite, frame_t newFrame);
@@ -59,24 +58,19 @@ public:
   void removeFrame(Sprite* sprite, frame_t frame);
   void setTotalFrames(Sprite* sprite, frame_t frames);
   void setFrameDuration(Sprite* sprite, frame_t frame, int msecs);
-  void setFrameRangeDuration(Sprite* sprite, frame_t from, frame_t to,
-                             int msecs);
+  void setFrameRangeDuration(Sprite* sprite, frame_t from, frame_t to, int msecs);
   void moveFrame(Sprite* sprite, frame_t frame, frame_t beforeFrame);
 
   // Cels API
   void addCel(LayerImage* layer, std::shared_ptr<Cel> cel);
-  std::shared_ptr<Cel> addCel(LayerImage* layer, frame_t frameNumber,
-                              const ImageRef& image);
+  std::shared_ptr<Cel> addCel(LayerImage* layer, frame_t frameNumber, const ImageRef& image);
   void clearCel(LayerImage* layer, frame_t frame);
   void clearCel(std::shared_ptr<Cel> cel);
   void setCelPosition(Sprite* sprite, std::shared_ptr<Cel> cel, int x, int y);
   void setCelOpacity(Sprite* sprite, std::shared_ptr<Cel> cel, int newOpacity);
-  void moveCel(LayerImage* srcLayer, frame_t srcFrame, LayerImage* dstLayer,
-               frame_t dstFrame);
-  void copyCel(LayerImage* srcLayer, frame_t srcFrame, LayerImage* dstLayer,
-               frame_t dstFrame);
-  void copyCel(LayerImage* srcLayer, frame_t srcFrame, LayerImage* dstLayer,
-               frame_t dstFrame, bool continuous);
+  void moveCel(LayerImage* srcLayer, frame_t srcFrame, LayerImage* dstLayer, frame_t dstFrame);
+  void copyCel(LayerImage* srcLayer, frame_t srcFrame, LayerImage* dstLayer, frame_t dstFrame);
+  void copyCel(LayerImage* srcLayer, frame_t srcFrame, LayerImage* dstLayer, frame_t dstFrame, bool continuous);
   void swapCel(LayerImage* layer, frame_t frame1, frame_t frame2);
 
   // Layers API
@@ -93,14 +87,11 @@ public:
   void duplicateLayerBefore(Layer* sourceLayer, Layer* beforeLayer);
 
   // Images API
-  void replaceImage(Sprite* sprite, const ImageRef& oldImage,
-                    const ImageRef& newImage);
+  void replaceImage(Sprite* sprite, const ImageRef& oldImage, const ImageRef& newImage);
 
   // Image API
-  void flipImage(Image* image, const gfx::Rect& bounds,
-                 doc::algorithm::FlipType flipType);
-  void flipImageWithMask(Layer* layer, Image* image,
-                         doc::algorithm::FlipType flipType);
+  void flipImage(Image* image, const gfx::Rect& bounds, doc::algorithm::FlipType flipType);
+  void flipImageWithMask(Layer* layer, Image* image, doc::algorithm::FlipType flipType);
 
   // Mask API
   void copyToCurrentMask(Mask* mask);
@@ -112,8 +103,7 @@ public:
 private:
   void setCelFramePosition(std::shared_ptr<Cel> cel, frame_t frame);
   void moveFrameLayer(Layer* layer, frame_t frame, frame_t beforeFrame);
-  void adjustFrameTags(Sprite* sprite, frame_t frame, frame_t delta,
-                       bool between);
+  void adjustFrameTags(Sprite* sprite, frame_t frame, frame_t delta, bool between);
 
   Document* m_document;
   Transaction& m_transaction;

@@ -24,18 +24,15 @@ using namespace ui;
 RecentFilesMenu::RecentFilesMenu()
 {
   auto& Changed = App::instance()->recentFiles()->Changed;
-  m_recentFilesConn =
-      Changed.connect(base::Bind(&RecentFilesMenu::rebuildRecentList, this));
+  m_recentFilesConn = Changed.connect(base::Bind(&RecentFilesMenu::rebuildRecentList, this));
 }
 
 void RecentFilesMenu::rebuildRecentList()
 {
-  auto list_menuitem =
-      app::AppMenus::instance()->getById<MenuItem>("recent_list");
+  auto list_menuitem = app::AppMenus::instance()->getById<MenuItem>("recent_list");
   if (!list_menuitem || list_menuitem->hasSubmenuOpened())
     return;
-  Command* cmd_open_file =
-      CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+  Command* cmd_open_file = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
 
   Menu* submenu = list_menuitem->getSubmenu();
   if (submenu)
@@ -59,8 +56,7 @@ void RecentFilesMenu::rebuildRecentList()
       const char* filename = it->c_str();
       params.set("filename", filename);
 
-      auto menuitem = new AppMenuItem(base::get_file_name(filename).c_str(),
-                                      cmd_open_file, params);
+      auto menuitem = new AppMenuItem(base::get_file_name(filename).c_str(), cmd_open_file, params);
       submenu->addChild(menuitem);
     }
   }

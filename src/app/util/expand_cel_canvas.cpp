@@ -60,8 +60,7 @@ static void create_buffers()
 namespace app
 {
 
-ExpandCelCanvas::ExpandCelCanvas(Site site, Layer* layer, TiledMode tiledMode,
-                                 Transaction& transaction, Flags flags)
+ExpandCelCanvas::ExpandCelCanvas(Site site, Layer* layer, TiledMode tiledMode, Transaction& transaction, Flags flags)
   : m_document(static_cast<app::Document*>(site.document()))
   , m_sprite(site.sprite())
   , m_layer(layer)
@@ -99,8 +98,7 @@ ExpandCelCanvas::ExpandCelCanvas(Site site, Layer* layer, TiledMode tiledMode,
   m_origCelPos = m_cel->position();
 
   // Region to draw
-  gfx::Rect celBounds(m_cel->x(), m_cel->y(),
-                      m_celImage ? m_celImage->width() : m_sprite->width(),
+  gfx::Rect celBounds(m_cel->x(), m_cel->y(), m_celImage ? m_celImage->width() : m_sprite->width(),
                       m_celImage ? m_celImage->height() : m_sprite->height());
 
   gfx::Rect spriteBounds(0, 0, m_sprite->width(), m_sprite->height());
@@ -196,14 +194,11 @@ void ExpandCelCanvas::commit()
 
     if (m_canCompareSrcVsDst)
     {
-      ASSERT(gfx::Region()
-                 .createSubtraction(m_validDstRegion, m_validSrcRegion)
-                 .isEmpty());
+      ASSERT(gfx::Region().createSubtraction(m_validDstRegion, m_validSrcRegion).isEmpty());
 
       for (gfx::Rect rc : m_validDstRegion)
       {
-        if (algorithm::shrink_bounds2(getSourceCanvas(), getDestCanvas(), rc,
-                                      rc))
+        if (algorithm::shrink_bounds2(getSourceCanvas(), getDestCanvas(), rc, rc))
         {
           reduced |= gfx::Region(rc);
         }
@@ -214,13 +209,11 @@ void ExpandCelCanvas::commit()
 
     if (m_layer->isBackground())
     {
-      m_transaction.execute(new cmd::CopyRegion(
-          m_cel->image(), m_dstImage.get(), *regionToPatch, m_bounds.origin()));
+      m_transaction.execute(new cmd::CopyRegion(m_cel->image(), m_dstImage.get(), *regionToPatch, m_bounds.origin()));
     }
     else
     {
-      m_transaction.execute(new cmd::PatchCel(
-          m_cel, m_dstImage.get(), *regionToPatch, m_bounds.origin()));
+      m_transaction.execute(new cmd::PatchCel(m_cel, m_dstImage.get(), *regionToPatch, m_bounds.origin()));
     }
   }
   else
@@ -257,8 +250,7 @@ Image* ExpandCelCanvas::getSourceCanvas()
 
   if (!m_srcImage)
   {
-    m_srcImage.reset(Image::create(m_sprite->pixelFormat(), m_bounds.w,
-                                   m_bounds.h, src_buffer));
+    m_srcImage.reset(Image::create(m_sprite->pixelFormat(), m_bounds.w, m_bounds.h, src_buffer));
 
     m_srcImage->setMaskColor(m_sprite->transparentColor());
   }
@@ -269,8 +261,7 @@ Image* ExpandCelCanvas::getDestCanvas()
 {
   if (!m_dstImage)
   {
-    m_dstImage.reset(Image::create(m_sprite->pixelFormat(), m_bounds.w,
-                                   m_bounds.h, dst_buffer));
+    m_dstImage.reset(Image::create(m_sprite->pixelFormat(), m_bounds.w, m_bounds.h, dst_buffer));
 
     m_dstImage->setMaskColor(m_sprite->transparentColor());
   }
@@ -284,24 +275,19 @@ void ExpandCelCanvas::validateSourceCanvas(const gfx::Region& rgn)
   gfx::Region rgnToValidate(rgn);
   rgnToValidate.offset(-m_bounds.origin());
   rgnToValidate.createSubtraction(rgnToValidate, m_validSrcRegion);
-  rgnToValidate.createIntersection(rgnToValidate,
-                                   gfx::Region(m_srcImage->bounds()));
+  rgnToValidate.createIntersection(rgnToValidate, gfx::Region(m_srcImage->bounds()));
 
   if (m_celImage)
   {
     gfx::Region rgnToClear;
     rgnToClear.createSubtraction(rgnToValidate,
-                                 gfx::Region(m_celImage->bounds()
-                                                 .offset(m_origCelPos)
-                                                 .offset(-m_bounds.origin())));
+                                 gfx::Region(m_celImage->bounds().offset(m_origCelPos).offset(-m_bounds.origin())));
     for (const auto& rc : rgnToClear)
       fill_rect(m_srcImage.get(), rc, m_srcImage->maskColor());
 
     for (const auto& rc : rgnToValidate)
-      m_srcImage->copy(m_celImage.get(),
-                       gfx::Clip(rc.x, rc.y, rc.x + m_bounds.x - m_origCelPos.x,
-                                 rc.y + m_bounds.y - m_origCelPos.y, rc.w,
-                                 rc.h));
+      m_srcImage->copy(m_celImage.get(), gfx::Clip(rc.x, rc.y, rc.x + m_bounds.x - m_origCelPos.x,
+                                                   rc.y + m_bounds.y - m_origCelPos.y, rc.w, rc.h));
   }
   else
   {
@@ -335,22 +321,18 @@ void ExpandCelCanvas::validateDestCanvas(const gfx::Region& rgn)
   gfx::Region rgnToValidate(rgn);
   rgnToValidate.offset(-m_bounds.origin());
   rgnToValidate.createSubtraction(rgnToValidate, m_validDstRegion);
-  rgnToValidate.createIntersection(rgnToValidate,
-                                   gfx::Region(m_dstImage->bounds()));
+  rgnToValidate.createIntersection(rgnToValidate, gfx::Region(m_dstImage->bounds()));
 
   if (src)
   {
     gfx::Region rgnToClear;
-    rgnToClear.createSubtraction(
-        rgnToValidate,
-        gfx::Region(
-            src->bounds().offset(src_x, src_y).offset(-m_bounds.origin())));
+    rgnToClear.createSubtraction(rgnToValidate,
+                                 gfx::Region(src->bounds().offset(src_x, src_y).offset(-m_bounds.origin())));
     for (const auto& rc : rgnToClear)
       fill_rect(m_dstImage.get(), rc, m_dstImage->maskColor());
 
     for (const auto& rc : rgnToValidate)
-      m_dstImage->copy(src, gfx::Clip(rc.x, rc.y, rc.x + m_bounds.x - src_x,
-                                      rc.y + m_bounds.y - src_y, rc.w, rc.h));
+      m_dstImage->copy(src, gfx::Clip(rc.x, rc.y, rc.x + m_bounds.x - src_x, rc.y + m_bounds.y - src_y, rc.w, rc.h));
   }
   else
   {
@@ -380,8 +362,7 @@ void ExpandCelCanvas::copyValidDestToSourceCanvas(const gfx::Region& rgn)
   rgn2.createIntersection(rgn2, m_validSrcRegion);
   rgn2.createIntersection(rgn2, m_validDstRegion);
   for (const auto& rc : rgn2)
-    m_srcImage->copy(m_dstImage.get(),
-                     gfx::Clip(rc.x, rc.y, rc.x, rc.y, rc.w, rc.h));
+    m_srcImage->copy(m_dstImage.get(), gfx::Clip(rc.x, rc.y, rc.x, rc.y, rc.w, rc.h));
 
   // We cannot compare src vs dst in this case (e.g. on tools like
   // spray and jumble that updated the source image form the modified
@@ -403,8 +384,7 @@ gfx::Rect ExpandCelCanvas::getTrimDstImageBounds() const
 
 ImageRef ExpandCelCanvas::trimDstImage(const gfx::Rect& bounds) const
 {
-  return ImageRef(crop_image(m_dstImage.get(), bounds.x, bounds.y, bounds.w,
-                             bounds.h, m_dstImage->maskColor()));
+  return ImageRef(crop_image(m_dstImage.get(), bounds.x, bounds.y, bounds.w, bounds.h, m_dstImage->maskColor()));
 }
 
 } // namespace app

@@ -101,8 +101,7 @@ void base::thread::launch_thread(func_wrapper* f)
 
   DWORD native_id;
   m_native_handle =
-      ::CreateThread(nullptr, 0, win32_thread_proxy, static_cast<LPVOID>(f),
-                     CREATE_SUSPENDED, &native_id);
+      ::CreateThread(nullptr, 0, win32_thread_proxy, static_cast<LPVOID>(f), CREATE_SUSPENDED, &native_id);
   ResumeThread(m_native_handle);
 
 #else

@@ -33,8 +33,7 @@ CopyMergedCommand::CopyMergedCommand()
 
 bool CopyMergedCommand::onEnabled(Context* ctx)
 {
-  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                         ContextFlags::HasVisibleMask);
+  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasVisibleMask);
 }
 
 void CopyMergedCommand::onExecute(Context* ctx)

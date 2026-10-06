@@ -55,10 +55,8 @@ public:
   {
     import()->setEnabled(false);
 
-    static_assert((int)app::SpriteSheetType::Horizontal == 1 &&
-                      (int)app::SpriteSheetType::Vertical == 2 &&
-                      (int)app::SpriteSheetType::Rows == 3 &&
-                      (int)app::SpriteSheetType::Columns == 4,
+    static_assert((int)app::SpriteSheetType::Horizontal == 1 && (int)app::SpriteSheetType::Vertical == 2 &&
+                      (int)app::SpriteSheetType::Rows == 3 && (int)app::SpriteSheetType::Columns == 4,
                   "SpriteSheetType enum changed");
 
     sheetType()->addItem("Horizontal Strip");
@@ -67,18 +65,12 @@ public:
     sheetType()->addItem("By Columns");
     sheetType()->setSelectedItemIndex((int)app::SpriteSheetType::Rows - 1);
 
-    sheetType()->Change.connect(
-        base::Bind<void>(&ImportSpriteSheetWindow::onSheetTypeChange, this));
-    x()->Change.connect(
-        base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
-    y()->Change.connect(
-        base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
-    width()->Change.connect(
-        base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
-    height()->Change.connect(
-        base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
-    selectFile()->Click.connect(
-        base::Bind<void>(&ImportSpriteSheetWindow::onSelectFile, this));
+    sheetType()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onSheetTypeChange, this));
+    x()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
+    y()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
+    width()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
+    height()->Change.connect(base::Bind<void>(&ImportSpriteSheetWindow::onEntriesChange, this));
+    selectFile()->Click.connect(base::Bind<void>(&ImportSpriteSheetWindow::onSelectFile, this));
 
     remapWindow();
     centerWindow();
@@ -93,10 +85,7 @@ public:
 
   ~ImportSpriteSheetWindow() override { releaseEditor(); }
 
-  SpriteSheetType sheetTypeValue() const
-  {
-    return (app::SpriteSheetType)(sheetType()->getSelectedItemIndex() + 1);
-  }
+  SpriteSheetType sheetTypeValue() const { return (app::SpriteSheetType)(sheetType()->getSelectedItemIndex() + 1); }
 
   bool partialTilesValue() const { return partialTiles()->isSelected(); }
 
@@ -114,8 +103,7 @@ protected:
   void onSelectFile()
   {
     Document* oldActiveDocument = m_context->activeDocument();
-    Command* openFile =
-        CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+    Command* openFile = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
     Params params;
     params.set("filename", "");
     openFile->loadParams(params);
@@ -134,8 +122,7 @@ protected:
     int w = width()->textInt();
     int h = height()->textInt();
 
-    return gfx::Rect(x()->textInt(), y()->textInt(), std::max<int>(1, w),
-                     std::max<int>(1, h));
+    return gfx::Rect(x()->textInt(), y()->textInt(), std::max<int>(1, w), std::max<int>(1, h));
   }
 
   void onEntriesChange()
@@ -185,10 +172,7 @@ protected:
     height()->setTextf("%d", m_rect.h);
   }
 
-  std::string onGetContextBarHelp() override
-  {
-    return "Select bounds to identify sprite frames";
-  }
+  std::string onGetContextBarHelp() override { return "Select bounds to identify sprite frames"; }
 
 private:
   void selectActiveDocument()
@@ -217,11 +201,9 @@ private:
     {
       m_docPref = &Preferences::instance().document(m_document);
 
-      if (m_docPref->importSpriteSheet.type() >=
-              app::SpriteSheetType::Horizontal &&
+      if (m_docPref->importSpriteSheet.type() >= app::SpriteSheetType::Horizontal &&
           m_docPref->importSpriteSheet.type() <= app::SpriteSheetType::Columns)
-        sheetType()->setSelectedItemIndex(
-            (int)m_docPref->importSpriteSheet.type() - 1);
+        sheetType()->setSelectedItemIndex((int)m_docPref->importSpriteSheet.type() - 1);
       else
         sheetType()->setSelectedItemIndex((int)app::SpriteSheetType::Rows - 1);
 
@@ -244,9 +226,7 @@ private:
       m_rect = getRectFromEntries();
       m_editor = current_editor;
       m_editorState = std::make_shared<SelectBoxState>(
-          this, m_rect,
-          SelectBoxState::Flags(int(SelectBoxState::Flags::Rulers) |
-                                int(SelectBoxState::Flags::Grid)));
+          this, m_rect, SelectBoxState::Flags(int(SelectBoxState::Flags::Rulers) | int(SelectBoxState::Flags::Grid)));
 
       m_editor->setState(m_editorState);
       updateGridState();
@@ -273,8 +253,7 @@ private:
       break;
     }
 
-    static_cast<SelectBoxState*>(m_editorState.get())
-        ->setFlags(SelectBoxState::Flags(flags));
+    static_cast<SelectBoxState*>(m_editorState.get())->setFlags(SelectBoxState::Flags(flags));
     m_editor->invalidate();
   }
 
@@ -354,38 +333,30 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
     switch (sheetType)
     {
     case app::SpriteSheetType::Horizontal:
-      for (int x = frameBounds.x; x + frameBounds.w <= widthStop;
-           x += frameBounds.w)
+      for (int x = frameBounds.x; x + frameBounds.w <= widthStop; x += frameBounds.w)
       {
-        tileRects.push_back(
-            gfx::Rect(x, frameBounds.y, frameBounds.w, frameBounds.h));
+        tileRects.push_back(gfx::Rect(x, frameBounds.y, frameBounds.w, frameBounds.h));
       }
       break;
     case app::SpriteSheetType::Vertical:
-      for (int y = frameBounds.y; y + frameBounds.h <= heightStop;
-           y += frameBounds.h)
+      for (int y = frameBounds.y; y + frameBounds.h <= heightStop; y += frameBounds.h)
       {
-        tileRects.push_back(
-            gfx::Rect(frameBounds.x, y, frameBounds.w, frameBounds.h));
+        tileRects.push_back(gfx::Rect(frameBounds.x, y, frameBounds.w, frameBounds.h));
       }
       break;
     case app::SpriteSheetType::Rows:
-      for (int y = frameBounds.y; y + frameBounds.h <= heightStop;
-           y += frameBounds.h)
+      for (int y = frameBounds.y; y + frameBounds.h <= heightStop; y += frameBounds.h)
       {
-        for (int x = frameBounds.x; x + frameBounds.w <= widthStop;
-             x += frameBounds.w)
+        for (int x = frameBounds.x; x + frameBounds.w <= widthStop; x += frameBounds.w)
         {
           tileRects.push_back(gfx::Rect(x, y, frameBounds.w, frameBounds.h));
         }
       }
       break;
     case app::SpriteSheetType::Columns:
-      for (int x = frameBounds.x; x + frameBounds.w <= sprite->width();
-           x += frameBounds.w)
+      for (int x = frameBounds.x; x + frameBounds.w <= sprite->width(); x += frameBounds.w)
       {
-        for (int y = frameBounds.y; y + frameBounds.h <= sprite->height();
-             y += frameBounds.h)
+        for (int y = frameBounds.y; y + frameBounds.h <= sprite->height(); y += frameBounds.h)
         {
           tileRects.push_back(gfx::Rect(x, y, frameBounds.w, frameBounds.h));
         }
@@ -396,12 +367,10 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
     // As first step, we cut each tile and add them into "animation" list.
     for (const auto& tileRect : tileRects)
     {
-      ImageRef resultImage(
-          Image::create(sprite->pixelFormat(), tileRect.w, tileRect.h));
+      ImageRef resultImage(Image::create(sprite->pixelFormat(), tileRect.w, tileRect.h));
 
       // Render the portion of sheet.
-      render.renderSprite(resultImage.get(), sprite, currentFrame,
-                          gfx::Clip(0, 0, tileRect));
+      render.renderSprite(resultImage.get(), sprite, currentFrame, gfx::Clip(0, 0, tileRect));
 
       animation.push_back(resultImage);
     }
@@ -418,8 +387,7 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
     // The following steps modify the sprite, so we wrap all
     // operations in a undo-transaction.
     ContextWriter writer(context);
-    Transaction transaction(writer.context(), "Import Sprite Sheet",
-                            ModifyDocument);
+    Transaction transaction(writer.context(), "Import Sprite Sheet", ModifyDocument);
     DocumentApi api = document->getApi(transaction);
 
     // Add the layer in the sprite.

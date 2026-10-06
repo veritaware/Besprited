@@ -48,8 +48,7 @@ TooltipManager::~TooltipManager()
   manager->removeMessageFilterFor(this);
 }
 
-void TooltipManager::addTooltipFor(Widget* widget, const std::string& text,
-                                   int arrowAlign)
+void TooltipManager::addTooltipFor(Widget* widget, const std::string& text, int arrowAlign)
 {
   m_tips[widget] = TipInfo(app::i18n(text, text), arrowAlign);
 }
@@ -248,8 +247,7 @@ bool TipWindow::onProcessMessage(Message* msg)
   {
 
   case kKeyDownMessage:
-    if (m_closeOnKeyDown &&
-        static_cast<KeyMessage*>(msg)->scancode() < kKeyFirstModifierScancode)
+    if (m_closeOnKeyDown && static_cast<KeyMessage*>(msg)->scancode() < kKeyFirstModifierScancode)
       closeWindow(nullptr);
     break;
 
@@ -293,8 +291,7 @@ void TipWindow::onInitTheme(InitThemeEvent& ev)
 {
   PopupWindow::onInitTheme(ev);
 
-  setBorder(gfx::Border(6 * guiscale(), 6 * guiscale(), 6 * guiscale(),
-                        7 * guiscale()));
+  setBorder(gfx::Border(6 * guiscale(), 6 * guiscale(), 6 * guiscale(), 7 * guiscale()));
 }
 
 void TipWindow::onPaint(PaintEvent& ev)

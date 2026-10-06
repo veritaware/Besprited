@@ -19,8 +19,7 @@
 namespace app
 {
 
-gfx::Point snap_to_grid(const gfx::Rect& grid, const gfx::Point& point,
-                        const PreferSnapTo prefer)
+gfx::Point snap_to_grid(const gfx::Rect& grid, const gfx::Point& point, const PreferSnapTo prefer)
 {
   gfx::Point newPoint;
   div_t d, dx, dy;

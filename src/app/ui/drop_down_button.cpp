@@ -43,10 +43,9 @@ DropDownButton::DropDownButton(const char* text)
 
   setChildSpacing(0);
 
-  m_dropDown->setIconInterface(new ButtonIconImpl(
-      theme->parts.comboboxArrowDown(),
-      theme->parts.comboboxArrowDownSelected(),
-      theme->parts.comboboxArrowDownDisabled(), CENTER | MIDDLE));
+  m_dropDown->setIconInterface(new ButtonIconImpl(theme->parts.comboboxArrowDown(),
+                                                  theme->parts.comboboxArrowDownSelected(),
+                                                  theme->parts.comboboxArrowDownDisabled(), CENTER | MIDDLE));
 }
 
 void DropDownButton::onButtonClick(Event& ev)

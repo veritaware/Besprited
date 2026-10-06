@@ -44,8 +44,7 @@ Document* Documents::add(int width, int height, ColorMode mode, int ncolors)
   std::unique_ptr<Document> doc(args.document());
   doc->sprites().add(width, height, mode, ncolors);
   doc->setFilename("Sprite");
-  doc->setContext(
-      m_ctx); // Change the document context to add the doc in this collection
+  doc->setContext(m_ctx); // Change the document context to add the doc in this collection
 
   return doc.release();
 }

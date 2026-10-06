@@ -55,8 +55,7 @@ protected:
 
 private:
   std::string getActionName() const;
-  void applyModifier(const Mask* srcMask, Mask* dstMask, const int brushRadius,
-                     const doc::BrushType brushType) const;
+  void applyModifier(const Mask* srcMask, Mask* dstMask, const int brushRadius, const doc::BrushType brushType) const;
 
   Modifier m_modifier = Expand;
   int m_quantity = 0;
@@ -90,8 +89,7 @@ void ModifySelectionCommand::onLoadParams(const Params& params)
 
 bool ModifySelectionCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasVisibleMask);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasVisibleMask);
 }
 
 void ModifySelectionCommand::onExecute(Context* context)
@@ -112,10 +110,8 @@ void ModifySelectionCommand::onExecute(Context* context)
 
     window.quantity()->setValue(pref.selection.modifySelectionQuantity());
 
-    brush =
-        (pref.selection.modifySelectionBrush() == app::gen::BrushType::CIRCLE
-             ? doc::kCircleBrushType
-             : doc::kSquareBrushType);
+    brush = (pref.selection.modifySelectionBrush() == app::gen::BrushType::CIRCLE ? doc::kCircleBrushType
+                                                                                  : doc::kSquareBrushType);
     window.circle()->setSelected(brush == doc::kCircleBrushType);
     window.square()->setSelected(brush == doc::kSquareBrushType);
 
@@ -125,13 +121,11 @@ void ModifySelectionCommand::onExecute(Context* context)
 
     quantity = window.quantity()->getValue();
 
-    brush = (window.circle()->isSelected() ? doc::kCircleBrushType
-                                           : doc::kSquareBrushType);
+    brush = (window.circle()->isSelected() ? doc::kCircleBrushType : doc::kSquareBrushType);
 
     pref.selection.modifySelectionQuantity(quantity);
-    pref.selection.modifySelectionBrush((brush == doc::kCircleBrushType
-                                             ? app::gen::BrushType::CIRCLE
-                                             : app::gen::BrushType::SQUARE));
+    pref.selection.modifySelectionBrush(
+        (brush == doc::kCircleBrushType ? app::gen::BrushType::CIRCLE : app::gen::BrushType::SQUARE));
   }
 
   // Lock sprite
@@ -148,8 +142,7 @@ void ModifySelectionCommand::onExecute(Context* context)
   }
 
   // Set the new mask
-  Transaction transaction(writer.context(), getActionName() + " Selection",
-                          DoesntModifyDocument);
+  Transaction transaction(writer.context(), getActionName() + " Selection", DoesntModifyDocument);
   transaction.execute(new cmd::SetMask(document, mask.get()));
   transaction.commit();
 
@@ -193,8 +186,7 @@ std::string ModifySelectionCommand::getActionName() const
 
 // TODO create morphological operators/functions in "doc" namespace
 // TODO the impl is not optimal, but is good enough as a first version
-void ModifySelectionCommand::applyModifier(const Mask* srcMask, Mask* dstMask,
-                                           const int radius,
+void ModifySelectionCommand::applyModifier(const Mask* srcMask, Mask* dstMask, const int radius,
                                            const doc::BrushType brush) const
 {
   const doc::Image* srcImage = srcMask->bitmap();
@@ -205,8 +197,7 @@ void ModifySelectionCommand::applyModifier(const Mask* srcMask, Mask* dstMask,
 
   // Create a kernel
   const int size = 2 * radius + 1;
-  std::unique_ptr<doc::Image> kernel(
-      doc::Image::create(IMAGE_BITMAP, size, size));
+  std::unique_ptr<doc::Image> kernel(doc::Image::create(IMAGE_BITMAP, size, size));
   doc::clear_image(kernel.get(), 0);
   if (brush == doc::kCircleBrushType)
     doc::fill_ellipse(kernel.get(), 0, 0, size - 1, size - 1, 1);
@@ -262,8 +253,7 @@ void ModifySelectionCommand::applyModifier(const Mask* srcMask, Mask* dstMask,
       }
 
       if (c)
-        doc::put_pixel(dstImage, srcMask->bounds().x + x,
-                       srcMask->bounds().y + y, 1);
+        doc::put_pixel(dstImage, srcMask->bounds().x + x, srcMask->bounds().y + y, 1);
     }
   }
 }

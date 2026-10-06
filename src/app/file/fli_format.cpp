@@ -33,8 +33,7 @@ class FliFormat : public FileFormat
   const char* onGetExtensions() const override { return "flc,fli"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_INDEXED |
-           FILE_SUPPORT_FRAMES | FILE_SUPPORT_PALETTES;
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_INDEXED | FILE_SUPPORT_FRAMES | FILE_SUPPORT_PALETTES;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -66,8 +65,7 @@ bool FliFormat::onLoad(FileOp* fop)
   // upstream (this codec doesn't go through FileOp::sequenceImage) - a
   // tiny crafted file can otherwise claim a multi-gigabyte canvas or a
   // huge frame count with no real frame data behind it (see issue #219).
-  if (w <= 0 || h <= 0 || w > kMaxFileImageDimension ||
-      h > kMaxFileImageDimension)
+  if (w <= 0 || h <= 0 || w > kMaxFileImageDimension || h > kMaxFileImageDimension)
   {
     fop->setError("Invalid FLI/FLC file: bad width/height\n");
     return false;
@@ -117,8 +115,7 @@ bool FliFormat::onLoad(FileOp* fop)
       pal->resize(fliFrame.colormap.size());
       for (int c = 0; c < int(fliFrame.colormap.size()); c++)
       {
-        pal->setEntry(c, rgba(fliFrame.colormap[c].r, fliFrame.colormap[c].g,
-                              fliFrame.colormap[c].b, 255));
+        pal->setEntry(c, rgba(fliFrame.colormap[c].r, fliFrame.colormap[c].g, fliFrame.colormap[c].b, 255));
       }
       pal->setFrame(frame_out);
       sprite->setPalette(*pal, true);
@@ -149,8 +146,7 @@ bool FliFormat::onLoad(FileOp* fop)
     // frame
     else
     {
-      sprite->setFrameDuration(
-          frame_out - 1, sprite->frameDuration(frame_out - 1) + header.speed);
+      sprite->setFrameDuration(frame_out - 1, sprite->frameDuration(frame_out - 1) + header.speed);
     }
 
     if (header.frames > 0)
@@ -252,8 +248,7 @@ bool FliFormat::onSave(FileOp* fop)
     }
 
     // Update progress
-    fop->setProgress((float)(frame_it + 1) /
-                     (float)(sprite->totalFrames() + 1));
+    fop->setProgress((float)(frame_it + 1) / (float)(sprite->totalFrames() + 1));
   }
 
   return true;

@@ -38,10 +38,7 @@ class SheFormat : public FileFormat
 {
   const char* onGetName() const override { return "she"; }
   const char* onGetExtensions() const override { return ""; }
-  int onGetFlags() const override
-  {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SEQUENCES;
-  }
+  int onGetFlags() const override { return FILE_SUPPORT_LOAD | FILE_SUPPORT_SEQUENCES; }
 
   bool onSave(FileOp* fop) override { return false; }
 
@@ -66,8 +63,7 @@ bool SheFormat::onLoad(FileOp* fop)
     // rather than hang the app.
     constexpr auto kLoadTimeout = std::chrono::seconds(15);
 
-    auto promise =
-        std::make_shared<std::promise<std::shared_ptr<she::Surface>>>();
+    auto promise = std::make_shared<std::promise<std::shared_ptr<she::Surface>>>();
     std::future<std::shared_ptr<she::Surface>> future = promise->get_future();
     std::string filename = fop->filename();
 
@@ -76,8 +72,7 @@ bool SheFormat::onLoad(FileOp* fop)
         {
           try
           {
-            promise->set_value(std::shared_ptr<she::Surface>(
-                she::instance()->loadRgbaSurface(filename.c_str())));
+            promise->set_value(std::shared_ptr<she::Surface>(she::instance()->loadRgbaSurface(filename.c_str())));
           }
           catch (...)
           {

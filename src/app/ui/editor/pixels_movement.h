@@ -51,8 +51,7 @@ public:
     ScaleFromPivot = 32,
   };
 
-  PixelsMovement(Context* context, Site site, const Image* moveThis,
-                 const Mask* mask, const char* operationName);
+  PixelsMovement(Context* context, Site site, const Image* moveThis, const Mask* mask, const char* operationName);
   ~PixelsMovement();
 
   HandleType handle() const { return m_handle; }
@@ -68,8 +67,7 @@ public:
 
   // Returns a copy of the current image being dragged with the
   // current transformation.
-  void getDraggedImageCopy(std::unique_ptr<Image>& outputImage,
-                           std::unique_ptr<Mask>& outputMask);
+  void getDraggedImageCopy(std::unique_ptr<Image>& outputImage, std::unique_ptr<Mask>& outputMask);
 
   // Copies the image being dragged in the current position.
   void stampImage();
@@ -101,13 +99,10 @@ private:
   void onRotationAlgorithmChange();
   void redrawExtraImage();
   void redrawCurrentMask();
-  void drawImage(doc::Image* dst, const gfx::Point& pos,
-                 bool renderOriginalLayer);
+  void drawImage(doc::Image* dst, const gfx::Point& pos, bool renderOriginalLayer);
   void drawMask(doc::Mask* dst, bool shrink);
-  void drawParallelogram(doc::Image* dst, const doc::Image* src,
-                         const doc::Mask* mask,
-                         const Transformation::Corners& corners,
-                         const gfx::Point& leftTop);
+  void drawParallelogram(doc::Image* dst, const doc::Image* src, const doc::Mask* mask,
+                         const Transformation::Corners& corners, const gfx::Point& leftTop);
   void updateDocumentMask();
 
   const ContextReader m_reader;
@@ -134,9 +129,7 @@ private:
   ExtraCelRef m_extraCel;
 };
 
-inline PixelsMovement::MoveModifier&
-operator|=(PixelsMovement::MoveModifier& a,
-           const PixelsMovement::MoveModifier& b)
+inline PixelsMovement::MoveModifier& operator|=(PixelsMovement::MoveModifier& a, const PixelsMovement::MoveModifier& b)
 {
   a = static_cast<PixelsMovement::MoveModifier>(a | b);
   return a;

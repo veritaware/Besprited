@@ -56,8 +56,7 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
   // Normal behavior: mouse wheel zooms If the message is from a
   // precise wheel i.e. a trackpad/touch-like device, we scroll by
   // default.
-  else if (Preferences::instance().editor.zoomWithWheel() &&
-           !msg->preciseWheel())
+  else if (Preferences::instance().editor.zoomWithWheel() && !msg->preciseWheel())
   {
     if (msg->ctrlPressed())
       wheelAction = WHEEL_FRAME;
@@ -67,8 +66,7 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
       wheelAction = WHEEL_ZOOM;
   }
   // Zoom sliding two fingers
-  else if (Preferences::instance().editor.zoomWithSlide() &&
-           msg->preciseWheel())
+  else if (Preferences::instance().editor.zoomWithSlide() && msg->preciseWheel())
   {
     if (msg->ctrlPressed())
       wheelAction = WHEEL_FRAME;
@@ -130,8 +128,8 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
 
   case WHEEL_FRAME:
   {
-    Command* command = CommandsModule::instance()->getCommandByName(
-        (dz < 0.0) ? CommandId::GotoNextFrame : CommandId::GotoPreviousFrame);
+    Command* command = CommandsModule::instance()->getCommandByName((dz < 0.0) ? CommandId::GotoNextFrame
+                                                                               : CommandId::GotoPreviousFrame);
     if (command)
       UIContext::instance()->executeCommand(command);
   }
@@ -202,25 +200,21 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
   return true;
 }
 
-bool StateWithWheelBehavior::onTouchMagnify(Editor* editor,
-                                            ui::TouchMessage* msg)
+bool StateWithWheelBehavior::onTouchMagnify(Editor* editor, ui::TouchMessage* msg)
 {
   render::Zoom zoom = editor->zoom();
-  zoom = render::Zoom::fromScale(zoom.internalScale() +
-                                 zoom.internalScale() * msg->magnification());
+  zoom = render::Zoom::fromScale(zoom.internalScale() + zoom.internalScale() * msg->magnification());
 
   setZoom(editor, zoom, msg->position());
   return true;
 }
 
-void StateWithWheelBehavior::setZoom(Editor* editor, const render::Zoom& zoom,
-                                     const gfx::Point& mousePos)
+void StateWithWheelBehavior::setZoom(Editor* editor, const render::Zoom& zoom, const gfx::Point& mousePos)
 {
   bool center = Preferences::instance().editor.zoomFromCenterWithWheel();
 
-  editor->setZoomAndCenterInMouse(
-      zoom, mousePos,
-      (center ? Editor::ZoomBehavior::CENTER : Editor::ZoomBehavior::MOUSE));
+  editor->setZoomAndCenterInMouse(zoom, mousePos,
+                                  (center ? Editor::ZoomBehavior::CENTER : Editor::ZoomBehavior::MOUSE));
 }
 
 } // namespace app

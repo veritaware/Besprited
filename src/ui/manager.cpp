@@ -43,10 +43,8 @@
 namespace ui
 {
 
-#define ACCEPT_FOCUS(widget)                                                   \
-  ((((widget)->flags() & (FOCUS_STOP | DISABLED | HIDDEN | DECORATIVE)) ==     \
-    FOCUS_STOP) &&                                                             \
-   ((widget)->isVisible()))
+#define ACCEPT_FOCUS(widget)                                                                                           \
+  ((((widget)->flags() & (FOCUS_STOP | DISABLED | HIDDEN | DECORATIVE)) == FOCUS_STOP) && ((widget)->isVisible()))
 
 static const int NFILTERS = (int)(kFirstRegisteredMessage + 1);
 
@@ -141,9 +139,7 @@ Manager::~Manager()
     // Destroy filters
     for (int c = 0; c < NFILTERS; ++c)
     {
-      for (Filters::iterator it = msg_filters[c].begin(),
-                             end = msg_filters[c].end();
-           it != end; ++it)
+      for (Filters::iterator it = msg_filters[c].begin(), end = msg_filters[c].end(); it != end; ++it)
         delete *it;
       msg_filters[c].clear();
     }
@@ -189,8 +185,7 @@ void Manager::flipDisplay()
 
   // Frame-rate limiter: we want to limit the number of flips to avoid
   // consuming 100% CPU on too frequent document canvas redraws
-  double currentTime =
-      base::current_tick() / 1000.0; // Convert milliseconds to seconds
+  double currentTime = base::current_tick() / 1000.0; // Convert milliseconds to seconds
   double timeSinceLastFlip = currentTime - m_lastFlipTime;
 
   if (timeSinceLastFlip < MIN_FRAME_INTERVAL)
@@ -221,9 +216,7 @@ void Manager::flipDisplay()
 
   // Flip dirty region.
   {
-    m_dirtyRegion.createIntersection(
-        m_dirtyRegion,
-        gfx::Region(gfx::Rect(0, 0, ui::display_w(), ui::display_h())));
+    m_dirtyRegion.createIntersection(m_dirtyRegion, gfx::Region(gfx::Rect(0, 0, ui::display_w(), ui::display_h())));
 
     // Coalesce dirty regions into a single bounding rectangle
     if (!m_dirtyRegion.isEmpty())
@@ -288,17 +281,14 @@ bool Manager::generateMessages()
     return false;
 }
 
-void Manager::generateSetCursorMessage(const gfx::Point& mousePos,
-                                       KeyModifiers modifiers,
-                                       PointerType pointerType)
+void Manager::generateSetCursorMessage(const gfx::Point& mousePos, KeyModifiers modifiers, PointerType pointerType)
 {
   if (get_mouse_cursor() == kOutsideDisplay)
     return;
 
   Widget* dst = (capture_widget ? capture_widget : mouse_widget);
   if (dst)
-    enqueueMessage(newMouseMessage(kSetCursorMessage, dst, mousePos,
-                                   pointerType, _internal_get_mouse_buttons(),
+    enqueueMessage(newMouseMessage(kSetCursorMessage, dst, mousePos, pointerType, _internal_get_mouse_buttons(),
                                    modifiers, {0, 0}, false, -1));
   else
     set_mouse_cursor(kArrowCursor);
@@ -367,11 +357,9 @@ void Manager::generateMessagesFromSheEvents()
     case she::Event::KeyDown:
     case she::Event::KeyUp:
     {
-      Message* msg = new KeyMessage((sheEvent.type() == she::Event::KeyDown
-                                         ? kKeyDownMessage
-                                         : kKeyUpMessage),
-                                    sheEvent.scancode(), sheEvent.modifiers(),
-                                    sheEvent.unicodeChar(), sheEvent.repeat());
+      Message* msg =
+          new KeyMessage((sheEvent.type() == she::Event::KeyDown ? kKeyDownMessage : kKeyUpMessage),
+                         sheEvent.scancode(), sheEvent.modifiers(), sheEvent.unicodeChar(), sheEvent.repeat());
       broadcastKeyMsg(msg);
       enqueueMessage(msg);
       break;
@@ -401,8 +389,8 @@ void Manager::generateMessagesFromSheEvents()
     case she::Event::MouseMove:
     {
       _internal_set_mouse_position(sheEvent.position());
-      handleMouseMove(sheEvent.position(), m_mouseButtons, sheEvent.modifiers(),
-                      sheEvent.pointerType(), sheEvent.pressure());
+      handleMouseMove(sheEvent.position(), m_mouseButtons, sheEvent.modifiers(), sheEvent.pointerType(),
+                      sheEvent.pressure());
       lastMouseMoveEvent = sheEvent;
       break;
     }
@@ -413,20 +401,18 @@ void Manager::generateMessagesFromSheEvents()
       m_mouseButtons = (MouseButtons)((int)m_mouseButtons | (int)pressedButton);
       _internal_set_mouse_buttons(m_mouseButtons);
 
-      handleMouseDown(sheEvent.position(), pressedButton, sheEvent.modifiers(),
-                      sheEvent.pointerType(), sheEvent.pressure());
+      handleMouseDown(sheEvent.position(), pressedButton, sheEvent.modifiers(), sheEvent.pointerType(),
+                      sheEvent.pressure());
       break;
     }
 
     case she::Event::MouseUp:
     {
       MouseButtons releasedButton = mouse_buttons_from_she_to_ui(sheEvent);
-      m_mouseButtons =
-          (MouseButtons)((int)m_mouseButtons & ~(int)releasedButton);
+      m_mouseButtons = (MouseButtons)((int)m_mouseButtons & ~(int)releasedButton);
       _internal_set_mouse_buttons(m_mouseButtons);
 
-      handleMouseUp(sheEvent.position(), releasedButton, sheEvent.modifiers(),
-                    sheEvent.pointerType());
+      handleMouseUp(sheEvent.position(), releasedButton, sheEvent.modifiers(), sheEvent.pointerType());
       break;
     }
 
@@ -439,16 +425,14 @@ void Manager::generateMessagesFromSheEvents()
       m_mouseButtons = (MouseButtons)((int)m_mouseButtons | (int)clickedButton);
       _internal_set_mouse_buttons(m_mouseButtons);
 
-      handleMouseDoubleClick(sheEvent.position(), clickedButton,
-                             sheEvent.modifiers(), sheEvent.pointerType(),
+      handleMouseDoubleClick(sheEvent.position(), clickedButton, sheEvent.modifiers(), sheEvent.pointerType(),
                              sheEvent.pressure());
       break;
     }
 
     case she::Event::MouseWheel:
     {
-      handleMouseWheel(sheEvent.position(), m_mouseButtons,
-                       sheEvent.modifiers(), sheEvent.pointerType(),
+      handleMouseWheel(sheEvent.position(), m_mouseButtons, sheEvent.modifiers(), sheEvent.pointerType(),
                        sheEvent.wheelDelta(), sheEvent.preciseWheel());
       break;
     }
@@ -457,8 +441,7 @@ void Manager::generateMessagesFromSheEvents()
     {
       _internal_set_mouse_position(sheEvent.position());
 
-      handleTouchMagnify(sheEvent.position(), sheEvent.modifiers(),
-                         sheEvent.magnification());
+      handleTouchMagnify(sheEvent.position(), sheEvent.modifiers(), sheEvent.magnification());
       break;
     }
     }
@@ -468,13 +451,11 @@ void Manager::generateMessagesFromSheEvents()
   if (lastMouseMoveEvent.type() != she::Event::None)
   {
     sheEvent = lastMouseMoveEvent;
-    generateSetCursorMessage(sheEvent.position(), sheEvent.modifiers(),
-                             sheEvent.pointerType());
+    generateSetCursorMessage(sheEvent.position(), sheEvent.modifiers(), sheEvent.pointerType());
   }
 }
 
-void Manager::handleMouseMove(const gfx::Point& mousePos,
-                              MouseButtons mouseButtons, KeyModifiers modifiers,
+void Manager::handleMouseMove(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
                               PointerType pointerType, float pressure)
 {
   // Get the list of widgets to send mouse messages.
@@ -501,65 +482,50 @@ void Manager::handleMouseMove(const gfx::Point& mousePos,
 
   // Send the mouse movement message
   Widget* dst = (capture_widget ? capture_widget : mouse_widget);
-  enqueueMessage(newMouseMessage(kMouseMoveMessage, dst, mousePos, pointerType,
-                                 mouseButtons, modifiers, {0, 0}, false,
-                                 pressure));
+  enqueueMessage(
+      newMouseMessage(kMouseMoveMessage, dst, mousePos, pointerType, mouseButtons, modifiers, {0, 0}, false, pressure));
 }
 
-void Manager::handleMouseDown(const gfx::Point& mousePos,
-                              MouseButtons mouseButtons, KeyModifiers modifiers,
+void Manager::handleMouseDown(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
                               PointerType pointerType, float pressure)
 {
   handleWindowZOrder();
 
-  enqueueMessage(newMouseMessage(
-      kMouseDownMessage, (capture_widget ? capture_widget : mouse_widget),
-      mousePos, pointerType, mouseButtons, modifiers, {0, 0}, false, pressure));
+  enqueueMessage(newMouseMessage(kMouseDownMessage, (capture_widget ? capture_widget : mouse_widget), mousePos,
+                                 pointerType, mouseButtons, modifiers, {0, 0}, false, pressure));
 }
 
-void Manager::handleMouseUp(const gfx::Point& mousePos,
-                            MouseButtons mouseButtons, KeyModifiers modifiers,
+void Manager::handleMouseUp(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
                             PointerType pointerType)
 {
-  enqueueMessage(newMouseMessage(
-      kMouseUpMessage, (capture_widget ? capture_widget : mouse_widget),
-      mousePos, pointerType, mouseButtons, modifiers, {0, 0}, false, 0.0f));
+  enqueueMessage(newMouseMessage(kMouseUpMessage, (capture_widget ? capture_widget : mouse_widget), mousePos,
+                                 pointerType, mouseButtons, modifiers, {0, 0}, false, 0.0f));
 }
 
-void Manager::handleMouseDoubleClick(const gfx::Point& mousePos,
-                                     MouseButtons mouseButtons,
-                                     KeyModifiers modifiers,
+void Manager::handleMouseDoubleClick(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
                                      PointerType pointerType, float pressure)
 {
   Widget* dst = (capture_widget ? capture_widget : mouse_widget);
   if (dst)
   {
-    enqueueMessage(newMouseMessage(kDoubleClickMessage, dst, mousePos,
-                                   pointerType, mouseButtons, modifiers,
-                                   {0, 0}, false, pressure));
+    enqueueMessage(newMouseMessage(kDoubleClickMessage, dst, mousePos, pointerType, mouseButtons, modifiers, {0, 0},
+                                   false, pressure));
   }
 }
 
-void Manager::handleMouseWheel(const gfx::Point& mousePos,
-                               MouseButtons mouseButtons,
-                               KeyModifiers modifiers, PointerType pointerType,
-                               const gfx::Point& wheelDelta, bool preciseWheel)
+void Manager::handleMouseWheel(const gfx::Point& mousePos, MouseButtons mouseButtons, KeyModifiers modifiers,
+                               PointerType pointerType, const gfx::Point& wheelDelta, bool preciseWheel)
 {
-  enqueueMessage(newMouseMessage(
-      kMouseWheelMessage, (capture_widget ? capture_widget : mouse_widget),
-      mousePos, pointerType, mouseButtons, modifiers, wheelDelta,
-      preciseWheel));
+  enqueueMessage(newMouseMessage(kMouseWheelMessage, (capture_widget ? capture_widget : mouse_widget), mousePos,
+                                 pointerType, mouseButtons, modifiers, wheelDelta, preciseWheel));
 }
 
-void Manager::handleTouchMagnify(const gfx::Point& mousePos,
-                                 const KeyModifiers modifiers,
-                                 const double magnification)
+void Manager::handleTouchMagnify(const gfx::Point& mousePos, const KeyModifiers modifiers, const double magnification)
 {
   Widget* widget = (capture_widget ? capture_widget : mouse_widget);
   if (widget)
   {
-    Message* msg = new TouchMessage(kTouchMagnifyMessage, modifiers, mousePos,
-                                    magnification);
+    Message* msg = new TouchMessage(kTouchMagnifyMessage, modifiers, mousePos, magnification);
 
     msg->addRecipient(widget);
 
@@ -640,12 +606,9 @@ void Manager::enqueueMessage(Message* msg)
   if (msg->type() == kKeyDownMessage || msg->type() == kKeyUpMessage)
   {
     int mods = (int)static_cast<KeyMessage*>(msg)->modifiers();
-    TRACE("Key%s scancode=%d unicode=%d mods=%s%s%s\n",
-          (msg->type() == kKeyDownMessage ? "Down" : "Up"),
-          static_cast<KeyMessage*>(msg)->scancode(),
-          static_cast<KeyMessage*>(msg)->unicodeChar(),
-          mods & kKeyShiftModifier ? " Shift" : "",
-          mods & kKeyCtrlModifier ? " Ctrl" : "",
+    TRACE("Key%s scancode=%d unicode=%d mods=%s%s%s\n", (msg->type() == kKeyDownMessage ? "Down" : "Up"),
+          static_cast<KeyMessage*>(msg)->scancode(), static_cast<KeyMessage*>(msg)->unicodeChar(),
+          mods & kKeyShiftModifier ? " Shift" : "", mods & kKeyCtrlModifier ? " Ctrl" : "",
           mods & kKeyAltModifier ? " Alt" : "");
   }
 #endif
@@ -658,9 +621,7 @@ void Manager::enqueueMessage(Message* msg)
   if (!msg_filters[c].empty())
   { // OK, so are filters to add...
     // Add all the filters in the destination list of the message
-    for (Filters::reverse_iterator it = msg_filters[c].rbegin(),
-                                   end = msg_filters[c].rend();
-         it != end; ++it)
+    for (Filters::reverse_iterator it = msg_filters[c].rbegin(), end = msg_filters[c].rend(); it != end; ++it)
     {
       Filter* filter = *it;
       if (msg->type() == filter->message)
@@ -707,10 +668,8 @@ Widget* Manager::getCapture()
 
 void Manager::setFocus(Widget* widget)
 {
-  if ((focus_widget != widget) &&
-      (!(widget) ||
-       (!(widget->hasFlags(DISABLED)) && !(widget->hasFlags(HIDDEN)) &&
-        !(widget->hasFlags(DECORATIVE)) && someParentIsFocusStop(widget))))
+  if ((focus_widget != widget) && (!(widget) || (!(widget->hasFlags(DISABLED)) && !(widget->hasFlags(HIDDEN)) &&
+                                                 !(widget->hasFlags(DECORATIVE)) && someParentIsFocusStop(widget))))
   {
     WidgetsList widget_parents;
     Widget* common_parent = nullptr;
@@ -762,8 +721,7 @@ void Manager::setFocus(Widget* widget)
 
       if (common_parent)
       {
-        it = std::find(widget_parents.begin(), widget_parents.end(),
-                       common_parent);
+        it = std::find(widget_parents.begin(), widget_parents.end(), common_parent);
         ASSERT(it != widget_parents.end());
         ++it;
       }
@@ -855,18 +813,15 @@ void Manager::setMouse(Widget* widget)
 
       if (common_parent)
       {
-        it = std::find(widget_parents.begin(), widget_parents.end(),
-                       common_parent);
+        it = std::find(widget_parents.begin(), widget_parents.end(), common_parent);
         ASSERT(it != widget_parents.end());
         ++it;
       }
       else
         it = widget_parents.begin();
 
-      Message* msg =
-          newMouseMessage(kMouseEnterMessage, nullptr, get_mouse_position(),
-                          PointerType::Unknown, _internal_get_mouse_buttons(),
-                          kKeyUninitializedModifier);
+      Message* msg = newMouseMessage(kMouseEnterMessage, nullptr, get_mouse_position(), PointerType::Unknown,
+                                     _internal_get_mouse_buttons(), kKeyUninitializedModifier);
 
       for (; it != widget_parents.end(); ++it)
       {
@@ -875,8 +830,7 @@ void Manager::setMouse(Widget* widget)
       }
 
       enqueueMessage(msg);
-      generateSetCursorMessage(get_mouse_position(), kKeyUninitializedModifier,
-                               PointerType::Unknown);
+      generateSetCursorMessage(get_mouse_position(), kKeyUninitializedModifier, PointerType::Unknown);
     }
   }
 }
@@ -978,8 +932,7 @@ void Manager::removeMessagesForTimer(Timer* timer)
   {
     Message* msg = *it;
 
-    if (!msg->isUsed() && msg->type() == kTimerMessage &&
-        static_cast<TimerMessage*>(msg)->timer() == timer)
+    if (!msg->isUsed() && msg->type() == kTimerMessage && static_cast<TimerMessage*>(msg)->timer() == timer)
     {
       delete msg;
       it = msg_queue.erase(it);
@@ -991,8 +944,7 @@ void Manager::removeMessagesForTimer(Timer* timer)
 
 void Manager::removeMessageListener(Widget* widget)
 {
-  auto it =
-      std::find(m_messageListeners.begin(), m_messageListeners.end(), widget);
+  auto it = std::find(m_messageListeners.begin(), m_messageListeners.end(), widget);
   if (it != m_messageListeners.end())
     m_messageListeners.erase(it);
 }
@@ -1012,8 +964,7 @@ void Manager::removeMessageFilter(int message, Widget* widget)
   if (c >= kFirstRegisteredMessage)
     c = kFirstRegisteredMessage;
 
-  for (Filters::iterator it = msg_filters[c].begin();
-       it != msg_filters[c].end();)
+  for (Filters::iterator it = msg_filters[c].begin(); it != msg_filters[c].end();)
   {
     Filter* filter = *it;
     if (filter->widget == widget)
@@ -1030,8 +981,7 @@ void Manager::removeMessageFilterFor(Widget* widget)
 {
   for (int c = 0; c < NFILTERS; ++c)
   {
-    for (Filters::iterator it = msg_filters[c].begin();
-         it != msg_filters[c].end();)
+    for (Filters::iterator it = msg_filters[c].begin(); it != msg_filters[c].end();)
     {
       Filter* filter = *it;
       if (filter->widget == widget)
@@ -1141,8 +1091,7 @@ void Manager::_closeWindow(Window* window, bool redraw_background)
   invalidateRegion(reg1);
 
   // Maybe the window is in the "new_windows" list.
-  WidgetsList::iterator it =
-      std::find(new_windows.begin(), new_windows.end(), window);
+  WidgetsList::iterator it = std::find(new_windows.begin(), new_windows.end(), window);
   if (it != new_windows.end())
     new_windows.erase(it);
 
@@ -1361,8 +1310,7 @@ void Manager::pumpQueue()
 
 #ifdef REPORT_EVENTS
       {
-        std::cout << "Event " << msg->type() << " ("
-                  << ui::to_string(msg->type()) << ") "
+        std::cout << "Event " << msg->type() << " (" << ui::to_string(msg->type()) << ") "
                   << "for " << typeid(*widget).name();
         if (!widget->id().empty())
           std::cout << " (" << widget->id() << ")";
@@ -1384,9 +1332,8 @@ void Manager::pumpQueue()
         if (surface->intersectClipRect(paintMsg->rect()))
         {
 #ifdef REPORT_EVENTS
-          std::cout << " - clip(" << paintMsg->rect().x << ", "
-                    << paintMsg->rect().y << ", " << paintMsg->rect().w << ", "
-                    << paintMsg->rect().h << ")" << std::endl;
+          std::cout << " - clip(" << paintMsg->rect().x << ", " << paintMsg->rect().y << ", " << paintMsg->rect().w
+                    << ", " << paintMsg->rect().h << ")" << std::endl;
 #endif
 
 #ifdef DEBUG_PAINT_EVENTS
@@ -1476,8 +1423,7 @@ void Manager::collectGarbage()
   if (m_garbage.empty())
     return;
 
-  for (WidgetsList::iterator it = m_garbage.begin(), end = m_garbage.end();
-       it != end; ++it)
+  for (WidgetsList::iterator it = m_garbage.begin(), end = m_garbage.end(); it != end; ++it)
   {
     delete *it;
   }
@@ -1525,11 +1471,8 @@ Widget* Manager::findMagneticWidget(Widget* widget)
 }
 
 // static
-Message* Manager::newMouseMessage(MessageType type, Widget* widget,
-                                  const gfx::Point& mousePos,
-                                  PointerType pointerType, MouseButtons buttons,
-                                  KeyModifiers modifiers,
-                                  const gfx::Point& wheelDelta,
+Message* Manager::newMouseMessage(MessageType type, Widget* widget, const gfx::Point& mousePos, PointerType pointerType,
+                                  MouseButtons buttons, KeyModifiers modifiers, const gfx::Point& wheelDelta,
                                   bool preciseWheel, float pressure)
 {
   static float prevPressure = 0;
@@ -1538,17 +1481,15 @@ Message* Manager::newMouseMessage(MessageType type, Widget* widget,
   prevPressure = pressure;
 #ifdef __APPLE__
   // Convert Ctrl+left click -> right-click
-  if (widget && widget->isVisible() && widget->isEnabled() &&
-      widget->hasFlags(CTRL_RIGHT_CLICK) && (modifiers & kKeyCtrlModifier) &&
-      (buttons == kButtonLeft))
+  if (widget && widget->isVisible() && widget->isEnabled() && widget->hasFlags(CTRL_RIGHT_CLICK) &&
+      (modifiers & kKeyCtrlModifier) && (buttons == kButtonLeft))
   {
     modifiers = KeyModifiers(int(modifiers) & ~int(kKeyCtrlModifier));
     buttons = kButtonRight;
   }
 #endif
 
-  Message* msg = new MouseMessage(type, pointerType, buttons, modifiers,
-                                  mousePos, wheelDelta, preciseWheel, pressure);
+  Message* msg = new MouseMessage(type, pointerType, buttons, modifiers, mousePos, wheelDelta, preciseWheel, pressure);
 
   if (widget)
     msg->addRecipient(widget);
@@ -1631,8 +1572,7 @@ static bool move_focus(Manager* manager, Message* msg)
 
     case kKeyTab:
       // Reverse tab
-      if ((msg->modifiers() &
-           (kKeyShiftModifier | kKeyCtrlModifier | kKeyAltModifier)) != 0)
+      if ((msg->modifiers() & (kKeyShiftModifier | kKeyCtrlModifier | kKeyAltModifier)) != 0)
       {
         focus = list[count - 1];
       }
@@ -1664,13 +1604,11 @@ static bool move_focus(Manager* manager, Message* msg)
         int i, j, x, y;
 
         // Position where the focus come
-        x = ((focus_widget)
-                 ? focus_widget->bounds().x + focus_widget->bounds().x2()
-                 : window->bounds().x + window->bounds().x2()) /
+        x = ((focus_widget) ? focus_widget->bounds().x + focus_widget->bounds().x2()
+                            : window->bounds().x + window->bounds().x2()) /
             2;
-        y = ((focus_widget)
-                 ? focus_widget->bounds().y + focus_widget->bounds().y2()
-                 : window->bounds().y + window->bounds().y2()) /
+        y = ((focus_widget) ? focus_widget->bounds().y + focus_widget->bounds().y2()
+                            : window->bounds().y + window->bounds().y2()) /
             2;
 
         c = focus_widget ? 1 : 0;

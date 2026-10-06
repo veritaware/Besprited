@@ -58,17 +58,11 @@ protected:
 
   int animation() const { return m_animation; }
 
-  double animationTime() const
-  {
-    return double(m_animationTime) / double(m_animationLifespan);
-  }
+  double animationTime() const { return double(m_animationTime) / double(m_animationLifespan); }
 
   double ease(double t) { return (1.0 - std::pow(1.0 - t, 2)); }
 
-  double inbetween(double x0, double x1, double t)
-  {
-    return x0 + (x1 - x0) * ease(t);
-  }
+  double inbetween(double x0, double x1, double t) { return x0 + (x1 - x0) * ease(t); }
 
 private:
   void onTick()

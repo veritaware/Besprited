@@ -89,8 +89,7 @@ protected:
 private:
   void selectColorType(app::Color::Type type);
   void setPaletteEntry(const app::Color& color);
-  void setAbsolutePaletteEntryChannel(ColorSliders::Channel channel,
-                                      const app::Color& color);
+  void setAbsolutePaletteEntryChannel(ColorSliders::Channel channel, const app::Color& color);
   void setRelativePaletteEntryChannel(ColorSliders::Channel channel, int delta);
   void setNewPalette(Palette* palette, const char* operationName);
   void updateCurrentSpritePalette(const char* operationName);
@@ -221,11 +220,9 @@ void PaletteEditorCommand::onExecute(Context* context)
       g_window->remapWindow();
 
       int width = MAX(g_window->bounds().w, ui::display_w() / 2);
-      g_window->setBounds(
-          Rect(ui::display_w() - width - ToolBar::instance()->bounds().w,
-               ui::display_h() - g_window->bounds().h -
-                   StatusBar::instance()->bounds().h,
-               width, g_window->bounds().h));
+      g_window->setBounds(Rect(ui::display_w() - width - ToolBar::instance()->bounds().w,
+                               ui::display_h() - g_window->bounds().h - StatusBar::instance()->bounds().h, width,
+                               g_window->bounds().h));
 
       // Load window configuration
       load_window_pos(g_window, "PaletteEditor");
@@ -239,8 +236,7 @@ void PaletteEditorCommand::onExecute(Context* context)
   // Show the specified target color
   {
     app::Color color =
-        (m_background ? Preferences::instance().colorBar.bgColor()
-                      : Preferences::instance().colorBar.fgColor());
+        (m_background ? Preferences::instance().colorBar.bgColor() : Preferences::instance().colorBar.fgColor());
 
     g_window->setColor(color);
   }
@@ -295,39 +291,30 @@ PaletteEntryEditor::PaletteEntryEditor()
   m_vbox.addChild(&m_bottomBox);
   addChild(&m_vbox);
 
-  m_colorType.ItemChange.connect(
-      base::Bind<void>(&PaletteEntryEditor::onColorTypeClick, this));
-  m_changeMode.ItemChange.connect(
-      base::Bind<void>(&PaletteEntryEditor::onChangeModeClick, this));
+  m_colorType.ItemChange.connect(base::Bind<void>(&PaletteEntryEditor::onColorTypeClick, this));
+  m_changeMode.ItemChange.connect(base::Bind<void>(&PaletteEntryEditor::onChangeModeClick, this));
 
-  m_rgbSliders.ColorChange.connect(&PaletteEntryEditor::onColorSlidersChange,
-                                   this);
-  m_hsvSliders.ColorChange.connect(&PaletteEntryEditor::onColorSlidersChange,
-                                   this);
-  m_hexColorEntry.ColorChange.connect(
-      &PaletteEntryEditor::onColorHexEntryChange, this);
+  m_rgbSliders.ColorChange.connect(&PaletteEntryEditor::onColorSlidersChange, this);
+  m_hsvSliders.ColorChange.connect(&PaletteEntryEditor::onColorSlidersChange, this);
+  m_hexColorEntry.ColorChange.connect(&PaletteEntryEditor::onColorHexEntryChange, this);
 
   m_changeMode.setSelectedItem(ABS_MODE);
   selectColorType(app::Color::RgbType);
 
   // We hook fg/bg color changes (by eyedropper mainly) to update the selected
   // entry color
-  Preferences::instance().colorBar.fgColor.AfterChange.connect(
-      &PaletteEntryEditor::onFgBgColorChange, this);
-  Preferences::instance().colorBar.bgColor.AfterChange.connect(
-      &PaletteEntryEditor::onFgBgColorChange, this);
+  Preferences::instance().colorBar.fgColor.AfterChange.connect(&PaletteEntryEditor::onFgBgColorChange, this);
+  Preferences::instance().colorBar.bgColor.AfterChange.connect(&PaletteEntryEditor::onFgBgColorChange, this);
 
   // We hook the Window::Close event to save the frame position before closing
   // it.
-  this->Close.connect(
-      base::Bind<void>(&PaletteEntryEditor::onCloseWindow, this));
+  this->Close.connect(base::Bind<void>(&PaletteEntryEditor::onCloseWindow, this));
 
   // We hook App::Exit signal to destroy the g_window singleton at exit.
   App::instance()->Exit.connect(&PaletteEntryEditor::onExit, this);
 
   // Hook for palette change to redraw the palette editor frame
-  m_palChangeConn = App::instance()->PaletteChange.connect(
-      &PaletteEntryEditor::onPalChange, this);
+  m_palChangeConn = App::instance()->PaletteChange.connect(&PaletteEntryEditor::onPalChange, this);
 
   initTheme();
 }
@@ -380,8 +367,7 @@ void PaletteEntryEditor::setColor(const app::Color& color)
 
 bool PaletteEntryEditor::onProcessMessage(Message* msg)
 {
-  if (msg->type() == kTimerMessage &&
-      static_cast<TimerMessage*>(msg)->timer() == &m_redrawTimer)
+  if (msg->type() == kTimerMessage && static_cast<TimerMessage*>(msg)->timer() == &m_redrawTimer)
   {
     // Redraw all editors
     if (m_redrawAll)
@@ -520,8 +506,7 @@ void PaletteEntryEditor::setPaletteEntry(const app::Color& color)
   PalettePicks entries;
   getPicks(entries);
 
-  color_t new_pal_color =
-      doc::rgba(color.getRed(), color.getGreen(), color.getBlue(), 255);
+  color_t new_pal_color = doc::rgba(color.getRed(), color.getGreen(), color.getBlue(), 255);
 
   Palette* palette = get_current_palette();
   for (int c = 0; c < palette->size(); c++)
@@ -531,8 +516,7 @@ void PaletteEntryEditor::setPaletteEntry(const app::Color& color)
   }
 }
 
-void PaletteEntryEditor::setAbsolutePaletteEntryChannel(
-    ColorSliders::Channel channel, const app::Color& color)
+void PaletteEntryEditor::setAbsolutePaletteEntryChannel(ColorSliders::Channel channel, const app::Color& color)
 {
   PalettePicks entries;
   getPicks(entries);
@@ -640,8 +624,7 @@ void PaletteEntryEditor::setAbsolutePaletteEntryChannel(
   }
 }
 
-void PaletteEntryEditor::setRelativePaletteEntryChannel(
-    ColorSliders::Channel channel, int delta)
+void PaletteEntryEditor::setRelativePaletteEntryChannel(ColorSliders::Channel channel, int delta)
 {
   PalettePicks entries;
   getPicks(entries);
@@ -681,8 +664,7 @@ void PaletteEntryEditor::setRelativePaletteEntryChannel(
       Hsv hsv(Rgb(r, g, b));
 
       double h = hsv.hue() + m_relDeltas[ColorSliders::Hue];
-      double s =
-          100.0 * hsv.saturation() + m_relDeltas[ColorSliders::Saturation];
+      double s = 100.0 * hsv.saturation() + m_relDeltas[ColorSliders::Saturation];
       double v = 100.0 * hsv.value() + m_relDeltas[ColorSliders::Value];
 
       if (h < 0.0)
@@ -737,8 +719,7 @@ void PaletteEntryEditor::selectColorType(app::Color::Type type)
 
 void PaletteEntryEditor::updateCurrentSpritePalette(const char* operationName)
 {
-  if (UIContext::instance()->activeDocument() &&
-      UIContext::instance()->activeDocument()->sprite())
+  if (UIContext::instance()->activeDocument() && UIContext::instance()->activeDocument()->sprite())
   {
     try
     {
@@ -747,8 +728,7 @@ void PaletteEntryEditor::updateCurrentSpritePalette(const char* operationName)
       Sprite* sprite(writer.sprite());
       Palette* newPalette = get_current_palette(); // System current pal
       frame_t frame = writer.frame();
-      Palette* currentSpritePalette =
-          sprite->palette(frame); // Sprite current pal
+      Palette* currentSpritePalette = sprite->palette(frame); // Sprite current pal
       int from, to;
 
       // Check differences between current sprite palette and current system
@@ -763,8 +743,7 @@ void PaletteEntryEditor::updateCurrentSpritePalette(const char* operationName)
 
         // Add undo information to save the range of pal entries that will be
         // modified.
-        if (m_implantChange && undo->lastExecutedCmd() &&
-            undo->lastExecutedCmd()->label() == operationName)
+        if (m_implantChange && undo->lastExecutedCmd() && undo->lastExecutedCmd()->label() == operationName)
         {
           // Implant the cmd in the last CmdSequence if it's
           // related about color palette modifications
@@ -774,8 +753,7 @@ void PaletteEntryEditor::updateCurrentSpritePalette(const char* operationName)
         }
         else
         {
-          Transaction transaction(writer.context(), operationName,
-                                  ModifyDocument);
+          Transaction transaction(writer.context(), operationName, ModifyDocument);
           transaction.execute(cmd);
           transaction.commit();
         }

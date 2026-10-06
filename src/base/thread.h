@@ -19,10 +19,7 @@ public:
   thread();
 
   // Create a new thread without arguments
-  template <class Callable> thread(const Callable& f)
-  {
-    launch_thread(new func_wrapper0<Callable>(f));
-  }
+  template <class Callable> thread(const Callable& f) { launch_thread(new func_wrapper0<Callable>(f)); }
 
   // Create a new thread with one argument
   template <class Callable, class A> thread(const Callable& f, A a)
@@ -31,8 +28,7 @@ public:
   }
 
   // Create a new thread with two arguments
-  template <class Callable, class A, class B>
-  thread(const Callable& f, A a, B b)
+  template <class Callable, class A, class B> thread(const Callable& f, A a, B b)
   {
     launch_thread(new func_wrapper2<Callable, A, B>(f, a, b));
   }
@@ -87,8 +83,7 @@ private:
     void operator()() override { f(a); }
   };
 
-  template <class Callable, class A, class B>
-  class func_wrapper2 : public func_wrapper
+  template <class Callable, class A, class B> class func_wrapper2 : public func_wrapper
   {
   public:
     Callable f;

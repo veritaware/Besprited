@@ -33,15 +33,9 @@ struct RgbTraits
   static const pixel_t min_value = 0x00000000l;
   static const pixel_t max_value = 0xffffffffl;
 
-  static inline int getRowStrideBytes(int pixels_per_row)
-  {
-    return bytes_per_pixel * pixels_per_row;
-  }
+  static inline int getRowStrideBytes(int pixels_per_row) { return bytes_per_pixel * pixels_per_row; }
 
-  static inline BlendFunc get_blender(BlendMode blend_mode)
-  {
-    return get_rgba_blender(blend_mode);
-  }
+  static inline BlendFunc get_blender(BlendMode blend_mode) { return get_rgba_blender(blend_mode); }
 };
 
 struct GrayscaleTraits
@@ -64,15 +58,9 @@ struct GrayscaleTraits
   static const pixel_t min_value = 0x0000;
   static const pixel_t max_value = 0xffff;
 
-  static inline int getRowStrideBytes(int pixels_per_row)
-  {
-    return bytes_per_pixel * pixels_per_row;
-  }
+  static inline int getRowStrideBytes(int pixels_per_row) { return bytes_per_pixel * pixels_per_row; }
 
-  static inline BlendFunc get_blender(BlendMode blend_mode)
-  {
-    return get_graya_blender(blend_mode);
-  }
+  static inline BlendFunc get_blender(BlendMode blend_mode) { return get_graya_blender(blend_mode); }
 };
 
 struct IndexedTraits
@@ -95,15 +83,9 @@ struct IndexedTraits
   static const pixel_t min_value = 0x00;
   static const pixel_t max_value = 0xff;
 
-  static inline int getRowStrideBytes(int pixels_per_row)
-  {
-    return bytes_per_pixel * pixels_per_row;
-  }
+  static inline int getRowStrideBytes(int pixels_per_row) { return bytes_per_pixel * pixels_per_row; }
 
-  static inline BlendFunc get_blender(BlendMode blend_mode)
-  {
-    return get_indexed_blender(blend_mode);
-  }
+  static inline BlendFunc get_blender(BlendMode blend_mode) { return get_indexed_blender(blend_mode); }
 };
 
 struct BitmapTraits
@@ -126,10 +108,7 @@ struct BitmapTraits
   static const pixel_t min_value = 0;
   static const pixel_t max_value = 1;
 
-  static inline int getRowStrideBytes(int pixels_per_row)
-  {
-    return ((pixels_per_row + 7) / 8);
-  }
+  static inline int getRowStrideBytes(int pixels_per_row) { return ((pixels_per_row + 7) / 8); }
 };
 
 } // namespace doc

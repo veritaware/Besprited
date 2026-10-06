@@ -31,15 +31,12 @@ namespace app::cmd_flags
 // checkFlags() combo for a command that needs a writable document with an
 // active sprite, but doesn't care about the layer/selection beyond that
 // (e.g. CanvasSize, Crop-by-params, RotateCanvas).
-inline constexpr uint32_t WritableSprite =
-    ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite;
+inline constexpr uint32_t WritableSprite = ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite;
 
 // checkFlags() combo for a command that paints/erases into the active
 // cel's image, bounded by the current selection (Fill, Stroke, ...).
-inline constexpr uint32_t EditableCel =
-    ContextFlags::ActiveDocumentIsWritable |
-    ContextFlags::ActiveLayerIsEditable | ContextFlags::ActiveLayerIsImage |
-    ContextFlags::HasVisibleMask;
+inline constexpr uint32_t EditableCel = ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsEditable |
+                                        ContextFlags::ActiveLayerIsImage | ContextFlags::HasVisibleMask;
 
 } // namespace app::cmd_flags
 
@@ -58,8 +55,7 @@ namespace app
 //   transaction.commit();
 //
 // `fn` is called as fn(writer, transaction, api).
-template <class Fn>
-void with_transaction(Context* ctx, const std::string& label, Fn&& fn)
+template <class Fn> void with_transaction(Context* ctx, const std::string& label, Fn&& fn)
 {
   ContextWriter writer(ctx);
   Transaction transaction(writer.context(), label);

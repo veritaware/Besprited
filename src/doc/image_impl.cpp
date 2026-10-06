@@ -23,15 +23,12 @@ void copy_bitmaps(Image* dst, const Image* src, gfx::Clip area)
     return;
 
   // Copy process
-  ImageConstIterator<BitmapTraits> src_it(src, area.srcBounds(), area.src.x,
-                                          area.src.y);
-  ImageIterator<BitmapTraits> dst_it(dst, area.dstBounds(), area.dst.x,
-                                     area.dst.y);
+  ImageConstIterator<BitmapTraits> src_it(src, area.srcBounds(), area.src.x, area.src.y);
+  ImageIterator<BitmapTraits> dst_it(dst, area.dstBounds(), area.dst.x, area.dst.y);
 
   const int end_x = area.dst.x + area.size.w;
 
-  for (const int end_y = area.dst.y + area.size.h; area.dst.y < end_y;
-       ++area.dst.y, ++area.src.y)
+  for (const int end_y = area.dst.y + area.size.h; area.dst.y < end_y; ++area.dst.y, ++area.src.y)
   {
     for (int x = area.dst.x; x < end_x; ++x)
     {

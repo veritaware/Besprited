@@ -21,10 +21,7 @@ using namespace gfx;
 class MoveOriginCapability : public Controller
 {
 public:
-  void pressButton(Stroke& stroke, const Point& point, float pressure) override
-  {
-    m_last = point;
-  }
+  void pressButton(Stroke& stroke, const Point& point, float pressure) override { m_last = point; }
 
 protected:
   bool isMovingOrigin(ToolLoop* loop, Stroke& stroke, const Point& point)
@@ -61,19 +58,14 @@ class FreehandController : public Controller
 public:
   bool isFreehand() override { return true; }
 
-  void pressButton(Stroke& stroke, const gfx::Point& point,
-                   float pressure) override
+  void pressButton(Stroke& stroke, const gfx::Point& point, float pressure) override
   {
     stroke.addPoint({point.x, point.y, pressure});
   }
 
-  bool releaseButton(Stroke& stroke, const Point& point) override
-  {
-    return false;
-  }
+  bool releaseButton(Stroke& stroke, const Point& point) override { return false; }
 
-  void movement(ToolLoop* loop, Stroke& stroke, const gfx::Point& point,
-                float pressure) override
+  void movement(ToolLoop* loop, Stroke& stroke, const gfx::Point& point, float pressure) override
   {
     stroke.addPoint({point.x, point.y, pressure});
   }
@@ -98,9 +90,8 @@ public:
       return;
 
     char buf[1024];
-    snprintf(buf, sizeof(buf), ":start: %3d %3d :end: %3d %3d",
-             stroke.firstPoint().x, stroke.firstPoint().y, stroke.lastPoint().x,
-             stroke.lastPoint().y);
+    snprintf(buf, sizeof(buf), ":start: %3d %3d :end: %3d %3d", stroke.firstPoint().x, stroke.firstPoint().y,
+             stroke.lastPoint().x, stroke.lastPoint().y);
     text = buf;
   }
 };
@@ -118,13 +109,9 @@ public:
     stroke.addPoint(strokePoint);
   }
 
-  bool releaseButton(Stroke& stroke, const Point& point) override
-  {
-    return false;
-  }
+  bool releaseButton(Stroke& stroke, const Point& point) override { return false; }
 
-  void movement(ToolLoop* loop, Stroke& stroke, const Point& point,
-                float pressure) override
+  void movement(ToolLoop* loop, Stroke& stroke, const Point& point, float pressure) override
   {
     ASSERT(stroke.size() >= 2);
     if (stroke.size() < 2)
@@ -145,9 +132,7 @@ public:
       // Lines
       if (loop->getIntertwine()->snapByAngle())
       {
-        double angle =
-            180.0 *
-            std::atan(static_cast<double>(-dy) / static_cast<double>(dx)) / PI;
+        double angle = 180.0 * std::atan(static_cast<double>(-dy) / static_cast<double>(dx)) / PI;
         angle = ABS(angle);
 
         // Snap horizontally
@@ -200,8 +185,7 @@ public:
     }
 
     // Adjust points for selection like tools (so we can select tiles)
-    if (loop->getController()->canSnapToGrid() && loop->getSnapToGrid() &&
-        loop->getInk()->isSelection())
+    if (loop->getController()->canSnapToGrid() && loop->getSnapToGrid() && loop->getInk()->isSelection())
     {
       if (stroke[0].x < stroke[1].x)
         stroke[1].x--;
@@ -235,15 +219,14 @@ public:
     int h = ABS(stroke[1].y - stroke[0].y) + 1;
 
     char buf[1024];
-    snprintf(buf, sizeof(buf),
-             ":start: %3d %3d :end: %3d %3d :size: %3d %3d :distance: %.1f "
-             ":angle: %.1f",
-             stroke[0].x, stroke[0].y, stroke[1].x, stroke[1].y, w, h,
-             std::sqrt(w * w + h * h),
-             180.0 *
-                 std::atan2(static_cast<double>(stroke[0].y - stroke[1].y),
-                            static_cast<double>(stroke[1].x - stroke[0].x)) /
-                 PI);
+    snprintf(
+        buf, sizeof(buf),
+        ":start: %3d %3d :end: %3d %3d :size: %3d %3d :distance: %.1f "
+        ":angle: %.1f",
+        stroke[0].x, stroke[0].y, stroke[1].x, stroke[1].y, w, h, std::sqrt(w * w + h * h),
+        180.0 *
+            std::atan2(static_cast<double>(stroke[0].y - stroke[1].y), static_cast<double>(stroke[1].x - stroke[0].x)) /
+            PI);
     text = buf;
   }
 
@@ -271,15 +254,13 @@ public:
     if (stroke.empty())
       return false;
 
-    if (stroke[stroke.size() - 2] == point &&
-        stroke[stroke.size() - 1] == point)
+    if (stroke[stroke.size() - 2] == point && stroke[stroke.size() - 1] == point)
       return false; // Click in the same point (no-drag), we are done
     else
       return true; // Continue adding points
   }
 
-  void movement(ToolLoop* loop, Stroke& stroke, const Point& point,
-                float pressure) override
+  void movement(ToolLoop* loop, Stroke& stroke, const Point& point, float pressure) override
   {
     ASSERT(!stroke.empty());
     if (stroke.empty())
@@ -291,10 +272,7 @@ public:
     stroke[stroke.size() - 1] = {point.x, point.y, pressure};
   }
 
-  void getStrokeToInterwine(const Stroke& input, Stroke& output) override
-  {
-    output = input;
-  }
+  void getStrokeToInterwine(const Stroke& input, Stroke& output) override { output = input; }
 
   void getStatusBarText(const Stroke& stroke, std::string& text) override
   {
@@ -303,9 +281,8 @@ public:
       return;
 
     char buf[1024];
-    snprintf(buf, sizeof(buf), ":start: %3d %3d :end: %3d %3d",
-             stroke.firstPoint().x, stroke.firstPoint().y, stroke.lastPoint().x,
-             stroke.lastPoint().y);
+    snprintf(buf, sizeof(buf), ":start: %3d %3d :end: %3d %3d", stroke.firstPoint().x, stroke.firstPoint().y,
+             stroke.lastPoint().x, stroke.lastPoint().y);
     text = buf;
   }
 };
@@ -323,21 +300,14 @@ public:
       stroke.addPoint({point.x, point.y, pressure});
   }
 
-  bool releaseButton(Stroke& stroke, const Point& point) override
-  {
-    return false;
-  }
+  bool releaseButton(Stroke& stroke, const Point& point) override { return false; }
 
-  void movement(ToolLoop* loop, Stroke& stroke, const Point& point,
-                float pressure) override
+  void movement(ToolLoop* loop, Stroke& stroke, const Point& point, float pressure) override
   {
     // Do nothing
   }
 
-  void getStrokeToInterwine(const Stroke& input, Stroke& output) override
-  {
-    output = input;
-  }
+  void getStrokeToInterwine(const Stroke& input, Stroke& output) override { output = input; }
 
   void getStatusBarText(const Stroke& stroke, std::string& text) override
   {
@@ -373,8 +343,7 @@ public:
     return m_clickCounter < 4;
   }
 
-  void movement(ToolLoop* loop, Stroke& stroke, const Point& point,
-                float pressure) override
+  void movement(ToolLoop* loop, Stroke& stroke, const Point& point, float pressure) override
   {
     if (MoveOriginCapability::isMovingOrigin(loop, stroke, point))
       return;
@@ -396,10 +365,7 @@ public:
     }
   }
 
-  void getStrokeToInterwine(const Stroke& input, Stroke& output) override
-  {
-    output = input;
-  }
+  void getStrokeToInterwine(const Stroke& input, Stroke& output) override { output = input; }
 
   void getStatusBarText(const Stroke& stroke, std::string& text) override
   {
@@ -408,10 +374,8 @@ public:
       return;
 
     char buf[1024];
-    snprintf(buf, sizeof(buf),
-             ":start: %3d %3d :end: %3d %3d (%3d %3d - %3d %3d)", stroke[0].x,
-             stroke[0].y, stroke[3].x, stroke[3].y, stroke[1].x, stroke[1].y,
-             stroke[2].x, stroke[2].y);
+    snprintf(buf, sizeof(buf), ":start: %3d %3d :end: %3d %3d (%3d %3d - %3d %3d)", stroke[0].x, stroke[0].y,
+             stroke[3].x, stroke[3].y, stroke[1].x, stroke[1].y, stroke[2].x, stroke[2].y);
 
     text = buf;
   }

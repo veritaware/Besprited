@@ -50,8 +50,7 @@ public:
     , m_pal(m_sprite->palette(editor->frame()))
     , m_zoom(editor->zoom())
     , m_doublebuf(Image::create(IMAGE_RGB, ui::display_w(), ui::display_h()))
-    , m_doublesur(
-          she::instance()->createRgbaSurface(ui::display_w(), ui::display_h()))
+    , m_doublesur(she::instance()->createRgbaSurface(ui::display_w(), ui::display_h()))
   {
     // Do not use DocumentWriter (do not lock the document) because we
     // will call other sub-commands (e.g. previous frame, next frame,
@@ -123,23 +122,19 @@ protected:
       KeyMessage* keyMsg = static_cast<KeyMessage*>(msg);
       Command* command = nullptr;
       Params params;
-      KeyboardShortcuts::instance()->getCommandFromKeyMessage(msg, &command,
-                                                              &params);
+      KeyboardShortcuts::instance()->getCommandFromKeyMessage(msg, &command, &params);
 
       // Change frame
       if (command != nullptr &&
-          (command->id() == CommandId::GotoFirstFrame ||
-           command->id() == CommandId::GotoPreviousFrame ||
-           command->id() == CommandId::GotoNextFrame ||
-           command->id() == CommandId::GotoLastFrame))
+          (command->id() == CommandId::GotoFirstFrame || command->id() == CommandId::GotoPreviousFrame ||
+           command->id() == CommandId::GotoNextFrame || command->id() == CommandId::GotoLastFrame))
       {
         m_context->executeCommand(command, params);
         invalidate();
         m_render.reset(nullptr); // Re-render
       }
       // Change background color
-      else if (keyMsg->scancode() == kKeyPlusPad ||
-               keyMsg->unicodeChar() == '+')
+      else if (keyMsg->scancode() == kKeyPlusPad || keyMsg->unicodeChar() == '+')
       {
         if (m_index_bg_color == -1 || m_index_bg_color < m_pal->size() - 1)
         {
@@ -148,8 +143,7 @@ protected:
           invalidate();
         }
       }
-      else if (keyMsg->scancode() == kKeyMinusPad ||
-               keyMsg->unicodeChar() == '-')
+      else if (keyMsg->scancode() == kKeyMinusPad || keyMsg->unicodeChar() == '-')
       {
         if (m_index_bg_color >= 0)
         {
@@ -185,8 +179,7 @@ protected:
     if (m_render == nullptr)
     {
       ImageBufferPtr buf = Editor::getRenderImageBuffer();
-      m_render.reset(
-          Image::create(IMAGE_RGB, m_sprite->width(), m_sprite->height(), buf));
+      m_render.reset(Image::create(IMAGE_RGB, m_sprite->width(), m_sprite->height(), buf));
 
       render.renderSprite(m_render.get(), m_sprite, m_editor->frame());
     }
@@ -206,10 +199,7 @@ protected:
     {
       render.setupBackground(m_doc, m_doublebuf->pixelFormat());
       render.renderBackground(m_doublebuf.get(),
-                              gfx::Clip(0, 0, -m_pos.x, -m_pos.y,
-                                        m_doublebuf->width(),
-                                        m_doublebuf->height()),
-                              m_zoom);
+                              gfx::Clip(0, 0, -m_pos.x, -m_pos.y, m_doublebuf->width(), m_doublebuf->height()), m_zoom);
     }
     else
     {
@@ -219,32 +209,26 @@ protected:
     switch (m_tiled)
     {
     case TiledMode::NONE:
-      render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, x, y, m_zoom,
-                         255, BlendMode::NORMAL);
+      render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, x, y, m_zoom, 255, BlendMode::NORMAL);
       break;
     case TiledMode::X_AXIS:
       for (u = x - w; u < ui::display_w() + w; u += w)
-        render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, u, y,
-                           m_zoom, 255, BlendMode::NORMAL);
+        render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, u, y, m_zoom, 255, BlendMode::NORMAL);
       break;
     case TiledMode::Y_AXIS:
       for (v = y - h; v < ui::display_h() + h; v += h)
-        render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, x, v,
-                           m_zoom, 255, BlendMode::NORMAL);
+        render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, x, v, m_zoom, 255, BlendMode::NORMAL);
       break;
     case TiledMode::BOTH:
       for (v = y - h; v < ui::display_h() + h; v += h)
         for (u = x - w; u < ui::display_w() + w; u += w)
-          render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, u, v,
-                             m_zoom, 255, BlendMode::NORMAL);
+          render.renderImage(m_doublebuf.get(), m_render.get(), m_pal, u, v, m_zoom, 255, BlendMode::NORMAL);
       break;
     }
 
-    doc::convert_image_to_surface(m_doublebuf.get(), m_pal, m_doublesur, 0, 0,
-                                  0, 0, m_doublebuf->width(),
+    doc::convert_image_to_surface(m_doublebuf.get(), m_pal, m_doublesur, 0, 0, 0, 0, m_doublebuf->width(),
                                   m_doublebuf->height());
-    g->blit(m_doublesur, 0, 0, 0, 0, m_doublesur->width(),
-            m_doublesur->height());
+    g->blit(m_doublesur, 0, 0, 0, 0, m_doublesur->width(), m_doublesur->height());
   }
 
 private:
@@ -281,8 +265,7 @@ FullscreenPreviewCommand::FullscreenPreviewCommand()
 
 bool FullscreenPreviewCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 // Shows the sprite using the complete screen.

@@ -82,8 +82,7 @@ DevConsoleView::DevConsoleView()
   m_bottomBox.addChild(&m_label);
   m_bottomBox.addChild(m_entry);
 
-  m_view.setProperty(SkinStylePropertyPtr(
-      new SkinStyleProperty(theme->styles.workspaceView())));
+  m_view.setProperty(SkinStylePropertyPtr(new SkinStyleProperty(theme->styles.workspaceView())));
 
   m_view.attachToView(&m_textBox);
   m_view.setExpansive(true);

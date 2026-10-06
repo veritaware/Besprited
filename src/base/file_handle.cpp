@@ -64,8 +64,7 @@ FileHandle open_file_with_exception(const string& filename, const string& mode)
   return f;
 }
 
-int open_file_descriptor_with_exception(const string& filename,
-                                        const string& mode)
+int open_file_descriptor_with_exception(const string& filename, const string& mode)
 {
   int flags = 0;
   if (mode.find('r') != string::npos)
@@ -79,8 +78,7 @@ int open_file_descriptor_with_exception(const string& filename,
 #ifdef _WIN32
   fd = _wopen(from_utf8(filename).c_str(), flags, _S_IREAD | _S_IWRITE);
 #else
-  fd = open(filename.c_str(), flags,
-            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
+  fd = open(filename.c_str(), flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH);
 #endif
 
   if (fd == -1)

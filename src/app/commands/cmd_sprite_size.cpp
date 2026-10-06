@@ -57,8 +57,7 @@ class SpriteSizeJob : public Job
   int scale_y(int y) const { return y * m_new_height / m_sprite->height(); }
 
 public:
-  SpriteSizeJob(const ContextReader& reader, int new_width, int new_height,
-                ResizeMethod resize_method)
+  SpriteSizeJob(const ContextReader& reader, int new_width, int new_height, ResizeMethod resize_method)
     : Job("Sprite Size")
     , m_writer(reader)
     , m_document(m_writer.document())
@@ -105,15 +104,13 @@ protected:
         // Resize the image
         int w = scale_x(image->width());
         int h = scale_y(image->height());
-        ImageRef new_image(
-            Image::create(image->pixelFormat(), MAX(1, w), MAX(1, h)));
+        ImageRef new_image(Image::create(image->pixelFormat(), MAX(1, w), MAX(1, h)));
         new_image->setMaskColor(image->maskColor());
 
         doc::algorithm::fixup_image_transparent_colors(image);
-        doc::algorithm::resize_image(
-            image, new_image.get(), m_resize_method,
-            m_sprite->palette(cel->frame()), m_sprite->rgbMap(cel->frame()),
-            (cel->layer()->isBackground() ? -1 : m_sprite->transparentColor()));
+        doc::algorithm::resize_image(image, new_image.get(), m_resize_method, m_sprite->palette(cel->frame()),
+                                     m_sprite->rgbMap(cel->frame()),
+                                     (cel->layer()->isBackground() ? -1 : m_sprite->transparentColor()));
 
         api.replaceImage(m_sprite, cel->imageRef(), new_image);
       }
@@ -129,19 +126,15 @@ protected:
     // Resize mask
     if (m_document->isMaskVisible())
     {
-      ImageRef old_bitmap(crop_image(m_document->mask()->bitmap(), -1, -1,
-                                     m_document->mask()->bitmap()->width() + 2,
-                                     m_document->mask()->bitmap()->height() + 2,
-                                     0));
+      ImageRef old_bitmap(crop_image(m_document->mask()->bitmap(), -1, -1, m_document->mask()->bitmap()->width() + 2,
+                                     m_document->mask()->bitmap()->height() + 2, 0));
 
       int w = scale_x(old_bitmap->width());
       int h = scale_y(old_bitmap->height());
       auto new_mask = std::make_unique<Mask>();
       new_mask->replace(gfx::Rect(scale_x(m_document->mask()->bounds().x - 1),
-                                  scale_y(m_document->mask()->bounds().y - 1),
-                                  MAX(1, w), MAX(1, h)));
-      algorithm::resize_image(old_bitmap.get(), new_mask->bitmap(),
-                              m_resize_method,
+                                  scale_y(m_document->mask()->bounds().y - 1), MAX(1, w), MAX(1, h)));
+      algorithm::resize_image(old_bitmap.get(), new_mask->bitmap(), m_resize_method,
                               m_sprite->palette(0), // Ignored
                               m_sprite->rgbMap(0),  // Ignored
                               -1);                  // Ignored
@@ -174,30 +167,23 @@ public:
   SpriteSizeWindow(Context* ctx, int new_width, int new_height)
     : m_ctx(ctx)
   {
-    lockRatio()->Click.connect(
-        base::Bind<void>(&SpriteSizeWindow::onLockRatioClick, this));
-    widthPx()->Change.connect(
-        base::Bind<void>(&SpriteSizeWindow::onWidthPxChange, this));
-    heightPx()->Change.connect(
-        base::Bind<void>(&SpriteSizeWindow::onHeightPxChange, this));
-    widthPerc()->Change.connect(
-        base::Bind<void>(&SpriteSizeWindow::onWidthPercChange, this));
-    heightPerc()->Change.connect(
-        base::Bind<void>(&SpriteSizeWindow::onHeightPercChange, this));
+    lockRatio()->Click.connect(base::Bind<void>(&SpriteSizeWindow::onLockRatioClick, this));
+    widthPx()->Change.connect(base::Bind<void>(&SpriteSizeWindow::onWidthPxChange, this));
+    heightPx()->Change.connect(base::Bind<void>(&SpriteSizeWindow::onHeightPxChange, this));
+    widthPerc()->Change.connect(base::Bind<void>(&SpriteSizeWindow::onWidthPercChange, this));
+    heightPerc()->Change.connect(base::Bind<void>(&SpriteSizeWindow::onHeightPercChange, this));
 
     widthPx()->setTextf("%d", new_width);
     heightPx()->setTextf("%d", new_height);
 
-    static_assert(doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR == 0 &&
-                      doc::algorithm::RESIZE_METHOD_BILINEAR == 1 &&
+    static_assert(doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR == 0 && doc::algorithm::RESIZE_METHOD_BILINEAR == 1 &&
                       doc::algorithm::RESIZE_METHOD_ROTSPRITE == 2,
                   "ResizeMethod enum has changed");
     method()->addItem("Nearest-neighbor");
     method()->addItem("Bilinear");
     method()->addItem("RotSprite");
     method()->setSelectedItemIndex(
-        get_config_int("SpriteSize", "Method",
-                       doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR));
+        get_config_int("SpriteSize", "Method", doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR));
   }
 
 private:
@@ -320,8 +306,7 @@ void SpriteSizeCommand::onLoadParams(const Params& params)
 
 bool SpriteSizeCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void SpriteSizeCommand::onExecute(Context* context)

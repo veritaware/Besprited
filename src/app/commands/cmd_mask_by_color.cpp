@@ -56,8 +56,7 @@ protected:
   void onExecute(Context* context) override;
 
 private:
-  Mask* generateMask(const Sprite* sprite, const Image* image, int xpos,
-                     int ypos);
+  Mask* generateMask(const Sprite* sprite, const Image* image, int xpos, int ypos);
   void maskPreview(const ContextReader& reader);
 
   // Command::clone() is gone and Command is now non-copyable (#224), so
@@ -76,8 +75,7 @@ MaskByColorCommand::MaskByColorCommand()
 
 bool MaskByColorCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite |
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite |
                              ContextFlags::HasActiveImage);
 }
 
@@ -106,13 +104,10 @@ void MaskByColorCommand::onExecute(Context* context)
   box4 = new Box(HORIZONTAL | HOMOGENEOUS);
   label_color = new Label("Color:");
   label_color->setI18N();
-  m_buttonColor =
-      new ColorButton(get_config_color("MaskColor", "Color",
-                                       ColorBar::instance()->getFgColor()),
-                      sprite->pixelFormat());
+  m_buttonColor = new ColorButton(get_config_color("MaskColor", "Color", ColorBar::instance()->getFgColor()),
+                                  sprite->pixelFormat());
   label_tolerance = new Label("Tolerance:");
-  m_sliderTolerance =
-      new Slider(0, 255, get_config_int("MaskColor", "Tolerance", 0));
+  m_sliderTolerance = new Slider(0, 255, get_config_int("MaskColor", "Tolerance", 0));
   m_checkPreview = new CheckBox("&Preview");
   button_ok = new Button("&OK");
   button_cancel = new Button("&Cancel");
@@ -120,17 +115,12 @@ void MaskByColorCommand::onExecute(Context* context)
   if (get_config_bool("MaskColor", "Preview", true))
     m_checkPreview->setSelected(true);
 
-  button_ok->Click.connect(
-      base::Bind<void>(&Window::closeWindow, m_window, button_ok));
-  button_cancel->Click.connect(
-      base::Bind<void>(&Window::closeWindow, m_window, button_cancel));
+  button_ok->Click.connect(base::Bind<void>(&Window::closeWindow, m_window, button_ok));
+  button_cancel->Click.connect(base::Bind<void>(&Window::closeWindow, m_window, button_cancel));
 
-  m_buttonColor->Change.connect(base::Bind<void>(
-      &MaskByColorCommand::maskPreview, this, base::Ref(reader)));
-  m_sliderTolerance->Change.connect(base::Bind<void>(
-      &MaskByColorCommand::maskPreview, this, base::Ref(reader)));
-  m_checkPreview->Click.connect(base::Bind<void>(
-      &MaskByColorCommand::maskPreview, this, base::Ref(reader)));
+  m_buttonColor->Change.connect(base::Bind<void>(&MaskByColorCommand::maskPreview, this, base::Ref(reader)));
+  m_sliderTolerance->Change.connect(base::Bind<void>(&MaskByColorCommand::maskPreview, this, base::Ref(reader)));
+  m_checkPreview->Click.connect(base::Bind<void>(&MaskByColorCommand::maskPreview, this, base::Ref(reader)));
 
   button_ok->setFocusMagnet(true);
   m_buttonColor->setExpansive(true);
@@ -169,8 +159,7 @@ void MaskByColorCommand::onExecute(Context* context)
 
   if (apply)
   {
-    Transaction transaction(writer.context(), "Mask by Color",
-                            DoesntModifyDocument);
+    Transaction transaction(writer.context(), "Mask by Color", DoesntModifyDocument);
     std::unique_ptr<Mask> mask(generateMask(sprite, image, xpos, ypos));
     transaction.execute(new cmd::SetMask(document, mask.get()));
     transaction.commit();
@@ -189,13 +178,11 @@ void MaskByColorCommand::onExecute(Context* context)
   delete m_window;
 }
 
-Mask* MaskByColorCommand::generateMask(const Sprite* sprite, const Image* image,
-                                       int xpos, int ypos)
+Mask* MaskByColorCommand::generateMask(const Sprite* sprite, const Image* image, int xpos, int ypos)
 {
   int color, tolerance;
 
-  color = color_utils::color_for_image(m_buttonColor->getColor(),
-                                       sprite->pixelFormat());
+  color = color_utils::color_for_image(m_buttonColor->getColor(), sprite->pixelFormat());
   tolerance = m_sliderTolerance->getValue();
 
   auto mask = std::make_unique<Mask>();
@@ -211,8 +198,7 @@ void MaskByColorCommand::maskPreview(const ContextReader& reader)
   {
     int xpos, ypos;
     const Image* image = reader.image(&xpos, &ypos);
-    std::unique_ptr<Mask> mask(
-        generateMask(reader.sprite(), image, xpos, ypos));
+    std::unique_ptr<Mask> mask(generateMask(reader.sprite(), image, xpos, ypos));
     {
       ContextWriter writer(reader);
 
@@ -224,8 +210,7 @@ void MaskByColorCommand::maskPreview(const ContextReader& reader)
 
 #ifdef SHOW_BOUNDARIES_GEN_PERFORMANCE
       double time = chrono.elapsed();
-      m_window->setText("Mask by Color (" +
-                        base::convert_to<std::string>(time) + ")");
+      m_window->setText("Mask by Color (" + base::convert_to<std::string>(time) + ")");
 #endif
 
       update_screen_for_document(writer.document());

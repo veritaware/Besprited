@@ -29,10 +29,7 @@ struct same_name
     : name(name)
   {
   }
-  bool operator()(const ProgramOptions::Option* a)
-  {
-    return (a->name() == name || a->alias() == name);
-  }
+  bool operator()(const ProgramOptions::Option* a) { return (a->name() == name || a->alias() == name); }
 };
 
 struct same_mnemonic
@@ -42,10 +39,7 @@ struct same_mnemonic
     : mnemonic(mnemonic)
   {
   }
-  bool operator()(const ProgramOptions::Option* a)
-  {
-    return a->mnemonic() == mnemonic;
-  }
+  bool operator()(const ProgramOptions::Option* a) { return a->mnemonic() == mnemonic; }
 };
 
 ProgramOptions::ProgramOptions() = default;
@@ -91,8 +85,7 @@ void ProgramOptions::parse(int argc, const char* argv[])
 
         for (size_t j = 1; j < arg.size(); ++j)
         {
-          const auto it = find_if(m_options.begin(), m_options.end(),
-                                  same_mnemonic(arg[j]));
+          const auto it = find_if(m_options.begin(), m_options.end(), same_mnemonic(arg[j]));
 
           if (it == m_options.end())
           {
@@ -109,8 +102,7 @@ void ProgramOptions::parse(int argc, const char* argv[])
             if (usedBy != 0)
             {
               stringstream msg;
-              msg << "You cannot use '-" << option->mnemonic() << "' and '-"
-                  << usedBy << "' "
+              msg << "You cannot use '-" << option->mnemonic() << "' and '-" << usedBy << "' "
                   << "together, both options need one extra argument";
               throw InvalidProgramOptionsCombination(msg.str());
             }
@@ -118,8 +110,7 @@ void ProgramOptions::parse(int argc, const char* argv[])
             if (i + 1 >= argc)
             {
               stringstream msg;
-              msg << "Option '-" << option->mnemonic()
-                  << "' needs one extra argument";
+              msg << "Option '-" << option->mnemonic() << "' needs one extra argument";
               throw ProgramOptionNeedsValue(msg.str());
             }
 
@@ -148,8 +139,7 @@ void ProgramOptions::parse(int argc, const char* argv[])
           optionName = arg.substr(n);
         }
 
-        const auto it =
-            find_if(m_options.begin(), m_options.end(), same_name(optionName));
+        const auto it = find_if(m_options.begin(), m_options.end(), same_name(optionName));
 
         if (it == m_options.end())
         {
@@ -169,8 +159,7 @@ void ProgramOptions::parse(int argc, const char* argv[])
             if (i + 1 >= argc)
             {
               stringstream msg;
-              msg << "Missing value in '--" << optionName << "="
-                  << option->getValueName() << "' option specification";
+              msg << "Missing value in '--" << optionName << "=" << option->getValueName() << "' option specification";
               throw ProgramOptionNeedsValue(msg.str());
             }
             optionValue = argv[++i];
@@ -220,9 +209,8 @@ std::ostream& operator<<(std::ostream& os, const base::ProgramOptions& po)
   std::size_t maxOptionWidth = 0;
   for (const base::ProgramOptions::Option* option : po.options())
   {
-    const std::size_t optionWidth =
-        6 + MAX(option->name().size(), option->alias().size()) + 1 +
-        (option->doesRequireValue() ? option->getValueName().size() + 1 : 0);
+    const std::size_t optionWidth = 6 + MAX(option->name().size(), option->alias().size()) + 1 +
+                                    (option->doesRequireValue() ? option->getValueName().size() + 1 : 0);
 
     if (maxOptionWidth < optionWidth)
       maxOptionWidth = optionWidth;
@@ -231,8 +219,7 @@ std::ostream& operator<<(std::ostream& os, const base::ProgramOptions& po)
   for (const base::ProgramOptions::Option* option : po.options())
   {
     std::size_t optionWidth =
-        6 + option->name().size() + 1 +
-        (option->doesRequireValue() ? option->getValueName().size() + 1 : 0);
+        6 + option->name().size() + 1 + (option->doesRequireValue() ? option->getValueName().size() + 1 : 0);
 
     if (option->mnemonic() != 0)
       os << std::setw(3) << '-' << option->mnemonic() << ", ";
@@ -250,19 +237,16 @@ std::ostream& operator<<(std::ostream& os, const base::ProgramOptions& po)
         os << " " << option->getValueName();
 
       optionWidth =
-          6 + option->alias().size() + 1 +
-          (option->doesRequireValue() ? option->getValueName().size() + 1 : 0);
+          6 + option->alias().size() + 1 + (option->doesRequireValue() ? option->getValueName().size() + 1 : 0);
     }
 
     if (!option->description().empty())
     {
-      const bool multilines =
-          (option->description().find('\n') != std::string::npos);
+      const bool multilines = (option->description().find('\n') != std::string::npos);
 
       if (!multilines)
       {
-        os << std::setw(maxOptionWidth - optionWidth + 1) << ' '
-           << option->description() << "\n";
+        os << std::setw(maxOptionWidth - optionWidth + 1) << ' ' << option->description() << "\n";
       }
       else
       {
@@ -270,8 +254,7 @@ std::ostream& operator<<(std::ostream& os, const base::ProgramOptions& po)
         std::string line;
         if (std::getline(s, line))
         {
-          os << std::setw(maxOptionWidth - optionWidth + 1) << ' ' << line
-             << '\n';
+          os << std::setw(maxOptionWidth - optionWidth + 1) << ' ' << line << '\n';
           while (std::getline(s, line))
           {
             os << std::setw(maxOptionWidth + 2) << ' ' << line << '\n';

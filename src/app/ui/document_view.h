@@ -50,8 +50,7 @@ public:
     Preview
   };
 
-  DocumentView(Document* document, Type type,
-               DocumentViewPreviewDelegate* previewDelegate);
+  DocumentView(Document* document, Type type, DocumentViewPreviewDelegate* previewDelegate);
   ~DocumentView();
 
   Document* document() const { return m_document; }

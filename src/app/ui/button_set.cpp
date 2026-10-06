@@ -79,9 +79,7 @@ void ButtonSet::Item::onPaint(ui::PaintEvent& ev)
   if (m_icon)
     iconSize = m_icon->size();
 
-  getTextIconInfo(&boxRc, &textRc, &iconRc,
-                  CENTER | (hasText() ? BOTTOM : MIDDLE), iconSize.w,
-                  iconSize.h);
+  getTextIconInfo(&boxRc, &textRc, &iconRc, CENTER | (hasText() ? BOTTOM : MIDDLE), iconSize.w, iconSize.h);
 
   Grid::Info info = buttonSet()->getChildInfo(this);
   bool isLastCol = (info.col + info.hspan >= info.grid_cols);
@@ -106,16 +104,14 @@ void ButtonSet::Item::onPaint(ui::PaintEvent& ev)
     }
     else
     {
-      nw = (hasFocus() ? theme->parts.toolbuttonHotFocused()
-                       : theme->parts.toolbuttonHot());
+      nw = (hasFocus() ? theme->parts.toolbuttonHotFocused() : theme->parts.toolbuttonHot());
       fg = theme->colors.buttonHotText();
       bg = theme->colors.buttonHotFace();
     }
   }
   else
   {
-    nw = (hasFocus() ? theme->parts.toolbuttonFocused()
-                     : theme->parts.toolbuttonLast());
+    nw = (hasFocus() ? theme->parts.toolbuttonFocused() : theme->parts.toolbuttonLast());
     fg = theme->colors.buttonNormalText();
     bg = theme->colors.buttonNormalFace();
   }
@@ -138,11 +134,9 @@ void ButtonSet::Item::onPaint(ui::PaintEvent& ev)
     she::Surface* bmp = m_icon->bitmap(0);
 
     if (isSelected() && hasCapture())
-      g->drawColoredRgbaSurface(bmp, theme->colors.buttonSelectedText(),
-                                iconRc.x, iconRc.y);
+      g->drawColoredRgbaSurface(bmp, theme->colors.buttonSelectedText(), iconRc.x, iconRc.y);
     else if (m_mono)
-      g->drawColoredRgbaSurface(bmp, theme->colors.buttonNormalText(), iconRc.x,
-                                iconRc.y);
+      g->drawColoredRgbaSurface(bmp, theme->colors.buttonNormalText(), iconRc.x, iconRc.y);
     else
       g->drawRgbaSurface(bmp, iconRc.x, iconRc.y);
   }
@@ -172,8 +166,7 @@ bool ButtonSet::Item::onProcessMessage(ui::Message* msg)
     if (isEnabled() && hasText())
     {
       KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
-      bool mnemonicPressed = (msg->altPressed() && mnemonicChar() &&
-                              mnemonicChar() == tolower(keymsg->unicodeChar()));
+      bool mnemonicPressed = (msg->altPressed() && mnemonicChar() && mnemonicChar() == tolower(keymsg->unicodeChar()));
 
       if (mnemonicPressed || (hasFocus() && keymsg->scancode() == kKeySpace))
       {
@@ -198,8 +191,7 @@ bool ButtonSet::Item::onProcessMessage(ui::Message* msg)
     buttonSet()->setSelectedItem(this);
     invalidate();
 
-    if (static_cast<MouseMessage*>(msg)->left() &&
-        !buttonSet()->m_triggerOnMouseUp)
+    if (static_cast<MouseMessage*>(msg)->left() && !buttonSet()->m_triggerOnMouseUp)
     {
       onClick();
     }
@@ -231,8 +223,7 @@ bool ButtonSet::Item::onProcessMessage(ui::Message* msg)
     {
       if (buttonSet()->m_offerCapture)
       {
-        if (offerCapture(static_cast<ui::MouseMessage*>(msg),
-                         buttonset_item_type()))
+        if (offerCapture(static_cast<ui::MouseMessage*>(msg), buttonset_item_type()))
         {
           // Only for ButtonSets trigerred on mouse up.
           if (buttonSet()->m_triggerOnMouseUp && g_itemBeforeCapture >= 0)
@@ -267,9 +258,7 @@ void ButtonSet::Item::onSizeHint(ui::SizeHintEvent& ev)
   }
 
   gfx::Rect boxRc;
-  getTextIconInfo(&boxRc, nullptr, nullptr,
-                  CENTER | (hasText() ? BOTTOM : MIDDLE), iconSize.w,
-                  iconSize.h);
+  getTextIconInfo(&boxRc, nullptr, nullptr, CENTER | (hasText() ? BOTTOM : MIDDLE), iconSize.w, iconSize.h);
 
   gfx::Size sz = boxRc.size();
   if (hasText())
@@ -301,8 +290,7 @@ ButtonSet::ButtonSet(int columns)
   noBorderNoChildSpacing();
 }
 
-ButtonSet::Item* ButtonSet::addItem(const std::string& text, int hspan,
-                                    int vspan)
+ButtonSet::Item* ButtonSet::addItem(const std::string& text, int hspan, int vspan)
 {
   Item* item = new Item();
   item->setText(text);
@@ -310,8 +298,7 @@ ButtonSet::Item* ButtonSet::addItem(const std::string& text, int hspan,
   return item;
 }
 
-ButtonSet::Item* ButtonSet::addItem(const skin::SkinPartPtr& icon, int hspan,
-                                    int vspan)
+ButtonSet::Item* ButtonSet::addItem(const skin::SkinPartPtr& icon, int hspan, int vspan)
 {
   Item* item = new Item();
   item->setIcon(icon);

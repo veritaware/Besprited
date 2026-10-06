@@ -18,8 +18,7 @@ namespace script
 // storage_script.cpp so the widgets can persist their values before the
 // storage global itself lands; the wave-4 storage_script.cpp will be updated
 // to use this same map.
-void setStorage(const JSON::Value& value, const std::string& key,
-                const std::string& domain);
+void setStorage(const JSON::Value& value, const std::string& key, const std::string& domain);
 JSON::Value getStorage(const std::string& key, const std::string& domain);
 // Remove a key from the domain's map (no-op if absent). Used by storage.unload.
 void removeStorage(const std::string& key, const std::string& domain);

@@ -55,8 +55,7 @@ public:
     addChild(&m_hbox);
 
     m_openButton.Click.connect(base::Bind(&Item::onOpen, this));
-    m_openButton.DropDownClick.connect(
-        base::Bind<void>(&Item::onOpenMenu, this));
+    m_openButton.DropDownClick.connect(base::Bind<void>(&Item::onOpenMenu, this));
     m_deleteButton.Click.connect(base::Bind(&Item::onDelete, this));
 
     setup_mini_look(&m_openButton);
@@ -79,8 +78,7 @@ protected:
 
     gfx::Rect rc = ev.bounds();
     gfx::Size sz = m_hbox.sizeHint();
-    m_hbox.setBounds(gfx::Rect(rc.x + rc.w - sz.w - 2 * guiscale(),
-                               rc.y + rc.h / 2 - sz.h / 2, sz.w, sz.h));
+    m_hbox.setBounds(gfx::Rect(rc.x + rc.w - sz.w - 2 * guiscale(), rc.y + rc.h / 2 - sz.h / 2, sz.w, sz.h));
   }
 
   void onOpen()
@@ -111,10 +109,8 @@ protected:
     menu.addChild(&rawFrames);
     menu.addChild(&rawLayers);
 
-    rawFrames.Click.connect(
-        base::Bind(&Item::onOpenRaw, this, crash::RawImagesAs::kFrames));
-    rawLayers.Click.connect(
-        base::Bind(&Item::onOpenRaw, this, crash::RawImagesAs::kLayers));
+    rawFrames.Click.connect(base::Bind(&Item::onOpenRaw, this, crash::RawImagesAs::kFrames));
+    rawLayers.Click.connect(base::Bind(&Item::onOpenRaw, this, crash::RawImagesAs::kLayers));
 
     menu.showPopup(gfx::Point(bounds.x, bounds.y + bounds.h));
   }
@@ -141,10 +137,9 @@ protected:
       // Delete the whole session
       if (!m_session->isEmpty())
       {
-        if (Alert::show(PACKAGE
-                        "<<Do you want to delete the whole session?"
-                        "<<You will lost all backups related to this session."
-                        "||&Yes||&No") != 1)
+        if (Alert::show(PACKAGE "<<Do you want to delete the whole session?"
+                                "<<You will lost all backups related to this session."
+                                "||&Yes||&No") != 1)
           return;
       }
 
@@ -180,8 +175,7 @@ DataRecoveryView::DataRecoveryView(crash::DataRecovery* dataRecovery)
   addChild(&m_view);
   m_view.setExpansive(true);
   m_view.attachToView(&m_listBox);
-  m_view.setProperty(SkinStylePropertyPtr(
-      new SkinStyleProperty(theme->styles.workspaceView())));
+  m_view.setProperty(SkinStylePropertyPtr(new SkinStyleProperty(theme->styles.workspaceView())));
 
   fillList();
 }

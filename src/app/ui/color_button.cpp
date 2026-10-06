@@ -179,9 +179,7 @@ void ColorButton::onPaint(PaintEvent& ev)
   m_dependOnLayer = false;
   if (isSelected())
   {
-    color =
-        app::Color::fromRgb(255 - m_color.getRed(), 255 - m_color.getGreen(),
-                            255 - m_color.getBlue());
+    color = app::Color::fromRgb(255 - m_color.getRed(), 255 - m_color.getGreen(), 255 - m_color.getBlue());
   }
   // When the button is not pressed, show the real color
   else
@@ -190,14 +188,12 @@ void ColorButton::onPaint(PaintEvent& ev)
 
     // Show transparent color in indexed sprites as mask color when we
     // are in a transparent layer.
-    if (color.getType() == app::Color::IndexType && current_editor &&
-        current_editor->sprite() &&
+    if (color.getType() == app::Color::IndexType && current_editor && current_editor->sprite() &&
         current_editor->sprite()->pixelFormat() == IMAGE_INDEXED)
     {
       m_dependOnLayer = true;
 
-      if (current_editor->sprite()->transparentColor() ==
-              static_cast<color_t>(color.getIndex()) &&
+      if (current_editor->sprite()->transparentColor() == static_cast<color_t>(color.getIndex()) &&
           current_editor->layer() && !current_editor->layer()->isBackground())
       {
         color = app::Color::fromMask();
@@ -205,19 +201,16 @@ void ColorButton::onPaint(PaintEvent& ev)
     }
   }
 
-  draw_color_button(g, rc, color, (doc::ColorMode)m_pixelFormat, hasMouseOver(),
-                    false);
+  draw_color_button(g, rc, color, (doc::ColorMode)m_pixelFormat, hasMouseOver(), false);
 
   // Draw text
-  std::string str = m_color.toHumanReadableString(
-      m_pixelFormat, app::Color::ShortHumanReadableString);
+  std::string str = m_color.toHumanReadableString(m_pixelFormat, app::Color::ShortHumanReadableString);
 
   setTextQuiet(str.c_str());
 
   gfx::Color textcolor = gfx::rgba(255, 255, 255);
   if (color.isValid())
-    textcolor = color_utils::blackandwhite_neg(
-        gfx::rgba(color.getRed(), color.getGreen(), color.getBlue()));
+    textcolor = color_utils::blackandwhite_neg(gfx::rgba(color.getRed(), color.getGreen(), color.getBlue()));
 
   gfx::Rect textrc;
   getTextIconInfo(nullptr, &textrc);

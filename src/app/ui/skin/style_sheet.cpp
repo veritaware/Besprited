@@ -58,14 +58,11 @@ StyleSheet::StyleSheet()
 StyleSheet::~StyleSheet()
 {
   // Destroy skin::Styles
-  for (StyleMap::iterator it = m_styles.begin(), end = m_styles.end();
-       it != end; ++it)
+  for (StyleMap::iterator it = m_styles.begin(), end = m_styles.end(); it != end; ++it)
     delete it->second;
 
   // Destroy css::Styles
-  for (std::vector<css::Style*>::iterator it = m_cssStyles.begin(),
-                                          end = m_cssStyles.end();
-       it != end; ++it)
+  for (std::vector<css::Style*>::iterator it = m_cssStyles.begin(), end = m_cssStyles.end(); it != end; ++it)
     delete *it;
 
   delete m_sheet;

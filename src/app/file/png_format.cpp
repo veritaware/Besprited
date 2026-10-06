@@ -36,10 +36,8 @@ class PngFormat : public FileFormat
   const char* onGetExtensions() const override { return "png"; }
   int onGetFlags() const override
   {
-    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
-           FILE_SUPPORT_RGBA | FILE_SUPPORT_GRAY | FILE_SUPPORT_GRAYA |
-           FILE_SUPPORT_INDEXED | FILE_SUPPORT_SEQUENCES |
-           FILE_SUPPORT_PALETTE_WITH_ALPHA;
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB | FILE_SUPPORT_RGBA | FILE_SUPPORT_GRAY |
+           FILE_SUPPORT_GRAYA | FILE_SUPPORT_INDEXED | FILE_SUPPORT_SEQUENCES | FILE_SUPPORT_PALETTE_WITH_ALPHA;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -75,8 +73,7 @@ bool PngFormat::onLoad(FileOp* fop)
    * the compiler header file version, so that we know if the application
    * was compiled with a compatible version of the library
    */
-  png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)fop,
-                                   report_png_error, report_png_error);
+  png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)fop, report_png_error, report_png_error);
   if (png_ptr == nullptr)
   {
     fop->setError("png_create_read_struct\n");
@@ -115,8 +112,7 @@ bool PngFormat::onLoad(FileOp* fop)
    */
   png_read_info(png_ptr, info_ptr);
 
-  png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type,
-               &interlace_type, nullptr, nullptr);
+  png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, nullptr, nullptr);
 
   /* Set up the data transformations you want.  Note that these are all
    * optional.  Only call them if you want/need them.  Many of the
@@ -194,8 +190,7 @@ bool PngFormat::onLoad(FileOp* fop)
 
     for (int c = 0; c < num_palette; ++c)
     {
-      fop->sequenceSetColor(c, palette[c].red, palette[c].green,
-                            palette[c].blue);
+      fop->sequenceSetColor(c, palette[c].red, palette[c].green, palette[c].blue);
     }
 
     // Read alpha values for palette entries
@@ -231,8 +226,7 @@ bool PngFormat::onLoad(FileOp* fop)
   // Allocate the memory to hold the image using the fields of info_ptr.
   rows_pointer = (png_bytepp)png_malloc(png_ptr, sizeof(png_bytep) * height);
   for (y = 0; y < height; y++)
-    rows_pointer[y] =
-        (png_bytep)png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
+    rows_pointer[y] = (png_bytep)png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
 
   for (pass = 0; pass < number_passes; pass++)
   {
@@ -240,9 +234,7 @@ bool PngFormat::onLoad(FileOp* fop)
     {
       png_read_rows(png_ptr, rows_pointer + y, nullptr, 1);
 
-      fop->setProgress(
-          (double)((double)pass + (double)(y + 1) / (double)(height)) /
-          (double)number_passes);
+      fop->setProgress((double)((double)pass + (double)(y + 1) / (double)(height)) / (double)number_passes);
 
       if (fop->isStop())
         break;
@@ -282,8 +274,7 @@ bool PngFormat::onLoad(FileOp* fop)
         b = *(src_address++);
 
         // Transparent color
-        if (png_trans_color && r == png_trans_color->red &&
-            g == png_trans_color->green && b == png_trans_color->blue)
+        if (png_trans_color && r == png_trans_color->red && g == png_trans_color->green && b == png_trans_color->blue)
         {
           a = 0;
           if (!fop->sequenceGetHasAlpha())
@@ -373,8 +364,7 @@ bool PngFormat::onSave(FileOp* fop)
    * the library version is compatible with the one used at compile time,
    * in case we are using dynamically linked libraries.  REQUIRED.
    */
-  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)fop,
-                                    report_png_error, report_png_error);
+  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)fop, report_png_error, report_png_error);
   if (png_ptr == nullptr)
   {
     return false;
@@ -415,22 +405,17 @@ bool PngFormat::onSave(FileOp* fop)
   switch (image->pixelFormat())
   {
   case IMAGE_RGB:
-    color_type = fop->document()->sprite()->needAlpha()
-                     ? PNG_COLOR_TYPE_RGB_ALPHA
-                     : PNG_COLOR_TYPE_RGB;
+    color_type = fop->document()->sprite()->needAlpha() ? PNG_COLOR_TYPE_RGB_ALPHA : PNG_COLOR_TYPE_RGB;
     break;
   case IMAGE_GRAYSCALE:
-    color_type = fop->document()->sprite()->needAlpha()
-                     ? PNG_COLOR_TYPE_GRAY_ALPHA
-                     : PNG_COLOR_TYPE_GRAY;
+    color_type = fop->document()->sprite()->needAlpha() ? PNG_COLOR_TYPE_GRAY_ALPHA : PNG_COLOR_TYPE_GRAY;
     break;
   case IMAGE_INDEXED:
     color_type = PNG_COLOR_TYPE_PALETTE;
     break;
   }
 
-  png_set_IHDR(png_ptr, info_ptr, width, height, 8, color_type,
-               PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
+  png_set_IHDR(png_ptr, info_ptr, width, height, 8, color_type, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                PNG_FILTER_TYPE_BASE);
 
   if (image->pixelFormat() == IMAGE_INDEXED)
@@ -490,8 +475,7 @@ bool PngFormat::onSave(FileOp* fop)
   /* non-interlaced */
   number_passes = 1;
 
-  row_pointer =
-      (png_bytep)png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
+  row_pointer = (png_bytep)png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
 
   /* The number of passes is either 1 for non-interlaced images,
    * or 7 for interlaced images.
@@ -533,8 +517,7 @@ bool PngFormat::onSave(FileOp* fop)
         }
       }
       /* GRAY_ALPHA */
-      else if (png_get_color_type(png_ptr, info_ptr) ==
-               PNG_COLOR_TYPE_GRAY_ALPHA)
+      else if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY_ALPHA)
       {
         uint16_t* src_address = (uint16_t*)image->getPixelAddress(0, y);
         uint8_t* dst_address = row_pointer;
@@ -574,9 +557,7 @@ bool PngFormat::onSave(FileOp* fop)
       /* write the line */
       png_write_rows(png_ptr, &row_pointer, 1);
 
-      fop->setProgress(
-          (double)((double)pass + (double)(y + 1) / (double)(height)) /
-          (double)number_passes);
+      fop->setProgress((double)((double)pass + (double)(y + 1) / (double)(height)) / (double)number_passes);
     }
   }
 

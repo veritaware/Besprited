@@ -13,8 +13,7 @@
 namespace app
 {
 
-template <class T>
-inline T* find_widget(ui::Widget* parent, const char* childId)
+template <class T> inline T* find_widget(ui::Widget* parent, const char* childId)
 {
   T* child = parent->findChildT<T>(childId);
   if (!child)

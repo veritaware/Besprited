@@ -90,11 +90,8 @@ private:
   Layer* m_layer = nullptr;
 };
 
-using CompositeImageFunc = void (*)(Image* dst, const Image* src,
-                                    const Palette* pal, const gfx::Clip& area,
-                                    const int opacity,
-                                    const BlendMode blendMode,
-                                    const Zoom& zoom);
+using CompositeImageFunc = void (*)(Image* dst, const Image* src, const Palette* pal, const gfx::Clip& area,
+                                    const int opacity, const BlendMode blendMode, const Zoom& zoom);
 
 class Render
 {
@@ -110,15 +107,13 @@ public:
 
   // Sets the preview image. This preview image is an alternative
   // image to be used for the given layer/frame.
-  void setPreviewImage(const Layer* layer, const frame_t frame,
-                       const Image* image, const gfx::Point& pos,
+  void setPreviewImage(const Layer* layer, const frame_t frame, const Image* image, const gfx::Point& pos,
                        const BlendMode blendMode);
   void removePreviewImage();
 
   // Sets an extra cel/image to be drawn after the current
   // layer/frame.
-  void setExtraImage(ExtraType type, const Cel* cel, const Image* image,
-                     BlendMode blendMode, const Layer* currentLayer,
+  void setExtraImage(ExtraType type, const Cel* cel, const Image* image, BlendMode blendMode, const Layer* currentLayer,
                      frame_t currentFrame);
   void removeExtraImage();
 
@@ -127,45 +122,38 @@ public:
 
   void renderSprite(Image* dstImage, const Sprite* sprite, frame_t frame);
 
-  void renderSprite(Image* dstImage, const Sprite* sprite, frame_t frame,
-                    const gfx::Clip& area);
+  void renderSprite(Image* dstImage, const Sprite* sprite, frame_t frame, const gfx::Clip& area);
 
   void renderLayer(Image* dstImage, const Layer* layer, frame_t frame);
 
-  void renderLayer(Image* dstImage, const Layer* layer, frame_t frame,
-                   const gfx::Clip& area,
+  void renderLayer(Image* dstImage, const Layer* layer, frame_t frame, const gfx::Clip& area,
                    BlendMode blendMode = BlendMode::UNSPECIFIED);
 
   // Main function used to render the sprite. Draws the given sprite
   // frame in a new image and return it. Note: zoomedRect must have
   // the zoom applied (zoomedRect = zoom.apply(spriteRect)).
-  void renderSprite(Image* dstImage, const Sprite* sprite, frame_t frame,
-                    const gfx::Clip& area, Zoom zoom);
+  void renderSprite(Image* dstImage, const Sprite* sprite, frame_t frame, const gfx::Clip& area, Zoom zoom);
 
   // Extra functions
   void renderBackground(Image* image, const gfx::Clip& area, Zoom zoom);
 
-  void renderImage(Image* dst_image, const Image* src_image, const Palette* pal,
-                   int x, int y, Zoom zoom, int opacity, BlendMode blendMode);
-
-private:
-  void renderOnionskin(Image* image, const gfx::Clip& area, frame_t frame,
-                       Zoom zoom, CompositeImageFunc compositeImage);
-
-  void renderLayer(const Layer* layer, Image* image, const gfx::Clip& area,
-                   frame_t frame, Zoom zoom, CompositeImageFunc compositeImage,
-                   bool render_background, bool render_transparent,
+  void renderImage(Image* dst_image, const Image* src_image, const Palette* pal, int x, int y, Zoom zoom, int opacity,
                    BlendMode blendMode);
 
-  void renderCel(Image* dst_image, const Image* cel_image, const Palette* pal,
-                 const gfx::Point& celPos, const gfx::Clip& area,
-                 CompositeImageFunc compositeImage, int opacity,
-                 BlendMode blendMode, Zoom zoom);
+private:
+  void renderOnionskin(Image* image, const gfx::Clip& area, frame_t frame, Zoom zoom,
+                       CompositeImageFunc compositeImage);
 
-  void renderImage(Image* dst_image, const Image* cel_image, const Palette* pal,
-                   const int x, const int y, const gfx::Clip& area,
-                   CompositeImageFunc compositeImage, int opacity,
-                   BlendMode blendMode, Zoom zoom);
+  void renderLayer(const Layer* layer, Image* image, const gfx::Clip& area, frame_t frame, Zoom zoom,
+                   CompositeImageFunc compositeImage, bool render_background, bool render_transparent,
+                   BlendMode blendMode);
+
+  void renderCel(Image* dst_image, const Image* cel_image, const Palette* pal, const gfx::Point& celPos,
+                 const gfx::Clip& area, CompositeImageFunc compositeImage, int opacity, BlendMode blendMode, Zoom zoom);
+
+  void renderImage(Image* dst_image, const Image* cel_image, const Palette* pal, const int x, const int y,
+                   const gfx::Clip& area, CompositeImageFunc compositeImage, int opacity, BlendMode blendMode,
+                   Zoom zoom);
 
   const Sprite* m_sprite;
   const Layer* m_currentLayer;
@@ -189,8 +177,7 @@ private:
   OnionskinOptions m_onionskin;
 };
 
-void composite_image(Image* dst, const Image* src, const Palette* pal,
-                     const int x, const int y, const int opacity,
+void composite_image(Image* dst, const Image* src, const Palette* pal, const int x, const int y, const int opacity,
                      const BlendMode blendMode);
 
 } // namespace render

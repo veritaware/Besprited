@@ -35,8 +35,7 @@ public:
   public:
     virtual ~IWidgetTypeCreator() {}
     virtual void dispose() = 0;
-    virtual ui::Widget*
-    createWidgetFromXml(const tinyxml2::XMLElement* xmlElem) = 0;
+    virtual ui::Widget* createWidgetFromXml(const tinyxml2::XMLElement* xmlElem) = 0;
   };
 
   WidgetLoader();
@@ -51,15 +50,11 @@ public:
   void addWidgetType(const char* tagName, IWidgetTypeCreator* creator);
 
   // Loads the specified widget from an .xml file.
-  ui::Widget* loadWidget(const char* fileName, const char* widgetId,
-                         ui::Widget* widget = nullptr);
+  ui::Widget* loadWidget(const char* fileName, const char* widgetId, ui::Widget* widget = nullptr);
 
-  template <class T>
-  T* loadWidgetT(const char* fileName, const char* widgetId,
-                 T* widget = nullptr)
+  template <class T> T* loadWidgetT(const char* fileName, const char* widgetId, T* widget = nullptr)
   {
-    T* specificWidget =
-        dynamic_cast<T*>(loadWidget(fileName, widgetId, widget));
+    T* specificWidget = dynamic_cast<T*>(loadWidget(fileName, widgetId, widget));
     if (!specificWidget)
       throw WidgetTypeMismatch(widgetId);
 
@@ -67,17 +62,13 @@ public:
   }
 
 private:
-  ui::Widget* loadWidgetFromXmlFile(const std::string& xmlFilename,
-                                    const std::string& widgetId,
-                                    ui::Widget* widget);
+  ui::Widget* loadWidgetFromXmlFile(const std::string& xmlFilename, const std::string& widgetId, ui::Widget* widget);
 
-  ui::Widget* convertXmlElementToWidget(const tinyxml2::XMLElement* elem,
-                                        ui::Widget* root, ui::Widget* parent,
+  ui::Widget* convertXmlElementToWidget(const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* parent,
                                         ui::Widget* widget);
-  void fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement* elem,
-                                          ui::Widget* root, ui::Widget* widget);
-  void fillWidgetWithXmlElementAttributesWithChildren(
-      const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* widget);
+  void fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement* elem, ui::Widget* root, ui::Widget* widget);
+  void fillWidgetWithXmlElementAttributesWithChildren(const tinyxml2::XMLElement* elem, ui::Widget* root,
+                                                      ui::Widget* widget);
 
   typedef std::map<std::string, IWidgetTypeCreator*> TypeCreatorsMap;
 

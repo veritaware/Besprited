@@ -50,9 +50,7 @@ static void update_mouse_overlay(Cursor* cursor)
   {
     if (!mouse_cursor_overlay)
     {
-      mouse_cursor_overlay =
-          new Overlay(mouse_cursor->getSurface(), get_mouse_position(),
-                      Overlay::MouseZOrder);
+      mouse_cursor_overlay = new Overlay(mouse_cursor->getSurface(), get_mouse_position(), Overlay::MouseZOrder);
 
       OverlayManager::instance()->addOverlay(mouse_cursor_overlay);
     }
@@ -147,8 +145,7 @@ static void update_mouse_cursor()
   }
 
   // Use a software cursor with the overlay.
-  if (nativeCursor == she::kNoCursor &&
-      mouse_cursor_type != ui::kOutsideDisplay && CurrentTheme::get())
+  if (nativeCursor == she::kNoCursor && mouse_cursor_type != ui::kOutsideDisplay && CurrentTheme::get())
   {
     cursor = CurrentTheme::get()->getCursor(mouse_cursor_type);
   }

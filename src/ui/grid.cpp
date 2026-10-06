@@ -146,8 +146,7 @@ void Grid::onResize(ResizeEvent& ev)
     {
       Cell* cell = m_cells[row][col];
 
-      if (cell->child != nullptr && cell->parent == nullptr &&
-          !(cell->child->hasFlags(HIDDEN)))
+      if (cell->child != nullptr && cell->parent == nullptr && !(cell->child->hasFlags(HIDDEN)))
       {
         x = pos_x;
         y = pos_y;
@@ -243,8 +242,7 @@ void Grid::sumStripSize(const std::vector<Strip>& strip, int& size)
   }
 }
 
-void Grid::calculateCellSize(int start, int span,
-                             const std::vector<Strip>& strip, int& size)
+void Grid::calculateCellSize(int start, int span, const std::vector<Strip>& strip, int& size)
 {
   int i, j;
 
@@ -285,8 +283,7 @@ void Grid::calculateSize()
   }
 }
 
-void Grid::calculateStripSize(std::vector<Strip>& colstrip,
-                              std::vector<Strip>& rowstrip, int align)
+void Grid::calculateStripSize(std::vector<Strip>& colstrip, std::vector<Strip>& rowstrip, int align)
 {
   Cell* cell;
 
@@ -343,9 +340,7 @@ void Grid::calculateStripSize(std::vector<Strip>& colstrip,
   }
 }
 
-void Grid::expandStrip(std::vector<Strip>& colstrip,
-                       std::vector<Strip>& rowstrip,
-                       void (Grid::*incCol)(int, int))
+void Grid::expandStrip(std::vector<Strip>& colstrip, std::vector<Strip>& rowstrip, void (Grid::*incCol)(int, int))
 {
   bool more_span;
   int i, current_span = 1;
@@ -384,11 +379,9 @@ void Grid::expandStrip(std::vector<Strip>& colstrip,
             // Calculate the maximum (expand_count) in cell's columns.
             int max_expand_count = 0;
             for (i = col; i < col + cell_span; ++i)
-              max_expand_count =
-                  MAX(max_expand_count, colstrip[i].expand_count);
+              max_expand_count = MAX(max_expand_count, colstrip[i].expand_count);
 
-            int expand =
-                0; // How many columns have the maximum value of "expand_count"
+            int expand = 0;      // How many columns have the maximum value of "expand_count"
             int last_expand = 0; // This variable is used to add the remainder
                                  // space to the last column
             for (i = col; i < col + cell_span; ++i)
@@ -439,13 +432,11 @@ void Grid::distributeSize(const gfx::Rect& rect)
   if (m_rowstrip.size() == 0)
     return;
 
-  distributeStripSize(m_colstrip, rect.w, border().width(),
-                      m_same_width_columns);
+  distributeStripSize(m_colstrip, rect.w, border().width(), m_same_width_columns);
   distributeStripSize(m_rowstrip, rect.h, border().height(), false);
 }
 
-void Grid::distributeStripSize(std::vector<Strip>& colstrip, int rect_size,
-                               int border_size, bool same_width)
+void Grid::distributeStripSize(std::vector<Strip>& colstrip, int rect_size, int border_size, bool same_width)
 {
   int i, j;
 
@@ -481,8 +472,7 @@ void Grid::distributeStripSize(std::vector<Strip>& colstrip, int rect_size,
       // added by this column
       for (i = 0; i < (int)colstrip.size(); ++i)
       {
-        if ((colstrip[i].size == 0) &&
-            (colstrip[i].expand_count == max_expand_count || same_width))
+        if ((colstrip[i].size == 0) && (colstrip[i].expand_count == max_expand_count || same_width))
         {
           extra_total -= this->childSpacing();
         }

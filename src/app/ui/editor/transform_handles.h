@@ -28,22 +28,18 @@ class TransformHandles
 public:
   // Returns the handle in the given mouse point (pt) when the user
   // has applied the given transformation to the selection.
-  HandleType getHandleAtPoint(Editor* editor, const gfx::Point& pt,
-                              const Transformation& transform);
+  HandleType getHandleAtPoint(Editor* editor, const gfx::Point& pt, const Transformation& transform);
 
   void drawHandles(Editor* editor, const Transformation& transform);
   void invalidateHandles(Editor* editor, const Transformation& transform);
 
 private:
-  gfx::Rect getPivotHandleBounds(Editor* editor,
-                                 const Transformation& transform,
+  gfx::Rect getPivotHandleBounds(Editor* editor, const Transformation& transform,
                                  const Transformation::Corners& corners);
 
-  bool inHandle(const gfx::Point& pt, int x, int y, int gfx_w, int gfx_h,
-                fixmath::fixed angle);
+  bool inHandle(const gfx::Point& pt, int x, int y, int gfx_w, int gfx_h, fixmath::fixed angle);
   void drawHandle(ui::Graphics* g, int x, int y, fixmath::fixed angle);
-  void adjustHandle(int& x, int& y, int handle_w, int handle_h,
-                    fixmath::fixed angle);
+  void adjustHandle(int& x, int& y, int handle_w, int handle_h, fixmath::fixed angle);
   bool visiblePivot(fixmath::fixed angle) const;
 };
 

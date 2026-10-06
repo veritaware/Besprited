@@ -18,9 +18,7 @@ class Palette;
 namespace app
 {
 
-doc::Image* load_pic_file(const char* filename, int* x, int* y,
-                          std::shared_ptr<doc::Palette>& palette);
-int save_pic_file(const char* filename, int x, int y,
-                  const doc::Palette* palette, const doc::Image* image);
+doc::Image* load_pic_file(const char* filename, int* x, int* y, std::shared_ptr<doc::Palette>& palette);
+int save_pic_file(const char* filename, int x, int y, const doc::Palette* palette, const doc::Image* image);
 
 } // namespace app

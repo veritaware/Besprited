@@ -56,8 +56,7 @@ void RemoveFrameCommand::onExecute(Context* context)
     const DocumentRange& range = writer.site()->range();
     if (range.enabled())
     {
-      for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1;
-           frame != begin; --frame)
+      for (frame_t frame = range.frameEnd(), begin = range.frameBegin() - 1; frame != begin; --frame)
       {
         api.removeFrame(sprite, frame);
       }

@@ -31,8 +31,7 @@ ColorPicker::ColorPicker()
 {
 }
 
-void ColorPicker::pickColor(const doc::Site& site, const gfx::Point& _pos,
-                            Mode mode)
+void ColorPicker::pickColor(const doc::Site& site, const gfx::Point& _pos, Mode mode)
 {
   const doc::Sprite* sprite = site.sprite();
   gfx::Point pos = _pos;
@@ -46,8 +45,7 @@ void ColorPicker::pickColor(const doc::Site& site, const gfx::Point& _pos,
   // Check tiled mode
   if (sprite && site.document())
   {
-    const app::Document* doc =
-        static_cast<const app::Document*>(site.document());
+    const app::Document* doc = static_cast<const app::Document*>(site.document());
     DocumentPreferences& docPref = Preferences::instance().document(doc);
 
     if (int(docPref.tiled.mode()) & int(filters::TiledMode::X_AXIS))
@@ -60,9 +58,8 @@ void ColorPicker::pickColor(const doc::Site& site, const gfx::Point& _pos,
   // Get the color from the image
   if (mode == FromComposition)
   { // Pick from the composed image
-    m_color = app::Color::fromImage(
-        sprite->pixelFormat(),
-        render::get_sprite_pixel(sprite, pos.x, pos.y, site.frame()));
+    m_color =
+        app::Color::fromImage(sprite->pixelFormat(), render::get_sprite_pixel(sprite, pos.x, pos.y, site.frame()));
 
     doc::CelList cels;
     sprite->pickCels(pos.x, pos.y, site.frame(), 128, cels);

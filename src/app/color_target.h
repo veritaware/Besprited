@@ -25,8 +25,7 @@ public:
     TransparentLayer
   };
 
-  ColorTarget(LayerType layerType, doc::PixelFormat pixelFormat,
-              doc::color_t maskColor)
+  ColorTarget(LayerType layerType, doc::PixelFormat pixelFormat, doc::color_t maskColor)
     : m_layerType(layerType)
     , m_pixelFormat(pixelFormat)
     , m_maskColor(maskColor)

@@ -41,15 +41,13 @@ protected:
 };
 
 NewSpriteFromSelectionCommand::NewSpriteFromSelectionCommand()
-  : Command("NewSpriteFromSelection", "New Sprite From Selection",
-            CmdUIOnlyFlag)
+  : Command("NewSpriteFromSelection", "New Sprite From Selection", CmdUIOnlyFlag)
 {
 }
 
 bool NewSpriteFromSelectionCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsReadable |
-                             ContextFlags::HasVisibleMask);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsReadable | ContextFlags::HasVisibleMask);
 }
 
 void NewSpriteFromSelectionCommand::onExecute(Context* context)
@@ -64,22 +62,20 @@ void NewSpriteFromSelectionCommand::onExecute(Context* context)
 
   Palette* palette = sprite->palette(site.frame());
 
-  std::unique_ptr<Sprite> dstSprite(Sprite::createBasicSprite(
-      image->pixelFormat(), image->width(), image->height(), palette->size()));
+  std::unique_ptr<Sprite> dstSprite(
+      Sprite::createBasicSprite(image->pixelFormat(), image->width(), image->height(), palette->size()));
 
   palette->copyColorsTo(*dstSprite->palette(frame_t(0)));
 
-  LayerImage* dstLayer =
-      static_cast<LayerImage*>(dstSprite->folder()->getFirstLayer());
+  LayerImage* dstLayer = static_cast<LayerImage*>(dstSprite->folder()->getFirstLayer());
   if (site.layer()->isBackground())
-    dstLayer->configureAsBackground(); // Configure layer name as background
+    dstLayer->configureAsBackground();       // Configure layer name as background
   dstLayer->setFlags(site.layer()->flags()); // Copy all flags
   copy_image(dstLayer->cel(frame_t(0))->image(), image.get());
 
   auto dstDoc = std::make_unique<Document>(dstSprite.release());
   char buf[1024];
-  std::snprintf(buf, sizeof(buf), "%s-%dx%d-%dx%d",
-                base::get_file_title(doc->filename()).c_str(), mask->bounds().x,
+  std::snprintf(buf, sizeof(buf), "%s-%dx%d-%dx%d", base::get_file_title(doc->filename()).c_str(), mask->bounds().x,
                 mask->bounds().y, mask->bounds().w, mask->bounds().h);
   dstDoc->setFilename(buf);
   dstDoc->setContext(context);

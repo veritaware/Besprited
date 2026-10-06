@@ -90,15 +90,11 @@ ToolBox::ToolBox()
   m_inks[WellKnownInks::PaintFg] = std::make_shared<PaintInk>(PaintInk::WithFg);
   m_inks[WellKnownInks::PaintBg] = std::make_shared<PaintInk>(PaintInk::WithBg);
   m_inks[WellKnownInks::PaintCopy] = std::make_shared<PaintInk>(PaintInk::Copy);
-  m_inks[WellKnownInks::PaintLockAlpha] =
-      std::make_shared<PaintInk>(PaintInk::LockAlpha);
+  m_inks[WellKnownInks::PaintLockAlpha] = std::make_shared<PaintInk>(PaintInk::LockAlpha);
   m_inks[WellKnownInks::Shading] = std::make_shared<ShadingInk>();
-  m_inks[WellKnownInks::Eraser] =
-      std::make_shared<EraserInk>(EraserInk::Eraser);
-  m_inks[WellKnownInks::ReplaceFgWithBg] =
-      std::make_shared<EraserInk>(EraserInk::ReplaceFgWithBg);
-  m_inks[WellKnownInks::ReplaceBgWithFg] =
-      std::make_shared<EraserInk>(EraserInk::ReplaceBgWithFg);
+  m_inks[WellKnownInks::Eraser] = std::make_shared<EraserInk>(EraserInk::Eraser);
+  m_inks[WellKnownInks::ReplaceFgWithBg] = std::make_shared<EraserInk>(EraserInk::ReplaceFgWithBg);
+  m_inks[WellKnownInks::ReplaceBgWithFg] = std::make_shared<EraserInk>(EraserInk::ReplaceBgWithFg);
   m_inks[WellKnownInks::PickFg] = std::make_shared<PickInk>(PickInk::Fg);
   m_inks[WellKnownInks::PickBg] = std::make_shared<PickInk>(PickInk::Bg);
   m_inks[WellKnownInks::Zoom] = std::make_shared<ZoomInk>();
@@ -122,13 +118,10 @@ ToolBox::ToolBox()
 
   m_intertwiners[WellKnownIntertwiners::None] = new IntertwineNone();
   m_intertwiners[WellKnownIntertwiners::AsLines] = new IntertwineAsLines();
-  m_intertwiners[WellKnownIntertwiners::AsRectangles] =
-      new IntertwineAsRectangles();
-  m_intertwiners[WellKnownIntertwiners::AsEllipses] =
-      new IntertwineAsEllipses();
+  m_intertwiners[WellKnownIntertwiners::AsRectangles] = new IntertwineAsRectangles();
+  m_intertwiners[WellKnownIntertwiners::AsEllipses] = new IntertwineAsEllipses();
   m_intertwiners[WellKnownIntertwiners::AsBezier] = new IntertwineAsBezier();
-  m_intertwiners[WellKnownIntertwiners::AsPixelPerfect] =
-      new IntertwineAsPixelPerfect();
+  m_intertwiners[WellKnownIntertwiners::AsPixelPerfect] = new IntertwineAsPixelPerfect();
 
   loadTools();
 
@@ -139,10 +132,7 @@ struct deleter
 {
   template <typename T> void operator()(T* p) { delete p; }
 
-  template <typename A, typename B> void operator()(std::pair<A, B>& p)
-  {
-    delete p.second;
-  }
+  template <typename A, typename B> void operator()(std::pair<A, B>& p) { delete p.second; }
 };
 
 ToolBox::~ToolBox()
@@ -194,10 +184,8 @@ void ToolBox::loadTools()
   tinyxml2::XMLHandle handle(doc.get());
 
   // For each group
-  tinyxml2::XMLElement* xmlGroup = handle.FirstChildElement("gui")
-                                       .FirstChildElement("tools")
-                                       .FirstChildElement("group")
-                                       .ToElement();
+  tinyxml2::XMLElement* xmlGroup =
+      handle.FirstChildElement("gui").FirstChildElement("tools").FirstChildElement("group").ToElement();
   while (xmlGroup)
   {
     const char* group_id = xmlGroup->Attribute("id");
@@ -213,23 +201,18 @@ void ToolBox::loadTools()
 
     // For each tool
     tinyxml2::XMLNode* xmlToolNode = xmlGroup->FirstChildElement("tool");
-    tinyxml2::XMLElement* xmlTool =
-        xmlToolNode ? xmlToolNode->ToElement() : nullptr;
+    tinyxml2::XMLElement* xmlTool = xmlToolNode ? xmlToolNode->ToElement() : nullptr;
     while (xmlTool)
     {
       const char* tool_id = xmlTool->Attribute("id");
       const char* tool_text = xmlTool->Attribute("text");
-      const char* tool_tips =
-          xmlTool->FirstChildElement("tooltip")
-              ? ((tinyxml2::XMLElement*)xmlTool->FirstChildElement("tooltip"))
-                    ->GetText()
-              : "";
+      const char* tool_tips = xmlTool->FirstChildElement("tooltip")
+                                  ? ((tinyxml2::XMLElement*)xmlTool->FirstChildElement("tooltip"))->GetText()
+                                  : "";
       const char* default_brush_size = xmlTool->Attribute("default_brush_size");
 
-      Tool* tool = new Tool(
-          tool_group, tool_id, app::i18n(tool_text, tool_text),
-          app::i18n(tool_tips, tool_tips),
-          default_brush_size ? strtol(default_brush_size, nullptr, 10) : 1);
+      Tool* tool = new Tool(tool_group, tool_id, app::i18n(tool_text, tool_text), app::i18n(tool_tips, tool_tips),
+                            default_brush_size ? strtol(default_brush_size, nullptr, 10) : 1);
 
       LOG(" - New tool '%s' in group '%s' found\n", tool_id, group_id);
 
@@ -246,8 +229,7 @@ void ToolBox::loadTools()
   }
 }
 
-void ToolBox::loadToolProperties(tinyxml2::XMLElement* xmlTool, Tool* tool,
-                                 int button, const std::string& suffix)
+void ToolBox::loadToolProperties(tinyxml2::XMLElement* xmlTool, Tool* tool, int button, const std::string& suffix)
 {
   const char* tool_id = tool->getId().c_str();
   const char* fill = xmlTool->Attribute(("fill_" + suffix).c_str());
@@ -255,8 +237,7 @@ void ToolBox::loadToolProperties(tinyxml2::XMLElement* xmlTool, Tool* tool,
   const char* controller = xmlTool->Attribute(("controller_" + suffix).c_str());
   const char* pointshape = xmlTool->Attribute(("pointshape_" + suffix).c_str());
   const char* intertwine = xmlTool->Attribute(("intertwine_" + suffix).c_str());
-  const char* tracepolicy =
-      xmlTool->Attribute(("tracepolicy_" + suffix).c_str());
+  const char* tracepolicy = xmlTool->Attribute(("tracepolicy_" + suffix).c_str());
 
   if (!fill)
     fill = xmlTool->Attribute("fill");
@@ -282,37 +263,28 @@ void ToolBox::loadToolProperties(tinyxml2::XMLElement* xmlTool, Tool* tool,
     else if (strcmp(fill, "optional") == 0)
       fill_value = FillOptional;
     else
-      throw base::Exception("Invalid fill '%s' specified in '%s' tool.\n", fill,
-                            tool_id);
+      throw base::Exception("Invalid fill '%s' specified in '%s' tool.\n", fill, tool_id);
   }
 
   // Find the ink
-  std::map<std::string, std::shared_ptr<Ink>>::iterator it_ink =
-      m_inks.find(ink ? ink : "");
+  std::map<std::string, std::shared_ptr<Ink>>::iterator it_ink = m_inks.find(ink ? ink : "");
   if (it_ink == m_inks.end())
-    throw base::Exception("Invalid ink '%s' specified in '%s' tool.\n", ink,
-                          tool_id);
+    throw base::Exception("Invalid ink '%s' specified in '%s' tool.\n", ink, tool_id);
 
   // Find the controller
-  std::map<std::string, Controller*>::iterator it_controller =
-      m_controllers.find(controller ? controller : "none");
+  std::map<std::string, Controller*>::iterator it_controller = m_controllers.find(controller ? controller : "none");
   if (it_controller == m_controllers.end())
-    throw base::Exception("Invalid controller '%s' specified in '%s' tool.\n",
-                          controller, tool_id);
+    throw base::Exception("Invalid controller '%s' specified in '%s' tool.\n", controller, tool_id);
 
   // Find the point_shape
-  std::map<std::string, PointShape*>::iterator it_pointshaper =
-      m_pointshapers.find(pointshape ? pointshape : "none");
+  std::map<std::string, PointShape*>::iterator it_pointshaper = m_pointshapers.find(pointshape ? pointshape : "none");
   if (it_pointshaper == m_pointshapers.end())
-    throw base::Exception("Invalid point-shape '%s' specified in '%s' tool.\n",
-                          pointshape, tool_id);
+    throw base::Exception("Invalid point-shape '%s' specified in '%s' tool.\n", pointshape, tool_id);
 
   // Find the intertwiner
-  std::map<std::string, Intertwine*>::iterator it_intertwiner =
-      m_intertwiners.find(intertwine ? intertwine : "none");
+  std::map<std::string, Intertwine*>::iterator it_intertwiner = m_intertwiners.find(intertwine ? intertwine : "none");
   if (it_intertwiner == m_intertwiners.end())
-    throw base::Exception("Invalid intertwiner '%s' specified in '%s' tool.\n",
-                          intertwine, tool_id);
+    throw base::Exception("Invalid intertwiner '%s' specified in '%s' tool.\n", intertwine, tool_id);
 
   // Trace policy
   TracePolicy tracepolicy_value = TracePolicy::Last;
@@ -325,9 +297,7 @@ void ToolBox::loadToolProperties(tinyxml2::XMLElement* xmlTool, Tool* tool,
     else if (strcmp(tracepolicy, "overlap") == 0)
       tracepolicy_value = TracePolicy::Overlap;
     else
-      throw base::Exception(
-          "Invalid trace-policy '%s' specified in '%s' tool.\n", tracepolicy,
-          tool_id);
+      throw base::Exception("Invalid trace-policy '%s' specified in '%s' tool.\n", tracepolicy, tool_id);
   }
 
   // Setup the tool properties

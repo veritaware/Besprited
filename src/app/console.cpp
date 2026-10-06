@@ -41,8 +41,7 @@ Console::Console(Context* ctx)
   if (ctx)
     m_withUI = (ctx->isUIAvailable());
   else
-    m_withUI = (App::instance()->isGui() && Manager::getDefault() &&
-                Manager::getDefault()->getDisplay());
+    m_withUI = (App::instance()->isGui() && Manager::getDefault() && Manager::getDefault()->getDisplay());
 
   if (!m_withUI)
     return;
@@ -62,11 +61,8 @@ Console::Console(Context* ctx)
     return;
 
   // The "close" closes the console
-  close->Click.connect(
-      [=](Event&)
-      {
-        window->closeWindow(close);
-      }); // base::Bind<void>(&Window::closeWindow, window, close));
+  close->Click.connect([=](Event&)
+                       { window->closeWindow(close); }); // base::Bind<void>(&Window::closeWindow, window, close));
   clear->Click.connect([=](Event&) { textbox->setText(""); });
 
   view->attachToView(textbox);
@@ -144,8 +140,7 @@ void Console::printf(const char* format, ...)
     wid_view->setVisible(true);
 
     wid_console->remapWindow();
-    wid_console->setBounds(
-        gfx::Rect(0, 0, ui::display_w() * 9 / 10, ui::display_h() * 6 / 10));
+    wid_console->setBounds(gfx::Rect(0, 0, ui::display_w() * 9 / 10, ui::display_h() * 6 / 10));
     wid_console->centerWindow();
     wid_console->invalidate();
   }

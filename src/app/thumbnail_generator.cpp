@@ -65,9 +65,7 @@ private:
       m_fop->postLoad();
 
       // Convert the loaded document into the she::Surface.
-      const Sprite* sprite = (m_fop->document() && m_fop->document()->sprite()
-                                  ? m_fop->document()->sprite()
-                                  : nullptr);
+      const Sprite* sprite = (m_fop->document() && m_fop->document()->sprite() ? m_fop->document()->sprite() : nullptr);
 
       if (!m_fop->isStop() && sprite)
       {
@@ -75,8 +73,7 @@ private:
         m_palette = sprite->palette(frame_t(0))->clone();
 
         // Render first frame of the sprite in 'image'
-        std::unique_ptr<Image> image(
-            Image::create(IMAGE_RGB, sprite->width(), sprite->height()));
+        std::unique_ptr<Image> image(Image::create(IMAGE_RGB, sprite->width(), sprite->height()));
 
         AppRender render;
         render.setupBackground(nullptr, image->pixelFormat());
@@ -84,10 +81,8 @@ private:
         render.renderSprite(image.get(), sprite, frame_t(0));
 
         // Calculate the thumbnail size
-        int thumb_w = MAX_THUMBNAIL_SIZE * image->width() /
-                      MAX(image->width(), image->height());
-        int thumb_h = MAX_THUMBNAIL_SIZE * image->height() /
-                      MAX(image->width(), image->height());
+        int thumb_w = MAX_THUMBNAIL_SIZE * image->width() / MAX(image->width(), image->height());
+        int thumb_h = MAX_THUMBNAIL_SIZE * image->height() / MAX(image->width(), image->height());
         if (MAX(thumb_w, thumb_h) > MAX(image->width(), image->height()))
         {
           thumb_w = image->width();
@@ -97,11 +92,10 @@ private:
         thumb_h = MID(1, thumb_h, MAX_THUMBNAIL_SIZE);
 
         // Stretch the 'image'
-        m_thumbnail.reset(
-            Image::create(image->pixelFormat(), thumb_w, thumb_h));
+        m_thumbnail.reset(Image::create(image->pixelFormat(), thumb_w, thumb_h));
         clear_image(m_thumbnail.get(), 0);
-        algorithm::scale_image(m_thumbnail.get(), image.get(), 0, 0, thumb_w,
-                               thumb_h, 0, 0, image->width(), image->height());
+        algorithm::scale_image(m_thumbnail.get(), image.get(), 0, 0, thumb_w, thumb_h, 0, 0, image->width(),
+                               image->height());
       }
 
       // Close file
@@ -110,11 +104,9 @@ private:
       // Set the thumbnail of the file-item.
       if (m_thumbnail)
       {
-        she::Surface* thumbnail = she::instance()->createRgbaSurface(
-            m_thumbnail->width(), m_thumbnail->height());
+        she::Surface* thumbnail = she::instance()->createRgbaSurface(m_thumbnail->width(), m_thumbnail->height());
 
-        convert_image_to_surface(m_thumbnail.get(), m_palette.get(), thumbnail,
-                                 0, 0, 0, 0, m_thumbnail->width(),
+        convert_image_to_surface(m_thumbnail.get(), m_palette.get(), thumbnail, 0, 0, 0, 0, m_thumbnail->width(),
                                  m_thumbnail->height());
 
         m_fileitem->setThumbnail(thumbnail);
@@ -145,19 +137,16 @@ ThumbnailGenerator* ThumbnailGenerator::instance()
   if (singleton == nullptr)
   {
     singleton = new ThumbnailGenerator();
-    App::instance()->Exit.connect(
-        base::Bind<void>(&delete_singleton, singleton));
+    App::instance()->Exit.connect(base::Bind<void>(&delete_singleton, singleton));
   }
   return singleton;
 }
 
-ThumbnailGenerator::WorkerStatus
-ThumbnailGenerator::getWorkerStatus(IFileItem* fileitem, double& progress)
+ThumbnailGenerator::WorkerStatus ThumbnailGenerator::getWorkerStatus(IFileItem* fileitem, double& progress)
 {
   base::scoped_lock hold(m_workersAccess);
 
-  for (WorkerList::iterator it = m_workers.begin(), end = m_workers.end();
-       it != end; ++it)
+  for (WorkerList::iterator it = m_workers.begin(), end = m_workers.end(); it != end; ++it)
   {
     Worker* worker = *it;
     if (worker->getFileItem() == fileitem)
@@ -203,9 +192,8 @@ void ThumbnailGenerator::addWorkerToGenerateThumbnail(IFileItem* fileitem)
       getWorkerStatus(fileitem, progress) != WithoutWorker)
     return;
 
-  std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(
-      nullptr, fileitem->fileName().c_str(),
-      FILE_LOAD_SEQUENCE_NONE | FILE_LOAD_ONE_FRAME));
+  std::unique_ptr<FileOp> fop(FileOp::createLoadDocumentOperation(nullptr, fileitem->fileName().c_str(),
+                                                                  FILE_LOAD_SEQUENCE_NONE | FILE_LOAD_ONE_FRAME));
   if (!fop)
     return;
 
@@ -227,8 +215,7 @@ void ThumbnailGenerator::addWorkerToGenerateThumbnail(IFileItem* fileitem)
 
 void ThumbnailGenerator::stopAllWorkers()
 {
-  base::thread* ptr = new base::thread(
-      base::Bind<void>(&ThumbnailGenerator::stopAllWorkersBackground, this));
+  base::thread* ptr = new base::thread(base::Bind<void>(&ThumbnailGenerator::stopAllWorkersBackground, this));
   m_stopThread.reset(ptr);
 }
 

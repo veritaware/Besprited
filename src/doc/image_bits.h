@@ -37,8 +37,8 @@ public:
     : m_image(image)
     , m_bounds(bounds)
   {
-    ASSERT(bounds.x >= 0 && bounds.x + bounds.w <= image->width() &&
-           bounds.y >= 0 && bounds.y + bounds.h <= image->height());
+    ASSERT(bounds.x >= 0 && bounds.x + bounds.w <= image->width() && bounds.y >= 0 &&
+           bounds.y + bounds.h <= image->height());
   }
 
   ImageBits& operator=(const ImageBits& other)
@@ -51,26 +51,18 @@ public:
   }
 
   // Iterate over the full area.
-  iterator begin()
-  {
-    return iterator(m_image, m_bounds, m_bounds.x, m_bounds.y);
-  }
+  iterator begin() { return iterator(m_image, m_bounds, m_bounds.x, m_bounds.y); }
   iterator end()
   {
-    iterator it(m_image, m_bounds, m_bounds.x + m_bounds.w - 1,
-                m_bounds.y + m_bounds.h - 1);
+    iterator it(m_image, m_bounds, m_bounds.x + m_bounds.w - 1, m_bounds.y + m_bounds.h - 1);
     ++it;
     return it;
   }
 
-  const_iterator begin() const
-  {
-    return const_iterator(m_image, m_bounds, m_bounds.x, m_bounds.y);
-  }
+  const_iterator begin() const { return const_iterator(m_image, m_bounds, m_bounds.x, m_bounds.y); }
   const_iterator end() const
   {
-    const_iterator it(m_image, m_bounds, m_bounds.x + m_bounds.w - 1,
-                      m_bounds.y + m_bounds.h - 1);
+    const_iterator it(m_image, m_bounds, m_bounds.x + m_bounds.w - 1, m_bounds.y + m_bounds.h - 1);
     ++it;
     return it;
   }
@@ -158,14 +150,8 @@ public:
 
   iterator begin_area(const gfx::Rect& area) { return m_bits.begin_area(area); }
   iterator end_area(const gfx::Rect& area) { return m_bits.end_area(area); }
-  const_iterator begin_area(const gfx::Rect& area) const
-  {
-    return m_bits.begin_area(area);
-  }
-  const_iterator end_area(const gfx::Rect& area) const
-  {
-    return m_bits.end_area(area);
-  }
+  const_iterator begin_area(const gfx::Rect& area) const { return m_bits.begin_area(area); }
+  const_iterator end_area(const gfx::Rect& area) const { return m_bits.end_area(area); }
 
   const Image* image() const { return m_bits.image(); }
   const gfx::Rect& bounds() const { return m_bits.bounds(); }

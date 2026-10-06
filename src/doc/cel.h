@@ -58,10 +58,7 @@ public:
   void setPosition(const gfx::Point& pos);
   void setOpacity(int opacity);
 
-  virtual size_t getMemSize() const override
-  {
-    return sizeof(Cel) + m_data->getMemSize();
-  }
+  virtual size_t getMemSize() const override { return sizeof(Cel) + m_data->getMemSize(); }
 
   void setParentLayer(LayerImage* layer);
 

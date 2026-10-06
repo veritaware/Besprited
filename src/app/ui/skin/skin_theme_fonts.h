@@ -31,9 +31,7 @@ namespace app::skin
 // silently, same as findSkinFontFile() failing in the real code path.
 void parseFontFamiliesFromSkinXml(
     const tinyxml2::XMLDocument& doc, const std::string& lang,
-    const std::function<std::optional<std::string>(
-        const std::string& fontName)>& resolveFontFile,
-    std::vector<std::pair<std::string, size_t>>& mainFonts,
-    std::vector<std::pair<std::string, size_t>>& miniFonts);
+    const std::function<std::optional<std::string>(const std::string& fontName)>& resolveFontFile,
+    std::vector<std::pair<std::string, size_t>>& mainFonts, std::vector<std::pair<std::string, size_t>>& miniFonts);
 
 } // namespace app::skin

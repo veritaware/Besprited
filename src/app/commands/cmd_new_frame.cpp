@@ -80,8 +80,7 @@ void NewFrameCommand::onLoadParams(const Params& params)
 
 bool NewFrameCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void NewFrameCommand::onExecute(Context* context)
@@ -128,8 +127,7 @@ void NewFrameCommand::onExecute(Context* context)
           Layer* layerPtr = writer.sprite()->indexToLayer(layer);
           if (layerPtr->isImage())
           {
-            for (frame_t frame = range.frameEnd(); frame >= range.frameBegin();
-                 --frame)
+            for (frame_t frame = range.frameEnd(); frame >= range.frameBegin(); --frame)
             {
               frame_t srcFrame = frame;
               frame_t dstFrame = frame + range.frames();
@@ -156,8 +154,7 @@ void NewFrameCommand::onExecute(Context* context)
               else
                 continuous = layerPtr->isContinuous();
 
-              api.copyCel(static_cast<LayerImage*>(layerPtr), srcFrame,
-                          static_cast<LayerImage*>(layerPtr), dstFrame,
+              api.copyCel(static_cast<LayerImage*>(layerPtr), srcFrame, static_cast<LayerImage*>(layerPtr), dstFrame,
                           continuous);
 
               if (srcCelData && !relatedCels[srcCelData])
@@ -171,8 +168,7 @@ void NewFrameCommand::onExecute(Context* context)
       }
       else
       {
-        api.copyCel(static_cast<LayerImage*>(writer.layer()), writer.frame(),
-                    static_cast<LayerImage*>(writer.layer()),
+        api.copyCel(static_cast<LayerImage*>(writer.layer()), writer.frame(), static_cast<LayerImage*>(writer.layer()),
                     writer.frame() + 1);
 
         // TODO should we use DocumentObserver?
@@ -190,8 +186,7 @@ void NewFrameCommand::onExecute(Context* context)
   }
   update_screen_for_document(document);
 
-  StatusBar::instance()->showTip(1000, "New frame %d/%d",
-                                 (int)context->activeSite().frame() + 1,
+  StatusBar::instance()->showTip(1000, "New frame %d/%d", (int)context->activeSite().frame() + 1,
                                  (int)sprite->totalFrames());
 
   App::instance()->mainWindow()->popTimeline();

@@ -19,8 +19,7 @@ namespace app
 
 using namespace app::skin;
 
-ButtonIconImpl::ButtonIconImpl(const SkinPartPtr& normalIcon,
-                               const SkinPartPtr& selectedIcon,
+ButtonIconImpl::ButtonIconImpl(const SkinPartPtr& normalIcon, const SkinPartPtr& selectedIcon,
                                const SkinPartPtr& disabledIcon, int iconAlign)
   : m_normalIcon(normalIcon)
   , m_selectedIcon(selectedIcon)

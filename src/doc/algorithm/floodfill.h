@@ -19,9 +19,8 @@ class Mask;
 namespace algorithm
 {
 
-void floodfill(const Image* image, const Mask* mask, int x, int y,
-               const gfx::Rect& bounds, int tolerance, bool contiguous,
-               void* data, AlgoHLine proc);
+void floodfill(const Image* image, const Mask* mask, int x, int y, const gfx::Rect& bounds, int tolerance,
+               bool contiguous, void* data, AlgoHLine proc);
 
 }
 } // namespace doc

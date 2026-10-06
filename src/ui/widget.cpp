@@ -531,8 +531,7 @@ Widget* Widget::pick(const gfx::Point& pt, bool checkParentsVisibility)
   Widget *inside, *picked = nullptr;
 
   // isVisible() checks visibility of widget's parent.
-  if (((checkParentsVisibility && isVisible()) ||
-       (!checkParentsVisibility && !hasFlags(HIDDEN))) &&
+  if (((checkParentsVisibility && isVisible()) || (!checkParentsVisibility && !hasFlags(HIDDEN))) &&
       (bounds().contains(pt)))
   {
     picked = this;
@@ -555,8 +554,7 @@ bool Widget::hasChild(Widget* child)
 {
   ASSERT_VALID_WIDGET(child);
 
-  return std::find(m_children.begin(), m_children.end(), child) !=
-         m_children.end();
+  return std::find(m_children.begin(), m_children.end(), child) != m_children.end();
 }
 
 bool Widget::hasAncestor(Widget* ancestor)
@@ -622,14 +620,12 @@ void Widget::removeChild(Widget* child)
   ASSERT_VALID_WIDGET(this);
   ASSERT_VALID_WIDGET(child);
 
-  WidgetsList::iterator it =
-      std::find(m_children.begin(), m_children.end(), child);
+  WidgetsList::iterator it = std::find(m_children.begin(), m_children.end(), child);
 
 #ifdef _DEBUG
   if (child && it == m_children.end())
   {
-    std::cout << "Attempting to remove " << typeid(*child).name()
-              << " that is not a child.\n";
+    std::cout << "Attempting to remove " << typeid(*child).name() << " that is not a child.\n";
     return;
   }
 #endif
@@ -648,8 +644,7 @@ void Widget::replaceChild(Widget* oldChild, Widget* newChild)
   ASSERT_VALID_WIDGET(oldChild);
   ASSERT_VALID_WIDGET(newChild);
 
-  WidgetsList::iterator before =
-      std::find(m_children.begin(), m_children.end(), oldChild);
+  WidgetsList::iterator before = std::find(m_children.begin(), m_children.end(), oldChild);
   if (before == m_children.end())
   {
     ASSERT(false);
@@ -737,14 +732,13 @@ void Widget::setDecorativeWidgetBounds()
 
 Rect Widget::childrenBounds() const
 {
-  return Rect(m_bounds.x + border().left(), m_bounds.y + border().top(),
-              m_bounds.w - border().width(), m_bounds.h - border().height());
+  return Rect(m_bounds.x + border().left(), m_bounds.y + border().top(), m_bounds.w - border().width(),
+              m_bounds.h - border().height());
 }
 
 Rect Widget::clientChildrenBounds() const
 {
-  return Rect(border().left(), border().top(), m_bounds.w - border().width(),
-              m_bounds.h - border().height());
+  return Rect(border().left(), border().top(), m_bounds.w - border().width(), m_bounds.h - border().height());
 }
 
 void Widget::setBounds(const Rect& rc)
@@ -806,11 +800,9 @@ void Widget::getDrawableRegion(gfx::Region& region, DrawableRegionFlags flags)
     while (manager)
     {
       const WidgetsList& windows_list = manager->children();
-      WidgetsList::const_reverse_iterator it =
-          std::find(windows_list.rbegin(), windows_list.rend(), window);
+      WidgetsList::const_reverse_iterator it = std::find(windows_list.rbegin(), windows_list.rend(), window);
 
-      if (!windows_list.empty() && window != windows_list.front() &&
-          it != windows_list.rend())
+      if (!windows_list.empty() && window != windows_list.front() && it != windows_list.rend())
       {
         // Subtract the rectangles
         for (++it; it != windows_list.rend(); ++it)
@@ -908,16 +900,15 @@ int Widget::textHeight() const
   return font()->height();
 }
 
-void Widget::getTextIconInfo(gfx::Rect* box, gfx::Rect* text, gfx::Rect* icon,
-                             int icon_align, int icon_w, int icon_h)
+void Widget::getTextIconInfo(gfx::Rect* box, gfx::Rect* text, gfx::Rect* icon, int icon_align, int icon_w, int icon_h)
 {
-#define SETRECT(r)                                                             \
-  if (r)                                                                       \
-  {                                                                            \
-    r->x = r##_x;                                                              \
-    r->y = r##_y;                                                              \
-    r->w = r##_w;                                                              \
-    r->h = r##_h;                                                              \
+#define SETRECT(r)                                                                                                     \
+  if (r)                                                                                                               \
+  {                                                                                                                    \
+    r->x = r##_x;                                                                                                      \
+    r->y = r##_y;                                                                                                      \
+    r->w = r##_w;                                                                                                      \
+    r->h = r##_h;                                                                                                      \
   }
 
   gfx::Rect bounds = clientBounds();
@@ -1125,15 +1116,12 @@ void Widget::paint(Graphics* graphics, const gfx::Region& drawRegion)
     widget->getDrawableRegion(region, kCutTopWindows);
     region.createIntersection(region, drawRegion);
 
-    Graphics graphics2(graphics->getInternalSurface(), widget->bounds().x,
-                       widget->bounds().y);
+    Graphics graphics2(graphics->getInternalSurface(), widget->bounds().x, widget->bounds().y);
     graphics2.setFont(widget->font());
 
-    for (Region::const_iterator it = region.begin(), end = region.end();
-         it != end; ++it)
+    for (Region::const_iterator it = region.begin(), end = region.end(); it != end; ++it)
     {
-      IntersectClip clip(&graphics2, Rect(*it).offset(-widget->bounds().x,
-                                                      -widget->bounds().y));
+      IntersectClip clip(&graphics2, Rect(*it).offset(-widget->bounds().x, -widget->bounds().y));
       widget->paintEvent(&graphics2);
     }
   }
@@ -1155,9 +1143,8 @@ bool Widget::paintEvent(Graphics* graphics)
     if (parent())
     {
       gfx::Region rgn(parent()->bounds());
-      rgn.createIntersection(rgn, gfx::Region(graphics->getClipBounds().offset(
-                                      graphics->getInternalDeltaX(),
-                                      graphics->getInternalDeltaY())));
+      rgn.createIntersection(rgn, gfx::Region(graphics->getClipBounds().offset(graphics->getInternalDeltaX(),
+                                                                               graphics->getInternalDeltaY())));
       parent()->paint(graphics, rgn);
     }
 
@@ -1229,8 +1216,7 @@ public:
       she::Surface* dst = she::instance()->defaultDisplay()->getSurface();
       she::SurfaceLock lockSrc(m_surface);
       she::SurfaceLock lockDst(dst);
-      m_surface->blitTo(dst, 0, 0, m_pt.x, m_pt.y, m_surface->width(),
-                        m_surface->height());
+      m_surface->blitTo(dst, 0, 0, m_pt.x, m_pt.y, m_surface->width(), m_surface->height());
     }
     m_surface->dispose();
     delete graphics;
@@ -1245,16 +1231,14 @@ GraphicsPtr Widget::getGraphics(const gfx::Rect& clip)
 {
   GraphicsPtr graphics;
   she::Surface* surface;
-  she::Surface* defaultSurface =
-      she::instance()->defaultDisplay()->getSurface();
+  she::Surface* defaultSurface = she::instance()->defaultDisplay()->getSurface();
 
   // In case of double-buffering, we need to create the temporary
   // buffer only if the default surface is the screen.
   if (isDoubleBuffered() && defaultSurface->isDirectToScreen())
   {
     surface = she::instance()->createSurface(clip.w, clip.h);
-    graphics.reset(new Graphics(surface, -clip.x, -clip.y),
-                   DeleteGraphicsAndSurface(clip, surface));
+    graphics.reset(new Graphics(surface, -clip.x, -clip.y), DeleteGraphicsAndSurface(clip, surface));
   }
   // In other case, we can draw directly onto the screen.
   else
@@ -1414,9 +1398,8 @@ bool Widget::offerCapture(ui::MouseMessage* mouseMsg, int widget_type)
     {
       releaseMouse();
 
-      MouseMessage* mouseMsg2 = new MouseMessage(
-          kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
-          mouseMsg->modifiers(), mouseMsg->position());
+      MouseMessage* mouseMsg2 = new MouseMessage(kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
+                                                 mouseMsg->modifiers(), mouseMsg->position());
       mouseMsg2->addRecipient(pick);
       manager()->enqueueMessage(mouseMsg2);
       return true;
@@ -1502,10 +1485,8 @@ bool Widget::onProcessMessage(Message* msg)
   {
     // Convert double clicks into mouse down
     MouseMessage* mouseMsg = static_cast<MouseMessage*>(msg);
-    MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(),
-                           mouseMsg->buttons(), mouseMsg->modifiers(),
-                           mouseMsg->position(), mouseMsg->wheelDelta(), false,
-                           mouseMsg->pressure());
+    MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(), mouseMsg->modifiers(),
+                           mouseMsg->position(), mouseMsg->wheelDelta(), false, mouseMsg->pressure());
 
     sendMessage(&mouseMsg2);
     break;

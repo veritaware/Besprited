@@ -4,9 +4,11 @@
 #include "clip.h"
 #include <iostream>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
   std::string new_content;
-  for (int i=1; i<argc; ++i) {
+  for (int i = 1; i < argc; ++i)
+  {
     if (!new_content.empty())
       new_content += " ";
     new_content += argv[i];

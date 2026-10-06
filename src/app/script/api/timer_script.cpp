@@ -50,11 +50,9 @@ public:
       Timer timer;
       timer.id = nextID++;
       timer.callback = callback;
-      timer.time = std::chrono::steady_clock::now() +
-                   std::chrono::milliseconds(static_cast<int64_t>(delay));
+      timer.time = std::chrono::steady_clock::now() + std::chrono::milliseconds(static_cast<int64_t>(delay));
       timers.push_back(timer);
-      std::ranges::sort(timers, [](const Timer& a, const Timer& b)
-                        { return a.time < b.time; });
+      std::ranges::sort(timers, [](const Timer& a, const Timer& b) { return a.time < b.time; });
       return JSON::Value{static_cast<double>(timer.id)};
     };
 
@@ -72,27 +70,23 @@ public:
       timer.repeating = true;
       timer.startTime = std::chrono::steady_clock::now();
       timer.delay = delay;
-      timer.time = timer.startTime +
-                   std::chrono::milliseconds(static_cast<int64_t>(delay));
+      timer.time = timer.startTime + std::chrono::milliseconds(static_cast<int64_t>(delay));
       timers.push_back(timer);
-      std::ranges::sort(timers, [](const Timer& a, const Timer& b)
-                        { return a.time < b.time; });
+      std::ranges::sort(timers, [](const Timer& a, const Timer& b) { return a.time < b.time; });
       return JSON::Value{static_cast<double>(timer.id)};
     };
 
     addFunction("clearTimeout") = [this](double id)
     {
       auto uid = static_cast<std::size_t>(id);
-      const auto it = std::ranges::remove_if(timers, [uid](const Timer& t)
-                                             { return t.id == uid; });
+      const auto it = std::ranges::remove_if(timers, [uid](const Timer& t) { return t.id == uid; });
       timers.erase(it.begin(), it.end());
     };
 
     addFunction("clearInterval") = [this](double id)
     {
       auto uid = static_cast<std::size_t>(id);
-      const auto it = std::ranges::remove_if(timers, [uid](const Timer& t)
-                                             { return t.id == uid; });
+      const auto it = std::ranges::remove_if(timers, [uid](const Timer& t) { return t.id == uid; });
       timers.erase(it.begin(), it.end());
     };
   }
@@ -109,14 +103,12 @@ public:
         timer.triggerCount++;
         timer.time =
             timer.startTime +
-            std::chrono::milliseconds(static_cast<int64_t>(
-                timer.delay * static_cast<double>(timer.triggerCount + 1)));
+            std::chrono::milliseconds(static_cast<int64_t>(timer.delay * static_cast<double>(timer.triggerCount + 1)));
         // Guard against the busy-loop: never re-arm in the past.
         if (timer.time <= now)
           timer.time = now + std::chrono::milliseconds(1);
         timers.push_back(timer);
-        std::ranges::sort(timers, [](const Timer& a, const Timer& b)
-                          { return a.time < b.time; });
+        std::ranges::sort(timers, [](const Timer& a, const Timer& b) { return a.time < b.time; });
       }
       JSON::Array args;
       // A JS exception thrown by the callback is returned (not propagated)
@@ -129,8 +121,7 @@ public:
       return std::chrono::milliseconds(0);
     auto delta = timers.front().time - std::chrono::steady_clock::now();
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(delta);
-    return ms < std::chrono::milliseconds(1) ? std::chrono::milliseconds(1)
-                                             : ms;
+    return ms < std::chrono::milliseconds(1) ? std::chrono::milliseconds(1) : ms;
   }
 
   bool keepAlive() override { return !timers.empty(); }

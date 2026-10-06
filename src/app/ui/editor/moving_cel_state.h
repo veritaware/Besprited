@@ -37,10 +37,7 @@ public:
 protected:
   void onDrag(Editor* editor, const gfx::Point& delta) override;
   void onDragEnd(Editor* editor) override;
-  bool afterDrag(Editor* editor, ui::MouseMessage* msg) override
-  {
-    return StandbyState::onMouseMove(editor, msg);
-  }
+  bool afterDrag(Editor* editor, ui::MouseMessage* msg) override { return StandbyState::onMouseMove(editor, msg); }
 
 private:
   ContextReader m_reader;

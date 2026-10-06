@@ -55,8 +55,7 @@ public:
   Sprite(PixelFormat format, int width, int height, int ncolors);
   virtual ~Sprite();
 
-  static Sprite* createBasicSprite(PixelFormat format, int width, int height,
-                                   int ncolors);
+  static Sprite* createBasicSprite(PixelFormat format, int width, int height, int ncolors);
 
   ////////////////////////////////////////
   // Main properties
@@ -145,8 +144,7 @@ public:
   void replaceImage(ObjectId curImageId, const ImageRef& newImage);
   void getImages(std::vector<Image*>& images) const;
   void remapImages(frame_t frameFrom, frame_t frameTo, const Remap& remap);
-  void pickCels(int x, int y, frame_t frame, int opacityThreshold,
-                CelList& cels) const;
+  void pickCels(int x, int y, frame_t frame, int opacityThreshold, CelList& cels) const;
 
   ////////////////////////////////////////
   // Iterators

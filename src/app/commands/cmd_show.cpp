@@ -25,7 +25,6 @@ public:
   {
   }
 
-
 protected:
   bool onChecked(Context* ctx) override
   {
@@ -48,19 +47,16 @@ public:
   {
   }
 
-
 protected:
   bool onChecked(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     return docPref.show.layerEdges();
   }
 
   void onExecute(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     docPref.show.layerEdges(!docPref.show.layerEdges());
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.layerEdges = docPref.show.layerEdges;
@@ -75,19 +71,16 @@ public:
   {
   }
 
-
 protected:
   bool onChecked(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     return docPref.show.grid();
   }
 
   void onExecute(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     docPref.show.grid(!docPref.show.grid());
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.grid = docPref.show.grid;
@@ -102,19 +95,16 @@ public:
   {
   }
 
-
 protected:
   bool onChecked(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     return docPref.show.pixelGrid();
   }
 
   void onExecute(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     docPref.show.pixelGrid(!docPref.show.pixelGrid());
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.pixelGrid = docPref.show.pixelGrid;
@@ -129,19 +119,16 @@ public:
   {
   }
 
-
 protected:
   bool onChecked(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     return docPref.show.selectionEdges();
   }
 
   void onExecute(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     docPref.show.selectionEdges(!docPref.show.selectionEdges());
     DocumentPreferences& globPref = Preferences::instance().document(nullptr);
     globPref.show.selectionEdges = docPref.show.selectionEdges;
@@ -156,19 +143,16 @@ public:
   {
   }
 
-
 protected:
   bool onChecked(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     return docPref.show.brushPreview();
   }
 
   void onExecute(Context* ctx) override
   {
-    DocumentPreferences& docPref =
-        Preferences::instance().document(ctx->activeDocument());
+    DocumentPreferences& docPref = Preferences::instance().document(ctx->activeDocument());
     docPref.show.brushPreview(!docPref.show.brushPreview());
 
     // TODO we shouldn't need this, but it happens to be that the

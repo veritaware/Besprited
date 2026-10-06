@@ -66,8 +66,7 @@ void Transformation::displacePivotTo(const PointF& newPivot)
   m_bounds = RectF(newBoundsOrigin, m_bounds.size());
 }
 
-PointF Transformation::rotatePoint(const PointF& point, const PointF& pivot,
-                                   double angle)
+PointF Transformation::rotatePoint(const PointF& point, const PointF& pivot, double angle)
 {
   using namespace fixmath;
 
@@ -78,10 +77,8 @@ PointF Transformation::rotatePoint(const PointF& point, const PointF& pivot,
   fixed sin = fixsin(fixangle);
   fixed dx = fixsub(ftofix(point.x), ftofix(pivot.x));
   fixed dy = fixsub(ftofix(point.y), ftofix(pivot.y));
-  return PointF(
-      fixtof(fixadd(ftofix(pivot.x), fixsub(fixmul(dx, cos), fixmul(dy, sin)))),
-      fixtof(
-          fixadd(ftofix(pivot.y), fixadd(fixmul(dy, cos), fixmul(dx, sin)))));
+  return PointF(fixtof(fixadd(ftofix(pivot.x), fixsub(fixmul(dx, cos), fixmul(dy, sin)))),
+                fixtof(fixadd(ftofix(pivot.y), fixadd(fixmul(dy, cos), fixmul(dx, sin)))));
 }
 
 RectF Transformation::transformedBounds() const

@@ -54,8 +54,7 @@ using namespace ui;
 namespace
 {
 
-void show_popup_menu(PopupWindow* popupWindow, Menu* popupMenu,
-                     const gfx::Point& pt)
+void show_popup_menu(PopupWindow* popupWindow, Menu* popupMenu, const gfx::Point& pt)
 {
   // Here we make the popup window temporaly floating, so it's
   // not closed by the popup menu.
@@ -68,8 +67,7 @@ void show_popup_menu(PopupWindow* popupWindow, Menu* popupMenu,
   popupWindow->makeFixed();
 
   gfx::Region rgn;
-  rgn.createUnion(gfx::Region(popupWindow->bounds()),
-                  gfx::Region(popupMenu->bounds()));
+  rgn.createUnion(gfx::Region(popupWindow->bounds()), gfx::Region(popupMenu->bounds()));
   popupWindow->setHotRegion(rgn);
 }
 
@@ -104,9 +102,7 @@ private:
       auto& brushPref = Preferences::instance().tool(tool).brush;
       BrushRef brush;
 
-      brush.reset(
-          new Brush(static_cast<doc::BrushType>(m_brush.brush()->type()),
-                    brushPref.size(), brushPref.angle()));
+      brush.reset(new Brush(static_cast<doc::BrushType>(m_brush.brush()->type()), brushPref.size(), brushPref.angle()));
 
       contextBar->setActiveBrush(brush);
     }
@@ -132,16 +128,14 @@ private:
     Params params;
     params.set("change", "custom");
     params.set("slot", base::convert_to<std::string>(m_slot).c_str());
-    Command* cmd =
-        CommandsModule::instance()->getCommandByName(CommandId::ChangeBrush);
+    Command* cmd = CommandsModule::instance()->getCommandByName(CommandId::ChangeBrush);
     cmd->loadParams(params);
     std::string search = cmd->friendlyName();
     if (!search.empty())
     {
       params.clear();
       params.set("search", search.c_str());
-      cmd = CommandsModule::instance()->getCommandByName(
-          CommandId::KeyboardShortcuts);
+      cmd = CommandsModule::instance()->getCommandByName(CommandId::KeyboardShortcuts);
       ASSERT(cmd);
       if (cmd)
         UIContext::instance()->executeCommand(cmd, params);
@@ -194,20 +188,16 @@ private:
     BrushSlot brush = m_brushes.getBrushSlot(m_slot);
     params.brushType()->setSelected(brush.hasFlag(BrushSlot::Flags::BrushType));
     params.brushSize()->setSelected(brush.hasFlag(BrushSlot::Flags::BrushSize));
-    params.brushAngle()->setSelected(
-        brush.hasFlag(BrushSlot::Flags::BrushAngle));
+    params.brushAngle()->setSelected(brush.hasFlag(BrushSlot::Flags::BrushAngle));
     params.fgColor()->setSelected(brush.hasFlag(BrushSlot::Flags::FgColor));
     params.bgColor()->setSelected(brush.hasFlag(BrushSlot::Flags::BgColor));
     params.inkType()->setSelected(brush.hasFlag(BrushSlot::Flags::InkType));
-    params.inkOpacity()->setSelected(
-        brush.hasFlag(BrushSlot::Flags::InkOpacity));
+    params.inkOpacity()->setSelected(brush.hasFlag(BrushSlot::Flags::InkOpacity));
     params.shade()->setSelected(brush.hasFlag(BrushSlot::Flags::Shade));
-    params.pixelPerfect()->setSelected(
-        brush.hasFlag(BrushSlot::Flags::PixelPerfect));
+    params.pixelPerfect()->setSelected(brush.hasFlag(BrushSlot::Flags::PixelPerfect));
 
     m_changeFlags = true;
-    show_popup_menu(m_popup, &menu,
-                    gfx::Point(origin().x, origin().y + bounds().h));
+    show_popup_menu(m_popup, &menu, gfx::Point(origin().x, origin().y + bounds().h));
 
     if (m_changeFlags)
     {
@@ -246,8 +236,7 @@ private:
   {
     ContextBar* contextBar = App::instance()->contextBar();
 
-    m_brushes.setBrushSlot(m_slot,
-                           contextBar->createBrushSlotFromPreferences());
+    m_brushes.setBrushSlot(m_slot, contextBar->createBrushSlotFromPreferences());
     m_brushes.lockBrushSlot(m_slot);
 
     m_changeFlags = false;
@@ -291,8 +280,7 @@ private:
     ContextBar* contextBar = App::instance()->contextBar();
 
     auto& brushes = App::instance()->brushes();
-    int slot =
-        brushes.addBrushSlot(contextBar->createBrushSlotFromPreferences());
+    int slot = brushes.addBrushSlot(contextBar->createBrushSlotFromPreferences());
     brushes.lockBrushSlot(slot);
   }
 };
@@ -300,10 +288,7 @@ private:
 class NewBrushOptionsItem : public ButtonSet::Item
 {
 public:
-  NewBrushOptionsItem()
-  {
-    setIcon(SkinTheme::instance()->parts.iconArrowDown(), true);
-  }
+  NewBrushOptionsItem() { setIcon(SkinTheme::instance()->parts.iconArrowDown(), true); }
 
 private:
   void onClick() override
@@ -327,8 +312,7 @@ private:
     params.shade()->setSelected(saveBrush.shade());
     params.pixelPerfect()->setSelected(saveBrush.pixelPerfect());
 
-    show_popup_menu(static_cast<PopupWindow*>(window()), &menu,
-                    gfx::Point(origin().x, origin().y + bounds().h));
+    show_popup_menu(static_cast<PopupWindow*>(window()), &menu, gfx::Point(origin().x, origin().y + bounds().h));
 
     // Save preferences
     if (saveBrush.brushType() != params.brushType()->isSelected())
@@ -378,8 +362,7 @@ BrushPopup::BrushPopup()
   m_box.addChild(new Separator("", HORIZONTAL));
 
   for (const auto& brush : brushes.getStandardBrushes())
-    m_standardBrushes.addItem(
-        new SelectBrushItem(BrushSlot(BrushSlot::Flags::BrushType, brush)));
+    m_standardBrushes.addItem(new SelectBrushItem(BrushSlot(BrushSlot::Flags::BrushType, brush)));
 
   m_standardBrushes.setTransparent(true);
   m_standardBrushes.setBgColor(gfx::ColorNone);
@@ -394,10 +377,8 @@ void BrushPopup::setBrush(Brush* brush)
     SelectBrushItem* item = static_cast<SelectBrushItem*>(child);
 
     // Same type and same image
-    if (item->brush().hasBrush() &&
-        item->brush().brush()->type() == brush->type() &&
-        (brush->type() != kImageBrushType ||
-         item->brush().brush()->image() == brush->image()))
+    if (item->brush().hasBrush() && item->brush().brush()->type() == brush->type() &&
+        (brush->type() != kImageBrushType || item->brush().brush()->image() == brush->image()))
     {
       m_standardBrushes.setSelectedItem(item);
       return;
@@ -432,8 +413,7 @@ void BrushPopup::regenerate(const gfx::Rect& box)
       Params params;
       params.set("change", "custom");
       params.set("slot", base::convert_to<std::string>(slot).c_str());
-      Key* key = KeyboardShortcuts::instance()->command(CommandId::ChangeBrush,
-                                                        params);
+      Key* key = KeyboardShortcuts::instance()->command(CommandId::ChangeBrush, params);
       if (key && !key->accels().empty())
         shortcut = key->accels().front().toString();
     }
@@ -481,14 +461,12 @@ she::Surface* BrushPopup::createSurfaceForBrush(const BrushRef& origBrush)
     image = brush->image();
   }
 
-  she::Surface* surface = she::instance()->createRgbaSurface(
-      std::min(10, image ? image->width() : 4),
-      std::min(10, image ? image->height() : 4));
+  she::Surface* surface = she::instance()->createRgbaSurface(std::min(10, image ? image->width() : 4),
+                                                             std::min(10, image ? image->height() : 4));
 
   if (image)
   {
-    auto palette = std::static_pointer_cast<Palette>(
-        get_current_palette()->shared_from_this());
+    auto palette = std::static_pointer_cast<Palette>(get_current_palette()->shared_from_this());
     if (image->pixelFormat() == IMAGE_BITMAP)
     {
       palette = Palette::create(2);
@@ -496,8 +474,7 @@ she::Surface* BrushPopup::createSurfaceForBrush(const BrushRef& origBrush)
       palette->setEntry(1, rgba(0, 0, 0, 255));
     }
 
-    convert_image_to_surface(image, palette.get(), surface, 0, 0, 0, 0,
-                             image->width(), image->height());
+    convert_image_to_surface(image, palette.get(), surface, 0, 0, 0, 0, image->width(), image->height());
   }
   else
   {

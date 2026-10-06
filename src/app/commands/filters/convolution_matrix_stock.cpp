@@ -32,8 +32,7 @@ ConvolutionMatrixStock::~ConvolutionMatrixStock()
   cleanStock();
 }
 
-base::SharedPtr<ConvolutionMatrix>
-ConvolutionMatrixStock::getByName(const char* name)
+base::SharedPtr<ConvolutionMatrix> ConvolutionMatrixStock::getByName(const char* name)
 {
   for (const_iterator it = begin(), end = this->end(); it != end; ++it)
   {
@@ -45,20 +44,19 @@ ConvolutionMatrixStock::getByName(const char* name)
 
 void ConvolutionMatrixStock::reloadStock()
 {
-#define READ_TOK()                                                             \
-  {                                                                            \
-    if (!tok_read(f, buf, leavings, sizeof(leavings)))                         \
-      break;                                                                   \
+#define READ_TOK()                                                                                                     \
+  {                                                                                                                    \
+    if (!tok_read(f, buf, leavings, sizeof(leavings)))                                                                 \
+      break;                                                                                                           \
   }
 
-#define READ_INT(var)                                                          \
-  {                                                                            \
-    READ_TOK();                                                                \
-    (var) = strtol(buf, nullptr, 10);                                          \
+#define READ_INT(var)                                                                                                  \
+  {                                                                                                                    \
+    READ_TOK();                                                                                                        \
+    (var) = strtol(buf, nullptr, 10);                                                                                  \
   }
 
-  const char* names[] = {"convmatr.usr", "convmatr.gen", "convmatr.def",
-                         nullptr};
+  const char* names[] = {"convmatr.usr", "convmatr.gen", "convmatr.def", nullptr};
   char *s, buf[256], leavings[4096];
   int i, x, y, w, h, div, bias;
   base::SharedPtr<ConvolutionMatrix> matrix;
@@ -121,8 +119,7 @@ void ConvolutionMatrixStock::reloadStock()
           for (x = 0; x < w; ++x)
           {
             READ_TOK();
-            int value =
-                int(strtod(buf, nullptr) * ConvolutionMatrix::Precision);
+            int value = int(strtod(buf, nullptr) * ConvolutionMatrix::Precision);
             div += value;
 
             matrix->value(x, y) = value;
@@ -185,8 +182,7 @@ void ConvolutionMatrixStock::reloadStock()
           }
         }
 
-        if ((target & (TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL |
-                       TARGET_BLUE_CHANNEL)) != 0)
+        if ((target & (TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL | TARGET_BLUE_CHANNEL)) != 0)
         {
           target |= TARGET_GRAY_CHANNEL;
         }

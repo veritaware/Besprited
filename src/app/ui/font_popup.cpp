@@ -70,11 +70,9 @@ private:
     if (m_image)
     {
       Graphics* g = ev.graphics();
-      she::Surface* sur = she::instance()->createRgbaSurface(m_image->width(),
-                                                             m_image->height());
+      she::Surface* sur = she::instance()->createRgbaSurface(m_image->width(), m_image->height());
 
-      convert_image_to_surface(m_image.get(), nullptr, sur, 0, 0, 0, 0,
-                               m_image->width(), m_image->height());
+      convert_image_to_surface(m_image.get(), nullptr, sur, 0, 0, 0, 0, m_image->width(), m_image->height());
 
       g->drawRgbaSurface(sur, textWidth() + 4, 0);
       sur->dispose();
@@ -107,8 +105,7 @@ private:
     {
       m_image.reset(render_text(m_filename, 16,
                                 "ABCDEabcde", // TODO custom text
-                                doc::rgba(gfx::getr(color), gfx::getg(color),
-                                          gfx::getb(color), gfx::geta(color)),
+                                doc::rgba(gfx::getr(color), gfx::getg(color), gfx::getb(color), gfx::geta(color)),
                                 true)); // antialias
 
       View* view = View::getView(listbox);
@@ -130,8 +127,7 @@ private:
 };
 
 FontPopup::FontPopup()
-  : PopupWindow("Fonts", ClickBehavior::CloseOnClickInOtherWindow,
-                EnterBehavior::DoNothingOnEnter)
+  : PopupWindow("Fonts", ClickBehavior::CloseOnClickInOtherWindow, EnterBehavior::DoNothingOnEnter)
   , m_popup(new gen::FontPopup())
 {
   setAutoRemap(false);
@@ -139,12 +135,10 @@ FontPopup::FontPopup()
 
   addChild(m_popup);
 
-  m_popup->loadFont()->Click.connect(
-      base::Bind<void>(&FontPopup::onLoadFont, this));
+  m_popup->loadFont()->Click.connect(base::Bind<void>(&FontPopup::onLoadFont, this));
   m_listBox.setFocusMagnet(true);
   m_listBox.Change.connect(base::Bind<void>(&FontPopup::onChangeFont, this));
-  m_listBox.DoubleClickItem.connect(
-      base::Bind<void>(&FontPopup::onLoadFont, this));
+  m_listBox.DoubleClickItem.connect(base::Bind<void>(&FontPopup::onLoadFont, this));
 
   m_popup->view()->attachToView(&m_listBox);
 
@@ -172,12 +166,8 @@ FontPopup::FontPopup()
   }
 
   // Sort all files by "file title"
-  std::sort(files.begin(), files.end(),
-            [](const std::string& a, const std::string& b)
-            {
-              return base::utf8_icmp(base::get_file_title(a),
-                                     base::get_file_title(b)) < 0;
-            });
+  std::sort(files.begin(), files.end(), [](const std::string& a, const std::string& b)
+            { return base::utf8_icmp(base::get_file_title(a), base::get_file_title(b)) < 0; });
 
   // Create one FontItem for each font
   for (auto& file : files)

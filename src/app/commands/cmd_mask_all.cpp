@@ -37,8 +37,7 @@ MaskAllCommand::MaskAllCommand()
 
 bool MaskAllCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void MaskAllCommand::onExecute(Context* context)

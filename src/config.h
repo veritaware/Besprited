@@ -14,29 +14,29 @@
 
 // In MSVC
 #ifdef _MSC_VER
-  // Avoid warnings about insecure standard C++ functions
-  #ifndef _CRT_SECURE_NO_WARNINGS
-  #define _CRT_SECURE_NO_WARNINGS
-  #endif
+// Avoid warnings about insecure standard C++ functions
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
-  // Disable warning C4355 in MSVC: 'this' used in base member initializer list
-  #pragma warning(disable:4355)
+// Disable warning C4355 in MSVC: 'this' used in base member initializer list
+#pragma warning(disable : 4355)
 #endif
 
 // General information
 #define PACKAGE "Besprited"
-#define COMMIT  "local build"
+#define COMMIT "local build"
 #ifndef RELEASE_TAG
-    #define VERSION "development version: " COMMIT
+#define VERSION "development version: " COMMIT
 #else
-    #define VERSION RELEASE_VERSION
+#define VERSION RELEASE_VERSION
 #endif
 #define PACKAGE_AND_VERSION PACKAGE " " VERSION
 
-#define WEBSITE                 "https://github.com/Veritaware/Besprited/"
-#define WEBSITE_DOWNLOAD        WEBSITE "releases/"
-#define WEBSITE_CONTRIBUTORS    WEBSITE "graphs/contributors/"
-#define COPYRIGHT               "Copyright © 2026 Veritaware"
+#define WEBSITE "https://github.com/Veritaware/Besprited/"
+#define WEBSITE_DOWNLOAD WEBSITE "releases/"
+#define WEBSITE_CONTRIBUTORS WEBSITE "graphs/contributors/"
+#define COPYRIGHT "Copyright © 2026 Veritaware"
 
 #include "base/base.h"
 #include "base/debug.h"

@@ -36,10 +36,7 @@ public:
   // It doesn't destroy the previous bitmap in the given "index".
   void setBitmap(std::size_t index, she::Surface* bitmap);
 
-  she::Surface* bitmap(std::size_t index) const
-  {
-    return (index < m_bitmaps.size() ? m_bitmaps[index] : nullptr);
-  }
+  she::Surface* bitmap(std::size_t index) const { return (index < m_bitmaps.size() ? m_bitmaps[index] : nullptr); }
 
   she::Surface* bitmapNW() const { return bitmap(0); }
   she::Surface* bitmapN() const { return bitmap(1); }

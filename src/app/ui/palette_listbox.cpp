@@ -31,8 +31,7 @@ using namespace skin;
 class PaletteListItem : public ListItem
 {
 public:
-  PaletteListItem(std::shared_ptr<doc::Palette> palette,
-                  const std::string& name)
+  PaletteListItem(std::shared_ptr<doc::Palette> palette, const std::string& name)
     : ListItem(name)
     , m_palette(palette)
   {
@@ -78,8 +77,7 @@ protected:
     g->fillRect(bgcolor, bounds);
 
     // draw the palette
-    gfx::Rect box(bounds.x + leftPadding, bounds.y + bounds.h - 6 * guiscale(),
-                  4 * guiscale(), 4 * guiscale());
+    gfx::Rect box(bounds.x + leftPadding, bounds.y + bounds.h - 6 * guiscale(), 4 * guiscale(), 4 * guiscale());
 
     int maxColShown = bounds.w / box.w;
     maxColShown = std::min(palette->size(), maxColShown - 5);
@@ -88,9 +86,7 @@ protected:
     {
       doc::color_t c = palette->getEntry(i);
 
-      g->fillRect(
-          gfx::rgba(doc::rgba_getr(c), doc::rgba_getg(c), doc::rgba_getb(c)),
-          box);
+      g->fillRect(gfx::rgba(doc::rgba_getr(c), doc::rgba_getg(c), doc::rgba_getb(c)), box);
 
       box.x += box.w;
     }
@@ -106,16 +102,11 @@ protected:
     }
 
     // and draw the name
-    g->drawString(
-        text(), fgcolor, gfx::ColorNone,
-        gfx::Point(bounds.x + leftPadding,
-                   bounds.y + bounds.h / 2 - g->measureUIString(text()).h / 2));
+    g->drawString(text(), fgcolor, gfx::ColorNone,
+                  gfx::Point(bounds.x + leftPadding, bounds.y + bounds.h / 2 - g->measureUIString(text()).h / 2));
   }
 
-  void onSizeHint(SizeHintEvent& ev) override
-  {
-    ev.setSizeHint(gfx::Size(0, (2 + 16 + 2) * guiscale()));
-  }
+  void onSizeHint(SizeHintEvent& ev) override { ev.setSizeHint(gfx::Size(0, (2 + 16 + 2) * guiscale())); }
 
 private:
   std::shared_ptr<doc::Palette> m_palette;
@@ -159,16 +150,14 @@ private:
 
 doc::Palette* PaletteListBox::selectedPalette()
 {
-  if (PaletteListItem* listItem =
-          dynamic_cast<PaletteListItem*>(getSelectedChild()))
+  if (PaletteListItem* listItem = dynamic_cast<PaletteListItem*>(getSelectedChild()))
     return listItem->palette().get();
   return nullptr;
 }
 
 std::string PaletteListBox::selectedPaletteName()
 {
-  if (PaletteListItem* listItem =
-          dynamic_cast<PaletteListItem*>(getSelectedChild()))
+  if (PaletteListItem* listItem = dynamic_cast<PaletteListItem*>(getSelectedChild()))
     return listItem->name();
   return "";
 }
@@ -203,8 +192,7 @@ void PaletteListBox::setLoading(bool isLoading)
   }
 }
 
-void PaletteListBox::addPalette(std::shared_ptr<doc::Palette> palette,
-                                const std::string& name)
+void PaletteListBox::addPalette(std::shared_ptr<doc::Palette> palette, const std::string& name)
 {
   int hasLoading = !!m_loadingItem;
   insertChild(getItemsCount() - hasLoading, new PaletteListItem(palette, name));

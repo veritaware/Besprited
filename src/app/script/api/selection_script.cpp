@@ -42,20 +42,17 @@ public:
     auto& clazz = addClass<void, SelectionSite>("Selection");
     clazz.setConstructor() = []() -> std::shared_ptr<SelectionSite>
     {
-      static const std::shared_ptr<SelectionSite> site =
-          std::make_shared<SelectionSite>();
+      static const std::shared_ptr<SelectionSite> site = std::make_shared<SelectionSite>();
       return site;
     };
 
-    clazz.addMethod("select") = [](SelectionSite&, double x, double y, double w,
-                                   double h) -> JSON::Value
+    clazz.addMethod("select") = [](SelectionSite&, double x, double y, double w, double h) -> JSON::Value
     {
       auto* doc = activeDocument();
       doc::Mask newMask;
       if (w > 0 && h > 0)
         newMask.replace(gfx::Rect((int)x, (int)y, (int)w, (int)h));
-      app::Transaction tx(app::UIContext::instance(), "Script Execution",
-                          app::ModifyDocument);
+      app::Transaction tx(app::UIContext::instance(), "Script Execution", app::ModifyDocument);
       tx.execute(new app::cmd::SetMask(doc, &newMask));
       tx.commit();
       return {};
@@ -66,8 +63,7 @@ public:
       auto* doc = activeDocument();
       doc::Mask newMask;
       newMask.replace(doc->sprite()->bounds());
-      app::Transaction tx(app::UIContext::instance(), "Script Execution",
-                          app::ModifyDocument);
+      app::Transaction tx(app::UIContext::instance(), "Script Execution", app::ModifyDocument);
       tx.execute(new app::cmd::SetMask(doc, &newMask));
       tx.commit();
       return {};
@@ -76,8 +72,7 @@ public:
     clazz.addMethod("deselect") = [](SelectionSite&) -> JSON::Value
     {
       auto* doc = activeDocument();
-      app::Transaction tx(app::UIContext::instance(), "Script Execution",
-                          app::ModifyDocument);
+      app::Transaction tx(app::UIContext::instance(), "Script Execution", app::ModifyDocument);
       tx.execute(new app::cmd::DeselectMask(doc));
       tx.commit();
       return {};

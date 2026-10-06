@@ -59,31 +59,23 @@ public:
   void invalidateRegion(const gfx::Region& region);
 
 private:
-  using PixelDelegate = void (BrushPreview::*)(ui::Graphics*, const gfx::Point&,
-                                               gfx::Color);
+  using PixelDelegate = void (BrushPreview::*)(ui::Graphics*, const gfx::Point&, gfx::Color);
 
   doc::BrushRef getCurrentBrush();
   static doc::color_t getBrushColor(doc::Sprite* sprite, doc::Layer* layer);
 
   void generateBoundaries();
-  void forEachBrushPixel(ui::Graphics* g, const gfx::Point& screenPos,
-                         const gfx::Point& spritePos, gfx::Color color,
+  void forEachBrushPixel(ui::Graphics* g, const gfx::Point& screenPos, const gfx::Point& spritePos, gfx::Color color,
                          PixelDelegate pixelDelegate);
 
-  void traceCrossPixels(ui::Graphics* g, const gfx::Point& pt, gfx::Color color,
-                        PixelDelegate pixel);
-  void traceSelectionCrossPixels(ui::Graphics* g, const gfx::Point& pt,
-                                 gfx::Color color, int thickness,
+  void traceCrossPixels(ui::Graphics* g, const gfx::Point& pt, gfx::Color color, PixelDelegate pixel);
+  void traceSelectionCrossPixels(ui::Graphics* g, const gfx::Point& pt, gfx::Color color, int thickness,
                                  PixelDelegate pixel);
-  void traceBrushBoundaries(ui::Graphics* g, gfx::Point pos, gfx::Color color,
-                            PixelDelegate pixel);
+  void traceBrushBoundaries(ui::Graphics* g, gfx::Point pos, gfx::Color color, PixelDelegate pixel);
 
-  void savePixelDelegate(ui::Graphics* g, const gfx::Point& pt,
-                         gfx::Color color);
-  void drawPixelDelegate(ui::Graphics* g, const gfx::Point& pt,
-                         gfx::Color color);
-  void clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt,
-                          gfx::Color color);
+  void savePixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color);
+  void drawPixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color);
+  void clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color);
 
   Editor* m_editor;
   int m_type;

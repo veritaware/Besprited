@@ -34,10 +34,7 @@
 class AppObject
 {
 public:
-  static app::Document* activeDocument()
-  {
-    return app::UIContext::instance()->activeDocument();
-  }
+  static app::Document* activeDocument() { return app::UIContext::instance()->activeDocument(); }
 };
 
 class AppExtension : public Extension
@@ -46,8 +43,7 @@ public:
   AppExtension()
   {
     auto& clazz = addClass<void, AppObject>("App");
-    clazz.setConstructor() = []() -> std::shared_ptr<AppObject>
-    { return std::make_shared<AppObject>(); };
+    clazz.setConstructor() = []() -> std::shared_ptr<AppObject> { return std::make_shared<AppObject>(); };
 
     clazz.addGetter("activeFrameNumber") = [](AppObject&) -> JSON::Value
     {
@@ -60,8 +56,7 @@ public:
     {
       if (!app::current_editor)
         return (double)0;
-      return (double)static_cast<int>(
-          app::current_editor->getSite().layerIndex());
+      return (double)static_cast<int>(app::current_editor->getSite().layerIndex());
     };
 
     clazz.addGetter("activeImage") = [](AppObject&) -> JSON::Value
@@ -91,8 +86,7 @@ public:
       return JSON::makeNative(script_api::wrap<doc::Document>(doc));
     };
 
-    clazz.addGetter("version") = [](AppObject&) -> JSON::Value
-    { return std::string{VERSION}; };
+    clazz.addGetter("version") = [](AppObject&) -> JSON::Value { return std::string{VERSION}; };
 
     clazz.addGetter("platform") = [](AppObject&) -> JSON::Value
     {
@@ -109,15 +103,13 @@ public:
 #endif
     };
 
-    clazz.addMethod("open") = [](AppObject&,
-                                 const std::string& fn) -> JSON::Value
+    clazz.addMethod("open") = [](AppObject&, const std::string& fn) -> JSON::Value
     {
       if (fn.empty())
         return JSON::Value{JSON::Special::Null};
       auto* ctx = app::UIContext::instance();
       auto* oldDoc = ctx->activeDocument();
-      auto* openCmd = app::CommandsModule::instance()->getCommandByName(
-          app::CommandId::OpenFile);
+      auto* openCmd = app::CommandsModule::instance()->getCommandByName(app::CommandId::OpenFile);
       app::Params params;
       params.set("filename", fn.c_str());
       ctx->executeCommand(openCmd, params);
@@ -135,8 +127,7 @@ public:
     // script-controlled filename, an unrestricted target here is a script-
     // only RCE primitive (see issue #219). Restrict scripts to opening
     // actual web URLs.
-    clazz.addMethod("launch") = [](AppObject&,
-                                   const std::string& cmd) -> JSON::Value
+    clazz.addMethod("launch") = [](AppObject&, const std::string& cmd) -> JSON::Value
     {
       auto scheme = base::string_to_lower(base::split(cmd, ':')[0]);
       if (scheme != "http" && scheme != "https")

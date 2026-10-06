@@ -29,26 +29,26 @@ namespace ui
 // Widget flags
 enum
 {
-  HIDDEN = 0x00000001,       // Is hidden (not visible, not clickeable).
-  SELECTED = 0x00000002,     // Is selected.
-  DISABLED = 0x00000004,     // Is disabled (not usable).
-  HAS_FOCUS = 0x00000008,    // Has the input focus.
-  HAS_MOUSE = 0x00000010,    // Has the mouse.
-  HAS_CAPTURE = 0x00000020,  // Captured the mouse .
-  FOCUS_STOP = 0x00000040,   // The widget support the focus on it.
-  FOCUS_MAGNET = 0x00000080, // The widget wants the focus by default (e.g. when
-                             // the dialog is shown by first time).
-  EXPANSIVE = 0x00000100,    // Is expansive (want more space).
-  DECORATIVE = 0x00000200,   // To decorate windows.
-  INITIALIZED = 0x00000400,  // The widget was already initialized by a theme.
-  DIRTY = 0x00000800,    // The widget (or one child) is dirty (update_region !=
-                         // empty).
-  HAS_TEXT = 0x00001000, // The widget has text (at least setText() was called
-                         // one time).
-  DOUBLE_BUFFERED = 0x00002000, // The widget is painted in a back-buffer and
-                                // then flipped to the main display
-  TRANSPARENT = 0x00004000, // The widget has transparent parts that needs the
-                            // background painted before
+  HIDDEN = 0x00000001,           // Is hidden (not visible, not clickeable).
+  SELECTED = 0x00000002,         // Is selected.
+  DISABLED = 0x00000004,         // Is disabled (not usable).
+  HAS_FOCUS = 0x00000008,        // Has the input focus.
+  HAS_MOUSE = 0x00000010,        // Has the mouse.
+  HAS_CAPTURE = 0x00000020,      // Captured the mouse .
+  FOCUS_STOP = 0x00000040,       // The widget support the focus on it.
+  FOCUS_MAGNET = 0x00000080,     // The widget wants the focus by default (e.g. when
+                                 // the dialog is shown by first time).
+  EXPANSIVE = 0x00000100,        // Is expansive (want more space).
+  DECORATIVE = 0x00000200,       // To decorate windows.
+  INITIALIZED = 0x00000400,      // The widget was already initialized by a theme.
+  DIRTY = 0x00000800,            // The widget (or one child) is dirty (update_region !=
+                                 // empty).
+  HAS_TEXT = 0x00001000,         // The widget has text (at least setText() was called
+                                 // one time).
+  DOUBLE_BUFFERED = 0x00002000,  // The widget is painted in a back-buffer and
+                                 // then flipped to the main display
+  TRANSPARENT = 0x00004000,      // The widget has transparent parts that needs the
+                                 // background painted before
   CTRL_RIGHT_CLICK = 0x00008000, // The widget should transform Ctrl+click to
                                  // right-click on OS X.
   PROPERTIES_MASK = 0x0000ffff,

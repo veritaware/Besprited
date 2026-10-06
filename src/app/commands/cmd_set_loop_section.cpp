@@ -136,8 +136,7 @@ void SetLoopSectionCommand::onExecute(Context* ctx)
     }
     else
     {
-      Command* cmd = CommandsModule::instance()->getCommandByName(
-          CommandId::FrameTagProperties);
+      Command* cmd = CommandsModule::instance()->getCommandByName(CommandId::FrameTagProperties);
       ctx->executeCommand(cmd);
     }
   }

@@ -26,8 +26,7 @@ class ISliderBgPainter
 {
 public:
   virtual ~ISliderBgPainter() {}
-  virtual void paint(ui::Slider* slider, ui::Graphics* graphics,
-                     const gfx::Rect& rc) = 0;
+  virtual void paint(ui::Slider* slider, ui::Graphics* graphics, const gfx::Rect& rc) = 0;
 };
 
 class SkinSliderProperty : public ui::Property

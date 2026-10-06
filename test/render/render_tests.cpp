@@ -323,9 +323,9 @@ TEST(Render, CheckedBackgroundWithOnionskinAndPreviewGolden)
   clear_image(dst.get(), 0);
   render.renderSprite(dst.get(), sprite, frame_t(0));
 
-  const color_t d = rgba(10, 10, 10, 255);    // dark checker tile
-  const color_t l = rgba(200, 200, 200, 255); // light checker tile
-  const color_t onionBlue = rgba(5, 5, 132, 255); // 50% blue over d
+  const color_t d = rgba(10, 10, 10, 255);           // dark checker tile
+  const color_t l = rgba(200, 200, 200, 255);        // light checker tile
+  const color_t onionBlue = rgba(5, 5, 132, 255);    // 50% blue over d
   const color_t greenOnL = rgba(100, 227, 100, 255); // half green over l
 
   // Expected (golden) output; recorded from a run and checked by hand:
@@ -335,9 +335,6 @@ TEST(Render, CheckedBackgroundWithOnionskinAndPreviewGolden)
   // - (2,1): half-transparent green blends with the checker behind it.
   // - (3,3): the opaque preview overlay covers the checker.
   // - everything else is plain checkerboard.
-  EXPECT_4X4_PIXELS(dst.get(),
-                    onionBlue, l, d, l,
-                    l, red, greenOnL, d,
-                    d, l, d, l,
-                    l, d, l, yellow);
+  EXPECT_4X4_PIXELS(dst.get(), onionBlue, l, d, l, l, red, greenOnL, d, d, l, d,
+                    l, l, d, l, yellow);
 }

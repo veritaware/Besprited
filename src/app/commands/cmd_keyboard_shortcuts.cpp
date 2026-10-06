@@ -96,8 +96,7 @@ public:
 
       // If the menu has a submenu, this item cannot be triggered with a key
       // TODO make this possible: we should be able to open a menu with a key
-      if (w->type() == kMenuItemWidget &&
-          static_cast<MenuItem*>(w)->getSubmenu())
+      if (w->type() == kMenuItemWidget && static_cast<MenuItem*>(w)->getSubmenu())
         return std::string();
 
       std::string result;
@@ -160,8 +159,7 @@ private:
   {
     LockButtons lock(this);
     ui::Accelerator accel;
-    SelectAccelerator window(accel,
-                             m_key ? m_key->keycontext() : KeyContext::Any);
+    SelectAccelerator window(accel, m_key ? m_key->keycontext() : KeyContext::Any);
     window.openWindowInForeground();
 
     if (window.isModified())
@@ -172,8 +170,8 @@ private:
         if (!m_menuitem)
           return;
 
-        m_key = app::KeyboardShortcuts::instance()->command(
-            m_menuitem->getCommand()->id().c_str(), m_menuitem->getParams());
+        m_key = app::KeyboardShortcuts::instance()->command(m_menuitem->getCommand()->id().c_str(),
+                                                            m_menuitem->getParams());
 
         m_menuitem->setKey(m_key);
       }
@@ -221,9 +219,7 @@ private:
     g->fillRect(bg, bounds);
 
     bounds.shrink(border());
-    g->drawUIString(text(), fg, bg,
-                    gfx::Point(bounds.x + m_level * 16 * guiscale(),
-                               bounds.y + 2 * guiscale()));
+    g->drawUIString(text(), fg, bg, gfx::Point(bounds.x + m_level * 16 * guiscale(), bounds.y + 2 * guiscale()));
 
     if (m_key && !m_key->accels().empty())
     {
@@ -233,16 +229,14 @@ private:
 
       if (!m_key->label().empty())
       {
-        g->drawString(m_key->label(), fg, bg,
-                      {bounds.x + g_sep2, bounds.y + 2 * guiscale()});
+        g->drawString(m_key->label(), fg, bg, {bounds.x + g_sep2, bounds.y + 2 * guiscale()});
       }
 
       for (const Accelerator& accel : m_key->accels())
       {
         if (i != m_hotAccel || !m_changeButton)
         {
-          g->drawString(accel.toString(), fg, bg,
-                        gfx::Point(bounds.x + g_sep, y + 2 * guiscale()));
+          g->drawString(accel.toString(), fg, bg, gfx::Point(bounds.x + g_sep, y + 2 * guiscale()));
         }
 
         y += dh;
@@ -282,15 +276,11 @@ private:
       for (int i = 0; i < maxi; ++i, y += dh)
       {
         int w = Graphics::measureUIStringLength(
-            (accels && i < (int)accels->size() ? (*accels)[i].toString().c_str()
-                                               : ""),
-            font().get());
+            (accels && i < (int)accels->size() ? (*accels)[i].toString().c_str() : ""), font().get());
         gfx::Rect itemBounds(bounds.x + g_sep, y, w, dh);
-        itemBounds = itemBounds.enlarge(
-            gfx::Border(4 * guiscale(), 0, 6 * guiscale(), 1 * guiscale()));
+        itemBounds = itemBounds.enlarge(gfx::Border(4 * guiscale(), 0, 6 * guiscale(), 1 * guiscale()));
 
-        if (accels && i < (int)accels->size() &&
-            mouseMsg->position().y >= itemBounds.y &&
+        if (accels && i < (int)accels->size() && mouseMsg->position().y >= itemBounds.y &&
             mouseMsg->position().y < itemBounds.y + itemBounds.h)
         {
           if (m_hotAccel != i)
@@ -299,15 +289,13 @@ private:
 
             m_changeConn = base::Connection();
             m_changeButton.reset(new Button(""));
-            m_changeConn = m_changeButton->Click.connect(
-                base::Bind<void>(&KeyItem::onChangeAccel, this, i));
+            m_changeConn = m_changeButton->Click.connect(base::Bind<void>(&KeyItem::onChangeAccel, this, i));
             setup_mini_look(m_changeButton.get());
             addChild(m_changeButton.get());
 
             m_deleteConn = base::Connection();
             m_deleteButton.reset(new Button(""));
-            m_deleteConn = m_deleteButton->Click.connect(
-                base::Bind<void>(&KeyItem::onDeleteAccel, this, i));
+            m_deleteConn = m_deleteButton->Click.connect(base::Bind<void>(&KeyItem::onDeleteAccel, this, i));
             setup_mini_look(m_deleteButton.get());
             addChild(m_deleteButton.get());
 
@@ -317,11 +305,9 @@ private:
 
             const char* label = "x";
             m_deleteButton->setBgColor(gfx::ColorNone);
-            m_deleteButton->setBounds(gfx::Rect(
-                itemBounds.x + itemBounds.w + 2 * guiscale(), itemBounds.y,
-                Graphics::measureUIStringLength(label, font().get()) +
-                    4 * guiscale(),
-                itemBounds.h));
+            m_deleteButton->setBounds(gfx::Rect(itemBounds.x + itemBounds.w + 2 * guiscale(), itemBounds.y,
+                                                Graphics::measureUIStringLength(label, font().get()) + 4 * guiscale(),
+                                                itemBounds.h));
             m_deleteButton->setText(label);
 
             invalidate();
@@ -334,13 +320,11 @@ private:
 
           m_addConn = base::Connection();
           m_addButton.reset(new Button(""));
-          m_addConn = m_addButton->Click.connect(
-              base::Bind<void>(&KeyItem::onAddAccel, this));
+          m_addConn = m_addButton->Click.connect(base::Bind<void>(&KeyItem::onAddAccel, this));
           setup_mini_look(m_addButton.get());
           addChild(m_addButton.get());
 
-          itemBounds.w = 8 * guiscale() +
-                         Graphics::measureUIStringLength("Add", font().get());
+          itemBounds.w = 8 * guiscale() + Graphics::measureUIStringLength("Add", font().get());
           itemBounds.x -= itemBounds.w + 2 * guiscale();
 
           m_addButton->setBgColor(gfx::ColorNone);
@@ -351,8 +335,7 @@ private:
           m_labelEntry.reset(new Entry(4, "%s", label));
           setup_mini_look(m_labelEntry.get());
           addChild(m_labelEntry.get());
-          itemBounds.w = 8 * guiscale() +
-                         Graphics::measureUIStringLength("label", font().get());
+          itemBounds.w = 8 * guiscale() + Graphics::measureUIStringLength("label", font().get());
           itemBounds.x = bounds.x + g_sep2;
           m_labelEntry->setBgColor(gfx::ColorNone);
           m_labelEntry->setBounds(itemBounds);
@@ -431,16 +414,11 @@ public:
     section()->addChild(new ListItem("Tools"));
     section()->addChild(new ListItem("Action Modifiers"));
 
-    search()->Change.connect(
-        base::Bind<void>(&KeyboardShortcutsWindow::onSearchChange, this));
-    section()->Change.connect(
-        base::Bind<void>(&KeyboardShortcutsWindow::onSectionChange, this));
-    importButton()->Click.connect(
-        base::Bind<void>(&KeyboardShortcutsWindow::onImport, this));
-    exportButton()->Click.connect(
-        base::Bind<void>(&KeyboardShortcutsWindow::onExport, this));
-    resetButton()->Click.connect(
-        base::Bind<void>(&KeyboardShortcutsWindow::onReset, this));
+    search()->Change.connect(base::Bind<void>(&KeyboardShortcutsWindow::onSearchChange, this));
+    section()->Change.connect(base::Bind<void>(&KeyboardShortcutsWindow::onSectionChange, this));
+    importButton()->Click.connect(base::Bind<void>(&KeyboardShortcutsWindow::onImport, this));
+    exportButton()->Click.connect(base::Bind<void>(&KeyboardShortcutsWindow::onExport, this));
+    resetButton()->Click.connect(base::Bind<void>(&KeyboardShortcutsWindow::onReset, this));
 
     fillAllLists();
 
@@ -580,15 +558,13 @@ private:
           {
             if (!group)
             {
-              group = new Separator(section()->children()[sectionIdx]->text(),
-                                    HORIZONTAL);
+              group = new Separator(section()->children()[sectionIdx]->text(), HORIZONTAL);
               group->setBgColor(SkinTheme::instance()->colors.background());
 
               searchList()->addChild(group);
             }
 
-            KeyItem* copyItem =
-                new KeyItem(itemText, keyItem->key(), nullptr, 0);
+            KeyItem* copyItem = new KeyItem(itemText, keyItem->key(), nullptr, 0);
             searchList()->addChild(copyItem);
           }
         }
@@ -636,23 +612,20 @@ private:
 
   void onImport()
   {
-    std::string filename = app::show_file_selector(
-        "Import Keyboard Shortcuts", "", KEYBOARD_FILENAME_EXTENSION,
-        FileSelectorType::Open);
+    std::string filename =
+        app::show_file_selector("Import Keyboard Shortcuts", "", KEYBOARD_FILENAME_EXTENSION, FileSelectorType::Open);
     if (filename.empty())
       return;
 
-    app::KeyboardShortcuts::instance()->importFile(filename.c_str(),
-                                                   KeySource::UserDefined);
+    app::KeyboardShortcuts::instance()->importFile(filename.c_str(), KeySource::UserDefined);
     fillAllLists();
     layout();
   }
 
   void onExport()
   {
-    std::string filename = app::show_file_selector(
-        "Export Keyboard Shortcuts", "", KEYBOARD_FILENAME_EXTENSION,
-        FileSelectorType::Save);
+    std::string filename =
+        app::show_file_selector("Export Keyboard Shortcuts", "", KEYBOARD_FILENAME_EXTENSION, FileSelectorType::Save);
     if (filename.empty())
       return;
 
@@ -681,8 +654,7 @@ private:
         if (menuItem == recentList)
           continue;
 
-        KeyItem* keyItem = new KeyItem(menuItem->text().c_str(),
-                                       menuItem->key(), menuItem, level);
+        KeyItem* keyItem = new KeyItem(menuItem->text().c_str(), menuItem->key(), menuItem, level);
 
         listbox->addChild(keyItem);
 
@@ -729,8 +701,7 @@ void KeyboardShortcutsCommand::onExecute(Context* context)
   std::string neededSearchCopy = m_search;
   KeyboardShortcutsWindow window(neededSearchCopy);
 
-  window.setBounds(
-      gfx::Rect(0, 0, ui::display_w() * 3 / 4, ui::display_h() * 3 / 4));
+  window.setBounds(gfx::Rect(0, 0, ui::display_w() * 3 / 4, ui::display_h() * 3 / 4));
   int columnWidth = window.bounds().w / 3;
   g_sep = columnWidth;
   g_sep2 = columnWidth * 2;

@@ -22,15 +22,15 @@ void base_trace(const char* msg, ...);
 #define base_break() raise(SIGTRAP)
 #endif
 
-#define ASSERT(condition)                                                      \
-  {                                                                            \
-    if (!(condition))                                                          \
-    {                                                                          \
-      if (base_assert(#condition, __FILE__, __LINE__))                         \
-      {                                                                        \
-        base_break();                                                          \
-      }                                                                        \
-    }                                                                          \
+#define ASSERT(condition)                                                                                              \
+  {                                                                                                                    \
+    if (!(condition))                                                                                                  \
+    {                                                                                                                  \
+      if (base_assert(#condition, __FILE__, __LINE__))                                                                 \
+      {                                                                                                                \
+        base_break();                                                                                                  \
+      }                                                                                                                \
+    }                                                                                                                  \
   }
 
 #define TRACE base_trace

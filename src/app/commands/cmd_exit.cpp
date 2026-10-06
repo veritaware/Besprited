@@ -46,8 +46,7 @@ void ExitCommand::onExecute(Context* ctx)
 {
   if (ctx->hasModifiedDocuments())
   {
-    Command* closeAll =
-        CommandsModule::instance()->getCommandByName(CommandId::CloseAllFiles);
+    Command* closeAll = CommandsModule::instance()->getCommandByName(CommandId::CloseAllFiles);
     Params params;
     params.set("quitting", "1");
     ctx->executeCommand(closeAll, params);

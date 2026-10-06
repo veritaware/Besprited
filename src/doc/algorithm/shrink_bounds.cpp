@@ -21,8 +21,7 @@ namespace doc::algorithm
 namespace
 {
 
-template <typename ImageTraits>
-bool is_same_pixel(color_t pixel1, color_t pixel2)
+template <typename ImageTraits> bool is_same_pixel(color_t pixel1, color_t pixel2)
 {
   static_assert(false && sizeof(ImageTraits), "No is_same_pixel impl");
   return false;
@@ -30,14 +29,12 @@ bool is_same_pixel(color_t pixel1, color_t pixel2)
 
 template <> bool is_same_pixel<RgbTraits>(color_t pixel1, color_t pixel2)
 {
-  return (rgba_geta(pixel1) == 0 && rgba_geta(pixel2) == 0) ||
-         (pixel1 == pixel2);
+  return (rgba_geta(pixel1) == 0 && rgba_geta(pixel2) == 0) || (pixel1 == pixel2);
 }
 
 template <> bool is_same_pixel<GrayscaleTraits>(color_t pixel1, color_t pixel2)
 {
-  return (graya_geta(pixel1) == 0 && graya_geta(pixel2) == 0) ||
-         (pixel1 == pixel2);
+  return (graya_geta(pixel1) == 0 && graya_geta(pixel2) == 0) || (pixel1 == pixel2);
 }
 
 template <> bool is_same_pixel<IndexedTraits>(color_t pixel1, color_t pixel2)
@@ -50,9 +47,7 @@ template <> bool is_same_pixel<BitmapTraits>(color_t pixel1, color_t pixel2)
   return pixel1 == pixel2;
 }
 
-template <typename ImageTraits>
-bool shrink_bounds_templ(const Image* image, gfx::Rect& bounds,
-                         color_t refpixel)
+template <typename ImageTraits> bool shrink_bounds_templ(const Image* image, gfx::Rect& bounds, color_t refpixel)
 {
   bool shrink;
   int u, v;
@@ -63,8 +58,7 @@ bool shrink_bounds_templ(const Image* image, gfx::Rect& bounds,
     shrink = true;
     for (v = bounds.y; v < bounds.y + bounds.h; ++v)
     {
-      if (!is_same_pixel<ImageTraits>(get_pixel_fast<ImageTraits>(image, u, v),
-                                      refpixel))
+      if (!is_same_pixel<ImageTraits>(get_pixel_fast<ImageTraits>(image, u, v), refpixel))
       {
         shrink = false;
         break;
@@ -82,8 +76,7 @@ bool shrink_bounds_templ(const Image* image, gfx::Rect& bounds,
     shrink = true;
     for (v = bounds.y; v < bounds.y + bounds.h; ++v)
     {
-      if (!is_same_pixel<ImageTraits>(get_pixel_fast<ImageTraits>(image, u, v),
-                                      refpixel))
+      if (!is_same_pixel<ImageTraits>(get_pixel_fast<ImageTraits>(image, u, v), refpixel))
       {
         shrink = false;
         break;
@@ -100,8 +93,7 @@ bool shrink_bounds_templ(const Image* image, gfx::Rect& bounds,
     shrink = true;
     for (u = bounds.x; u < bounds.x + bounds.w; ++u)
     {
-      if (!is_same_pixel<ImageTraits>(get_pixel_fast<ImageTraits>(image, u, v),
-                                      refpixel))
+      if (!is_same_pixel<ImageTraits>(get_pixel_fast<ImageTraits>(image, u, v), refpixel))
       {
         shrink = false;
         break;
@@ -119,8 +111,7 @@ bool shrink_bounds_templ(const Image* image, gfx::Rect& bounds,
     shrink = true;
     for (u = bounds.x; u < bounds.x + bounds.w; ++u)
     {
-      if (!is_same_pixel<ImageTraits>(get_pixel_fast<ImageTraits>(image, u, v),
-                                      refpixel))
+      if (!is_same_pixel<ImageTraits>(get_pixel_fast<ImageTraits>(image, u, v), refpixel))
       {
         shrink = false;
         break;
@@ -134,8 +125,7 @@ bool shrink_bounds_templ(const Image* image, gfx::Rect& bounds,
   return (!bounds.isEmpty());
 }
 
-template <typename ImageTraits>
-bool shrink_bounds_templ2(const Image* a, const Image* b, gfx::Rect& bounds)
+template <typename ImageTraits> bool shrink_bounds_templ2(const Image* a, const Image* b, gfx::Rect& bounds)
 {
   bool shrink;
   int u, v;
@@ -146,8 +136,7 @@ bool shrink_bounds_templ2(const Image* a, const Image* b, gfx::Rect& bounds)
     shrink = true;
     for (v = bounds.y; v < bounds.y + bounds.h; ++v)
     {
-      if (get_pixel_fast<ImageTraits>(a, u, v) !=
-          get_pixel_fast<ImageTraits>(b, u, v))
+      if (get_pixel_fast<ImageTraits>(a, u, v) != get_pixel_fast<ImageTraits>(b, u, v))
       {
         shrink = false;
         break;
@@ -165,8 +154,7 @@ bool shrink_bounds_templ2(const Image* a, const Image* b, gfx::Rect& bounds)
     shrink = true;
     for (v = bounds.y; v < bounds.y + bounds.h; ++v)
     {
-      if (get_pixel_fast<ImageTraits>(a, u, v) !=
-          get_pixel_fast<ImageTraits>(b, u, v))
+      if (get_pixel_fast<ImageTraits>(a, u, v) != get_pixel_fast<ImageTraits>(b, u, v))
       {
         shrink = false;
         break;
@@ -183,8 +171,7 @@ bool shrink_bounds_templ2(const Image* a, const Image* b, gfx::Rect& bounds)
     shrink = true;
     for (u = bounds.x; u < bounds.x + bounds.w; ++u)
     {
-      if (get_pixel_fast<ImageTraits>(a, u, v) !=
-          get_pixel_fast<ImageTraits>(b, u, v))
+      if (get_pixel_fast<ImageTraits>(a, u, v) != get_pixel_fast<ImageTraits>(b, u, v))
       {
         shrink = false;
         break;
@@ -202,8 +189,7 @@ bool shrink_bounds_templ2(const Image* a, const Image* b, gfx::Rect& bounds)
     shrink = true;
     for (u = bounds.x; u < bounds.x + bounds.w; ++u)
     {
-      if (get_pixel_fast<ImageTraits>(a, u, v) !=
-          get_pixel_fast<ImageTraits>(b, u, v))
+      if (get_pixel_fast<ImageTraits>(a, u, v) != get_pixel_fast<ImageTraits>(b, u, v))
       {
         shrink = false;
         break;
@@ -219,8 +205,7 @@ bool shrink_bounds_templ2(const Image* a, const Image* b, gfx::Rect& bounds)
 
 } // namespace
 
-bool shrink_bounds(const Image* image, const gfx::Rect& start_bounds,
-                   gfx::Rect& bounds, color_t refpixel)
+bool shrink_bounds(const Image* image, const gfx::Rect& start_bounds, gfx::Rect& bounds, color_t refpixel)
 {
   bounds = (start_bounds & image->bounds());
   switch (image->pixelFormat())
@@ -243,8 +228,7 @@ bool shrink_bounds(const Image* image, gfx::Rect& bounds, color_t refpixel)
   return shrink_bounds(image, image->bounds(), bounds, refpixel);
 }
 
-bool shrink_bounds2(const Image* a, const Image* b,
-                    const gfx::Rect& start_bounds, gfx::Rect& bounds)
+bool shrink_bounds2(const Image* a, const Image* b, const gfx::Rect& start_bounds, gfx::Rect& bounds)
 {
   ASSERT(a && b);
   // cppcheck-suppress nullPointerRedundantCheck

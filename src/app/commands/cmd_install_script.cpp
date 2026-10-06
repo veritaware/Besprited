@@ -79,8 +79,7 @@ void InstallScriptCommand::onExecute(Context* ctx)
   }
 
   ResourceFinder rf;
-  auto destSearchPath =
-      base::join_path("scripts", base::get_file_name(m_filename));
+  auto destSearchPath = base::join_path("scripts", base::get_file_name(m_filename));
   if (useUserDir)
   {
     rf.includeUserDir(destSearchPath.c_str());

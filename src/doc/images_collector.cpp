@@ -19,8 +19,7 @@
 namespace doc
 {
 
-ImagesCollector::ImagesCollector(Layer* layer, frame_t frame, bool allFrames,
-                                 bool forEdit)
+ImagesCollector::ImagesCollector(Layer* layer, frame_t frame, bool allFrames, bool forEdit)
   : m_allFrames(allFrames)
   , m_forEdit(forEdit)
 {

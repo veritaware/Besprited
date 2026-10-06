@@ -66,32 +66,28 @@ std::string string_to_upper(const std::string& original)
 
 std::string to_utf8(const std::wstring& src)
 {
-  int required_size = ::WideCharToMultiByte(
-      CP_UTF8, 0, src.c_str(), (int)src.size(), nullptr, 0, nullptr, nullptr);
+  int required_size = ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), (int)src.size(), nullptr, 0, nullptr, nullptr);
 
   if (required_size == 0)
     return std::string();
 
   std::vector<char> buf(++required_size);
 
-  ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), (int)src.size(), &buf[0],
-                        required_size, nullptr, nullptr);
+  ::WideCharToMultiByte(CP_UTF8, 0, src.c_str(), (int)src.size(), &buf[0], required_size, nullptr, nullptr);
 
   return {&buf[0]};
 }
 
 std::wstring from_utf8(const std::string& src)
 {
-  int required_size =
-      MultiByteToWideChar(CP_UTF8, 0, src.c_str(), (int)src.size(), nullptr, 0);
+  int required_size = MultiByteToWideChar(CP_UTF8, 0, src.c_str(), (int)src.size(), nullptr, 0);
 
   if (required_size == 0)
     return std::wstring();
 
   std::vector<wchar_t> buf(++required_size);
 
-  ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), (int)src.size(), &buf[0],
-                        required_size);
+  ::MultiByteToWideChar(CP_UTF8, 0, src.c_str(), (int)src.size(), &buf[0], required_size);
 
   return {&buf[0]};
 }
@@ -207,8 +203,7 @@ int utf8_icmp(const std::string& a, const std::string& b, int n)
   const utf8_const_iterator b_end(b.end());
   int i = 0;
 
-  for (; (n == 0 || i < n) && a_it != a_end && b_it != b_end;
-       ++a_it, ++b_it, ++i)
+  for (; (n == 0 || i < n) && a_it != a_end && b_it != b_end; ++a_it, ++b_it, ++i)
   {
     const int a_chr = std::tolower(*a_it);
     const int b_chr = std::tolower(*b_it);

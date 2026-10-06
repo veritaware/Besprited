@@ -65,8 +65,7 @@ void ZoomCommand::onLoadParams(const Params& params)
   std::string percentage = params.get("percentage");
   if (!percentage.empty())
   {
-    m_zoom = render::Zoom::fromScale(std::strtod(percentage.c_str(), nullptr) /
-                                     100.0);
+    m_zoom = render::Zoom::fromScale(std::strtod(percentage.c_str(), nullptr) / 100.0);
     m_action = Set;
   }
 }
@@ -104,9 +103,8 @@ void ZoomCommand::onExecute(Context* context)
 
   bool center = Preferences::instance().editor.zoomFromCenterWithKeys();
 
-  editor->setZoomAndCenterInMouse(
-      zoom, mousePos,
-      (center ? Editor::ZoomBehavior::CENTER : Editor::ZoomBehavior::MOUSE));
+  editor->setZoomAndCenterInMouse(zoom, mousePos,
+                                  (center ? Editor::ZoomBehavior::CENTER : Editor::ZoomBehavior::MOUSE));
 }
 
 std::string ZoomCommand::onGetFriendlyName() const
@@ -122,8 +120,7 @@ std::string ZoomCommand::onGetFriendlyName() const
     text += " out";
     break;
   case Set:
-    text +=
-        " " + base::convert_to<std::string>(int(100.0 * m_zoom.scale())) + "%";
+    text += " " + base::convert_to<std::string>(int(100.0 * m_zoom.scale())) + "%";
     break;
   }
 

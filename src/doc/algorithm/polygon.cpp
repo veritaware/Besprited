@@ -31,8 +31,7 @@ using namespace gfx;
 /* That could help to adjust intersections  to produce a nice */
 /* interior_extrema. */
 
-void algorithm::polygon(int vertices, const int* points, int pointStride,
-                        void* data, AlgoHLine proc)
+void algorithm::polygon(int vertices, const int* points, int pointStride, void* data, AlgoHLine proc)
 {
   const int n = vertices;
   if (!n)
@@ -122,16 +121,12 @@ void algorithm::polygon(int vertices, const int* points, int pointStride,
       if ((y >= y1) && (y < y2))
       {
         polyInts[ints++] =
-            static_cast<int>(static_cast<float>((y - y1) * (x2 - x1)) /
-                                 static_cast<float>(y2 - y1) +
-                             0.5 + x1);
+            static_cast<int>(static_cast<float>((y - y1) * (x2 - x1)) / static_cast<float>(y2 - y1) + 0.5 + x1);
       }
       else if ((y == maxy) && (y > y1) && (y <= y2))
       {
         polyInts[ints++] =
-            static_cast<int>(static_cast<float>((y - y1) * (x2 - x1)) /
-                                 static_cast<float>(y2 - y1) +
-                             0.5 + x1);
+            static_cast<int>(static_cast<float>((y - y1) * (x2 - x1)) / static_cast<float>(y2 - y1) + 0.5 + x1);
       }
     }
     /*

@@ -21,8 +21,7 @@ public:
     auto& cls = addClass<void, IntEntryObject>("IntEntry");
     // The int entry is created by DialogObject::addIntEntry() (C++), not
     // `new IntEntry()` in JS, but delta requires a non-null constructor.
-    cls.setConstructor() = []() -> std::shared_ptr<IntEntryObject>
-    { return std::make_shared<IntEntryObject>(); };
+    cls.setConstructor() = []() -> std::shared_ptr<IntEntryObject> { return std::make_shared<IntEntryObject>(); };
 
     addWidgetId<IntEntryObject>(cls);
 
@@ -47,9 +46,7 @@ public:
     // value: the integer value. Setting it does not raise the change event
     // (setValueSilent); user edits do.
     cls.addGetter("value") = [](IntEntryObject& self) -> JSON::Value
-    {
-      return self.intEntry() ? (double)self.intEntry()->getValue() : (double)0;
-    };
+    { return self.intEntry() ? (double)self.intEntry()->getValue() : (double)0; };
     cls.addSetter("value") = [](IntEntryObject& self, JSON::Value& v)
     {
       if (self.intEntry())

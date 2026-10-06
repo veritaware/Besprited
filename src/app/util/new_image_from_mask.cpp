@@ -27,13 +27,11 @@ using namespace doc;
 
 Image* new_image_from_mask(const Site& site)
 {
-  const Mask* srcMask =
-      static_cast<const app::Document*>(site.document())->mask();
+  const Mask* srcMask = static_cast<const app::Document*>(site.document())->mask();
   return new_image_from_mask(site, srcMask);
 }
 
-doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* srcMask,
-                                bool merged)
+doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* srcMask, bool merged)
 {
   const Sprite* srcSprite = site.sprite();
   ASSERT(srcSprite);
@@ -47,8 +45,7 @@ doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* srcMask,
   ASSERT(srcMaskBitmap);
   ASSERT(!srcBounds.isEmpty());
 
-  std::unique_ptr<Image> dst(
-      Image::create(srcSprite->pixelFormat(), srcBounds.w, srcBounds.h));
+  std::unique_ptr<Image> dst(Image::create(srcSprite->pixelFormat(), srcBounds.w, srcBounds.h));
   if (!dst)
     return nullptr;
 
@@ -61,8 +58,7 @@ doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* srcMask,
   if (merged)
   {
     render::Render render;
-    render.renderSprite(dst.get(), srcSprite, site.frame(),
-                        gfx::Clip(0, 0, srcBounds));
+    render.renderSprite(dst.get(), srcSprite, site.frame(), gfx::Clip(0, 0, srcBounds));
 
     src = dst.get();
   }
@@ -77,8 +73,7 @@ doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* srcMask,
     if (srcMaskBitmap)
     {
       // Copy active layer with mask
-      const LockImageBits<BitmapTraits> maskBits(
-          srcMaskBitmap, gfx::Rect(0, 0, srcBounds.w, srcBounds.h));
+      const LockImageBits<BitmapTraits> maskBits(srcMaskBitmap, gfx::Rect(0, 0, srcBounds.w, srcBounds.h));
       LockImageBits<BitmapTraits>::const_iterator mask_it = maskBits.begin();
 
       for (int v = 0; v < srcBounds.h; ++v)
@@ -94,8 +89,7 @@ doc::Image* new_image_from_mask(const doc::Site& site, const doc::Mask* srcMask,
               int getx = u + srcBounds.x - x;
               int gety = v + srcBounds.y - y;
 
-              if ((getx >= 0) && (getx < src->width()) && (gety >= 0) &&
-                  (gety < src->height()))
+              if ((getx >= 0) && (getx < src->width()) && (gety >= 0) && (gety < src->height()))
                 dst->putPixel(u, v, src->getPixel(getx, gety));
             }
           }

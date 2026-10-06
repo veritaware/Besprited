@@ -36,8 +36,7 @@ public:
   virtual ~EditorPreRender() {}
   virtual Editor* getEditor() = 0;
   virtual Image* getImage() = 0;
-  virtual void fillRect(const gfx::Rect& rect, uint32_t rgbaColor,
-                        int opacity) = 0;
+  virtual void fillRect(const gfx::Rect& rect, uint32_t rgbaColor, int opacity) = 0;
 };
 
 class EditorPostRender
@@ -45,8 +44,7 @@ class EditorPostRender
 public:
   virtual ~EditorPostRender() {}
   virtual Editor* getEditor() = 0;
-  virtual void drawLine(int x1, int y1, int x2, int y2,
-                        gfx::Color screenColor) = 0;
+  virtual void drawLine(int x1, int y1, int x2, int y2, gfx::Color screenColor) = 0;
   virtual void drawRectXor(const gfx::Rect& rc) = 0;
 };
 
@@ -59,8 +57,7 @@ public:
   virtual ~EditorDecorator() {}
   virtual void preRenderDecorator(EditorPreRender* render) = 0;
   virtual void postRenderDecorator(EditorPostRender* render) = 0;
-  virtual void getInvalidDecoratoredRegion(Editor* editor,
-                                           gfx::Region& region) = 0;
+  virtual void getInvalidDecoratoredRegion(Editor* editor, gfx::Region& region) = 0;
 };
 
 } // namespace app

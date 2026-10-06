@@ -48,14 +48,12 @@ ResetSymmetryCommand::ResetSymmetryCommand()
 
 void ResetSymmetryCommand::onLoadParams(const Params& params)
 {
-  m_target =
-      (params.get("target") == "view" ? Target::ViewCenter : Target::Center);
+  m_target = (params.get("target") == "view" ? Target::ViewCenter : Target::Center);
 }
 
 bool ResetSymmetryCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void ResetSymmetryCommand::onExecute(Context* context)
@@ -68,8 +66,7 @@ void ResetSymmetryCommand::onExecute(Context* context)
 
   if (m_target == Target::ViewCenter && current_editor)
   {
-    pos = current_editor->screenToEditor(
-        ui::View::getView(current_editor)->viewportBounds().center());
+    pos = current_editor->screenToEditor(ui::View::getView(current_editor)->viewportBounds().center());
     pos.x = MID(0, pos.x, sprite->width());
     pos.y = MID(0, pos.y, sprite->height());
   }

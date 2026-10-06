@@ -32,8 +32,7 @@ using namespace ui;
 // static
 Params AppMenuItem::s_contextParams;
 
-AppMenuItem::AppMenuItem(const char* text, Command* command,
-                         const Params& params)
+AppMenuItem::AppMenuItem(const char* text, Command* command, const Params& params)
   : MenuItem(text)
   , m_key(nullptr)
   , m_command(command)
@@ -94,15 +93,13 @@ void AppMenuItem::onSizeHint(SizeHintEvent& ev)
 
   if (hasText())
   {
-    size.w = +textWidth() + (inBar() ? childSpacing() / 4 : childSpacing()) +
-             border().width();
+    size.w = +textWidth() + (inBar() ? childSpacing() / 4 : childSpacing()) + border().width();
 
     size.h = +textHeight() + border().height();
 
     if (m_key && !m_key->accels().empty())
     {
-      size.w += Graphics::measureUIStringLength(
-          m_key->accels().front().toString().c_str(), font().get());
+      size.w += Graphics::measureUIStringLength(m_key->accels().front().toString().c_str(), font().get());
     }
   }
 

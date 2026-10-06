@@ -73,8 +73,7 @@ SDL3Display::SDL3Display(int width, int height, int scale)
         if (gpu)
           m_renderer = SDL_CreateRenderer(m_window, nullptr);
 
-        sdl::windowIdToDisplay[static_cast<int>(SDL_GetWindowID(m_window))] =
-            this;
+        sdl::windowIdToDisplay[static_cast<int>(SDL_GetWindowID(m_window))] = this;
         SDL_GetWindowSize(m_window, &width, &height);
         m_width = width;
         m_height = height;
@@ -116,9 +115,7 @@ void SDL3Display::toggleFullscreen()
 
 bool SDL3Display::setIcon(Surface* surface)
 {
-  SDL_SetWindowIcon(m_window,
-                    static_cast<SDL_Surface*>(
-                        static_cast<SDL3Surface*>(surface)->nativeHandle()));
+  SDL_SetWindowIcon(m_window, static_cast<SDL_Surface*>(static_cast<SDL3Surface*>(surface)->nativeHandle()));
   return true;
 }
 
@@ -181,8 +178,7 @@ void SDL3Display::recreateSurface()
 {
   if (!m_scale)
     return;
-  auto newSurface = new SDL3Surface(width() / m_scale, height() / m_scale,
-                                    SDL3Surface::DeleteAndDestroy);
+  auto newSurface = new SDL3Surface(width() / m_scale, height() / m_scale, SDL3Surface::DeleteAndDestroy);
   if (m_surface)
   {
     m_surface->blitTo(newSurface, 0, 0, 0, 0, width(), height());
@@ -220,13 +216,10 @@ void SDL3Display::flip(const gfx::Rect& bounds)
   m_dirty = true;
   if (!she::instance()->isGfxThread())
   {
-    const SDL_Rect rect{
-        .x = bounds.x, .y = bounds.y, .w = bounds.w, .h = bounds.h};
+    const SDL_Rect rect{.x = bounds.x, .y = bounds.y, .w = bounds.w, .h = bounds.h};
     SDL_Rect dst{.x = rect.x, .y = rect.y, .w = rect.w, .h = rect.h};
-    SDL_BlitSurfaceScaled(static_cast<SDL_Surface*>(m_surface->nativeHandle()),
-                          &rect,
-                          static_cast<SDL_Surface*>(m_doublebuffer->nativeHandle()),
-                          &dst, SDL_SCALEMODE_NEAREST);
+    SDL_BlitSurfaceScaled(static_cast<SDL_Surface*>(m_surface->nativeHandle()), &rect,
+                          static_cast<SDL_Surface*>(m_doublebuffer->nativeHandle()), &dst, SDL_SCALEMODE_NEAREST);
     return;
   }
 
@@ -238,12 +231,9 @@ void SDL3Display::flip(const gfx::Rect& bounds)
   }
 
   auto nativeSurface = SDL_GetWindowSurface(m_window);
-  SDL_Rect dst{.x = rect.x * m_scale,
-               .y = rect.y * m_scale,
-               .w = rect.w * m_scale,
-               .h = rect.h * m_scale};
-  SDL_BlitSurfaceScaled(static_cast<SDL_Surface*>(m_surface->nativeHandle()),
-                        &rect, nativeSurface, &dst, SDL_SCALEMODE_NEAREST);
+  SDL_Rect dst{.x = rect.x * m_scale, .y = rect.y * m_scale, .w = rect.w * m_scale, .h = rect.h * m_scale};
+  SDL_BlitSurfaceScaled(static_cast<SDL_Surface*>(m_surface->nativeHandle()), &rect, nativeSurface, &dst,
+                        SDL_SCALEMODE_NEAREST);
 }
 
 void SDL3Display::maximize()

@@ -23,8 +23,7 @@ class Command;
 class AppMenuItem : public ui::MenuItem
 {
 public:
-  AppMenuItem(const char* text, Command* command = nullptr,
-              const Params& params = Params());
+  AppMenuItem(const char* text, Command* command = nullptr, const Params& params = Params());
 
   Key* key() { return m_key; }
   void setKey(Key* key) { m_key = key; }

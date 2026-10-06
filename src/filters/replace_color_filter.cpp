@@ -50,10 +50,8 @@ const char* ReplaceColorFilter::getName()
 
 void ReplaceColorFilter::applyToRgba(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint32_t*>(filterMgr->getSourceAddress());
-  auto* dst_address =
-      static_cast<uint32_t*>(filterMgr->getDestinationAddress());
+  const auto* src_address = static_cast<const uint32_t*>(filterMgr->getSourceAddress());
+  auto* dst_address = static_cast<uint32_t*>(filterMgr->getDestinationAddress());
   const int w = filterMgr->getWidth();
   const Target target = filterMgr->getTarget();
   int from_r, from_g, from_b, from_a;
@@ -94,15 +92,12 @@ void ReplaceColorFilter::applyToRgba(FilterManager* filterMgr)
     if (!(target & TARGET_ALPHA_CHANNEL))
       from_a = src_a;
 
-    if ((ABS(src_r - from_r) <= m_tolerance) &&
-        (ABS(src_g - from_g) <= m_tolerance) &&
-        (ABS(src_b - from_b) <= m_tolerance) &&
-        (ABS(src_a - from_a) <= m_tolerance))
+    if ((ABS(src_r - from_r) <= m_tolerance) && (ABS(src_g - from_g) <= m_tolerance) &&
+        (ABS(src_b - from_b) <= m_tolerance) && (ABS(src_a - from_a) <= m_tolerance))
     {
-      *(dst_address++) = rgba((target & TARGET_RED_CHANNEL ? to_r : src_r),
-                              (target & TARGET_GREEN_CHANNEL ? to_g : src_g),
-                              (target & TARGET_BLUE_CHANNEL ? to_b : src_b),
-                              (target & TARGET_ALPHA_CHANNEL ? to_a : src_a));
+      *(dst_address++) =
+          rgba((target & TARGET_RED_CHANNEL ? to_r : src_r), (target & TARGET_GREEN_CHANNEL ? to_g : src_g),
+               (target & TARGET_BLUE_CHANNEL ? to_b : src_b), (target & TARGET_ALPHA_CHANNEL ? to_a : src_a));
     }
     else
       *(dst_address++) = c;
@@ -111,10 +106,8 @@ void ReplaceColorFilter::applyToRgba(FilterManager* filterMgr)
 
 void ReplaceColorFilter::applyToGrayscale(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint16_t*>(filterMgr->getSourceAddress());
-  auto* dst_address =
-      static_cast<uint16_t*>(filterMgr->getDestinationAddress());
+  const auto* src_address = static_cast<const uint16_t*>(filterMgr->getSourceAddress());
+  auto* dst_address = static_cast<uint16_t*>(filterMgr->getDestinationAddress());
   const int w = filterMgr->getWidth();
   const Target target = filterMgr->getTarget();
   int from_v, from_a;
@@ -145,11 +138,10 @@ void ReplaceColorFilter::applyToGrayscale(FilterManager* filterMgr)
     if (!(target & TARGET_ALPHA_CHANNEL))
       from_a = src_a;
 
-    if ((ABS(src_v - from_v) <= m_tolerance) &&
-        (ABS(src_a - from_a) <= m_tolerance))
+    if ((ABS(src_v - from_v) <= m_tolerance) && (ABS(src_a - from_a) <= m_tolerance))
     {
-      *(dst_address++) = graya((target & TARGET_GRAY_CHANNEL ? to_v : src_v),
-                               (target & TARGET_ALPHA_CHANNEL ? to_a : src_a));
+      *(dst_address++) =
+          graya((target & TARGET_GRAY_CHANNEL ? to_v : src_v), (target & TARGET_ALPHA_CHANNEL ? to_a : src_a));
     }
     else
       *(dst_address++) = c;
@@ -158,8 +150,7 @@ void ReplaceColorFilter::applyToGrayscale(FilterManager* filterMgr)
 
 void ReplaceColorFilter::applyToIndexed(FilterManager* filterMgr)
 {
-  const auto* src_address =
-      static_cast<const uint8_t*>(filterMgr->getSourceAddress());
+  const auto* src_address = static_cast<const uint8_t*>(filterMgr->getSourceAddress());
   auto* dst_address = static_cast<uint8_t*>(filterMgr->getDestinationAddress());
   const int w = filterMgr->getWidth();
   const Target target = filterMgr->getTarget();
@@ -216,16 +207,12 @@ void ReplaceColorFilter::applyToIndexed(FilterManager* filterMgr)
       if (!(target & TARGET_ALPHA_CHANNEL))
         from_a = src_a;
 
-      if ((ABS(src_r - from_r) <= m_tolerance) &&
-          (ABS(src_g - from_g) <= m_tolerance) &&
-          (ABS(src_b - from_b) <= m_tolerance) &&
-          (ABS(src_a - from_a) <= m_tolerance))
+      if ((ABS(src_r - from_r) <= m_tolerance) && (ABS(src_g - from_g) <= m_tolerance) &&
+          (ABS(src_b - from_b) <= m_tolerance) && (ABS(src_a - from_a) <= m_tolerance))
       {
-        *(dst_address++) =
-            rgbmap->mapColor((target & TARGET_RED_CHANNEL ? to_r : src_r),
-                             (target & TARGET_GREEN_CHANNEL ? to_g : src_g),
-                             (target & TARGET_BLUE_CHANNEL ? to_b : src_b),
-                             (target & TARGET_ALPHA_CHANNEL ? to_a : src_a));
+        *(dst_address++) = rgbmap->mapColor(
+            (target & TARGET_RED_CHANNEL ? to_r : src_r), (target & TARGET_GREEN_CHANNEL ? to_g : src_g),
+            (target & TARGET_BLUE_CHANNEL ? to_b : src_b), (target & TARGET_ALPHA_CHANNEL ? to_a : src_a));
       }
       else
         *(dst_address++) = c;

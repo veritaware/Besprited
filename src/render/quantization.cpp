@@ -37,10 +37,9 @@ namespace render
 using namespace doc;
 using namespace gfx;
 
-std::shared_ptr<Palette>
-create_palette_from_sprite(const Sprite* sprite, frame_t fromFrame,
-                           frame_t toFrame, bool withAlpha, Palette* oldPalette,
-                           PaletteOptimizerDelegate* delegate)
+std::shared_ptr<Palette> create_palette_from_sprite(const Sprite* sprite, frame_t fromFrame, frame_t toFrame,
+                                                    bool withAlpha, Palette* oldPalette,
+                                                    PaletteOptimizerDelegate* delegate)
 {
   PaletteOptimizer optimizer;
 
@@ -57,8 +56,7 @@ create_palette_from_sprite(const Sprite* sprite, frame_t fromFrame,
   }
 
   // Add a flat image with the current sprite's frame rendered
-  const std::shared_ptr<Image> flat_image{
-      Image::create(IMAGE_RGB, sprite->width(), sprite->height())};
+  const std::shared_ptr<Image> flat_image{Image::create(IMAGE_RGB, sprite->width(), sprite->height())};
 
   // Feed the optimizer with all rendered frames
   render::Render render;
@@ -72,28 +70,22 @@ create_palette_from_sprite(const Sprite* sprite, frame_t fromFrame,
       if (!delegate->onPaletteOptimizerContinue())
         return nullptr;
 
-      delegate->onPaletteOptimizerProgress(
-          static_cast<double>(frame - fromFrame + 1) /
-          static_cast<double>(toFrame - fromFrame + 1));
+      delegate->onPaletteOptimizerProgress(static_cast<double>(frame - fromFrame + 1) /
+                                           static_cast<double>(toFrame - fromFrame + 1));
     }
   }
 
   // Generate an optimized palette
-  optimizer.calculate(
-      *palette,
-      // Transparent color is needed if we have transparent layers
-      (sprite->backgroundLayer() && sprite->countLayers() == 1
-           ? -1
-           : sprite->transparentColor()),
-      delegate);
+  optimizer.calculate(*palette,
+                      // Transparent color is needed if we have transparent layers
+                      (sprite->backgroundLayer() && sprite->countLayers() == 1 ? -1 : sprite->transparentColor()),
+                      delegate);
 
   return palette;
 }
 
-Image* convert_pixel_format(const Image* image, Image* new_image,
-                            PixelFormat pixelFormat,
-                            DitheringMethod ditheringMethod,
-                            const RgbMap* rgbmap, const Palette* palette,
+Image* convert_pixel_format(const Image* image, Image* new_image, PixelFormat pixelFormat,
+                            DitheringMethod ditheringMethod, const RgbMap* rgbmap, const Palette* palette,
                             bool is_background, color_t new_mask_color)
 {
   if (!new_image)
@@ -101,13 +93,11 @@ Image* convert_pixel_format(const Image* image, Image* new_image,
   new_image->setMaskColor(new_mask_color);
 
   // RGB -> Indexed with ordered dithering
-  if (image->pixelFormat() == IMAGE_RGB && pixelFormat == IMAGE_INDEXED &&
-      ditheringMethod == DitheringMethod::ORDERED)
+  if (image->pixelFormat() == IMAGE_RGB && pixelFormat == IMAGE_INDEXED && ditheringMethod == DitheringMethod::ORDERED)
   {
     const BayerMatrix<8> matrix;
     OrderedDither dither;
-    dither.ditherRgbImageToIndexed(matrix, image, new_image, 0, 0, rgbmap,
-                                   palette);
+    dither.ditherRgbImageToIndexed(matrix, image, new_image, 0, 0, rgbmap, palette);
     return new_image;
   }
 
@@ -120,8 +110,7 @@ Image* convert_pixel_format(const Image* image, Image* new_image,
   case IMAGE_RGB:
   {
     const LockImageBits<RgbTraits> srcBits(image);
-    LockImageBits<RgbTraits>::const_iterator src_it = srcBits.begin(),
-                                             src_end = srcBits.end();
+    LockImageBits<RgbTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
 
     switch (new_image->pixelFormat())
     {
@@ -145,8 +134,7 @@ Image* convert_pixel_format(const Image* image, Image* new_image,
         ASSERT(dst_it != dst_end);
         c = *src_it;
 
-        g = 255 *
-            Hsv(Rgb(rgba_getr(c), rgba_getg(c), rgba_getb(c))).valueInt() / 100;
+        g = 255 * Hsv(Rgb(rgba_getr(c), rgba_getg(c), rgba_getb(c))).valueInt() / 100;
 
         *dst_it = graya(g, rgba_geta(c));
       }
@@ -188,8 +176,7 @@ Image* convert_pixel_format(const Image* image, Image* new_image,
   case IMAGE_GRAYSCALE:
   {
     const LockImageBits<GrayscaleTraits> srcBits(image);
-    LockImageBits<GrayscaleTraits>::const_iterator src_it = srcBits.begin(),
-                                                   src_end = srcBits.end();
+    LockImageBits<GrayscaleTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
 
     switch (new_image->pixelFormat())
     {
@@ -252,8 +239,7 @@ Image* convert_pixel_format(const Image* image, Image* new_image,
   case IMAGE_INDEXED:
   {
     const LockImageBits<IndexedTraits> srcBits(image);
-    LockImageBits<IndexedTraits>::const_iterator src_it = srcBits.begin(),
-                                                 src_end = srcBits.end();
+    LockImageBits<IndexedTraits>::const_iterator src_it = srcBits.begin(), src_end = srcBits.end();
 
     switch (new_image->pixelFormat())
     {
@@ -366,8 +352,7 @@ void PaletteOptimizer::feedWithImage(Image* image, bool withAlpha)
   case IMAGE_RGB:
   {
     const LockImageBits<RgbTraits> bits(image);
-    LockImageBits<RgbTraits>::const_iterator it = bits.begin(),
-                                             end = bits.end();
+    LockImageBits<RgbTraits>::const_iterator it = bits.begin(), end = bits.end();
 
     for (; it != end; ++it)
     {
@@ -386,8 +371,7 @@ void PaletteOptimizer::feedWithImage(Image* image, bool withAlpha)
   case IMAGE_GRAYSCALE:
   {
     const LockImageBits<RgbTraits> bits(image);
-    LockImageBits<RgbTraits>::const_iterator it = bits.begin(),
-                                             end = bits.end();
+    LockImageBits<RgbTraits>::const_iterator it = bits.begin(), end = bits.end();
 
     for (; it != end; ++it)
     {
@@ -398,9 +382,7 @@ void PaletteOptimizer::feedWithImage(Image* image, bool withAlpha)
         if (!withAlpha)
           color = graya(graya_getv(color), 255);
 
-        m_histogram.addSamples(rgba(graya_getv(color), graya_getv(color),
-                                    graya_getv(color), graya_geta(color)),
-                               1);
+        m_histogram.addSamples(rgba(graya_getv(color), graya_getv(color), graya_getv(color), graya_geta(color)), 1);
       }
     }
   }
@@ -417,8 +399,7 @@ void PaletteOptimizer::feedWithRgbaColor(color_t color)
   m_histogram.addSamples(color, 1);
 }
 
-void PaletteOptimizer::calculate(Palette& palette, int maskIndex,
-                                 PaletteOptimizerDelegate* delegate)
+void PaletteOptimizer::calculate(Palette& palette, int maskIndex, PaletteOptimizerDelegate* delegate)
 {
   bool addMask;
 

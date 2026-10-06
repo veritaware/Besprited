@@ -18,8 +18,7 @@
 namespace ui
 {
 
-Overlay::Overlay(she::Surface* overlaySurface, const gfx::Point& pos,
-                 ZOrder zorder)
+Overlay::Overlay(she::Surface* overlaySurface, const gfx::Point& pos, ZOrder zorder)
   : m_surface(overlaySurface)
   , m_overlap(nullptr)
   , m_pos(pos)
@@ -33,8 +32,7 @@ Overlay::~Overlay()
   {
     Manager* manager = Manager::getDefault();
     if (manager)
-      manager->invalidateRect(
-          gfx::Rect(m_pos.x, m_pos.y, m_surface->width(), m_surface->height()));
+      manager->invalidateRect(gfx::Rect(m_pos.x, m_pos.y, m_surface->width(), m_surface->height()));
     m_surface->dispose();
   }
 
@@ -65,8 +63,7 @@ void Overlay::drawOverlay(she::Surface* screen)
   she::SurfaceLock lock(m_surface);
   screen->drawRgbaSurface(m_surface, m_pos.x, m_pos.y);
 
-  Manager::getDefault()->dirtyRect(
-      gfx::Rect(m_pos.x, m_pos.y, m_surface->width(), m_surface->height()));
+  Manager::getDefault()->dirtyRect(gfx::Rect(m_pos.x, m_pos.y, m_surface->width(), m_surface->height()));
 }
 
 void Overlay::moveOverlay(const gfx::Point& newPos)
@@ -80,12 +77,10 @@ void Overlay::captureOverlappedArea(she::Surface* screen)
     return;
 
   if (!m_overlap)
-    m_overlap =
-        she::instance()->createSurface(m_surface->width(), m_surface->height());
+    m_overlap = she::instance()->createSurface(m_surface->width(), m_surface->height());
 
   she::SurfaceLock lock(m_overlap);
-  screen->blitTo(m_overlap, m_pos.x, m_pos.y, 0, 0, m_overlap->width(),
-                 m_overlap->height());
+  screen->blitTo(m_overlap, m_pos.x, m_pos.y, 0, 0, m_overlap->width(), m_overlap->height());
 }
 
 void Overlay::restoreOverlappedArea(she::Surface* screen)
@@ -97,11 +92,9 @@ void Overlay::restoreOverlappedArea(she::Surface* screen)
     return;
 
   she::SurfaceLock lock(m_overlap);
-  m_overlap->blitTo(screen, 0, 0, m_pos.x, m_pos.y, m_overlap->width(),
-                    m_overlap->height());
+  m_overlap->blitTo(screen, 0, 0, m_pos.x, m_pos.y, m_overlap->width(), m_overlap->height());
 
-  Manager::getDefault()->dirtyRect(
-      gfx::Rect(m_pos.x, m_pos.y, m_overlap->width(), m_overlap->height()));
+  Manager::getDefault()->dirtyRect(gfx::Rect(m_pos.x, m_pos.y, m_overlap->width(), m_overlap->height()));
 }
 
 } // namespace ui

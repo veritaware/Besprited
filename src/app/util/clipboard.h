@@ -72,8 +72,7 @@ bool get_image_size(gfx::Size& size);
 // Returns true and fills "image" and "palette" with the clipboard's
 // image and its palette, or returns false if the clipboard doesn't
 // contain an image.
-bool get_image(std::shared_ptr<Image>& image,
-               std::shared_ptr<Palette>& palette);
+bool get_image(std::shared_ptr<Image>& image, std::shared_ptr<Palette>& palette);
 
 Palette* get_palette();
 const PalettePicks& get_palette_picks();

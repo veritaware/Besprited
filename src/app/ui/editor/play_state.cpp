@@ -44,8 +44,7 @@ PlayState::PlayState(bool playOnce)
 
   // Hook BeforeCommandExecution signal so we know if the user wants
   // to execute other command, so we can stop the animation.
-  m_ctxConn = UIContext::instance()->BeforeCommandExecution.connect(
-      &PlayState::onBeforeCommandExecution, this);
+  m_ctxConn = UIContext::instance()->BeforeCommandExecution.connect(&PlayState::onBeforeCommandExecution, this);
 }
 
 void PlayState::onEnterState(Editor* editor)
@@ -66,8 +65,7 @@ void PlayState::onEnterState(Editor* editor)
     doc::FrameTag* tag = get_animation_tag(m_editor->sprite(), m_refFrame);
     if (tag)
     {
-      frame = (tag->aniDir() == AniDir::REVERSE ? tag->toFrame()
-                                                : tag->fromFrame());
+      frame = (tag->aniDir() == AniDir::REVERSE ? tag->toFrame() : tag->fromFrame());
     }
 
     m_editor->setFrame(frame);
@@ -84,8 +82,7 @@ void PlayState::onEnterState(Editor* editor)
     m_playTimer.start();
 }
 
-EditorState::LeaveAction PlayState::onLeaveState(Editor* editor,
-                                                 EditorState* newState)
+EditorState::LeaveAction PlayState::onLeaveState(Editor* editor, EditorState* newState)
 {
   if (!m_toScroll)
   {
@@ -192,8 +189,7 @@ void PlayState::onPlaybackTick()
       }
     }
 
-    frame =
-        calculate_next_frame(sprite, frame, frame_t(1), tag, m_pingPongForward);
+    frame = calculate_next_frame(sprite, frame, frame_t(1), tag, m_pingPongForward);
 
     m_editor->setFrame(frame);
     m_nextFrameTime += getNextFrameTime();
@@ -223,8 +219,7 @@ void PlayState::onBeforeCommandExecution(CommandExecutionEvent& ev)
   //
   // There are other commands that just doesn't stop the animation
   // (zoom, scroll, etc.)
-  if (ev.command()->id() == CommandId::PlayAnimation ||
-      ev.command()->id() == CommandId::Zoom ||
+  if (ev.command()->id() == CommandId::PlayAnimation || ev.command()->id() == CommandId::Zoom ||
       ev.command()->id() == CommandId::Scroll)
   {
     return;
@@ -240,19 +235,15 @@ double PlayState::getNextFrameTime()
                                                   // "duration divider"
 }
 
-void show_animation_speed_multiplier_popup(Editor* editor,
-                                           Option<bool>& playOnce,
-                                           bool withStopBehaviorOptions)
+void show_animation_speed_multiplier_popup(Editor* editor, Option<bool>& playOnce, bool withStopBehaviorOptions)
 {
   double options[] = {0.25, 0.5, 1.0, 1.5, 2.0, 3.0};
   Menu menu;
 
   for (double option : options)
   {
-    MenuItem* item =
-        new MenuItem("Speed x" + base::convert_to<std::string>(option));
-    item->Click.connect(
-        base::Bind<void>(&Editor::setAnimationSpeedMultiplier, editor, option));
+    MenuItem* item = new MenuItem("Speed x" + base::convert_to<std::string>(option));
+    item->Click.connect(base::Bind<void>(&Editor::setAnimationSpeedMultiplier, editor, option));
     item->setSelected(editor->getAnimationSpeedMultiplier() == option);
     menu.addChild(item);
   }
@@ -274,8 +265,7 @@ void show_animation_speed_multiplier_popup(Editor* editor,
         []()
         {
           // Switch the "rewind_on_stop" option
-          Preferences::instance().general.rewindOnStop(
-              !Preferences::instance().general.rewindOnStop());
+          Preferences::instance().general.rewindOnStop(!Preferences::instance().general.rewindOnStop());
         });
     item->setSelected(Preferences::instance().general.rewindOnStop());
     menu.addChild(item);

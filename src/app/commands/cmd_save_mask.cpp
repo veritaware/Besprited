@@ -48,14 +48,12 @@ void SaveMaskCommand::onExecute(Context* context)
   const Document* document(reader.document());
   std::string filename = "default.msk";
 
-  filename = app::show_file_selector("Save .msk File", filename, "msk",
-                                     FileSelectorType::Save);
+  filename = app::show_file_selector("Save .msk File", filename, "msk", FileSelectorType::Save);
   if (filename.empty())
     return;
 
   if (save_msk_file(document->mask(), filename.c_str()) != 0)
-    ui::Alert::show("Error<<Error saving .msk file<<%s||&Close",
-                    filename.c_str());
+    ui::Alert::show("Error<<Error saving .msk file<<%s||&Close", filename.c_str());
 }
 
 std::unique_ptr<Command> CommandFactory::createSaveMaskCommand()

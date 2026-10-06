@@ -25,8 +25,7 @@ namespace app
 using namespace doc;
 
 // Loads a PIC file (Animator and Animator Pro format)
-Image* load_pic_file(const char* filename, int* x, int* y,
-                     std::shared_ptr<Palette>& palette)
+Image* load_pic_file(const char* filename, int* x, int* y, std::shared_ptr<Palette>& palette)
 {
   std::unique_ptr<Image> image;
   int size, compression;
@@ -70,9 +69,7 @@ Image* load_pic_file(const char* filename, int* x, int* y,
       r = std::fgetc(f);
       g = std::fgetc(f);
       b = std::fgetc(f);
-      palette->setEntry(c,
-                        rgba(scale_6bits_to_8bits(r), scale_6bits_to_8bits(g),
-                             scale_6bits_to_8bits(b), 255));
+      palette->setEntry(c, rgba(scale_6bits_to_8bits(r), scale_6bits_to_8bits(g), scale_6bits_to_8bits(b), 255));
     }
 
     // Read image
@@ -165,8 +162,7 @@ Image* load_pic_file(const char* filename, int* x, int* y,
 }
 
 // Saves an Animator Pro PIC file
-int save_pic_file(const char* filename, int x, int y, const Palette* palette,
-                  const Image* image)
+int save_pic_file(const char* filename, int x, int y, const Palette* palette, const Image* image)
 {
   int c, u, v, bpp, size, byte;
 

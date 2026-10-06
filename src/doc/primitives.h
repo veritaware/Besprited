@@ -36,8 +36,7 @@ void draw_vline(Image* image, int x, int y1, int y2, color_t c);
 void draw_rect(Image* image, int x1, int y1, int x2, int y2, color_t c);
 void fill_rect(Image* image, int x1, int y1, int x2, int y2, color_t c);
 void fill_rect(Image* image, const gfx::Rect& rc, color_t c);
-void blend_rect(Image* image, int x1, int y1, int x2, int y2, color_t c,
-                int opacity);
+void blend_rect(Image* image, int x1, int y1, int x2, int y2, color_t c, int opacity);
 void draw_line(Image* image, int x1, int y1, int x2, int y2, color_t c);
 void draw_ellipse(Image* image, int x1, int y1, int x2, int y2, color_t c);
 void fill_ellipse(Image* image, int x1, int y1, int x2, int y2, color_t c);

@@ -35,8 +35,7 @@ CommandsModule::CommandsModule()
   m_instance = this;
 
 #undef FOR_EACH_COMMAND
-#define FOR_EACH_COMMAND(Name)                                                 \
-  m_commands.push_back(CommandFactory::create##Name##Command());
+#define FOR_EACH_COMMAND(Name) m_commands.push_back(CommandFactory::create##Name##Command());
 
 #include "app/commands/commands_list.h"
 #undef FOR_EACH_COMMAND

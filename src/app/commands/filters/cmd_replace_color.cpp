@@ -70,18 +70,13 @@ private:
 class ReplaceColorWindow : public FilterWindow
 {
 public:
-  ReplaceColorWindow(ReplaceColorFilterWrapper& filter,
-                     FilterManagerImpl& filterMgr)
-    : FilterWindow("Replace Color", ConfigSection, &filterMgr,
-                   WithChannelsSelector, WithoutTiledCheckBox)
+  ReplaceColorWindow(ReplaceColorFilterWrapper& filter, FilterManagerImpl& filterMgr)
+    : FilterWindow("Replace Color", ConfigSection, &filterMgr, WithChannelsSelector, WithoutTiledCheckBox)
     , m_filter(filter)
-    , m_controlsWidget(
-          app::load_widget<Widget>("replace_color.xml", "controls"))
-    , m_fromButton(
-          app::find_widget<ColorButton>(m_controlsWidget.get(), "from"))
+    , m_controlsWidget(app::load_widget<Widget>("replace_color.xml", "controls"))
+    , m_fromButton(app::find_widget<ColorButton>(m_controlsWidget.get(), "from"))
     , m_toButton(app::find_widget<ColorButton>(m_controlsWidget.get(), "to"))
-    , m_toleranceSlider(
-          app::find_widget<ui::Slider>(m_controlsWidget.get(), "tolerance"))
+    , m_toleranceSlider(app::find_widget<ui::Slider>(m_controlsWidget.get(), "tolerance"))
   {
     getContainer()->addChild(m_controlsWidget.get());
 
@@ -91,8 +86,7 @@ public:
 
     m_fromButton->Change.connect(&ReplaceColorWindow::onFromChange, this);
     m_toButton->Change.connect(&ReplaceColorWindow::onToChange, this);
-    m_toleranceSlider->Change.connect(&ReplaceColorWindow::onToleranceChange,
-                                      this);
+    m_toleranceSlider->Change.connect(&ReplaceColorWindow::onToleranceChange, this);
   }
 
 protected:
@@ -139,8 +133,7 @@ ReplaceColorCommand::ReplaceColorCommand()
 
 bool ReplaceColorCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void ReplaceColorCommand::onExecute(Context* context)
@@ -148,15 +141,12 @@ void ReplaceColorCommand::onExecute(Context* context)
   Site site = context->activeSite();
 
   ReplaceColorFilterWrapper filter(site.layer());
-  filter.setFrom(get_config_color(ConfigSection, "Color1",
-                                  ColorBar::instance()->getFgColor()));
-  filter.setTo(get_config_color(ConfigSection, "Color2",
-                                ColorBar::instance()->getBgColor()));
+  filter.setFrom(get_config_color(ConfigSection, "Color1", ColorBar::instance()->getFgColor()));
+  filter.setTo(get_config_color(ConfigSection, "Color2", ColorBar::instance()->getBgColor()));
   filter.setTolerance(get_config_int(ConfigSection, "Tolerance", 0));
 
   FilterManagerImpl filterMgr(context, &filter);
-  filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL |
-                      TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL |
+  filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL | TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL |
                       TARGET_ALPHA_CHANNEL | TARGET_INDEX_CHANNEL);
 
   ReplaceColorWindow window(filter, filterMgr);

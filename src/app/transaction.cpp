@@ -22,15 +22,12 @@ namespace app
 
 using namespace doc;
 
-Transaction::Transaction(Context* ctx, const std::string& label,
-                         Modification modification)
+Transaction::Transaction(Context* ctx, const std::string& label, Modification modification)
   : m_ctx(ctx)
   , m_cmds(nullptr)
 {
   m_undo = m_ctx->activeDocument()->undoHistory();
-  m_cmds =
-      new CmdTransaction(label, modification == Modification::ModifyDocument,
-                         m_undo->savedCounter());
+  m_cmds = new CmdTransaction(label, modification == Modification::ModifyDocument, m_undo->savedCounter());
 
   // Here we are executing an empty CmdTransaction, just to save the
   // SpritePosition. Sub-cmds are executed then one by one, in

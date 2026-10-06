@@ -19,10 +19,7 @@ public:
       doPointshapePoint(stroke[c].x, stroke[c].y, stroke[c].pressure, loop);
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
-  {
-    joinStroke(loop, stroke);
-  }
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override { joinStroke(loop, stroke); }
 };
 
 class IntertwineAsLines : public Intertwine
@@ -50,9 +47,8 @@ public:
         int y2 = stroke[c + 1].y;
         auto p2 = stroke[c + 1].pressure;
 
-        algo_line_float(
-            x1, y1, x2, y2, [&](int x, int y, float f)
-            { doPointshapePoint(x, y, p1 * (1 - f) + p2 * f, loop); });
+        algo_line_float(x1, y1, x2, y2,
+                        [&](int x, int y, float f) { doPointshapePoint(x, y, p1 * (1 - f) + p2 * f, loop); });
       }
     }
 
@@ -63,9 +59,8 @@ public:
       auto& last = stroke[stroke.size() - 1];
       auto p1 = first.pressure;
       auto p2 = last.pressure;
-      algo_line_float(
-          first.x, first.y, last.x, last.y, [&](int x, int y, float f)
-          { doPointshapePoint(x, y, p1 * (1 - f) + p2 * f, loop); });
+      algo_line_float(first.x, first.y, last.x, last.y,
+                      [&](int x, int y, float f) { doPointshapePoint(x, y, p1 * (1 - f) + p2 * f, loop); });
     }
   }
 
@@ -81,9 +76,8 @@ public:
     joinStroke(loop, stroke);
 
     // Fill content
-    doc::algorithm::polygon(
-        stroke, [&](int x, int y, int x2)
-        { doPointshapeHline(x, y, x2, stroke[0].pressure, loop); });
+    doc::algorithm::polygon(stroke,
+                            [&](int x, int y, int x2) { doPointshapeHline(x, y, x2, stroke[0].pressure, loop); });
   }
 };
 
@@ -183,8 +177,7 @@ public:
         if (y1 > y2)
           std::swap(y1, y2);
 
-        algo_ellipse(x1, y1, x2, y2,
-                     [&](int x, int y) { doPointshapePoint(x, y, p1, loop); });
+        algo_ellipse(x1, y1, x2, y2, [&](int x, int y) { doPointshapePoint(x, y, p1, loop); });
       }
     }
   }
@@ -210,8 +203,7 @@ public:
       if (y1 > y2)
         std::swap(y1, y2);
 
-      algo_ellipsefill(x1, y1, x2, y2, [&](int x, int y, int x2)
-                       { doPointshapeHline(x, y, x2, p1, loop); });
+      algo_ellipsefill(x1, y1, x2, y2, [&](int x, int y, int x2) { doPointshapeHline(x, y, x2, p1, loop); });
     }
   }
 };
@@ -233,32 +225,24 @@ public:
       else if (stroke.size() - c == 2)
       {
         algo_line(stroke[c].x, stroke[c].y, stroke[c + 1].x, stroke[c + 1].y,
-                  [&](int x, int y)
-                  { doPointshapePoint(x, y, stroke[c].pressure, loop); });
+                  [&](int x, int y) { doPointshapePoint(x, y, stroke[c].pressure, loop); });
       }
       else if (stroke.size() - c == 3)
       {
-        algo_spline(
-            stroke[c].x, stroke[c].y, stroke[c + 1].x, stroke[c + 1].y,
-            stroke[c + 1].x, stroke[c + 1].y, stroke[c + 2].x, stroke[c + 2].y,
-            [&](int x, int y, int x2, int y2)
-            { doPointshapeLine(x, y, x2, y2, stroke[c].pressure, loop); });
+        algo_spline(stroke[c].x, stroke[c].y, stroke[c + 1].x, stroke[c + 1].y, stroke[c + 1].x, stroke[c + 1].y,
+                    stroke[c + 2].x, stroke[c + 2].y,
+                    [&](int x, int y, int x2, int y2) { doPointshapeLine(x, y, x2, y2, stroke[c].pressure, loop); });
       }
       else
       {
-        algo_spline(
-            stroke[c].x, stroke[c].y, stroke[c + 1].x, stroke[c + 1].y,
-            stroke[c + 2].x, stroke[c + 2].y, stroke[c + 3].x, stroke[c + 3].y,
-            [&](int x, int y, int x2, int y2)
-            { doPointshapeLine(x, y, x2, y2, stroke[c].pressure, loop); });
+        algo_spline(stroke[c].x, stroke[c].y, stroke[c + 1].x, stroke[c + 1].y, stroke[c + 2].x, stroke[c + 2].y,
+                    stroke[c + 3].x, stroke[c + 3].y,
+                    [&](int x, int y, int x2, int y2) { doPointshapeLine(x, y, x2, y2, stroke[c].pressure, loop); });
       }
     }
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
-  {
-    joinStroke(loop, stroke);
-  }
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override { joinStroke(loop, stroke); }
 };
 
 class IntertwineAsPixelPerfect : public Intertwine
@@ -291,13 +275,8 @@ public:
       {
         auto& p1 = stroke[c];
         auto& p2 = stroke[c + 1];
-        algo_line_float(p1.x, p1.y, p2.x, p2.y,
-                        [&](int x, int y, float f)
-                        {
-                          pixelPerfectLine(
-                              x, y, p1.pressure * (1 - f) + p2.pressure * f,
-                              &m_pts);
-                        });
+        algo_line_float(p1.x, p1.y, p2.x, p2.y, [&](int x, int y, float f)
+                        { pixelPerfectLine(x, y, p1.pressure * (1 - f) + p2.pressure * f, &m_pts); });
       }
     }
 
@@ -305,10 +284,9 @@ public:
     {
       // We ignore a pixel that is between other two pixels in the
       // corner of a L-like shape.
-      if (c > 0 && c + 1 < m_pts.size() &&
-          (m_pts[c - 1].x == m_pts[c].x || m_pts[c - 1].y == m_pts[c].y) &&
-          (m_pts[c + 1].x == m_pts[c].x || m_pts[c + 1].y == m_pts[c].y) &&
-          m_pts[c - 1].x != m_pts[c + 1].x && m_pts[c - 1].y != m_pts[c + 1].y)
+      if (c > 0 && c + 1 < m_pts.size() && (m_pts[c - 1].x == m_pts[c].x || m_pts[c - 1].y == m_pts[c].y) &&
+          (m_pts[c + 1].x == m_pts[c].x || m_pts[c + 1].y == m_pts[c].y) && m_pts[c - 1].x != m_pts[c + 1].x &&
+          m_pts[c - 1].y != m_pts[c + 1].y)
       {
         ++c;
       }
@@ -329,8 +307,7 @@ public:
     joinStroke(loop, stroke);
 
     // Fill content
-    doc::algorithm::polygon(stroke, [&](int x, int y, int x2)
-                            { doPointshapeHline(x, y, x2, 1.0f, loop); });
+    doc::algorithm::polygon(stroke, [&](int x, int y, int x2) { doPointshapeHline(x, y, x2, 1.0f, loop); });
   }
 };
 

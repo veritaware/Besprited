@@ -24,8 +24,7 @@ public:
   virtual bool onTouchMagnify(Editor* editor, ui::TouchMessage* msg) override;
 
 private:
-  void setZoom(Editor* editor, const render::Zoom& zoom,
-               const gfx::Point& mousePos);
+  void setZoom(Editor* editor, const render::Zoom& zoom, const gfx::Point& mousePos);
 };
 
 } // namespace app

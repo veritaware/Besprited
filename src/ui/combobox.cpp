@@ -53,9 +53,7 @@ public:
   ComboBoxListBox(ComboBox* comboBox)
     : m_comboBox(comboBox)
   {
-    for (ComboBox::ListItems::iterator it = comboBox->begin(),
-                                       end = comboBox->end();
-         it != end; ++it)
+    for (ComboBox::ListItems::iterator it = comboBox->begin(), end = comboBox->end(); it != end; ++it)
       addChild(*it);
   }
 
@@ -71,10 +69,7 @@ protected:
   void onChange() override;
 
 private:
-  bool isValidItem(int index) const
-  {
-    return (index >= 0 && index < m_comboBox->getItemCount());
-  }
+  bool isValidItem(int index) const { return (index >= 0 && index < m_comboBox->getItemCount()); }
 
   ComboBox* m_comboBox;
 };
@@ -247,8 +242,7 @@ int ComboBox::findItemIndex(const std::string& text) const
   int i = 0;
   for (const ListItem* item : m_items)
   {
-    if ((m_casesensitive && item->text() == text) ||
-        (!m_casesensitive && item->text() == text))
+    if ((m_casesensitive && item->text() == text) || (!m_casesensitive && item->text() == text))
     {
       return i;
     }
@@ -291,8 +285,7 @@ int ComboBox::getSelectedItemIndex() const
 
 void ComboBox::setSelectedItemIndex(int itemIndex)
 {
-  if (itemIndex >= 0 && (std::size_t)itemIndex < m_items.size() &&
-      m_selected != itemIndex)
+  if (itemIndex >= 0 && (std::size_t)itemIndex < m_items.size() && m_selected != itemIndex)
   {
     m_selected = itemIndex;
 
@@ -410,12 +403,10 @@ void ComboBox::onResize(ResizeEvent& ev)
 
   // Button
   Size buttonSize = m_button->sizeHint();
-  m_button->setBounds(
-      Rect(bounds.x2() - buttonSize.w, bounds.y, buttonSize.w, bounds.h));
+  m_button->setBounds(Rect(bounds.x2() - buttonSize.w, bounds.y, buttonSize.w, bounds.h));
 
   // Entry
-  m_entry->setBounds(
-      Rect(bounds.x, bounds.y, bounds.w - buttonSize.w, bounds.h));
+  m_entry->setBounds(Rect(bounds.x, bounds.y, bounds.w - buttonSize.w, bounds.h));
 }
 
 void ComboBox::onSizeHint(SizeHintEvent& ev)
@@ -427,8 +418,7 @@ void ComboBox::onSizeHint(SizeHintEvent& ev)
   ListItems::iterator it, end = m_items.end();
   for (it = m_items.begin(); it != end; ++it)
   {
-    int item_w = 2 * guiscale() + font()->textLength((*it)->text().c_str()) +
-                 16 * guiscale();
+    int item_w = 2 * guiscale() + font()->textLength((*it)->text().c_str()) + 16 * guiscale();
 
     reqSize.w = MAX(reqSize.w, item_w);
   }
@@ -453,8 +443,7 @@ bool ComboBoxEntry::onProcessMessage(Message* msg)
       // In a non-editable ComboBox
       if (!m_comboBox->isEditable())
       {
-        if (scancode == kKeySpace || scancode == kKeyEnter ||
-            scancode == kKeyEnterPad)
+        if (scancode == kKeySpace || scancode == kKeyEnter || scancode == kKeyEnterPad)
         {
           m_comboBox->switchListBox();
           return true;
@@ -463,8 +452,7 @@ bool ComboBoxEntry::onProcessMessage(Message* msg)
       // In a editable ComboBox
       else
       {
-        if (scancode == kKeyUp || scancode == kKeyDown ||
-            scancode == kKeyPageUp || scancode == kKeyPageDown)
+        if (scancode == kKeyUp || scancode == kKeyDown || scancode == kKeyPageUp || scancode == kKeyPageDown)
         {
           if (m_comboBox->m_listbox && m_comboBox->m_listbox->isVisible())
           {
@@ -478,8 +466,7 @@ bool ComboBoxEntry::onProcessMessage(Message* msg)
     break;
 
   case kMouseDownMessage:
-    if (m_comboBox->isClickOpen() &&
-        (!m_comboBox->isEditable() || !m_comboBox->m_items.empty()))
+    if (m_comboBox->isClickOpen() && (!m_comboBox->isEditable() || !m_comboBox->m_items.empty()))
     {
       m_comboBox->switchListBox();
     }
@@ -511,8 +498,7 @@ bool ComboBoxEntry::onProcessMessage(Message* msg)
       {
         releaseMouse();
 
-        MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(),
-                               mouseMsg->buttons(), mouseMsg->modifiers(),
+        MouseMessage mouseMsg2(kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(), mouseMsg->modifiers(),
                                mouseMsg->position());
         pick->sendMessage(&mouseMsg2);
         return true;
@@ -523,8 +509,7 @@ bool ComboBoxEntry::onProcessMessage(Message* msg)
   case kFocusEnterMessage:
   {
     bool result = Entry::onProcessMessage(msg);
-    if (m_comboBox && m_comboBox->isEditable() && m_comboBox->m_listbox &&
-        m_comboBox->m_listbox->isVisible())
+    if (m_comboBox && m_comboBox->isEditable() && m_comboBox->m_listbox && m_comboBox->m_listbox->isVisible())
     {
       // In case that the ListBox is visible and the focus is
       // obtained by the Entry field, we set the carret at the end
@@ -560,8 +545,7 @@ bool ComboBoxListBox::onProcessMessage(Message* msg)
       KeyMessage* keymsg = static_cast<KeyMessage*>(msg);
       KeyScancode scancode = keymsg->scancode();
 
-      if (scancode == kKeySpace || scancode == kKeyEnter ||
-          scancode == kKeyEnterPad)
+      if (scancode == kKeySpace || scancode == kKeyEnter || scancode == kKeyEnterPad)
       {
         m_comboBox->closeListBox();
         return true;
@@ -609,10 +593,9 @@ void ComboBox::openListBox()
 
   Widget* viewport = view->viewport();
   int size = getItemCount();
-  viewport->setMinSize(gfx::Size(
-      m_button->bounds().x2() - m_entry->bounds().x - view->border().width(),
-      +(2 * guiscale() + m_listbox->textHeight()) * MID(1, size, 16) +
-          +viewport->border().height()));
+  viewport->setMinSize(
+      gfx::Size(m_button->bounds().x2() - m_entry->bounds().x - view->border().width(),
+                +(2 * guiscale() + m_listbox->textHeight()) * MID(1, size, 16) + +viewport->border().height()));
 
   m_window->addChild(view);
   view->attachToView(m_listbox);
@@ -666,8 +649,7 @@ void ComboBox::switchListBox()
 gfx::Rect ComboBox::getListBoxPos() const
 {
   gfx::Rect rc(gfx::Point(m_entry->bounds().x, m_entry->bounds().y2()),
-               gfx::Point(m_button->bounds().x2(),
-                          m_entry->bounds().y2() + m_window->bounds().h));
+               gfx::Point(m_button->bounds().x2(), m_entry->bounds().y2() + m_window->bounds().h));
 
   if (rc.y2() > ui::display_h())
     rc.offset(0, -(rc.h + m_entry->bounds().h));

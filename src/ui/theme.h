@@ -40,8 +40,7 @@ public:
   void setScale(int value) { m_guiscale = value; }
 
   virtual std::shared_ptr<she::Font> getDefaultFont() const = 0;
-  virtual std::shared_ptr<she::Font>
-  getWidgetFont(const Widget* widget) const = 0;
+  virtual std::shared_ptr<she::Font> getWidgetFont(const Widget* widget) const = 0;
 
   virtual Cursor* getCursor(CursorType type) = 0;
   virtual void initWidget(Widget* widget) = 0;

@@ -79,10 +79,7 @@ public:
   // example, blur tool needs one extra pixel to all sides of the
   // modified area, so it can use a 3x3 convolution matrix.
   virtual bool needsSpecialSourceArea() const { return false; }
-  virtual void createSpecialSourceArea(const gfx::Region& dirtyArea,
-                                       gfx::Region& sourceArea) const
-  {
-  }
+  virtual void createSpecialSourceArea(const gfx::Region& dirtyArea, gfx::Region& sourceArea) const {}
 
   // It is called when the tool-loop start (generally when the user
   // presses a mouse button over a sprite editor)

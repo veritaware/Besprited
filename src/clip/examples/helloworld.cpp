@@ -5,7 +5,8 @@
 #include <cassert>
 #include <iostream>
 
-int main() {
+int main()
+{
   clip::set_text("Hello World");
 
   std::string value;

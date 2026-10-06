@@ -76,10 +76,8 @@ void ToolLoopManager::pressButton(const Pointer& pointer)
     return;
 
   // If the user pressed the other mouse button...
-  if ((m_toolLoop->getMouseButton() == ToolLoop::Left &&
-       pointer.button() == Pointer::Right) ||
-      (m_toolLoop->getMouseButton() == ToolLoop::Right &&
-       pointer.button() == Pointer::Left))
+  if ((m_toolLoop->getMouseButton() == ToolLoop::Left && pointer.button() == Pointer::Right) ||
+      (m_toolLoop->getMouseButton() == ToolLoop::Right && pointer.button() == Pointer::Left))
   {
     // Cancel the tool-loop (the destination image should be completelly
     // discarded)
@@ -93,8 +91,7 @@ void ToolLoopManager::pressButton(const Pointer& pointer)
   m_oldPoint = spritePoint;
   snapToGrid(spritePoint);
 
-  m_toolLoop->getController()->pressButton(m_stroke, spritePoint,
-                                           pointer.pressure());
+  m_toolLoop->getController()->pressButton(m_stroke, spritePoint, pointer.pressure());
 
   std::string statusText;
   m_toolLoop->getController()->getStatusBarText(m_stroke, statusText);
@@ -139,8 +136,7 @@ void ToolLoopManager::movement(const Pointer& pointer)
   m_oldPoint = spritePoint;
   snapToGrid(spritePoint);
 
-  m_toolLoop->getController()->movement(m_toolLoop, m_stroke, spritePoint,
-                                        pointer.pressure());
+  m_toolLoop->getController()->movement(m_toolLoop, m_stroke, spritePoint, pointer.pressure());
 
   std::string statusText;
   m_toolLoop->getController()->getStatusBarText(m_stroke, statusText);
@@ -200,8 +196,7 @@ void ToolLoopManager::doLoopStep(bool last_step)
   m_toolLoop->validateDstImage(m_dirtyArea);
 
   // Join or fill user points
-  if (!m_toolLoop->getFilled() ||
-      (!last_step && !m_toolLoop->getPreviewFilled()))
+  if (!m_toolLoop->getFilled() || (!last_step && !m_toolLoop->getPreviewFilled()))
     m_toolLoop->getIntertwine()->joinStroke(m_toolLoop, main_stroke);
   else
     m_toolLoop->getIntertwine()->fillStroke(m_toolLoop, main_stroke);
@@ -220,12 +215,10 @@ void ToolLoopManager::doLoopStep(bool last_step)
 // Applies the grid settings to the specified sprite point.
 void ToolLoopManager::snapToGrid(Point& point)
 {
-  if (!m_toolLoop->getController()->canSnapToGrid() ||
-      !m_toolLoop->getSnapToGrid())
+  if (!m_toolLoop->getController()->canSnapToGrid() || !m_toolLoop->getSnapToGrid())
     return;
 
-  point = snap_to_grid(m_toolLoop->getGridBounds(), point,
-                       PreferSnapTo::ClosestGridVertex);
+  point = snap_to_grid(m_toolLoop->getGridBounds(), point, PreferSnapTo::ClosestGridVertex);
 }
 
 // Strokes are relative to sprite origin.
@@ -248,12 +241,10 @@ void ToolLoopManager::calculateDirtyArea(const Strokes& strokes)
     // Expand the dirty-area with the pen width
     Rect r1, r2;
 
-    m_toolLoop->getPointShape()->getModifiedArea(m_toolLoop, strokeBounds.x,
-                                                 strokeBounds.y, r1);
+    m_toolLoop->getPointShape()->getModifiedArea(m_toolLoop, strokeBounds.x, strokeBounds.y, r1);
 
-    m_toolLoop->getPointShape()->getModifiedArea(
-        m_toolLoop, strokeBounds.x + strokeBounds.w - 1,
-        strokeBounds.y + strokeBounds.h - 1, r2);
+    m_toolLoop->getPointShape()->getModifiedArea(m_toolLoop, strokeBounds.x + strokeBounds.w - 1,
+                                                 strokeBounds.y + strokeBounds.h - 1, r2);
 
     m_dirtyArea.createUnion(m_dirtyArea, Region(r1.createUnion(r2)));
   }
@@ -277,12 +268,10 @@ void ToolLoopManager::calculateDirtyArea(const Strokes& strokes)
     switch (tiledMode)
     {
     case TiledMode::X_AXIS:
-      outside.createIntersection(outside,
-                                 Region(Rect(-w * 10000, 0, w * 20000, h)));
+      outside.createIntersection(outside, Region(Rect(-w * 10000, 0, w * 20000, h)));
       break;
     case TiledMode::Y_AXIS:
-      outside.createIntersection(outside,
-                                 Region(Rect(0, -h * 10000, w, h * 20000)));
+      outside.createIntersection(outside, Region(Rect(0, -h * 10000, w, h * 20000)));
       break;
     }
 

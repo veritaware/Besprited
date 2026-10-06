@@ -83,8 +83,7 @@ bool save_pal_file(const Palette& pal, const char* filename)
   for (int i = 0; i < pal.size(); ++i)
   {
     const uint32_t col = pal.getEntry(i);
-    f << (static_cast<int>(rgba_getr(col))) << " "
-      << (static_cast<int>(rgba_getg(col))) << " "
+    f << (static_cast<int>(rgba_getr(col))) << " " << (static_cast<int>(rgba_getg(col))) << " "
       << (static_cast<int>(rgba_getb(col))) << "\n";
   }
 

@@ -43,8 +43,7 @@ void DocumentUndo::add(CmdTransaction* cmd)
   ASSERT(cmd);
 
   // A linear undo history is the default behavior
-  if (!App::instance() ||
-      !App::instance()->preferences().undo.allowNonlinearHistory())
+  if (!App::instance() || !App::instance()->preferences().undo.allowNonlinearHistory())
   {
     clearRedo();
   }
@@ -119,8 +118,7 @@ SpritePosition DocumentUndo::nextUndoSpritePosition() const
 {
   const undo::UndoState* state = nextUndo();
   if (state)
-    return static_cast<const CmdTransaction*>(state->cmd())
-        ->spritePositionBeforeExecute();
+    return static_cast<const CmdTransaction*>(state->cmd())->spritePositionBeforeExecute();
   else
     return SpritePosition();
 }
@@ -129,8 +127,7 @@ SpritePosition DocumentUndo::nextRedoSpritePosition() const
 {
   const undo::UndoState* state = nextRedo();
   if (state)
-    return static_cast<const CmdTransaction*>(state->cmd())
-        ->spritePositionAfterExecute();
+    return static_cast<const CmdTransaction*>(state->cmd())->spritePositionAfterExecute();
   else
     return SpritePosition();
 }

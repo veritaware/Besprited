@@ -60,9 +60,8 @@ void ScrollBar::getScrollBarThemeInfo(int* pos, int* len)
 
 bool ScrollBar::onProcessMessage(Message* msg)
 {
-#define MOUSE_IN(x1, y1, x2, y2)                                               \
-  ((mousePos.x >= (x1)) && (mousePos.x <= (x2)) && (mousePos.y >= (y1)) &&     \
-   (mousePos.y <= (y2)))
+#define MOUSE_IN(x1, y1, x2, y2)                                                                                       \
+  ((mousePos.x >= (x1)) && (mousePos.x <= (x2)) && (mousePos.y >= (y1)) && (mousePos.y <= (y2)))
 
   switch (msg->type())
   {
@@ -198,8 +197,7 @@ void ScrollBar::onPaint(PaintEvent& ev)
   theme()->paintViewScrollbar(ev);
 }
 
-void ScrollBar::getScrollBarInfo(int* _pos, int* _len, int* _bar_size,
-                                 int* _viewport_size)
+void ScrollBar::getScrollBarInfo(int* _pos, int* _len, int* _bar_size, int* _viewport_size)
 {
   int bar_size, viewport_size;
   int pos, len;

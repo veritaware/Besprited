@@ -27,7 +27,6 @@ namespace app
 class AlternateToolbarCommand : public Command
 {
 public:
-
   AlternateToolbarCommand()
     : Command{"AlternateToolbar", "Alternate Toolbar", CmdUIOnlyFlag}
   {
@@ -38,15 +37,9 @@ protected:
 
   bool onEnabled(Context* context) override { return true; }
 
-  bool onChecked(Context* context) override
-  {
-    return Preferences::instance().general.leftToolBar();
-  }
+  bool onChecked(Context* context) override { return Preferences::instance().general.leftToolBar(); }
 
-  void onExecute(Context* context) override
-  {
-    App::instance()->mainWindow()->alternateToolbar();
-  }
+  void onExecute(Context* context) override { App::instance()->mainWindow()->alternateToolbar(); }
 };
 
 std::unique_ptr<Command> CommandFactory::createAlternateToolbarCommand()

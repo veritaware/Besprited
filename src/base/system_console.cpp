@@ -31,10 +31,8 @@ SystemConsole::SystemConsole()
 {
   // If some output handle (stdout/stderr) is not attached to a
   // console, we can attach the process to the parent process console.
-  bool unknownOut =
-      (::GetFileType(::GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN);
-  bool unknownErr =
-      (::GetFileType(::GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN);
+  bool unknownOut = (::GetFileType(::GetStdHandle(STD_OUTPUT_HANDLE)) == FILE_TYPE_UNKNOWN);
+  bool unknownErr = (::GetFileType(::GetStdHandle(STD_ERROR_HANDLE)) == FILE_TYPE_UNKNOWN);
   if (unknownOut || unknownErr)
   {
     // AttachConsole() can fails if the parent console doesn't have a

@@ -65,8 +65,7 @@ void LinkCelsCommand::onExecute(Context* context)
     frame_t begin = range.frameBegin();
     frame_t end = range.frameEnd();
 
-    for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd();
-         ++layerIdx)
+    for (LayerIndex layerIdx = range.layerBegin(); layerIdx <= range.layerEnd(); ++layerIdx)
     {
       Layer* layer = sprite->indexToLayer(layerIdx);
       if (!layer->isImage())
@@ -85,8 +84,7 @@ void LinkCelsCommand::onExecute(Context* context)
         {
           for (frame = cel->frame() + 1; frame < end + 1; ++frame)
           {
-            transaction.execute(new cmd::CopyCel(layerImage, cel->frame(),
-                                                 layerImage, frame,
+            transaction.execute(new cmd::CopyCel(layerImage, cel->frame(), layerImage, frame,
                                                  true)); // true = force links
           }
           break;

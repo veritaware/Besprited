@@ -77,8 +77,7 @@ Theme* CurrentTheme::get()
   return current_theme;
 }
 
-void drawTextBox(Graphics* g, Widget* widget, int* w, int* h, gfx::Color bg,
-                 gfx::Color fg)
+void drawTextBox(Graphics* g, Widget* widget, int* w, int* h, gfx::Color bg, gfx::Color fg)
 {
   View* view = View::getView(widget);
   char* text = const_cast<char*>(widget->text().c_str());
@@ -94,8 +93,7 @@ void drawTextBox(Graphics* g, Widget* widget, int* w, int* h, gfx::Color bg,
 
   if (view)
   {
-    gfx::Rect vp =
-        view->viewportBounds().offset(-view->viewport()->bounds().origin());
+    gfx::Rect vp = view->viewportBounds().offset(-view->viewport()->bounds().origin());
 
     x1 = vp.x;
     y1 = vp.y;
@@ -223,8 +221,7 @@ void drawTextBox(Graphics* g, Widget* widget, int* w, int* h, gfx::Color bg,
         xout = x;
 
       g->drawUIString(beg, fg, bg, gfx::Point(xout, y));
-      g->fillAreaBetweenRects(bg, gfx::Rect(x1, y, x2 - x1, textheight),
-                              gfx::Rect(xout, y, len, textheight));
+      g->fillAreaBetweenRects(bg, gfx::Rect(x1, y, x2 - x1, textheight), gfx::Rect(xout, y, len, textheight));
     }
 
     if (w)

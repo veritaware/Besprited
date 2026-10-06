@@ -38,12 +38,9 @@ struct is_separator
 
 } // namespace
 
-void base::split_string(const std::string& string,
-                        std::vector<std::string>& parts,
-                        const std::string& separators)
+void base::split_string(const std::string& string, std::vector<std::string>& parts, const std::string& separators)
 {
-  const std::size_t elements = 1 + std::count_if(string.begin(), string.end(),
-                                                 is_separator(&separators));
+  const std::size_t elements = 1 + std::count_if(string.begin(), string.end(), is_separator(&separators));
   parts.reserve(elements);
 
   std::size_t beg = 0, end;

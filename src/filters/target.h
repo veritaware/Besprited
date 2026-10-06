@@ -16,9 +16,8 @@
 #define TARGET_ALL_FRAMES 64
 #define TARGET_ALL_LAYERS 128
 
-#define TARGET_ALL_CHANNELS                                                    \
-  (TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL | TARGET_BLUE_CHANNEL |           \
-   TARGET_ALPHA_CHANNEL | TARGET_GRAY_CHANNEL)
+#define TARGET_ALL_CHANNELS                                                                                            \
+  (TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL | TARGET_BLUE_CHANNEL | TARGET_ALPHA_CHANNEL | TARGET_GRAY_CHANNEL)
 
 namespace filters
 {

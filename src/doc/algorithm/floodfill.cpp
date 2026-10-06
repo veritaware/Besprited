@@ -67,8 +67,8 @@ static inline bool color_equal_32(color_t c1, color_t c2, int tolerance)
     if (a1 == 0 && a2 == 0)
       return true;
 
-    return ((ABS(r1 - r2) <= tolerance) && (ABS(g1 - g2) <= tolerance) &&
-            (ABS(b1 - b2) <= tolerance) && (ABS(a1 - a2) <= tolerance));
+    return ((ABS(r1 - r2) <= tolerance) && (ABS(g1 - g2) <= tolerance) && (ABS(b1 - b2) <= tolerance) &&
+            (ABS(a1 - a2) <= tolerance));
   }
 }
 
@@ -98,27 +98,23 @@ static inline bool color_equal_8(color_t c1, color_t c2, int tolerance)
     return ABS((int)c1 - (int)c2) <= tolerance;
 }
 
-template <typename ImageTraits>
-static inline bool color_equal(color_t c1, color_t c2, int tolerance)
+template <typename ImageTraits> static inline bool color_equal(color_t c1, color_t c2, int tolerance)
 {
   static_assert(false && sizeof(ImageTraits), "Invalid color comparison");
   return false;
 }
 
-template <>
-inline bool color_equal<RgbTraits>(color_t c1, color_t c2, int tolerance)
+template <> inline bool color_equal<RgbTraits>(color_t c1, color_t c2, int tolerance)
 {
   return color_equal_32(c1, c2, tolerance);
 }
 
-template <>
-inline bool color_equal<GrayscaleTraits>(color_t c1, color_t c2, int tolerance)
+template <> inline bool color_equal<GrayscaleTraits>(color_t c1, color_t c2, int tolerance)
 {
   return color_equal_16(c1, c2, tolerance);
 }
 
-template <>
-inline bool color_equal<IndexedTraits>(color_t c1, color_t c2, int tolerance)
+template <> inline bool color_equal<IndexedTraits>(color_t c1, color_t c2, int tolerance)
 {
   return color_equal_8(c1, c2, tolerance);
 }
@@ -128,15 +124,13 @@ inline bool color_equal<IndexedTraits>(color_t c1, color_t c2, int tolerance)
  *  to the list of drawn segments. Returns the first x coordinate after
  *  the part of the line which it has dealt with.
  */
-static int flooder(const Image* image, const Mask* mask, int x, int y,
-                   const gfx::Rect& bounds, color_t src_color, int tolerance,
-                   void* data, AlgoHLine proc)
+static int flooder(const Image* image, const Mask* mask, int x, int y, const gfx::Rect& bounds, color_t src_color,
+                   int tolerance, void* data, AlgoHLine proc)
 {
-#define MASKED(u, v)                                                           \
-  (mask && (!mask->bounds().contains(u, v) ||                                  \
-            (mask->bitmap() && !get_pixel_fast<BitmapTraits>(                  \
-                                   mask->bitmap(), (u) - mask->bounds().x,     \
-                                   (v) - mask->bounds().y))))
+#define MASKED(u, v)                                                                                                   \
+  (mask && (!mask->bounds().contains(u, v) ||                                                                          \
+            (mask->bitmap() &&                                                                                         \
+             !get_pixel_fast<BitmapTraits>(mask->bitmap(), (u) - mask->bounds().x, (v) - mask->bounds().y))))
 
   FLOODED_LINE* p;
   int left = 0, right = 0;
@@ -150,26 +144,20 @@ static int flooder(const Image* image, const Mask* mask, int x, int y,
     auto* address = reinterpret_cast<uint32_t*>(image->getPixelAddress(0, y));
 
     // Check start pixel
-    if (!color_equal_32(static_cast<int>(*(address + x)), src_color,
-                        tolerance) ||
-        MASKED(x, y))
+    if (!color_equal_32(static_cast<int>(*(address + x)), src_color, tolerance) || MASKED(x, y))
       return x + 1;
 
     // Work left from starting point
     for (left = x - 1; left >= bounds.x; left--)
     {
-      if (!color_equal_32(static_cast<int>(*(address + left)), src_color,
-                          tolerance) ||
-          MASKED(left, y))
+      if (!color_equal_32(static_cast<int>(*(address + left)), src_color, tolerance) || MASKED(left, y))
         break;
     }
 
     // Work right from starting point
     for (right = x + 1; right < bounds.x2(); right++)
     {
-      if (!color_equal_32(static_cast<int>(*(address + right)), src_color,
-                          tolerance) ||
-          MASKED(right, y))
+      if (!color_equal_32(static_cast<int>(*(address + right)), src_color, tolerance) || MASKED(right, y))
         break;
     }
   }
@@ -180,26 +168,20 @@ static int flooder(const Image* image, const Mask* mask, int x, int y,
     auto* address = reinterpret_cast<uint16_t*>(image->getPixelAddress(0, y));
 
     // Check start pixel
-    if (!color_equal_16(static_cast<int>(*(address + x)), src_color,
-                        tolerance) ||
-        MASKED(x, y))
+    if (!color_equal_16(static_cast<int>(*(address + x)), src_color, tolerance) || MASKED(x, y))
       return x + 1;
 
     // Work left from starting point
     for (left = x - 1; left >= bounds.x; left--)
     {
-      if (!color_equal_16(static_cast<int>(*(address + left)), src_color,
-                          tolerance) ||
-          MASKED(left, y))
+      if (!color_equal_16(static_cast<int>(*(address + left)), src_color, tolerance) || MASKED(left, y))
         break;
     }
 
     // Work right from starting point
     for (right = x + 1; right < bounds.x2(); right++)
     {
-      if (!color_equal_16(static_cast<int>(*(address + right)), src_color,
-                          tolerance) ||
-          MASKED(right, y))
+      if (!color_equal_16(static_cast<int>(*(address + right)), src_color, tolerance) || MASKED(right, y))
         break;
     }
   }
@@ -210,26 +192,20 @@ static int flooder(const Image* image, const Mask* mask, int x, int y,
     const uint8_t* address = image->getPixelAddress(0, y);
 
     // Check start pixel
-    if (!color_equal_8(static_cast<int>(*(address + x)), src_color,
-                       tolerance) ||
-        MASKED(x, y))
+    if (!color_equal_8(static_cast<int>(*(address + x)), src_color, tolerance) || MASKED(x, y))
       return x + 1;
 
     // Work left from starting point
     for (left = x - 1; left >= bounds.x; left--)
     {
-      if (!color_equal_8(static_cast<int>(*(address + left)), src_color,
-                         tolerance) ||
-          MASKED(left, y))
+      if (!color_equal_8(static_cast<int>(*(address + left)), src_color, tolerance) || MASKED(left, y))
         break;
     }
 
     // Work right from starting point
     for (right = x + 1; right < bounds.x2(); right++)
     {
-      if (!color_equal_8(static_cast<int>(*(address + right)), src_color,
-                         tolerance) ||
-          MASKED(right, y))
+      if (!color_equal_8(static_cast<int>(*(address + right)), src_color, tolerance) || MASKED(right, y))
         break;
     }
   }
@@ -299,10 +275,8 @@ static int flooder(const Image* image, const Mask* mask, int x, int y,
  *  segments which have already been drawn in order to minimise the required
  *  number of tests.
  */
-static int check_flood_line(const Image* image, const Mask* mask, int y,
-                            int left, int right, const gfx::Rect& bounds,
-                            int src_color, int tolerance, void* data,
-                            AlgoHLine proc)
+static int check_flood_line(const Image* image, const Mask* mask, int y, int left, int right, const gfx::Rect& bounds,
+                            int src_color, int tolerance, void* data, AlgoHLine proc)
 {
   int c;
   FLOODED_LINE* p;
@@ -326,8 +300,7 @@ static int check_flood_line(const Image* image, const Mask* mask, int y,
 
       if (!c)
       {
-        left = flooder(image, mask, left, y, bounds, src_color, tolerance, data,
-                       proc);
+        left = flooder(image, mask, left, y, bounds, src_color, tolerance, data, proc);
         ret = true;
         break;
       }
@@ -338,29 +311,25 @@ static int check_flood_line(const Image* image, const Mask* mask, int y,
 }
 
 template <typename ImageTraits>
-static void replace_color(const Image* image, const gfx::Rect& bounds,
-                          int src_color, int tolerance, void* data,
+static void replace_color(const Image* image, const gfx::Rect& bounds, int src_color, int tolerance, void* data,
                           AlgoHLine proc)
 {
   typename ImageTraits::address_t address;
 
   for (int y = bounds.y; y < bounds.y2(); ++y)
   {
-    address = reinterpret_cast<typename ImageTraits::address_t>(
-        image->getPixelAddress(bounds.x, y));
+    address = reinterpret_cast<typename ImageTraits::address_t>(image->getPixelAddress(bounds.x, y));
 
     for (int x = bounds.x; x < bounds.x2(); ++x, ++address)
     {
       int right = -1;
 
-      if (color_equal<ImageTraits>(static_cast<int>(*address), src_color,
-                                   tolerance))
+      if (color_equal<ImageTraits>(static_cast<int>(*address), src_color, tolerance))
       {
         ++address;
         for (right = x + 1; right < bounds.x2(); ++right, ++address)
         {
-          if (!color_equal<ImageTraits>(static_cast<int>(*address), src_color,
-                                        tolerance))
+          if (!color_equal<ImageTraits>(static_cast<int>(*address), src_color, tolerance))
             break;
         }
         (*proc)(x, y, right - 1, data);
@@ -373,9 +342,8 @@ static void replace_color(const Image* image, const gfx::Rect& bounds,
 /* floodfill:
  *  Fills an enclosed area (starting at point x, y) with the specified color.
  */
-void floodfill(const Image* image, const Mask* mask, int x, int y,
-               const gfx::Rect& bounds, int tolerance, bool contiguous,
-               void* data, AlgoHLine proc)
+void floodfill(const Image* image, const Mask* mask, int x, int y, const gfx::Rect& bounds, int tolerance,
+               bool contiguous, void* data, AlgoHLine proc)
 {
   // Make sure we have a valid starting point
   if ((x < 0) || (x >= image->width()) || (y < 0) || (y >= image->height()))
@@ -393,12 +361,10 @@ void floodfill(const Image* image, const Mask* mask, int x, int y,
       replace_color<RgbTraits>(image, bounds, src_color, tolerance, data, proc);
       break;
     case IMAGE_GRAYSCALE:
-      replace_color<GrayscaleTraits>(image, bounds, src_color, tolerance, data,
-                                     proc);
+      replace_color<GrayscaleTraits>(image, bounds, src_color, tolerance, data, proc);
       break;
     case IMAGE_INDEXED:
-      replace_color<IndexedTraits>(image, bounds, src_color, tolerance, data,
-                                   proc);
+      replace_color<IndexedTraits>(image, bounds, src_color, tolerance, data, proc);
       break;
     }
     return;
@@ -436,8 +402,7 @@ void floodfill(const Image* image, const Mask* mask, int x, int y,
       if (p->flags & FLOOD_TODO_BELOW)
       {
         p->flags &= ~FLOOD_TODO_BELOW;
-        if (check_flood_line(image, mask, p->y + 1, p->lpos, p->rpos, bounds,
-                             src_color, tolerance, data, proc))
+        if (check_flood_line(image, mask, p->y + 1, p->lpos, p->rpos, bounds, src_color, tolerance, data, proc))
         {
           done = false;
           p = FLOOD_LINE(c);
@@ -448,8 +413,7 @@ void floodfill(const Image* image, const Mask* mask, int x, int y,
       if (p->flags & FLOOD_TODO_ABOVE)
       {
         p->flags &= ~FLOOD_TODO_ABOVE;
-        if (check_flood_line(image, mask, p->y - 1, p->lpos, p->rpos, bounds,
-                             src_color, tolerance, data, proc))
+        if (check_flood_line(image, mask, p->y - 1, p->lpos, p->rpos, bounds, src_color, tolerance, data, proc))
         {
           done = false;
           // Special case shortcut for going backwards

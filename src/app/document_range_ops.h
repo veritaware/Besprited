@@ -24,11 +24,9 @@ enum DocumentRangePlace
 // These functions returns the new location of the "from" range or
 // throws an std::runtime_error() in case that the operation cannot
 // be done. (E.g. the background layer cannot be moved.)
-doc::DocumentRange move_range(Document* doc, const doc::DocumentRange& from,
-                              const doc::DocumentRange& to,
+doc::DocumentRange move_range(Document* doc, const doc::DocumentRange& from, const doc::DocumentRange& to,
                               DocumentRangePlace place);
-doc::DocumentRange copy_range(Document* doc, const doc::DocumentRange& from,
-                              const doc::DocumentRange& to,
+doc::DocumentRange copy_range(Document* doc, const doc::DocumentRange& from, const doc::DocumentRange& to,
                               DocumentRangePlace place);
 
 void reverse_frames(Document* doc, const doc::DocumentRange& range);

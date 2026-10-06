@@ -104,8 +104,7 @@ public:
 
 private:
   void loadTools();
-  void loadToolProperties(tinyxml2::XMLElement* xmlTool, Tool* tool, int button,
-                          const std::string& suffix);
+  void loadToolProperties(tinyxml2::XMLElement* xmlTool, Tool* tool, int button, const std::string& suffix);
 
   std::map<std::string, std::shared_ptr<Ink>> m_inks;
   std::map<std::string, Controller*> m_controllers;

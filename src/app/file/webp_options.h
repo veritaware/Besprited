@@ -35,21 +35,15 @@ public:
   void setLossless(bool lossless) { m_lossless = lossless; }
   void setQuality(int quality) { m_quality = quality; }
   void setMethod(int method) { m_method = method; }
-  void setImageHint(int imageHint)
-  {
-    m_image_hint = static_cast<WebPImageHint>(imageHint);
-  }
+  void setImageHint(int imageHint) { m_image_hint = static_cast<WebPImageHint>(imageHint); }
   void setImageHint(WebPImageHint imageHint) { m_image_hint = imageHint; }
-  void setImagePreset(int imagePreset)
-  {
-    m_image_preset = static_cast<WebPPreset>(imagePreset);
-  };
+  void setImagePreset(int imagePreset) { m_image_preset = static_cast<WebPPreset>(imagePreset); };
   void setImagePreset(WebPPreset imagePreset) { m_image_preset = imagePreset; }
 
 private:
-  bool m_lossless; // Lossless encoding (0=lossy(default), 1=lossless).
-  int m_quality;   // between 0 (smallest file) and 100 (biggest)
-  int m_method;    // quality/speed trade-off (0=fast, 9=slower-better)
+  bool m_lossless;            // Lossless encoding (0=lossy(default), 1=lossless).
+  int m_quality;              // between 0 (smallest file) and 100 (biggest)
+  int m_method;               // quality/speed trade-off (0=fast, 9=slower-better)
   WebPImageHint m_image_hint; // Hint for image type (lossless only for now).
   WebPPreset m_image_preset;  // Image Preset for lossy webp.
 };

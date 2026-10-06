@@ -69,8 +69,7 @@ public:
   void removeDropViewPreview();
 
   // Returns true if the view was docked inside the panel.
-  DropViewAtResult dropViewAt(const gfx::Point& pos, WorkspacePanel* from,
-                              WorkspaceView* view, bool clone);
+  DropViewAtResult dropViewAt(const gfx::Point& pos, WorkspacePanel* from, WorkspaceView* view, bool clone);
 
 protected:
   void onPaint(ui::PaintEvent& ev) override;

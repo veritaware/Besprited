@@ -27,8 +27,7 @@ struct Module
 };
 
 static Module module[] = {
-#define DEF_MODULE(name, reqs)                                                 \
-  {#name, init_module_##name, exit_module_##name, (reqs), false}
+#define DEF_MODULE(name, reqs) {#name, init_module_##name, exit_module_##name, (reqs), false}
 
     // This sorting is very important because last modules depend of
     // first ones.
@@ -47,8 +46,7 @@ LegacyModules::LegacyModules(int requirements)
       LOG("Installing module: %s\n", module[c].name);
 
       if ((*module[c].init)() < 0)
-        throw base::Exception("Error initializing module: %s",
-                              static_cast<const char*>(module[c].name));
+        throw base::Exception("Error initializing module: %s", static_cast<const char*>(module[c].name));
 
       module[c].installed = true;
     }

@@ -53,8 +53,7 @@ EditorView::EditorView(EditorView::Type type)
   setupScrollbars();
 
   m_scrollSettingsConn =
-      Preferences::instance().editor.showScrollbars.AfterChange.connect(
-          base::Bind(&EditorView::setupScrollbars, this));
+      Preferences::instance().editor.showScrollbars.AfterChange.connect(base::Bind(&EditorView::setupScrollbars, this));
 }
 
 void EditorView::onPaint(PaintEvent& ev)
@@ -78,9 +77,7 @@ void EditorView::onPaint(PaintEvent& ev)
   }
 
   theme->drawRect(g, clientBounds(),
-                  (selected ? theme->parts.editorSelected().get()
-                            : theme->parts.editorNormal().get()),
-                  bgColor());
+                  (selected ? theme->parts.editorSelected().get() : theme->parts.editorNormal().get()), bgColor());
 }
 
 void EditorView::onResize(ResizeEvent& ev)
@@ -161,8 +158,7 @@ void EditorView::onScrollChange()
 
 void EditorView::setupScrollbars()
 {
-  if (m_type == AlwaysSelected ||
-      !Preferences::instance().editor.showScrollbars())
+  if (m_type == AlwaysSelected || !Preferences::instance().editor.showScrollbars())
   {
     hideScrollBars();
   }

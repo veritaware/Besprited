@@ -27,15 +27,9 @@ class Palette : public Object
   Palette(const Palette& palette);
 
 public:
-  static std::shared_ptr<Palette> create(int ncolors)
-  {
-    return std::shared_ptr<Palette>(new Palette(ncolors));
-  }
+  static std::shared_ptr<Palette> create(int ncolors) { return std::shared_ptr<Palette>(new Palette(ncolors)); }
 
-  std::shared_ptr<Palette> clone() const
-  {
-    return std::shared_ptr<Palette>(new Palette(*this));
-  }
+  std::shared_ptr<Palette> clone() const { return std::shared_ptr<Palette>(new Palette(*this)); }
 
   std::shared_ptr<Palette> remap(const Remap& remap);
 
@@ -76,10 +70,7 @@ public:
 
   int countDiff(const Palette& other, int* from, int* to) const;
 
-  bool operator==(const Palette& other) const
-  {
-    return (countDiff(other, nullptr, nullptr) == 0);
-  }
+  bool operator==(const Palette& other) const { return (countDiff(other, nullptr, nullptr) == 0); }
 
   bool operator!=(const Palette& other) const { return !operator==(other); }
 

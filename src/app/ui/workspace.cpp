@@ -170,9 +170,7 @@ void Workspace::onResize(ui::ResizeEvent& ev)
     child->setBounds(rc);
 }
 
-DropViewPreviewResult Workspace::setDropViewPreview(const gfx::Point& pos,
-                                                    WorkspaceView* view,
-                                                    WorkspaceTabs* tabs)
+DropViewPreviewResult Workspace::setDropViewPreview(const gfx::Point& pos, WorkspaceView* view, WorkspaceTabs* tabs)
 {
   TabView* tabView = dynamic_cast<TabView*>(view);
   WorkspaceTabs* newTabs = nullptr;
@@ -221,8 +219,7 @@ void Workspace::removeDropViewPreview()
   }
 }
 
-DropViewAtResult Workspace::dropViewAt(const gfx::Point& pos,
-                                       WorkspaceView* view, bool clone)
+DropViewAtResult Workspace::dropViewAt(const gfx::Point& pos, WorkspaceView* view, bool clone)
 {
   WorkspaceTabs* tabs = getTabsAt(pos);
   WorkspacePanel* panel = getPanelAt(pos);
@@ -264,8 +261,7 @@ DropViewAtResult Workspace::dropViewAt(const gfx::Point& pos,
     return DropViewAtResult::NOTHING;
 }
 
-void Workspace::addViewToPanel(WorkspacePanel* panel, WorkspaceView* view,
-                               bool from_drop, int pos)
+void Workspace::addViewToPanel(WorkspacePanel* panel, WorkspaceView* view, bool from_drop, int pos)
 {
   panel->addView(view, from_drop, pos);
 
@@ -318,8 +314,7 @@ WorkspaceTabs* Workspace::getTabsAt(const gfx::Point& pos)
 void Workspace::onNewInputPriority(InputChainElement* newElement)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     activeElement->onNewInputPriority(newElement);
 }
@@ -327,8 +322,7 @@ void Workspace::onNewInputPriority(InputChainElement* newElement)
 bool Workspace::onCanCut(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCanCut(ctx);
   else
@@ -338,8 +332,7 @@ bool Workspace::onCanCut(Context* ctx)
 bool Workspace::onCanCopy(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCanCopy(ctx);
   else
@@ -349,8 +342,7 @@ bool Workspace::onCanCopy(Context* ctx)
 bool Workspace::onCanPaste(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCanPaste(ctx);
   else
@@ -360,8 +352,7 @@ bool Workspace::onCanPaste(Context* ctx)
 bool Workspace::onCanClear(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCanClear(ctx);
   else
@@ -371,8 +362,7 @@ bool Workspace::onCanClear(Context* ctx)
 bool Workspace::onCut(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCut(ctx);
   else
@@ -382,8 +372,7 @@ bool Workspace::onCut(Context* ctx)
 bool Workspace::onCopy(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onCopy(ctx);
   else
@@ -393,8 +382,7 @@ bool Workspace::onCopy(Context* ctx)
 bool Workspace::onPaste(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onPaste(ctx);
   else
@@ -404,8 +392,7 @@ bool Workspace::onPaste(Context* ctx)
 bool Workspace::onClear(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     return activeElement->onClear(ctx);
   else
@@ -415,8 +402,7 @@ bool Workspace::onClear(Context* ctx)
 void Workspace::onCancel(Context* ctx)
 {
   WorkspaceView* view = activeView();
-  InputChainElement* activeElement =
-      (view ? view->onGetInputChainElement() : nullptr);
+  InputChainElement* activeElement = (view ? view->onGetInputChainElement() : nullptr);
   if (activeElement)
     activeElement->onCancel(ctx);
 }

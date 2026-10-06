@@ -39,26 +39,11 @@ public:
   bool isUsed() const { return m_used; }
   void markAsUsed() { m_used = true; }
   KeyModifiers modifiers() const { return m_modifiers; }
-  bool shiftPressed() const
-  {
-    return (m_modifiers & kKeyShiftModifier) == kKeyShiftModifier;
-  }
-  bool ctrlPressed() const
-  {
-    return (m_modifiers & kKeyCtrlModifier) == kKeyCtrlModifier;
-  }
-  bool altPressed() const
-  {
-    return (m_modifiers & kKeyAltModifier) == kKeyAltModifier;
-  }
-  bool cmdPressed() const
-  {
-    return (m_modifiers & kKeyCmdModifier) == kKeyCmdModifier;
-  }
-  bool winPressed() const
-  {
-    return (m_modifiers & kKeyWinModifier) == kKeyWinModifier;
-  }
+  bool shiftPressed() const { return (m_modifiers & kKeyShiftModifier) == kKeyShiftModifier; }
+  bool ctrlPressed() const { return (m_modifiers & kKeyCtrlModifier) == kKeyCtrlModifier; }
+  bool altPressed() const { return (m_modifiers & kKeyAltModifier) == kKeyAltModifier; }
+  bool cmdPressed() const { return (m_modifiers & kKeyCmdModifier) == kKeyCmdModifier; }
+  bool winPressed() const { return (m_modifiers & kKeyWinModifier) == kKeyWinModifier; }
   bool onlyShiftPressed() const { return m_modifiers == kKeyShiftModifier; }
   bool onlyCtrlPressed() const { return m_modifiers == kKeyCtrlModifier; }
   bool onlyAltPressed() const { return m_modifiers == kKeyAltModifier; }
@@ -81,8 +66,7 @@ private:
 class KeyMessage : public Message
 {
 public:
-  KeyMessage(MessageType type, KeyScancode scancode, KeyModifiers modifiers,
-             int unicodeChar, int repeat);
+  KeyMessage(MessageType type, KeyScancode scancode, KeyModifiers modifiers, int unicodeChar, int repeat);
 
   KeyScancode scancode() const { return m_scancode; }
   int unicodeChar() const { return m_unicodeChar; }
@@ -121,10 +105,9 @@ private:
 class MouseMessage : public Message
 {
 public:
-  MouseMessage(MessageType type, PointerType pointerType, MouseButtons buttons,
-               KeyModifiers modifiers, const gfx::Point& pos,
-               const gfx::Point& wheelDelta = gfx::Point(0, 0),
-               bool preciseWheel = false, float pressure = 0.0f)
+  MouseMessage(MessageType type, PointerType pointerType, MouseButtons buttons, KeyModifiers modifiers,
+               const gfx::Point& pos, const gfx::Point& wheelDelta = gfx::Point(0, 0), bool preciseWheel = false,
+               float pressure = 0.0f)
     : Message(type, modifiers)
     , m_pointerType(pointerType)
     , m_buttons(buttons)
@@ -158,8 +141,7 @@ private:
 class TouchMessage : public Message
 {
 public:
-  TouchMessage(MessageType type, KeyModifiers modifiers, const gfx::Point& pos,
-               double magnification)
+  TouchMessage(MessageType type, KeyModifiers modifiers, const gfx::Point& pos, double magnification)
     : Message(type, modifiers)
     , m_pos(pos)
     , m_magnification(magnification)

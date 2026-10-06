@@ -32,10 +32,7 @@ public:
   const Sprites& sprites() const { return m_sprites; }
   Sprites& sprites() { return m_sprites; }
 
-  const Sprite* sprite() const
-  {
-    return m_sprites.empty() ? NULL : m_sprites.front();
-  }
+  const Sprite* sprite() const { return m_sprites.empty() ? NULL : m_sprites.front(); }
   Sprite* sprite() { return m_sprites.empty() ? NULL : m_sprites.front(); }
 
   int width() const;

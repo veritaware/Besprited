@@ -55,11 +55,7 @@ class OptionsWindow : public app::gen::Options
     const std::string& themePath() const { return m_path; }
     const std::string& themeName() const { return m_name; }
 
-    void openFolder() const
-    {
-      app::launcher::open_folder(
-          m_name.empty() ? m_path : base::join_path(m_path, m_name));
-    }
+    void openFolder() const { app::launcher::open_folder(m_name.empty() ? m_path : base::join_path(m_path, m_name)); }
 
     bool canSelect() const { return !m_name.empty(); }
 
@@ -83,8 +79,7 @@ public:
     , m_cursorColor(new ColorButton(m_pref.editor.cursorColor(), IMAGE_RGB))
     , m_curSection(curSection)
   {
-    sectionListbox()->Change.connect(
-        base::Bind<void>(&OptionsWindow::onChangeSection, this));
+    sectionListbox()->Change.connect(base::Bind<void>(&OptionsWindow::onChangeSection, this));
 
     // Cursor
     cursorColorPlaceholder()->addChild(m_cursorColor);
@@ -99,8 +94,7 @@ public:
       cursorColorType()->setSelectedItemIndex(1);
       m_cursorColor->setVisible(true);
     }
-    cursorColorType()->Change.connect(
-        base::Bind<void>(&OptionsWindow::onCursorColorType, this));
+    cursorColorType()->Change.connect(base::Bind<void>(&OptionsWindow::onCursorColorType, this));
 
     // Brush preview
     brushPreview()->setSelectedItemIndex((int)m_pref.editor.brushPreview());
@@ -130,9 +124,7 @@ public:
       showFullPath()->setSelected(true);
 
     dataRecoveryPeriod()->setSelectedItemIndex(
-        dataRecoveryPeriod()->findItemIndexByValue(
-            base::convert_to<std::string>(
-                m_pref.general.dataRecoveryPeriod())));
+        dataRecoveryPeriod()->findItemIndexByValue(base::convert_to<std::string>(m_pref.general.dataRecoveryPeriod())));
 
     if (m_pref.editor.zoomFromCenterWithWheel())
       zoomFromCenterWithWheel()->setSelected(true);
@@ -170,24 +162,21 @@ public:
     {
       gridScope()->addItem("Current Document");
       gridScope()->setSelectedItemIndex(1);
-      gridScope()->Change.connect(
-          base::Bind<void>(&OptionsWindow::onChangeGridScope, this));
+      gridScope()->Change.connect(base::Bind<void>(&OptionsWindow::onChangeGridScope, this));
     }
 
     // Language
-    language()->setSelectedItemIndex(
-        language()->findItemIndexByValue(m_pref.general.language()));
+    language()->setSelectedItemIndex(language()->findItemIndexByValue(m_pref.general.language()));
 
     // Screen/UI Scale
-    screenScale()->setSelectedItemIndex(screenScale()->findItemIndexByValue(
-        base::convert_to<std::string>(m_pref.general.screenScale())));
+    screenScale()->setSelectedItemIndex(
+        screenScale()->findItemIndexByValue(base::convert_to<std::string>(m_pref.general.screenScale())));
 
-    uiScale()->setSelectedItemIndex(uiScale()->findItemIndexByValue(
-        base::convert_to<std::string>(m_pref.experimental.uiScale())));
+    uiScale()->setSelectedItemIndex(
+        uiScale()->findItemIndexByValue(base::convert_to<std::string>(m_pref.experimental.uiScale())));
     uiScale()->Change.connect([this] { updateScale(); });
 
-    if ((int(she::instance()->capabilities()) &
-         int(she::Capabilities::GpuAccelerationSwitch)) ==
+    if ((int(she::instance()->capabilities()) & int(she::Capabilities::GpuAccelerationSwitch)) ==
         int(she::Capabilities::GpuAccelerationSwitch))
     {
       gpuAcceleration()->setSelected(m_pref.general.gpuAcceleration());
@@ -202,8 +191,7 @@ public:
     rightClickBehavior()->addItem("Pick foreground color");
     rightClickBehavior()->addItem("Erase");
     rightClickBehavior()->addItem("Scroll");
-    rightClickBehavior()->setSelectedItemIndex(
-        (int)m_pref.editor.rightClickMode());
+    rightClickBehavior()->setSelectedItemIndex((int)m_pref.editor.rightClickMode());
 
     // Zoom with Scroll Wheel
     wheelZoom()->setSelected(m_pref.editor.zoomWithWheel());
@@ -237,18 +225,15 @@ public:
     checkedBgColor2Box()->addChild(m_checked_bg_color2);
 
     // Checked background size changed
-    checkedBgSize()->Change.connect(
-        base::Bind<void>(&OptionsWindow::onBgTypeChange, this));
+    checkedBgSize()->Change.connect(base::Bind<void>(&OptionsWindow::onBgTypeChange, this));
 
     // Reset button
     reset()->Click.connect(base::Bind<void>(&OptionsWindow::onReset, this));
 
     // Links
-    locateFile()->Click.connect(
-        base::Bind<void>(&OptionsWindow::onLocateConfigFile, this));
+    locateFile()->Click.connect(base::Bind<void>(&OptionsWindow::onLocateConfigFile, this));
 #if _WIN32
-    locateCrashFolder()->Click.connect(
-        base::Bind<void>(&OptionsWindow::onLocateCrashFolder, this));
+    locateCrashFolder()->Click.connect(base::Bind<void>(&OptionsWindow::onLocateCrashFolder, this));
 #else
     locateCrashFolder()->setVisible(false);
 #endif
@@ -256,20 +241,15 @@ public:
     // Undo preferences
     undoSizeLimit()->setValue(m_pref.undo.sizeLimit());
     undoGotoModified()->setSelected(m_pref.undo.gotoModified());
-    undoAllowNonlinearHistory()->setSelected(
-        m_pref.undo.allowNonlinearHistory());
+    undoAllowNonlinearHistory()->setSelected(m_pref.undo.allowNonlinearHistory());
 
     // Theme buttons
-    themeList()->Change.connect(
-        base::Bind<void>(&OptionsWindow::onThemeChange, this));
-    selectTheme()->Click.connect(
-        base::Bind<void>(&OptionsWindow::onSelectTheme, this));
-    openThemeFolder()->Click.connect(
-        base::Bind<void>(&OptionsWindow::onOpenThemeFolder, this));
+    themeList()->Change.connect(base::Bind<void>(&OptionsWindow::onThemeChange, this));
+    selectTheme()->Click.connect(base::Bind<void>(&OptionsWindow::onSelectTheme, this));
+    openThemeFolder()->Click.connect(base::Bind<void>(&OptionsWindow::onOpenThemeFolder, this));
 
     // Apply button
-    buttonApply()->Click.connect(
-        base::Bind<void>(&OptionsWindow::saveConfig, this));
+    buttonApply()->Click.connect(base::Bind<void>(&OptionsWindow::saveConfig, this));
 
     onChangeGridScope();
     sectionListbox()->selectIndex(m_curSection);
@@ -316,26 +296,20 @@ public:
       warnings += "<<- Automatically save recovery data every";
     }
 
-    m_pref.editor.zoomFromCenterWithWheel(
-        zoomFromCenterWithWheel()->isSelected());
-    m_pref.editor.zoomFromCenterWithKeys(
-        zoomFromCenterWithKeys()->isSelected());
-    m_pref.editor.invertHorizontalScroll(
-        invertHorizontalScroll()->isSelected());
+    m_pref.editor.zoomFromCenterWithWheel(zoomFromCenterWithWheel()->isSelected());
+    m_pref.editor.zoomFromCenterWithKeys(zoomFromCenterWithKeys()->isSelected());
+    m_pref.editor.invertHorizontalScroll(invertHorizontalScroll()->isSelected());
     m_pref.editor.invertVerticalScroll(invertVerticalScroll()->isSelected());
     m_pref.editor.showScrollbars(showScrollbars()->isSelected());
     m_pref.editor.zoomWithWheel(wheelZoom()->isSelected());
 #if __APPLE__
     m_pref.editor.zoomWithSlide(slideZoom()->isSelected());
 #endif
-    m_pref.editor.rightClickMode(static_cast<app::gen::RightClickMode>(
-        rightClickBehavior()->getSelectedItemIndex()));
+    m_pref.editor.rightClickMode(static_cast<app::gen::RightClickMode>(rightClickBehavior()->getSelectedItemIndex()));
     m_pref.editor.cursorColor(m_cursorColor->getColor());
-    m_pref.editor.brushPreview(static_cast<app::gen::BrushPreview>(
-        brushPreview()->getSelectedItemIndex()));
+    m_pref.editor.brushPreview(static_cast<app::gen::BrushPreview>(brushPreview()->getSelectedItemIndex()));
     m_pref.selection.autoOpaque(autoOpaque()->isSelected());
-    m_pref.selection.keepSelectionAfterClear(
-        keepSelectionAfterClear()->isSelected());
+    m_pref.selection.keepSelectionAfterClear(keepSelectionAfterClear()->isSelected());
 
     m_curPref->grid.color(m_gridColor->getColor());
     m_curPref->grid.opacity(gridOpacity()->getValue());
@@ -343,8 +317,7 @@ public:
     m_curPref->pixelGrid.color(m_pixelGridColor->getColor());
     m_curPref->pixelGrid.opacity(pixelGridOpacity()->getValue());
     m_curPref->pixelGrid.autoOpacity(pixelGridAutoOpacity()->isSelected());
-    m_curPref->bg.type(
-        app::gen::BgType(checkedBgSize()->getSelectedItemIndex()));
+    m_curPref->bg.type(app::gen::BgType(checkedBgSize()->getSelectedItemIndex()));
     m_curPref->bg.width(m_checked_bg_width->getValue());
     m_curPref->bg.height(m_checked_bg_height->getValue());
     m_curPref->bg.zoom(checkedBgZoom()->isSelected());
@@ -353,8 +326,7 @@ public:
 
     m_pref.undo.sizeLimit(undoSizeLimit()->getValue());
     m_pref.undo.gotoModified(undoGotoModified()->isSelected());
-    m_pref.undo.allowNonlinearHistory(
-        undoAllowNonlinearHistory()->isSelected());
+    m_pref.undo.allowNonlinearHistory(undoAllowNonlinearHistory()->isSelected());
 
     // Experimental features
     m_pref.experimental.useNativeCursor(nativeCursor()->isSelected());
@@ -390,9 +362,7 @@ public:
     if (!warnings.empty())
     {
       ui::Alert::show(
-          (PACKAGE "<<" +
-           app::i18n("You must restart the program to see your changes to:") +
-           warnings + "||&OK")
+          (PACKAGE "<<" + app::i18n("You must restart the program to see your changes to:") + warnings + "||&OK")
               .c_str());
     }
 
@@ -409,8 +379,7 @@ public:
 private:
   void onChangeSection()
   {
-    ListItem* item =
-        static_cast<ListItem*>(sectionListbox()->getSelectedChild());
+    ListItem* item = static_cast<ListItem*>(sectionListbox()->getSelectedChild());
     if (!item)
       return;
 
@@ -467,8 +436,7 @@ private:
 
       m_pixelGridColor->setColor(pref.pixelGrid.color.defaultValue());
       pixelGridOpacity()->setValue(pref.pixelGrid.opacity.defaultValue());
-      pixelGridAutoOpacity()->setSelected(
-          pref.pixelGrid.autoOpacity.defaultValue());
+      pixelGridAutoOpacity()->setSelected(pref.pixelGrid.autoOpacity.defaultValue());
 
       checkedBgSize()->setSelectedItemIndex(int(pref.bg.type.defaultValue()));
       checkedBgZoom()->setSelected(pref.bg.zoom.defaultValue());
@@ -499,16 +467,9 @@ private:
     }
   }
 
-  void onLocateCrashFolder()
-  {
-    app::launcher::open_folder(
-        base::get_file_path(app::memory_dump_filename()));
-  }
+  void onLocateCrashFolder() { app::launcher::open_folder(base::get_file_path(app::memory_dump_filename())); }
 
-  void onLocateConfigFile()
-  {
-    app::launcher::open_folder(app::main_config_filename());
-  }
+  void onLocateConfigFile() { app::launcher::open_folder(app::main_config_filename()); }
 
   void loadThemes()
   {
@@ -560,9 +521,8 @@ private:
     {
       m_pref.theme.selected(item->themeName());
 
-      ui::Alert::show(PACKAGE
-                      "<<You must restart the program to see the selected theme"
-                      "||&OK");
+      ui::Alert::show(PACKAGE "<<You must restart the program to see the selected theme"
+                              "||&OK");
     }
   }
 
@@ -593,9 +553,7 @@ private:
 
   void onBgTypeChange()
   {
-    bool isCustom = static_cast<app::gen::BgType>(
-                        checkedBgSize()->getSelectedItemIndex()) ==
-                    app::gen::BgType::CUSTOM;
+    bool isCustom = static_cast<app::gen::BgType>(checkedBgSize()->getSelectedItemIndex()) == app::gen::BgType::CUSTOM;
 
     m_checked_bg_width->setVisible(isCustom);
     m_checked_bg_height->setVisible(isCustom);
@@ -662,8 +620,7 @@ OptionsCommand::OptionsCommand()
 {
   Preferences& preferences = Preferences::instance();
 
-  ui::MenuBar::setExpandOnMouseover(
-      preferences.general.expandMenubarOnMouseover());
+  ui::MenuBar::setExpandOnMouseover(preferences.general.expandMenubarOnMouseover());
 }
 
 void OptionsCommand::onExecute(Context* context)

@@ -34,8 +34,7 @@ Image::~Image() = default;
 
 size_t Image::getMemSize() const
 {
-  return sizeof(Image) +
-         static_cast<size_t>(getRowStrideSize()) * static_cast<size_t>(m_height);
+  return sizeof(Image) + static_cast<size_t>(getRowStrideSize()) * static_cast<size_t>(m_height);
 }
 
 int Image::getRowStrideSize() const
@@ -49,8 +48,7 @@ int Image::getRowStrideSize(int pixels_per_row) const
 }
 
 // static
-Image* Image::create(PixelFormat format, int width, int height,
-                     const ImageBufferPtr& buffer)
+Image* Image::create(PixelFormat format, int width, int height, const ImageBufferPtr& buffer)
 {
   switch (format)
   {

@@ -41,7 +41,6 @@ enum class TracePolicy : std::uint8_t
   // on each ToolLoop step, so the tool overlaps its own effect.
   // Used by jumble and spray.
   Overlap,
-
 };
 
 } // namespace app::tools

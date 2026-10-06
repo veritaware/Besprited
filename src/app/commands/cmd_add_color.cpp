@@ -95,11 +95,9 @@ void AddColorCommand::onExecute(Context* ctx)
   try
   {
     Palette* newPalette = get_current_palette(); // System current pal
-    color_t color = doc::rgba(appColor.getRed(), appColor.getGreen(),
-                              appColor.getBlue(), appColor.getAlpha());
+    color_t color = doc::rgba(appColor.getRed(), appColor.getGreen(), appColor.getBlue(), appColor.getAlpha());
     int index =
-        newPalette->findExactMatch(appColor.getRed(), appColor.getGreen(),
-                                   appColor.getBlue(), appColor.getAlpha(), -1);
+        newPalette->findExactMatch(appColor.getRed(), appColor.getGreen(), appColor.getBlue(), appColor.getAlpha(), -1);
 
     // It should be -1, because the user has pressed the warning
     // button that is available only when the color isn't in the

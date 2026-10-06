@@ -145,8 +145,7 @@ bool ToolBar::onProcessMessage(Message* msg)
       Tool* tool = m_selectedInGroup[tool_group];
 
       toolrc = getToolGroupBounds(c);
-      if (mouseMsg->position().y >= toolrc.y &&
-          mouseMsg->position().y < toolrc.y + toolrc.h)
+      if (mouseMsg->position().y >= toolrc.y && mouseMsg->position().y < toolrc.y + toolrc.h)
       {
         selectTool(tool);
 
@@ -160,12 +159,10 @@ bool ToolBar::onProcessMessage(Message* msg)
     }
 
     toolrc = getToolGroupBounds(PreviewVisibilityIndex);
-    if (mouseMsg->position().y >= toolrc.y &&
-        mouseMsg->position().y < toolrc.y + toolrc.h)
+    if (mouseMsg->position().y >= toolrc.y && mouseMsg->position().y < toolrc.y + toolrc.h)
     {
       // Toggle preview visibility
-      PreviewEditorWindow* preview =
-          App::instance()->mainWindow()->getPreviewEditor();
+      PreviewEditorWindow* preview = App::instance()->mainWindow()->getPreviewEditor();
       bool state = preview->isPreviewEnabled();
       preview->setPreviewEnabled(!state);
     }
@@ -189,8 +186,7 @@ bool ToolBar::onProcessMessage(Message* msg)
       Tool* tool = m_selectedInGroup[tool_group];
 
       toolrc = getToolGroupBounds(c);
-      if (mouseMsg->position().y >= toolrc.y &&
-          mouseMsg->position().y < toolrc.y + toolrc.h)
+      if (mouseMsg->position().y >= toolrc.y && mouseMsg->position().y < toolrc.y + toolrc.h)
       {
         new_hot_tool = tool;
         new_hot_index = c;
@@ -204,8 +200,7 @@ bool ToolBar::onProcessMessage(Message* msg)
     }
 
     toolrc = getToolGroupBounds(PreviewVisibilityIndex);
-    if (mouseMsg->position().y >= toolrc.y &&
-        mouseMsg->position().y < toolrc.y + toolrc.h)
+    if (mouseMsg->position().y >= toolrc.y && mouseMsg->position().y < toolrc.y + toolrc.h)
     {
       new_hot_index = PreviewVisibilityIndex;
     }
@@ -245,9 +240,8 @@ bool ToolBar::onProcessMessage(Message* msg)
       {
         releaseMouse();
 
-        MouseMessage* mouseMsg2 = new MouseMessage(
-            kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
-            mouseMsg->modifiers(), mouseMsg->position());
+        MouseMessage* mouseMsg2 = new MouseMessage(kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
+                                                   mouseMsg->modifiers(), mouseMsg->position());
         mouseMsg2->addRecipient(strip);
         manager()->enqueueMessage(mouseMsg2);
       }
@@ -339,8 +333,7 @@ void ToolBar::onPaint(ui::PaintEvent& ev)
     }
     else
     {
-      nw = c >= 0 && c < groups - 1 ? theme->parts.toolbuttonNormal()
-                                    : theme->parts.toolbuttonLast();
+      nw = c >= 0 && c < groups - 1 ? theme->parts.toolbuttonNormal() : theme->parts.toolbuttonLast();
       face = normalFace;
     }
 
@@ -361,18 +354,14 @@ void ToolBar::onPaint(ui::PaintEvent& ev)
   toolrc = getToolGroupBounds(PreviewVisibilityIndex);
   toolrc.offset(-origin());
   bool isHot =
-      (m_hotIndex == PreviewVisibilityIndex ||
-       App::instance()->mainWindow()->getPreviewEditor()->isPreviewEnabled());
-  theme->drawRect(g, toolrc,
-                  (isHot ? theme->parts.toolbuttonHot().get()
-                         : theme->parts.toolbuttonLast().get()),
+      (m_hotIndex == PreviewVisibilityIndex || App::instance()->mainWindow()->getPreviewEditor()->isPreviewEnabled());
+  theme->drawRect(g, toolrc, (isHot ? theme->parts.toolbuttonHot().get() : theme->parts.toolbuttonLast().get()),
                   (isHot ? hotFace : normalFace));
 
   she::Surface* icon = theme->getToolIcon("minieditor");
   if (icon)
   {
-    g->drawRgbaSurface(icon, toolrc.x + toolrc.w / 2 - icon->width() / 2,
-                       toolrc.y + toolrc.h / 2 - icon->height() / 2);
+    g->drawRgbaSurface(icon, toolrc.x + toolrc.w / 2 - icon->width() / 2, toolrc.y + toolrc.h / 2 - icon->height() / 2);
   }
 }
 
@@ -427,10 +416,8 @@ void ToolBar::openPopupWindow(int group_index, ToolGroup* tool_group)
     return;
 
   // In case this tool contains more than just one tool, show the popup window
-  m_popupWindow = new PopupWindow(
-      "", PopupWindow::ClickBehavior::CloseOnClickOutsideHotRegion);
-  m_closeConn = m_popupWindow->Close.connect(
-      base::Bind<void, ToolBar, ToolBar>(&ToolBar::onClosePopup, this));
+  m_popupWindow = new PopupWindow("", PopupWindow::ClickBehavior::CloseOnClickOutsideHotRegion);
+  m_closeConn = m_popupWindow->Close.connect(base::Bind<void, ToolBar, ToolBar>(&ToolBar::onClosePopup, this));
   m_openedRecently = true;
 
   ToolStrip* toolstrip = new ToolStrip(tool_group, this);
@@ -483,8 +470,7 @@ Rect ToolBar::getToolGroupBounds(int group_index)
 
   default:
     rc.y += group_index * (iconsize.h - 1 * guiscale());
-    rc.h = group_index < groups - 1 ? iconsize.h + 1 * guiscale()
-                                    : iconsize.h + 2 * guiscale();
+    rc.h = group_index < groups - 1 ? iconsize.h + 1 * guiscale() : iconsize.h + 2 * guiscale();
     break;
   }
 
@@ -553,8 +539,7 @@ void ToolBar::openTipWindow(int group_index, Tool* tool)
   m_tipWindow->remapWindow();
 
   Rect toolrc = getToolGroupBounds(group_index);
-  Point arrow =
-      (tool ? getToolPositionInGroup(group_index, tool) : Point(0, 0));
+  Point arrow = (tool ? getToolPositionInGroup(group_index, tool) : Point(0, 0));
   if (tool && m_popupWindow && m_popupWindow->isVisible())
     toolrc.x += arrow.x - m_popupWindow->bounds().w;
 
@@ -683,9 +668,8 @@ bool ToolBar::ToolStrip::onProcessMessage(Message* msg)
       {
         releaseMouse();
 
-        MouseMessage* mouseMsg2 = new MouseMessage(
-            kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
-            mouseMsg->modifiers(), mouseMsg->position());
+        MouseMessage* mouseMsg2 = new MouseMessage(kMouseDownMessage, mouseMsg->pointerType(), mouseMsg->buttons(),
+                                                   mouseMsg->modifiers(), mouseMsg->position());
         mouseMsg2->addRecipient(bar);
         manager()->enqueueMessage(mouseMsg2);
       }
@@ -770,8 +754,7 @@ Rect ToolBar::ToolStrip::getToolBounds(int index)
   const Rect& bounds(this->bounds());
   Size iconsize = getToolIconSize(this);
 
-  return Rect(bounds.x + index * (iconsize.w - 1), bounds.y, iconsize.w,
-              bounds.h);
+  return Rect(bounds.x + index * (iconsize.w - 1), bounds.y, iconsize.w, bounds.h);
 }
 
 void ToolBar::onSelectedToolChange(tools::Tool* tool)
