@@ -271,7 +271,8 @@ elseif(USE_SDL3_BACKEND)
 
   # SDL3 ships proper CMake config packages (imported SDL3::SDL3 and
   # SDL3_image::SDL3_image targets), so no custom Find module is needed.
-  find_package(SDL3 CONFIG REQUIRED)
+  # 3.2.12 added SDL_MouseWheelEvent::integer_x/y, used by she/sdl3.
+  find_package(SDL3 3.2.12 CONFIG REQUIRED)
   # IMG_SavePNG_IO() is available since SDL3_image 3.0.0, i.e. its first
   # release, but pin it explicitly since we rely on it (see #264).
   find_package(SDL3_image 3.0 CONFIG REQUIRED)
