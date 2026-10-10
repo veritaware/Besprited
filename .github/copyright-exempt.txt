@@ -2,3 +2,5 @@
 # One repo-relative path per line. Lines starting with # are comments.
 
 data/skins/default/skin.xml
+third_party/httplib/httplib.cpp
+third_party/httplib/httplib.h

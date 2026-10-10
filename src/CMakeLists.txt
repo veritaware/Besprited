@@ -84,7 +84,6 @@ add_subdirectory(filters)
 add_subdirectory(fixmath)
 add_subdirectory(flic)
 add_subdirectory(gfx)
-add_subdirectory(net)
 add_subdirectory(render)
 add_subdirectory(she)
 add_subdirectory(ui)
@@ -131,13 +130,13 @@ target_link_libraries(besprited ${KEEP_INJECTIONS_BEGIN}
   fixmath-lib
   flic-lib
   gfx-lib
-  net-lib
   render-lib
   she
   ui-lib
   undo
   delta
   ${KEEP_INJECTIONS_END}
+  httplib
   ${LibArchive_LIBRARY}
   ${TINYXML2_LIBRARY}
   ${JPEG_LIBRARIES}
