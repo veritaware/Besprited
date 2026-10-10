@@ -145,7 +145,7 @@ jobs:
         apt-get install -y --no-install-recommends \
           g++ ninja-build git ca-certificates dpkg-dev file python3-pip \
           curl unzip \
-          libcurl4-gnutls-dev libfreetype-dev libgif-dev libjpeg-dev libpixman-1-dev \
+          libfreetype-dev libgif-dev libjpeg-dev libpixman-1-dev \
           libpng-dev libsdl${{ matrix.sdl }}-dev libsdl${{ matrix.sdl }}-image-dev libtinyxml2-dev libnode-dev \
           zlib1g-dev libarchive-dev libx11-dev libxcursor-dev libxi-dev
         # Distro CMake is < 4.1; the project needs >= 4.1 (matches the main job).
@@ -212,7 +212,7 @@ jobs:
     - name: Install build dependencies
       run: |
         dnf install -y gcc-c++ cmake git ninja-build rpm-build curl unzip \
-          libcurl-devel freetype-devel giflib-devel libjpeg-turbo-devel \
+          freetype-devel giflib-devel libjpeg-turbo-devel \
           pixman-devel libpng-devel SDL3-devel SDL3_image-devel tinyxml2-devel \
           zlib-devel nodejs-devel libarchive-devel libXi-devel libXcursor-devel
     - uses: actions/checkout@v7

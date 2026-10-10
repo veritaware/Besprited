@@ -142,7 +142,6 @@ set(MODULE_TEST_LIBS
   fixmath-lib
   flic-lib
   gfx-lib
-  net-lib
   render-lib
   delta
   she

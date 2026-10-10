@@ -80,6 +80,17 @@ public:
 };
 std::unique_ptr<ScriptTimer> tickTimer;
 
+// Canonical form of a script path (absolute + lexically normalized, the
+// same form as AppScripting::activeScript). Used to match event file
+// names against loadedScripts no matter how the path was passed in.
+std::string canonicalScriptPath(const std::string& path)
+{
+  std::filesystem::path p{path};
+  if (!p.is_absolute())
+    p = std::filesystem::current_path() / p;
+  return p.lexically_normal().string();
+}
+
 // Routes text to the console delegate (DevConsole panel, --shell stdout)
 // with a plain stdout fallback when no delegate is registered.
 void routeToConsole(const std::string& text)
@@ -367,10 +378,12 @@ void AppScripting::drainEventQueue()
     // Lazily load the script that owns this event (first-event load for
     // ///listen scripts). Re-queue the event so the "init" event fired
     // by evalFile is delivered before it (legacy load-then-fire order).
-    if (!ev.fileName.empty() &&
-        loadedScripts.find(ev.fileName) == loadedScripts.end())
+    // Normalize the path the same way evalFile stores it so a
+    // relative/absolute mismatch does not reload an already loaded script.
+    auto normPath = ev.fileName.empty() ? std::string{} : canonicalScriptPath(ev.fileName);
+    if (!normPath.empty() && loadedScripts.find(normPath) == loadedScripts.end())
     {
-      if (evalFile(ev.fileName))
+      if (evalFile(normPath))
       {
         pendingEvents << [&](auto& q) { q.push_back(std::move(ev)); };
         continue;
@@ -467,6 +480,15 @@ bool AppScripting::evalFile(const std::string& fileName)
   // files not in loadedScripts, so this never re-evaluates on events.)
   eventHandler = JSON::Value{JSON::Special::Undefined};
 
+  // Lexically normalized (".."/"." collapsed) rather than the raw
+  // argument: this becomes the default domain for storage.*() calls
+  // (see storage_script.cpp), whose path-traversal check rejects any
+  // ".." component - an unnormalized relative invocation like
+  // `--script ../foo.js` would otherwise make every default-domain
+  // storage call fail for a script that did nothing wrong (see issue
+  // #219).
+  activeScript = std::filesystem::path(absPath).lexically_normal().string();
+
   bool ok = false;
   try
   {
@@ -480,15 +502,9 @@ bool AppScripting::evalFile(const std::string& fileName)
 
   if (ok)
   {
-    loadedScripts.insert(fileName);
-    // Lexically normalized (".."/"." collapsed) rather than the raw
-    // argument: this becomes the default domain for storage.*() calls
-    // (see storage_script.cpp), whose path-traversal check rejects any
-    // ".." component - an unnormalized relative invocation like
-    // `--script ../foo.js` would otherwise make every default-domain
-    // storage call fail for a script that did nothing wrong (see issue
-    // #219).
-    activeScript = std::filesystem::path(absPath).lexically_normal().string();
+    // Store the canonical path (the same form events carry via
+    // getFileName), so event-driven lookups do not re-load the script.
+    loadedScripts.insert(activeScript);
     JSON::Value initEvent;
     initEvent.push_back("init");
     pendingEvents << [&](auto& q) { q.emplace_back(fileName, initEvent); };
