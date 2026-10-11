@@ -93,8 +93,6 @@ Manager::Manager()
   , m_eventQueue(nullptr)
   , m_lockedWindow(nullptr)
   , m_mouseButtons(kButtonNone)
-  , m_redrawRequested(false)
-  , m_lastFlipTime(0.0)
 {
   if (!m_defaultManager)
   {
@@ -183,29 +181,6 @@ void Manager::flipDisplay()
   if (!m_display)
     return;
 
-  // Frame-rate limiter: we want to limit the number of flips to avoid
-  // consuming 100% CPU on too frequent document canvas redraws
-  double currentTime = base::current_tick() / 1000.0; // Convert milliseconds to seconds
-  double timeSinceLastFlip = currentTime - m_lastFlipTime;
-
-  if (timeSinceLastFlip < MIN_FRAME_INTERVAL)
-  {
-    // Not enough time has passed, skip this flip but keep the redraw request
-    return;
-  }
-
-  // Only proceed with flip if there's something to draw
-  if (m_dirtyRegion.isEmpty())
-  {
-    // No dirty regions means nothing to draw, but we should still clear the
-    // flag since we've processed the redraw request
-    m_redrawRequested = false;
-    return;
-  }
-
-  // Update last flip time before drawing
-  m_lastFlipTime = currentTime;
-
   OverlayManager* overlays = OverlayManager::instance();
 
   update_cursor_overlay();
@@ -218,21 +193,14 @@ void Manager::flipDisplay()
   {
     m_dirtyRegion.createIntersection(m_dirtyRegion, gfx::Region(gfx::Rect(0, 0, ui::display_w(), ui::display_h())));
 
-    // Coalesce dirty regions into a single bounding rectangle
-    if (!m_dirtyRegion.isEmpty())
-    {
-      gfx::Rect boundingRect = m_dirtyRegion.bounds();
-      m_display->flip(boundingRect);
-      m_display->present();
-    }
+    for (auto& rc : m_dirtyRegion)
+      m_display->flip(rc);
+    m_display->present();
 
     m_dirtyRegion.clear();
   }
 
   overlays->restoreOverlappedAreas();
-
-  // Reset redraw request flag after successful flip
-  m_redrawRequested = false;
 }
 
 bool Manager::generateMessages()
@@ -315,6 +283,17 @@ static MouseButtons mouse_buttons_from_she_to_ui(const she::Event& sheEvent)
 void Manager::generateMessagesFromSheEvents()
 {
   she::Event lastMouseMoveEvent;
+  she::Event pendingMove;
+
+  // Only the newest of consecutive mouse moves is handled.
+  auto flushPendingMove = [&] {
+    if (pendingMove.type() == she::Event::None)
+      return;
+    _internal_set_mouse_position(pendingMove.position());
+    handleMouseMove(pendingMove.position(), m_mouseButtons, pendingMove.modifiers(), pendingMove.pointerType(),
+                    pendingMove.pressure());
+    pendingMove = she::Event();
+  };
 
   // Events from "she" layer.
   she::Event sheEvent;
@@ -326,6 +305,9 @@ void Manager::generateMessagesFromSheEvents()
     m_eventQueue->getEvent(sheEvent, canWait);
     if (sheEvent.type() == she::Event::None)
       break;
+
+    if (sheEvent.type() != she::Event::MouseMove)
+      flushPendingMove();
 
     switch (sheEvent.type())
     {
@@ -388,9 +370,7 @@ void Manager::generateMessagesFromSheEvents()
 
     case she::Event::MouseMove:
     {
-      _internal_set_mouse_position(sheEvent.position());
-      handleMouseMove(sheEvent.position(), m_mouseButtons, sheEvent.modifiers(), sheEvent.pointerType(),
-                      sheEvent.pressure());
+      pendingMove = sheEvent;
       lastMouseMoveEvent = sheEvent;
       break;
     }
@@ -446,6 +426,8 @@ void Manager::generateMessagesFromSheEvents()
     }
     }
   }
+
+  flushPendingMove();
 
   // Generate just one kSetCursorMessage for the last mouse position
   if (lastMouseMoveEvent.type() != she::Event::None)
@@ -584,8 +566,7 @@ void Manager::handleWindowZOrder()
 void Manager::dispatchMessages()
 {
   pumpQueue();
-  // Request a redraw after dispatching messages
-  m_redrawRequested = true;
+  flipDisplay();
 }
 
 void Manager::addToGarbage(Widget* widget)

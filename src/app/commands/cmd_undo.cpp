@@ -89,7 +89,7 @@ void UndoCommand::onExecute(Context* context)
       // user can see the doUndo/doRedo effect.
       current_editor->drawSpriteClipped(gfx::Region(gfx::Rect(0, 0, sprite->width(), sprite->height())));
 
-      current_editor->manager()->requestRedraw();
+      current_editor->manager()->flipDisplay();
       base::this_thread::sleep_for(0.01);
     }
   }
