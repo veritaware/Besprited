@@ -358,6 +358,7 @@ add_library(app-lib
   script/api/entry_script.cpp
   script/api/http_internal.cpp
   script/api/http_script.cpp
+  script/api/server_script.cpp
   script/api/image_script.cpp
   script/api/imageview_script.cpp
   script/api/intentry_script.cpp
