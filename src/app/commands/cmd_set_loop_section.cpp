@@ -39,6 +39,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
   void onExecute(Context* context) override;
 
@@ -69,6 +70,15 @@ void SetLoopSectionCommand::onLoadParams(const Params& params)
 
   m_begin = frame_t(strtol(begin.c_str(), nullptr, 10));
   m_end = frame_t(strtol(end.c_str(), nullptr, 10));
+}
+
+std::vector<CommandParamInfo> SetLoopSectionCommand::onDescribeParams() const
+{
+  return {
+      {"action", "auto (use the timeline range), on or off.", false, "auto"},
+      {"begin", "Begin frame (0-based) for action=on.", false, ""},
+      {"end", "End frame (0-based) for action=on.", false, ""},
+  };
 }
 
 bool SetLoopSectionCommand::onEnabled(Context* ctx)
