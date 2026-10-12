@@ -76,6 +76,64 @@
 
 
 
+# global filesystem [class fs]
+## No Properties.
+
+Relative paths resolve against the running script's directory; absolute
+paths are used as-is.
+
+## Methods:
+    - `readFile(path, options)`:
+      - path: The file to read.
+      - options: Optional. `{encoding: "text" | "binary" | "base64"}` or `{binary: true}` / `{base64: true}`.
+       returns: A Promise that resolves to a string (text), a Uint8Array (binary) or a base64 string (base64). Rejects on error.
+       Reads a file.
+
+    - `writeFile(path, content, options)`:
+      - path: The file to write. Parent directories are created if missing.
+      - content: A string or a Uint8Array.
+      - options: Optional. `{encoding: "base64"}` or `{base64: true}` decodes the content as base64.
+       returns: A Promise that resolves to the number of bytes written.
+       Writes a file.
+
+    - `stat(path)`:
+      - path: The path to inspect.
+       returns: A Promise that resolves to `{isFile, isDirectory, size, lastModified, path}`.
+       Gets file or directory info.
+
+    - `listDir(path)`:
+      - path: The directory to list.
+       returns: A Promise that resolves to an array of `{name, isFile, isDirectory, size, lastModified}`.
+       Lists a directory.
+
+    - `copyFile(srcPath, destPath, append)`:
+      - srcPath: The source file.
+      - destPath: The destination file. Parent directories are created if missing.
+      - append: Optional. If true, appends to the destination.
+       returns: A Promise that resolves to the number of bytes copied.
+       Copies a file.
+
+    - `deleteFile(path)`:
+      - path: The file to delete.
+       returns: A Promise that resolves to `{path, deleted: true}`.
+       Deletes a file.
+
+    - `shareFile(path)`:
+      - path: The file to share.
+       returns: true
+       Sends the file to the system share sheet (Android only).
+       Throws on other platforms.
+
+    - `getCurrentPath()`:
+       returns: The current working directory.
+
+    - `getExecutablePath()`:
+       returns: The app executable path ("" on the web build).
+
+    - `getCachePath()`:
+       returns: A writable cache directory.
+
+
 # [class PalettelistboxWidget]
 ## Properties:
    - `selected`:
