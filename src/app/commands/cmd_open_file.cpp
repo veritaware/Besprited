@@ -41,6 +41,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   void onExecute(Context* context) override;
 
 private:
@@ -101,6 +102,14 @@ void OpenFileCommand::onLoadParams(const Params& params)
 {
   m_filename = params.get("filename");
   m_folder = params.get("folder"); // Initial folder
+}
+
+std::vector<CommandParamInfo> OpenFileCommand::onDescribeParams() const
+{
+  return {
+      {"filename", "File to open. Empty opens the file dialog.", false, ""},
+      {"folder", "Initial folder for the file dialog.", false, ""},
+  };
 }
 
 void OpenFileCommand::onExecute(Context* context)

@@ -50,6 +50,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
   void onExecute(Context* context) override;
   std::string onGetFriendlyName() const override;
@@ -76,6 +77,14 @@ void NewFrameCommand::onLoadParams(const Params& params)
     m_content = Content::DUPLICATE_CELS;
   else if (content == "celblock")
     m_content = Content::DUPLICATE_CELS_BLOCK;
+}
+
+std::vector<CommandParamInfo> NewFrameCommand::onDescribeParams() const
+{
+  return {
+      {"content", "New frame content: current (duplicate the frame), empty, cel (duplicate the cels) or celblock.",
+       false, "current"},
+  };
 }
 
 bool NewFrameCommand::onEnabled(Context* context)

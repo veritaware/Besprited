@@ -31,6 +31,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
   void onExecute(Context* context) override;
 
@@ -54,6 +55,16 @@ void CropSpriteCommand::onLoadParams(const Params& params)
     m_bounds.w = params.get_as<int>("width");
   if (params.has_param("height"))
     m_bounds.h = params.get_as<int>("height");
+}
+
+std::vector<CommandParamInfo> CropSpriteCommand::onDescribeParams() const
+{
+  return {
+      {"x", "Crop bounds x in pixels. Empty crops to the selection mask.", false, ""},
+      {"y", "Crop bounds y in pixels.", false, ""},
+      {"width", "Crop bounds width in pixels.", false, ""},
+      {"height", "Crop bounds height in pixels.", false, ""},
+  };
 }
 
 bool CropSpriteCommand::onEnabled(Context* context)
