@@ -16,6 +16,8 @@
 #include "app/app.h"
 #include "app/resource_finder.h"
 #include "app/script/app_scripting.h"
+#include "app/script/script_permission_dialog.h"
+#include "app/script/script_permissions.h"
 #include "base/injection.h"
 #include "base/path.h"
 #include "base/range.h"
@@ -422,6 +424,8 @@ void AppScripting::raiseEvent(const std::string& fileName, script::Value& event)
 
 bool AppScripting::eval(const std::string& code, const std::string& path)
 {
+  // REPL lines are user-typed code: not gated by script permissions.
+  ScriptPermissions::setUnrestricted();
   initEngine();
   if (!engine)
     return false;
@@ -473,13 +477,6 @@ bool AppScripting::evalFile(const std::string& fileName)
   if (!std::filesystem::path(fileName).is_absolute())
     absPath = (std::filesystem::current_path() / fileName).string();
 
-  // Re-run semantics: the most recently run script owns the event
-  // handler, so drop the previous one and let the epilogue / an
-  // explicit setEventHandler in the script re-register it. (The
-  // event-driven lazy load in drainEventQueue only calls evalFile for
-  // files not in loadedScripts, so this never re-evaluates on events.)
-  eventHandler = JSON::Value{JSON::Special::Undefined};
-
   // Lexically normalized (".."/"." collapsed) rather than the raw
   // argument: this becomes the default domain for storage.*() calls
   // (see storage_script.cpp), whose path-traversal check rejects any
@@ -487,7 +484,25 @@ bool AppScripting::evalFile(const std::string& fileName)
   // `--script ../foo.js` would otherwise make every default-domain
   // storage call fail for a script that did nothing wrong (see issue
   // #219).
-  activeScript = std::filesystem::path(absPath).lexically_normal().string();
+  auto canonicalPath = std::filesystem::path(absPath).lexically_normal().string();
+
+  // Permission gate: the script requests API access via "///permission"
+  // header lines; the first run prompts for the missing grants (or
+  // auto-grants them when there is no UI to prompt in). A cancelled
+  // prompt aborts the run.
+  auto requested = ScriptPermissions::parseRequested(canonicalPath);
+  if (!ensurePermissions(canonicalPath, requested))
+    return false;
+  ScriptPermissions::setActiveContext(ScriptPermissions::granted(canonicalPath));
+
+  // Re-run semantics: the most recently run script owns the event
+  // handler, so drop the previous one and let the epilogue / an
+  // explicit setEventHandler in the script re-register it. (The
+  // event-driven lazy load in drainEventQueue only calls evalFile for
+  // files not in loadedScripts, so this never re-evaluates on events.)
+  eventHandler = JSON::Value{JSON::Special::Undefined};
+
+  activeScript = canonicalPath;
 
   bool ok = false;
   try
@@ -514,6 +529,39 @@ bool AppScripting::evalFile(const std::string& fileName)
     flushAfterEval();
   }
   return ok;
+}
+
+bool AppScripting::ensurePermissions(const std::string& path, const std::set<std::string>& requested)
+{
+  auto granted = ScriptPermissions::granted(path);
+  std::set<std::string> missing;
+  for (auto& perm : requested)
+    if (!granted.count(perm))
+      missing.insert(perm);
+  if (missing.empty())
+    return true;
+
+  if (!ui::Manager::getDefault())
+  {
+    // Headless (--script without a UI): auto-grant so batch runs keep
+    // working; the prompt is a GUI-only concern.
+    for (auto& perm : missing)
+      granted.insert(perm);
+    ScriptPermissions::setGranted(path, granted);
+    std::string list;
+    for (auto& perm : missing)
+      list += (list.empty() ? "" : " ") + perm;
+    std::cout << "Warning: no UI to prompt for permissions; auto-granted " << list << " for " << path << std::endl;
+    return true;
+  }
+
+  std::set<std::string> chosen;
+  if (!ScriptPermissionDialog::show(path, missing, chosen))
+    return false;
+  for (auto& perm : chosen)
+    granted.insert(perm);
+  ScriptPermissions::setGranted(path, granted);
+  return true;
 }
 
 void AppScripting::printLastResult()
