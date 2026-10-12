@@ -982,7 +982,12 @@ public:
     const std::shared_ptr<SDL_RWops> rops{SDL_RWFromMem(data.data(), static_cast<int>(data.size())),
                                           [](auto* rops) { rops->close(rops); }};
     if (IMG_SavePNG_RW(static_cast<SDL_Surface*>(surface->nativeHandle()), rops.get(), 0) != 0)
+    {
+      std::string msg = std::string{"Failed to encode PNG: "} + SDL_GetError();
+      if (g_instance && g_instance->logger())
+        g_instance->logger()->logError(msg.c_str());
       return {};
+    }
     data.resize(SDL_RWtell(rops.get()));
     return data;
   }
