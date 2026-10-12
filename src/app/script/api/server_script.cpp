@@ -1,5 +1,5 @@
-// LibreSprite
-// Copyright (C) 2026  LibreSprite contributors
+// LibreSprite | Copyright (C) 2026      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License version 2 as
@@ -42,57 +42,65 @@
 #include <unordered_map>
 #include <vector>
 
-namespace {
+namespace
+{
 
-  // MIME types for static file serving.
-  const std::unordered_map<std::string, std::string>& mimeTypes() {
-    static const std::unordered_map<std::string, std::string> m = {
-      {".html", "text/html"}, {".css", "text/css"},
-      {".js", "application/javascript"}, {".png", "image/png"},
-      {".jpg", "image/jpeg"}, {".jpeg", "image/jpeg"},
-      {".gif", "image/gif"}, {".svg", "image/svg+xml"},
-      {".json", "application/json"}, {".txt", "text/plain"},
-      {".pdf", "application/pdf"}, {".zip", "application/zip"},
+// MIME types for static file serving.
+const std::unordered_map<std::string, std::string>& mimeTypes()
+{
+  static const std::unordered_map<std::string, std::string> m = {
+      {".html", "text/html"}, {".css", "text/css"},        {".js", "application/javascript"},
+      {".png", "image/png"},  {".jpg", "image/jpeg"},      {".jpeg", "image/jpeg"},
+      {".gif", "image/gif"},  {".svg", "image/svg+xml"},   {".json", "application/json"},
+      {".txt", "text/plain"}, {".pdf", "application/pdf"}, {".zip", "application/zip"},
       {".mp3", "audio/mpeg"}, {".mp4", "video/mp4"},
-    };
-    return m;
-  }
+  };
+  return m;
+}
 
-  // Removes JS references (functions, native objects, and the JS value memo
-  // of objects) so the value is plain data: it is stored and destroyed on a
-  // worker thread, and QuickJS values must only be freed on the main thread.
-  // Nested references are dropped, matching toJSON's behavior for functions.
-  void stripJsRefs(JSON::Value& v) {
-    if (v.isFunction() || v.isNative()) {
-      v = JSON::Value{JSON::Special::Undefined};
-      return;
-    }
-    if (v.isObject()) {
-      auto& obj = v.object();
-      obj.memo = std::any{};
-      auto& map = obj.map;
-      for (auto it = map.begin(); it != map.end();) {
-        if (it->second.isFunction() || it->second.isNative())
-          it = map.erase(it);
-        else {
-          stripJsRefs(it->second);
-          ++it;
-        }
+// Removes JS references (functions, native objects, and the JS value memo
+// of objects) so the value is plain data: it is stored and destroyed on a
+// worker thread, and QuickJS values must only be freed on the main thread.
+// Nested references are dropped, matching toJSON's behavior for functions.
+void stripJsRefs(JSON::Value& v)
+{
+  if (v.isFunction() || v.isNative())
+  {
+    v = JSON::Value{JSON::Special::Undefined};
+    return;
+  }
+  if (v.isObject())
+  {
+    auto& obj = v.object();
+    obj.memo = std::any{};
+    auto& map = obj.map;
+    for (auto it = map.begin(); it != map.end();)
+    {
+      if (it->second.isFunction() || it->second.isNative())
+        it = map.erase(it);
+      else
+      {
+        stripJsRefs(it->second);
+        ++it;
       }
-      return;
     }
-    if (v.isArray()) {
-      auto& arr = v.array();
-      for (auto it = arr.begin(); it != arr.end();) {
-        if (it->isFunction() || it->isNative())
-          it = arr.erase(it);
-        else {
-          stripJsRefs(*it);
-          ++it;
-        }
+    return;
+  }
+  if (v.isArray())
+  {
+    auto& arr = v.array();
+    for (auto it = arr.begin(); it != arr.end();)
+    {
+      if (it->isFunction() || it->isNative())
+        it = arr.erase(it);
+      else
+      {
+        stripJsRefs(*it);
+        ++it;
       }
     }
   }
+}
 
 } // namespace
 
@@ -102,7 +110,8 @@ class ServerExtension;
 // Maps a bound port to a running Server so __setServerResponse (which only
 // knows the port) can find it. Holds weak_ptrs: an expired entry means the
 // server was destroyed, so a stale entry is harmless.
-struct ServerRegistry {
+struct ServerRegistry
+{
   std::mutex mutex;
   std::map<int, std::weak_ptr<Server>> servers;
 
@@ -111,7 +120,8 @@ struct ServerRegistry {
   std::shared_ptr<Server> find(int port);
 };
 
-class Server : public std::enable_shared_from_this<Server> {
+class Server : public std::enable_shared_from_this<Server>
+{
 public:
   Server(JSON::Value& opts, ServerRegistry* registry, ServerExtension* ext);
   ~Server();
@@ -122,8 +132,7 @@ public:
   // Stops the server. Idempotent; start() may be called again afterwards.
   void stop();
   // Adds a virtual file served for exact path matches (GET/HEAD).
-  bool addVirtualFile(const std::string& path, const std::string& content,
-                      const std::string& contentType);
+  bool addVirtualFile(const std::string& path, const std::string& content, const std::string& contentType);
   int port() const { return boundPort; }
   std::string error() const { return error_; }
 
@@ -162,13 +171,18 @@ private:
   std::thread serverThread;
 
   // Virtual files (read on worker threads, written on the main thread).
-  struct VirtualFile { std::string content; std::string contentType; };
+  struct VirtualFile
+  {
+    std::string content;
+    std::string contentType;
+  };
   std::map<std::string, VirtualFile> virtualFiles;
   std::shared_mutex virtualFilesMutex;
 
   // In-flight requests (inserted/erased on worker threads, resolved on the
   // main thread; the worker blocks on cv until done or the server stops).
-  struct PendingRequest {
+  struct PendingRequest
+  {
     std::mutex mtx;
     std::condition_variable cv;
     JSON::Value response;
@@ -184,34 +198,30 @@ private:
   ServerExtension* ext = nullptr;
 };
 
-class ServerExtension : public Extension {
+class ServerExtension : public Extension
+{
 public:
-  ServerExtension() {
+  ServerExtension()
+  {
     auto& cls = addClass<void, Server>("HTTPServer");
-    cls.setConstructor() = [this](JSON::Value& opts) -> std::shared_ptr<Server> {
-      return std::make_shared<Server>(opts, &registry, this);
-    };
-    cls.addMethod("start") = [](Server& self) -> JSON::Value {
-      return JSON::Value{(double)self.start()};
-    };
-    cls.addMethod("stop") = [](Server& self) -> JSON::Value {
+    cls.setConstructor() = [this](JSON::Value& opts) -> std::shared_ptr<Server>
+    { return std::make_shared<Server>(opts, &registry, this); };
+    cls.addMethod("start") = [](Server& self) -> JSON::Value { return JSON::Value{(double)self.start()}; };
+    cls.addMethod("stop") = [](Server& self) -> JSON::Value
+    {
       self.stop();
       return JSON::Value{JSON::Special::Undefined};
     };
-    cls.addMethod("addVirtualFile") = [](Server& self, const std::string& path,
-      const std::string& content, const std::string& contentType) -> JSON::Value {
-      return JSON::Value{self.addVirtualFile(path, content, contentType)};
-    };
-    cls.addGetter("port") = [](Server& self) -> JSON::Value {
-      return JSON::Value{(double)self.port()};
-    };
-    cls.addGetter("error") = [](Server& self) -> JSON::Value {
-      return self.error();
-    };
+    cls.addMethod("addVirtualFile") = [](Server& self, const std::string& path, const std::string& content,
+                                         const std::string& contentType) -> JSON::Value
+    { return JSON::Value{self.addVirtualFile(path, content, contentType)}; };
+    cls.addGetter("port") = [](Server& self) -> JSON::Value { return JSON::Value{(double)self.port()}; };
+    cls.addGetter("error") = [](Server& self) -> JSON::Value { return self.error(); };
 
     // __setServerWrapper(fn): stores the boot-script wrapper that invokes a
     // user handler and reports the result via __setServerResponse.
-    addFunction("__setServerWrapper") = [this](JSON::Value& fn) -> JSON::Value {
+    addFunction("__setServerWrapper") = [this](JSON::Value& fn) -> JSON::Value
+    {
       if (fn.isFunction())
         wrapper = std::make_shared<JSON::Value>(fn);
       return JSON::Value{JSON::Special::Undefined};
@@ -219,15 +229,17 @@ public:
 
     // __setServerResponse(port, reqId, rsp, error): delivers a handler result
     // (error is a string on failure, undefined on success).
-    addFunction("__setServerResponse") = [this](double port, double reqId,
-      JSON::Value& rsp, JSON::Value& error) -> JSON::Value {
+    addFunction("__setServerResponse") = [this](double port, double reqId, JSON::Value& rsp,
+                                                JSON::Value& error) -> JSON::Value
+    {
       if (auto srv = registry.find((int)port))
         srv->setServerResponse((std::uint64_t)reqId, rsp, error);
       return JSON::Value{JSON::Special::Undefined};
     };
   }
 
-  std::string init(const std::string& language, JSON::Value& settings) override {
+  std::string init(const std::string& language, JSON::Value& settings) override
+  {
     if (language != "js")
       return "";
     return R"(
@@ -242,7 +254,8 @@ async (port, userCB, req) => {
 )";
   }
 
-  void shutdown() override {
+  void shutdown() override
+  {
     // Stop the running servers on the main thread before the engine (and its
     // JS-owned Server objects) is destroyed, so their threads are joined first.
     std::vector<std::shared_ptr<Server>> servers;
@@ -259,13 +272,21 @@ async (port, userCB, req) => {
     wrapper.reset();
   }
 
+  // A listening server keeps the headless pump running.
+  bool keepAlive() override
+  {
+    std::lock_guard lock(registry.mutex);
+    for (auto& [_, weak] : registry.servers)
+      if (weak.lock())
+        return true;
+    return false;
+  }
+
   ServerRegistry registry;
 
   // A weak reference to the boot-script wrapper (set once via
   // __setServerWrapper, before any server is created).
-  std::weak_ptr<JSON::Value> wrapperRef() {
-    return wrapper;
-  }
+  std::weak_ptr<JSON::Value> wrapperRef() { return wrapper; }
 
 private:
   // The boot-script wrapper. A JS reference: released on the main thread.
@@ -274,17 +295,20 @@ private:
 
 // --- ServerRegistry (Server must be complete for weak_ptr::lock) ---
 
-void ServerRegistry::registerServer(int port, const std::weak_ptr<Server>& server) {
+void ServerRegistry::registerServer(int port, const std::weak_ptr<Server>& server)
+{
   std::lock_guard lock(mutex);
   servers[port] = server;
 }
 
-void ServerRegistry::unregisterServer(int port) {
+void ServerRegistry::unregisterServer(int port)
+{
   std::lock_guard lock(mutex);
   servers.erase(port);
 }
 
-std::shared_ptr<Server> ServerRegistry::find(int port) {
+std::shared_ptr<Server> ServerRegistry::find(int port)
+{
   std::lock_guard lock(mutex);
   auto it = servers.find(port);
   if (it == servers.end())
@@ -294,16 +318,22 @@ std::shared_ptr<Server> ServerRegistry::find(int port) {
 
 // --- Server ---
 
-Server::Server(JSON::Value& opts, ServerRegistry* reg, ServerExtension* e) : registry{reg}, ext{e} {
+Server::Server(JSON::Value& opts, ServerRegistry* reg, ServerExtension* e)
+  : registry{reg}
+  , ext{e}
+{
   // httplib's default socket options set SO_REUSEPORT, which would let a
   // second server silently share an already-bound port instead of failing.
   // Set only SO_REUSEADDR: a busy port still fails to bind, but a port in
   // TIME_WAIT can be re-bound after stop() (stop-then-start).
-  server.set_socket_options([](::socket_t sock) {
-    // Reuse httplib's wrapper: on Windows setsockopt() takes a const char*.
-    httplib::detail::set_socket_opt(sock, SOL_SOCKET, SO_REUSEADDR, 1);
-  });
-  if (opts.isObject()) {
+  server.set_socket_options(
+      [](::socket_t sock)
+      {
+        // Reuse httplib's wrapper: on Windows setsockopt() takes a const char*.
+        httplib::detail::set_socket_opt(sock, SOL_SOCKET, SO_REUSEADDR, 1);
+      });
+  if (opts.isObject())
+  {
     auto& o = opts.object();
     if (auto it = o.find("port"); it != o.end() && it->second.isNumber())
       requestedPort = (int)it->second.number();
@@ -311,7 +341,8 @@ Server::Server(JSON::Value& opts, ServerRegistry* reg, ServerExtension* e) : reg
       host = it->second.string();
     if (auto it = o.find("staticFilePath"); it != o.end() && it->second.isString())
       staticFilePath = it->second.string();
-    if (auto it = o.find("defaultHeaders"); it != o.end() && it->second.isObject()) {
+    if (auto it = o.find("defaultHeaders"); it != o.end() && it->second.isObject())
+    {
       for (auto& [k, v] : it->second.object())
         defaultHeaders[k] = v.string();
     }
@@ -331,11 +362,13 @@ Server::Server(JSON::Value& opts, ServerRegistry* reg, ServerExtension* e) : reg
   registerRoutes();
 }
 
-Server::~Server() {
+Server::~Server()
+{
   stop();
 }
 
-int Server::start() {
+int Server::start()
+{
   if (started)
     return boundPort;
 
@@ -345,8 +378,7 @@ int Server::start() {
   // Another of our servers may already hold this port. "localhost" resolves
   // to both ::1 and 127.0.0.1, so a plain re-bind would otherwise succeed on
   // the other family; check the registry so one port = one server.
-  const bool portTaken =
-    requestedPort > 0 && registry && registry->find(requestedPort);
+  const bool portTaken = requestedPort > 0 && registry && registry->find(requestedPort);
 
   // bind_to_port returns immediately; run it here (main thread) so the
   // server thread only ever owns a bound socket (stop() then always closes
@@ -354,10 +386,12 @@ int Server::start() {
   // reset it (via stop(), a no-op while not running) before each attempt.
   int bound = 0;
   bool ok = false;
-  if (requestedPort == 0) {
-    for (int p = 9000; p <= 9099 && !ok; ++p) {
+  if (requestedPort == 0)
+  {
+    for (int p = 9000; p <= 9099 && !ok; ++p)
+    {
       if (registry && registry->find(p))
-        continue;  // one of our servers already uses this port
+        continue; // one of our servers already uses this port
       server.stop();
       ok = server.bind_to_port(host, p);
       if (ok)
@@ -365,9 +399,13 @@ int Server::start() {
     }
     if (!ok)
       error_ = "No free port found in range 9000-9099";
-  } else if (portTaken) {
+  }
+  else if (portTaken)
+  {
     error_ = "Port " + std::to_string(requestedPort) + " is already in use";
-  } else {
+  }
+  else
+  {
     server.stop();
     ok = server.bind_to_port(host, requestedPort);
     if (ok)
@@ -393,7 +431,8 @@ int Server::start() {
   return boundPort;
 }
 
-void Server::stop() {
+void Server::stop()
+{
   if (!started)
     return;
   started = false;
@@ -423,44 +462,36 @@ void Server::stop() {
   boundPort = 0;
 }
 
-bool Server::addVirtualFile(const std::string& path, const std::string& content,
-                            const std::string& contentType) {
+bool Server::addVirtualFile(const std::string& path, const std::string& content, const std::string& contentType)
+{
   std::unique_lock lock(virtualFilesMutex);
   virtualFiles[path] = VirtualFile{content, contentType};
   return true;
 }
 
-void Server::serve() {
+void Server::serve()
+{
   server.listen_after_bind();
 }
 
-void Server::registerRoutes() {
-  server.Get("(/.*)", [this](const httplib::Request& req, httplib::Response& res) {
-    route("GET", req, res);
-  });
-  server.Post("(/.*)", [this](const httplib::Request& req, httplib::Response& res) {
-    route("POST", req, res);
-  });
-  server.Put("(/.*)", [this](const httplib::Request& req, httplib::Response& res) {
-    route("PUT", req, res);
-  });
-  server.Delete("(/.*)", [this](const httplib::Request& req, httplib::Response& res) {
-    route("DELETE", req, res);
-  });
-  server.Patch("(/.*)", [this](const httplib::Request& req, httplib::Response& res) {
-    route("PATCH", req, res);
-  });
-  server.Options("(/.*)", [this](const httplib::Request& req, httplib::Response& res) {
-    route("OPTIONS", req, res);
-  });
+void Server::registerRoutes()
+{
+  server.Get("(/.*)", [this](const httplib::Request& req, httplib::Response& res) { route("GET", req, res); });
+  server.Post("(/.*)", [this](const httplib::Request& req, httplib::Response& res) { route("POST", req, res); });
+  server.Put("(/.*)", [this](const httplib::Request& req, httplib::Response& res) { route("PUT", req, res); });
+  server.Delete("(/.*)", [this](const httplib::Request& req, httplib::Response& res) { route("DELETE", req, res); });
+  server.Patch("(/.*)", [this](const httplib::Request& req, httplib::Response& res) { route("PATCH", req, res); });
+  server.Options("(/.*)", [this](const httplib::Request& req, httplib::Response& res) { route("OPTIONS", req, res); });
 }
 
-void Server::route(const std::string& method, const httplib::Request& req, httplib::Response& res) {
+void Server::route(const std::string& method, const httplib::Request& req, httplib::Response& res)
+{
   // Static files (virtual, then disk) take priority for GET/HEAD; the onGet
   // handler is the fallback, matching the documented static-file behaviour.
   if (method == "GET" && tryServeStatic(req, res))
     return;
-  if (JSON::Value* h = getHandlerPtr(method); h && h->isFunction()) {
+  if (JSON::Value* h = getHandlerPtr(method); h && h->isFunction())
+  {
     handleRequest(method, req, res);
     return;
   }
@@ -469,7 +500,8 @@ void Server::route(const std::string& method, const httplib::Request& req, httpl
   res.set_content("Not Found", "text/plain");
 }
 
-void Server::handleRequest(const std::string& method, const httplib::Request& req, httplib::Response& res) {
+void Server::handleRequest(const std::string& method, const httplib::Request& req, httplib::Response& res)
+{
   JSON::Value* handler = getHandlerPtr(method);
   if (!handler || !handler->isFunction())
     return;
@@ -502,33 +534,34 @@ void Server::handleRequest(const std::string& method, const httplib::Request& re
   auto weakSelf = weak_from_this();
   auto wrapperWeak = ext->wrapperRef();
   const int port = boundPort;
-  app::TaskManager::instance().delayed([weakSelf, wrapperWeak, port, reqId, method, reqObj]() {
-    auto self = weakSelf.lock();
-    auto wrapper = wrapperWeak.lock();
-    if (!self || !wrapper)
-      return;
-    JSON::Value wrapperCopy = *wrapper;
-    if (!wrapperCopy.isFunction())
-      return;
-    JSON::Value handlerCopy = self->getHandler(method);
-    if (!handlerCopy.isFunction())
-      return;
-    JSON::Array args;
-    args.emplace_back((double)port);
-    args.emplace_back(std::move(handlerCopy));
-    args.emplace_back(std::move(reqObj));
-    wrapperCopy(args);
-  });
+  app::TaskManager::instance().delayed(
+      [weakSelf, wrapperWeak, port, reqId, method, reqObj]()
+      {
+        auto self = weakSelf.lock();
+        auto wrapper = wrapperWeak.lock();
+        if (!self || !wrapper)
+          return;
+        JSON::Value wrapperCopy = *wrapper;
+        if (!wrapperCopy.isFunction())
+          return;
+        JSON::Value handlerCopy = self->getHandler(method);
+        if (!handlerCopy.isFunction())
+          return;
+        JSON::Array args;
+        args.emplace_back((double)port);
+        args.emplace_back(std::move(handlerCopy));
+        args.emplace_back(std::move(reqObj));
+        wrapperCopy(args);
+      });
 
   // Block until the handler reports a response or the server is stopped.
   {
     std::unique_lock lock(pendingPtr->mtx);
-    pendingPtr->cv.wait(lock, [pendingPtr, this] {
-      return pendingPtr->done || !running.load();
-    });
+    pendingPtr->cv.wait(lock, [pendingPtr, this] { return pendingPtr->done || !running.load(); });
   }
 
-  if (!running.load()) {
+  if (!running.load())
+  {
     // Stopped while waiting: drop the request and send nothing.
     std::lock_guard lock(pendingMutex);
     pendingRequests.erase(reqId);
@@ -550,7 +583,8 @@ void Server::handleRequest(const std::string& method, const httplib::Request& re
   applyResponse(res, response, scriptError);
 }
 
-bool Server::tryServeStatic(const httplib::Request& req, httplib::Response& res) {
+bool Server::tryServeStatic(const httplib::Request& req, httplib::Response& res)
+{
   std::string path = req.path;
   if (path == "/")
     path = "/index.html";
@@ -559,7 +593,8 @@ bool Server::tryServeStatic(const httplib::Request& req, httplib::Response& res)
   {
     std::shared_lock lock(virtualFilesMutex);
     auto it = virtualFiles.find(path);
-    if (it != virtualFiles.end()) {
+    if (it != virtualFiles.end())
+    {
       applyDefaultHeaders(res);
       res.status = 200;
       res.set_content(it->second.content, it->second.contentType.c_str());
@@ -571,7 +606,8 @@ bool Server::tryServeStatic(const httplib::Request& req, httplib::Response& res)
     return false;
 
   // Reject paths that walk back out of staticFilePath.
-  if (base::has_path_traversal(path)) {
+  if (base::has_path_traversal(path))
+  {
     applyDefaultHeaders(res);
     res.status = 403;
     res.set_content("Forbidden", "text/plain");
@@ -581,15 +617,15 @@ bool Server::tryServeStatic(const httplib::Request& req, httplib::Response& res)
   // Extension -> content type (unknown extension falls through to onGet).
   const std::size_t dot = path.find_last_of('.');
   const std::size_t slash = path.find_last_of('/');
-  std::string fileExt = (dot != std::string::npos && (slash == std::string::npos || dot > slash))
-    ? path.substr(dot) : "";
+  std::string fileExt =
+      (dot != std::string::npos && (slash == std::string::npos || dot > slash)) ? path.substr(dot) : "";
   auto mimeIt = mimeTypes().find(fileExt);
   if (mimeIt == mimeTypes().end())
     return false;
 
   std::ifstream file(staticFilePath + path, std::ios::binary);
   if (!file.good())
-    return false;  // not found: fall through to onGet (SPA-style fallback)
+    return false; // not found: fall through to onGet (SPA-style fallback)
 
   std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
   applyDefaultHeaders(res);
@@ -598,42 +634,49 @@ bool Server::tryServeStatic(const httplib::Request& req, httplib::Response& res)
   return true;
 }
 
-void Server::applyDefaultHeaders(httplib::Response& res) const {
+void Server::applyDefaultHeaders(httplib::Response& res) const
+{
   for (auto& [k, v] : defaultHeaders)
     res.set_header(k, v);
 }
 
-void Server::applyResponse(httplib::Response& res, JSON::Value response, const std::string& scriptError) {
+void Server::applyResponse(httplib::Response& res, JSON::Value response, const std::string& scriptError)
+{
   applyDefaultHeaders(res);
 
   // A handler exception becomes a 500.
-  if (!scriptError.empty()) {
+  if (!scriptError.empty())
+  {
     res.status = 500;
     res.set_content(scriptError, "text/plain");
     return;
   }
 
   // null -> 204 No Content.
-  if (response.isNull()) {
+  if (response.isNull())
+  {
     res.status = 204;
     return;
   }
 
   // number -> that status with an empty body.
-  if (response.isNumber()) {
+  if (response.isNumber())
+  {
     res.status = (int)response.number();
     return;
   }
 
   // string -> 200 text/plain.
-  if (response.isString()) {
+  if (response.isString())
+  {
     res.status = 200;
     res.set_content(response.string(), "text/plain");
     return;
   }
 
   // byte array -> 200 octet-stream.
-  if (response.isByteArray()) {
+  if (response.isByteArray())
+  {
     res.status = 200;
     auto& bytes = response.byteArray();
     res.set_content(std::string(bytes.begin(), bytes.end()), "application/octet-stream");
@@ -642,7 +685,8 @@ void Server::applyResponse(httplib::Response& res, JSON::Value response, const s
 
   // object -> { status, body, headers } with full control; an object without
   // a "body" key is sent whole as the JSON body.
-  if (response.isObject()) {
+  if (response.isObject())
+  {
     auto& obj = response.object();
     int status = 200;
     std::string contentType;
@@ -651,8 +695,10 @@ void Server::applyResponse(httplib::Response& res, JSON::Value response, const s
     if (auto it = obj.find("status"); it != obj.end() && it->second.isNumber())
       status = (int)it->second.number();
 
-    if (auto it = obj.find("headers"); it != obj.end() && it->second.isObject()) {
-      for (auto& [k, v] : it->second.object()) {
+    if (auto it = obj.find("headers"); it != obj.end() && it->second.isObject())
+    {
+      for (auto& [k, v] : it->second.object())
+      {
         if (su::toLower(k) == "content-type")
           contentType = v.string();
         else
@@ -660,22 +706,30 @@ void Server::applyResponse(httplib::Response& res, JSON::Value response, const s
       }
     }
 
-    if (auto it = obj.find("body"); it != obj.end()) {
-      if (it->second.isString()) {
+    if (auto it = obj.find("body"); it != obj.end())
+    {
+      if (it->second.isString())
+      {
         body = it->second.string();
         if (contentType.empty())
           contentType = "text/plain";
-      } else if (it->second.isByteArray()) {
+      }
+      else if (it->second.isByteArray())
+      {
         auto& bytes = it->second.byteArray();
         body.assign(bytes.begin(), bytes.end());
         if (contentType.empty())
           contentType = "application/octet-stream";
-      } else {
+      }
+      else
+      {
         body = it->second.toJSON();
         if (contentType.empty())
           contentType = "application/json";
       }
-    } else {
+    }
+    else
+    {
       body = response.toJSON();
       if (contentType.empty())
         contentType = "application/json";
@@ -690,22 +744,31 @@ void Server::applyResponse(httplib::Response& res, JSON::Value response, const s
   res.status = 200;
 }
 
-JSON::Value* Server::getHandlerPtr(const std::string& method) {
-  if (method == "GET") return &onGet;
-  if (method == "POST") return &onPost;
-  if (method == "PUT") return &onPut;
-  if (method == "DELETE") return &onDelete;
-  if (method == "PATCH") return &onPatch;
-  if (method == "OPTIONS") return &onOptions;
+JSON::Value* Server::getHandlerPtr(const std::string& method)
+{
+  if (method == "GET")
+    return &onGet;
+  if (method == "POST")
+    return &onPost;
+  if (method == "PUT")
+    return &onPut;
+  if (method == "DELETE")
+    return &onDelete;
+  if (method == "PATCH")
+    return &onPatch;
+  if (method == "OPTIONS")
+    return &onOptions;
   return nullptr;
 }
 
-JSON::Value Server::getHandler(const std::string& method) {
+JSON::Value Server::getHandler(const std::string& method)
+{
   auto* h = getHandlerPtr(method);
   return h ? *h : JSON::Value{JSON::Special::Undefined};
 }
 
-void Server::setServerResponse(std::uint64_t reqId, JSON::Value rsp, JSON::Value error) {
+void Server::setServerResponse(std::uint64_t reqId, JSON::Value rsp, JSON::Value error)
+{
   // Runs on the main thread: drop any JS references the handler returned so
   // the stored value is plain data, safe to destroy on a worker thread.
   stripJsRefs(rsp);
@@ -713,7 +776,7 @@ void Server::setServerResponse(std::uint64_t reqId, JSON::Value rsp, JSON::Value
   std::lock_guard lock(pendingMutex);
   auto it = pendingRequests.find(reqId);
   if (it == pendingRequests.end())
-    return;  // already handled (e.g. the server stopped)
+    return; // already handled (e.g. the server stopped)
   auto& pending = it->second;
   {
     std::lock_guard plock(pending->mtx);
