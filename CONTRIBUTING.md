@@ -29,7 +29,16 @@ Before opening new issues and contributing any code to the project, read our
   the `src/` layout, and every `*_tests.cpp` file becomes its own test executable.
 - Code is formatted with clang-format using the repository's [`.clang-format`](.clang-format). Please
   format only the lines you changed (e.g. with `git clang-format`) rather than whole files, so diffs stay
-  reviewable.
+  reviewable. The codebase is formatted with clang-format 23.x; older versions (e.g. 16.x) format some
+  constructs differently, so use a matching version to avoid unrelated churn.
+
+  To format automatically on each commit, enable the bundled pre-commit hook once per clone:
+  ```
+  git config core.hooksPath .githooks
+  ```
+  It runs `git clang-format --staged` on the staged `.c`/`.cpp`/`.h`/`.hpp` files (except `third_party/`)
+  and re-stages the result; it refuses to run if a file it needs to change also has unstaged edits. Use
+  `git commit --no-verify` to skip it.
 
 ## Copyright headers
 A CI check (`Copyright Header Check`) verifies every changed `.h`, `.hpp`, `.c`, `.cpp`, `.xml` and

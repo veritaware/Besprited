@@ -1,0 +1,44 @@
+#!/bin/sh
+# Besprited | Copyright (C) 2026 Veritaware
+#
+# Pre-commit hook: runs `git clang-format --staged` on the staged C/C++
+# files, so only the lines changed by the commit are formatted, and
+# re-stages the result. Enable it once per clone with:
+#
+#   git config core.hooksPath .githooks
+#
+# Skip it for a single commit with `git commit --no-verify`.
+
+if ! command -v git-clang-format >/dev/null 2>&1; then
+  echo "pre-commit: git-clang-format not found, skipping the format check" >&2
+  exit 0
+fi
+
+root=$(git rev-parse --show-toplevel)
+cd "$root" || exit 1
+
+# Staged (added/copied/modified/renamed) C/C++ sources, minus vendored code.
+# Objective-C++ (.mm) is unsupported by the project's .clang-format.
+files=$(git diff --cached --name-only --diff-filter=ACMR -z -- '*.c' '*.cpp' '*.h' '*.hpp' \
+  | tr '\0' '\n' | grep -v '^third_party/')
+[ -z "$files" ] && exit 0
+
+# Exit codes: 0 = already formatted, 1 = reformatted (in the working tree),
+# 2 = could not run, e.g. a file also has unstaged changes.
+# (No xargs: it would turn exit code 1 into 123.) Split on newlines only.
+IFS='
+'
+set -f
+# shellcheck disable=SC2086
+git clang-format --staged --quiet -- $files
+status=$?
+if [ "$status" -ge 2 ]; then
+  echo "pre-commit: git clang-format failed; stage or stash unstaged changes to the files above" >&2
+  exit 1
+fi
+
+if [ "$status" -eq 1 ]; then
+  git add -- $files
+  echo "pre-commit: clang-format applied to the changed lines"
+fi
+exit 0
