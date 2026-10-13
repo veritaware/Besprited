@@ -15,10 +15,12 @@
 namespace
 {
 
-// Splits "scheme://host[:port][/path]" into its parts.
+// Splits "scheme://host[:port][/path][?query]" into its parts. IPv6 hosts
+// stay bracketed; the path always starts with '/'.
 bool parseUrl(const std::string& url, std::string& protocol, std::string& host, std::string& port, std::string& path)
 {
-  static const std::regex re(R"+(^(https?)://([^:/]+)(?::([0-9]+))?(.*)$)+", std::regex_constants::icase);
+  static const std::regex re(R"+(^(https?)://(\[[0-9a-fA-F:.]+\]|[^:/?#\[\]]+)(?::([0-9]+))?([^#]*)(?:#.*)?$)+",
+                             std::regex_constants::icase);
   std::smatch m;
   if (!std::regex_search(url, m, re))
     return false;
@@ -26,6 +28,8 @@ bool parseUrl(const std::string& url, std::string& protocol, std::string& host, 
   host = su::toLower(m.str(2));
   port = m.str(3);
   path = m.str(4);
+  if (path.empty() || path[0] != '/')
+    path.insert(path.begin(), '/');
   if (port.empty())
     port = protocol == "http" ? "80" : "443";
   return true;
@@ -41,13 +45,18 @@ script::HttpResult performRequest(httplib::Client& cli, const std::string& path,
   // Build headers: user headers + default User-Agent (user overrides default)
   httplib::Headers reqHeaders;
   bool hasUserAgent = false;
-  bool hasContentType = false;
+  std::string userContentType;
   for (auto& [key, val] : headers)
   {
     if (su::toLower(key) == "user-agent")
       hasUserAgent = true;
+    // The body overloads set Content-Type themselves; adding it to the
+    // headers too would send it twice.
     if (su::toLower(key) == "content-type")
-      hasContentType = true;
+    {
+      userContentType = val;
+      continue;
+    }
     reqHeaders.emplace(key, val);
   }
   if (!hasUserAgent)
@@ -56,7 +65,9 @@ script::HttpResult performRequest(httplib::Client& cli, const std::string& path,
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
 
   // Content-Type for request bodies
-  std::string contentType = isBinaryBody && !hasContentType ? "application/octet-stream" : "application/json";
+  std::string contentType = !userContentType.empty() ? userContentType
+                            : isBinaryBody           ? "application/octet-stream"
+                                                     : "application/json";
 
   httplib::Result res;
   if (method == "POST")
