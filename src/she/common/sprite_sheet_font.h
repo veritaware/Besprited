@@ -35,15 +35,9 @@ public:
 
   [[nodiscard]] int height() const override { return getCharBounds(' ').h; }
 
-  [[nodiscard]] gfx::Rect charBounds(int chr) const override
-  {
-    return getCharBounds(chr);
-  }
+  [[nodiscard]] gfx::Rect charBounds(int chr) const override { return getCharBounds(chr); }
 
-  [[nodiscard]] int charWidth(int chr) const override
-  {
-    return charBounds(chr).w;
-  }
+  [[nodiscard]] int charWidth(int chr) const override { return charBounds(chr).w; }
 
   [[nodiscard]] int textLength(const std::string& str) const override
   {
@@ -116,15 +110,13 @@ private:
     }
 
     bounds.w = 0;
-    while ((bounds.x + bounds.w < width) &&
-           (sur->getPixel(bounds.x + bounds.w, bounds.y) != keyColor))
+    while ((bounds.x + bounds.w < width) && (sur->getPixel(bounds.x + bounds.w, bounds.y) != keyColor))
     {
       bounds.w++;
     }
 
     bounds.h = 0;
-    while ((bounds.y + bounds.h < height) &&
-           (sur->getPixel(bounds.x, bounds.y + bounds.h) != keyColor))
+    while ((bounds.y + bounds.h < height) && (sur->getPixel(bounds.x, bounds.y + bounds.h) != keyColor))
     {
       bounds.h++;
     }

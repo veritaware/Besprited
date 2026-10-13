@@ -40,10 +40,7 @@ public:
 
   operator bool() { return m_resource.get(); }
 
-  template <typename Type = void> std::shared_ptr<Type> get()
-  {
-    return std::static_pointer_cast<Type>(m_resource);
-  }
+  template <typename Type = void> std::shared_ptr<Type> get() { return std::static_pointer_cast<Type>(m_resource); }
 };
 
 } // namespace app

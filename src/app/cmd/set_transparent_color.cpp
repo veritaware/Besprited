@@ -18,8 +18,7 @@
 namespace app::cmd
 {
 
-SetTransparentColor::SetTransparentColor(const Sprite* sprite,
-                                         const color_t newMask)
+SetTransparentColor::SetTransparentColor(const Sprite* sprite, const color_t newMask)
   : WithSprite(sprite)
   , m_oldMaskColor(sprite->transparentColor())
   , m_newMaskColor(newMask)
@@ -45,8 +44,7 @@ void SetTransparentColor::onFireNotifications()
   Sprite* sprite = this->sprite();
   DocumentEvent ev(sprite->document());
   ev.sprite(sprite);
-  sprite->document()->notifyObservers<DocumentEvent&>(
-      &DocumentObserver::onSpriteTransparentColorChanged, ev);
+  sprite->document()->notifyObservers<DocumentEvent&>(&DocumentObserver::onSpriteTransparentColorChanged, ev);
 }
 
 } // namespace app::cmd

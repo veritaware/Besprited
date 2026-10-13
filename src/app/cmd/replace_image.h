@@ -19,17 +19,13 @@ class ReplaceImage : public Cmd,
                      public WithSprite
 {
 public:
-  ReplaceImage(const Sprite* sprite, const ImageRef& oldImage,
-               const ImageRef& newImage);
+  ReplaceImage(const Sprite* sprite, const ImageRef& oldImage, const ImageRef& newImage);
 
 protected:
   void onExecute() override;
   void onUndo() override;
   void onRedo() override;
-  [[nodiscard]] size_t onMemSize() const override
-  {
-    return sizeof(*this) + (m_copy ? m_copy->getMemSize() : 0);
-  }
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this) + (m_copy ? m_copy->getMemSize() : 0); }
 
 private:
   void replaceImage(ObjectId oldId, const ImageRef& newImage) const;

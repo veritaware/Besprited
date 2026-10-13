@@ -22,11 +22,9 @@ static const int ColorAShift = 24;
 
 static const Color ColorNone = static_cast<Color>(0);
 
-inline Color rgba(ColorComponent r, ColorComponent g, ColorComponent b,
-                  ColorComponent a = 255)
+inline Color rgba(ColorComponent r, ColorComponent g, ColorComponent b, ColorComponent a = 255)
 {
-  return static_cast<Color>((r << ColorRShift) | (g << ColorGShift) |
-                            (b << ColorBShift) | (a << ColorAShift));
+  return static_cast<Color>((r << ColorRShift) | (g << ColorGShift) | (b << ColorBShift) | (a << ColorAShift));
 }
 
 inline ColorComponent getr(Color c)

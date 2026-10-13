@@ -31,8 +31,7 @@ namespace app::cmd
 
 using namespace doc;
 
-MoveCel::MoveCel(const LayerImage* srcLayer, const frame_t srcFrame,
-                 const LayerImage* dstLayer, const frame_t dstFrame,
+MoveCel::MoveCel(const LayerImage* srcLayer, const frame_t srcFrame, const LayerImage* dstLayer, const frame_t dstFrame,
                  const bool continuous)
   : m_srcLayer(srcLayer)
   , m_dstLayer(dstLayer)
@@ -106,15 +105,12 @@ void MoveCel::onExecute()
     }
     else
     {
-      const BlendMode blend =
-          srcLayer->isBackground() ? BlendMode::SRC : BlendMode::NORMAL;
+      const BlendMode blend = srcLayer->isBackground() ? BlendMode::SRC : BlendMode::NORMAL;
 
       const ImageRef tmp(Image::createCopy(dstImage.get()));
-      render::composite_image(tmp.get(), srcImage,
-                              srcSprite->palette(m_srcFrame), srcCel->x(),
-                              srcCel->y(), 255, blend);
-      executeAndAdd(
-          new CopyRect(dstImage.get(), tmp.get(), gfx::Clip(tmp->bounds())));
+      render::composite_image(tmp.get(), srcImage, srcSprite->palette(m_srcFrame), srcCel->x(), srcCel->y(), 255,
+                              blend);
+      executeAndAdd(new CopyRect(dstImage.get(), tmp.get(), gfx::Clip(tmp->bounds())));
     }
     executeAndAdd(new ClearCel(srcCel));
   }
@@ -147,8 +143,7 @@ void MoveCel::onFireNotifications()
 {
   CmdSequence::onFireNotifications();
   dynamic_cast<Document*>(m_dstLayer.layer()->sprite()->document())
-      ->notifyCelMoved(m_srcLayer.layer(), m_srcFrame, m_dstLayer.layer(),
-                       m_dstFrame);
+      ->notifyCelMoved(m_srcLayer.layer(), m_srcFrame, m_dstLayer.layer(), m_dstFrame);
 }
 
 } // namespace app::cmd

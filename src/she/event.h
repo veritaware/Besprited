@@ -91,10 +91,7 @@ public:
   void setPreciseWheel(bool precise) { m_preciseWheel = precise; }
   void setPointerType(PointerType pointerType) { m_pointerType = pointerType; }
   void setButton(MouseButton button) { m_button = button; }
-  void setMagnification(double magnification)
-  {
-    m_magnification = magnification;
-  }
+  void setMagnification(double magnification) { m_magnification = magnification; }
   void setPressure(double pressure) { m_pressure = pressure; }
 
 private:

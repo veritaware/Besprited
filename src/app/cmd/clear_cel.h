@@ -25,10 +25,7 @@ protected:
   void onExecute() override;
   void onUndo() override;
   void onRedo() override;
-  [[nodiscard]] size_t onMemSize() const override
-  {
-    return sizeof(*this) + m_seq.memSize();
-  }
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this) + m_seq.memSize(); }
 
 private:
   CmdSequence m_seq;

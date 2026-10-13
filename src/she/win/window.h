@@ -57,8 +57,7 @@ public:
     m_isCreated = true;
 
     // Attach Wacom context
-    m_hpenctx =
-        static_cast<WindowSystem*>(she::instance())->penApi().open(m_hwnd);
+    m_hpenctx = static_cast<WindowSystem*>(she::instance())->penApi().open(m_hwnd);
   }
 
   ~WinWindow()
@@ -93,19 +92,13 @@ public:
 
   bool isMaximized() const { return (IsZoomed(m_hwnd) ? true : false); }
 
-  bool isMinimized() const
-  {
-    return (GetWindowLong(m_hwnd, GWL_STYLE) & WS_MINIMIZE ? true : false);
-  }
+  bool isMinimized() const { return (GetWindowLong(m_hwnd, GWL_STYLE) & WS_MINIMIZE ? true : false); }
 
   gfx::Size clientSize() const { return m_clientSize; }
 
   gfx::Size restoredSize() const { return m_restoredSize; }
 
-  void setTitle(const std::string& title)
-  {
-    SetWindowText(m_hwnd, base::from_utf8(title).c_str());
-  }
+  void setTitle(const std::string& title) { SetWindowText(m_hwnd, base::from_utf8(title).c_str()); }
 
   void captureMouse() { m_captureMouse = true; }
 
@@ -175,8 +168,7 @@ public:
 
   void updateWindow(const gfx::Rect& bounds)
   {
-    RECT rc = {bounds.x * m_scale, bounds.y * m_scale,
-               bounds.x * m_scale + bounds.w * m_scale,
+    RECT rc = {bounds.x * m_scale, bounds.y * m_scale, bounds.x * m_scale + bounds.w * m_scale,
                bounds.y * m_scale + bounds.h * m_scale};
     InvalidateRect(m_hwnd, &rc, FALSE);
     UpdateWindow(m_hwnd);
@@ -189,11 +181,9 @@ public:
     if (GetWindowPlacement(m_hwnd, &wp))
     {
       std::ostringstream s;
-      s << 1 << ' ' << wp.flags << ' ' << wp.showCmd << ' '
-        << wp.ptMinPosition.x << ' ' << wp.ptMinPosition.y << ' '
-        << wp.ptMaxPosition.x << ' ' << wp.ptMaxPosition.y << ' '
-        << wp.rcNormalPosition.left << ' ' << wp.rcNormalPosition.top << ' '
-        << wp.rcNormalPosition.right << ' ' << wp.rcNormalPosition.bottom;
+      s << 1 << ' ' << wp.flags << ' ' << wp.showCmd << ' ' << wp.ptMinPosition.x << ' ' << wp.ptMinPosition.y << ' '
+        << wp.ptMaxPosition.x << ' ' << wp.ptMaxPosition.y << ' ' << wp.rcNormalPosition.left << ' '
+        << wp.rcNormalPosition.top << ' ' << wp.rcNormalPosition.right << ' ' << wp.rcNormalPosition.bottom;
       return s.str();
     }
     return "";
@@ -209,10 +199,9 @@ public:
     s >> ver;
     if (ver == 1)
     {
-      s >> wp.flags >> wp.showCmd >> wp.ptMinPosition.x >> wp.ptMinPosition.y >>
-          wp.ptMaxPosition.x >> wp.ptMaxPosition.y >>
-          wp.rcNormalPosition.left >> wp.rcNormalPosition.top >>
-          wp.rcNormalPosition.right >> wp.rcNormalPosition.bottom;
+      s >> wp.flags >> wp.showCmd >> wp.ptMinPosition.x >> wp.ptMinPosition.y >> wp.ptMaxPosition.x >>
+          wp.ptMaxPosition.y >> wp.rcNormalPosition.left >> wp.rcNormalPosition.top >> wp.rcNormalPosition.right >>
+          wp.rcNormalPosition.bottom;
     }
     else
       return;
@@ -278,9 +267,8 @@ private:
         pl.length = sizeof(pl);
         if (GetWindowPlacement(m_hwnd, &pl))
         {
-          m_restoredSize =
-              gfx::Size(pl.rcNormalPosition.right - pl.rcNormalPosition.left,
-                        pl.rcNormalPosition.bottom - pl.rcNormalPosition.top);
+          m_restoredSize = gfx::Size(pl.rcNormalPosition.right - pl.rcNormalPosition.left,
+                                     pl.rcNormalPosition.bottom - pl.rcNormalPosition.top);
         }
       }
       break;
@@ -301,8 +289,7 @@ private:
 
       Event ev;
       ev.setModifiers(get_modifiers_from_last_win32_message());
-      ev.setPosition(gfx::Point(GET_X_LPARAM(lparam) / m_scale,
-                                GET_Y_LPARAM(lparam) / m_scale));
+      ev.setPosition(gfx::Point(GET_X_LPARAM(lparam) / m_scale, GET_Y_LPARAM(lparam) / m_scale));
 
       if (!m_hasMouse)
       {
@@ -350,8 +337,7 @@ private:
       Event ev;
       ev.setType(Event::MouseDown);
       ev.setModifiers(get_modifiers_from_last_win32_message());
-      ev.setPosition(gfx::Point(GET_X_LPARAM(lparam) / m_scale,
-                                GET_Y_LPARAM(lparam) / m_scale));
+      ev.setPosition(gfx::Point(GET_X_LPARAM(lparam) / m_scale, GET_Y_LPARAM(lparam) / m_scale));
       ev.setButton(msg == WM_LBUTTONDOWN   ? Event::LeftButton
                    : msg == WM_RBUTTONDOWN ? Event::RightButton
                    : msg == WM_MBUTTONDOWN ? Event::MiddleButton
@@ -374,8 +360,7 @@ private:
       Event ev;
       ev.setType(Event::MouseUp);
       ev.setModifiers(get_modifiers_from_last_win32_message());
-      ev.setPosition(gfx::Point(GET_X_LPARAM(lparam) / m_scale,
-                                GET_Y_LPARAM(lparam) / m_scale));
+      ev.setPosition(gfx::Point(GET_X_LPARAM(lparam) / m_scale, GET_Y_LPARAM(lparam) / m_scale));
       ev.setButton(msg == WM_LBUTTONUP   ? Event::LeftButton
                    : msg == WM_RBUTTONUP ? Event::RightButton
                    : msg == WM_MBUTTONUP ? Event::MiddleButton
@@ -403,8 +388,7 @@ private:
       Event ev;
       ev.setType(Event::MouseDoubleClick);
       ev.setModifiers(get_modifiers_from_last_win32_message());
-      ev.setPosition(gfx::Point(GET_X_LPARAM(lparam) / m_scale,
-                                GET_Y_LPARAM(lparam) / m_scale));
+      ev.setPosition(gfx::Point(GET_X_LPARAM(lparam) / m_scale, GET_Y_LPARAM(lparam) / m_scale));
       ev.setButton(msg == WM_LBUTTONDBLCLK   ? Event::LeftButton
                    : msg == WM_RBUTTONDBLCLK ? Event::RightButton
                    : msg == WM_MBUTTONDBLCLK ? Event::MiddleButton
@@ -432,8 +416,7 @@ private:
       ev.setPosition(gfx::Point(pos.x, pos.y) / m_scale);
 
       int z = ((short)HIWORD(wparam)) / WHEEL_DELTA;
-      gfx::Point delta((msg == WM_MOUSEHWHEEL ? z : 0),
-                       (msg == WM_MOUSEWHEEL ? -z : 0));
+      gfx::Point delta((msg == WM_MOUSEHWHEEL ? z : 0), (msg == WM_MOUSEWHEEL ? -z : 0));
       ev.setWheelDelta(delta);
 
       // LOG("WHEEL: %d %d\n", delta.x, delta.y);
@@ -480,8 +463,7 @@ private:
         break;
       }
 
-      gfx::Point delta((msg == WM_HSCROLL ? (z - 50) : 0),
-                       (msg == WM_VSCROLL ? (z - 50) : 0));
+      gfx::Point delta((msg == WM_HSCROLL ? (z - 50) : 0), (msg == WM_VSCROLL ? (z - 50) : 0));
       ev.setWheelDelta(delta);
 
       // LOG("SCROLL: %d %d\n", delta.x, delta.y);
@@ -506,8 +488,7 @@ private:
         // ToUnicode can return several characters inside the
         // buffer in case that a dead-key wasn't combined with the
         // next pressed character.
-        charsInBuffer = ToUnicode(vk, scancode, keystate, buffer,
-                                  sizeof(buffer) / sizeof(buffer[0]), 0);
+        charsInBuffer = ToUnicode(vk, scancode, keystate, buffer, sizeof(buffer) / sizeof(buffer[0]), 0);
       }
 
       Event ev;
@@ -598,8 +579,7 @@ private:
 
     case WM_NCHITTEST:
     {
-      LRESULT result =
-          CallWindowProc(DefWindowProc, m_hwnd, msg, wparam, lparam);
+      LRESULT result = CallWindowProc(DefWindowProc, m_hwnd, msg, wparam, lparam);
       gfx::Point pt(GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam));
 
       RECT rc;
@@ -675,8 +655,7 @@ private:
 
       if (api.packet(ctx, serial, &packet))
       {
-        m_pressure =
-            packet.pkNormalPressure / 1000.0; // TODO get the maximum value
+        m_pressure = packet.pkNormalPressure / 1000.0; // TODO get the maximum value
 
         if (packet.pkCursor == 2 || packet.pkCursor == 5)
           m_pointerType = PointerType::Eraser;
@@ -723,11 +702,9 @@ private:
 
   static HWND createHwnd(WinWindow* self, int width, int height)
   {
-    HWND hwnd =
-        CreateWindowEx(WS_EX_APPWINDOW | WS_EX_ACCEPTFILES, SHE_WND_CLASS_NAME,
-                       L"", WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL,
-                       CW_USEDEFAULT, CW_USEDEFAULT, width, height, nullptr,
-                       nullptr, GetModuleHandle(nullptr), LPVOID(self));
+    HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_ACCEPTFILES, SHE_WND_CLASS_NAME, L"",
+                               WS_OVERLAPPEDWINDOW | WS_HSCROLL | WS_VSCROLL, CW_USEDEFAULT, CW_USEDEFAULT, width,
+                               height, nullptr, nullptr, GetModuleHandle(nullptr), LPVOID(self));
     if (!hwnd)
       return nullptr;
 
@@ -737,11 +714,9 @@ private:
     RECT workarea;
     if (SystemParametersInfo(SPI_GETWORKAREA, 0, (PVOID)&workarea, 0))
     {
-      SetWindowPos(hwnd, nullptr,
-                   (workarea.right - workarea.left) / 2 - width / 2,
+      SetWindowPos(hwnd, nullptr, (workarea.right - workarea.left) / 2 - width / 2,
                    (workarea.bottom - workarea.top) / 2 - height / 2, 0, 0,
-                   SWP_NOSIZE | SWP_NOSENDCHANGING | SWP_NOOWNERZORDER |
-                       SWP_NOZORDER | SWP_NOREDRAW);
+                   SWP_NOSIZE | SWP_NOSENDCHANGING | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOREDRAW);
     }
 
     // Set scroll info to receive WM_HSCROLL/VSCROLL events (events
@@ -759,8 +734,7 @@ private:
     return hwnd;
   }
 
-  static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT msg, WPARAM wparam,
-                                        LPARAM lparam)
+  static LRESULT CALLBACK staticWndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
   {
     WinWindow* wnd;
 

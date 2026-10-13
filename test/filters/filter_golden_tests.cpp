@@ -51,8 +51,7 @@ class TestFilterManager : public FilterManager,
                           public FilterIndexedData
 {
 public:
-  TestFilterManager(Image* src, Image* dst, Target target,
-                    Palette* pal = nullptr, RgbMap* rgbMap = nullptr)
+  TestFilterManager(Image* src, Image* dst, Target target, Palette* pal = nullptr, RgbMap* rgbMap = nullptr)
     : m_src(src)
     , m_dst(dst)
     , m_target(target)
@@ -84,14 +83,8 @@ public:
   }
 
   // FilterManager impl
-  const void* getSourceAddress() override
-  {
-    return m_src->getPixelAddress(0, m_row);
-  }
-  void* getDestinationAddress() override
-  {
-    return m_dst->getPixelAddress(0, m_row);
-  }
+  const void* getSourceAddress() override { return m_src->getPixelAddress(0, m_row); }
+  void* getDestinationAddress() override { return m_dst->getPixelAddress(0, m_row); }
   int getWidth() override { return m_src->width(); }
   Target getTarget() override { return m_target; }
   FilterIndexedData* getIndexedData() override { return this; }
@@ -126,13 +119,11 @@ std::unique_ptr<Image> makeSeededImage(PixelFormat format, int w, int h)
       {
       case IMAGE_RGB:
         put_pixel(img.get(), x, y,
-                  rgba((x * 37 + y * 11) & 0xff, (x * 13 + y * 29) & 0xff,
-                       (x * 7 + y * 53) & 0xff, ((x + y) % 2) ? 255 : 200));
+                  rgba((x * 37 + y * 11) & 0xff, (x * 13 + y * 29) & 0xff, (x * 7 + y * 53) & 0xff,
+                       ((x + y) % 2) ? 255 : 200));
         break;
       case IMAGE_GRAYSCALE:
-        put_pixel(
-            img.get(), x, y,
-            graya((x * 23 + y * 17) & 0xff, ((x + y) % 3 == 0) ? 255 : 180));
+        put_pixel(img.get(), x, y, graya((x * 23 + y * 17) & 0xff, ((x + y) % 3 == 0) ? 255 : 180));
         break;
       case IMAGE_INDEXED:
         put_pixel(img.get(), x, y, (x * 3 + y * 5) & 0xff);
@@ -164,8 +155,7 @@ std::string sha1Hex(const void* data, std::size_t size)
 {
   SHA1Context ctx;
   SHA1Reset(&ctx);
-  SHA1Input(&ctx, static_cast<const uint8_t*>(data),
-            static_cast<unsigned int>(size));
+  SHA1Input(&ctx, static_cast<const uint8_t*>(data), static_cast<unsigned int>(size));
   uint8_t digest[SHA1HashSize];
   SHA1Result(&ctx, digest);
 
@@ -184,8 +174,7 @@ std::string sha1Hex(const void* data, std::size_t size)
 // row-stride-based byte size covers every pixel regardless of format.
 std::string hashImage(const Image* img)
 {
-  std::size_t size =
-      static_cast<std::size_t>(img->getRowStrideSize()) * img->height();
+  std::size_t size = static_cast<std::size_t>(img->getRowStrideSize()) * img->height();
   return sha1Hex(img->getPixelAddress(0, 0), size);
 }
 
@@ -243,8 +232,7 @@ TEST(FilterGolden, InvertIndexedRgbChannels)
   auto src = makeSeededImage(IMAGE_INDEXED, kW, kH);
   auto dst = makeSeededImage(IMAGE_INDEXED, kW, kH);
   InvertColorFilter filter;
-  TestFilterManager mgr(src.get(), dst.get(), TARGET_ALL_CHANNELS, pal.get(),
-                        rgbMap.get());
+  TestFilterManager mgr(src.get(), dst.get(), TARGET_ALL_CHANNELS, pal.get(), rgbMap.get());
   mgr.run(filter);
   EXPECT_EQ("826f3ba912ce0589d6404966a0bc43ab9f611c01", hashImage(dst.get()));
 }
@@ -274,8 +262,7 @@ TEST(FilterGolden, ReplaceColorIndexed)
   filter.setFrom(10);
   filter.setTo(200);
   filter.setTolerance(5);
-  TestFilterManager mgr(src.get(), dst.get(), TARGET_INDEX_CHANNEL, pal.get(),
-                        rgbMap.get());
+  TestFilterManager mgr(src.get(), dst.get(), TARGET_INDEX_CHANNEL, pal.get(), rgbMap.get());
   mgr.run(filter);
   EXPECT_EQ("e7588511aee8f80b56aa37fce50c319dc8c4ee7f", hashImage(dst.get()));
 }

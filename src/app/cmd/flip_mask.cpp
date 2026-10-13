@@ -46,8 +46,7 @@ void FlipMask::swap() const
     return;
 
   mask->freeze();
-  doc::algorithm::flip_image(mask->bitmap(), mask->bitmap()->bounds(),
-                             m_flipType);
+  doc::algorithm::flip_image(mask->bitmap(), mask->bitmap()->bounds(), m_flipType);
   mask->unfreeze();
 }
 

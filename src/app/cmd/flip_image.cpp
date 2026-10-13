@@ -17,8 +17,7 @@
 namespace app::cmd
 {
 
-FlipImage::FlipImage(const Image* image, const gfx::Rect& bounds,
-                     const algorithm::FlipType flipType)
+FlipImage::FlipImage(const Image* image, const gfx::Rect& bounds, const algorithm::FlipType flipType)
   : WithImage(image)
   , m_bounds(bounds)
   , m_flipType(flipType)

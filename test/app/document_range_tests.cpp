@@ -27,50 +27,48 @@ namespace doc
 
 std::ostream& operator<<(std::ostream& os, const DocumentRange& range)
 {
-  return os << "{ layers: [" << range.layerBegin() << ", " << range.layerEnd()
-            << "]"
-            << ", frames: [" << range.frameBegin() << ", " << range.frameEnd()
-            << "] }";
+  return os << "{ layers: [" << range.layerBegin() << ", " << range.layerEnd() << "]"
+            << ", frames: [" << range.frameBegin() << ", " << range.frameEnd() << "] }";
 }
 
 } // namespace doc
 
 using DocumentPtr = std::unique_ptr<app::Document>;
 
-#define EXPECT_LAYER_ORDER(a, b, c, d)                                         \
-  EXPECT_TRUE(expect_layer(a, 0));                                             \
-  EXPECT_TRUE(expect_layer(b, 1));                                             \
-  EXPECT_TRUE(expect_layer(c, 2));                                             \
+#define EXPECT_LAYER_ORDER(a, b, c, d)                                                                                 \
+  EXPECT_TRUE(expect_layer(a, 0));                                                                                     \
+  EXPECT_TRUE(expect_layer(b, 1));                                                                                     \
+  EXPECT_TRUE(expect_layer(c, 2));                                                                                     \
   EXPECT_TRUE(expect_layer(d, 3));
 
-#define EXPECT_FRAME_ORDER(a, b, c, d)                                         \
-  EXPECT_TRUE(expect_frame(a, 0));                                             \
-  EXPECT_TRUE(expect_frame(b, 1));                                             \
-  EXPECT_TRUE(expect_frame(c, 2));                                             \
+#define EXPECT_FRAME_ORDER(a, b, c, d)                                                                                 \
+  EXPECT_TRUE(expect_frame(a, 0));                                                                                     \
+  EXPECT_TRUE(expect_frame(b, 1));                                                                                     \
+  EXPECT_TRUE(expect_frame(c, 2));                                                                                     \
   EXPECT_TRUE(expect_frame(d, 3));
 
-#define EXPECT_FRAME_COPY1(a, b, c, d, e)                                      \
-  EXPECT_TRUE(expect_frame(a, 0));                                             \
-  EXPECT_TRUE(expect_frame(b, 1));                                             \
-  EXPECT_TRUE(expect_frame(c, 2));                                             \
-  EXPECT_TRUE(expect_frame(d, 3));                                             \
+#define EXPECT_FRAME_COPY1(a, b, c, d, e)                                                                              \
+  EXPECT_TRUE(expect_frame(a, 0));                                                                                     \
+  EXPECT_TRUE(expect_frame(b, 1));                                                                                     \
+  EXPECT_TRUE(expect_frame(c, 2));                                                                                     \
+  EXPECT_TRUE(expect_frame(d, 3));                                                                                     \
   EXPECT_TRUE(expect_frame(e, 4));
 
-#define EXPECT_FRAME_COPY2(a, b, c, d, e, f)                                   \
-  EXPECT_TRUE(expect_frame(a, 0));                                             \
-  EXPECT_TRUE(expect_frame(b, 1));                                             \
-  EXPECT_TRUE(expect_frame(c, 2));                                             \
-  EXPECT_TRUE(expect_frame(d, 3));                                             \
-  EXPECT_TRUE(expect_frame(e, 4));                                             \
+#define EXPECT_FRAME_COPY2(a, b, c, d, e, f)                                                                           \
+  EXPECT_TRUE(expect_frame(a, 0));                                                                                     \
+  EXPECT_TRUE(expect_frame(b, 1));                                                                                     \
+  EXPECT_TRUE(expect_frame(c, 2));                                                                                     \
+  EXPECT_TRUE(expect_frame(d, 3));                                                                                     \
+  EXPECT_TRUE(expect_frame(e, 4));                                                                                     \
   EXPECT_TRUE(expect_frame(f, 5));
 
-#define EXPECT_FRAME_COPY3(a, b, c, d, e, f, g)                                \
-  EXPECT_TRUE(expect_frame(a, 0));                                             \
-  EXPECT_TRUE(expect_frame(b, 1));                                             \
-  EXPECT_TRUE(expect_frame(c, 2));                                             \
-  EXPECT_TRUE(expect_frame(d, 3));                                             \
-  EXPECT_TRUE(expect_frame(e, 4));                                             \
-  EXPECT_TRUE(expect_frame(f, 5));                                             \
+#define EXPECT_FRAME_COPY3(a, b, c, d, e, f, g)                                                                        \
+  EXPECT_TRUE(expect_frame(a, 0));                                                                                     \
+  EXPECT_TRUE(expect_frame(b, 1));                                                                                     \
+  EXPECT_TRUE(expect_frame(c, 2));                                                                                     \
+  EXPECT_TRUE(expect_frame(d, 3));                                                                                     \
+  EXPECT_TRUE(expect_frame(e, 4));                                                                                     \
+  EXPECT_TRUE(expect_frame(f, 5));                                                                                     \
   EXPECT_TRUE(expect_frame(g, 6));
 
 #define EXPECT_CEL(y, x, v, u) EXPECT_TRUE(expect_cel(y, x, v, u));
@@ -103,15 +101,14 @@ public:
 
     sprite->setTotalFrames(frame_t(4));
     sprite->setFrameDuration(frame_t(0),
-                             1); // These durations can be used to identify
+                             1);             // These durations can be used to identify
     sprite->setFrameDuration(frame_t(1), 2); // frames after a move operation
     sprite->setFrameDuration(frame_t(2), 3);
     sprite->setFrameDuration(frame_t(3), 4);
 
     for (int i = 0; i < 4; i++)
     {
-      LayerImage* layer =
-          static_cast<LayerImage*>(sprite->indexToLayer(LayerIndex(i)));
+      LayerImage* layer = static_cast<LayerImage*>(sprite->indexToLayer(LayerIndex(i)));
 
       for (int j = 0; j < 4; j++)
       {
@@ -137,8 +134,7 @@ public:
 protected:
   bool expect_layer(Layer* expected_layer, int layer)
   {
-    return expect_layer_frame(sprite->layerToIndex(expected_layer), -1, layer,
-                              -1);
+    return expect_layer_frame(sprite->layerToIndex(expected_layer), -1, layer, -1);
   }
 
   bool expect_frame(int expected_frame, frame_t frame)
@@ -151,8 +147,7 @@ protected:
     return true;
   }
 
-  bool expect_layer_frame(int expected_layer, int expected_frame, int layer,
-                          frame_t frame)
+  bool expect_layer_frame(int expected_layer, int expected_frame, int layer, frame_t frame)
   {
     if (frame >= 0)
     {
@@ -175,8 +170,7 @@ protected:
     return true;
   }
 
-  bool expect_cel(int expected_layer, int expected_frame, int layer,
-                  frame_t frame)
+  bool expect_cel(int expected_layer, int expected_frame, int layer, frame_t frame)
   {
     color_t expected_color = white;
 
@@ -210,8 +204,8 @@ protected:
   color_t white;
 };
 
-inline DocumentRange range(Layer* fromLayer, frame_t fromFrNum, Layer* toLayer,
-                           frame_t toFrNum, DocumentRange::Type type)
+inline DocumentRange range(Layer* fromLayer, frame_t fromFrNum, Layer* toLayer, frame_t toFrNum,
+                           DocumentRange::Type type)
 {
   DocumentRange r;
   r.startRange(fromLayer->sprite()->layerToIndex(fromLayer), fromFrNum, type);
@@ -219,8 +213,7 @@ inline DocumentRange range(Layer* fromLayer, frame_t fromFrNum, Layer* toLayer,
   return r;
 }
 
-inline DocumentRange range(int fromLayer, frame_t fromFrNum, int toLayer,
-                           frame_t toFrNum, DocumentRange::Type type)
+inline DocumentRange range(int fromLayer, frame_t fromFrNum, int toLayer, frame_t toFrNum, DocumentRange::Type type)
 {
   DocumentRange r;
   r.startRange(LayerIndex(fromLayer), fromFrNum, type);
@@ -258,8 +251,7 @@ inline DocumentRange frames_range(frame_t frame)
   return range(0, frame, 0, frame, DocumentRange::kFrames);
 }
 
-inline DocumentRange cels_range(int fromLayer, frame_t fromFrNum, int toLayer,
-                                frame_t toFrNum)
+inline DocumentRange cels_range(int fromLayer, frame_t fromFrNum, int toLayer, frame_t toFrNum)
 {
   return range(fromLayer, fromFrNum, toLayer, toFrNum, DocumentRange::kCels);
 }
@@ -269,94 +261,79 @@ TEST_F(DocRangeOps, MoveLayersNoOp)
   // Move one layer to the same place
 
   EXPECT_EQ(layers_range(layer1),
-            move_range(doc.get(), layers_range(layer1), layers_range(layer1),
-                       kDocumentRangeAfter));
+            move_range(doc.get(), layers_range(layer1), layers_range(layer1), kDocumentRangeAfter));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer1),
-            move_range(doc.get(), layers_range(layer1), layers_range(layer2),
-                       kDocumentRangeBefore));
+            move_range(doc.get(), layers_range(layer1), layers_range(layer2), kDocumentRangeBefore));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer4),
-            move_range(doc.get(), layers_range(layer4), layers_range(layer4),
-                       kDocumentRangeAfter));
+            move_range(doc.get(), layers_range(layer4), layers_range(layer4), kDocumentRangeAfter));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer4),
-            move_range(doc.get(), layers_range(layer4), layers_range(layer4),
-                       kDocumentRangeBefore));
+            move_range(doc.get(), layers_range(layer4), layers_range(layer4), kDocumentRangeBefore));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer4),
-            move_range(doc.get(), layers_range(layer4), layers_range(layer3),
-                       kDocumentRangeAfter));
+            move_range(doc.get(), layers_range(layer4), layers_range(layer3), kDocumentRangeAfter));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   // Move two layer to the same place
 
   EXPECT_EQ(layers_range(layer1, layer2),
-            move_range(doc.get(), layers_range(layer1, layer2),
-                       layers_range(layer1), kDocumentRangeBefore));
+            move_range(doc.get(), layers_range(layer1, layer2), layers_range(layer1), kDocumentRangeBefore));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer1, layer2),
-            move_range(doc.get(), layers_range(layer1, layer2),
-                       layers_range(layer1), kDocumentRangeAfter));
+            move_range(doc.get(), layers_range(layer1, layer2), layers_range(layer1), kDocumentRangeAfter));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer1, layer2),
-            move_range(doc.get(), layers_range(layer1, layer2),
-                       layers_range(layer2), kDocumentRangeBefore));
+            move_range(doc.get(), layers_range(layer1, layer2), layers_range(layer2), kDocumentRangeBefore));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer1, layer2),
-            move_range(doc.get(), layers_range(layer1, layer2),
-                       layers_range(layer2), kDocumentRangeAfter));
+            move_range(doc.get(), layers_range(layer1, layer2), layers_range(layer2), kDocumentRangeAfter));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer1, layer2),
-            move_range(doc.get(), layers_range(layer1, layer2),
-                       layers_range(layer3), kDocumentRangeBefore));
+            move_range(doc.get(), layers_range(layer1, layer2), layers_range(layer3), kDocumentRangeBefore));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer3, layer4),
-            move_range(doc.get(), layers_range(layer3, layer4),
-                       layers_range(layer2), kDocumentRangeAfter));
+            move_range(doc.get(), layers_range(layer3, layer4), layers_range(layer2), kDocumentRangeAfter));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer3, layer4),
-            move_range(doc.get(), layers_range(layer3, layer4),
-                       layers_range(layer3), kDocumentRangeBefore));
+            move_range(doc.get(), layers_range(layer3, layer4), layers_range(layer3), kDocumentRangeBefore));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer3, layer4),
-            move_range(doc.get(), layers_range(layer3, layer4),
-                       layers_range(layer3), kDocumentRangeAfter));
+            move_range(doc.get(), layers_range(layer3, layer4), layers_range(layer3), kDocumentRangeAfter));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer3, layer4),
-            move_range(doc.get(), layers_range(layer3, layer4),
-                       layers_range(layer4), kDocumentRangeBefore));
+            move_range(doc.get(), layers_range(layer3, layer4), layers_range(layer4), kDocumentRangeBefore));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   EXPECT_EQ(layers_range(layer3, layer4),
-            move_range(doc.get(), layers_range(layer3, layer4),
-                       layers_range(layer4), kDocumentRangeAfter));
+            move_range(doc.get(), layers_range(layer3, layer4), layers_range(layer4), kDocumentRangeAfter));
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
@@ -368,8 +345,7 @@ TEST_F(DocRangeOps, MoveLayersNoOp)
     for (int layer = 0; layer < 4; ++layer)
     {
       EXPECT_EQ(layers_range(layer1, layer4),
-                move_range(doc.get(), layers_range(layer1, layer4),
-                           layers_range(layer), places[i]));
+                move_range(doc.get(), layers_range(layer1, layer4), layers_range(layer), places[i]));
       EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
       EXPECT_FALSE(doc->undoHistory()->canUndo());
     }
@@ -377,8 +353,7 @@ TEST_F(DocRangeOps, MoveLayersNoOp)
     for (int layer = 0; layer < 3; ++layer)
     {
       EXPECT_EQ(layers_range(layer1, layer4),
-                move_range(doc.get(), layers_range(layer1, layer4),
-                           layers_range(layer, layer + 1), places[i]));
+                move_range(doc.get(), layers_range(layer1, layer4), layers_range(layer, layer + 1), places[i]));
       EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
       EXPECT_FALSE(doc->undoHistory()->canUndo());
     }
@@ -386,15 +361,13 @@ TEST_F(DocRangeOps, MoveLayersNoOp)
     for (int layer = 0; layer < 2; ++layer)
     {
       EXPECT_EQ(layers_range(layer1, layer4),
-                move_range(doc.get(), layers_range(layer1, layer4),
-                           layers_range(layer, layer + 2), places[i]));
+                move_range(doc.get(), layers_range(layer1, layer4), layers_range(layer, layer + 2), places[i]));
       EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
       EXPECT_FALSE(doc->undoHistory()->canUndo());
     }
 
     EXPECT_EQ(layers_range(layer1, layer4),
-              move_range(doc.get(), layers_range(layer1, layer4),
-                         layers_range(layer1, layer4), places[i]));
+              move_range(doc.get(), layers_range(layer1, layer4), layers_range(layer1, layer4), places[i]));
     EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
     EXPECT_FALSE(doc->undoHistory()->canUndo());
   }
@@ -404,90 +377,65 @@ TEST_F(DocRangeOps, MoveFramesNoOp)
 {
   // Move one frame to the same place
 
-  EXPECT_EQ(frames_range(0), move_range(doc.get(), frames_range(0),
-                                        frames_range(0), kDocumentRangeAfter));
+  EXPECT_EQ(frames_range(0), move_range(doc.get(), frames_range(0), frames_range(0), kDocumentRangeAfter));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(0), move_range(doc.get(), frames_range(0),
-                                        frames_range(1), kDocumentRangeBefore));
+  EXPECT_EQ(frames_range(0), move_range(doc.get(), frames_range(0), frames_range(1), kDocumentRangeBefore));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(3), move_range(doc.get(), frames_range(3),
-                                        frames_range(3), kDocumentRangeAfter));
+  EXPECT_EQ(frames_range(3), move_range(doc.get(), frames_range(3), frames_range(3), kDocumentRangeAfter));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(3), move_range(doc.get(), frames_range(3),
-                                        frames_range(3), kDocumentRangeBefore));
+  EXPECT_EQ(frames_range(3), move_range(doc.get(), frames_range(3), frames_range(3), kDocumentRangeBefore));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(3), move_range(doc.get(), frames_range(3),
-                                        frames_range(2), kDocumentRangeAfter));
+  EXPECT_EQ(frames_range(3), move_range(doc.get(), frames_range(3), frames_range(2), kDocumentRangeAfter));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
   // Move two frame to the same place
 
-  EXPECT_EQ(frames_range(0, 1),
-            move_range(doc.get(), frames_range(0, 1), frames_range(0),
-                       kDocumentRangeBefore));
+  EXPECT_EQ(frames_range(0, 1), move_range(doc.get(), frames_range(0, 1), frames_range(0), kDocumentRangeBefore));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(0, 1),
-            move_range(doc.get(), frames_range(0, 1), frames_range(0),
-                       kDocumentRangeAfter));
+  EXPECT_EQ(frames_range(0, 1), move_range(doc.get(), frames_range(0, 1), frames_range(0), kDocumentRangeAfter));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(0, 1),
-            move_range(doc.get(), frames_range(0, 1), frames_range(1),
-                       kDocumentRangeBefore));
+  EXPECT_EQ(frames_range(0, 1), move_range(doc.get(), frames_range(0, 1), frames_range(1), kDocumentRangeBefore));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(0, 1),
-            move_range(doc.get(), frames_range(0, 1), frames_range(1),
-                       kDocumentRangeAfter));
+  EXPECT_EQ(frames_range(0, 1), move_range(doc.get(), frames_range(0, 1), frames_range(1), kDocumentRangeAfter));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(0, 1),
-            move_range(doc.get(), frames_range(0, 1), frames_range(2),
-                       kDocumentRangeBefore));
+  EXPECT_EQ(frames_range(0, 1), move_range(doc.get(), frames_range(0, 1), frames_range(2), kDocumentRangeBefore));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(2, 3),
-            move_range(doc.get(), frames_range(2, 3), frames_range(1),
-                       kDocumentRangeAfter));
+  EXPECT_EQ(frames_range(2, 3), move_range(doc.get(), frames_range(2, 3), frames_range(1), kDocumentRangeAfter));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(2, 3),
-            move_range(doc.get(), frames_range(2, 3), frames_range(2),
-                       kDocumentRangeBefore));
+  EXPECT_EQ(frames_range(2, 3), move_range(doc.get(), frames_range(2, 3), frames_range(2), kDocumentRangeBefore));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(2, 3),
-            move_range(doc.get(), frames_range(2, 3), frames_range(2),
-                       kDocumentRangeAfter));
+  EXPECT_EQ(frames_range(2, 3), move_range(doc.get(), frames_range(2, 3), frames_range(2), kDocumentRangeAfter));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(2, 3),
-            move_range(doc.get(), frames_range(2, 3), frames_range(3),
-                       kDocumentRangeBefore));
+  EXPECT_EQ(frames_range(2, 3), move_range(doc.get(), frames_range(2, 3), frames_range(3), kDocumentRangeBefore));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
-  EXPECT_EQ(frames_range(2, 3),
-            move_range(doc.get(), frames_range(2, 3), frames_range(3),
-                       kDocumentRangeAfter));
+  EXPECT_EQ(frames_range(2, 3), move_range(doc.get(), frames_range(2, 3), frames_range(3), kDocumentRangeAfter));
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
   EXPECT_FALSE(doc->undoHistory()->canUndo());
 
@@ -498,8 +446,7 @@ TEST_F(DocRangeOps, MoveFramesNoOp)
   {
     for (int frame = 0; frame < 4; ++frame)
     {
-      EXPECT_EQ(frames_range(0, 3), move_range(doc.get(), frames_range(0, 3),
-                                               frames_range(frame), places[i]));
+      EXPECT_EQ(frames_range(0, 3), move_range(doc.get(), frames_range(0, 3), frames_range(frame), places[i]));
       EXPECT_FRAME_ORDER(0, 1, 2, 3);
       EXPECT_FALSE(doc->undoHistory()->canUndo());
     }
@@ -507,8 +454,7 @@ TEST_F(DocRangeOps, MoveFramesNoOp)
     for (int frame = 0; frame < 3; ++frame)
     {
       EXPECT_EQ(frames_range(0, 3),
-                move_range(doc.get(), frames_range(0, 3),
-                           frames_range(frame, frame + 1), places[i]));
+                move_range(doc.get(), frames_range(0, 3), frames_range(frame, frame + 1), places[i]));
       EXPECT_FRAME_ORDER(0, 1, 2, 3);
       EXPECT_FALSE(doc->undoHistory()->canUndo());
     }
@@ -516,14 +462,12 @@ TEST_F(DocRangeOps, MoveFramesNoOp)
     for (int frame = 0; frame < 2; ++frame)
     {
       EXPECT_EQ(frames_range(0, 3),
-                move_range(doc.get(), frames_range(0, 3),
-                           frames_range(frame, frame + 2), places[i]));
+                move_range(doc.get(), frames_range(0, 3), frames_range(frame, frame + 2), places[i]));
       EXPECT_FRAME_ORDER(0, 1, 2, 3);
       EXPECT_FALSE(doc->undoHistory()->canUndo());
     }
 
-    EXPECT_EQ(frames_range(0, 3), move_range(doc.get(), frames_range(0, 3),
-                                             frames_range(0, 3), places[i]));
+    EXPECT_EQ(frames_range(0, 3), move_range(doc.get(), frames_range(0, 3), frames_range(0, 3), places[i]));
     EXPECT_FRAME_ORDER(0, 1, 2, 3);
     EXPECT_FALSE(doc->undoHistory()->canUndo());
   }
@@ -544,8 +488,7 @@ TEST_F(DocRangeOps, MoveLayers)
   DocumentRange result;
 
   // One layer at the bottom of another
-  result = move_range(doc.get(), layers_range(layer1), layers_range(layer2),
-                      kDocumentRangeAfter);
+  result = move_range(doc.get(), layers_range(layer1), layers_range(layer2), kDocumentRangeAfter);
   EXPECT_LAYER_ORDER(layer2, layer1, layer3, layer4);
   EXPECT_EQ(layers_range(layer1), result);
 
@@ -553,8 +496,7 @@ TEST_F(DocRangeOps, MoveLayers)
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
 
   // One layer at the bottom
-  result = move_range(doc.get(), layers_range(layer2), layers_range(layer1),
-                      kDocumentRangeBefore);
+  result = move_range(doc.get(), layers_range(layer2), layers_range(layer1), kDocumentRangeBefore);
   EXPECT_LAYER_ORDER(layer2, layer1, layer3, layer4);
   EXPECT_EQ(layers_range(layer2), result);
 
@@ -563,16 +505,12 @@ TEST_F(DocRangeOps, MoveLayers)
 
   // Try with a background
   layer1->setBackground(true);
-  EXPECT_ANY_THROW({
-    move_range(doc.get(), layers_range(layer1), layers_range(layer2),
-               kDocumentRangeAfter);
-  });
+  EXPECT_ANY_THROW({ move_range(doc.get(), layers_range(layer1), layers_range(layer2), kDocumentRangeAfter); });
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   layer1->setBackground(false);
 
   // Move one layer to the top
-  result = move_range(doc.get(), layers_range(layer2), layers_range(layer4),
-                      kDocumentRangeAfter);
+  result = move_range(doc.get(), layers_range(layer2), layers_range(layer4), kDocumentRangeAfter);
   EXPECT_LAYER_ORDER(layer1, layer3, layer4, layer2);
   EXPECT_EQ(layers_range(layer2), result);
 
@@ -580,16 +518,14 @@ TEST_F(DocRangeOps, MoveLayers)
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
 
   // Move one layers before other
-  result = move_range(doc.get(), layers_range(layer2), layers_range(layer4),
-                      kDocumentRangeBefore);
+  result = move_range(doc.get(), layers_range(layer2), layers_range(layer4), kDocumentRangeBefore);
   EXPECT_LAYER_ORDER(layer1, layer3, layer2, layer4);
   EXPECT_EQ(layers_range(layer2), result);
 
   doc->undoHistory()->undo();
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
 
-  result = move_range(doc.get(), layers_range(layer1),
-                      layers_range(layer3, layer4), kDocumentRangeBefore);
+  result = move_range(doc.get(), layers_range(layer1), layers_range(layer3, layer4), kDocumentRangeBefore);
   EXPECT_LAYER_ORDER(layer2, layer1, layer3, layer4);
   EXPECT_EQ(layers_range(layer1), result);
 
@@ -597,29 +533,24 @@ TEST_F(DocRangeOps, MoveLayers)
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
 
   // Move two layers on top of other
-  result = move_range(doc.get(), layers_range(layer2, layer3),
-                      layers_range(layer4), kDocumentRangeAfter);
+  result = move_range(doc.get(), layers_range(layer2, layer3), layers_range(layer4), kDocumentRangeAfter);
   EXPECT_LAYER_ORDER(layer1, layer4, layer2, layer3);
   EXPECT_EQ(layers_range(layer2, layer3), result);
 
-  result = move_range(doc.get(), layers_range(layer2, layer3),
-                      layers_range(layer1), kDocumentRangeAfter);
+  result = move_range(doc.get(), layers_range(layer2, layer3), layers_range(layer1), kDocumentRangeAfter);
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   EXPECT_EQ(layers_range(layer2, layer3), result);
 
   // Move three layers at the bottom (but we cannot because the bottom is a
   // background layer)
   layer1->setBackground(true);
-  EXPECT_ANY_THROW({
-    move_range(doc.get(), layers_range(layer2, layer4), layers_range(layer1),
-               kDocumentRangeBefore);
-  });
+  EXPECT_ANY_THROW(
+      { move_range(doc.get(), layers_range(layer2, layer4), layers_range(layer1), kDocumentRangeBefore); });
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
   layer1->setBackground(false);
 
   // Move three layers at the top
-  result = move_range(doc.get(), layers_range(layer1, layer3),
-                      layers_range(layer4), kDocumentRangeAfter);
+  result = move_range(doc.get(), layers_range(layer1, layer3), layers_range(layer4), kDocumentRangeAfter);
   EXPECT_LAYER_ORDER(layer4, layer1, layer2, layer3);
   EXPECT_EQ(layers_range(layer1, layer3), result);
 
@@ -627,8 +558,7 @@ TEST_F(DocRangeOps, MoveLayers)
   EXPECT_LAYER_ORDER(layer1, layer2, layer3, layer4);
 
   // Move three layers at the bottom
-  result = move_range(doc.get(), layers_range(layer2, layer4),
-                      layers_range(layer1), kDocumentRangeBefore);
+  result = move_range(doc.get(), layers_range(layer2, layer4), layers_range(layer1), kDocumentRangeBefore);
   EXPECT_LAYER_ORDER(layer2, layer3, layer4, layer1);
   EXPECT_EQ(layers_range(layer2, layer4), result);
 
@@ -638,39 +568,34 @@ TEST_F(DocRangeOps, MoveLayers)
 
 TEST_F(DocRangeOps, MoveFrames)
 {
-  move_range(doc.get(), frames_range(0, 0), frames_range(1, 1),
-             kDocumentRangeAfter);
+  move_range(doc.get(), frames_range(0, 0), frames_range(1, 1), kDocumentRangeAfter);
   EXPECT_FRAME_ORDER(1, 0, 2, 3);
 
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
   // Move one frame at the end
-  move_range(doc.get(), frames_range(1, 1), frames_range(3, 3),
-             kDocumentRangeAfter);
+  move_range(doc.get(), frames_range(1, 1), frames_range(3, 3), kDocumentRangeAfter);
   EXPECT_FRAME_ORDER(0, 2, 3, 1);
 
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
   // Move two frames after other
-  move_range(doc.get(), frames_range(1, 2), frames_range(3, 3),
-             kDocumentRangeAfter);
+  move_range(doc.get(), frames_range(1, 2), frames_range(3, 3), kDocumentRangeAfter);
   EXPECT_FRAME_ORDER(0, 3, 1, 2);
 
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  move_range(doc.get(), frames_range(2, 3), frames_range(0, 0),
-             kDocumentRangeAfter);
+  move_range(doc.get(), frames_range(2, 3), frames_range(0, 0), kDocumentRangeAfter);
   EXPECT_FRAME_ORDER(0, 2, 3, 1);
 
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
   // Move three frames at the beginning
-  move_range(doc.get(), frames_range(1, 3), frames_range(0, 0),
-             kDocumentRangeBefore);
+  move_range(doc.get(), frames_range(1, 3), frames_range(0, 0), kDocumentRangeBefore);
   EXPECT_FRAME_ORDER(1, 2, 3, 0);
 
   doc->undoHistory()->undo();
@@ -714,64 +639,54 @@ TEST_F(DocRangeOps, CopyLayers)
 TEST_F(DocRangeOps, CopyFrames)
 {
   // Copy one frame
-  copy_range(doc.get(), frames_range(0), frames_range(2, 3),
-             kDocumentRangeBefore);
+  copy_range(doc.get(), frames_range(0), frames_range(2, 3), kDocumentRangeBefore);
   EXPECT_FRAME_COPY1(0, 1, 0, 2, 3);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  copy_range(doc.get(), frames_range(0), frames_range(2, 3),
-             kDocumentRangeAfter);
+  copy_range(doc.get(), frames_range(0), frames_range(2, 3), kDocumentRangeAfter);
   EXPECT_FRAME_COPY1(0, 1, 2, 3, 0);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  copy_range(doc.get(), frames_range(3), frames_range(0, 1),
-             kDocumentRangeBefore);
+  copy_range(doc.get(), frames_range(3), frames_range(0, 1), kDocumentRangeBefore);
   EXPECT_FRAME_COPY1(3, 0, 1, 2, 3);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  copy_range(doc.get(), frames_range(3), frames_range(0, 1),
-             kDocumentRangeAfter);
+  copy_range(doc.get(), frames_range(3), frames_range(0, 1), kDocumentRangeAfter);
   EXPECT_FRAME_COPY1(0, 1, 3, 2, 3);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
   // Copy three frames
 
-  copy_range(doc.get(), frames_range(0, 2), frames_range(3),
-             kDocumentRangeBefore);
+  copy_range(doc.get(), frames_range(0, 2), frames_range(3), kDocumentRangeBefore);
   EXPECT_FRAME_COPY3(0, 1, 2, 0, 1, 2, 3);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  copy_range(doc.get(), frames_range(0, 2), frames_range(3),
-             kDocumentRangeAfter);
+  copy_range(doc.get(), frames_range(0, 2), frames_range(3), kDocumentRangeAfter);
   EXPECT_FRAME_COPY3(0, 1, 2, 3, 0, 1, 2);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  copy_range(doc.get(), frames_range(1, 3), frames_range(0),
-             kDocumentRangeBefore);
+  copy_range(doc.get(), frames_range(1, 3), frames_range(0), kDocumentRangeBefore);
   EXPECT_FRAME_COPY3(1, 2, 3, 0, 1, 2, 3);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  copy_range(doc.get(), frames_range(1, 3), frames_range(0),
-             kDocumentRangeAfter);
+  copy_range(doc.get(), frames_range(1, 3), frames_range(0), kDocumentRangeAfter);
   EXPECT_FRAME_COPY3(0, 1, 2, 3, 1, 2, 3);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  copy_range(doc.get(), frames_range(0, 2), frames_range(0, 2),
-             kDocumentRangeBefore);
+  copy_range(doc.get(), frames_range(0, 2), frames_range(0, 2), kDocumentRangeBefore);
   EXPECT_FRAME_COPY3(0, 1, 2, 0, 1, 2, 3);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);
 
-  copy_range(doc.get(), frames_range(0, 2), frames_range(0, 2),
-             kDocumentRangeAfter);
+  copy_range(doc.get(), frames_range(0, 2), frames_range(0, 2), kDocumentRangeAfter);
   EXPECT_FRAME_COPY3(0, 1, 2, 0, 1, 2, 3);
   doc->undoHistory()->undo();
   EXPECT_FRAME_ORDER(0, 1, 2, 3);

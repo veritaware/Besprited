@@ -286,7 +286,8 @@ void Manager::generateMessagesFromSheEvents()
   she::Event pendingMove;
 
   // Only the newest of consecutive mouse moves is handled.
-  auto flushPendingMove = [&] {
+  auto flushPendingMove = [&]
+  {
     if (pendingMove.type() == she::Event::None)
       return;
     _internal_set_mouse_position(pendingMove.position());

@@ -46,24 +46,17 @@ protected:
     engine->addAPIFunction("capture",
                            [this](JSON::Array& args) -> JSON::Value
                            {
-                             captured =
-                                 args.empty()
-                                     ? JSON::Value{JSON::Special::Undefined}
-                                     : args[0];
+                             captured = args.empty() ? JSON::Value{JSON::Special::Undefined} : args[0];
                              return JSON::Value{JSON::Special::Undefined};
                            });
   }
 
-  JSON::Value run(const std::string& code)
-  {
-    return engine->eval(code, "test", Interpreter::EvalType::Script);
-  }
+  JSON::Value run(const std::string& code) { return engine->eval(code, "test", Interpreter::EvalType::Script); }
 
   // Interpreter::ClassDef keeps a *reference* to the constructor callable
   // (the app's Extension objects own theirs), so it must outlive the
   // interpreter - hence a fixture member rather than a temporary.
-  Interpreter::ClassCtor thingCtor =
-      [](JSON::Array& args) -> std::shared_ptr<void>
+  Interpreter::ClassCtor thingCtor = [](JSON::Array& args) -> std::shared_ptr<void>
   {
     auto t = std::make_shared<Thing>();
     if (!args.empty())
@@ -117,8 +110,7 @@ TEST_F(InterpreterTest, ThrowingScriptSurfacesTheMessageAndStack)
   {
     std::string what = e.what();
     EXPECT_NE(std::string::npos, what.find("boom"));
-    EXPECT_NE(std::string::npos, what.find("inner"))
-        << "stack trace should name the throwing function";
+    EXPECT_NE(std::string::npos, what.find("inner")) << "stack trace should name the throwing function";
   }
 }
 
@@ -131,19 +123,16 @@ TEST_F(InterpreterTest, EngineKeepsWorkingAfterAFailedEval)
 TEST_F(InterpreterTest, ModuleEvalRejectsOnATopLevelThrow)
 {
   EXPECT_THROW(
-      engine->eval("export const x = 1; throw new Error('module boom');",
-                   "mod.js", Interpreter::EvalType::Module),
+      engine->eval("export const x = 1; throw new Error('module boom');", "mod.js", Interpreter::EvalType::Module),
       std::runtime_error);
   // ...and still runs a good module afterwards.
-  EXPECT_NO_THROW(engine->eval("capture('from module');", "ok.js",
-                               Interpreter::EvalType::Module));
+  EXPECT_NO_THROW(engine->eval("capture('from module');", "ok.js", Interpreter::EvalType::Module));
   EXPECT_EQ("from module", captured.string());
 }
 
 TEST_F(InterpreterTest, BareImportSpecifiersResolveThroughModuleSearchPaths)
 {
-  auto dir =
-      std::filesystem::path(::testing::TempDir()) / "delta_interpreter_tests";
+  auto dir = std::filesystem::path(::testing::TempDir()) / "delta_interpreter_tests";
   std::filesystem::create_directories(dir);
   {
     std::ofstream out(dir / "answer.js");
@@ -151,15 +140,13 @@ TEST_F(InterpreterTest, BareImportSpecifiersResolveThroughModuleSearchPaths)
   }
   engine->addModuleSearchPath(dir.string());
 
-  ASSERT_NO_THROW(
-      engine->eval("import { answer } from 'answer.js'; capture(answer);",
-                   (dir / "main.js").string(), Interpreter::EvalType::Module));
+  ASSERT_NO_THROW(engine->eval("import { answer } from 'answer.js'; capture(answer);", (dir / "main.js").string(),
+                               Interpreter::EvalType::Module));
   EXPECT_DOUBLE_EQ(42.0, captured.number());
 
   // Extension-less specifiers get ".js" appended.
-  ASSERT_NO_THROW(
-      engine->eval("import { answer } from 'answer'; capture(answer + 1);",
-                   (dir / "main2.js").string(), Interpreter::EvalType::Module));
+  ASSERT_NO_THROW(engine->eval("import { answer } from 'answer'; capture(answer + 1);", (dir / "main2.js").string(),
+                               Interpreter::EvalType::Module));
   EXPECT_DOUBLE_EQ(43.0, captured.number());
 
   std::filesystem::remove_all(dir);
@@ -167,8 +154,7 @@ TEST_F(InterpreterTest, BareImportSpecifiersResolveThroughModuleSearchPaths)
 
 TEST_F(InterpreterTest, UnresolvableImportIsAnError)
 {
-  EXPECT_THROW(engine->eval("import { x } from 'does-not-exist.js';", "main.js",
-                            Interpreter::EvalType::Module),
+  EXPECT_THROW(engine->eval("import { x } from 'does-not-exist.js';", "main.js", Interpreter::EvalType::Module),
                std::runtime_error);
 }
 
@@ -231,8 +217,7 @@ TEST_F(InterpreterTest, Uint8ArrayRoundTripsAsAByteArray)
   EXPECT_EQ(1, captured.byteArray()[0]);
   EXPECT_EQ(255, captured.byteArray()[2]);
 
-  auto bytes =
-      std::make_shared<std::vector<uint8_t>>(std::vector<uint8_t>{9, 8, 7});
+  auto bytes = std::make_shared<std::vector<uint8_t>>(std::vector<uint8_t>{9, 8, 7});
   JSON::Value v{bytes};
   engine->addGlobalValue("bytes", v);
   JSON::Value back = run("bytes instanceof Uint8Array && bytes.length === 3 && "
@@ -271,8 +256,7 @@ TEST_F(InterpreterTest, JsFunctionsPassedToNativeAreCallable)
   EXPECT_DOUBLE_EQ(42.0, result.number());
 }
 
-TEST_F(InterpreterTest,
-       ExceptionsThrownByCalledJsFunctionsAreReportedNotPropagated)
+TEST_F(InterpreterTest, ExceptionsThrownByCalledJsFunctionsAreReportedNotPropagated)
 {
   run("capture(function() { throw new Error('callback boom'); });");
   ASSERT_TRUE(captured.isFunction());
@@ -282,21 +266,17 @@ TEST_F(InterpreterTest,
   ASSERT_NO_THROW(result = captured(args));
   ASSERT_TRUE(result.isObject());
   ASSERT_TRUE(result.object().contains("exception"));
-  EXPECT_NE(std::string::npos,
-            result["exception"].string().find("callback boom"));
+  EXPECT_NE(std::string::npos, result["exception"].string().find("callback boom"));
 }
 
 TEST_F(InterpreterTest, NativeClassesExposeConstructorMethodsAndProperties)
 {
   auto& cls = addThingClass(*engine);
-  cls.addMethod(
-      "double", [](void* self, JSON::Array&) -> JSON::Value
-      { return static_cast<double>(static_cast<Thing*>(self)->value * 2); });
+  cls.addMethod("double", [](void* self, JSON::Array&) -> JSON::Value
+                { return static_cast<double>(static_cast<Thing*>(self)->value * 2); });
   cls.addGetSet(
-      "value", [](void* self) -> JSON::Value
-      { return static_cast<double>(static_cast<Thing*>(self)->value); },
-      [](void* self, JSON::Value& v)
-      { static_cast<Thing*>(self)->value = static_cast<int>(v.number()); });
+      "value", [](void* self) -> JSON::Value { return static_cast<double>(static_cast<Thing*>(self)->value); },
+      [](void* self, JSON::Value& v) { static_cast<Thing*>(self)->value = static_cast<int>(v.number()); });
 
   JSON::Value v = run("var t = new Thing(21); var d = t.double(); t.value = 5; "
                       "[d, t.value].join(',');");
@@ -307,14 +287,12 @@ TEST_F(InterpreterTest, NativeInstancesReturnedFromApiFunctionsAreWrappedByType)
 {
   auto& cls = addThingClass(*engine);
   cls.addGetSet(
-      "value", [](void* self) -> JSON::Value
-      { return static_cast<double>(static_cast<Thing*>(self)->value); },
+      "value", [](void* self) -> JSON::Value { return static_cast<double>(static_cast<Thing*>(self)->value); },
       nullptr);
 
   auto shared = std::make_shared<Thing>();
   shared->value = 99;
-  engine->addAPIFunction("getThing", [shared](JSON::Array&) -> JSON::Value
-                         { return JSON::makeNative(shared); });
+  engine->addAPIFunction("getThing", [shared](JSON::Array&) -> JSON::Value { return JSON::makeNative(shared); });
 
   EXPECT_DOUBLE_EQ(99.0, run("getThing().value;").number());
   // The same native pointer maps to the same JS wrapper.
@@ -332,8 +310,7 @@ TEST_F(InterpreterTest, NativeInstancesReturnedFromApiFunctionsAreWrappedByType)
 
 TEST_F(InterpreterTest, NativeExceptionsBecomeCatchableJsErrors)
 {
-  engine->addAPIFunction("explode", [](JSON::Array&) -> JSON::Value
-                         { throw std::runtime_error{"native boom"}; });
+  engine->addAPIFunction("explode", [](JSON::Array&) -> JSON::Value { throw std::runtime_error{"native boom"}; });
 
   JSON::Value v = run("var msg = 'none'; try { explode(); } catch (e) { msg = "
                       "e.message; } msg;");
@@ -356,8 +333,7 @@ TEST_F(InterpreterTest, NativeObjectsAreReleasedWhenTheInterpreterIsDestroyed)
   {
     auto local = di::inject<Interpreter>("js");
     addThingClass(*local);
-    local->eval("var keep = [new Thing(), new Thing()];", "t",
-                Interpreter::EvalType::Script);
+    local->eval("var keep = [new Thing(), new Thing()];", "t", Interpreter::EvalType::Script);
     EXPECT_EQ(2, Thing::liveCount);
   }
   EXPECT_EQ(0, Thing::liveCount);

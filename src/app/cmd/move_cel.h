@@ -23,8 +23,7 @@ using namespace doc;
 class MoveCel : public CmdSequence
 {
 public:
-  MoveCel(const LayerImage* srcLayer, frame_t srcFrame,
-          const LayerImage* dstLayer, frame_t dstFrame, bool continuous);
+  MoveCel(const LayerImage* srcLayer, frame_t srcFrame, const LayerImage* dstLayer, frame_t dstFrame, bool continuous);
 
 protected:
   void onExecute() override;

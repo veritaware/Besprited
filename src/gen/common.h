@@ -10,8 +10,7 @@
 #include <cctype>
 #include <string>
 
-inline std::string convert_xmlid_to_cppid(const std::string& xmlid,
-                                          bool firstLetterUpperCase)
+inline std::string convert_xmlid_to_cppid(const std::string& xmlid, bool firstLetterUpperCase)
 {
   bool firstLetter = firstLetterUpperCase;
   std::string cppid;

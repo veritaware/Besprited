@@ -52,10 +52,7 @@ public:
   void right(const T& right) { m_right = right; }
   void bottom(const T& bottom) { m_bottom = bottom; }
 
-  [[nodiscard]] SizeT<T> size() const
-  {
-    return SizeT<T>(m_left + m_right, m_top + m_bottom);
-  }
+  [[nodiscard]] SizeT<T> size() const { return SizeT<T>(m_left + m_right, m_top + m_bottom); }
 
   const BorderT& operator+=(const BorderT& br)
   {
@@ -131,67 +128,54 @@ public:
 
   BorderT operator+(const BorderT& br) const
   {
-    return BorderT(m_left + br.left(), m_top + br.top(), m_right + br.right(),
-                   m_bottom + br.bottom());
+    return BorderT(m_left + br.left(), m_top + br.top(), m_right + br.right(), m_bottom + br.bottom());
   }
 
   BorderT operator-(const BorderT& br) const
   {
-    return BorderT(m_left - br.left(), m_top - br.top(), m_right - br.right(),
-                   m_bottom - br.bottom());
+    return BorderT(m_left - br.left(), m_top - br.top(), m_right - br.right(), m_bottom - br.bottom());
   }
 
   BorderT operator*(const BorderT& br) const
   {
-    return BorderT(m_left * br.left(), m_top * br.top(), m_right * br.right(),
-                   m_bottom * br.bottom());
+    return BorderT(m_left * br.left(), m_top * br.top(), m_right * br.right(), m_bottom * br.bottom());
   }
 
   BorderT operator/(const BorderT& br) const
   {
-    return BorderT(m_left / br.left(), m_top / br.top(), m_right / br.right(),
-                   m_bottom / br.bottom());
+    return BorderT(m_left / br.left(), m_top / br.top(), m_right / br.right(), m_bottom / br.bottom());
   }
 
   BorderT operator+(const T& value) const
   {
-    return BorderT(m_left + value, m_top + value, m_right + value,
-                   m_bottom + value);
+    return BorderT(m_left + value, m_top + value, m_right + value, m_bottom + value);
   }
 
   BorderT operator-(const T& value) const
   {
-    return BorderT(m_left - value, m_top - value, m_right - value,
-                   m_bottom - value);
+    return BorderT(m_left - value, m_top - value, m_right - value, m_bottom - value);
   }
 
   BorderT operator*(const T& value) const
   {
-    return BorderT(m_left * value, m_top * value, m_right * value,
-                   m_bottom * value);
+    return BorderT(m_left * value, m_top * value, m_right * value, m_bottom * value);
   }
 
   BorderT operator/(const T& value) const
   {
-    return BorderT(m_left / value, m_top / value, m_right / value,
-                   m_bottom / value);
+    return BorderT(m_left / value, m_top / value, m_right / value, m_bottom / value);
   }
 
-  BorderT operator-() const
-  {
-    return BorderT(-m_left, -m_top, -m_right, -m_bottom);
-  }
+  BorderT operator-() const { return BorderT(-m_left, -m_top, -m_right, -m_bottom); }
 
   bool operator==(const BorderT& br) const
   {
-    return m_left == br.m_left && m_top == br.m_top && m_right == br.m_right &&
-           m_bottom == br.m_bottom;
+    return m_left == br.m_left && m_top == br.m_top && m_right == br.m_right && m_bottom == br.m_bottom;
   }
 
   bool operator!=(const BorderT& br) const
   {
-    return m_left != br.m_left || m_top != br.m_top || m_right != br.m_right ||
-           m_bottom != br.m_bottom;
+    return m_left != br.m_left || m_top != br.m_top || m_right != br.m_right || m_bottom != br.m_bottom;
   }
 
 private:

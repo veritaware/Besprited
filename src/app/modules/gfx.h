@@ -18,11 +18,9 @@ namespace app
 {
 using namespace doc;
 
-void draw_color(ui::Graphics* g, const gfx::Rect& rc, const app::Color& color,
-                const doc::ColorMode colorMode);
+void draw_color(ui::Graphics* g, const gfx::Rect& rc, const app::Color& color, const doc::ColorMode colorMode);
 
-void draw_color_button(ui::Graphics* g, const gfx::Rect& rc,
-                       const app::Color& color, const doc::ColorMode colorMode,
+void draw_color_button(ui::Graphics* g, const gfx::Rect& rc, const app::Color& color, const doc::ColorMode colorMode,
                        const bool hot, const bool drag);
 
 } // namespace app

@@ -74,10 +74,7 @@ public:
     return font;
   }
 
-  Font* loadTrueTypeFont(const char* filename, int height) override
-  {
-    return loadFreeTypeFont(filename, height);
-  }
+  Font* loadTrueTypeFont(const char* filename, int height) override { return loadFreeTypeFont(filename, height); }
 
 private:
   NativeDialogs* m_nativeDialogs;

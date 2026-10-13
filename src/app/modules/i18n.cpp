@@ -37,8 +37,7 @@ void loadLanguage(const std::string& language)
 
   if (!file)
   {
-    std::cout << "Could not load translations for language: " << language
-              << '\n';
+    std::cout << "Could not load translations for language: " << language << '\n';
     return;
   }
 

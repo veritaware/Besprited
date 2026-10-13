@@ -69,8 +69,7 @@ protected:
 private:
   std::string docConfigFileName(const app::Document* doc);
 
-  void serializeDocPref(const app::Document* doc,
-                        app::DocumentPreferences* docPref, bool save);
+  void serializeDocPref(const app::Document* doc, app::DocumentPreferences* docPref, bool save);
 
   std::map<std::string, app::ToolPreferences*> m_tools;
   std::map<const app::Document*, app::DocumentPreferences*> m_docs;

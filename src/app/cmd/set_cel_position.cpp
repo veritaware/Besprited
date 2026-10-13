@@ -20,8 +20,7 @@ namespace app::cmd
 
 using namespace doc;
 
-SetCelPosition::SetCelPosition(const std::shared_ptr<Cel>& cel, const int x,
-                               const int y)
+SetCelPosition::SetCelPosition(const std::shared_ptr<Cel>& cel, const int x, const int y)
   : WithCel(cel)
   , m_oldX(cel->x())
   , m_oldY(cel->y())
@@ -48,8 +47,7 @@ void SetCelPosition::onFireNotifications()
   DocumentEvent ev(cel->document());
   ev.sprite(cel->sprite());
   ev.cel(cel);
-  cel->document()->notifyObservers<DocumentEvent&>(
-      &DocumentObserver::onCelPositionChanged, ev);
+  cel->document()->notifyObservers<DocumentEvent&>(&DocumentObserver::onCelPositionChanged, ev);
 }
 
 } // namespace app::cmd

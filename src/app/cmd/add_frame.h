@@ -32,10 +32,7 @@ public:
 protected:
   void onExecute() override;
   void onUndo() override;
-  [[nodiscard]] size_t onMemSize() const override
-  {
-    return sizeof(*this) + (m_addCel ? m_addCel->memSize() : 0);
-  }
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this) + (m_addCel ? m_addCel->memSize() : 0); }
 
 private:
   frame_t m_newFrame;

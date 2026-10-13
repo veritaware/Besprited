@@ -46,8 +46,7 @@ void SetTotalFrames::onFireNotifications()
   DocumentEvent ev(doc);
   ev.sprite(sprite);
   ev.frame(sprite->totalFrames());
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onTotalFramesChanged,
-                                       ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onTotalFramesChanged, ev);
 }
 
 } // namespace app::cmd

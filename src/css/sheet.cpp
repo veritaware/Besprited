@@ -74,9 +74,8 @@ Query Sheet::query(const StatefulStyle& compound)
   // base1:state1
   // base0:state2
   // base0:state1
-  for (auto state_it = compound.states().rbegin(),
-            state_end = compound.states().rend();
-       state_it != state_end; ++state_it)
+  for (auto state_it = compound.states().rbegin(), state_end = compound.states().rend(); state_it != state_end;
+       ++state_it)
   {
     for (style = firstStyle; style != nullptr; style = style->base())
     {

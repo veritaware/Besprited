@@ -22,8 +22,7 @@ namespace gfx
 
 ostream& operator<<(ostream& os, const Rect& rect)
 {
-  return os << "(" << rect.x << ", " << rect.y << ", " << rect.w << ", "
-            << rect.h << ")";
+  return os << "(" << rect.x << ", " << rect.y << ", " << rect.w << ", " << rect.h << ")";
 }
 
 } // namespace gfx

@@ -53,8 +53,7 @@ void load_default_palette(const std::string& userDefined)
   // Load default palette file
   else
   {
-    std::string defaultPalName =
-        get_preset_palette_filename(get_default_palette_preset_name(), ".ase");
+    std::string defaultPalName = get_preset_palette_filename(get_default_palette_preset_name(), ".ase");
 
     // If there is no palette in command line, we use the default one.
     palFile = defaultPalName;
@@ -65,8 +64,7 @@ void load_default_palette(const std::string& userDefined)
     else
     {
       // Migrate old default.gpl to default.ase format
-      palFile = get_preset_palette_filename(get_default_palette_preset_name(),
-                                            ".gpl");
+      palFile = get_preset_palette_filename(get_default_palette_preset_name(), ".gpl");
 
       if (base::is_file(palFile))
       {
@@ -178,8 +176,7 @@ bool set_current_palette(const Palette* _palette, bool forced)
   return ret;
 }
 
-std::string get_preset_palette_filename(const std::string& preset,
-                                        const std::string& dot_extension)
+std::string get_preset_palette_filename(const std::string& preset, const std::string& dot_extension)
 {
   ResourceFinder rf;
   rf.includeUserDir(base::join_path("palettes", ".").c_str());

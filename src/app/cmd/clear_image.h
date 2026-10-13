@@ -25,10 +25,7 @@ public:
 protected:
   void onExecute() override;
   void onUndo() override;
-  [[nodiscard]] size_t onMemSize() const override
-  {
-    return sizeof(*this) + (m_copy ? m_copy->getMemSize() : 0);
-  }
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this) + (m_copy ? m_copy->getMemSize() : 0); }
 
 private:
   ImageRef m_copy;

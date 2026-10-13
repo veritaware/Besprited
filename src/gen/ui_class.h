@@ -10,5 +10,4 @@
 #include <string>
 #include "tinyxml2.h"
 
-void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn,
-                  const std::string& widgetId);
+void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn, const std::string& widgetId);

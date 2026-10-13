@@ -23,8 +23,7 @@ using namespace doc;
 
 TrimCel::TrimCel(const std::shared_ptr<Cel>& cel)
 {
-  if (gfx::Rect newBounds; algorithm::shrink_bounds(cel->image(), newBounds,
-                                                    cel->image()->maskColor()))
+  if (gfx::Rect newBounds; algorithm::shrink_bounds(cel->image(), newBounds, cel->image()->maskColor()))
   {
     newBounds.offset(cel->position());
     m_subCmd = new CropCel(cel, newBounds);

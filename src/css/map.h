@@ -53,10 +53,7 @@ public:
 
   void add(const std::string& name, T value) { m_map[name] = value; }
 
-  [[nodiscard]] bool exists(const std::string& name) const
-  {
-    return (m_map.find(name) != m_map.end());
-  }
+  [[nodiscard]] bool exists(const std::string& name) const { return (m_map.find(name) != m_map.end()); }
 
 private:
   map m_map;

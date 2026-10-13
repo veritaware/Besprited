@@ -28,8 +28,7 @@ TEST(DocumentApi, MoveCel)
   TestContextT<app::Context> ctx;
   DocumentPtr doc(static_cast<app::Document*>(ctx.documents().add(32, 16)));
   Sprite* sprite = doc->sprite();
-  LayerImage* layer1 =
-      dynamic_cast<LayerImage*>(sprite->folder()->getFirstLayer());
+  LayerImage* layer1 = dynamic_cast<LayerImage*>(sprite->folder()->getFirstLayer());
   LayerImage* layer2 = new LayerImage(sprite);
 
   auto cel1 = layer1->cel(frame_t(0));

@@ -302,8 +302,7 @@ KeyModifiers get_modifiers_from_last_win32_message()
   int modifiers = kKeyNoneModifier;
   if ((GetKeyState(VK_LSHIFT) & 0x8000) || (GetKeyState(VK_RSHIFT) & 0x8000))
     modifiers |= kKeyShiftModifier;
-  if ((GetKeyState(VK_LCONTROL) & 0x8000) ||
-      (GetKeyState(VK_RCONTROL) & 0x8000))
+  if ((GetKeyState(VK_LCONTROL) & 0x8000) || (GetKeyState(VK_RCONTROL) & 0x8000))
     modifiers |= kKeyCtrlModifier;
   if ((GetKeyState(VK_LMENU) & 0x8000) || (GetKeyState(VK_RMENU) & 0x8000))
     modifiers |= kKeyAltModifier;

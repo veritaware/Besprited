@@ -21,8 +21,7 @@ namespace
 // Saves `doc` (already positioned at `filename`) as .qoi, reloads it and
 // returns the reloaded document, or nullptr if either step failed. `doc`
 // is closed and deleted either way.
-app::Document* roundTrip(app::Context& ctx, doc::Document* doc,
-                         const char* filename)
+app::Document* roundTrip(app::Context& ctx, doc::Document* doc, const char* filename)
 {
   doc->setFilename(filename);
   int saveResult = save_document(&ctx, doc);
@@ -49,8 +48,7 @@ TEST(QoiFormat, RgbRoundTripPreservesEveryPixelIncludingAlpha)
     for (int x = 0; x < w; ++x)
     {
       put_pixel(image, x, y,
-                doc::rgba((x * 37) & 0xff, (y * 53) & 0xff,
-                          ((x + y) * 11) & 0xff,
+                doc::rgba((x * 37) & 0xff, (y * 53) & 0xff, ((x + y) * 11) & 0xff,
                           (x + y) % 3 == 0   ? 0
                           : (x + y) % 3 == 1 ? 128
                                              : 255));
@@ -69,13 +67,11 @@ TEST(QoiFormat, RgbRoundTripPreservesEveryPixelIncludingAlpha)
   {
     for (int x = 0; x < w; ++x)
     {
-      color_t expected =
-          doc::rgba((x * 37) & 0xff, (y * 53) & 0xff, ((x + y) * 11) & 0xff,
-                    (x + y) % 3 == 0   ? 0
-                    : (x + y) % 3 == 1 ? 128
-                                       : 255);
-      EXPECT_EQ(expected, loadedImage->getPixel(x, y))
-          << "at (" << x << "," << y << ")";
+      color_t expected = doc::rgba((x * 37) & 0xff, (y * 53) & 0xff, ((x + y) * 11) & 0xff,
+                                   (x + y) % 3 == 0   ? 0
+                                   : (x + y) % 3 == 1 ? 128
+                                                      : 255);
+      EXPECT_EQ(expected, loadedImage->getPixel(x, y)) << "at (" << x << "," << y << ")";
     }
   }
 
@@ -118,9 +114,7 @@ TEST(QoiFormat, LargerImageWithVariedContentRoundTrips)
   {
     for (int x = 0; x < w; ++x)
     {
-      put_pixel(image, x, y,
-                doc::rgba(std::rand() % 256, std::rand() % 256,
-                          std::rand() % 256, std::rand() % 256));
+      put_pixel(image, x, y, doc::rgba(std::rand() % 256, std::rand() % 256, std::rand() % 256, std::rand() % 256));
     }
   }
 
@@ -140,8 +134,7 @@ TEST(QoiFormat, LargerImageWithVariedContentRoundTrips)
   Image* loadedImage = loadedLayer->cel(frame_t(0))->image();
   for (int y = 0; y < h; ++y)
     for (int x = 0; x < w; ++x)
-      ASSERT_EQ(expected[y * w + x], loadedImage->getPixel(x, y))
-          << "at (" << x << "," << y << ")";
+      ASSERT_EQ(expected[y * w + x], loadedImage->getPixel(x, y)) << "at (" << x << "," << y << ")";
 
   loaded->close();
   delete loaded;

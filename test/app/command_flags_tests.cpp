@@ -55,8 +55,7 @@ TEST_F(CommandFlagsTest, EveryRegisteredCommandConstructsWithNonEmptyId)
 
 TEST_F(CommandFlagsTest, GetCommandByNameFindsAKnownCommand)
 {
-  app::Command* cmd =
-      app::CommandsModule::instance()->getCommandByName(app::CommandId::Undo);
+  app::Command* cmd = app::CommandsModule::instance()->getCommandByName(app::CommandId::Undo);
   ASSERT_NE(cmd, nullptr);
   EXPECT_EQ(cmd->id(), app::CommandId::Undo);
 }
@@ -70,7 +69,5 @@ TEST_F(CommandFlagsTest, GetCommandByNameIsCaseInsensitive)
 
 TEST_F(CommandFlagsTest, GetCommandByNameReturnsNullForUnknownName)
 {
-  EXPECT_EQ(
-      app::CommandsModule::instance()->getCommandByName("NotARealCommand"),
-      nullptr);
+  EXPECT_EQ(app::CommandsModule::instance()->getCommandByName("NotARealCommand"), nullptr);
 }

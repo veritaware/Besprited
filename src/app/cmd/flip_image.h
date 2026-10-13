@@ -27,8 +27,7 @@ class FlipImage : public Cmd,
                   public WithImage
 {
 public:
-  FlipImage(const Image* image, const gfx::Rect& bounds,
-            algorithm::FlipType flipType);
+  FlipImage(const Image* image, const gfx::Rect& bounds, algorithm::FlipType flipType);
 
 protected:
   void onExecute() override;

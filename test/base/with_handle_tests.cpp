@@ -70,8 +70,7 @@ TEST(WithHandle, GetReturnsNullOnTypeMismatch)
 TEST(WithHandle, GetWithDerivedCastsDownWhenTypeMatches)
 {
   auto* obj = new SubFoo();
-  Handle h =
-      obj->handle(); // constructed against Foo (the WithHandle<Foo> base)
+  Handle h = obj->handle(); // constructed against Foo (the WithHandle<Foo> base)
 
   SubFoo* back = h.get<Foo, SubFoo>();
   ASSERT_NE(nullptr, back);

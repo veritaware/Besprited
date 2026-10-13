@@ -44,15 +44,14 @@ uint16_t getU16LE(const std::vector<uint8_t>& buf, std::size_t offset)
 
 uint32_t getU32LE(const std::vector<uint8_t>& buf, std::size_t offset)
 {
-  return uint32_t(buf[offset]) | (uint32_t(buf[offset + 1]) << 8) |
-         (uint32_t(buf[offset + 2]) << 16) | (uint32_t(buf[offset + 3]) << 24);
+  return uint32_t(buf[offset]) | (uint32_t(buf[offset + 1]) << 8) | (uint32_t(buf[offset + 2]) << 16) |
+         (uint32_t(buf[offset + 3]) << 24);
 }
 
 std::vector<uint8_t> readWholeFile(const std::string& path)
 {
   std::ifstream in(path, std::ios::binary);
-  return std::vector<uint8_t>(std::istreambuf_iterator<char>(in),
-                              std::istreambuf_iterator<char>());
+  return std::vector<uint8_t>(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
 }
 
 void writeWholeFile(const std::string& path, const std::vector<uint8_t>& data)
@@ -63,14 +62,13 @@ void writeWholeFile(const std::string& path, const std::vector<uint8_t>& data)
 
 // Creates a 1x1 image layer holding "color" at frame 0 and appends it to
 // "parent" (which may be the sprite's root folder or a group folder).
-doc::LayerImage* addImageLayer(doc::Sprite* sprite, doc::LayerFolder* parent,
-                               const std::string& name, doc::color_t color)
+doc::LayerImage* addImageLayer(doc::Sprite* sprite, doc::LayerFolder* parent, const std::string& name,
+                               doc::color_t color)
 {
   auto* layer = new doc::LayerImage(sprite);
   layer->setName(name);
 
-  doc::ImageRef image(doc::Image::create(sprite->pixelFormat(), sprite->width(),
-                                         sprite->height()));
+  doc::ImageRef image(doc::Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
   doc::put_pixel(image.get(), 0, 0, color);
 
   auto cel = std::make_shared<doc::Cel>(doc::frame_t(0), image);
@@ -92,8 +90,7 @@ bool hasAnyFolder(doc::LayerFolder* folder)
 
 } // namespace
 
-TEST(AseFormat,
-     ColorProfileChunkIsToleratedNotTreatedAsAnUnsupportedChunkWarning)
+TEST(AseFormat, ColorProfileChunkIsToleratedNotTreatedAsAnUnsupportedChunkWarning)
 {
   // Save a minimal, real .ase file, then splice in a synthetic 0x2007
   // (ASE_FILE_CHUNK_COLOR_PROFILE) chunk as an extra chunk of the (only)
@@ -140,8 +137,7 @@ TEST(AseFormat,
 
   uint32_t oldFrameSize = getU32LE(bytes, frameSizeOff);
   uint16_t oldChunkCount = getU16LE(bytes, chunkCountOff);
-  ASSERT_EQ(bytes.size(), frameHeaderStart + oldFrameSize)
-      << "single-frame file: the frame must run to EOF";
+  ASSERT_EQ(bytes.size(), frameHeaderStart + oldFrameSize) << "single-frame file: the frame must run to EOF";
 
   // New chunk: 6-byte chunk header (size, type) + 16-byte color-profile
   // payload (type u16, flags u16, gamma u32, 8 bytes padding), matching
@@ -169,8 +165,7 @@ TEST(AseFormat,
   Image* loadedImage = loadedLayer->cel(frame_t(0))->image();
   for (int y = 0; y < h; ++y)
     for (int x = 0; x < w; ++x)
-      EXPECT_EQ(doc::rgba(x * 50, y * 60, 10, 255), loadedImage->getPixel(x, y))
-          << "at (" << x << "," << y << ")";
+      EXPECT_EQ(doc::rgba(x * 50, y * 60, 10, 255), loadedImage->getPixel(x, y)) << "at (" << x << "," << y << ")";
 
   loaded->close();
   delete loaded;
@@ -246,8 +241,7 @@ TEST(AseFormat, OversizedCelDimensionsDoNotOverflowTheDecompressionBufferSize)
   // which is precisely why the fix's `static_cast<long>` is necessary.
   const int width = 50000, height = 50000; // 2.5e9 pixels, indexed (1 byte/px)
 
-  long correct =
-      static_cast<long>(height) * doc::IndexedTraits::getRowStrideBytes(width);
+  long correct = static_cast<long>(height) * doc::IndexedTraits::getRowStrideBytes(width);
   const long truePixelCount = 50000L * 50000L;
 
   EXPECT_EQ(truePixelCount, correct);
@@ -319,8 +313,7 @@ TEST(AseFormat, LayerGroupsAreFlattenedToTopLevelLayersOnLoad)
   doc::Layer* base = root->getFirstLayer();
   ASSERT_TRUE(base != nullptr);
   base->setName("Base");
-  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0,
-                 doc::rgba(10, 10, 10, 255));
+  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0, doc::rgba(10, 10, 10, 255));
 
   auto* g1 = new doc::LayerFolder(sprite);
   g1->setName("G1");
@@ -343,26 +336,22 @@ TEST(AseFormat, LayerGroupsAreFlattenedToTopLevelLayersOnLoad)
   ASSERT_NE(nullptr, loaded);
 
   doc::LayerFolder* loadedRoot = loaded->sprite()->folder();
-  EXPECT_FALSE(hasAnyFolder(loadedRoot))
-      << "no group should survive AseFormat::onPostLoad's flattening";
+  EXPECT_FALSE(hasAnyFolder(loadedRoot)) << "no group should survive AseFormat::onPostLoad's flattening";
 
   ASSERT_EQ(5, loadedRoot->getLayersCount());
 
-  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(),
-                                  loadedRoot->getLayerEnd());
+  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(), loadedRoot->getLayerEnd());
   const char* expectedNames[] = {"Base", "G1-A", "G1-B", "G1-G2-C", "Top"};
-  const doc::color_t expectedColors[] = {
-      doc::rgba(10, 10, 10, 255), doc::rgba(20, 20, 20, 255),
-      doc::rgba(30, 30, 30, 255), doc::rgba(40, 40, 40, 255),
-      doc::rgba(50, 50, 50, 255)};
+  const doc::color_t expectedColors[] = {doc::rgba(10, 10, 10, 255), doc::rgba(20, 20, 20, 255),
+                                         doc::rgba(30, 30, 30, 255), doc::rgba(40, 40, 40, 255),
+                                         doc::rgba(50, 50, 50, 255)};
 
   for (int i = 0; i < 5; ++i)
   {
     SCOPED_TRACE(i);
     ASSERT_TRUE(layers[i]->isImage());
     EXPECT_EQ(expectedNames[i], layers[i]->name());
-    EXPECT_EQ(expectedColors[i],
-              doc::get_pixel(layers[i]->cel(doc::frame_t(0))->image(), 0, 0));
+    EXPECT_EQ(expectedColors[i], doc::get_pixel(layers[i]->cel(doc::frame_t(0))->image(), 0, 0));
 
     // The flat stacking order the timeline depends on: indexToLayer's
     // depth-first walk must agree with the root's own child order once
@@ -391,8 +380,7 @@ TEST(AseFormat, FileWithoutGroupsIsUntouchedByFlattening)
 
   doc::Layer* base = root->getFirstLayer();
   base->setName("Base");
-  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0,
-                 doc::rgba(10, 10, 10, 255));
+  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0, doc::rgba(10, 10, 10, 255));
   addImageLayer(sprite, root, "Middle", doc::rgba(20, 20, 20, 255));
   addImageLayer(sprite, root, "Top", doc::rgba(30, 30, 30, 255));
 
@@ -406,8 +394,7 @@ TEST(AseFormat, FileWithoutGroupsIsUntouchedByFlattening)
   doc::LayerFolder* loadedRoot = loaded->sprite()->folder();
   ASSERT_EQ(3, loadedRoot->getLayersCount());
 
-  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(),
-                                  loadedRoot->getLayerEnd());
+  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(), loadedRoot->getLayerEnd());
   const char* expectedNames[] = {"Base", "Middle", "Top"};
   for (int i = 0; i < 3; ++i)
   {
@@ -437,8 +424,7 @@ TEST(AseFormat, DeeplyNestedGroupDropIsReparentedToRootNotCrashing)
 
   doc::Layer* base = root->getFirstLayer();
   base->setName("Base");
-  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0,
-                 doc::rgba(1, 1, 1, 255));
+  doc::put_pixel(base->cel(doc::frame_t(0))->image(), 0, 0, doc::rgba(1, 1, 1, 255));
 
   auto* g1 = new doc::LayerFolder(sprite);
   g1->setName("G1");
@@ -457,16 +443,14 @@ TEST(AseFormat, DeeplyNestedGroupDropIsReparentedToRootNotCrashing)
   doc->close();
   delete doc;
 
-  app::Document* loaded =
-      load_document(&ctx, "ase_deep_nested_groups_test.ase");
+  app::Document* loaded = load_document(&ctx, "ase_deep_nested_groups_test.ase");
   ASSERT_NE(nullptr, loaded);
 
   doc::LayerFolder* loadedRoot = loaded->sprite()->folder();
   EXPECT_FALSE(hasAnyFolder(loadedRoot));
   ASSERT_EQ(3, loadedRoot->getLayersCount());
 
-  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(),
-                                  loadedRoot->getLayerEnd());
+  std::vector<doc::Layer*> layers(loadedRoot->getLayerBegin(), loadedRoot->getLayerEnd());
   EXPECT_EQ("Base", layers[0]->name());
   EXPECT_EQ("G1-G2-G3-X", layers[1]->name());
   EXPECT_EQ("Y", layers[2]->name());

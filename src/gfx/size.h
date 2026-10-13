@@ -51,15 +51,9 @@ public:
   {
   }
 
-  [[nodiscard]] SizeT createUnion(const SizeT& sz) const
-  {
-    return SizeT(std::max(w, sz.w), std::max(h, sz.h));
-  }
+  [[nodiscard]] SizeT createUnion(const SizeT& sz) const { return SizeT(std::max(w, sz.w), std::max(h, sz.h)); }
 
-  [[nodiscard]] SizeT createIntersection(const SizeT& sz) const
-  {
-    return SizeT(std::min(w, sz.w), std::min(h, sz.h));
-  }
+  [[nodiscard]] SizeT createIntersection(const SizeT& sz) const { return SizeT(std::min(w, sz.w), std::min(h, sz.h)); }
 
   const SizeT& operator=(const SizeT& sz)
   {

@@ -33,8 +33,7 @@ std::optional<std::string> resolveAll(const std::string& name)
 // A resolver that only "finds" names in the given allow-list - used to
 // exercise the "preferred candidate isn't available, fall back to the
 // next one" path.
-std::function<std::optional<std::string>(const std::string&)>
-resolveOnly(std::initializer_list<std::string> allowed)
+std::function<std::optional<std::string>(const std::string&)> resolveOnly(std::initializer_list<std::string> allowed)
 {
   std::vector<std::string> list(allowed);
   return [list](const std::string& name) -> std::optional<std::string>
@@ -112,8 +111,7 @@ TEST(SkinThemeFonts, ALangMatchingEntryIsPreferredOverTheLanguagelessDefault)
 
   ASSERT_EQ(2u, mainFonts.size());
   EXPECT_EQ("japanese.ttf", mainFonts[0].first) << "the lang match goes first";
-  EXPECT_EQ("default.ttf", mainFonts[1].first)
-      << "then the language-less default, as a fallback";
+  EXPECT_EQ("default.ttf", mainFonts[1].first) << "then the language-less default, as a fallback";
 }
 
 TEST(SkinThemeFonts, WithNoLangMatchTheLanguagelessDefaultIsChosen)
@@ -134,8 +132,7 @@ TEST(SkinThemeFonts, WithNoLangMatchTheLanguagelessDefaultIsChosen)
 
   ASSERT_EQ(2u, mainFonts.size());
   EXPECT_EQ("default.ttf", mainFonts[0].first);
-  EXPECT_EQ("japanese.ttf", mainFonts[1].first)
-      << "still offered as a fallback";
+  EXPECT_EQ("japanese.ttf", mainFonts[1].first) << "still offered as a fallback";
 }
 
 TEST(SkinThemeFonts, WhenThePreferredCandidateDoesNotResolveTheNextOneIsUsed)
@@ -152,8 +149,7 @@ TEST(SkinThemeFonts, WhenThePreferredCandidateDoesNotResolveTheNextOneIsUsed)
   )");
 
   std::vector<std::pair<std::string, size_t>> mainFonts, miniFonts;
-  parseFontFamiliesFromSkinXml(*doc, "ja", resolveOnly({"fallback.ttf"}),
-                               mainFonts, miniFonts);
+  parseFontFamiliesFromSkinXml(*doc, "ja", resolveOnly({"fallback.ttf"}), mainFonts, miniFonts);
 
   ASSERT_EQ(1u, mainFonts.size());
   EXPECT_EQ("fallback.ttf", mainFonts[0].first)

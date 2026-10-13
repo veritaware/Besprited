@@ -22,9 +22,8 @@ namespace gfx
 
 ostream& operator<<(ostream& os, const Hsv& hsv)
 {
-  return os << "(" << hsv.hueInt() << ", " << hsv.saturationInt() << ", "
-            << hsv.valueInt() << "); real: (" << hsv.hue() << ", "
-            << hsv.saturation() << ", " << hsv.value() << ")";
+  return os << "(" << hsv.hueInt() << ", " << hsv.saturationInt() << ", " << hsv.valueInt() << "); real: (" << hsv.hue()
+            << ", " << hsv.saturation() << ", " << hsv.value() << ")";
 }
 
 } // namespace gfx

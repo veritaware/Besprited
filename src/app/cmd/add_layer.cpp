@@ -22,8 +22,7 @@ namespace app::cmd
 
 using namespace doc;
 
-AddLayer::AddLayer(const Layer* folder, const Layer* newLayer,
-                   const Layer* afterThis)
+AddLayer::AddLayer(const Layer* folder, const Layer* newLayer, const Layer* afterThis)
   : m_folder(folder)
   , m_newLayer(newLayer)
   , m_afterThis(afterThis)
@@ -84,14 +83,12 @@ void AddLayer::removeLayer(Layer* folder, Layer* layer)
   DocumentEvent ev(doc);
   ev.sprite(layer->sprite());
   ev.layer(layer);
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onBeforeRemoveLayer,
-                                       ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onBeforeRemoveLayer, ev);
 
   dynamic_cast<LayerFolder*>(folder)->removeLayer(layer);
   folder->incrementVersion();
 
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onAfterRemoveLayer,
-                                       ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onAfterRemoveLayer, ev);
 
   delete layer;
 }

@@ -54,8 +54,7 @@ inline gfx::Color blend(const gfx::Color backdrop, gfx::Color src)
 template <typename Base> class GenericDrawColoredRgbaSurface : public Base
 {
 public:
-  void drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx::Color bg,
-                              const gfx::Clip& clipbase) override
+  void drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx::Color bg, const gfx::Clip& clipbase) override
   {
     gfx::Clip clip(clipbase);
     if (!clip.clip(this->width(), this->height(), src->width(), src->height()))
@@ -69,8 +68,7 @@ public:
 
     for (int v = 0; v < clip.size.h; ++v)
     {
-      const auto* ptr = reinterpret_cast<const uint32_t*>(
-          src->getData(clip.src.x, clip.src.y + v));
+      const auto* ptr = reinterpret_cast<const uint32_t*>(src->getData(clip.src.x, clip.src.y + v));
 
       for (int u = 0; u < clip.size.w; ++u)
       {
@@ -95,8 +93,7 @@ public:
 template <typename Base> class GenericDrawTextSurface : public Base
 {
 public:
-  void drawChar(Font* font, gfx::Color fg, gfx::Color bg, int x, int y,
-                int chr) override
+  void drawChar(Font* font, gfx::Color fg, gfx::Color bg, int x, int y, int chr) override
   {
     switch (font->type())
     {
@@ -110,8 +107,7 @@ public:
       {
         Surface* sheet = ssFont->getSurfaceSheet();
         const SurfaceLock lock(sheet);
-        this->drawColoredRgbaSurface(sheet, fg, bg,
-                                     gfx::Clip(x, y, charBounds));
+        this->drawColoredRgbaSurface(sheet, fg, bg, gfx::Clip(x, y, charBounds));
       }
       break;
     }
@@ -130,8 +126,7 @@ public:
     }
   }
 
-  void drawString(Font* font, gfx::Color fg, gfx::Color bg, int x, int y,
-                  const std::string& str) override
+  void drawString(Font* font, gfx::Color fg, gfx::Color bg, int x, int y, const std::string& str) override
   {
     switch (font->type())
     {
@@ -163,16 +158,13 @@ public:
           str,
           [&](const ft::Glyph& glyph)
           {
-            const gfx::Rect origBmpBounds(
-                x + static_cast<int>(glyph.x + glyph.bearingX),
-                y + static_cast<int>(glyph.y + glyph.offsetY),
-                static_cast<int>(glyph.bitmap->width),
-                static_cast<int>(glyph.bitmap->rows));
+            const gfx::Rect origBmpBounds(x + static_cast<int>(glyph.x + glyph.bearingX),
+                                          y + static_cast<int>(glyph.y + glyph.offsetY),
+                                          static_cast<int>(glyph.bitmap->width), static_cast<int>(glyph.bitmap->rows));
             gfx::Rect bmpBounds = origBmpBounds;
             bmpBounds &= clipBounds;
 
-            const gfx::Rect origDstBounds(x + glyph.x, y + glyph.y, glyph.width,
-                                          glyph.height);
+            const gfx::Rect origDstBounds(x + glyph.x, y + glyph.y, glyph.width, glyph.height);
             gfx::Rect dstBounds = origDstBounds;
             dstBounds &= clipBounds;
 
@@ -183,24 +175,20 @@ public:
             {
               for (int v = 0; v < dstBounds.h; ++v)
               {
-                auto* dst_address = reinterpret_cast<uint32_t*>(
-                    this->getData(dstBounds.x, dstBounds.y + v));
+                auto* dst_address = reinterpret_cast<uint32_t*>(this->getData(dstBounds.x, dstBounds.y + v));
                 for (int u = 0; u < dstBounds.w; ++u)
                 {
                   if (!bmpBounds.contains(gfx::Point(u, v)))
                   {
                     const uint32_t backdrop = *dst_address;
-                    const gfx::Color backdropColor =
-                        gfx::rgba(((backdrop & fd.redMask) >> fd.redShift),
-                                  ((backdrop & fd.greenMask) >> fd.greenShift),
-                                  ((backdrop & fd.blueMask) >> fd.blueShift),
-                                  ((backdrop & fd.alphaMask) >> fd.alphaShift));
+                    const gfx::Color backdropColor = gfx::rgba(
+                        ((backdrop & fd.redMask) >> fd.redShift), ((backdrop & fd.greenMask) >> fd.greenShift),
+                        ((backdrop & fd.blueMask) >> fd.blueShift), ((backdrop & fd.alphaMask) >> fd.alphaShift));
                     auto output = blend(backdropColor, bg);
-                    *dst_address =
-                        ((gfx::getr(output) << fd.redShift) & fd.redMask) |
-                        ((gfx::getg(output) << fd.greenShift) & fd.greenMask) |
-                        ((gfx::getb(output) << fd.blueShift) & fd.blueMask) |
-                        ((gfx::geta(output) << fd.alphaShift) & fd.alphaMask);
+                    *dst_address = ((gfx::getr(output) << fd.redShift) & fd.redMask) |
+                                   ((gfx::getg(output) << fd.greenShift) & fd.greenMask) |
+                                   ((gfx::getb(output) << fd.blueShift) & fd.blueMask) |
+                                   ((gfx::geta(output) << fd.alphaShift) & fd.alphaMask);
                     dst_address++;
                   }
                 }
@@ -216,12 +204,9 @@ public:
             for (int v = 0; v < bmpBounds.h; ++v, ++dst_y)
             {
               int bit = 0;
-              const uint8_t* p =
-                  glyph.bitmap->buffer +
-                  static_cast<ptrdiff_t>(v + clippedRows) * glyph.bitmap->pitch;
+              const uint8_t* p = glyph.bitmap->buffer + static_cast<ptrdiff_t>(v + clippedRows) * glyph.bitmap->pitch;
               int dst_x = bmpBounds.x;
-              auto* dst_address =
-                  reinterpret_cast<uint32_t*>(this->getData(dst_x, dst_y));
+              auto* dst_address = reinterpret_cast<uint32_t*>(this->getData(dst_x, dst_y));
 
               // Skip first clipped pixels
               for (int u = 0; u < bmpBounds.x - origBmpBounds.x; ++u)
@@ -261,24 +246,19 @@ public:
 
                 const uint32_t backdrop = *dst_address;
                 const gfx::Color backdropColor =
-                    gfx::rgba(((backdrop & fd.redMask) >> fd.redShift),
-                              ((backdrop & fd.greenMask) >> fd.greenShift),
-                              ((backdrop & fd.blueMask) >> fd.blueShift),
-                              ((backdrop & fd.alphaMask) >> fd.alphaShift));
+                    gfx::rgba(((backdrop & fd.redMask) >> fd.redShift), ((backdrop & fd.greenMask) >> fd.greenShift),
+                              ((backdrop & fd.blueMask) >> fd.blueShift), ((backdrop & fd.alphaMask) >> fd.alphaShift));
 
-                gfx::Color output =
-                    gfx::rgba(gfx::getr(fg), gfx::getg(fg), gfx::getb(fg),
-                              MUL_UN8(fg_alpha, alpha, t));
+                gfx::Color output = gfx::rgba(gfx::getr(fg), gfx::getg(fg), gfx::getb(fg), MUL_UN8(fg_alpha, alpha, t));
                 if (gfx::geta(bg) > 0)
                   output = blend(blend(backdropColor, bg), output);
                 else
                   output = blend(backdropColor, output);
 
-                *dst_address =
-                    ((gfx::getr(output) << fd.redShift) & fd.redMask) |
-                    ((gfx::getg(output) << fd.greenShift) & fd.greenMask) |
-                    ((gfx::getb(output) << fd.blueShift) & fd.blueMask) |
-                    ((gfx::geta(output) << fd.alphaShift) & fd.alphaMask);
+                *dst_address = ((gfx::getr(output) << fd.redShift) & fd.redMask) |
+                               ((gfx::getg(output) << fd.greenShift) & fd.greenMask) |
+                               ((gfx::getb(output) << fd.blueShift) & fd.blueMask) |
+                               ((gfx::geta(output) << fd.alphaShift) & fd.alphaMask);
 
                 ++dst_address;
               }

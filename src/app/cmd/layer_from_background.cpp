@@ -31,9 +31,8 @@ LayerFromBackground::LayerFromBackground(const Layer* layer)
   ASSERT(layer->sprite()->backgroundLayer() != nullptr);
 
   // Remove "Background" and "LockMove" flags
-  const auto newFlags = static_cast<LayerFlags>(
-      static_cast<int>(layer->flags()) &
-      ~static_cast<int>(LayerFlags::BackgroundLayerFlags));
+  const auto newFlags =
+      static_cast<LayerFlags>(static_cast<int>(layer->flags()) & ~static_cast<int>(LayerFlags::BackgroundLayerFlags));
 
   add(new SetLayerFlags(layer, newFlags));
   add(new SetLayerName(layer, "Layer 0"));

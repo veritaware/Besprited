@@ -25,10 +25,7 @@ public:
 protected:
   void onExecute() override;
   void onUndo() override;
-  [[nodiscard]] size_t onMemSize() const override
-  {
-    return sizeof(*this) + m_seq.memSize();
-  }
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this) + m_seq.memSize(); }
 
 private:
   frame_t m_frame;

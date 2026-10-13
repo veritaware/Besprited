@@ -26,8 +26,8 @@ public:
   // pixels from src to dst. If it's true, it means that "onExecute"
   // should do nothing, because modified pixels are alreadt on "dst"
   // (so we use "src" as the original image).
-  CopyRegion(Image* dst, const Image* src, const gfx::Region& region,
-             const gfx::Point& dstPos, bool alreadyCopied = false);
+  CopyRegion(Image* dst, const Image* src, const gfx::Region& region, const gfx::Point& dstPos,
+             bool alreadyCopied = false);
 
 protected:
   void onExecute() override;

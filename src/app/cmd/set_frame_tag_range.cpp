@@ -16,8 +16,7 @@
 namespace app::cmd
 {
 
-SetFrameTagRange::SetFrameTagRange(const FrameTag* tag, const frame_t from,
-                                   const frame_t to)
+SetFrameTagRange::SetFrameTagRange(const FrameTag* tag, const frame_t from, const frame_t to)
   : WithFrameTag(tag)
   , m_oldFrom(tag->fromFrame())
   , m_oldTo(tag->toFrame())

@@ -45,8 +45,7 @@ void SetLayerOpacity::onFireNotifications()
   DocumentEvent ev(doc);
   ev.sprite(layer->sprite());
   ev.layer(layer);
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerOpacityChange,
-                                       ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerOpacityChange, ev);
 }
 
 } // namespace app::cmd

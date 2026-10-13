@@ -47,8 +47,7 @@ void SetLayerName::onFireNotifications()
   DocumentEvent ev(doc);
   ev.sprite(layer->sprite());
   ev.layer(layer);
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerNameChange,
-                                       ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerNameChange, ev);
 }
 
 } // namespace app::cmd

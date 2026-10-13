@@ -33,8 +33,7 @@ Palette* get_current_palette();
 void set_default_palette(const Palette* palette);
 bool set_current_palette(const Palette* palette, bool forced);
 
-std::string get_preset_palette_filename(const std::string& preset,
-                                        const std::string& dot_extension);
+std::string get_preset_palette_filename(const std::string& preset, const std::string& dot_extension);
 std::string get_default_palette_preset_name();
 
 } // namespace app

@@ -94,9 +94,9 @@ extern "C"
 
 #define ROUND(x) (INT(x) + (FRAC(x) > (WORD)0x8000))
 
-#define FIX_MUL(c, a, b)                                                       \
-  (c = (((DWORD)FRAC(a) * FRAC(b)) >> 16) + (DWORD)INT(a) * FRAC(b) +          \
-       (DWORD)INT(b) * FRAC(a) + ((DWORD)INT(a) * INT(b) << 16))
+#define FIX_MUL(c, a, b)                                                                                               \
+  (c = (((DWORD)FRAC(a) * FRAC(b)) >> 16) + (DWORD)INT(a) * FRAC(b) + (DWORD)INT(b) * FRAC(a) +                        \
+       ((DWORD)INT(a) * INT(b) << 16))
 
 #ifdef _WINDLL
 #define FIX_DIV_SC static
@@ -104,27 +104,27 @@ extern "C"
 #define FIX_DIV_SC
 #endif
 
-#define FIX_DIV(c, a, b)                                                       \
-  {                                                                            \
-    FIX_DIV_SC DWORD temp, rem, btemp;                                         \
-                                                                               \
-    /* fraction done bytewise */                                               \
-    temp = ((a / b) << 16);                                                    \
-    rem = a % b;                                                               \
-    btemp = b;                                                                 \
-    if (INT(btemp) < 256)                                                      \
-    {                                                                          \
-      rem <<= 8;                                                               \
-    }                                                                          \
-    else                                                                       \
-    {                                                                          \
-      btemp >>= 8;                                                             \
-    }                                                                          \
-    temp += ((rem / btemp) << 8);                                              \
-    rem %= btemp;                                                              \
-    rem <<= 8;                                                                 \
-    temp += rem / btemp;                                                       \
-    c = temp;                                                                  \
+#define FIX_DIV(c, a, b)                                                                                               \
+  {                                                                                                                    \
+    FIX_DIV_SC DWORD temp, rem, btemp;                                                                                 \
+                                                                                                                       \
+    /* fraction done bytewise */                                                                                       \
+    temp = ((a / b) << 16);                                                                                            \
+    rem = a % b;                                                                                                       \
+    btemp = b;                                                                                                         \
+    if (INT(btemp) < 256)                                                                                              \
+    {                                                                                                                  \
+      rem <<= 8;                                                                                                       \
+    }                                                                                                                  \
+    else                                                                                                               \
+    {                                                                                                                  \
+      btemp >>= 8;                                                                                                     \
+    }                                                                                                                  \
+    temp += ((rem / btemp) << 8);                                                                                      \
+    rem %= btemp;                                                                                                      \
+    rem <<= 8;                                                                                                         \
+    temp += rem / btemp;                                                                                               \
+    c = temp;                                                                                                          \
   }
 #endif
 
@@ -651,18 +651,14 @@ typedef struct tagLOGCONTEXT
     BYTE data[1];       // raw data
   } EXTPROPERTY;
 
-#define TABLET_PROPERTY_CONTROLCOUNT                                           \
-  0 // UINT32: number of physical controls on tablet
-#define TABLET_PROPERTY_FUNCCOUNT 1 // UINT32: number of functions of control
-#define TABLET_PROPERTY_AVAILABLE                                              \
-  2                           // BOOL: control/mode is available for override
-#define TABLET_PROPERTY_MIN 3 // UINT32: minimum value
-#define TABLET_PROPERTY_MAX 4 // UINT32: maximum value
-#define TABLET_PROPERTY_OVERRIDE 5 // BOOL: control is overridden
-#define TABLET_PROPERTY_OVERRIDE_NAME                                          \
-  6 // UTF-8: Displayable name when control is overridden
-#define TABLET_PROPERTY_LOCATION                                               \
-  11 // UINT32: Physical location of control (see TABLET_LOC_*)
+#define TABLET_PROPERTY_CONTROLCOUNT 0  // UINT32: number of physical controls on tablet
+#define TABLET_PROPERTY_FUNCCOUNT 1     // UINT32: number of functions of control
+#define TABLET_PROPERTY_AVAILABLE 2     // BOOL: control/mode is available for override
+#define TABLET_PROPERTY_MIN 3           // UINT32: minimum value
+#define TABLET_PROPERTY_MAX 4           // UINT32: maximum value
+#define TABLET_PROPERTY_OVERRIDE 5      // BOOL: control is overridden
+#define TABLET_PROPERTY_OVERRIDE_NAME 6 // UTF-8: Displayable name when control is overridden
+#define TABLET_PROPERTY_LOCATION 11     // UINT32: Physical location of control (see TABLET_LOC_*)
 
 #define TABLET_LOC_LEFT 0
 #define TABLET_LOC_RIGHT 1
@@ -694,8 +690,7 @@ typedef struct tagLOGCONTEXT
 
 #ifndef NOWTMANAGERFXNS
   /* callback function types */
-  typedef BOOL(WINAPI* WTENUMPROC)(HCTX,
-                                   LPARAM); /* changed CALLBACK->WINAPI, 1.1 */
+  typedef BOOL(WINAPI* WTENUMPROC)(HCTX, LPARAM); /* changed CALLBACK->WINAPI, 1.1 */
   typedef BOOL(WINAPI* WTCONFIGPROC)(HCTX, HWND);
   typedef LRESULT(WINAPI* WTHOOKPROC)(int, WPARAM, LPARAM);
   typedef WTHOOKPROC FAR* LPWTHOOKPROC;

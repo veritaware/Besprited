@@ -35,8 +35,7 @@ protected:
   void onUndo() override;
   [[nodiscard]] size_t onMemSize() const override
   {
-    return sizeof(*this) +
-           sizeof(color_t) * (m_oldColors.size() + m_newColors.size());
+    return sizeof(*this) + sizeof(color_t) * (m_oldColors.size() + m_newColors.size());
   }
 
 private:

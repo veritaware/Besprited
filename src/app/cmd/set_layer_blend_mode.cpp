@@ -19,8 +19,7 @@
 namespace app::cmd
 {
 
-SetLayerBlendMode::SetLayerBlendMode(const LayerImage* layer,
-                                     const BlendMode blendMode)
+SetLayerBlendMode::SetLayerBlendMode(const LayerImage* layer, const BlendMode blendMode)
   : WithLayer(layer)
   , m_oldBlendMode(layer->blendMode())
   , m_newBlendMode(blendMode)
@@ -46,8 +45,7 @@ void SetLayerBlendMode::onFireNotifications()
   DocumentEvent ev(doc);
   ev.sprite(layer->sprite());
   ev.layer(layer);
-  doc->notifyObservers<DocumentEvent&>(
-      &DocumentObserver::onLayerBlendModeChange, ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onLayerBlendModeChange, ev);
 }
 
 } // namespace app::cmd

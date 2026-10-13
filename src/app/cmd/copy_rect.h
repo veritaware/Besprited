@@ -32,10 +32,7 @@ protected:
   void onExecute() override;
   void onUndo() override;
   void onRedo() override;
-  [[nodiscard]] size_t onMemSize() const override
-  {
-    return sizeof(*this) + m_data.size();
-  }
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this) + m_data.size(); }
 
 private:
   void swap();

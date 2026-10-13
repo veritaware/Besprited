@@ -127,10 +127,7 @@ public:
   [[nodiscard]] bool isEmpty() const { return (w <= 0 || h <= 0); }
 
   // Returns the middle point of the rectangle (x+w/2, y+h/2).
-  [[nodiscard]] PointT<T> center() const
-  {
-    return PointT<T>(x + w / 2, y + h / 2);
-  }
+  [[nodiscard]] PointT<T> center() const { return PointT<T>(x + w / 2, y + h / 2); }
 
   // Returns the point in the upper-left corner (that is inside the
   // rectangle).
@@ -234,10 +231,7 @@ public:
     return pt.x >= x && pt.x < x + w && pt.y >= y && pt.y < y + h;
   }
 
-  [[nodiscard]] bool contains(const T& u, const T& v) const
-  {
-    return u >= x && u < x + w && v >= y && v < y + h;
-  }
+  [[nodiscard]] bool contains(const T& u, const T& v) const { return u >= x && u < x + w && v >= y && v < y + h; }
 
   // Returns true if this rectangle entirely contains the rc rectangle.
   [[nodiscard]] bool contains(const RectT& rc) const
@@ -245,8 +239,7 @@ public:
     if (isEmpty() || rc.isEmpty())
       return false;
 
-    return rc.x >= x && rc.x + rc.w <= x + w && rc.y >= y &&
-           rc.y + rc.h <= y + h;
+    return rc.x >= x && rc.x + rc.w <= x + w && rc.y >= y && rc.y + rc.h <= y + h;
   }
 
   // Returns true if the intersection between this rectangle with rc
@@ -268,8 +261,7 @@ public:
       return *this;
     else
       return RectT(PointT<T>(x < rc.x ? x : rc.x, y < rc.y ? y : rc.y),
-                   PointT<T>(x + w > rc.x + rc.w ? x + w : rc.x + rc.w,
-                             y + h > rc.y + rc.h ? y + h : rc.y + rc.h));
+                   PointT<T>(x + w > rc.x + rc.w ? x + w : rc.x + rc.w, y + h > rc.y + rc.h ? y + h : rc.y + rc.h));
   }
 
   // Returns the intersection rectangle between this and rc rectangles.
@@ -277,8 +269,7 @@ public:
   {
     if (intersects(rc))
       return RectT(PointT<T>(x > rc.x ? x : rc.x, y > rc.y ? y : rc.y),
-                   PointT<T>(x + w < rc.x + rc.w ? x + w : rc.x + rc.w,
-                             y + h < rc.y + rc.h ? y + h : rc.y + rc.h));
+                   PointT<T>(x + w < rc.x + rc.w ? x + w : rc.x + rc.w, y + h < rc.y + rc.h ? y + h : rc.y + rc.h));
     else
       return RectT();
   }
@@ -297,37 +288,19 @@ public:
 
   const RectT& operator|=(const RectT& rc) { return *this = createUnion(rc); }
 
-  const RectT& operator&=(const RectT& rc)
-  {
-    return *this = createIntersection(rc);
-  }
+  const RectT& operator&=(const RectT& rc) { return *this = createIntersection(rc); }
 
-  RectT operator+(const BorderT<T>& br) const
-  {
-    return RectT(*this).enlarge(br);
-  }
+  RectT operator+(const BorderT<T>& br) const { return RectT(*this).enlarge(br); }
 
-  RectT operator-(const BorderT<T>& br) const
-  {
-    return RectT(*this).shrink(br);
-  }
+  RectT operator-(const BorderT<T>& br) const { return RectT(*this).shrink(br); }
 
   RectT operator|(const RectT& other) const { return createUnion(other); }
 
-  RectT operator&(const RectT& other) const
-  {
-    return createIntersection(other);
-  }
+  RectT operator&(const RectT& other) const { return createIntersection(other); }
 
-  bool operator==(const RectT& rc) const
-  {
-    return x == rc.x && w == rc.w && y == rc.y && h == rc.h;
-  }
+  bool operator==(const RectT& rc) const { return x == rc.x && w == rc.w && y == rc.y && h == rc.h; }
 
-  bool operator!=(const RectT& rc) const
-  {
-    return x != rc.x || w != rc.w || y != rc.y || h != rc.h;
-  }
+  bool operator!=(const RectT& rc) const { return x != rc.x || w != rc.w || y != rc.y || h != rc.h; }
 };
 
 using Rect = RectT<int>;

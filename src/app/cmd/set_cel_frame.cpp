@@ -52,8 +52,7 @@ void SetCelFrame::onFireNotifications()
   ev.layer(cel->layer());
   ev.cel(cel);
   ev.frame(cel->frame());
-  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onCelFrameChanged,
-                                       ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onCelFrameChanged, ev);
 }
 
 } // namespace app::cmd

@@ -110,8 +110,7 @@ public:
   {
   }
 
-  template <typename Callback>
-  void forEachGlyph(const std::string& str, Callback callback)
+  template <typename Callback> void forEachGlyph(const std::string& str, Callback callback)
   {
     bool use_kerning = (FT_HAS_KERNING(this->m_face) ? true : false);
     FT_UInt prev_glyph = 0;
@@ -127,8 +126,7 @@ public:
       if (use_kerning && prev_glyph && glyph_index)
       {
         FT_Vector kerning;
-        FT_Get_Kerning(m_face, prev_glyph, glyph_index, FT_KERNING_DEFAULT,
-                       &kerning);
+        FT_Get_Kerning(m_face, prev_glyph, glyph_index, FT_KERNING_DEFAULT, &kerning);
         x += kerning.x / 64.0;
       }
 
@@ -136,16 +134,13 @@ public:
       if (glyph)
       {
         glyph->bitmap = &FT_BitmapGlyph(glyph->ft_glyph)->bitmap;
-        const double width =
-            glyph->ft_glyph->advance.x / static_cast<double>(1 << 16);
+        const double width = glyph->ft_glyph->advance.x / static_cast<double>(1 << 16);
         glyph->x = x;
         glyph->y = y;
-        glyph->offsetY = this->height() +
-                         this->descender() // descender is negative
+        glyph->offsetY = this->height() + this->descender() // descender is negative
                          - glyph->bearingY;
         glyph->height = static_cast<int>(this->height());
-        glyph->width = static_cast<int>(
-            std::max<double>(glyph->bearingX + width, glyph->bitmap->width));
+        glyph->width = static_cast<int>(std::max<double>(glyph->bearingX + width, glyph->bitmap->width));
 
         callback(*glyph);
 
@@ -167,10 +162,8 @@ public:
                  [&](Glyph& glyph)
                  {
                    bounds |=
-                       gfx::Rect(static_cast<int>(glyph.x + glyph.bearingX),
-                                 static_cast<int>(glyph.y + glyph.offsetY),
-                                 static_cast<int>(glyph.ft_glyph->advance.x /
-                                                  static_cast<double>(1 << 16)),
+                       gfx::Rect(static_cast<int>(glyph.x + glyph.bearingX), static_cast<int>(glyph.y + glyph.offsetY),
+                                 static_cast<int>(glyph.ft_glyph->advance.x / static_cast<double>(1 << 16)),
                                  static_cast<int>(glyph.bitmap->rows));
                  });
 
@@ -186,17 +179,12 @@ public:
     // Do nothing
   }
 
-  FT_UInt getGlyphIndex(FT_Face face, int charCode)
-  {
-    return FT_Get_Char_Index(face, charCode);
-  }
+  FT_UInt getGlyphIndex(FT_Face face, int charCode) { return FT_Get_Char_Index(face, charCode); }
 
   Glyph* loadGlyph(FT_Face face, FT_UInt glyphIndex, bool antialias)
   {
     FT_Error err =
-        FT_Load_Glyph(face, glyphIndex,
-                      FT_LOAD_RENDER | (antialias ? FT_LOAD_TARGET_NORMAL
-                                                  : FT_LOAD_TARGET_MONO));
+        FT_Load_Glyph(face, glyphIndex, FT_LOAD_RENDER | (antialias ? FT_LOAD_TARGET_NORMAL : FT_LOAD_TARGET_MONO));
     if (err)
       return nullptr;
 

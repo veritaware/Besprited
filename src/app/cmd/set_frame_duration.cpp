@@ -18,8 +18,7 @@
 namespace app::cmd
 {
 
-SetFrameDuration::SetFrameDuration(const Sprite* sprite, const frame_t frame,
-                                   const int duration)
+SetFrameDuration::SetFrameDuration(const Sprite* sprite, const frame_t frame, const int duration)
   : WithSprite(sprite)
   , m_frame(frame)
   , m_oldDuration(sprite->frameDuration(frame))
@@ -46,8 +45,7 @@ void SetFrameDuration::onFireNotifications()
   DocumentEvent ev(doc);
   ev.sprite(sprite);
   ev.frame(m_frame);
-  doc->notifyObservers<DocumentEvent&>(
-      &DocumentObserver::onFrameDurationChanged, ev);
+  doc->notifyObservers<DocumentEvent&>(&DocumentObserver::onFrameDurationChanged, ev);
 }
 
 } // namespace app::cmd

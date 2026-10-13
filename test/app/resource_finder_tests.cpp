@@ -112,8 +112,7 @@ TEST(ResourceFinder, IncludeDataDirCandidateOrderWithXdgSet)
   // 2) $BINDIR/data/filename
   EXPECT_TRUE(paths[1].ends_with("data/skin.png")) << paths[1];
   // 3) $BINDIR/../share/besprited/data/filename
-  EXPECT_TRUE(paths[2].ends_with("../share/besprited/data/skin.png"))
-      << paths[2];
+  EXPECT_TRUE(paths[2].ends_with("../share/besprited/data/skin.png")) << paths[2];
 }
 
 TEST(ResourceFinder, IncludeDataDirCandidateOrderWithoutXdg)
@@ -127,11 +126,9 @@ TEST(ResourceFinder, IncludeDataDirCandidateOrderWithoutXdg)
   auto paths = collectPaths(rf);
   ASSERT_EQ(3u, paths.size());
   // 1) $HOME/.config/besprited/data/filename
-  EXPECT_EQ("/tmp/besprited-test-home/.config/besprited/data/skin.png",
-            paths[0]);
+  EXPECT_EQ("/tmp/besprited-test-home/.config/besprited/data/skin.png", paths[0]);
   EXPECT_TRUE(paths[1].ends_with("data/skin.png")) << paths[1];
-  EXPECT_TRUE(paths[2].ends_with("../share/besprited/data/skin.png"))
-      << paths[2];
+  EXPECT_TRUE(paths[2].ends_with("../share/besprited/data/skin.png")) << paths[2];
 }
 
 #endif // !_WIN32 && !__APPLE__

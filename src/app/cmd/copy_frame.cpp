@@ -22,8 +22,7 @@ namespace app::cmd
 
 using namespace doc;
 
-CopyFrame::CopyFrame(const Sprite* sprite, const frame_t fromFrame,
-                     const frame_t newFrame)
+CopyFrame::CopyFrame(const Sprite* sprite, const frame_t fromFrame, const frame_t newFrame)
   : WithSprite(sprite)
   , m_fromFrame(fromFrame)
   , m_newFrame(newFrame)
@@ -46,9 +45,8 @@ void CopyFrame::onExecute()
   {
     if (Layer* layer = sprite->layer(i); layer->isImage())
     {
-      executeAndAdd(new CopyCel(dynamic_cast<LayerImage*>(layer), fromFrame,
-                                dynamic_cast<LayerImage*>(layer), m_newFrame,
-                                layer->isContinuous()));
+      executeAndAdd(new CopyCel(dynamic_cast<LayerImage*>(layer), fromFrame, dynamic_cast<LayerImage*>(layer),
+                                m_newFrame, layer->isContinuous()));
     }
   }
 }

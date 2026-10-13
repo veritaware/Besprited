@@ -24,10 +24,8 @@ namespace
 
 // Writes a ustar archive at `archivePath` containing one regular-file entry
 // per {name, content} pair in `files`, plus an optional symlink entry.
-void writeTestArchive(
-    const std::string& archivePath,
-    const std::vector<std::pair<std::string, std::string>>& files,
-    const std::string& symlinkName = "", const std::string& symlinkTarget = "")
+void writeTestArchive(const std::string& archivePath, const std::vector<std::pair<std::string, std::string>>& files,
+                      const std::string& symlinkName = "", const std::string& symlinkTarget = "")
 {
   archive* a = archive_write_new();
   archive_write_set_format_ustar(a);
@@ -70,8 +68,7 @@ protected:
 
   void SetUp() override
   {
-    tempDir = base::get_temp_path() + base::path_separator +
-              "besprited_extension_format_test";
+    tempDir = base::get_temp_path() + base::path_separator + "besprited_extension_format_test";
     std::filesystem::remove_all(tempDir);
     base::make_all_directories(tempDir);
 
@@ -87,8 +84,7 @@ protected:
 
 TEST_F(ExtensionFormatTest, ExtractsNestedRegularFilesAndCreatesDirectories)
 {
-  writeTestArchive(archivePath,
-                   {{"a.txt", "hello"}, {"nested/dir/b.txt", "world"}});
+  writeTestArchive(archivePath, {{"a.txt", "hello"}, {"nested/dir/b.txt", "world"}});
 
   FILE* file = fopen(archivePath.c_str(), "rb");
   ASSERT_NE(nullptr, file);
@@ -97,12 +93,10 @@ TEST_F(ExtensionFormatTest, ExtractsNestedRegularFilesAndCreatesDirectories)
   fclose(file);
 
   EXPECT_TRUE(base::is_file(destDir + base::path_separator + "a.txt"));
-  EXPECT_TRUE(
-      base::is_file(destDir + base::path_separator + "nested/dir/b.txt"));
+  EXPECT_TRUE(base::is_file(destDir + base::path_separator + "nested/dir/b.txt"));
 
   std::ifstream in(destDir + base::path_separator + "nested/dir/b.txt");
-  std::string content((std::istreambuf_iterator<char>(in)),
-                      std::istreambuf_iterator<char>());
+  std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
   EXPECT_EQ("world", content);
 }
 
@@ -134,8 +128,7 @@ TEST_F(ExtensionFormatTest, RejectsAbsolutePathEntry)
 
 TEST_F(ExtensionFormatTest, SkipsSymlinkEntriesInsteadOfExtractingThem)
 {
-  writeTestArchive(archivePath, {{"safe.txt", "ok"}}, "link.txt",
-                   "/etc/passwd");
+  writeTestArchive(archivePath, {{"safe.txt", "ok"}}, "link.txt", "/etc/passwd");
 
   FILE* file = fopen(archivePath.c_str(), "rb");
   ASSERT_NE(nullptr, file);
@@ -144,8 +137,7 @@ TEST_F(ExtensionFormatTest, SkipsSymlinkEntriesInsteadOfExtractingThem)
   fclose(file);
 
   EXPECT_TRUE(base::is_file(destDir + base::path_separator + "safe.txt"));
-  EXPECT_FALSE(
-      std::filesystem::exists(destDir + base::path_separator + "link.txt"));
+  EXPECT_FALSE(std::filesystem::exists(destDir + base::path_separator + "link.txt"));
 }
 
 TEST_F(ExtensionFormatTest, RejectsArchiveWithTooManyEntries)

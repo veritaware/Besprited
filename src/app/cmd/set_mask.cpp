@@ -42,8 +42,7 @@ void SetMask::onUndo()
 
 size_t SetMask::onMemSize() const
 {
-  return sizeof(*this) + (m_oldMask ? m_oldMask->getMemSize() : 0) +
-         (m_newMask ? m_newMask->getMemSize() : 0);
+  return sizeof(*this) + (m_oldMask ? m_oldMask->getMemSize() : 0) + (m_newMask ? m_newMask->getMemSize() : 0);
 }
 
 void SetMask::setMask(const Mask* mask) const

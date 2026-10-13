@@ -84,8 +84,7 @@ public:
 
   reference operator*()
   {
-    m_rect = {m_ptr->x1, m_ptr->y1, m_ptr->x2 - m_ptr->x1,
-              m_ptr->y2 - m_ptr->y1};
+    m_rect = {m_ptr->x1, m_ptr->y1, m_ptr->x2 - m_ptr->x1, m_ptr->y2 - m_ptr->y1};
     return m_rect;
   }
 

@@ -20,8 +20,7 @@ namespace app::cmd
 
 using namespace doc;
 
-SetPalette::SetPalette(const Sprite* sprite, const frame_t frame,
-                       const Palette& newPalette)
+SetPalette::SetPalette(const Sprite* sprite, const frame_t frame, const Palette& newPalette)
   : WithSprite(sprite)
   , m_frame(frame)
 {
@@ -38,12 +37,10 @@ SetPalette::SetPalette(const Sprite* sprite, const frame_t frame,
 
   if (m_from >= 0 && m_to >= m_from)
   {
-    if (const int oldColors = MIN(m_to + 1, m_oldNColors) - m_from;
-        oldColors > 0)
+    if (const int oldColors = MIN(m_to + 1, m_oldNColors) - m_from; oldColors > 0)
       m_oldColors.resize(oldColors);
 
-    if (const int newColors = MIN(m_to + 1, m_newNColors) - m_from;
-        newColors > 0)
+    if (const int newColors = MIN(m_to + 1, m_newNColors) - m_from; newColors > 0)
       m_newColors.resize(newColors);
 
     for (int i = 0; i < m_to - m_from + 1; ++i)

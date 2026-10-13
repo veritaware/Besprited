@@ -25,8 +25,7 @@
 // either of those.
 namespace app
 {
-void scanFolder(const std::string& scriptsDir, Command* cmd_run_script,
-                ui::Menu* parent);
+void scanFolder(const std::string& scriptsDir, Command* cmd_run_script, ui::Menu* parent);
 }
 
 using namespace app;
@@ -77,8 +76,7 @@ struct ScriptMenuFixture : public ::testing::Test
     base::remove_directory(d);
   }
 
-  void writeFile(const std::string& relPath,
-                 const std::string& content = "// a script\n")
+  void writeFile(const std::string& relPath, const std::string& content = "// a script\n")
   {
     std::ofstream out(base::join_path(dir, relPath), std::ios::binary);
     out << content;
@@ -148,8 +146,7 @@ TEST_F(ScriptMenuFixture, SubfoldersBecomeSubmenusContainingTheirOwnScripts)
 
   AppMenuItem* sub = findChild("sub");
   ASSERT_NE(nullptr, sub);
-  EXPECT_EQ(nullptr, sub->getCommand())
-      << "a folder item doesn't run a script itself";
+  EXPECT_EQ(nullptr, sub->getCommand()) << "a folder item doesn't run a script itself";
 
   ui::Menu* submenu = sub->getSubmenu();
   ASSERT_NE(nullptr, submenu);
@@ -157,14 +154,12 @@ TEST_F(ScriptMenuFixture, SubfoldersBecomeSubmenusContainingTheirOwnScripts)
   AppMenuItem* nested = nullptr;
   for (auto* w : submenu->children())
   {
-    if (auto* item = dynamic_cast<AppMenuItem*>(w);
-        item && item->text() == "nested.js")
+    if (auto* item = dynamic_cast<AppMenuItem*>(w); item && item->text() == "nested.js")
       nested = item;
   }
   ASSERT_NE(nullptr, nested);
   EXPECT_EQ(&runScriptCmd, nested->getCommand());
-  EXPECT_EQ(base::join_path(base::join_path(dir, "sub"), "nested.js"),
-            nested->getParams().get("filename"));
+  EXPECT_EQ(base::join_path(base::join_path(dir, "sub"), "nested.js"), nested->getParams().get("filename"));
 }
 
 TEST_F(ScriptMenuFixture, AnEmptyDirectoryProducesNoMenuItems)

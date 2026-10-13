@@ -49,8 +49,7 @@ void BackgroundFromLayer::onExecute()
 
   // create a temporary image to draw each frame of the new
   // `Background' layer
-  const ImageRef bg_image(
-      Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
+  const ImageRef bg_image(Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
 
   CelList cels;
   layer->getCels(cels);
@@ -63,10 +62,8 @@ void BackgroundFromLayer::onExecute()
       continue;
 
     clear_image(bg_image.get(), bg_color);
-    render::composite_image(bg_image.get(), cel_image,
-                            sprite->palette(cel->frame()), cel->x(), cel->y(),
-                            MID(0, cel->opacity(), 255),
-                            dynamic_cast<LayerImage*>(layer)->blendMode());
+    render::composite_image(bg_image.get(), cel_image, sprite->palette(cel->frame()), cel->x(), cel->y(),
+                            MID(0, cel->opacity(), 255), dynamic_cast<LayerImage*>(layer)->blendMode());
 
     // now we have to copy the new image (bg_image) to the cel...
     executeAndAdd(new SetCelPosition(cel, 0, 0));
@@ -76,11 +73,9 @@ void BackgroundFromLayer::onExecute()
       executeAndAdd(new SetCelOpacity(cel, 255));
 
     // same size of cel-image and bg-image
-    if (bg_image->width() == cel_image->width() &&
-        bg_image->height() == cel_image->height())
+    if (bg_image->width() == cel_image->width() && bg_image->height() == cel_image->height())
     {
-      executeAndAdd(new CopyRect(cel_image, bg_image.get(),
-                                 gfx::Clip(0, 0, cel_image->bounds())));
+      executeAndAdd(new CopyRect(cel_image, bg_image.get(), gfx::Clip(0, 0, cel_image->bounds())));
     }
     else
     {
@@ -95,8 +90,7 @@ void BackgroundFromLayer::onExecute()
     auto cel = layer->cel(frame);
     if (!cel)
     {
-      const ImageRef cel_image(Image::create(
-          sprite->pixelFormat(), sprite->width(), sprite->height()));
+      const ImageRef cel_image(Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
       clear_image(cel_image.get(), bg_color);
 
       // Create the new cel and add it to the new background layer

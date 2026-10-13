@@ -16,8 +16,8 @@
 namespace app::cmd
 {
 
-CopyRegion::CopyRegion(Image* dst, const Image* src, const gfx::Region& region,
-                       const gfx::Point& dstPos, bool alreadyCopied)
+CopyRegion::CopyRegion(Image* dst, const Image* src, const gfx::Region& region, const gfx::Point& dstPos,
+                       bool alreadyCopied)
   : WithImage(dst)
   , m_size(0)
   , m_alreadyCopied(alreadyCopied)
@@ -37,8 +37,7 @@ CopyRegion::CopyRegion(Image* dst, const Image* src, const gfx::Region& region,
   {
     for (int y = 0; y < rc.h; ++y)
     {
-      m_stream.write(reinterpret_cast<const char*>(src->getPixelAddress(
-                         rc.x - dstPos.x, rc.y - dstPos.y + y)),
+      m_stream.write(reinterpret_cast<const char*>(src->getPixelAddress(rc.x - dstPos.x, rc.y - dstPos.y + y)),
                      src->getRowStrideSize(rc.w));
     }
   }
@@ -69,9 +68,7 @@ void CopyRegion::swap()
   std::stringstream tmp;
   for (const auto& rc : m_region)
     for (int y = 0; y < rc.h; ++y)
-      tmp.write(
-          reinterpret_cast<const char*>(image->getPixelAddress(rc.x, rc.y + y)),
-          image->getRowStrideSize(rc.w));
+      tmp.write(reinterpret_cast<const char*>(image->getPixelAddress(rc.x, rc.y + y)), image->getRowStrideSize(rc.w));
 
   // Restore m_stream into the image
   m_stream.seekg(0, std::ios_base::beg);
@@ -79,9 +76,7 @@ void CopyRegion::swap()
   {
     for (int y = 0; y < rc.h; ++y)
     {
-      m_stream.read(
-          reinterpret_cast<char*>(image->getPixelAddress(rc.x, rc.y + y)),
-          image->getRowStrideSize(rc.w));
+      m_stream.read(reinterpret_cast<char*>(image->getPixelAddress(rc.x, rc.y + y)), image->getRowStrideSize(rc.w));
     }
   }
 

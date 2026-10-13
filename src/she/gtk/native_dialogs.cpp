@@ -53,17 +53,14 @@ public:
     if (FileDialogGTK3::lastUsedDir().empty())
     {
 #ifdef ASEPRITE_DEPRECATED_GLIB_SUPPORT
-      FileDialogGTK3::lastUsedDir() =
-          Glib::get_user_special_dir(G_USER_DIRECTORY_DOCUMENTS);
+      FileDialogGTK3::lastUsedDir() = Glib::get_user_special_dir(G_USER_DIRECTORY_DOCUMENTS);
 #else
-      FileDialogGTK3::lastUsedDir() =
-          Glib::get_user_special_dir(Glib::USER_DIRECTORY_DOCUMENTS);
+      FileDialogGTK3::lastUsedDir() = Glib::get_user_special_dir(Glib::USER_DIRECTORY_DOCUMENTS);
 #endif
     }
     this->set_use_preview_label(false);
     this->set_preview_widget(m_preview);
-    this->signal_update_preview().connect(
-        sigc::mem_fun(this, &FileDialogGTK3::updatePreview));
+    this->signal_update_preview().connect(sigc::mem_fun(this, &FileDialogGTK3::updatePreview));
   }
 
   void on_show() override
@@ -138,13 +135,9 @@ public:
 
   void setTitle(const std::string& title) override { this->set_title(title); }
 
-  void setDefaultExtension(const std::string& extension) override
-  {
-    m_default_extension = extension;
-  }
+  void setDefaultExtension(const std::string& extension) override { m_default_extension = extension; }
 
-  void addFilter(const std::string& extension,
-                 const std::string& description) override
+  void addFilter(const std::string& extension, const std::string& description) override
   {
     auto filter = Gtk::FileFilter::create();
     filter->set_name(description);
@@ -155,10 +148,7 @@ public:
 
   std::string fileName() override { return m_file_name; }
 
-  void setFileName(const std::string& filename) override
-  {
-    m_file_name = filename;
-  }
+  void setFileName(const std::string& filename) override { m_file_name = filename; }
 
   void updatePreview()
   {
@@ -168,8 +158,7 @@ public:
     {
       if (!Glib::file_test(fileName, Glib::FILE_TEST_IS_DIR))
       {
-        auto previewPixbuf =
-            Gdk::Pixbuf::create_from_file(fileName, 256, 256, true);
+        auto previewPixbuf = Gdk::Pixbuf::create_from_file(fileName, 256, 256, true);
         m_preview.set(previewPixbuf);
         this->set_preview_widget_active();
       }

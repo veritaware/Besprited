@@ -145,14 +145,10 @@ extern "C"
 #define __SFX3(x, s) x##s
 
 #define __TAG __IFX(tag, PACKET)
-#define __TYPES                                                                \
-  __PFX(PACKET), *__IFX(P, PACKET), NEAR *__IFX(NP, PACKET),                   \
-      FAR *__IFX(LP, PACKET)
+#define __TYPES __PFX(PACKET), *__IFX(P, PACKET), NEAR *__IFX(NP, PACKET), FAR *__IFX(LP, PACKET)
 
 #define __TAGE __IFX(tag, PACKETEXT)
-#define __TYPESE                                                               \
-  __PFX(PACKETEXT), *__IFX(P, PACKETEXT), NEAR *__IFX(NP, PACKETEXT),          \
-      FAR *__IFX(LP, PACKETEXT)
+#define __TYPESE __PFX(PACKETEXT), *__IFX(P, PACKETEXT), NEAR *__IFX(NP, PACKETEXT), FAR *__IFX(LP, PACKETEXT)
 
 #define __DATA (__PFX(PACKETDATA))
 #define __MODE (__PFX(PACKETMODE))
@@ -235,8 +231,7 @@ extern "C"
 #if (__EXT(EXPKEYS) == PKEXT_RELATIVE) || (__EXT(EXPKEYS) == PKEXT_ABSOLUTE)
     EXPKEYSDATA pkExpKeys; /* 1.4 */
 #endif
-#if (__EXT(TOUCHSTRIP) == PKEXT_RELATIVE) ||                                   \
-    (__EXT(TOUCHSTRIP) == PKEXT_ABSOLUTE)
+#if (__EXT(TOUCHSTRIP) == PKEXT_RELATIVE) || (__EXT(TOUCHSTRIP) == PKEXT_ABSOLUTE)
     SLIDERDATA pkTouchStrip; /* 1.4 */
 #endif
 #if (__EXT(TOUCHRING) == PKEXT_RELATIVE) || (__EXT(TOUCHRING) == PKEXT_ABSOLUTE)

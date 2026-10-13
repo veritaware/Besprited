@@ -84,8 +84,7 @@ TEST(FileSystem, GetCanonicalPathResolvesTheCurrentDirectory)
   auto canonical = get_canonical_path("canon_dir");
 
   // Must be turned into an absolute path.
-  EXPECT_TRUE(is_path_separator(canonical.front()) ||
-              (canonical.size() > 1 && canonical[1] == ':'));
+  EXPECT_TRUE(is_path_separator(canonical.front()) || (canonical.size() > 1 && canonical[1] == ':'));
   EXPECT_TRUE(is_directory(canonical));
 
   remove_directory("canon_dir");

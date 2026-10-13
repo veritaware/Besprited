@@ -25,8 +25,8 @@ class PatchCel : public CmdSequence,
                  public WithCel
 {
 public:
-  PatchCel(const std::shared_ptr<Cel>& dstCel, const Image* patch,
-           const gfx::Region& patchedRegion, const gfx::Point& patchPos);
+  PatchCel(const std::shared_ptr<Cel>& dstCel, const Image* patch, const gfx::Region& patchedRegion,
+           const gfx::Point& patchPos);
 
 protected:
   void onExecute() override;

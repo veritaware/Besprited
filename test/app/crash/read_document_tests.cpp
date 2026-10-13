@@ -72,8 +72,7 @@ TEST(ReadDocumentInfo, SquareCanvasStillRoundTripsCorrectly)
   const int size = 15;
 
   app::Context ctx;
-  doc::Document* doc =
-      ctx.documents().add(size, size, doc::ColorMode::INDEXED, 4);
+  doc::Document* doc = ctx.documents().add(size, size, doc::ColorMode::INDEXED, 4);
   doc->setFilename("read_document_info_square_test.ase");
 
   const std::string dir = "read_document_info_square_test_dir";

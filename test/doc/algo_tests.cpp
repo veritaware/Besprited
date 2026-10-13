@@ -34,8 +34,7 @@ struct FloatPoint
 std::vector<FloatPoint> collectLineFloat(int x1, int y1, int x2, int y2)
 {
   std::vector<FloatPoint> points;
-  algo_line_float(x1, y1, x2, y2,
-                  [&](int x, int y, float f) { points.push_back({x, y, f}); });
+  algo_line_float(x1, y1, x2, y2, [&](int x, int y, float f) { points.push_back({x, y, f}); });
   return points;
 }
 
@@ -66,17 +65,14 @@ TEST(AlgoLineFloat, MatchesAlgoLinesPixelSetInEveryOctant)
     auto intPoints = collectLine(x1, y1, x2, y2);
     auto floatPoints = collectLineFloat(x1, y1, x2, y2);
 
-    ASSERT_EQ(intPoints.size(), floatPoints.size())
-        << "line (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")";
+    ASSERT_EQ(intPoints.size(), floatPoints.size()) << "line (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")";
 
     for (std::size_t i = 0; i < intPoints.size(); ++i)
     {
       EXPECT_EQ(intPoints[i].first, floatPoints[i].x)
-          << "point " << i << " of line (" << x1 << "," << y1 << ")-(" << x2
-          << "," << y2 << ")";
+          << "point " << i << " of line (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")";
       EXPECT_EQ(intPoints[i].second, floatPoints[i].y)
-          << "point " << i << " of line (" << x1 << "," << y1 << ")-(" << x2
-          << "," << y2 << ")";
+          << "point " << i << " of line (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ")";
     }
   }
 }
@@ -87,8 +83,7 @@ TEST(AlgoLineFloat, FRunsMonotonicallyFromNearZeroToJustOverOne)
   ASSERT_GE(points.size(), 2u);
 
   for (std::size_t i = 1; i < points.size(); ++i)
-    EXPECT_GT(points[i].f, points[i - 1].f)
-        << "f must strictly increase at step " << i;
+    EXPECT_GT(points[i].f, points[i - 1].f) << "f must strictly increase at step " << i;
 
   // First step is one unit of the parametric step (≈ 1/n); last step
   // overshoots by that same one unit past the far endpoint (the loop counts
@@ -110,8 +105,7 @@ TEST(AlgoLineFloat, FIncreasesRegardlessOfWhichOctantOrDirection)
     for (std::size_t i = 1; i < points.size(); ++i)
     {
       EXPECT_GT(points[i].f, points[i - 1].f)
-          << "line (" << x1 << "," << y1 << ")-(" << x2 << "," << y2
-          << ") step " << i;
+          << "line (" << x1 << "," << y1 << ")-(" << x2 << "," << y2 << ") step " << i;
     }
   }
 }

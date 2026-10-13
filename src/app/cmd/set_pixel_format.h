@@ -25,17 +25,13 @@ class SetPixelFormat : public Cmd,
                        public WithSprite
 {
 public:
-  SetPixelFormat(Sprite* sprite, PixelFormat newFormat,
-                 DitheringMethod dithering);
+  SetPixelFormat(Sprite* sprite, PixelFormat newFormat, DitheringMethod dithering);
 
 protected:
   void onExecute() override;
   void onUndo() override;
   void onRedo() override;
-  [[nodiscard]] size_t onMemSize() const override
-  {
-    return sizeof(*this) + m_seq.memSize();
-  }
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this) + m_seq.memSize(); }
 
 private:
   void setFormat(PixelFormat format);

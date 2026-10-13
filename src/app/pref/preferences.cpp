@@ -168,8 +168,7 @@ std::string Preferences::docConfigFileName(const app::Document* doc)
   return rf.getFirstOrCreateDefault();
 }
 
-void Preferences::serializeDocPref(const app::Document* doc,
-                                   app::DocumentPreferences* docPref, bool save)
+void Preferences::serializeDocPref(const app::Document* doc, app::DocumentPreferences* docPref, bool save)
 {
   bool specific_file = false;
 

@@ -61,8 +61,7 @@ TEST(ConvertImageToSurface, RgbImageCopiesExactly)
   image->putPixel(1, 1, doc::rgba(255, 0, 0, 255));
 
   auto surface = makeSurface(2, 2);
-  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 0, 0, 2,
-                           2);
+  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 0, 0, 2, 2);
 
   EXPECT_EQ(gfx::rgba(10, 20, 30, 255), pixelAt(surface.get(), 0, 0));
   EXPECT_EQ(gfx::rgba(40, 50, 60, 128), pixelAt(surface.get(), 1, 0));
@@ -77,8 +76,7 @@ TEST(ConvertImageToSurface, GrayscaleImageExpandsToRgba)
   image->putPixel(1, 0, doc::graya(0, 64));
 
   auto surface = makeSurface(2, 1);
-  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 0, 0, 2,
-                           1);
+  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 0, 0, 2, 1);
 
   EXPECT_EQ(gfx::rgba(128, 128, 128, 255), pixelAt(surface.get(), 0, 0));
   EXPECT_EQ(gfx::rgba(0, 0, 0, 64), pixelAt(surface.get(), 1, 0));
@@ -99,8 +97,7 @@ TEST(ConvertImageToSurface, IndexedImageLooksUpThePalette)
   image->putPixel(3, 0, 3);
 
   auto surface = makeSurface(4, 1);
-  convert_image_to_surface(image.get(), palette.get(), surface.get(), 0, 0, 0,
-                           0, 4, 1);
+  convert_image_to_surface(image.get(), palette.get(), surface.get(), 0, 0, 0, 0, 4, 1);
 
   // Index 0 is only "transparent" in the sense that its palette entry says
   // so (alpha 0) - convert_image_to_surface does a plain palette lookup,
@@ -122,8 +119,7 @@ TEST(ConvertImageToSurface, BitmapImageLooksUpThePaletteByZeroOrOne)
   image->putPixel(1, 0, 1);
 
   auto surface = makeSurface(2, 1);
-  convert_image_to_surface(image.get(), palette.get(), surface.get(), 0, 0, 0,
-                           0, 2, 1);
+  convert_image_to_surface(image.get(), palette.get(), surface.get(), 0, 0, 0, 0, 2, 1);
 
   EXPECT_EQ(gfx::rgba(0, 0, 0, 0), pixelAt(surface.get(), 0, 0));
   EXPECT_EQ(gfx::rgba(255, 255, 255, 255), pixelAt(surface.get(), 1, 0));
@@ -171,8 +167,7 @@ TEST(ConvertImageToSurface, ClipsToTheImageBoundsWhenTheRectOverhangs)
   auto surface = makeSurface(4, 4);
   surface->clear();
 
-  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 0, 0, 4,
-                           4);
+  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 0, 0, 4, 4);
 
   EXPECT_EQ(gfx::rgba(1, 2, 3, 255), pixelAt(surface.get(), 0, 0));
   EXPECT_EQ(gfx::rgba(4, 5, 6, 255), pixelAt(surface.get(), 1, 0));
@@ -194,8 +189,7 @@ TEST(ConvertImageToSurface, ClipsToTheSurfaceBoundsWhenTheDestinationOverhangs)
 
   // Destination offset (1,1) with a 3x3 source on a 2x2 surface: only the
   // single overlapping pixel at (1,1) can land anywhere.
-  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 1, 1, 3,
-                           3);
+  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 1, 1, 3, 3);
 
   EXPECT_EQ(gfx::rgba(0, 0, 9, 255), pixelAt(surface.get(), 1, 1));
   EXPECT_EQ(gfx::Color(0), pixelAt(surface.get(), 0, 0));
@@ -211,26 +205,23 @@ TEST(ConvertImageToSurface, MatchesANaivePerPixelReferenceAcrossAWholeRgbImage)
   {
     for (int x = 0; x < w; ++x)
     {
-      image->putPixel(
-          x, y,
-          doc::rgba((x * 37 + y * 11) & 0xff, (x * 53 + y * 7) & 0xff,
-                    (x * 13 + y * 29) & 0xff, (x + y) % 2 == 0 ? 255 : 60));
+      image->putPixel(x, y,
+                      doc::rgba((x * 37 + y * 11) & 0xff, (x * 53 + y * 7) & 0xff, (x * 13 + y * 29) & 0xff,
+                                (x + y) % 2 == 0 ? 255 : 60));
     }
   }
 
   auto surface = makeSurface(w, h);
-  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 0, 0, w,
-                           h);
+  convert_image_to_surface(image.get(), nullptr, surface.get(), 0, 0, 0, 0, w, h);
 
   for (int y = 0; y < h; ++y)
   {
     for (int x = 0; x < w; ++x)
     {
       color_t src = image->getPixel(x, y);
-      gfx::Color expected = gfx::rgba(doc::rgba_getr(src), doc::rgba_getg(src),
-                                      doc::rgba_getb(src), doc::rgba_geta(src));
-      EXPECT_EQ(expected, pixelAt(surface.get(), x, y))
-          << "at (" << x << "," << y << ")";
+      gfx::Color expected =
+          gfx::rgba(doc::rgba_getr(src), doc::rgba_getg(src), doc::rgba_getb(src), doc::rgba_geta(src));
+      EXPECT_EQ(expected, pixelAt(surface.get(), x, y)) << "at (" << x << "," << y << ")";
     }
   }
 }
@@ -239,8 +230,7 @@ TEST(ConvertImageToSurface, MatchesANaivePerPixelReferenceForIndexedImages)
 {
   auto palette = Palette::create(6);
   for (int i = 0; i < 6; ++i)
-    palette->setEntry(
-        i, doc::rgba(i * 40, 255 - i * 40, i * 10, i == 0 ? 0 : 255));
+    palette->setEntry(i, doc::rgba(i * 40, 255 - i * 40, i * 10, i == 0 ? 0 : 255));
 
   const int w = 6, h = 1;
   std::unique_ptr<Image> image(Image::create(IMAGE_INDEXED, w, h));
@@ -248,15 +238,13 @@ TEST(ConvertImageToSurface, MatchesANaivePerPixelReferenceForIndexedImages)
     image->putPixel(x, 0, x);
 
   auto surface = makeSurface(w, h);
-  convert_image_to_surface(image.get(), palette.get(), surface.get(), 0, 0, 0,
-                           0, w, h);
+  convert_image_to_surface(image.get(), palette.get(), surface.get(), 0, 0, 0, 0, w, h);
 
   for (int x = 0; x < w; ++x)
   {
     color_t expectedColor = palette->getEntry(image->getPixel(x, 0));
-    gfx::Color expected =
-        gfx::rgba(doc::rgba_getr(expectedColor), doc::rgba_getg(expectedColor),
-                  doc::rgba_getb(expectedColor), doc::rgba_geta(expectedColor));
+    gfx::Color expected = gfx::rgba(doc::rgba_getr(expectedColor), doc::rgba_getg(expectedColor),
+                                    doc::rgba_getb(expectedColor), doc::rgba_geta(expectedColor));
     EXPECT_EQ(expected, pixelAt(surface.get(), x, 0)) << "at index " << x;
   }
 }

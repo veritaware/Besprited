@@ -18,8 +18,7 @@
 namespace app::cmd
 {
 
-SetSpriteSize::SetSpriteSize(const Sprite* sprite, const int newWidth,
-                             const int newHeight)
+SetSpriteSize::SetSpriteSize(const Sprite* sprite, const int newWidth, const int newHeight)
   : WithSprite(sprite)
   , m_oldWidth(sprite->width())
   , m_oldHeight(sprite->height())
@@ -49,8 +48,7 @@ void SetSpriteSize::onFireNotifications()
   Sprite* sprite = this->sprite();
   DocumentEvent ev(sprite->document());
   ev.sprite(sprite);
-  sprite->document()->notifyObservers<DocumentEvent&>(
-      &DocumentObserver::onSpriteSizeChanged, ev);
+  sprite->document()->notifyObservers<DocumentEvent&>(&DocumentObserver::onSpriteSizeChanged, ev);
 }
 
 } // namespace app::cmd

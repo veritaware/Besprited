@@ -98,35 +98,17 @@ public:
     return *this;
   }
 
-  PointT operator+(const PointT& pt) const
-  {
-    return PointT(x + pt.x, y + pt.y);
-  }
+  PointT operator+(const PointT& pt) const { return PointT(x + pt.x, y + pt.y); }
 
-  PointT operator-(const PointT& pt) const
-  {
-    return PointT(x - pt.x, y - pt.y);
-  }
+  PointT operator-(const PointT& pt) const { return PointT(x - pt.x, y - pt.y); }
 
-  PointT operator+(const T& value) const
-  {
-    return PointT(x + value, y + value);
-  }
+  PointT operator+(const T& value) const { return PointT(x + value, y + value); }
 
-  PointT operator-(const T& value) const
-  {
-    return PointT(x - value, y - value);
-  }
+  PointT operator-(const T& value) const { return PointT(x - value, y - value); }
 
-  PointT operator*(const T& value) const
-  {
-    return PointT(x * value, y * value);
-  }
+  PointT operator*(const T& value) const { return PointT(x * value, y * value); }
 
-  PointT operator/(const T& value) const
-  {
-    return PointT(x / value, y / value);
-  }
+  PointT operator/(const T& value) const { return PointT(x / value, y / value); }
 
   PointT operator-() const { return PointT(-x, -y); }
 

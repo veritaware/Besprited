@@ -12,7 +12,6 @@
 namespace she
 {
 
-bool handle_dde_messages(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam,
-                         LRESULT& result);
+bool handle_dde_messages(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam, LRESULT& result);
 
 } // namespace she

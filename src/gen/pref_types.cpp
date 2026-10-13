@@ -17,9 +17,8 @@
 #include <stdexcept>
 #include <vector>
 
-static void print_pref_class_def(tinyxml2::XMLElement* elem,
-                                 const std::string& className,
-                                 const char* section, int indentSpaces)
+static void print_pref_class_def(tinyxml2::XMLElement* elem, const std::string& className, const char* section,
+                                 int indentSpaces)
 {
   const std::string indent(indentSpaces, ' ');
   std::cout << "\n"
@@ -29,8 +28,7 @@ static void print_pref_class_def(tinyxml2::XMLElement* elem,
 
   std::cout << indent << "  void load();\n" << indent << "  void save();\n";
 
-  tinyxml2::XMLElement* child =
-      (elem->FirstChild() ? elem->FirstChild()->ToElement() : nullptr);
+  tinyxml2::XMLElement* child = (elem->FirstChild() ? elem->FirstChild()->ToElement() : nullptr);
   while (child)
   {
     if (child->Value())
@@ -45,19 +43,16 @@ static void print_pref_class_def(tinyxml2::XMLElement* elem,
         if (!childId)
           throw std::runtime_error("missing 'id' attr in <option>");
         const std::string memberName = convert_xmlid_to_cppid(childId, false);
-        std::cout << indent << "  Option<" << child->Attribute("type") << "> "
-                  << memberName << ";\n";
+        std::cout << indent << "  Option<" << child->Attribute("type") << "> " << memberName << ";\n";
       }
       else if (name == "section")
       {
         if (!childId)
           throw std::runtime_error("missing 'id' attr in <section>");
-        const std::string childClassName =
-            convert_xmlid_to_cppid(childId, true);
+        const std::string childClassName = convert_xmlid_to_cppid(childId, true);
         const std::string memberName = convert_xmlid_to_cppid(childId, false);
         print_pref_class_def(child, childClassName, childId, indentSpaces + 2);
-        std::cout << indent << "  " << childClassName << " " << memberName
-                  << ";\n";
+        std::cout << indent << "  " << childClassName << " " << memberName << ";\n";
       }
     }
     child = child->NextSiblingElement();
@@ -66,24 +61,17 @@ static void print_pref_class_def(tinyxml2::XMLElement* elem,
   std::cout << indent << "};\n";
 }
 
-static void print_pref_class_impl(tinyxml2::XMLElement* elem,
-                                  const std::string& prefix,
-                                  const std::string& className,
+static void print_pref_class_impl(tinyxml2::XMLElement* elem, const std::string& prefix, const std::string& className,
                                   const char* section)
 {
-  std::cout << "\n"
-            << prefix << className << "::" << className
-            << "(const std::string& name)\n";
+  std::cout << "\n" << prefix << className << "::" << className << "(const std::string& name)\n";
 
   if (section)
-    std::cout
-        << "  : Section(std::string(!name.empty() ? name + \".\": \"\") + \""
-        << section << "\")\n";
+    std::cout << "  : Section(std::string(!name.empty() ? name + \".\": \"\") + \"" << section << "\")\n";
   else
     std::cout << "  : Section(name)\n";
 
-  tinyxml2::XMLElement* child =
-      (elem->FirstChild() ? elem->FirstChild()->ToElement() : nullptr);
+  tinyxml2::XMLElement* child = (elem->FirstChild() ? elem->FirstChild()->ToElement() : nullptr);
   while (child)
   {
     if (child->Value())
@@ -139,8 +127,8 @@ static void print_pref_class_impl(tinyxml2::XMLElement* elem,
           std::vector<std::string> parts;
           base::split_string(migrate, parts, ".");
 
-          std::cout << "  load_option_with_migration(" << memberName << ", \""
-                    << parts[0] << "\", \"" << parts[1] << "\");\n";
+          std::cout << "  load_option_with_migration(" << memberName << ", \"" << parts[0] << "\", \"" << parts[1]
+                    << "\");\n";
         }
         else
           std::cout << "  load_option(" << memberName << ");\n";
@@ -167,14 +155,12 @@ static void print_pref_class_impl(tinyxml2::XMLElement* elem,
       const std::string name = child->Value();
       if (name == "option")
       {
-        const std::string memberName =
-            convert_xmlid_to_cppid(child->Attribute("id"), false);
+        const std::string memberName = convert_xmlid_to_cppid(child->Attribute("id"), false);
         std::cout << "  save_option(" << memberName << ");\n";
       }
       else if (name == "section")
       {
-        const std::string memberName =
-            convert_xmlid_to_cppid(child->Attribute("id"), false);
+        const std::string memberName = convert_xmlid_to_cppid(child->Attribute("id"), false);
         std::cout << "  " << memberName << ".save();\n";
       }
     }
@@ -191,10 +177,8 @@ static void print_pref_class_impl(tinyxml2::XMLElement* elem,
       const std::string name = child->Value();
       if (name == "section")
       {
-        const std::string childClassName =
-            convert_xmlid_to_cppid(child->Attribute("id"), true);
-        print_pref_class_impl(child, className + "::", childClassName,
-                              child->Attribute("id"));
+        const std::string childClassName = convert_xmlid_to_cppid(child->Attribute("id"), true);
+        print_pref_class_impl(child, className + "::", childClassName, child->Attribute("id"));
       }
     }
     child = child->NextSiblingElement();
@@ -214,19 +198,15 @@ void gen_pref_header(tinyxml2::XMLDocument* doc, const std::string& inputFn)
             << "namespace gen {\n";
 
   tinyxml2::XMLHandle handle(doc);
-  tinyxml2::XMLElement* elem = handle.FirstChildElement("preferences")
-                                   .FirstChildElement("types")
-                                   .FirstChildElement("enum")
-                                   .ToElement();
+  tinyxml2::XMLElement* elem =
+      handle.FirstChildElement("preferences").FirstChildElement("types").FirstChildElement("enum").ToElement();
   while (elem)
   {
     if (!elem->Attribute("id"))
       throw std::runtime_error("missing 'id' attr in <enum>");
-    const bool isFlags = (elem->Attribute("flags") &&
-                          std::string(elem->Attribute("flags")) == "true");
+    const bool isFlags = (elem->Attribute("flags") && std::string(elem->Attribute("flags")) == "true");
     std::cout << "\n"
-              << "  enum class " << (isFlags ? "[[clang::flag_enum]] " : "")
-              << elem->Attribute("id") << " {\n";
+              << "  enum class " << (isFlags ? "[[clang::flag_enum]] " : "") << elem->Attribute("id") << " {\n";
 
     tinyxml2::XMLElement* child = elem->FirstChildElement("value");
     while (child)
@@ -236,8 +216,7 @@ void gen_pref_header(tinyxml2::XMLDocument* doc, const std::string& inputFn)
       if (!child->Attribute("value"))
         throw std::runtime_error("missing 'value' attr in <value>");
 
-      std::cout << "    " << child->Attribute("id") << " = "
-                << child->Attribute("value") << ",\n";
+      std::cout << "    " << child->Attribute("id") << " = " << child->Attribute("value") << ",\n";
       child = child->NextSiblingElement("value");
     }
 
@@ -246,21 +225,15 @@ void gen_pref_header(tinyxml2::XMLDocument* doc, const std::string& inputFn)
     elem = elem->NextSiblingElement("enum");
   }
 
-  elem = handle.FirstChildElement("preferences")
-             .FirstChildElement("global")
-             .ToElement();
+  elem = handle.FirstChildElement("preferences").FirstChildElement("global").ToElement();
   if (elem)
     print_pref_class_def(elem, "GlobalPref", nullptr, 2);
 
-  elem = handle.FirstChildElement("preferences")
-             .FirstChildElement("tool")
-             .ToElement();
+  elem = handle.FirstChildElement("preferences").FirstChildElement("tool").ToElement();
   if (elem)
     print_pref_class_def(elem, "ToolPref", nullptr, 2);
 
-  elem = handle.FirstChildElement("preferences")
-             .FirstChildElement("document")
-             .ToElement();
+  elem = handle.FirstChildElement("preferences").FirstChildElement("document").ToElement();
   if (elem)
     print_pref_class_def(elem, "DocPref", nullptr, 2);
 
@@ -284,21 +257,15 @@ void gen_pref_impl(tinyxml2::XMLDocument* doc, const std::string& inputFn)
             << "namespace gen {\n";
 
   tinyxml2::XMLHandle handle(doc);
-  tinyxml2::XMLElement* elem = handle.FirstChildElement("preferences")
-                                   .FirstChildElement("global")
-                                   .ToElement();
+  tinyxml2::XMLElement* elem = handle.FirstChildElement("preferences").FirstChildElement("global").ToElement();
   if (elem)
     print_pref_class_impl(elem, "", "GlobalPref", nullptr);
 
-  elem = handle.FirstChildElement("preferences")
-             .FirstChildElement("tool")
-             .ToElement();
+  elem = handle.FirstChildElement("preferences").FirstChildElement("tool").ToElement();
   if (elem)
     print_pref_class_impl(elem, "", "ToolPref", nullptr);
 
-  elem = handle.FirstChildElement("preferences")
-             .FirstChildElement("document")
-             .ToElement();
+  elem = handle.FirstChildElement("preferences").FirstChildElement("document").ToElement();
   if (elem)
     print_pref_class_impl(elem, "", "DocPref", nullptr);
 

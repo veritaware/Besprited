@@ -33,8 +33,7 @@ namespace app
 using namespace app::skin;
 using namespace gfx;
 
-static void rectgrid(ui::Graphics* g, const gfx::Rect& rc,
-                     const gfx::Size& tile)
+static void rectgrid(ui::Graphics* g, const gfx::Rect& rc, const gfx::Size& tile)
 {
   if (tile.w < 1 || tile.h < 1)
     return;
@@ -62,13 +61,11 @@ static void rectgrid(ui::Graphics* g, const gfx::Rect& rc,
       g->fillRect(((u++) & 1) ? c1 : c2, gfx::Rect(x, y, tile.w, rc.y2() - y));
 
     if (x < rc.x2())
-      g->fillRect(((u++) & 1) ? c1 : c2,
-                  gfx::Rect(x, y, rc.x2() - x, rc.y2() - y));
+      g->fillRect(((u++) & 1) ? c1 : c2, gfx::Rect(x, y, rc.x2() - x, rc.y2() - y));
   }
 }
 
-void draw_color(ui::Graphics* g, const Rect& rc, const app::Color& _color,
-                const doc::ColorMode colorMode)
+void draw_color(ui::Graphics* g, const Rect& rc, const app::Color& _color, const doc::ColorMode colorMode)
 {
   if (rc.w < 1 || rc.h < 1)
     return;
@@ -103,8 +100,7 @@ void draw_color(ui::Graphics* g, const Rect& rc, const app::Color& _color,
       else
       {
         g->fillRect(gfx::rgba(0, 0, 0), rc);
-        g->drawLine(gfx::rgba(255, 255, 255),
-                    gfx::Point(rc.x + rc.w - 2, rc.y + 1),
+        g->drawLine(gfx::rgba(255, 255, 255), gfx::Point(rc.x + rc.w - 2, rc.y + 1),
                     gfx::Point(rc.x + 1, rc.y + rc.h - 2));
       }
     }
@@ -115,32 +111,25 @@ void draw_color(ui::Graphics* g, const Rect& rc, const app::Color& _color,
   }
 }
 
-void draw_color_button(ui::Graphics* g, const Rect& rc, const app::Color& color,
-                       const doc::ColorMode colorMode, const bool hot,
-                       const bool drag)
+void draw_color_button(ui::Graphics* g, const Rect& rc, const app::Color& color, const doc::ColorMode colorMode,
+                       const bool hot, const bool drag)
 {
   SkinTheme* theme = SkinTheme::instance();
   int scale = ui::guiscale();
 
   // Draw background (the color)
-  draw_color(g,
-             Rect(rc.x + 1 * scale, rc.y + 1 * scale, rc.w - 2 * scale,
-                  rc.h - 2 * scale),
-             color, colorMode);
+  draw_color(g, Rect(rc.x + 1 * scale, rc.y + 1 * scale, rc.w - 2 * scale, rc.h - 2 * scale), color, colorMode);
 
   // Draw opaque border
-  theme->drawRect(
-      g, rc, theme->parts.colorbar0()->bitmapNW(),
-      theme->parts.colorbar0()->bitmapN(), theme->parts.colorbar1()->bitmapNE(),
-      theme->parts.colorbar1()->bitmapE(), theme->parts.colorbar3()->bitmapSE(),
-      theme->parts.colorbar2()->bitmapS(), theme->parts.colorbar2()->bitmapSW(),
-      theme->parts.colorbar0()->bitmapW());
+  theme->drawRect(g, rc, theme->parts.colorbar0()->bitmapNW(), theme->parts.colorbar0()->bitmapN(),
+                  theme->parts.colorbar1()->bitmapNE(), theme->parts.colorbar1()->bitmapE(),
+                  theme->parts.colorbar3()->bitmapSE(), theme->parts.colorbar2()->bitmapS(),
+                  theme->parts.colorbar2()->bitmapSW(), theme->parts.colorbar0()->bitmapW());
 
   // Draw hot
   if (hot)
   {
-    theme->drawRect(g, gfx::Rect(rc.x, rc.y, rc.w, rc.h - 1 - 1 * scale),
-                    theme->parts.colorbarBorderHotfg().get());
+    theme->drawRect(g, gfx::Rect(rc.x, rc.y, rc.w, rc.h - 1 - 1 * scale), theme->parts.colorbarBorderHotfg().get());
   }
 }
 

@@ -47,8 +47,8 @@ ClearMask::ClearMask(const std::shared_ptr<Cel>& cel)
   m_offsetX = mask->bounds().x - cel->x();
   m_offsetY = mask->bounds().y - cel->y();
 
-  const gfx::Rect bounds = image->bounds().createIntersection(
-      gfx::Rect(m_offsetX, m_offsetY, mask->bounds().w, mask->bounds().h));
+  const gfx::Rect bounds =
+      image->bounds().createIntersection(gfx::Rect(m_offsetX, m_offsetY, mask->bounds().w, mask->bounds().h));
   if (bounds.isEmpty())
     return;
 
@@ -57,8 +57,7 @@ ClearMask::ClearMask(const std::shared_ptr<Cel>& cel)
   m_boundsX = bounds.x;
   m_boundsY = bounds.y;
 
-  m_copy.reset(
-      crop_image(image, bounds.x, bounds.y, bounds.w, bounds.h, m_bgcolor));
+  m_copy.reset(crop_image(image, bounds.x, bounds.y, bounds.w, bounds.h, m_bgcolor));
 }
 
 void ClearMask::onExecute()

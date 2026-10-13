@@ -38,8 +38,7 @@ void FlattenLayers::onExecute()
   const auto* doc = dynamic_cast<Document*>(sprite->document());
 
   // Create a temporary image.
-  const ImageRef image(
-      Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
+  const ImageRef image(Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
 
   // The layer onto which everything will be flattened.
   LayerImage* flatLayer = sprite->backgroundLayer();
@@ -82,8 +81,7 @@ void FlattenLayers::onExecute()
       cel_image = cel->imageRef();
       ASSERT(cel_image);
 
-      executeAndAdd(new CopyRect(cel_image.get(), image.get(),
-                                 gfx::Clip(0, 0, image->bounds())));
+      executeAndAdd(new CopyRect(cel_image.get(), image.get(), gfx::Clip(0, 0, image->bounds())));
     }
     else
     {
@@ -94,8 +92,7 @@ void FlattenLayers::onExecute()
   }
 
   // Delete old layers.
-  for (const LayerList layers = sprite->folder()->getLayersList();
-       Layer* layer : layers)
+  for (const LayerList layers = sprite->folder()->getLayersList(); Layer* layer : layers)
     if (layer != flatLayer)
       executeAndAdd(new RemoveLayer(layer));
 }

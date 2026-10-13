@@ -49,8 +49,7 @@ void AddFrame::onExecute()
   {
     if (LayerImage* bg_layer = sprite->backgroundLayer())
     {
-      const ImageRef bg_image(Image::create(sprite->pixelFormat(),
-                                            sprite->width(), sprite->height()));
+      const ImageRef bg_image(Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
       clear_image(bg_image.get(), doc->bgColor(bg_layer));
       const auto cel = std::make_shared<Cel>(m_newFrame, bg_image);
       m_addCel = std::make_unique<AddCel>(bg_layer, cel);

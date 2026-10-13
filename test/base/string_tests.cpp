@@ -36,8 +36,7 @@ TEST(String, Utf8Conversion)
 TEST(String, Utf8Iterator)
 {
   std::string a = "Hello";
-  int value =
-      std::count_if(utf8_iterator(a.begin()), utf8_iterator(a.end()), all);
+  int value = std::count_if(utf8_iterator(a.begin()), utf8_iterator(a.end()), all);
   ASSERT_EQ(5, value);
   ASSERT_EQ('H', *(utf8_iterator(a.begin())));
   ASSERT_EQ('e', *(utf8_iterator(a.begin()) + 1));

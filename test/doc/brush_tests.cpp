@@ -55,8 +55,7 @@ TEST(Brush, CircleIgnoresRotationEntirely)
 
   for (int y = 0; y < flat.image()->height(); ++y)
     for (int x = 0; x < flat.image()->width(); ++x)
-      EXPECT_EQ(flat.image()->getPixel(x, y), rotated.image()->getPixel(x, y))
-          << "at (" << x << "," << y << ")";
+      EXPECT_EQ(flat.image()->getPixel(x, y), rotated.image()->getPixel(x, y)) << "at (" << x << "," << y << ")";
 }
 
 TEST(Brush, SquareAtZeroAngleKeepsTheOriginalSizeAndIsFullyFilled)
@@ -78,9 +77,7 @@ TEST(Brush, RotatedSquareGrowsItsCanvasBySqrtTwoTimesSizePlusTwo)
 
   EXPECT_EQ(expectedCanvas, brush.image()->width());
   EXPECT_EQ(expectedCanvas, brush.image()->height());
-  EXPECT_EQ(gfx::Rect(-expectedCanvas / 2, -expectedCanvas / 2, expectedCanvas,
-                      expectedCanvas),
-            brush.bounds());
+  EXPECT_EQ(gfx::Rect(-expectedCanvas / 2, -expectedCanvas / 2, expectedCanvas, expectedCanvas), brush.bounds());
   EXPECT_GT(countSetPixels(brush), 0);
   // The rotated square must fit inside its enlarged canvas without filling
   // it completely (that would mean no rotation actually happened).
@@ -128,8 +125,7 @@ TEST(Brush, RotatedSquareAt90And180DegreesIsSymmetric)
   {
     for (int x = 0; x < size; ++x)
     {
-      EXPECT_EQ(img->getPixel(x, y) != 0,
-                img->getPixel(size - 1 - x, size - 1 - y) != 0)
+      EXPECT_EQ(img->getPixel(x, y) != 0, img->getPixel(size - 1 - x, size - 1 - y) != 0)
           << "at (" << x << "," << y << ")";
     }
   }
@@ -161,8 +157,7 @@ TEST(Brush, LineBrushDrawsThroughTheCenterAtTheGivenAngle)
   bool identical = true;
   for (int y = 0; y < size && identical; ++y)
     for (int x = 0; x < size; ++x)
-      if ((horizontal.image()->getPixel(x, y) != 0) !=
-          (vertical.image()->getPixel(x, y) != 0))
+      if ((horizontal.image()->getPixel(x, y) != 0) != (vertical.image()->getPixel(x, y) != 0))
       {
         identical = false;
         break;

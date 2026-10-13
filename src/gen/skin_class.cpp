@@ -21,10 +21,8 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
   std::vector<std::string> styles;
 
   tinyxml2::XMLHandle handle(doc);
-  tinyxml2::XMLElement* elem = handle.FirstChildElement("skin")
-                                   .FirstChildElement("dimensions")
-                                   .FirstChildElement("dim")
-                                   .ToElement();
+  tinyxml2::XMLElement* elem =
+      handle.FirstChildElement("skin").FirstChildElement("dimensions").FirstChildElement("dim").ToElement();
   while (elem)
   {
     const char* id = elem->Attribute("id");
@@ -32,10 +30,7 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
     elem = elem->NextSiblingElement();
   }
 
-  elem = handle.FirstChildElement("skin")
-             .FirstChildElement("colors")
-             .FirstChildElement("color")
-             .ToElement();
+  elem = handle.FirstChildElement("skin").FirstChildElement("colors").FirstChildElement("color").ToElement();
   while (elem)
   {
     const char* id = elem->Attribute("id");
@@ -43,10 +38,7 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
     elem = elem->NextSiblingElement();
   }
 
-  elem = handle.FirstChildElement("skin")
-             .FirstChildElement("parts")
-             .FirstChildElement("part")
-             .ToElement();
+  elem = handle.FirstChildElement("skin").FirstChildElement("parts").FirstChildElement("part").ToElement();
   while (elem)
   {
     const char* id = elem->Attribute("id");
@@ -55,10 +47,7 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
     elem = elem->NextSiblingElement();
   }
 
-  elem = handle.FirstChildElement("skin")
-             .FirstChildElement("stylesheet")
-             .FirstChildElement("style")
-             .ToElement();
+  elem = handle.FirstChildElement("skin").FirstChildElement("stylesheet").FirstChildElement("style").ToElement();
   while (elem)
   {
     const char* id = elem->Attribute("id");
@@ -103,8 +92,7 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
   for (const auto& color : colors)
   {
     const std::string id = convert_xmlid_to_cppid(color, false);
-    std::cout << "      gfx::Color " << id << "() const { return m_" << id
-              << "; }\n";
+    std::cout << "      gfx::Color " << id << "() const { return m_" << id << "; }\n";
   }
   std::cout << "    private:\n";
   for (const auto& color : colors)
@@ -121,8 +109,7 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
   for (const auto& part : parts)
   {
     const std::string id = convert_xmlid_to_cppid(part, false);
-    std::cout << "      const skin::SkinPartPtr& " << id
-              << "() const { return m_" << id << "; }\n";
+    std::cout << "      const skin::SkinPartPtr& " << id << "() const { return m_" << id << "; }\n";
   }
   std::cout << "    private:\n";
   for (const auto& part : parts)
@@ -140,8 +127,7 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
   for (const auto& style : styles)
   {
     const std::string id = convert_xmlid_to_cppid(style, false);
-    std::cout << "      skin::Style* " << id << "() const { return m_" << id
-              << "; }\n";
+    std::cout << "      skin::Style* " << id << "() const { return m_" << id << "; }\n";
   }
   std::cout << "    private:\n";
   for (const auto& style : styles)
@@ -162,8 +148,7 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
   for (const auto& dimension : dimensions)
   {
     const std::string id = convert_xmlid_to_cppid(dimension, false);
-    std::cout << "      byId(dimensions.m_" << id << ", \"" << dimension
-              << "\");\n";
+    std::cout << "      byId(dimensions.m_" << id << ", \"" << dimension << "\");\n";
   }
   for (const auto& color : colors)
   {
@@ -180,22 +165,21 @@ void gen_skin_class(tinyxml2::XMLDocument* doc, const std::string& inputFn)
     const std::string id = convert_xmlid_to_cppid(style, false);
     std::cout << "      byId(styles.m_" << id << ", \"" << style << "\");\n";
   }
-  std::cout
-      << "    }\n"
-      << "\n"
-      << "  private:\n"
-      << "    void byId(int& dimension, const std::string& id) {\n"
-      << "      dimension = static_cast<T*>(this)->getDimensionById(id);\n"
-      << "    }\n"
-      << "    void byId(gfx::Color& color, const std::string& id) {\n"
-      << "      color = static_cast<T*>(this)->getColorById(id);\n"
-      << "    }\n"
-      << "    void byId(skin::SkinPartPtr& part, const std::string& id) {\n"
-      << "      part = static_cast<T*>(this)->getPartById(id);\n"
-      << "    }\n"
-      << "    void byId(skin::Style*& style, const std::string& id) {\n"
-      << "      style = static_cast<T*>(this)->getStyle(id);\n"
-      << "    }\n";
+  std::cout << "    }\n"
+            << "\n"
+            << "  private:\n"
+            << "    void byId(int& dimension, const std::string& id) {\n"
+            << "      dimension = static_cast<T*>(this)->getDimensionById(id);\n"
+            << "    }\n"
+            << "    void byId(gfx::Color& color, const std::string& id) {\n"
+            << "      color = static_cast<T*>(this)->getColorById(id);\n"
+            << "    }\n"
+            << "    void byId(skin::SkinPartPtr& part, const std::string& id) {\n"
+            << "      part = static_cast<T*>(this)->getPartById(id);\n"
+            << "    }\n"
+            << "    void byId(skin::Style*& style, const std::string& id) {\n"
+            << "      style = static_cast<T*>(this)->getStyle(id);\n"
+            << "    }\n";
 
   std::cout << "  };\n"
             << "\n"

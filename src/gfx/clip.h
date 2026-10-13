@@ -73,10 +73,7 @@ public:
   [[nodiscard]] Rect dstBounds() const { return {dst, size}; }
   [[nodiscard]] Rect srcBounds() const { return {src, size}; }
 
-  bool operator==(const Clip& other) const
-  {
-    return (dst == other.dst && src == other.src && size == other.size);
-  }
+  bool operator==(const Clip& other) const { return (dst == other.dst && src == other.src && size == other.size); }
 
   bool clip(
       // Available area

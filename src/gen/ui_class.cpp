@@ -18,8 +18,7 @@
 
 using XmlElements = std::vector<tinyxml2::XMLElement*>;
 
-static tinyxml2::XMLElement* find_element_by_id(tinyxml2::XMLElement* elem,
-                                                const std::string& thisId)
+static tinyxml2::XMLElement* find_element_by_id(tinyxml2::XMLElement* elem, const std::string& thisId)
 {
   const char* id = elem->Attribute("id");
   if (id && id == thisId)
@@ -38,8 +37,7 @@ static tinyxml2::XMLElement* find_element_by_id(tinyxml2::XMLElement* elem,
   return nullptr;
 }
 
-static void collect_widgets_with_ids(tinyxml2::XMLElement* elem,
-                                     XmlElements& widgets)
+static void collect_widgets_with_ids(tinyxml2::XMLElement* elem, XmlElements& widgets)
 {
   tinyxml2::XMLElement* child = elem->FirstChildElement();
   while (child)
@@ -115,8 +113,7 @@ static std::string convert_type(const std::string& name)
   throw base::Exception("unknown widget name: " + name);
 }
 
-void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn,
-                  const std::string& widgetId)
+void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn, const std::string& widgetId)
 {
   std::cout << "// Don't modify, generated file from " << inputFn << "\n"
             << "\n";
@@ -160,8 +157,7 @@ void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn,
   }
 
   std::cout << " {\n"
-            << "      app::load_widget(\"" << base::get_file_name(inputFn)
-            << "\", \"" << widgetId << "\", this);\n"
+            << "      app::load_widget(\"" << base::get_file_name(inputFn) << "\", \"" << widgetId << "\", this);\n"
             << "      app::finder(this)\n";
 
   for (const auto* widget : widgets)
@@ -180,8 +176,7 @@ void gen_ui_class(tinyxml2::XMLDocument* doc, const std::string& inputFn,
     const std::string childType = convert_type(widget->Value());
     const char* id = widget->Attribute("id");
     const std::string cppid = convert_xmlid_to_cppid(id, false);
-    std::cout << "    " << childType << "* " << cppid << "() const { return m_"
-              << cppid << "; }\n";
+    std::cout << "    " << childType << "* " << cppid << "() const { return m_" << cppid << "; }\n";
   }
 
   std::cout << "\n"

@@ -31,10 +31,8 @@ bool operator==(const Span& a, const Span& b)
 std::vector<Span> fillPolygon(const std::vector<int>& xy)
 {
   std::vector<Span> spans;
-  algorithm::polygon(
-      static_cast<int>(xy.size() / 2), xy.data(), 2, &spans,
-      [](int x1, int y, int x2, void* data)
-      { static_cast<std::vector<Span>*>(data)->push_back({y, x1, x2}); });
+  algorithm::polygon(static_cast<int>(xy.size() / 2), xy.data(), 2, &spans, [](int x1, int y, int x2, void* data)
+                     { static_cast<std::vector<Span>*>(data)->push_back({y, x1, x2}); });
   return spans;
 }
 
@@ -120,8 +118,7 @@ TEST(Polygon, ContainerOverloadMatchesThePointerOverload)
   std::vector<Point> triangle = {{0, 0}, {4, 0}, {0, 4}};
 
   std::vector<Span> spans;
-  algorithm::polygon(triangle, [&](int x1, int y, int x2)
-                     { spans.push_back({y, x1, x2}); });
+  algorithm::polygon(triangle, [&](int x1, int y, int x2) { spans.push_back({y, x1, x2}); });
 
   auto expected = fillPolygon({0, 0, 4, 0, 0, 4});
   ASSERT_EQ(expected.size(), spans.size());

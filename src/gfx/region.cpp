@@ -24,8 +24,7 @@ namespace gfx
 
 inline Rect to_rect(const pixman_box32& extends)
 {
-  return {extends.x1, extends.y1, extends.x2 - extends.x1,
-          extends.y2 - extends.y1};
+  return {extends.x1, extends.y1, extends.x2 - extends.x1, extends.y2 - extends.y1};
 }
 
 Region::Region()
@@ -56,8 +55,7 @@ Region& Region::operator=(const Rect& rect)
 {
   if (!rect.isEmpty())
   {
-    const pixman_box32 box{
-        .x1 = rect.x, .y1 = rect.y, .x2 = rect.x2(), .y2 = rect.y2()};
+    const pixman_box32 box{.x1 = rect.x, .y1 = rect.y, .x2 = rect.x2(), .y2 = rect.y2()};
     pixman_region32_reset(&m_region, &box);
   }
   else
@@ -149,21 +147,17 @@ Region& Region::createSubtraction(const Region& a, const Region& b)
 
 bool Region::contains(const PointT<int>& pt) const
 {
-  return pixman_region32_contains_point(&m_region, pt.x, pt.y, nullptr) ? true
-                                                                        : false;
+  return pixman_region32_contains_point(&m_region, pt.x, pt.y, nullptr) ? true : false;
 }
 
 Region::Overlap Region::contains(const Rect& rect) const
 {
-  static_assert(static_cast<int>(Out) == PIXMAN_REGION_OUT &&
-                    static_cast<int>(In) == PIXMAN_REGION_IN &&
+  static_assert(static_cast<int>(Out) == PIXMAN_REGION_OUT && static_cast<int>(In) == PIXMAN_REGION_IN &&
                     static_cast<int>(Part) == PIXMAN_REGION_PART,
                 "Pixman constants have changed");
 
-  const pixman_box32 box{
-      .x1 = rect.x, .y1 = rect.y, .x2 = rect.x2(), .y2 = rect.y2()};
-  return static_cast<Region::Overlap>(
-      pixman_region32_contains_rectangle(&m_region, &box));
+  const pixman_box32 box{.x1 = rect.x, .y1 = rect.y, .x2 = rect.x2(), .y2 = rect.y2()};
+  return static_cast<Region::Overlap>(pixman_region32_contains_rectangle(&m_region, &box));
 }
 
 Rect Region::operator[](int i)

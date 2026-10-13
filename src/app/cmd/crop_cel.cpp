@@ -47,8 +47,7 @@ void CropCel::cropImage(const gfx::Point& origin, const gfx::Rect& bounds) const
 
   if (bounds != cel->image()->bounds())
   {
-    const ImageRef image(crop_image(cel->image(), bounds.x, bounds.y, bounds.w,
-                                    bounds.h, cel->image()->maskColor()));
+    const ImageRef image(crop_image(cel->image(), bounds.x, bounds.y, bounds.w, bounds.h, cel->image()->maskColor()));
     const ObjectId id = cel->image()->id();
     const ObjectVersion ver = cel->image()->version();
 

@@ -60,24 +60,19 @@ public:
 
   virtual void drawHLine(gfx::Color color, int x, int y, int w) = 0;
   virtual void drawVLine(gfx::Color color, int x, int y, int h) = 0;
-  virtual void drawLine(gfx::Color color, const gfx::Point& a,
-                        const gfx::Point& b) = 0;
+  virtual void drawLine(gfx::Color color, const gfx::Point& a, const gfx::Point& b) = 0;
 
   virtual void drawRect(gfx::Color color, const gfx::Rect& rc) = 0;
   virtual void fillRect(gfx::Color color, const gfx::Rect& rc) = 0;
 
-  virtual void blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty,
-                      int width, int height) const = 0;
+  virtual void blitTo(Surface* dest, int srcx, int srcy, int dstx, int dsty, int width, int height) const = 0;
   virtual void scrollTo(const gfx::Rect& rc, int dx, int dy) = 0;
   virtual void drawSurface(const Surface* src, int dstx, int dsty) = 0;
   virtual void drawRgbaSurface(const Surface* src, int dstx, int dsty) = 0;
-  virtual void drawColoredRgbaSurface(const Surface* src, gfx::Color fg,
-                                      gfx::Color bg, const gfx::Clip& clip) = 0;
+  virtual void drawColoredRgbaSurface(const Surface* src, gfx::Color fg, gfx::Color bg, const gfx::Clip& clip) = 0;
 
-  virtual void drawChar(Font* font, gfx::Color fg, gfx::Color bg, int x, int y,
-                        int chr) = 0;
-  virtual void drawString(Font* font, gfx::Color fg, gfx::Color bg, int x,
-                          int y, const std::string& str) = 0;
+  virtual void drawChar(Font* font, gfx::Color fg, gfx::Color bg, int x, int y, int chr) = 0;
+  virtual void drawString(Font* font, gfx::Color fg, gfx::Color bg, int x, int y, const std::string& str) = 0;
 
   virtual void applyScale(int scaleFactor) = 0;
   virtual void* nativeHandle() = 0;

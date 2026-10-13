@@ -94,8 +94,7 @@ public:
 
   app::Document* loadDocument()
   {
-    app::Document* doc =
-        loadObject<app::Document*>("doc", m_docId, &Reader::readDocument);
+    app::Document* doc = loadObject<app::Document*>("doc", m_docId, &Reader::readDocument);
     if (doc)
       fixUndetectedDocumentIssues(doc);
     else
@@ -106,8 +105,7 @@ public:
   bool loadDocumentInfo(DocumentInfo& info)
   {
     m_loadInfo = &info;
-    return loadObject<app::Document*>("doc", m_docId, &Reader::readDocument) ==
-           (app::Document*)1;
+    return loadObject<app::Document*>("doc", m_docId, &Reader::readDocument) == (app::Document*)1;
   }
 
 private:
@@ -115,10 +113,7 @@ private:
 
   const ObjVersions* docVersions() const { return m_docVersions; }
 
-  Sprite* loadSprite(ObjectId sprId)
-  {
-    return loadObject<Sprite*>("spr", sprId, &Reader::readSprite);
-  }
+  Sprite* loadSprite(ObjectId sprId) { return loadObject<Sprite*>("spr", sprId, &Reader::readSprite); }
 
   ImageRef getImageRef(ObjectId imageId) override
   {
@@ -134,14 +129,11 @@ private:
     if (m_celdatas.find(celdataId) != m_celdatas.end())
       return m_celdatas[celdataId];
 
-    CelDataRef celData(
-        loadObject<CelData*>("celdata", celdataId, &Reader::readCelData));
+    CelDataRef celData(loadObject<CelData*>("celdata", celdataId, &Reader::readCelData));
     return m_celdatas[celdataId] = celData;
   }
 
-  template <typename T>
-  T loadObject(const char* prefix, ObjectId id,
-               T (Reader::*readMember)(std::ifstream&))
+  template <typename T> T loadObject(const char* prefix, ObjectId id, T (Reader::*readMember)(std::ifstream&))
   {
     const ObjVersions& versions = m_objVersions[id];
 
@@ -159,8 +151,7 @@ private:
       fn.push_back('.');
       fn += base::convert_to<std::string>(ver);
 
-      std::ifstream s(FSTREAM_PATH(base::join_path(m_dir, fn)),
-                      std::ifstream::binary);
+      std::ifstream s(FSTREAM_PATH(base::join_path(m_dir, fn)), std::ifstream::binary);
       T obj = nullptr;
       if (read32(s) == MAGIC_NUMBER)
         obj = (this->*readMember)(s);
@@ -218,8 +209,7 @@ private:
     color_t transparentColor = read32(s);
     frame_t nframes = read32(s);
 
-    if (format != IMAGE_RGB && format != IMAGE_INDEXED &&
-        format != IMAGE_GRAYSCALE)
+    if (format != IMAGE_RGB && format != IMAGE_INDEXED && format != IMAGE_GRAYSCALE)
     {
       if (!m_loadInfo)
         Console().printf("Invalid sprite format #%d\n", (int)format);
@@ -284,8 +274,7 @@ private:
       for (int i = 0; i < npalettes; ++i)
       {
         ObjectId palId = read32(s);
-        auto pal = loadObject<std::shared_ptr<Palette>>("pal", palId,
-                                                        &Reader::readPalette);
+        auto pal = loadObject<std::shared_ptr<Palette>>("pal", palId, &Reader::readPalette);
         if (pal)
           spr->setPalette(*pal, true);
       }
@@ -298,8 +287,7 @@ private:
       for (int i = 0; i < nfrtags; ++i)
       {
         ObjectId tagId = read32(s);
-        FrameTag* tag =
-            loadObject<FrameTag*>("frtag", tagId, &Reader::readFrameTag);
+        FrameTag* tag = loadObject<FrameTag*>("frtag", tagId, &Reader::readFrameTag);
         if (tag)
           spr->frameTags().add(tag);
       }
@@ -329,8 +317,7 @@ private:
       for (int i = 0; i < ncels; ++i)
       {
         ObjectId celId = read32(s);
-        std::shared_ptr<Cel> cel{
-            loadObject<Cel*>("cel", celId, &Reader::readCel)};
+        std::shared_ptr<Cel> cel{loadObject<Cel*>("cel", celId, &Reader::readCel)};
         if (cel)
         {
           // Expand sprite size
@@ -344,25 +331,18 @@ private:
     }
     else
     {
-      Console().printf("Unable to load layer named '%s', type #%d\n",
-                       name.c_str(), (int)type);
+      Console().printf("Unable to load layer named '%s', type #%d\n", name.c_str(), (int)type);
       return nullptr;
     }
   }
 
   Cel* readCel(std::ifstream& s) { return read_cel(s, this, false); }
 
-  CelData* readCelData(std::ifstream& s)
-  {
-    return read_celdata(s, this, false);
-  }
+  CelData* readCelData(std::ifstream& s) { return read_celdata(s, this, false); }
 
   Image* readImage(std::ifstream& s) { return read_image(s, false); }
 
-  std::shared_ptr<Palette> readPalette(std::ifstream& s)
-  {
-    return read_palette(s);
-  }
+  std::shared_ptr<Palette> readPalette(std::ifstream& s) { return read_palette(s); }
 
   FrameTag* readFrameTag(std::ifstream& s) { return read_frame_tag(s, false); }
 
@@ -382,8 +362,7 @@ private:
         auto cel = bg->cel(fr);
         if (!cel)
         {
-          ImageRef image(
-              Image::create(spr->pixelFormat(), spr->width(), spr->height()));
+          ImageRef image(Image::create(spr->pixelFormat(), spr->width(), spr->height()));
           image->clear(spr->transparentColor());
           cel = std::make_shared<Cel>(fr, image);
           bg->addCel(cel);
@@ -417,8 +396,7 @@ app::Document* read_document(const std::string& dir)
   return Reader(dir).loadDocument();
 }
 
-app::Document* read_document_with_raw_images(const std::string& dir,
-                                             RawImagesAs as)
+app::Document* read_document_with_raw_images(const std::string& dir, RawImagesAs as)
 {
   Reader reader(dir);
 
@@ -444,8 +422,7 @@ app::Document* read_document_with_raw_images(const std::string& dir,
     if (!fn.starts_with("img"))
       continue;
 
-    std::ifstream s(FSTREAM_PATH(base::join_path(dir, fn)),
-                    std::ifstream::binary);
+    std::ifstream s(FSTREAM_PATH(base::join_path(dir, fn)), std::ifstream::binary);
     if (!s)
       continue;
 

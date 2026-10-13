@@ -58,8 +58,7 @@ void BackupObserver::onRemoveDocument(doc::Document* document)
   TRACE("DataRecovery:: Remove document %p\n", document);
   {
     base::scoped_lock hold(m_mutex);
-    base::remove_from_container(m_documents,
-                                static_cast<app::Document*>(document));
+    base::remove_from_container(m_documents, static_cast<app::Document*>(document));
   }
   m_session->removeDocument(static_cast<app::Document*>(document));
 }
@@ -81,8 +80,7 @@ void BackupObserver::backgroundThread()
     seconds++;
     if (seconds >= waitUntil)
     {
-      TRACE("DataRecovery: Start backup process for %d documents\n",
-            m_documents.size());
+      TRACE("DataRecovery: Start backup process for %d documents\n", m_documents.size());
 
       base::scoped_lock hold(m_mutex);
       base::Chrono chrono;

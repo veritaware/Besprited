@@ -46,8 +46,7 @@ Session::Backup::Backup(const std::string& dir)
            : info.format == IMAGE_INDEXED   ? "Indexed"
            : info.format == IMAGE_BITMAP    ? "Bitmap"
                                             : "Unknown",
-           info.width, info.height, info.frames,
-           info.frames == 1 ? "frame" : "frames", info.filename.c_str());
+           info.width, info.height, info.frames, info.frames == 1 ? "frame" : "frames", info.filename.c_str());
   m_desc = &buf[0];
 }
 
@@ -67,8 +66,7 @@ std::string Session::name() const
 
   if (parts.size() == 3)
   {
-    return "Session date: " + parts[0] + " time: " + parts[1] + " (PID " +
-           parts[2] + ")";
+    return "Session date: " + parts[0] + " time: " + parts[1] + " (PID " + parts[2] + ")";
   }
   else
     return name;
@@ -132,8 +130,7 @@ void Session::removeFromDisk()
   catch (const std::exception& ex)
   {
     (void)ex;
-    TRACE("Session directory cannot be removed, it's not empty\nError: '%s'\n",
-          ex.what());
+    TRACE("Session directory cannot be removed, it's not empty\nError: '%s'\n", ex.what());
   }
 }
 
@@ -141,8 +138,7 @@ void Session::saveDocumentChanges(app::Document* doc)
 {
   DocumentReader reader(doc, 250);
   app::Context ctx;
-  std::string dir =
-      base::join_path(m_path, base::convert_to<std::string>(doc->id()));
+  std::string dir = base::join_path(m_path, base::convert_to<std::string>(doc->id()));
   TRACE("DataRecovery: Saving document '%s'...\n", dir.c_str());
 
   if (!base::is_directory(dir))
@@ -159,15 +155,13 @@ void Session::removeDocument(app::Document* doc)
     delete_document_internals(doc);
 
     // Delete document backup directory
-    std::string dir =
-        base::join_path(m_path, base::convert_to<std::string>(doc->id()));
+    std::string dir = base::join_path(m_path, base::convert_to<std::string>(doc->id()));
     if (base::is_directory(dir))
       deleteDirectory(dir);
   }
   catch (const std::exception& ex)
   {
-    TRACE("Session document backup cannot be removed\nError: '%s'\n",
-          ex.what());
+    TRACE("Session document backup cannot be removed\nError: '%s'\n", ex.what());
   }
 }
 
@@ -277,8 +271,7 @@ void Session::fixFilename(app::Document* doc)
   if (!ext.empty())
     ext = "." + ext;
 
-  doc->setFilename(base::join_path(
-      base::get_file_path(fn), base::get_file_title(fn) + "-Recovered" + ext));
+  doc->setFilename(base::join_path(base::get_file_path(fn), base::get_file_title(fn) + "-Recovered" + ext));
 }
 
 } // namespace app::crash

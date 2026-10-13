@@ -24,10 +24,7 @@ public:
 protected:
   void onExecute() override;
   void onUndo() override;
-  [[nodiscard]] size_t onMemSize() const override
-  {
-    return sizeof(*this) + m_remap.getMemSize();
-  }
+  [[nodiscard]] size_t onMemSize() const override { return sizeof(*this) + m_remap.getMemSize(); }
 
 private:
   static void incrementVersions(const Sprite* spr);

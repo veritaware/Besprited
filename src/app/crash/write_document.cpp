@@ -134,8 +134,7 @@ private:
 
     if (lay->type() == ObjectType::LayerImage)
     {
-      CelConstIterator it,
-          begin = static_cast<const LayerImage*>(lay)->getCelBegin();
+      CelConstIterator it, begin = static_cast<const LayerImage*>(lay)->getCelBegin();
       CelConstIterator end = static_cast<const LayerImage*>(lay)->getCelEnd();
 
       // Cels
@@ -149,23 +148,15 @@ private:
 
   void writeCel(std::ofstream& s, Cel* cel) { write_cel(s, cel); }
 
-  void writeCelData(std::ofstream& s, CelData* celdata)
-  {
-    write_celdata(s, celdata);
-  }
+  void writeCelData(std::ofstream& s, CelData* celdata) { write_celdata(s, celdata); }
 
   void writeImage(std::ofstream& s, Image* img) { write_image(s, img); }
 
   void writePalette(std::ofstream& s, Palette* pal) { write_palette(s, *pal); }
 
-  void writeFrameTag(std::ofstream& s, FrameTag* frameTag)
-  {
-    write_frame_tag(s, frameTag);
-  }
+  void writeFrameTag(std::ofstream& s, FrameTag* frameTag) { write_frame_tag(s, frameTag); }
 
-  template <typename T>
-  void saveObject(const char* prefix, T* obj,
-                  void (Writer::*writeMember)(std::ofstream&, T*))
+  template <typename T> void saveObject(const char* prefix, T* obj, void (Writer::*writeMember)(std::ofstream&, T*))
   {
     if (!obj->version())
       obj->incrementVersion();
@@ -179,8 +170,7 @@ private:
     fn += base::convert_to<std::string>(obj->id());
 
     std::string fullfn = base::join_path(m_dir, fn);
-    std::string oldfn =
-        fullfn + "." + base::convert_to<std::string>(versions.older());
+    std::string oldfn = fullfn + "." + base::convert_to<std::string>(versions.older());
     fullfn += "." + base::convert_to<std::string>(obj->version());
 
     std::ofstream s(FSTREAM_PATH(fullfn), std::ofstream::binary);
@@ -203,8 +193,7 @@ private:
     }
     catch (const std::exception&)
     {
-      TRACE(" - Cannot delete %s #%d v%d\n", prefix, obj->id(),
-            versions.older());
+      TRACE(" - Cannot delete %s #%d v%d\n", prefix, obj->id(), versions.older());
     }
 
     // Rotate versions and add the latest one

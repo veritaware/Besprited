@@ -73,8 +73,7 @@ public:
 
   bool operator==(const Rgb& other) const
   {
-    return (m_red == other.m_red && m_green == other.m_green &&
-            m_blue == other.m_blue);
+    return (m_red == other.m_red && m_green == other.m_green && m_blue == other.m_blue);
   }
 
   bool operator!=(const Rgb& other) const { return !operator==(other); }

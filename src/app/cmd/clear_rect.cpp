@@ -35,16 +35,14 @@ ClearRect::ClearRect(const std::shared_ptr<Cel>& cel, const gfx::Rect& bounds)
   m_offsetX = bounds.x - cel->x();
   m_offsetY = bounds.y - cel->y();
 
-  const gfx::Rect bounds2 = image->bounds().createIntersection(
-      gfx::Rect(m_offsetX, m_offsetY, bounds.w, bounds.h));
+  const gfx::Rect bounds2 = image->bounds().createIntersection(gfx::Rect(m_offsetX, m_offsetY, bounds.w, bounds.h));
   if (bounds.isEmpty())
     return;
 
   m_dstImage = std::make_unique<WithImage>(image);
   m_bgcolor = doc->bgColor(cel->layer());
 
-  m_copy.reset(
-      crop_image(image, bounds2.x, bounds2.y, bounds2.w, bounds2.h, m_bgcolor));
+  m_copy.reset(crop_image(image, bounds2.x, bounds2.y, bounds2.w, bounds2.h, m_bgcolor));
 }
 
 void ClearRect::onExecute()
@@ -70,9 +68,8 @@ void ClearRect::onRedo()
 
 void ClearRect::clear() const
 {
-  fill_rect(m_dstImage->image(), m_offsetX, m_offsetY,
-            m_offsetX + m_copy->width() - 1, m_offsetY + m_copy->height() - 1,
-            m_bgcolor);
+  fill_rect(m_dstImage->image(), m_offsetX, m_offsetY, m_offsetX + m_copy->width() - 1,
+            m_offsetY + m_copy->height() - 1, m_bgcolor);
 }
 
 void ClearRect::restore() const

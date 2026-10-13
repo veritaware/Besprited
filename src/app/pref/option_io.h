@@ -20,9 +20,7 @@ template <typename T> void load_option(Option<T>& opt)
   opt(get_config_value(opt.section(), opt.id(), opt.defaultValue()));
 }
 
-template <typename T>
-void load_option_with_migration(Option<T>& opt, const char* oldSection,
-                                const char* oldName)
+template <typename T> void load_option_with_migration(Option<T>& opt, const char* oldSection, const char* oldName)
 {
   if (get_config_string(oldSection, oldName, NULL))
   {

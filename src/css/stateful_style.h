@@ -67,16 +67,14 @@ inline StatefulStyle operator+(const Style& style, const State& state)
   return styleState;
 }
 
-inline StatefulStyle operator+(const StatefulStyle& styleState,
-                               const State& state)
+inline StatefulStyle operator+(const StatefulStyle& styleState, const State& state)
 {
   StatefulStyle styleState2 = styleState;
   styleState2 += state;
   return styleState2;
 }
 
-inline StatefulStyle operator+(const StatefulStyle& styleState,
-                               const States& states)
+inline StatefulStyle operator+(const StatefulStyle& styleState, const States& states)
 {
   StatefulStyle styleState2 = styleState;
   styleState2 += states;

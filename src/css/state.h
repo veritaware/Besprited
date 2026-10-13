@@ -47,10 +47,7 @@ public:
   [[nodiscard]] const_iterator end() const { return m_list.end(); }
   [[nodiscard]] reverse_iterator rbegin() { return m_list.rbegin(); }
   [[nodiscard]] reverse_iterator rend() { return m_list.rend(); }
-  [[nodiscard]] const_reverse_iterator rbegin() const
-  {
-    return m_list.rbegin();
-  }
+  [[nodiscard]] const_reverse_iterator rbegin() const { return m_list.rbegin(); }
   [[nodiscard]] const_reverse_iterator rend() const { return m_list.rend(); }
 
   States& operator+=(const State& other)

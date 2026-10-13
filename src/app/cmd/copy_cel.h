@@ -23,8 +23,7 @@ using namespace doc;
 class CopyCel : public CmdSequence
 {
 public:
-  CopyCel(const LayerImage* srcLayer, frame_t srcFrame,
-          const LayerImage* dstLayer, frame_t dstFrame, bool continuous);
+  CopyCel(const LayerImage* srcLayer, frame_t srcFrame, const LayerImage* dstLayer, frame_t dstFrame, bool continuous);
 
 protected:
   void onExecute() override;

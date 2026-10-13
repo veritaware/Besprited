@@ -43,18 +43,11 @@ public:
 
   void toSaveFile() override { m_save = true; }
 
-  void setTitle(const std::string& title) override
-  {
-    m_title = base::from_utf8(title);
-  }
+  void setTitle(const std::string& title) override { m_title = base::from_utf8(title); }
 
-  void setDefaultExtension(const std::string& extension) override
-  {
-    m_defExtension = base::from_utf8(extension);
-  }
+  void setDefaultExtension(const std::string& extension) override { m_defExtension = base::from_utf8(extension); }
 
-  void addFilter(const std::string& extension,
-                 const std::string& description) override
+  void addFilter(const std::string& extension, const std::string& description) override
   {
     if (m_defExtension.empty())
     {
@@ -68,8 +61,7 @@ public:
 
   void setFileName(const std::string& filename) override
   {
-    wcscpy(&m_filename[0],
-           base::from_utf8(base::get_file_name(filename)).c_str());
+    wcscpy(&m_filename[0], base::from_utf8(base::get_file_name(filename)).c_str());
     m_initialDir = base::from_utf8(base::get_file_path(filename));
   }
 
@@ -90,8 +82,7 @@ public:
       ofn.lpstrInitialDir = m_initialDir.c_str();
     ofn.lpstrTitle = m_title.c_str();
     ofn.lpstrDefExt = m_defExtension.c_str();
-    ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_LONGNAMES |
-                OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
+    ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_LONGNAMES | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST;
 
     if (!m_save)
       ofn.Flags |= OFN_FILEMUSTEXIST;
@@ -110,8 +101,7 @@ public:
       if (err)
       {
         std::vector<char> buf(1024);
-        sprintf(&buf[0],
-                "Error using GetOpen/SaveFileName Win32 API. Code: %lu", err);
+        sprintf(&buf[0], "Error using GetOpen/SaveFileName Win32 API. Code: %lu", err);
         she::error_message(&buf[0]);
       }
     }

@@ -22,8 +22,7 @@ namespace app::cmd
 
 using namespace doc;
 
-ReplaceImage::ReplaceImage(const Sprite* sprite, const ImageRef& oldImage,
-                           const ImageRef& newImage)
+ReplaceImage::ReplaceImage(const Sprite* sprite, const ImageRef& oldImage, const ImageRef& newImage)
   : WithSprite(sprite)
   , m_oldImageId(oldImage->id())
   , m_newImageId(newImage->id())
@@ -66,8 +65,7 @@ void ReplaceImage::onRedo()
   m_copy.reset(Image::createCopy(oldImage.get()));
 }
 
-void ReplaceImage::replaceImage(const ObjectId oldId,
-                                const ImageRef& newImage) const
+void ReplaceImage::replaceImage(const ObjectId oldId, const ImageRef& newImage) const
 {
   Sprite* spr = sprite();
 

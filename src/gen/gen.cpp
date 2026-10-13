@@ -43,8 +43,7 @@ static void run(int argc, const char* argv[])
     doc->SetValue(inputFilename.c_str());
     if (doc->LoadFile(inputFile.get()) != tinyxml2::XML_SUCCESS)
     {
-      throw std::runtime_error("invalid input file: "s + inputFilename + "\n" +
-                               doc->ErrorStr());
+      throw std::runtime_error("invalid input file: "s + inputFilename + "\n" + doc->ErrorStr());
     }
   }
 

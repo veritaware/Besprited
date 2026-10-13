@@ -30,8 +30,7 @@ protected:
   void onRedo() override;
   [[nodiscard]] size_t onMemSize() const override
   {
-    return sizeof(*this) + m_seq.memSize() +
-           (m_copy ? m_copy->getMemSize() : 0);
+    return sizeof(*this) + m_seq.memSize() + (m_copy ? m_copy->getMemSize() : 0);
   }
 
 private:

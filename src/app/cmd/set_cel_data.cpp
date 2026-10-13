@@ -23,8 +23,7 @@ namespace app::cmd
 
 using namespace doc;
 
-SetCelData::SetCelData(const std::shared_ptr<Cel>& cel,
-                       const CelDataRef& newData)
+SetCelData::SetCelData(const std::shared_ptr<Cel>& cel, const CelDataRef& newData)
   : WithCel(cel)
   , m_oldDataId(cel->data()->id())
   , m_oldImageId(cel->image()->id())

@@ -30,8 +30,7 @@ struct DocumentInfo
 
 bool read_document_info(const std::string& dir, DocumentInfo& info);
 app::Document* read_document(const std::string& dir);
-app::Document* read_document_with_raw_images(const std::string& dir,
-                                             RawImagesAs as);
+app::Document* read_document_with_raw_images(const std::string& dir, RawImagesAs as);
 
 } // namespace crash
 } // namespace app

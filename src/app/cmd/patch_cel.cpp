@@ -21,8 +21,8 @@ namespace app::cmd
 
 using namespace doc;
 
-PatchCel::PatchCel(const std::shared_ptr<Cel>& dstCel, const Image* patch,
-                   const gfx::Region& patchedRegion, const gfx::Point& patchPos)
+PatchCel::PatchCel(const std::shared_ptr<Cel>& dstCel, const Image* patch, const gfx::Region& patchedRegion,
+                   const gfx::Point& patchPos)
   : WithCel(dstCel)
   , m_patch(patch)
   , m_region(patchedRegion)
@@ -34,11 +34,9 @@ void PatchCel::onExecute()
 {
   const auto cel = this->cel();
 
-  executeAndAdd(new CropCel(
-      cel, cel->bounds() | gfx::Rect(m_region.bounds()).offset(m_pos)));
+  executeAndAdd(new CropCel(cel, cel->bounds() | gfx::Rect(m_region.bounds()).offset(m_pos)));
 
-  executeAndAdd(
-      new CopyRegion(cel->image(), m_patch, m_region, m_pos - cel->position()));
+  executeAndAdd(new CopyRegion(cel->image(), m_patch, m_region, m_pos - cel->position()));
 
   executeAndAdd(new TrimCel(cel));
 

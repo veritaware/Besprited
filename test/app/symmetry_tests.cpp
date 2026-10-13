@@ -204,8 +204,7 @@ TEST(Rotational180Symmetry, RotatesAboutTheCenterWithBrushParityAdjustment)
   EXPECT_EQ(7, out[1][0].y);
 }
 
-TEST(Rotational90Symmetry,
-     ProducesFourStrokesEachRotated90DegreesFromThePrevious)
+TEST(Rotational90Symmetry, ProducesFourStrokesEachRotated90DegreesFromThePrevious)
 {
   Brush brush;
   FakeToolLoop loop{brush};
@@ -262,8 +261,7 @@ TEST(CompositeSymmetry, CombiningTwoAxesYieldsFourStrokesWithNoDuplicates)
   Brush brush(doc::kCircleBrushType, 5, 0);
   FakeToolLoop loop{brush};
 
-  int flags = (int)app::gen::SymmetryMode::HORIZONTAL |
-              (int)app::gen::SymmetryMode::VERTICAL;
+  int flags = (int)app::gen::SymmetryMode::HORIZONTAL | (int)app::gen::SymmetryMode::VERTICAL;
   CompositeSymmetry composite(flags, 10, 10);
 
   Strokes out;
@@ -277,16 +275,13 @@ TEST(CompositeSymmetry, CombiningTwoAxesYieldsFourStrokesWithNoDuplicates)
   EXPECT_EQ(4u, uniquePoints.size());
 }
 
-TEST(CompositeSymmetry,
-     CombiningAllFourAxesYieldsSixteenStrokesWithNoDuplicates)
+TEST(CompositeSymmetry, CombiningAllFourAxesYieldsSixteenStrokesWithNoDuplicates)
 {
   Brush brush(doc::kCircleBrushType, 5, 0);
   FakeToolLoop loop{brush};
 
-  int flags = (int)app::gen::SymmetryMode::HORIZONTAL |
-              (int)app::gen::SymmetryMode::VERTICAL |
-              (int)app::gen::SymmetryMode::DIAGONAL_45 |
-              (int)app::gen::SymmetryMode::DIAGONAL_135;
+  int flags = (int)app::gen::SymmetryMode::HORIZONTAL | (int)app::gen::SymmetryMode::VERTICAL |
+              (int)app::gen::SymmetryMode::DIAGONAL_45 | (int)app::gen::SymmetryMode::DIAGONAL_135;
   CompositeSymmetry composite(flags, 10, 10);
 
   // An asymmetric starting point (not on any axis) so all 16 combinations

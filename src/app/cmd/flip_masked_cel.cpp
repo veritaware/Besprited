@@ -30,8 +30,7 @@ namespace app::cmd
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-FlipMaskedCel::FlipMaskedCel(const std::shared_ptr<Cel>& cel,
-                             const algorithm::FlipType flipType)
+FlipMaskedCel::FlipMaskedCel(const std::shared_ptr<Cel>& cel, const algorithm::FlipType flipType)
 {
   const auto* doc = dynamic_cast<Document*>(cel->document());
   const color_t bgcolor = doc->bgColor(cel->layer());
@@ -45,15 +44,13 @@ FlipMaskedCel::FlipMaskedCel(const std::shared_ptr<Cel>& cel,
   const int x = cel->x();
   const int y = cel->y();
   mask->offsetOrigin(-x, -y);
-  doc::algorithm::flip_image_with_mask(copy.get(), mask, flipType,
-                                       static_cast<int>(bgcolor));
+  doc::algorithm::flip_image_with_mask(copy.get(), mask, flipType, static_cast<int>(bgcolor));
   mask->offsetOrigin(x, y);
 
   int x1, y1, x2, y2;
   if (get_shrink_rect2(&x1, &y1, &x2, &y2, image, copy.get()))
   {
-    add(new CopyRect(image, copy.get(),
-                     gfx::Clip(x1, y1, x1, y1, x2 - x1 + 1, y2 - y1 + 1)));
+    add(new CopyRect(image, copy.get(), gfx::Clip(x1, y1, x1, y1, x2 - x1 + 1, y2 - y1 + 1)));
   }
 }
 #if defined(__GNUC__) && !defined(__clang__)

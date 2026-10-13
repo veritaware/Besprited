@@ -32,8 +32,7 @@ namespace app::cmd
 
 using namespace doc;
 
-SetPixelFormat::SetPixelFormat(Sprite* sprite, const PixelFormat newFormat,
-                               const DitheringMethod dithering)
+SetPixelFormat::SetPixelFormat(Sprite* sprite, const PixelFormat newFormat, const DitheringMethod dithering)
   : WithSprite(sprite)
   , m_oldFormat(sprite->pixelFormat())
   , m_newFormat(newFormat)
@@ -45,10 +44,9 @@ SetPixelFormat::SetPixelFormat(Sprite* sprite, const PixelFormat newFormat,
   for (const auto cel : sprite->uniqueCels())
   {
     const ImageRef old_image = cel->imageRef();
-    const ImageRef new_image(render::convert_pixel_format(
-        old_image.get(), nullptr, newFormat, m_dithering,
-        sprite->rgbMap(cel->frame()), sprite->palette(cel->frame()),
-        cel->layer()->isBackground(), old_image->maskColor()));
+    const ImageRef new_image(render::convert_pixel_format(old_image.get(), nullptr, newFormat, m_dithering,
+                                                          sprite->rgbMap(cel->frame()), sprite->palette(cel->frame()),
+                                                          cel->layer()->isBackground(), old_image->maskColor()));
 
     m_seq.add(new ReplaceImage(sprite, old_image, new_image));
   }
@@ -70,8 +68,7 @@ SetPixelFormat::SetPixelFormat(Sprite* sprite, const PixelFormat newFormat,
   if (newFormat == IMAGE_GRAYSCALE)
   {
     // Add cmds to revert all palette changes.
-    for (const PalettesList palettes = sprite->getPalettes();
-         auto& pal : palettes)
+    for (const PalettesList palettes = sprite->getPalettes(); auto& pal : palettes)
       if (pal->frame() != 0)
         m_seq.add(new RemovePalette(sprite, *pal));
 
@@ -106,14 +103,12 @@ void SetPixelFormat::setFormat(const PixelFormat format)
   sprite->incrementVersion();
 
   // Regenerate extras
-  dynamic_cast<Document*>(sprite->document())
-      ->setExtraCel(ExtraCelRef(nullptr));
+  dynamic_cast<Document*>(sprite->document())->setExtraCel(ExtraCelRef(nullptr));
 
   // Generate notification
   DocumentEvent ev(sprite->document());
   ev.sprite(sprite);
-  sprite->document()->notifyObservers<DocumentEvent&>(
-      &DocumentObserver::onPixelFormatChanged, ev);
+  sprite->document()->notifyObservers<DocumentEvent&>(&DocumentObserver::onPixelFormatChanged, ev);
 }
 
 } // namespace app::cmd

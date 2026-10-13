@@ -58,8 +58,7 @@ void ResourcesLoader::load(Callback&& callback)
   }
 
   task = TaskManager::instance().addTask<Resource>(
-      [this,
-       files = std::move(files)](std::atomic_bool& isAlive) mutable -> Resource
+      [this, files = std::move(files)](std::atomic_bool& isAlive) mutable -> Resource
       {
         if (!files.empty())
         {

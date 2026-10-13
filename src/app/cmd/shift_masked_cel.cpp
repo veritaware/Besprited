@@ -21,8 +21,7 @@
 namespace app::cmd
 {
 
-ShiftMaskedCel::ShiftMaskedCel(const std::shared_ptr<Cel>& cel, const int dx,
-                               const int dy)
+ShiftMaskedCel::ShiftMaskedCel(const std::shared_ptr<Cel>& cel, const int dx, const int dy)
   : WithCel(cel)
   , m_dx(dx)
   , m_dy(dy)

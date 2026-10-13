@@ -131,8 +131,7 @@ union DdeackContainer
 
 } // anonymous namespace
 
-bool handle_dde_messages(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam,
-                         LRESULT& result)
+bool handle_dde_messages(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam, LRESULT& result)
 {
   switch (msg)
   {
@@ -165,15 +164,12 @@ bool handle_dde_messages(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam,
     //   https://msdn.microsoft.com/en-us/library/windows/desktop/ms648996(v=vs.85).aspx
     //
     // Anyway it looks like Windows returns the same ATOM number.
-    ATOM newApp = (useUnicode ? GlobalAddAtomW(base::from_utf8(app).c_str())
-                              : GlobalAddAtomA(app.c_str()));
-    ATOM newTopic = (useUnicode ? GlobalAddAtomW(base::from_utf8(topic).c_str())
-                                : GlobalAddAtomA(topic.c_str()));
+    ATOM newApp = (useUnicode ? GlobalAddAtomW(base::from_utf8(app).c_str()) : GlobalAddAtomA(app.c_str()));
+    ATOM newTopic = (useUnicode ? GlobalAddAtomW(base::from_utf8(topic).c_str()) : GlobalAddAtomA(topic.c_str()));
 
     if (newApp && newTopic)
     {
-      SendMessage(clienthwnd, WM_DDE_ACK, (WPARAM)hwnd,
-                  PackDDElParam(WM_DDE_ACK, newApp, newTopic));
+      SendMessage(clienthwnd, WM_DDE_ACK, (WPARAM)hwnd, PackDDElParam(WM_DDE_ACK, newApp, newTopic));
     }
 
     if (newApp)
@@ -204,8 +200,7 @@ bool handle_dde_messages(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam,
     ddeack.ddeack.fAck = 1;
 
     PostMessage(clienthwnd, WM_DDE_ACK, (WPARAM)hwnd,
-                ReuseDDElParam(lparam, msg, WM_DDE_ACK, (UINT_PTR)ddeack.value,
-                               (UINT_PTR)lparam));
+                ReuseDDElParam(lparam, msg, WM_DDE_ACK, (UINT_PTR)ddeack.value, (UINT_PTR)lparam));
 
     if (parse_dde_command(cmd))
       SetForegroundWindow(hwnd);

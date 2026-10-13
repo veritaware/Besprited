@@ -28,10 +28,7 @@ public:
   [[nodiscard]] const std::string& name() const { return m_name; }
   [[nodiscard]] const Style* base() const { return m_base; }
 
-  const Value& operator[](const Rule& rule) const
-  {
-    return m_values[rule.name()];
-  }
+  const Value& operator[](const Rule& rule) const { return m_values[rule.name()]; }
 
   Value& operator[](const Rule& rule) { return m_values[rule.name()]; }
 

@@ -25,8 +25,7 @@ protected:
   ImageAllTypes() = default;
 };
 
-using ImageAllTraits =
-    testing::Types<RgbTraits, GrayscaleTraits, IndexedTraits, BitmapTraits>;
+using ImageAllTraits = testing::Types<RgbTraits, GrayscaleTraits, IndexedTraits, BitmapTraits>;
 TYPED_TEST_CASE(ImageAllTypes, ImageAllTraits);
 
 TYPED_TEST(ImageAllTypes, PutGetAndIterators)
@@ -51,13 +50,11 @@ TYPED_TEST(ImageAllTypes, PutGetAndIterators)
     for (std::size_t j = 0; j < lengths.size(); ++j)
       sizes.emplace_back(lengths[j], lengths[i]);
 
-  for (std::vector<gfx::Size>::iterator sizes_it = sizes.begin();
-       sizes_it != sizes.end(); ++sizes_it)
+  for (std::vector<gfx::Size>::iterator sizes_it = sizes.begin(); sizes_it != sizes.end(); ++sizes_it)
   {
     int w = sizes_it->w;
     int h = sizes_it->h;
-    std::unique_ptr<Image> image(
-        Image::create(ImageTraits::pixel_format, w, h));
+    std::unique_ptr<Image> image(Image::create(ImageTraits::pixel_format, w, h));
     std::vector<int> data(w * h);
 
     for (int y = 0; y < h; ++y)
@@ -75,9 +72,7 @@ TYPED_TEST(ImageAllTypes, PutGetAndIterators)
     // Read-only iterator (whole image)
     {
       const LockImageBits<ImageTraits> bits((const Image*)image.get());
-      typename LockImageBits<ImageTraits>::const_iterator begin = bits.begin(),
-                                                          it = begin,
-                                                          end = bits.end();
+      typename LockImageBits<ImageTraits>::const_iterator begin = bits.begin(), it = begin, end = bits.end();
 
       for (int i = 0; it != end; ++it, ++i)
       {
@@ -94,9 +89,7 @@ TYPED_TEST(ImageAllTypes, PutGetAndIterators)
         break;
 
       const LockImageBits<ImageTraits> bits((const Image*)image.get(), bounds);
-      typename LockImageBits<ImageTraits>::const_iterator begin = bits.begin(),
-                                                          it = begin,
-                                                          end = bits.end();
+      typename LockImageBits<ImageTraits>::const_iterator begin = bits.begin(), it = begin, end = bits.end();
 
       for (int y = bounds.y; y < bounds.y + bounds.h; ++y)
       {
@@ -116,9 +109,7 @@ TYPED_TEST(ImageAllTypes, PutGetAndIterators)
     // Write iterator (whole image)
     {
       LockImageBits<ImageTraits> bits(image.get(), Image::WriteLock);
-      typename LockImageBits<ImageTraits>::iterator begin = bits.begin(),
-                                                    it = begin,
-                                                    end = bits.end();
+      typename LockImageBits<ImageTraits>::iterator begin = bits.begin(), it = begin, end = bits.end();
 
       for (int i = 0; it != end; ++it, ++i)
       {
@@ -172,13 +163,11 @@ TYPED_TEST(ImageAllTypes, DrawHLine)
     for (std::size_t j = 0; j < lengths.size(); ++j)
       sizes.emplace_back(lengths[j], lengths[i]);
 
-  for (std::vector<gfx::Size>::iterator sizes_it = sizes.begin();
-       sizes_it != sizes.end(); ++sizes_it)
+  for (std::vector<gfx::Size>::iterator sizes_it = sizes.begin(); sizes_it != sizes.end(); ++sizes_it)
   {
     int w = sizes_it->w;
     int h = sizes_it->h;
-    std::unique_ptr<Image> image(
-        Image::create(ImageTraits::pixel_format, w, h));
+    std::unique_ptr<Image> image(Image::create(ImageTraits::pixel_format, w, h));
     image->clear(0);
 
     for (int c = 0; c < 100; ++c)
@@ -200,8 +189,7 @@ TYPED_TEST(ImageAllTypes, FillRect)
     int w = 1 + i;
     int h = 1 + i;
 
-    std::unique_ptr<Image> image(
-        Image::create(ImageTraits::pixel_format, w, h));
+    std::unique_ptr<Image> image(Image::create(ImageTraits::pixel_format, w, h));
     color_t color = (rand() % ImageTraits::max_value);
     if (!color)
       color = 1;

@@ -14,8 +14,7 @@
 namespace gfx
 {
 
-bool Clip::clip(int avail_dst_w, int avail_dst_h, int avail_src_w,
-                int avail_src_h)
+bool Clip::clip(int avail_dst_w, int avail_dst_h, int avail_src_w, int avail_src_h)
 {
   // Clip srcBounds
 

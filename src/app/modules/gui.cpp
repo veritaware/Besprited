@@ -63,8 +63,7 @@ static struct
   int width;
   int height;
   int scale;
-} try_resolutions[] = {{1024, 768, 1}, {800, 600, 1}, {640, 480, 1},
-                       {320, 240, 1},  {320, 200, 1}, {0, 0, 0}};
+} try_resolutions[] = {{1024, 768, 1}, {800, 600, 1}, {640, 480, 1}, {320, 240, 1}, {320, 200, 1}, {0, 0, 0}};
 
 //////////////////////////////////////////////////////////////////////
 
@@ -89,12 +88,10 @@ static ui::Timer* defered_invalid_timer = nullptr;
 static gfx::Region defered_invalid_region;
 
 // Load & save graphics configuration
-static void load_gui_config(int& w, int& h, bool& maximized,
-                            std::string& windowLayout);
+static void load_gui_config(int& w, int& h, bool& maximized, std::string& windowLayout);
 static void save_gui_config();
 
-static bool create_main_display(bool gpuAccel, bool& maximized,
-                                std::string& lastError)
+static bool create_main_display(bool gpuAccel, bool& maximized, std::string& lastError)
 {
   int w, h;
   std::string windowLayout;
@@ -109,8 +106,7 @@ static bool create_main_display(bool gpuAccel, bool& maximized,
   {
     if (w > 0 && h > 0)
     {
-      main_display = she::instance()->createDisplay(
-          w, h, (scale == 0 ? 1 : MID(1, scale, 4)));
+      main_display = she::instance()->createDisplay(w, h, (scale == 0 ? 1 : MID(1, scale, 4)));
     }
   }
   catch (const she::DisplayCreationException& e)
@@ -124,9 +120,8 @@ static bool create_main_display(bool gpuAccel, bool& maximized,
     {
       try
       {
-        main_display = she::instance()->createDisplay(
-            try_resolutions[c].width, try_resolutions[c].height,
-            (scale == 0 ? try_resolutions[c].scale : scale));
+        main_display = she::instance()->createDisplay(try_resolutions[c].width, try_resolutions[c].height,
+                                                      (scale == 0 ? try_resolutions[c].scale : scale));
         break;
       }
       catch (const she::DisplayCreationException& e)
@@ -146,8 +141,7 @@ static bool create_main_display(bool gpuAccel, bool& maximized,
     ResourceFinder rf;
     rf.includeDataDir("icons/ase64.png");
     if (rf.findFirst())
-      main_display->setIcon(
-          she::instance()->loadRgbaSurface(rf.filename().c_str()));
+      main_display->setIcon(she::instance()->loadRgbaSurface(rf.filename().c_str()));
 
     if (!windowLayout.empty())
     {
@@ -164,8 +158,7 @@ int guessUiScale(int screenH, int fallbackH)
 {
   if (screenH <= 0)
     screenH = fallbackH;
-  return MID(1, 1 + (screenH >= 720) + (screenH >= 1200) + (screenH >= 1800),
-             4);
+  return MID(1, 1 + (screenH >= 720) + (screenH >= 1200) + (screenH >= 1800), 4);
 }
 
 // Initializes GUI.
@@ -179,8 +172,7 @@ int init_module_gui()
   {
     // If we've created the display with hardware acceleration,
     // now we try to do it without hardware acceleration.
-    if (gpuAccel && (int(she::instance()->capabilities()) &
-                     int(she::Capabilities::GpuAccelerationSwitch)) ==
+    if (gpuAccel && (int(she::instance()->capabilities()) & int(she::Capabilities::GpuAccelerationSwitch)) ==
                         int(she::Capabilities::GpuAccelerationSwitch))
     {
       if (create_main_display(false, maximized, lastError))
@@ -193,10 +185,7 @@ int init_module_gui()
 
   if (!main_display)
   {
-    she::error_message(
-        ("Unable to create a user-interface display.\nDetails: " + lastError +
-         "\n")
-            .c_str());
+    she::error_message(("Unable to create a user-interface display.\nDetails: " + lastError + "\n").c_str());
     return -1;
   }
 
@@ -249,8 +238,7 @@ void exit_module_gui()
   main_display->dispose();
 }
 
-static void load_gui_config(int& w, int& h, bool& maximized,
-                            std::string& windowLayout)
+static void load_gui_config(int& w, int& h, bool& maximized, std::string& windowLayout)
 {
   gfx::Size defSize = she::instance()->defaultNewDisplaySize();
 
@@ -310,8 +298,7 @@ void load_window_pos(Widget* window, const char* section)
   pos.w = MID(orig_pos.w, pos.w, ui::display_w());
   pos.h = MID(orig_pos.h, pos.h, ui::display_h());
 
-  pos.setOrigin(Point(MID(0, pos.x, ui::display_w() - pos.w),
-                      MID(0, pos.y, ui::display_h() - pos.h)));
+  pos.setOrigin(Point(MID(0, pos.x, ui::display_w() - pos.w), MID(0, pos.y, ui::display_h() - pos.h)));
 
   window->setBounds(pos);
 }
@@ -383,22 +370,18 @@ bool CustomizedGuiManager::onProcessMessage(Message* msg)
   case kCloseDisplayMessage:
   {
     // Execute the "Exit" command.
-    Command* command =
-        CommandsModule::instance()->getCommandByName(CommandId::Exit);
+    Command* command = CommandsModule::instance()->getCommandByName(CommandId::Exit);
     UIContext::instance()->executeCommand(command);
   }
   break;
 
   case kDropFilesMessage:
   {
-    const DropFilesMessage::Files& files =
-        static_cast<DropFilesMessage*>(msg)->files();
+    const DropFilesMessage::Files& files = static_cast<DropFilesMessage*>(msg)->files();
 
     // Open all files
-    Command* cmd_open_file =
-        CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
-    Command* cmd_install_script =
-        CommandsModule::instance()->getCommandByName(CommandId::InstallScript);
+    Command* cmd_open_file = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
+    Command* cmd_install_script = CommandsModule::instance()->getCommandByName(CommandId::InstallScript);
     Params params;
 
     UIContext* ctx = UIContext::instance();
@@ -406,8 +389,7 @@ bool CustomizedGuiManager::onProcessMessage(Message* msg)
     for (const auto& fn : files)
     {
       // If the document is already open, select it.
-      Document* doc =
-          static_cast<Document*>(ctx->documents().getByFileName(fn));
+      Document* doc = static_cast<Document*>(ctx->documents().getByFileName(fn));
       if (doc)
       {
         DocumentView* docView = ctx->getFirstDocumentView(doc);
@@ -440,8 +422,7 @@ bool CustomizedGuiManager::onProcessMessage(Message* msg)
 #ifdef _DEBUG
     // Left Shift+Ctrl+Q generates a crash (useful to test the anticrash
     // feature)
-    if (msg->ctrlPressed() && msg->shiftPressed() &&
-        static_cast<KeyMessage*>(msg)->scancode() == kKeyQ)
+    if (msg->ctrlPressed() && msg->shiftPressed() && static_cast<KeyMessage*>(msg)->scancode() == kKeyQ)
     {
       // cppcheck-suppress nullPointer ; deliberate crash to test recovery
       int* p = nullptr;
@@ -486,8 +467,7 @@ bool CustomizedGuiManager::onProcessMessage(Message* msg)
 
             for (size_t i = 0; i < possibles.size(); ++i)
             {
-              if (possibles[i] != current_tool &&
-                  ToolBar::instance()->isToolVisible(possibles[i]))
+              if (possibles[i] != current_tool && ToolBar::instance()->isToolVisible(possibles[i]))
               {
                 select_this_tool = possibles[i];
                 done = true;
@@ -530,8 +510,7 @@ bool CustomizedGuiManager::onProcessMessage(Message* msg)
               break;
             }
             // Is it the desktop and the top-window=
-            else if (child->isDesktop() &&
-                     child == App::instance()->mainWindow())
+            else if (child->isDesktop() && child == App::instance()->mainWindow())
             {
               // OK, so we can execute the command represented
               // by the pressed-key in the message...
@@ -582,8 +561,7 @@ std::string CustomizedGuiManager::loadLayout(Widget* widget)
   std::string windowId = widget->window()->id();
   std::string widgetId = widget->id();
 
-  return get_config_string(("layout:" + windowId).c_str(), widgetId.c_str(),
-                           "");
+  return get_config_string(("layout:" + windowId).c_str(), widgetId.c_str(), "");
 }
 
 void CustomizedGuiManager::saveLayout(Widget* widget, const std::string& str)
@@ -594,8 +572,7 @@ void CustomizedGuiManager::saveLayout(Widget* widget, const std::string& str)
   std::string windowId = widget->window()->id();
   std::string widgetId = widget->id();
 
-  set_config_string(("layout:" + windowId).c_str(), widgetId.c_str(),
-                    str.c_str());
+  set_config_string(("layout:" + windowId).c_str(), widgetId.c_str(), str.c_str());
 }
 
 } // namespace app

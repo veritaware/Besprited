@@ -26,9 +26,7 @@ namespace
 // true or `timeout` elapses. Needed for anything that runs on one of
 // TaskManager's real background worker threads (addTask()), which
 // delayed() alone doesn't need.
-template <typename Pred>
-bool waitUntil(Pred&& pred,
-               std::chrono::milliseconds timeout = std::chrono::seconds(3))
+template <typename Pred> bool waitUntil(Pred&& pred, std::chrono::milliseconds timeout = std::chrono::seconds(3))
 {
   auto deadline = std::chrono::steady_clock::now() + timeout;
   do
@@ -134,9 +132,8 @@ TEST_F(TaskManagerTest, TaskHandleAbortFlipsIsAliveAndStopsFurtherWork)
 {
   std::atomic<int> invocations{0};
 
-  TaskHandle handle = TaskManager::instance().addTask<int>(
-      [&](std::atomic_bool&) -> int { return invocations.fetch_add(1); },
-      [&](int&&) {});
+  TaskHandle handle = TaskManager::instance().addTask<int>([&](std::atomic_bool&) -> int
+                                                           { return invocations.fetch_add(1); }, [&](int&&) {});
 
   // Let it run at least once so we know the worker thread picked it up.
   ASSERT_TRUE(waitUntil([&] { return invocations.load() > 0; }));
@@ -181,15 +178,13 @@ TEST_F(TaskManagerTest, TaskMonitorAbortsOnScopeExit)
 
 TEST_F(TaskManagerTest, AThrowingWorkerMarksTheTaskDone)
 {
-  TaskHandle handle = TaskManager::instance().addTask<int>(
-      [](std::atomic_bool&) -> int { throw std::runtime_error("boom"); },
-      [](int&&) {});
+  TaskHandle handle = TaskManager::instance().addTask<int>([](std::atomic_bool&) -> int
+                                                           { throw std::runtime_error("boom"); }, [](int&&) {});
 
   EXPECT_TRUE(waitUntil([&] { return handle.done(); }));
 }
 
-TEST_F(TaskManagerTest,
-       SingleShotAddTaskOverloadRunsOnceAndCallsTheAborterOnAbort)
+TEST_F(TaskManagerTest, SingleShotAddTaskOverloadRunsOnceAndCallsTheAborterOnAbort)
 {
   std::atomic<int> invocations{0};
   std::atomic_bool aborterCalled{false};

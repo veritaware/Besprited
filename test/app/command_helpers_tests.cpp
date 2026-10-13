@@ -35,10 +35,7 @@ struct CommandHelpersFixture : public ::testing::Test
 
   CommandHelpersFixture() { ensureApp(); }
 
-  void makeSprite(int w, int h)
-  {
-    doc = static_cast<app::Document*>(ctx.documents().add(w, h));
-  }
+  void makeSprite(int w, int h) { doc = static_cast<app::Document*>(ctx.documents().add(w, h)); }
 };
 
 } // namespace
@@ -47,10 +44,8 @@ TEST_F(CommandHelpersFixture, WithTransactionAppliesTheEditAndCommits)
 {
   makeSprite(4, 4);
 
-  app::with_transaction(
-      &ctx, "Resize",
-      [](app::ContextWriter& writer, app::Transaction&, app::DocumentApi& api)
-      { api.setSpriteSize(writer.sprite(), 8, 6); });
+  app::with_transaction(&ctx, "Resize", [](app::ContextWriter& writer, app::Transaction&, app::DocumentApi& api)
+                        { api.setSpriteSize(writer.sprite(), 8, 6); });
 
   EXPECT_EQ(8, doc->sprite()->width());
   EXPECT_EQ(6, doc->sprite()->height());
@@ -60,10 +55,8 @@ TEST_F(CommandHelpersFixture, WithTransactionEditIsUndoable)
 {
   makeSprite(4, 4);
 
-  app::with_transaction(
-      &ctx, "Resize",
-      [](app::ContextWriter& writer, app::Transaction&, app::DocumentApi& api)
-      { api.setSpriteSize(writer.sprite(), 10, 10); });
+  app::with_transaction(&ctx, "Resize", [](app::ContextWriter& writer, app::Transaction&, app::DocumentApi& api)
+                        { api.setSpriteSize(writer.sprite(), 10, 10); });
 
   ASSERT_EQ(10, doc->sprite()->width());
   ASSERT_TRUE(doc->undoHistory()->canUndo());
@@ -76,16 +69,13 @@ TEST_F(CommandHelpersFixture, WithTransactionEditIsUndoable)
 
 TEST(CommandFlags, WritableSpriteCombinesTheExpectedBits)
 {
-  EXPECT_EQ(app::ContextFlags::ActiveDocumentIsWritable |
-                app::ContextFlags::HasActiveSprite,
+  EXPECT_EQ(app::ContextFlags::ActiveDocumentIsWritable | app::ContextFlags::HasActiveSprite,
             app::cmd_flags::WritableSprite);
 }
 
 TEST(CommandFlags, EditableCelCombinesTheExpectedBits)
 {
-  EXPECT_EQ(app::ContextFlags::ActiveDocumentIsWritable |
-                app::ContextFlags::ActiveLayerIsEditable |
-                app::ContextFlags::ActiveLayerIsImage |
-                app::ContextFlags::HasVisibleMask,
+  EXPECT_EQ(app::ContextFlags::ActiveDocumentIsWritable | app::ContextFlags::ActiveLayerIsEditable |
+                app::ContextFlags::ActiveLayerIsImage | app::ContextFlags::HasVisibleMask,
             app::cmd_flags::EditableCel);
 }
