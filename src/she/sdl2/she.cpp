@@ -292,7 +292,7 @@ static void patchEventListeners()
 	  let tmp = getWasmTableEntry(handle);
 	  function wrapper(...args) {
 	    let ret = tmp(...args);
-	    let keyCode = HEAP32[(args[1] >> 2) + 9];
+	    let keyCode = GROWABLE_HEAP_I32()[(args[1] >> 2) + 9];
 	    return ret && keyCode != 86;
 	  }
 	  if (tmp.name != wrapper.name)
@@ -1074,11 +1074,12 @@ extern int app_main(int argc, char* argv[]);
 
 int main(const int argc, char* argv[])
 {
-  // --batch and --shell never start the UI; use SDL's dummy video driver
+  // --batch/-b and --shell never start the UI; use SDL's dummy video driver
   // so no real display is needed. Keep a user-set SDL_VIDEODRIVER value.
   for (int i = 1; i < argc; ++i)
   {
-    if (SDL_strcmp(argv[i], "--batch") == 0 || SDL_strcmp(argv[i], "--shell") == 0)
+    if (SDL_strcmp(argv[i], "--batch") == 0 || SDL_strcmp(argv[i], "-b") == 0 ||
+        SDL_strcmp(argv[i], "--shell") == 0)
     {
       SDL_setenv("SDL_VIDEODRIVER", "dummy", 0);
       break;

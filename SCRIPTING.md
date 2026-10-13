@@ -118,12 +118,6 @@ paths are used as-is.
        returns: A Promise that resolves to `{path, deleted: true}`.
        Deletes a file.
 
-    - `shareFile(path)`:
-      - path: The file to share.
-       returns: true
-       Sends the file to the system share sheet (Android only).
-       Throws on other platforms.
-
     - `getCurrentPath()`:
        returns: The current working directory.
 
@@ -1946,7 +1940,7 @@ other line in the file.
     ///permission fetch
     // The rest of the script...
 
-On the first run of a script, LibreSprite shows a dialog listing the
+On the first run of a script, Besprited shows a dialog listing the
 permissions the script requests that are not granted yet. The user picks
 which to grant (all are checked by default). Cancelling the dialog stops
 the script from running; the next run asks again. The grants are saved
@@ -1956,7 +1950,7 @@ appear again the next time the script runs).
 
 ## Permissions
    - `fs.read`:
-     `fs.readFile`, `fs.stat`, `fs.listDir`, `fs.shareFile`.
+     `fs.readFile`, `fs.stat`, `fs.listDir`.
 
    - `fs.write`:
      `fs.writeFile`, `fs.copyFile`, `fs.deleteFile`.
@@ -1967,14 +1961,22 @@ appear again the next time the script runs).
    - `app.launch`:
      `app.launch` (opens a file/URL with the operating system).
 
+   - `server`:
+     `new HTTPServer(...)` (accepts network connections). Serving a
+     `staticFilePath` also needs `fs.read`.
+
 The `fs.getCurrentPath`, `fs.getExecutablePath` and `fs.getCachePath`
 functions are not gated.
 
 A gated call made by a script without the permission fails with an error
 like `Permission denied: 'fs.read' permission not granted to this
 script` (the promise rejects for `fs`/`fetch`, `app.launch` returns
-false, `storage.fetch` logs to the console).
+false, `storage.fetch` logs to the console, `new HTTPServer` throws).
+
+All scripts share one engine, so timers and promise callbacks that a
+script leaves pending run with the grants of the script that ran most
+recently. Console (REPL) lines are not gated, but only while they run.
 
 Headless runs (`--script` without a user interface) cannot show the
-dialog: the requested permissions are granted automatically with a
-warning printed to stdout.
+dialog: the requested permissions are granted automatically, for that run
+only, with a warning printed to stdout.
