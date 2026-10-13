@@ -51,7 +51,7 @@ jobs:
         # macos-latest runner images come with this tap pre-added; Homebrew's
         # tap-trust check then warns on every brew invocation since it's untrusted.
         brew untap aws/tap || true
-        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
+        brew install autoconf automake libtool gnutls openssl@3 freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
         pip3 install --break-system-packages dmgbuild
         echo "Building and Installing GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
@@ -241,7 +241,7 @@ jobs:
         # macos-latest runner images come with this tap pre-added; Homebrew's
         # tap-trust check then warns on every brew invocation since it's untrusted.
         brew untap aws/tap || true
-        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
+        brew install autoconf automake libtool gnutls openssl@3 freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
         pip3 install --break-system-packages dmgbuild
         echo "Building and Installing GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
