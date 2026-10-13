@@ -54,9 +54,7 @@ public:
       return {};
     };
     addFunction("__testImage") = []() -> JSON::Value
-    {
-      return JSON::makeNative(script_api::wrap<doc::Image>(TestBridge::image));
-    };
+    { return JSON::makeNative(script_api::wrap<doc::Image>(TestBridge::image)); };
   }
 
   std::string init(const std::string& language, JSON::Value&) override
@@ -102,10 +100,7 @@ protected:
 
   // The engine is process-wide (one interpreter behind AppScripting); each
   // eval is a REPL-style script eval, so `var`s persist across calls.
-  bool eval(const std::string& code)
-  {
-    return AppScripting::eval(code, "script_api_tests");
-  }
+  bool eval(const std::string& code) { return AppScripting::eval(code, "script_api_tests"); }
 
   JSON::Value& captured() { return TestBridge::captured; }
 };
@@ -132,14 +127,12 @@ TEST_F(AppScriptApiTest, BridgeCapturesValuesFromJs)
 TEST_F(AppScriptApiTest, PixelColorRgbaRoundTripsThroughAllChannelAccessors)
 {
   ASSERT_TRUE(eval("native.capture(app.pixelColor.rgba(10, 20, 30, 200));"));
-  EXPECT_EQ(doc::rgba(10, 20, 30, 200),
-            static_cast<doc::color_t>(captured().number()));
+  EXPECT_EQ(doc::rgba(10, 20, 30, 200), static_cast<doc::color_t>(captured().number()));
 
-  ASSERT_TRUE(
-      eval("var c = app.pixelColor.rgba(10, 20, 30, 200);"
-           "native.capture([app.pixelColor.rgbaR(c), app.pixelColor.rgbaG(c),"
-           "                app.pixelColor.rgbaB(c), "
-           "app.pixelColor.rgbaA(c)].join(','));"));
+  ASSERT_TRUE(eval("var c = app.pixelColor.rgba(10, 20, 30, 200);"
+                   "native.capture([app.pixelColor.rgbaR(c), app.pixelColor.rgbaG(c),"
+                   "                app.pixelColor.rgbaB(c), "
+                   "app.pixelColor.rgbaA(c)].join(','));"));
   EXPECT_EQ("10,20,30,200", captured().string());
 }
 
@@ -155,10 +148,8 @@ TEST_F(AppScriptApiTest, ColorModeConstantsMatchTheDocPixelFormatEnum)
 {
   ASSERT_TRUE(eval("native.capture([ColorMode.RGB, ColorMode.GRAYSCALE, "
                    "ColorMode.INDEXED, ColorMode.BITMAP].join(','));"));
-  std::string expected = std::to_string(int(doc::IMAGE_RGB)) + "," +
-                         std::to_string(int(doc::IMAGE_GRAYSCALE)) + "," +
-                         std::to_string(int(doc::IMAGE_INDEXED)) + "," +
-                         std::to_string(int(doc::IMAGE_BITMAP));
+  std::string expected = std::to_string(int(doc::IMAGE_RGB)) + "," + std::to_string(int(doc::IMAGE_GRAYSCALE)) + "," +
+                         std::to_string(int(doc::IMAGE_INDEXED)) + "," + std::to_string(int(doc::IMAGE_BITMAP));
   EXPECT_EQ(expected, captured().string());
 }
 
@@ -191,15 +182,13 @@ TEST_F(AppScriptApiTest, CommandSetParameterAndClearParametersAreChainable)
                    "'b').clearParameters);"));
   EXPECT_EQ("function", captured().string());
 
-  ASSERT_TRUE(eval(
-      "native.capture(app.command.setParameter('a', 'b') === app.command);"));
+  ASSERT_TRUE(eval("native.capture(app.command.setParameter('a', 'b') === app.command);"));
   EXPECT_TRUE(captured().boolean());
 }
 
 TEST_F(AppScriptApiTest, ConsoleLogIsAvailable)
 {
-  ASSERT_TRUE(eval(
-      "native.capture(typeof console.log + ',' + typeof console.assert);"));
+  ASSERT_TRUE(eval("native.capture(typeof console.log + ',' + typeof console.assert);"));
   EXPECT_EQ("function,function", captured().string());
   EXPECT_TRUE(eval("console.log('script_api_tests: console.log works');"));
 }
@@ -231,19 +220,15 @@ TEST_F(AppScriptApiTest, ImageGetPixelPutPixelRoundTrip)
   doc::clear_image(img.get(), 0);
   TestBridge::image = img.get();
 
-  ASSERT_TRUE(
-      eval("native.image.putPixel(1, 1, app.pixelColor.rgba(5, 6, 7, 255));"
-           "native.capture(native.image.getPixel(1, 1));"));
-  EXPECT_EQ(doc::rgba(5, 6, 7, 255),
-            static_cast<doc::color_t>(captured().number()));
+  ASSERT_TRUE(eval("native.image.putPixel(1, 1, app.pixelColor.rgba(5, 6, 7, 255));"
+                   "native.capture(native.image.getPixel(1, 1));"));
+  EXPECT_EQ(doc::rgba(5, 6, 7, 255), static_cast<doc::color_t>(captured().number()));
 
-  ASSERT_TRUE(eval(
-      "native.capture([native.image.width, native.image.height].join('x'));"));
+  ASSERT_TRUE(eval("native.capture([native.image.width, native.image.height].join('x'));"));
   EXPECT_EQ("4x4", captured().string());
 }
 
-TEST_F(AppScriptApiTest,
-       ImagePutImageDataRejectsAWronglySizedBufferWithoutCorruptingTheImage)
+TEST_F(AppScriptApiTest, ImagePutImageDataRejectsAWronglySizedBufferWithoutCorruptingTheImage)
 {
   std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 4, 4));
   doc::clear_image(img.get(), doc::rgba(1, 2, 3, 4));
@@ -283,9 +268,8 @@ TEST_F(AppScriptApiTest, ImageGetImageDataThenPutImageDataRoundTripsEveryPixel)
   EXPECT_EQ(doc::rgba(10, 11, 12, 255), img->getPixel(1, 1));
 
   // ...and the JS side can write it back too.
-  ASSERT_TRUE(
-      eval("var data = native.image.getImageData(); native.image.clear(0);"
-           "native.image.putImageData(data);"));
+  ASSERT_TRUE(eval("var data = native.image.getImageData(); native.image.clear(0);"
+                   "native.image.putImageData(data);"));
   EXPECT_EQ(doc::rgba(10, 11, 12, 255), img->getPixel(1, 1));
 }
 
@@ -306,8 +290,7 @@ TEST_F(AppScriptApiTest, ImageGetPNGDataReturnsABase64PngDataUri)
   const std::string prefix = "data:image/png;base64,";
   ASSERT_GT(uri.size(), prefix.size());
   EXPECT_EQ(prefix, uri.substr(0, prefix.size()));
-  EXPECT_GT(uri.size(), prefix.size() + 8)
-      << "should carry actual encoded PNG data, not just the prefix";
+  EXPECT_GT(uri.size(), prefix.size() + 8) << "should carry actual encoded PNG data, not just the prefix";
 }
 
 TEST_F(AppScriptApiTest, WrappedImageHandlesWithTheSameIdCompareEqual)
@@ -341,16 +324,14 @@ TEST_F(AppScriptApiTest, StaleImageHandleThrowsInsteadOfCrashingAfterFree)
   delete img;
   TestBridge::image = nullptr;
 
-  EXPECT_FALSE(eval("stale.getPixel(0, 0);"))
-      << "a handle into a freed object must throw a catchable error, not "
-         "dereference freed memory";
+  EXPECT_FALSE(eval("stale.getPixel(0, 0);")) << "a handle into a freed object must throw a catchable error, not "
+                                                 "dereference freed memory";
   EXPECT_TRUE(eval("1 + 1;")) << "engine must keep working after the throw";
 }
 
 TEST_F(AppScriptApiTest, TimersFireFromTick)
 {
-  ASSERT_TRUE(
-      eval("var fired = false; setTimeout(function() { fired = true; }, 1);"));
+  ASSERT_TRUE(eval("var fired = false; setTimeout(function() { fired = true; }, 1);"));
   // The timer extension is driven by AppScripting::tick(); give the steady
   // clock a moment to pass the 1ms deadline.
   for (int i = 0; i < 200; ++i)
