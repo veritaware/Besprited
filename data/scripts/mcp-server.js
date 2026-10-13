@@ -1,17 +1,20 @@
-// LibreSprite
-// Copyright (C) 2026  LibreSprite contributors
+///permission server
+// LibreSprite | Copyright (C) 2026      LibreSprite contributors
+// Besprited   | Copyright (C) 2026      Veritaware
 //
 // MCP (Model Context Protocol) server, Streamable HTTP transport,
-// 2025-03-26 and 2025-06-18 revisions. Runs inside LibreSprite on the
+// 2025-03-26 and 2025-06-18 revisions. Runs inside Besprited on the
 // built-in HTTPServer script API.
 //
-// Run it from the Scripts menu or with `libresprite --script`. The
+// Run it from the Scripts menu or with `besprited --script`. The
 // server lives while the app window is open; the console prints the
 // endpoint URL. Point any MCP client at that URL.
 //
 // Limitations:
 //  - JSON responses only: no SSE streams, no sessions, no auth.
-//  - Binds to localhost.
+//  - Binds to localhost. Browser pages are refused (no CORS, non-local and
+//    "null" Origins rejected, JSON bodies only); any local process can
+//    still connect.
 //  - run_command may open dialogs that need user interaction.
 //  - Script edits (pixel_set, palette_set) write pixels directly: they
 //    create no undo history and the canvas may not repaint immediately.
@@ -26,7 +29,7 @@ const READ_ONLY = false; // if true, the mutating tools are disabled
 
 const PROTOCOL_VERSIONS = ["2025-03-26", "2025-06-18"];
 const LATEST_VERSION = "2025-06-18";
-const SERVER_NAME = "libresprite-mcp";
+const SERVER_NAME = "besprited-mcp";
 
 // --- JSON-RPC 2.0 ---
 
@@ -94,7 +97,7 @@ function imageResult(data, mimeType) {
 function getSprite() {
   const sprite = app.activeSprite;
   if (!sprite)
-    throw new Error("no document is open in LibreSprite");
+    throw new Error("no document is open in Besprited");
   return sprite;
 }
 
@@ -339,7 +342,7 @@ const TOOLS = [
   },
   {
     name: "command_info",
-    description: "Describes a LibreSprite UI command's parameters by id (for example OpenFile, SpriteSize). Returns the command name, friendly name and its parameter contract (name, description, required, default). Ids are case-insensitive. Call this before run_command to see what parameters a command accepts.",
+    description: "Describes a Besprited UI command's parameters by id (for example OpenFile, SpriteSize). Returns the command name, friendly name and its parameter contract (name, description, required, default). Ids are case-insensitive. Call this before run_command to see what parameters a command accepts.",
     inputSchema: {
       type: "object",
       properties: {
@@ -359,7 +362,7 @@ const TOOLS = [
   },
   {
     name: "run_command",
-    description: "Runs a LibreSprite UI command by id (for example NewLayer, Undo, GotoNextFrame). Some commands open dialogs that wait for the user; prefer the dedicated tools. Use command_info to look up a command's parameters. CloseFile, CloseAllFiles and Exit are not exposed.",
+    description: "Runs a Besprited UI command by id (for example NewLayer, Undo, GotoNextFrame). Some commands open dialogs that wait for the user; prefer the dedicated tools. Use command_info to look up a command's parameters. CloseFile, CloseAllFiles and Exit are not exposed.",
     inputSchema: {
       type: "object",
       properties: {
@@ -438,7 +441,7 @@ function handleInitialize(params) {
     protocolVersion: (requested && PROTOCOL_VERSIONS.indexOf(requested) >= 0) ? requested : LATEST_VERSION,
     capabilities: { tools: { listChanged: false } },
     serverInfo: { name: SERVER_NAME, version: LS.version },
-    instructions: "Tools act on the document active in LibreSprite. Open a sprite first, then use sprite_info to inspect it. Use sprite_image to see frames as PNG. Edits are not undoable, so back up with sprite_save_as before large edits. run_command may open dialogs that need the user; use command_info to look up a command's parameters before calling it.",
+    instructions: "Tools act on the document active in Besprited. Open a sprite first, then use sprite_info to inspect it. Use sprite_image to see frames as PNG. Edits are not undoable, so back up with sprite_save_as before large edits. run_command may open dialogs that need the user; use command_info to look up a command's parameters before calling it.",
   };
 }
 
@@ -496,13 +499,6 @@ function dispatch(msg) {
 
 // --- HTTP handlers ---
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE",
-  "Access-Control-Allow-Headers": "Content-Type, Accept, MCP-Protocol-Version, Mcp-Session-Id",
-  "Access-Control-Max-Age": "86400",
-};
-
 // DNS rebinding guard: a browser Origin must point at localhost.
 const LOCAL_HOSTS = { localhost: 1, "127.0.0.1": 1, "::1": 1 };
 
@@ -516,8 +512,11 @@ function originHost(origin) {
 
 function originBlock(req) {
   const origin = getHeader(req, "origin");
-  if (!origin || origin === "null")
+  if (!origin)
     return null;
+  // "null" comes from sandboxed iframes and file:// pages: not a local app.
+  if (origin === "null")
+    return { status: 403, body: "Forbidden: opaque Origin" };
   const host = originHost(origin);
   if (!host || !LOCAL_HOSTS[host])
     return { status: 403, body: "Forbidden: non-local Origin" };
@@ -538,6 +537,11 @@ function handlePost(req) {
     return blocked;
   if (req.path !== "/mcp")
     return jsonRpcHttp(404, rpcError(null, -32600, "not found; use /mcp"));
+  // A page can send a text/plain POST cross-origin without a preflight;
+  // requiring JSON forces one (which this server never approves).
+  const contentType = getHeader(req, "content-type");
+  if (!contentType || !/^application\/json\s*(;|$)/i.test(contentType))
+    return jsonRpcHttp(415, rpcError(null, -32600, "Content-Type must be application/json"));
 
   let msg;
   try {
@@ -605,8 +609,8 @@ function handleDelete(req) {
 }
 
 function statusPage() {
-  return "<!doctype html><html><head><title>LibreSprite MCP Server</title></head>" +
-    "<body><h1>LibreSprite MCP Server</h1>" +
+  return "<!doctype html><html><head><title>Besprited MCP Server</title></head>" +
+    "<body><h1>Besprited MCP Server</h1>" +
     "<p>Running. Point your MCP client at <code>http://localhost:" + server.port + "/mcp</code>.</p>" +
     "<p>Tools: " + TOOLS.map((t) => t.name).join(", ") + "</p></body></html>";
 }
@@ -615,7 +619,6 @@ function statusPage() {
 
 const server = new HTTPServer({
   port: PORT,
-  defaultHeaders: CORS_HEADERS,
   onPost: handlePost,
   onGet: handleGet,
   onOptions: handleOptions,
