@@ -29,11 +29,6 @@
 #include <string>
 #include <vector>
 
-#if defined(ANDROID)
-extern std::string _AndroidDataDir;
-extern void _AndroidShareFile(const std::string& path);
-#endif
-
 namespace
 {
 
@@ -399,42 +394,12 @@ public:
       return JSON::Value{JSON::Special::Undefined};
     };
 
-    // __fsShareFile(path) -> true. Synchronous: hands the file to the
-    // system share sheet. Throws on platforms without one.
-    addFunction("__fsShareFile") = [](const std::string& rawPath) -> JSON::Value
-    {
-      if (!app::ScriptPermissions::check(app::ScriptPermissions::kFsRead))
-        throw std::runtime_error(app::ScriptPermissions::denyMessage(app::ScriptPermissions::kFsRead));
-#if defined(ANDROID)
-      std::string path = resolvePath(rawPath);
-      std::error_code ec;
-      if (!std::filesystem::is_regular_file(path, ec) || ec)
-        throw std::runtime_error("shareFile: file not found: " + path);
-      _AndroidShareFile(path);
-      return JSON::Value{true};
-#else
-      throw std::runtime_error("shareFile is not supported on this platform");
-#endif
-    };
-
     addFunction("__fsGetCurrentPath") = []() -> JSON::Value
     { return JSON::Value{std::filesystem::current_path().string()}; };
 
-    addFunction("__fsGetExecutablePath") = []() -> JSON::Value
-    {
-      // On Android this is the app data directory.
-      return JSON::Value{base::get_app_path()};
-    };
+    addFunction("__fsGetExecutablePath") = []() -> JSON::Value { return JSON::Value{base::get_app_path()}; };
 
-    addFunction("__fsGetCachePath") = []() -> JSON::Value
-    {
-#if defined(ANDROID)
-      // The app cache directory (TMPDIR//tmp is not reliably writable).
-      return JSON::Value{_AndroidDataDir};
-#else
-      return JSON::Value{base::get_temp_path()};
-#endif
-    };
+    addFunction("__fsGetCachePath") = []() -> JSON::Value { return JSON::Value{base::get_temp_path()}; };
   }
 
   void shutdown() override
@@ -527,11 +492,6 @@ return new Promise((ok, nok) => {
 });
 };
 
-// Synchronous: sends the file to the system share sheet (Android only).
-// Throws on other platforms.
-fs.shareFile = function(path) {
-    return __fsShareFile(path);
-};
 
 fs.getCurrentPath = function() {
     return __fsGetCurrentPath();
