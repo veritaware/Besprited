@@ -52,15 +52,15 @@ instead of the SDL3 ones and configure with `-DUSE_SDL2_BACKEND=on`.
 
 Debian/Ubuntu/Mint:
 
-    sudo apt-get install g++ cmake git libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl3-dev libsdl3-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev
+    sudo apt-get install g++ cmake git libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libssl-dev libsdl3-dev libsdl3-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev
 
 Fedora:
 
-    sudo dnf install g++ cmake git freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL3-devel SDL3_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel libXi-devel
+    sudo dnf install g++ cmake git freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel openssl-devel SDL3-devel SDL3_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel libXi-devel
 
 Arch Linux:
 
-    sudo pacman -Syu base-devel cmake ninja git sdl3 sdl3_image tinyxml2 freetype2 giflib gtest libjpeg-turbo pixman libpng zlib nodejs libarchive
+    sudo pacman -Syu base-devel cmake ninja git sdl3 sdl3_image tinyxml2 openssl freetype2 giflib gtest libjpeg-turbo pixman libpng zlib nodejs libarchive
     
 
 ### Windows dependencies
@@ -74,7 +74,7 @@ To install the required dependencies with msys2, run the following in mingw32:
 On MacOS you will need Mac OS X 11.0 SDK and the corresponding Xcode.
 In a terminal, install the dependencies using brew:
 
-    brew install gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler cmake
+    brew install gnutls openssl@3 freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler cmake
 
 ## Compiling
 
