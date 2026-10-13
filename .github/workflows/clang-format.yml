@@ -1,0 +1,41 @@
+name: Clang Format Check
+
+on:
+  pull_request:
+
+jobs:
+  clang-format:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+
+    # The PyPI wheel pins the exact clang-format release the codebase is
+    # formatted with (newer/older versions format some code differently)
+    # and ships git-clang-format too, independent of the distro packages.
+    - name: Install clang-format 23
+      run: pipx install clang-format==23.1.1
+
+    - name: Check the formatting of the changed lines
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      run: |
+        clang-format --version
+        files=$(git diff --name-only --diff-filter=ACMR "$BASE_SHA" HEAD -- '*.c' '*.cpp' '*.h' '*.hpp' \
+          | grep -v '^third_party/' || true)
+        if [ -z "$files" ]; then
+          echo "No C/C++ files changed."
+          exit 0
+        fi
+        # Prints the needed changes as a diff and exits 1 when there are any.
+        if ! echo "$files" | tr '\n' '\0' | xargs -0 git-clang-format --diff "$BASE_SHA" --; then
+          echo ""
+          echo "Some changed lines are not formatted with clang-format 23.x."
+          echo "Apply the diff above, or run 'git clang-format $BASE_SHA' locally"
+          echo "(see CONTRIBUTING.md, or enable the .githooks pre-commit hook)."
+          exit 1
+        fi

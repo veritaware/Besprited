@@ -1,21 +1,30 @@
 #!/bin/sh
 # Besprited | Copyright (C) 2026 Veritaware
 #
-# Pre-commit hook: runs `git clang-format --staged` on the staged C/C++
-# files, so only the lines changed by the commit are formatted, and
-# re-stages the result. Enable it once per clone with:
+# Pre-commit hook. For the staged files it:
+#  - fixes the Veritaware copyright header (tools/check_copyright.py), and
+#  - runs `git clang-format --staged` on C/C++ files, so only the lines
+#    changed by the commit are formatted,
+# and re-stages the result. Enable it once per clone with:
 #
 #   git config core.hooksPath .githooks
 #
 # Skip it for a single commit with `git commit --no-verify`.
 
+root=$(git rev-parse --show-toplevel)
+cd "$root" || exit 1
+
+# Copyright headers: warns and fixes the Veritaware header of the staged files.
+if command -v python3 >/dev/null 2>&1; then
+  python3 -I tools/check_copyright.py --staged --fix || exit 1
+else
+  echo "pre-commit: python3 not found, skipping the copyright header check" >&2
+fi
+
 if ! command -v git-clang-format >/dev/null 2>&1; then
   echo "pre-commit: git-clang-format not found, skipping the format check" >&2
   exit 0
 fi
-
-root=$(git rev-parse --show-toplevel)
-cd "$root" || exit 1
 
 # Staged (added/copied/modified/renamed) C/C++ sources, minus vendored code.
 # Objective-C++ (.mm) is unsupported by the project's .clang-format.

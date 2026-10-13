@@ -40,6 +40,9 @@ Before opening new issues and contributing any code to the project, read our
   and re-stages the result; it refuses to run if a file it needs to change also has unstaged edits. Use
   `git commit --no-verify` to skip it.
 
+  A `Clang Format Check` CI workflow checks the lines changed by a pull request with the same pinned
+  clang-format 23.x release (installed from PyPI, so it doesn't depend on the runner's packages).
+
 ## Copyright headers
 A CI check (`Copyright Header Check`) verifies every changed `.h`, `.hpp`, `.c`, `.cpp`, `.xml` and
 `CMakeLists.txt` file. Within its first 10 lines it must contain a Veritaware copyright line covering the
@@ -54,6 +57,16 @@ A CI check (`Copyright Header Check`) verifies every changed `.h`, `.hpp`, `.c`,
   `src/CMakeLists.txt` for examples).
 - For a brand-new file, use a plain `// Copyright (C) 2026 Veritaware` line.
 - Files that can't carry a header are listed in [`.github/copyright-exempt.txt`](.github/copyright-exempt.txt).
+
+`tools/check_copyright.py` runs the same check locally and can fix the headers for you (it extends an
+outdated Veritaware year, adds an aligned Besprited line next to other authors, or adds a plain line to a
+file without one):
+```
+python3 tools/check_copyright.py --base origin/trunk          # warn about the files changed on your branch
+python3 tools/check_copyright.py --fix --base origin/trunk    # ...and update them
+```
+The pre-commit hook (see above) runs it with `--fix` on the staged files, printing a warning for each
+header it updates.
 
 By contributing, you agree that your contribution is released under the project's license,
 [GPLv2](LICENSE.txt).
