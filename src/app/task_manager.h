@@ -309,6 +309,14 @@ public:
     return pending.back();
   }
 
+  // Starts the UI timer. Call from the UI thread before other threads use
+  // delayed(), which would otherwise start it from there.
+  void prepare()
+  {
+    if (m_timer && !m_timer->isRunning())
+      m_timer->start();
+  }
+
   // Delivers whatever's currently ready right now, synchronously, on the
   // calling thread. Exposed so tests can drive delayed()/addTask()
   // callbacks deterministically without waiting on the real ui::Timer
