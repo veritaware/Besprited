@@ -4,3 +4,9 @@
 data/skins/default/skin.xml
 third_party/httplib/httplib.cpp
 third_party/httplib/httplib.h
+packaging/desktop/kde/aseprite_thumb_creator.cpp
+packaging/desktop/kde/aseprite_thumb_creator.h
+src/base/sha1_rfc3174.c
+src/wacom/msgpack.h
+src/wacom/pktdef.h
+src/wacom/wintab.h
