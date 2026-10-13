@@ -28,6 +28,7 @@ const char* const ScriptPermissions::kFsRead = "fs.read";
 const char* const ScriptPermissions::kFsWrite = "fs.write";
 const char* const ScriptPermissions::kFetch = "fetch";
 const char* const ScriptPermissions::kAppLaunch = "app.launch";
+const char* const ScriptPermissions::kServer = "server";
 
 namespace
 {
@@ -35,7 +36,8 @@ namespace
 bool isKnown(const std::string& name)
 {
   return name == ScriptPermissions::kFsRead || name == ScriptPermissions::kFsWrite ||
-         name == ScriptPermissions::kFetch || name == ScriptPermissions::kAppLaunch;
+         name == ScriptPermissions::kFetch || name == ScriptPermissions::kAppLaunch ||
+         name == ScriptPermissions::kServer;
 }
 
 // The on-disk path of the grant records (user dir).
@@ -111,7 +113,21 @@ void saveStore(const std::map<std::string, std::set<std::string>>& store)
 // The permissions of the currently running script (set by
 // AppScripting before each eval); unrestricted by default.
 bool unrestricted = true;
+std::string activePath;
 std::set<std::string> activePerms;
+
+// Grants that live only for this process (headless auto-grants).
+std::map<std::string, std::set<std::string>>& sessionRecords()
+{
+  static std::map<std::string, std::set<std::string>> s;
+  return s;
+}
+
+void refreshActive(const std::string& path, const std::set<std::string>& perms)
+{
+  if (!unrestricted && path == activePath)
+    activePerms = perms;
+}
 
 } // anonymous namespace
 
@@ -155,21 +171,35 @@ std::set<std::string> ScriptPermissions::parseRequested(const std::string& path)
 
 std::set<std::string> ScriptPermissions::granted(const std::string& path)
 {
+  std::set<std::string> result;
   auto& store = records();
-  auto it = store.find(path);
-  return it == store.end() ? std::set<std::string>{} : it->second;
+  if (auto it = store.find(path); it != store.end())
+    result = it->second;
+  auto& session = sessionRecords();
+  if (auto it = session.find(path); it != session.end())
+    result.insert(it->second.begin(), it->second.end());
+  return result;
+}
+
+void ScriptPermissions::setSessionGranted(const std::string& path, const std::set<std::string>& perms)
+{
+  sessionRecords()[path] = perms;
 }
 
 void ScriptPermissions::setGranted(const std::string& path, const std::set<std::string>& perms)
 {
   records()[path] = perms;
+  sessionRecords().erase(path);
   saveStore(records());
+  refreshActive(path, perms);
 }
 
 void ScriptPermissions::removeRecord(const std::string& path)
 {
   records().erase(path);
+  sessionRecords().erase(path);
   saveStore(records());
+  refreshActive(path, {});
 }
 
 std::map<std::string, std::set<std::string>> ScriptPermissions::allRecords()
@@ -177,8 +207,9 @@ std::map<std::string, std::set<std::string>> ScriptPermissions::allRecords()
   return records();
 }
 
-void ScriptPermissions::setActiveContext(const std::set<std::string>& perms)
+void ScriptPermissions::setActiveContext(const std::string& path, const std::set<std::string>& perms)
 {
+  activePath = path;
   activePerms = perms;
   unrestricted = false;
 }
@@ -186,6 +217,26 @@ void ScriptPermissions::setActiveContext(const std::set<std::string>& perms)
 void ScriptPermissions::setUnrestricted()
 {
   unrestricted = true;
+}
+
+ScriptPermissions::ScopedContext::ScopedContext()
+  : m_unrestricted(unrestricted)
+  , m_path(activePath)
+  , m_perms(activePerms)
+{
+}
+
+ScriptPermissions::ScopedContext::ScopedContext(const std::string& path)
+  : ScopedContext()
+{
+  setActiveContext(path, granted(path));
+}
+
+ScriptPermissions::ScopedContext::~ScopedContext()
+{
+  unrestricted = m_unrestricted;
+  activePath = m_path;
+  activePerms = m_perms;
 }
 
 bool ScriptPermissions::check(const std::string& perm)

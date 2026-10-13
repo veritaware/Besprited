@@ -41,6 +41,7 @@
 #include <map>
 #include <sstream>
 #include <string>
+#include <optional>
 #include <string_view>
 #include <thread>
 #include <unordered_set>
@@ -62,6 +63,9 @@ bool printLastResultFlag = false;
 
 // The registered event handler (setEventHandler). Undefined until called.
 JSON::Value eventHandler;
+// Script that registered eventHandler: its events run under its grants.
+std::string eventHandlerOwner;
+int evalFileDepth = 0;
 
 struct PendingEvent
 {
@@ -313,6 +317,7 @@ void AppScripting::initEngine()
                            if (ifEmpty && !eventHandler.isUndefined())
                              return JSON::Value{JSON::Special::Undefined};
                            eventHandler = args[0];
+                           eventHandlerOwner = activeScript;
                            return JSON::Value{JSON::Special::Undefined};
                          });
 
@@ -388,6 +393,9 @@ void AppScripting::drainEventQueue()
 
     if (!eventHandler.isUndefined())
     {
+      std::optional<ScriptPermissions::ScopedContext> permContext;
+      if (!eventHandlerOwner.empty())
+        permContext.emplace(eventHandlerOwner);
       JSON::Value ret = eventHandler(ev.args.array());
       // The delta JS->C++ wrapper converts a thrown JS exception into
       // an object with an "exception" key; surface it on the console.
@@ -417,7 +425,9 @@ void AppScripting::raiseEvent(const std::string& fileName, script::Value& event)
 
 bool AppScripting::eval(const std::string& code, const std::string& path)
 {
-  // REPL lines are user-typed code: not gated by script permissions.
+  // REPL lines are user-typed code: not gated by script permissions,
+  // but only for the duration of the line.
+  ScriptPermissions::ScopedContext permContext;
   ScriptPermissions::setUnrestricted();
   initEngine();
   if (!engine)
@@ -468,13 +478,8 @@ bool AppScripting::evalFile(const std::string& fileName)
   if (!std::filesystem::path(fileName).is_absolute())
     absPath = (std::filesystem::current_path() / fileName).string();
 
-  // Lexically normalized (".."/"." collapsed) rather than the raw
-  // argument: this becomes the default domain for storage.*() calls
-  // (see storage_script.cpp), whose path-traversal check rejects any
-  // ".." component - an unnormalized relative invocation like
-  // `--script ../foo.js` would otherwise make every default-domain
-  // storage call fail for a script that did nothing wrong (see issue
-  // #219).
+  // Lexically normalized: it becomes the default storage domain, whose
+  // path-traversal check rejects ".." (see issue #219).
   auto canonicalPath = std::filesystem::path(absPath).lexically_normal().string();
 
   // Permission gate: the script requests API access via "///permission"
@@ -484,7 +489,20 @@ bool AppScripting::evalFile(const std::string& fileName)
   auto requested = ScriptPermissions::parseRequested(canonicalPath);
   if (!ensurePermissions(canonicalPath, requested))
     return false;
-  ScriptPermissions::setActiveContext(ScriptPermissions::granted(canonicalPath));
+
+  // A nested run (e.g. via RunScript) must not leave its grants or its
+  // active script behind for the caller.
+  std::optional<ScriptPermissions::ScopedContext> callerContext;
+  const std::string callerScript = activeScript;
+  const bool nested = evalFileDepth > 0;
+  if (nested)
+    callerContext.emplace();
+  ScriptPermissions::setActiveContext(canonicalPath, ScriptPermissions::granted(canonicalPath));
+  ++evalFileDepth;
+  struct DepthGuard
+  {
+    ~DepthGuard() { --evalFileDepth; }
+  } depthGuard;
 
   // Re-run semantics: the most recently run script owns the event
   // handler, so drop the previous one and let the epilogue / an
@@ -519,6 +537,8 @@ bool AppScripting::evalFile(const std::string& fileName)
     drainEventQueue();
     flushAfterEval();
   }
+  if (nested)
+    activeScript = callerScript;
   return ok;
 }
 
@@ -535,10 +555,11 @@ bool AppScripting::ensurePermissions(const std::string& path, const std::set<std
   if (!ui::Manager::getDefault())
   {
     // Headless (--script without a UI): auto-grant so batch runs keep
-    // working; the prompt is a GUI-only concern.
+    // working; the prompt is a GUI-only concern. The grant is not saved,
+    // so a later GUI run of the same script still asks.
     for (auto& perm : missing)
       granted.insert(perm);
-    ScriptPermissions::setGranted(path, granted);
+    ScriptPermissions::setSessionGranted(path, granted);
     std::string list;
     for (auto& perm : missing)
       list += (list.empty() ? "" : " ") + perm;

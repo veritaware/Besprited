@@ -256,6 +256,7 @@ public:
     permFsWrite()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
     permFetch()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
     permAppLaunch()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
+    permServer()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
     removeScriptPermission()->Click.connect(base::Bind<void>(&OptionsWindow::onRemoveScriptPermission, this));
     updateScriptPermissionChecks();
 
@@ -577,11 +578,13 @@ private:
     permFsWrite()->setEnabled(hasSelection);
     permFetch()->setEnabled(hasSelection);
     permAppLaunch()->setEnabled(hasSelection);
+    permServer()->setEnabled(hasSelection);
     removeScriptPermission()->setEnabled(hasSelection);
     permFsRead()->setSelected(perms.count(ScriptPermissions::kFsRead));
     permFsWrite()->setSelected(perms.count(ScriptPermissions::kFsWrite));
     permFetch()->setSelected(perms.count(ScriptPermissions::kFetch));
     permAppLaunch()->setSelected(perms.count(ScriptPermissions::kAppLaunch));
+    permServer()->setSelected(perms.count(ScriptPermissions::kServer));
   }
 
   void onScriptPermissionToggled()
@@ -598,6 +601,8 @@ private:
       perms.insert(ScriptPermissions::kFetch);
     if (permAppLaunch()->isSelected())
       perms.insert(ScriptPermissions::kAppLaunch);
+    if (permServer()->isSelected())
+      perms.insert(ScriptPermissions::kServer);
     ScriptPermissions::setGranted(item->getValue(), perms);
   }
 
@@ -608,6 +613,7 @@ private:
       return;
     ScriptPermissions::removeRecord(item->getValue());
     scriptPermissionsList()->removeChild(item);
+    delete item;
     updateScriptPermissionChecks();
   }
 

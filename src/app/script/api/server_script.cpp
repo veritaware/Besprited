@@ -22,6 +22,7 @@
 #include "delta/JSON.hpp"
 #include "delta/StringUtils.hpp"
 #include "di.hpp"
+#include "app/script/script_permissions.h"
 #include "app/task_manager.h"
 #include "base/fs.h"
 #include "httplib/httplib.h"
@@ -37,6 +38,7 @@
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
+#include <stdexcept>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -164,7 +166,7 @@ private:
   JSON::Value onGet, onPost, onPut, onDelete, onPatch, onOptions;
 
   // Lifecycle (touched on the main thread only).
-  int boundPort = 0;
+  std::atomic<int> boundPort{0};
   std::string error_;
   bool started = false;
   std::atomic_bool running{false};
@@ -322,6 +324,9 @@ Server::Server(JSON::Value& opts, ServerRegistry* reg, ServerExtension* e)
   : registry{reg}
   , ext{e}
 {
+  if (!app::ScriptPermissions::check(app::ScriptPermissions::kServer))
+    throw std::runtime_error(app::ScriptPermissions::denyMessage(app::ScriptPermissions::kServer));
+
   // httplib's default socket options set SO_REUSEPORT, which would let a
   // second server silently share an already-bound port instead of failing.
   // Set only SO_REUSEADDR: a busy port still fails to bind, but a port in
@@ -340,7 +345,12 @@ Server::Server(JSON::Value& opts, ServerRegistry* reg, ServerExtension* e)
     if (auto it = o.find("host"); it != o.end() && it->second.isString())
       host = it->second.string();
     if (auto it = o.find("staticFilePath"); it != o.end() && it->second.isString())
+    {
       staticFilePath = it->second.string();
+      // Serving a directory exposes its files, so it needs read access too.
+      if (!staticFilePath.empty() && !app::ScriptPermissions::check(app::ScriptPermissions::kFsRead))
+        throw std::runtime_error(app::ScriptPermissions::denyMessage(app::ScriptPermissions::kFsRead));
+    }
     if (auto it = o.find("defaultHeaders"); it != o.end() && it->second.isObject())
     {
       for (auto& [k, v] : it->second.object())
@@ -417,14 +427,18 @@ int Server::start()
   if (!ok)
     return 0;
 
+  // Created here, on the UI thread: request handlers run on httplib workers
+  // and must not be the first to touch the manager (or start its UI timer).
+  app::TaskManager::instance().prepare();
+
   running = true;
+  boundPort = bound;
   serverThread = std::thread(&Server::serve, this);
   // Wait (briefly) for the serve thread to enter the listening loop. stop()
   // only closes the socket once httplib's is_running_ is set, so without this
   // a stop() right after start() would join a thread still about to listen.
   for (int i = 0; i < 1000 && !server.is_running(); ++i)
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  boundPort = bound;
   started = true;
   if (registry)
     registry->registerServer(boundPort, weak_from_this());
@@ -439,10 +453,18 @@ void Server::stop()
   running = false;
 
   // Wake handlers blocked waiting for a response so they can bail out.
+  // Taking each request's mutex first orders `running = false` before the
+  // notify, so a handler between its predicate check and its wait can't
+  // miss the wakeup.
   {
     std::lock_guard lock(pendingMutex);
     for (auto& [_, pending] : pendingRequests)
+    {
+      {
+        std::lock_guard pendingLock(pending->mtx);
+      }
       pending->cv.notify_all();
+    }
   }
 
   // Close the socket; the serve thread's accept loop exits and it joins the

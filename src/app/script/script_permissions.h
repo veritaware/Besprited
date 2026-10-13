@@ -28,6 +28,7 @@ public:
   static const char* const kFsWrite;   // "fs.write"
   static const char* const kFetch;     // "fetch"
   static const char* const kAppLaunch; // "app.launch"
+  static const char* const kServer;    // "server"
 
   // True if the name is one of the known permissions.
   static bool isKnownPermission(const std::string& name);
@@ -35,6 +36,9 @@ public:
   // Parses the "///permission" lines of a script header (the leading
   // "///" block). Unknown names are ignored.
   static std::set<std::string> parseRequested(const std::string& path);
+
+  // Grants made for this run only (headless auto-grants): not persisted.
+  static void setSessionGranted(const std::string& path, const std::set<std::string>& perms);
 
   // Persisted grant records, keyed by the canonical script path (the
   // same form as AppScripting::getFileName()).
@@ -46,9 +50,28 @@ public:
   // Active script context: set by AppScripting before each eval; the
   // API extensions call check() at call time. Unrestricted by default
   // (REPL lines and headless evals of non-file code).
-  static void setActiveContext(const std::set<std::string>& perms);
+  static void setActiveContext(const std::string& path, const std::set<std::string>& perms);
   static void setUnrestricted();
   static bool check(const std::string& perm);
+
+  // Restores the active context when destroyed. Used to run code under a
+  // different context (REPL lines, nested scripts, events) without leaking
+  // it to whatever runs next.
+  class ScopedContext
+  {
+  public:
+    ScopedContext();
+    // Switches to the grants of `path` (the persisted record).
+    explicit ScopedContext(const std::string& path);
+    ~ScopedContext();
+    ScopedContext(const ScopedContext&) = delete;
+    ScopedContext& operator=(const ScopedContext&) = delete;
+
+  private:
+    bool m_unrestricted;
+    std::string m_path;
+    std::set<std::string> m_perms;
+  };
 
   // Human-readable denial message for error results and the console.
   static std::string denyMessage(const std::string& perm);

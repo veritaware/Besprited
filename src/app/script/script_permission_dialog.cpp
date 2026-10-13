@@ -24,10 +24,12 @@ ScriptPermissionDialog::ScriptPermissionDialog(const std::string& scriptPath, co
   permFsWrite()->setVisible(missing.count(app::ScriptPermissions::kFsWrite));
   permFetch()->setVisible(missing.count(app::ScriptPermissions::kFetch));
   permAppLaunch()->setVisible(missing.count(app::ScriptPermissions::kAppLaunch));
+  permServer()->setVisible(missing.count(app::ScriptPermissions::kServer));
   permFsRead()->setSelected(true);
   permFsWrite()->setSelected(true);
   permFetch()->setSelected(true);
   permAppLaunch()->setSelected(true);
+  permServer()->setSelected(true);
 }
 
 bool ScriptPermissionDialog::show(const std::string& scriptPath, const std::set<std::string>& missing,
@@ -47,6 +49,8 @@ bool ScriptPermissionDialog::show(const std::string& scriptPath, const std::set<
     outGranted.insert(app::ScriptPermissions::kFetch);
   if (dialog.permAppLaunch()->isSelected())
     outGranted.insert(app::ScriptPermissions::kAppLaunch);
+  if (dialog.permServer()->isSelected())
+    outGranted.insert(app::ScriptPermissions::kServer);
   return true;
 }
 

@@ -9,6 +9,7 @@
       <check id="perm_fs_write" text="Write and delete files (fs.write)" tooltip="fs.writeFile, fs.copyFile, fs.deleteFile" />
       <check id="perm_fetch" text="Make network requests (fetch)" tooltip="fetch and storage.fetch" />
       <check id="perm_app_launch" text="Open files/URLs with the OS (app.launch)" tooltip="app.launch" />
+      <check id="perm_server" text="Run a web server (server)" tooltip="HTTPServer: accepts connections and can serve files" />
       <hbox>
         <boxfiller />
         <hbox homogeneous="true">
