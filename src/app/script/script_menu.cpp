@@ -25,8 +25,7 @@ namespace app
 {
 using namespace ui;
 
-void scanFolder(const std::string& scriptsDir, Command* cmd_run_script,
-                Menu* parent)
+void scanFolder(const std::string& scriptsDir, Command* cmd_run_script, Menu* parent)
 {
   auto fs = FileSystemModule::instance();
   auto item = fs->getFileItemFromPath(base::fix_path_separators(scriptsDir));
@@ -69,8 +68,7 @@ bool ScriptMenu::rebuildScriptsList(Menu* menu)
     menu->removeChild(children.back());
   }
 
-  Command* cmd_run_script =
-      CommandsModule::instance()->getCommandByName(CommandId::RunScript);
+  Command* cmd_run_script = CommandsModule::instance()->getCommandByName(CommandId::RunScript);
   FileSystemModule* fs = FileSystemModule::instance();
 
   {
