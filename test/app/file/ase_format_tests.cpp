@@ -14,6 +14,7 @@
 #include "she/system.h"
 
 #include <cstdint>
+#include <cstdio>
 #include <fstream>
 #include <memory>
 #include <vector>
@@ -457,4 +458,119 @@ TEST(AseFormat, DeeplyNestedGroupDropIsReparentedToRootNotCrashing)
 
   loaded->close();
   delete loaded;
+}
+
+namespace
+{
+
+struct ChunkCountCase
+{
+  uint32_t chunks;
+  bool sentinel;
+  bool extended;
+};
+
+class AseChunkCount : public ::testing::TestWithParam<ChunkCountCase>
+{
+};
+
+} // namespace
+
+TEST_P(AseChunkCount, LoadsTheLastCel)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+  app::Context ctx;
+  const char* filename = "ase_chunk_count_test.ase";
+  auto* document = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  document->setFilename(filename);
+  document->sprite()->setFrameDuration(doc::frame_t(0), 123);
+  auto* layer = document->sprite()->folder()->getFirstLayer();
+  const auto color = doc::rgba(12, 34, 56, 255);
+  doc::put_pixel(layer->cel(doc::frame_t(0))->image(), 0, 0, color);
+  ASSERT_EQ(0, save_document(&ctx, document));
+  document->close();
+  delete document;
+
+  auto bytes = readWholeFile(filename);
+  ASSERT_GE(bytes.size(), 144u);
+  const uint32_t originalCount = getU16LE(bytes, 134);
+  const auto param = GetParam();
+  const uint32_t count = param.chunks ? param.chunks : originalCount;
+  ASSERT_GE(count, originalCount);
+
+  // Insert valid, ignored path chunks before the saved chunks. The cel
+  // stays last, so a truncated count cannot accidentally pass this test.
+  std::vector<uint8_t> padding(6u * (count - originalCount), 0);
+  for (std::size_t offset = 0; offset < padding.size(); offset += 6)
+  {
+    putU32LE(padding, offset, 6);
+    putU16LE(padding, offset + 4, 0x2017);
+  }
+  bytes.insert(bytes.begin() + 144, padding.begin(), padding.end());
+  putU32LE(bytes, 0, uint32_t(bytes.size()));
+  putU32LE(bytes, 128, uint32_t(bytes.size() - 128));
+  putU16LE(bytes, 134, param.sentinel ? 0xffff : uint16_t(param.extended ? count - 1 : count));
+  // Frame-relative offsets: duration 8, reserved 10, extended count 12.
+  putU16LE(bytes, 138, 0);
+  putU32LE(bytes, 140, param.extended ? count : 0);
+  writeWholeFile(filename, bytes);
+
+  auto* loaded = load_document(&ctx, filename);
+  ASSERT_NE(nullptr, loaded);
+  EXPECT_EQ(123, loaded->sprite()->frameDuration(doc::frame_t(0)));
+  auto* loadedLayer = loaded->sprite()->folder()->getFirstLayer();
+  ASSERT_NE(nullptr, loadedLayer);
+  auto cel = loadedLayer->cel(doc::frame_t(0));
+  ASSERT_NE(nullptr, cel);
+  EXPECT_EQ(color, doc::get_pixel(cel->image(), 0, 0));
+  loaded->close();
+  delete loaded;
+  std::remove(filename);
+}
+
+INSTANTIATE_TEST_SUITE_P(FrameHeader, AseChunkCount,
+                         ::testing::Values(ChunkCountCase{0, false, false}, ChunkCountCase{0, false, true},
+                                           ChunkCountCase{0xffff, true, false}, ChunkCountCase{0x10000, true, true}));
+
+TEST(AseFormat, WritesExtendedChunkCountAboveWordLimit)
+{
+  app::Context ctx;
+  const char* filename = "ase_extended_write_test.ase";
+  auto* document = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  document->setFilename(filename);
+  auto* sprite = document->sprite();
+  doc::UserData data;
+  data.setText("metadata");
+  // Each empty layer adds a layer chunk and a user-data chunk, without
+  // allocating or compressing thousands of images.
+  for (int i = 0; i < 32767; ++i)
+  {
+    auto* layer = new doc::LayerImage(sprite);
+    layer->setUserData(data);
+    sprite->folder()->addLayer(layer);
+  }
+  ASSERT_EQ(0, save_document(&ctx, document));
+  document->close();
+  delete document;
+
+  const auto bytes = readWholeFile(filename);
+  ASSERT_GE(bytes.size(), 144u);
+  ASSERT_EQ(bytes.size(), getU32LE(bytes, 0));
+  ASSERT_EQ(bytes.size() - 128, getU32LE(bytes, 128));
+  uint32_t count = 0;
+  std::size_t offset = 144;
+  while (offset < bytes.size())
+  {
+    ASSERT_GE(bytes.size() - offset, 6u);
+    const uint32_t size = getU32LE(bytes, offset);
+    ASSERT_GE(size, 6u);
+    ASSERT_LE(size, bytes.size() - offset);
+    offset += size;
+    ++count;
+  }
+  ASSERT_GT(count, 0xffffu);
+  EXPECT_EQ(0xffff, getU16LE(bytes, 134));
+  EXPECT_EQ(0, getU16LE(bytes, 138));
+  EXPECT_EQ(count, getU32LE(bytes, 140));
+  std::remove(filename);
 }

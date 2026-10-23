@@ -93,7 +93,7 @@ struct ASE_FrameHeader
 {
   uint32_t size;
   uint16_t magic;
-  uint16_t chunks;
+  uint32_t chunks;
   uint16_t duration;
 };
 
@@ -240,7 +240,7 @@ bool AseFormat::onLoad(FileOp* fop)
         sprite->setFrameDuration(frame, frame_header.duration);
 
       // Read chunks
-      for (int c = 0; c < frame_header.chunks; c++)
+      for (uint32_t c = 0; c < frame_header.chunks; c++)
       {
         /* start chunk position */
         int chunk_pos = ftell(f);
@@ -572,7 +572,10 @@ static void ase_file_read_frame_header(FILE* f, ASE_FrameHeader* frame_header)
   frame_header->magic = fgetw(f);
   frame_header->chunks = fgetw(f);
   frame_header->duration = fgetw(f);
-  ase_file_read_padding(f, 6);
+  ase_file_read_padding(f, 2);
+  const uint32_t new_chunks = fgetl(f);
+  if (new_chunks != 0)
+    frame_header->chunks = new_chunks;
 }
 
 static void ase_file_prepare_frame_header(FILE* f, ASE_FrameHeader* frame_header)
@@ -598,9 +601,10 @@ static void ase_file_write_frame_header(FILE* f, ASE_FrameHeader* frame_header)
 
   fputl(frame_header->size, f);
   fputw(frame_header->magic, f);
-  fputw(frame_header->chunks, f);
+  fputw(frame_header->chunks < 0xffff ? frame_header->chunks : 0xffff, f);
   fputw(frame_header->duration, f);
-  ase_file_write_padding(f, 6);
+  ase_file_write_padding(f, 2);
+  fputl(frame_header->chunks < 0xffff ? 0 : frame_header->chunks, f);
 
   fseek(f, end, SEEK_SET);
 }
