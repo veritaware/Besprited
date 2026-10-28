@@ -9,6 +9,7 @@
 
 #include "gfx/point.h"
 #include "gfx/rect.h"
+#include "gfx/size.h"
 #include <vector>
 
 namespace app
@@ -98,6 +99,10 @@ public:
   void displacePivotTo(const gfx::PointF& newPivot);
 
   gfx::RectF transformedBounds() const;
+
+  // True if this is an unscaled rotation by a multiple of 90 degrees of an
+  // image of the given size, i.e. it can be applied pixel-perfectly.
+  bool isUnscaledQuarterTurn(const gfx::Size& srcSize) const;
 
   // Static helper method to rotate points.
   static gfx::PointF rotatePoint(const gfx::PointF& point, const gfx::PointF& pivot, double angle);

@@ -673,10 +673,9 @@ void PixelsMovement::drawParallelogram(doc::Image* dst, const doc::Image* src, c
 {
   tools::RotationAlgorithm rotAlgo = Preferences::instance().selection.rotationAlgorithm();
 
-  // If the angle and the scale weren't modified, we should use the
-  // fast rotation algorithm, as it's pixel-perfect match with the
-  // original selection when just a translation is applied.
-  if (m_currentData.angle() == 0.0 && gfx::Rect(m_currentData.bounds()).size() == src->size())
+  // Use the fast algorithm for unscaled multiples of 90 deg: it's a
+  // pixel-perfect match (RotSprite alters pixels even on exact turns).
+  if (m_currentData.isUnscaledQuarterTurn(src->size()))
   {
     rotAlgo = tools::RotationAlgorithm::FAST;
   }

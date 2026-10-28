@@ -10,6 +10,7 @@
 
 #include "app/transformation.h"
 
+#include "base/pi.h"
 #include "fixmath/fixmath.h"
 #include "gfx/size.h"
 
@@ -93,6 +94,12 @@ RectF Transformation::transformedBounds() const
     bounds = bounds.createUnion(RectF(corners[i].x, corners[i].y, 1, 1));
 
   return bounds;
+}
+
+bool Transformation::isUnscaledQuarterTurn(const Size& srcSize) const
+{
+  const double quarterTurns = m_angle * 2.0 / PI;
+  return std::fabs(quarterTurns - std::round(quarterTurns)) < 1e-4 && Rect(m_bounds).size() == srcSize;
 }
 
 } // namespace app
