@@ -13,17 +13,33 @@
 #include "doc/doc.h"
 #include "doc/image_traits.h"
 #include "she/system.h"
+#include "zlib.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <fstream>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 using namespace app;
 
 namespace
 {
+
+class ScopedTestFile
+{
+public:
+  explicit ScopedTestFile(const char* filename)
+    : m_filename(filename)
+  {
+  }
+  ~ScopedTestFile() { std::remove(m_filename); }
+
+private:
+  const char* m_filename;
+};
 
 void putU16LE(std::vector<uint8_t>& buf, std::size_t offset, uint16_t v)
 {
@@ -530,6 +546,7 @@ TEST_P(AseChunkCount, LoadsTheLastCel)
   const auto param = GetParam();
   const uint32_t count = param.chunks ? param.chunks : originalCount;
   ASSERT_GE(count, originalCount);
+  ASSERT_GT(count, 0u);
 
   // Insert valid, ignored path chunks before the saved chunks. The cel
   // stays last, so a truncated count cannot accidentally pass this test.
@@ -566,6 +583,7 @@ INSTANTIATE_TEST_SUITE_P(FrameHeader, AseChunkCount,
 
 TEST(AseFormat, WritesExtendedChunkCountAboveWordLimit)
 {
+  std::unique_ptr<she::System> sys(she::create_system());
   app::Context ctx;
   const TempFile tmp("ase_extended_write_test.ase");
   const char* filename = tmp.path;
@@ -606,7 +624,6 @@ TEST(AseFormat, WritesExtendedChunkCountAboveWordLimit)
   EXPECT_EQ(0, getU16LE(bytes, 138));
   EXPECT_EQ(count, getU32LE(bytes, 140));
 
-  std::unique_ptr<she::System> sys(she::create_system());
   auto* loaded = load_document(&ctx, filename);
   ASSERT_NE(nullptr, loaded);
   EXPECT_EQ(32768, int(loaded->sprite()->countLayers()));
@@ -666,6 +683,65 @@ TEST(AseFormat, ImpossibleChunkCountStopsAtTheFrameEnd)
                              });
   ASSERT_NE(nullptr, loaded);
   EXPECT_EQ(color, pixelOf(loaded, 0));
+  loaded->close();
+  delete loaded;
+}
+
+TEST(AseFormat, RepeatedUnknownChunksHaveBoundedDiagnostics)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+  app::Context ctx;
+  const char* filename = "ase_unknown_repeated_test.ase";
+  ScopedTestFile cleanup(filename);
+  auto* document = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  document->setFilename(filename);
+  ASSERT_EQ(0, save_document(&ctx, document));
+  document->close();
+  delete document;
+  auto bytes = readWholeFile(filename);
+  ASSERT_GE(bytes.size(), 144u);
+  constexpr unsigned count = 10000;
+  bytes.resize(144 + count * 6, 0);
+  putU32LE(bytes, 0, bytes.size());
+  putU32LE(bytes, 128, bytes.size() - 128);
+  putU16LE(bytes, 134, count);
+  putU32LE(bytes, 140, 0);
+  for (unsigned offset = 144; offset < bytes.size(); offset += 6)
+  {
+    putU32LE(bytes, offset, 6);
+    putU16LE(bytes, offset + 4, 0xffff);
+  }
+  writeWholeFile(filename, bytes);
+  std::unique_ptr<FileOp> operation(FileOp::createLoadDocumentOperation(&ctx, filename, FILE_LOAD_SEQUENCE_NONE));
+  ASSERT_NE(nullptr, operation);
+  operation->operate();
+  operation->done();
+  EXPECT_TRUE(operation->hasError());
+  EXPECT_LT(operation->error().size(), 4096u);
+  ASSERT_NE(nullptr, operation->document()); // Unknown chunks remain skippable.
+  operation->document()->close();
+  delete operation->document();
+}
+
+TEST(AseFormat, FrameTagsRoundTripWithNames)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+  app::Context ctx;
+  const char* filename = "ase_tags_roundtrip_test.ase";
+  ScopedTestFile cleanup(filename);
+  auto* document = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  document->setFilename(filename);
+  auto tag = std::make_unique<doc::FrameTag>(doc::frame_t(0), doc::frame_t(0));
+  tag->setName("walk");
+  document->sprite()->frameTags().add(tag.get());
+  tag.release();
+  ASSERT_EQ(0, save_document(&ctx, document));
+  document->close();
+  delete document;
+  auto* loaded = load_document(&ctx, filename);
+  ASSERT_NE(nullptr, loaded);
+  EXPECT_EQ(1u, loaded->sprite()->frameTags().size());
+  EXPECT_NE(nullptr, loaded->sprite()->frameTags().getByName("walk"));
   loaded->close();
   delete loaded;
 }
@@ -885,4 +961,131 @@ TEST(Palette, CopyEntryFromCarriesName)
   EXPECT_EQ("Src", dst->entryName(2));
   EXPECT_EQ(doc::rgba(9, 8, 7, 255), dst->entry(2));
   EXPECT_EQ(0, dst->countDiff(*dst->clone(), nullptr, nullptr, true));
+}
+
+namespace
+{
+
+class AsePixelPayload : public ::testing::Test
+{
+protected:
+  std::unique_ptr<she::System> sys{she::create_system()};
+  app::Context ctx;
+  const char* filename = "ase_pixel_payload_test.ase";
+  ScopedTestFile cleanup{filename};
+  std::vector<uint8_t> bytes;
+  size_t celOffset = 0;
+
+  void makeFile(doc::ColorMode mode = doc::ColorMode::RGB)
+  {
+    auto* document = ctx.documents().add(2, 2, mode);
+    document->setFilename(filename);
+    ASSERT_EQ(0, save_document(&ctx, document));
+    document->close();
+    delete document;
+    bytes = readWholeFile(filename);
+    ASSERT_GE(bytes.size(), 144u);
+    for (size_t offset = 144; offset < bytes.size();)
+    {
+      ASSERT_GE(bytes.size() - offset, 6u);
+      const size_t size = getU32LE(bytes, offset);
+      ASSERT_GE(size, 6u);
+      ASSERT_LE(size, bytes.size() - offset);
+      if (getU16LE(bytes, offset + 4) == 0x2005)
+      {
+        ASSERT_GE(size, 26u);
+        ASSERT_EQ(bytes.size(), offset + size);
+        celOffset = offset;
+        return;
+      }
+      offset += size;
+    }
+    FAIL() << "Saved cel not found";
+  }
+
+  void setPixels(const std::vector<uint8_t>& payload, bool compressed)
+  {
+    bytes.resize(celOffset + 26);
+    bytes.insert(bytes.end(), payload.begin(), payload.end());
+    putU16LE(bytes, celOffset + 13, compressed ? 2 : 0);
+    putU32LE(bytes, celOffset, static_cast<uint32_t>(26 + payload.size()));
+    putU32LE(bytes, 0, static_cast<uint32_t>(bytes.size()));
+    putU32LE(bytes, 128, static_cast<uint32_t>(bytes.size() - 128));
+  }
+};
+
+std::vector<uint8_t> compressPixels(const std::vector<uint8_t>& pixels)
+{
+  uLongf size = compressBound(pixels.size());
+  std::vector<uint8_t> result(size);
+  if (compress2(result.data(), &size, pixels.data(), pixels.size(), Z_DEFAULT_COMPRESSION) != Z_OK)
+    throw std::runtime_error("Cannot prepare compressed pixel test");
+  result.resize(size);
+  return result;
+}
+
+class AseValidPixels : public AsePixelPayload,
+                       public ::testing::WithParamInterface<int>
+{
+};
+} // namespace
+
+TEST_P(AseValidPixels, LoadsExactPixelBytes)
+{
+  const int format = GetParam() % 3;
+  const bool compressed = GetParam() >= 3;
+  const doc::ColorMode mode =
+      format == 0 ? doc::ColorMode::RGB : (format == 1 ? doc::ColorMode::GRAYSCALE : doc::ColorMode::INDEXED);
+  ASSERT_NO_FATAL_FAILURE(makeFile(mode));
+  const size_t stride = format == 0 ? 4 : (format == 1 ? 2 : 1);
+  std::vector<uint8_t> pixels(4 * stride);
+  for (size_t i = 0; i < pixels.size(); ++i)
+    pixels[i] = static_cast<uint8_t>(i + 1);
+  setPixels(compressed ? compressPixels(pixels) : pixels, compressed);
+  writeWholeFile(filename, bytes);
+  std::unique_ptr<app::Document> loaded(load_document(&ctx, filename));
+  ASSERT_NE(nullptr, loaded);
+  const auto cel = loaded->sprite()->folder()->getFirstLayer()->cel(doc::frame_t(0));
+  ASSERT_NE(nullptr, cel);
+  for (int i = 0; i < 4; ++i)
+  {
+    const auto* p = &pixels[i * stride];
+    const doc::color_t expected =
+        format == 0 ? doc::rgba(p[0], p[1], p[2], p[3]) : (format == 1 ? doc::graya(p[0], p[1]) : p[0]);
+    EXPECT_EQ(expected, doc::get_pixel(cel->image(), i % 2, i / 2));
+  }
+  loaded->close();
+}
+
+INSTANTIATE_TEST_SUITE_P(PixelFormats, AseValidPixels, ::testing::Range(0, 6));
+
+TEST_F(AsePixelPayload, StreamsCompressedPixelsAcrossInputBlocks)
+{
+  ASSERT_NO_FATAL_FAILURE(makeFile());
+  std::vector<uint8_t> pixels(64 * 64 * 4);
+  uint32_t state = 123;
+  for (auto& byte : pixels)
+  {
+    state = state * 1664525u + 1013904223u;
+    byte = static_cast<uint8_t>(state >> 24);
+  }
+  const auto compressed = compressPixels(pixels);
+  ASSERT_GT(compressed.size(), 4096u);
+  setPixels(compressed, true);
+  putU16LE(bytes, 8, 64);
+  putU16LE(bytes, 10, 64);
+  putU16LE(bytes, celOffset + 22, 64);
+  putU16LE(bytes, celOffset + 24, 64);
+  writeWholeFile(filename, bytes);
+  std::unique_ptr<app::Document> loaded(load_document(&ctx, filename));
+  ASSERT_NE(nullptr, loaded);
+  const auto cel = loaded->sprite()->folder()->getFirstLayer()->cel(doc::frame_t(0));
+  ASSERT_NE(nullptr, cel);
+  for (int y = 0; y < 64; ++y)
+    for (int x = 0; x < 64; ++x)
+    {
+      const auto* p = &pixels[4 * (y * 64 + x)];
+      EXPECT_EQ(doc::rgba(p[0], p[1], p[2], p[3]), doc::get_pixel(cel->image(), x, y));
+    }
+  loaded->close();
 }
