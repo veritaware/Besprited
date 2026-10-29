@@ -103,8 +103,6 @@ ClipboardManager::ClipboardManager()
   ASSERT(!g_instance);
   g_instance = this;
 
-  register_native_clipboard_formats();
-
   clipboard_range.observeUIContext();
 }
 

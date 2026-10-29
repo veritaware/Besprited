@@ -11,7 +11,8 @@
 #include "app/commands/command.h"
 #include "app/message_log.h"
 #include "app/modules/gui.h"
-#include "clip/clip.h"
+#include "she/clipboard.h"
+#include "she/system.h"
 #include "ui/ui.h"
 
 #include "messages.xml.h"
@@ -31,7 +32,7 @@ public:
   {
     view()->attachToView(m_textbox);
 
-    copy()->Click.connect([this](ui::Event&) { clip::set_text(app::MessageLog::instance()->toText()); });
+    copy()->Click.connect([this](ui::Event&) { she::instance()->clipboard()->setText(app::MessageLog::instance()->toText()); });
     clear()->Click.connect(
         [this](ui::Event&)
         {

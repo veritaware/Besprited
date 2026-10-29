@@ -19,6 +19,7 @@
 namespace she
 {
 
+class Clipboard;
 class Display;
 class EventQueue;
 class Font;
@@ -44,6 +45,7 @@ public:
   [[nodiscard]] virtual Capabilities capabilities() const = 0;
   virtual Logger* logger() = 0;
   virtual NativeDialogs* nativeDialogs() = 0;
+  virtual Clipboard* clipboard() = 0;
   virtual EventQueue* eventQueue() = 0;
   [[nodiscard]] virtual bool gpuAcceleration() const = 0;
   virtual void setGpuAcceleration(bool state) = 0;

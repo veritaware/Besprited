@@ -25,6 +25,7 @@ endif()
 
 if(USE_SDL2_BACKEND)
   list(APPEND SHE_SOURCES
+    sdl2/sdl2_clipboard.cpp
     sdl2/sdl2_display.cpp
     sdl2/sdl2_surface.cpp
     sdl2/she.cpp)
@@ -35,6 +36,7 @@ endif()
 
 if(USE_SDL3_BACKEND)
   list(APPEND SHE_SOURCES
+    sdl3/sdl3_clipboard.cpp
     sdl3/sdl3_display.cpp
     sdl3/sdl3_surface.cpp
     sdl3/she.cpp)
@@ -71,7 +73,7 @@ target_link_libraries(she
   ${FREETYPE_LIBRARIES})
 
 if(USE_SDL2_BACKEND)
-  target_link_libraries(she ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
+  target_link_libraries(she clip ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
   target_compile_options(she PUBLIC ${SDL2_CFLAGS_OTHER})
 endif()
 
