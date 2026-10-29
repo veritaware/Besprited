@@ -13,6 +13,7 @@
 #include "app/context.h"
 #include "app/document.h"
 #include "app/file/file.h"
+#include "app/file/ase_reader.h"
 #include "app/file/file_format.h"
 #include "app/file/format_options.h"
 #include "base/cfile.h"
@@ -23,7 +24,9 @@
 #include "ui/alert.h"
 #include "zlib.h"
 
+#include <array>
 #include <cstdio>
+#include <limits>
 #include <memory>
 
 #define ASE_FILE_MAGIC 0xA5E0
@@ -93,7 +96,7 @@ struct ASE_FrameHeader
 {
   uint32_t size;
   uint16_t magic;
-  uint16_t chunks;
+  uint32_t chunks;
   uint16_t duration;
 };
 
@@ -108,7 +111,7 @@ static void ase_file_prepare_header(FILE* f, ASE_Header* header, const Sprite* s
 static void ase_file_write_header(FILE* f, ASE_Header* header);
 static void ase_file_write_header_filesize(FILE* f, ASE_Header* header);
 
-static void ase_file_read_frame_header(FILE* f, ASE_FrameHeader* frame_header);
+static bool ase_file_read_frame_header(FILE* f, ASE_FrameHeader* frame_header);
 static void ase_file_prepare_frame_header(FILE* f, ASE_FrameHeader* frame_header);
 static void ase_file_write_frame_header(FILE* f, ASE_FrameHeader* frame_header);
 
@@ -116,33 +119,31 @@ static void ase_file_write_layers(FILE* f, ASE_FrameHeader* frame_header, const 
 static void ase_file_write_cels(FILE* f, ASE_FrameHeader* frame_header, const Sprite* sprite, const Layer* layer,
                                 frame_t frame);
 
-static void ase_file_read_padding(FILE* f, int bytes);
 static void ase_file_write_padding(FILE* f, int bytes);
-static std::string ase_file_read_string(FILE* f);
 static void ase_file_write_string(FILE* f, const std::string& string);
 
 static void ase_file_write_start_chunk(FILE* f, ASE_FrameHeader* frame_header, int type, ASE_Chunk* chunk);
 static void ase_file_write_close_chunk(FILE* f, ASE_Chunk* chunk);
 
-static std::shared_ptr<Palette> ase_file_read_color_chunk(FILE* f, const Palette& prevPal, frame_t frame);
-static std::shared_ptr<Palette> ase_file_read_color2_chunk(FILE* f, const Palette& prevPal, frame_t frame);
-static std::shared_ptr<Palette> ase_file_read_palette_chunk(FILE* f, const Palette& prevPal, frame_t frame);
+static std::shared_ptr<Palette> ase_file_read_color_chunk(AseReader& f, const Palette& prevPal, frame_t frame);
+static std::shared_ptr<Palette> ase_file_read_color2_chunk(AseReader& f, const Palette& prevPal, frame_t frame);
+static std::shared_ptr<Palette> ase_file_read_palette_chunk(AseReader& f, const Palette& prevPal, frame_t frame);
 static void ase_file_write_color2_chunk(FILE* f, ASE_FrameHeader* frame_header, const Palette* pal);
 static void ase_file_write_palette_chunk(FILE* f, ASE_FrameHeader* frame_header, const Palette* pal, int from, int to);
-static Layer* ase_file_read_layer_chunk(FILE* f, ASE_Header* header, Sprite* sprite, Layer** previous_layer,
+static Layer* ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite* sprite, Layer** previous_layer,
                                         int* current_level);
 static void ase_file_write_layer_chunk(FILE* f, ASE_FrameHeader* frame_header, const Layer* layer);
-static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame, PixelFormat pixelFormat, FileOp* fop,
-                                    ASE_Header* header, size_t chunk_end);
+static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, frame_t frame, PixelFormat pixelFormat, FileOp* fop,
+                                    ASE_Header* header);
 static void ase_file_write_cel_chunk(FILE* f, ASE_FrameHeader* frame_header, const Cel* cel, const LayerImage* layer,
                                      const Sprite* sprite);
-static Mask* ase_file_read_mask_chunk(FILE* f);
+static Mask* ase_file_read_mask_chunk(AseReader& f);
 #if 0
 static void ase_file_write_mask_chunk(FILE* f, ASE_FrameHeader* frame_header, Mask* mask);
 #endif
-static void ase_file_read_frame_tags_chunk(FILE* f, FrameTags* frameTags);
+static void ase_file_read_frame_tags_chunk(AseReader& f, FrameTags* frameTags);
 static void ase_file_write_frame_tags_chunk(FILE* f, ASE_FrameHeader* frame_header, const FrameTags* frameTags);
-static void ase_file_read_user_data_chunk(FILE* f, UserData* userData);
+static void ase_file_read_user_data_chunk(AseReader& f, UserData* userData);
 static void ase_file_write_user_data_chunk(FILE* f, ASE_FrameHeader* frame_header, const UserData* userData);
 static bool ase_has_groups(LayerFolder* layer);
 static void ase_ungroup_all(LayerFolder* layer);
@@ -188,6 +189,18 @@ bool AseFormat::onLoad(FileOp* fop)
   FileHandle handle(open_file_with_exception(fop->filename(), "rb"));
   FILE* f = handle.get();
   bool ignore_old_color_chunks = false;
+  bool warned_unknown_chunk = false;
+  if (fseek(f, 0, SEEK_END) != 0)
+  {
+    fop->setError("Error seeking in ASE file\n");
+    return false;
+  }
+  const long file_end = ftell(f);
+  if (file_end < 128 || fseek(f, 0, SEEK_SET) != 0)
+  {
+    fop->setError("Invalid ASE file size\n");
+    return false;
+  }
 
   ASE_Header header;
   if (!ase_file_read_header(f, &header))
@@ -225,12 +238,29 @@ bool AseFormat::onLoad(FileOp* fop)
   for (frame_t frame(0); frame < sprite->totalFrames(); ++frame)
   {
     // Start frame position
-    int frame_pos = ftell(f);
+    const long frame_pos = ftell(f);
     fop->setProgress((float)frame_pos / (float)header.size);
 
     // Read frame header
     ASE_FrameHeader frame_header;
-    ase_file_read_frame_header(f, &frame_header);
+    if (frame_pos < 0 || frame_pos > file_end || file_end - frame_pos < 16 ||
+        !ase_file_read_frame_header(f, &frame_header))
+    {
+      fop->setError("Truncated ASE frame header\n");
+      return false;
+    }
+    if (frame_header.size < 16 || frame_header.size > static_cast<unsigned long>(file_end - frame_pos))
+    {
+      fop->setError("Invalid ASE frame size\n");
+      return false;
+    }
+    const long frame_end = frame_pos + frame_header.size;
+    // Even empty chunks need six bytes; reject impossible counts before decoding.
+    if (frame_header.chunks > (frame_header.size - 16) / 6)
+    {
+      fop->setError("Invalid ASE frame chunk count\n");
+      return false;
+    }
 
     // Correct frame type
     if (frame_header.magic == ASE_FILE_FRAME_MAGIC)
@@ -240,108 +270,143 @@ bool AseFormat::onLoad(FileOp* fop)
         sprite->setFrameDuration(frame, frame_header.duration);
 
       // Read chunks
-      for (int c = 0; c < frame_header.chunks; c++)
+      for (uint32_t c = 0; c < frame_header.chunks; c++)
       {
         /* start chunk position */
-        int chunk_pos = ftell(f);
+        if (fop->isStop())
+          return false;
+        const long chunk_pos = ftell(f);
+        if (chunk_pos < 0 || chunk_pos > frame_end || frame_end - chunk_pos < 6 || feof(f) || ferror(f))
+        {
+          fop->setError("Truncated ASE chunk header\n");
+          return false;
+        }
         fop->setProgress((float)chunk_pos / (float)header.size);
 
         // Read chunk information
-        int chunk_size = fgetl(f);
-        int chunk_type = fgetw(f);
-
-        switch (chunk_type)
+        const uint32_t chunk_size = fgetl(f);
+        const int chunk_type = fgetw(f);
+        if (feof(f) || ferror(f) || chunk_size < 6 || chunk_size > static_cast<unsigned long>(frame_end - chunk_pos))
         {
+          fop->setError("Invalid ASE chunk size\n");
+          return false;
+        }
+        const long chunk_end = chunk_pos + chunk_size;
 
-        case ASE_FILE_CHUNK_FLI_COLOR:
-        case ASE_FILE_CHUNK_FLI_COLOR2:
-          if (!ignore_old_color_chunks)
+        AseReader reader(f, chunk_size - 6);
+        try
+        {
+          switch (chunk_type)
+          {
+
+          case ASE_FILE_CHUNK_FLI_COLOR:
+          case ASE_FILE_CHUNK_FLI_COLOR2:
+            if (!ignore_old_color_chunks)
+            {
+              Palette* prevPal = sprite->palette(frame);
+              auto pal = chunk_type == ASE_FILE_CHUNK_FLI_COLOR ? ase_file_read_color_chunk(reader, *prevPal, frame)
+                                                                : ase_file_read_color2_chunk(reader, *prevPal, frame);
+              if (prevPal->countDiff(*pal, nullptr, nullptr) > 0)
+                sprite->setPalette(*pal, true);
+            }
+            break;
+
+          case ASE_FILE_CHUNK_PALETTE:
           {
             Palette* prevPal = sprite->palette(frame);
-            auto pal = chunk_type == ASE_FILE_CHUNK_FLI_COLOR ? ase_file_read_color_chunk(f, *prevPal, frame)
-                                                              : ase_file_read_color2_chunk(f, *prevPal, frame);
+            auto pal = ase_file_read_palette_chunk(reader, *prevPal, frame);
+
             if (prevPal->countDiff(*pal, nullptr, nullptr) > 0)
               sprite->setPalette(*pal, true);
+
+            ignore_old_color_chunks = true;
+            break;
           }
-          break;
 
-        case ASE_FILE_CHUNK_PALETTE:
-        {
-          Palette* prevPal = sprite->palette(frame);
-          auto pal = ase_file_read_palette_chunk(f, *prevPal, frame);
-
-          if (prevPal->countDiff(*pal, nullptr, nullptr) > 0)
-            sprite->setPalette(*pal, true);
-
-          ignore_old_color_chunks = true;
-          break;
-        }
-
-        case ASE_FILE_CHUNK_LAYER:
-        {
-          last_object_with_user_data = ase_file_read_layer_chunk(f, &header, sprite.get(), &last_layer, &current_level);
-          break;
-        }
-
-        case ASE_FILE_CHUNK_CEL:
-        {
-          Cel* cel = ase_file_read_cel_chunk(f, sprite.get(), frame, sprite->pixelFormat(), fop, &header,
-                                             chunk_pos + chunk_size);
-          if (cel)
+          case ASE_FILE_CHUNK_LAYER:
           {
-            last_object_with_user_data = cel->data();
+            last_object_with_user_data =
+                ase_file_read_layer_chunk(reader, &header, sprite.get(), &last_layer, &current_level);
+            break;
           }
-          break;
-        }
 
-        case ASE_FILE_CHUNK_MASK:
+          case ASE_FILE_CHUNK_CEL:
+          {
+            Cel* cel = ase_file_read_cel_chunk(reader, sprite.get(), frame, sprite->pixelFormat(), fop, &header);
+            if (cel)
+            {
+              last_object_with_user_data = cel->data();
+            }
+            break;
+          }
+
+          case ASE_FILE_CHUNK_MASK:
+          {
+            Mask* mask = ase_file_read_mask_chunk(reader);
+            if (mask)
+              delete mask; // TODO add the mask in some place?
+            else
+              fop->setError("Warning: error loading a mask chunk\n");
+            break;
+          }
+
+          case ASE_FILE_CHUNK_PATH:
+            // Ignore
+            break;
+
+          case ASE_FILE_CHUNK_TAGS:
+            ase_file_read_frame_tags_chunk(reader, &sprite->frameTags());
+            break;
+
+          case ASE_FILE_CHUNK_USER_DATA:
+          {
+            UserData userData;
+            ase_file_read_user_data_chunk(reader, &userData);
+            if (last_object_with_user_data)
+              last_object_with_user_data->setUserData(userData);
+            break;
+          }
+
+          case ASE_FILE_CHUNK_COLOR_PROFILE:
+          {
+            (void)reader.word();  //  type
+            (void)reader.word();  //  flags
+            (void)reader.dword(); //  gamma
+            reader.skip(8);
+            break;
+          }
+
+          default:
+            if (!warned_unknown_chunk)
+            {
+              fop->setError("Warning: Unsupported chunk type %d (skipping; further warnings suppressed)\n", chunk_type);
+              warned_unknown_chunk = true;
+            }
+            break;
+          }
+        }
+        catch (const std::exception& e)
         {
-          Mask* mask = ase_file_read_mask_chunk(f);
-          if (mask)
-            delete mask; // TODO add the mask in some place?
-          else
-            fop->setError("Warning: error loading a mask chunk\n");
-          break;
+          fop->setError("Error reading ASE chunk: %s\n", e.what());
+          return false;
         }
 
-        case ASE_FILE_CHUNK_PATH:
-          // Ignore
-          break;
-
-        case ASE_FILE_CHUNK_TAGS:
-          ase_file_read_frame_tags_chunk(f, &sprite->frameTags());
-          break;
-
-        case ASE_FILE_CHUNK_USER_DATA:
+        const long chunk_read_end = ftell(f);
+        if (feof(f) || ferror(f) || chunk_read_end < 0 || chunk_read_end > chunk_end ||
+            fseek(f, chunk_end, SEEK_SET) != 0)
         {
-          UserData userData;
-          ase_file_read_user_data_chunk(f, &userData);
-          if (last_object_with_user_data)
-            last_object_with_user_data->setUserData(userData);
-          break;
+          fop->setError("Error reading ASE chunk\n");
+          return false;
         }
-
-        case ASE_FILE_CHUNK_COLOR_PROFILE:
-        {
-          (void)fgetw(f); //  type
-          (void)fgetw(f); //  flags
-          (void)fgetl(f); //  gamma
-          ase_file_read_padding(f, 8);
-          break;
-        }
-
-        default:
-          fop->setError("Warning: Unsupported chunk type %d (skipping)\n", chunk_type);
-          break;
-        }
-
-        // Skip chunk size
-        fseek(f, chunk_pos + chunk_size, SEEK_SET);
       }
     }
 
     // Skip frame size
-    fseek(f, frame_pos + frame_header.size, SEEK_SET);
+    if (fseek(f, frame_end, SEEK_SET) != 0)
+    {
+      fop->setError("Error seeking to ASE frame end\n");
+      return false;
+    }
 
     // Just one frame?
     if (fop->isOneFrame())
@@ -566,13 +631,23 @@ static void ase_file_write_header_filesize(FILE* f, ASE_Header* header)
   fseek(f, header->pos + header->size, SEEK_SET);
 }
 
-static void ase_file_read_frame_header(FILE* f, ASE_FrameHeader* frame_header)
+static bool ase_file_read_frame_header(FILE* f, ASE_FrameHeader* frame_header)
 {
-  frame_header->size = fgetl(f);
-  frame_header->magic = fgetw(f);
-  frame_header->chunks = fgetw(f);
-  frame_header->duration = fgetw(f);
-  ase_file_read_padding(f, 6);
+  uint8_t bytes[16];
+  if (fread(bytes, 1, sizeof(bytes), f) != sizeof(bytes))
+    return false;
+  const auto word = [&bytes](int offset) -> uint16_t
+  { return uint16_t(bytes[offset]) | (uint16_t(bytes[offset + 1]) << 8); };
+  const auto dword = [&word](int offset) -> uint32_t
+  { return uint32_t(word(offset)) | (uint32_t(word(offset + 2)) << 16); };
+  frame_header->size = dword(0);
+  frame_header->magic = word(4);
+  frame_header->chunks = word(6);
+  frame_header->duration = word(8);
+  const uint32_t new_chunks = dword(12);
+  if (new_chunks != 0)
+    frame_header->chunks = new_chunks;
+  return true;
 }
 
 static void ase_file_prepare_frame_header(FILE* f, ASE_FrameHeader* frame_header)
@@ -598,9 +673,10 @@ static void ase_file_write_frame_header(FILE* f, ASE_FrameHeader* frame_header)
 
   fputl(frame_header->size, f);
   fputw(frame_header->magic, f);
-  fputw(frame_header->chunks, f);
+  fputw(frame_header->chunks < 0xffff ? frame_header->chunks : 0xffff, f);
   fputw(frame_header->duration, f);
-  ase_file_write_padding(f, 6);
+  ase_file_write_padding(f, 2);
+  fputl(frame_header->chunks < 0xffff ? 0 : frame_header->chunks, f);
 
   fseek(f, end, SEEK_SET);
 }
@@ -650,32 +726,13 @@ static void ase_file_write_cels(FILE* f, ASE_FrameHeader* frame_header, const Sp
   }
 }
 
-static void ase_file_read_padding(FILE* f, int bytes)
-{
-  for (int c = 0; c < bytes; c++)
-    fgetc(f);
-}
-
 static void ase_file_write_padding(FILE* f, int bytes)
 {
   for (int c = 0; c < bytes; c++)
     fputc(0, f);
 }
 
-static std::string ase_file_read_string(FILE* f)
-{
-  int length = fgetw(f);
-  if (length == EOF)
-    return "";
 
-  std::string string;
-  string.reserve(length + 1);
-
-  for (int c = 0; c < length; c++)
-    string.push_back(fgetc(f));
-
-  return string;
-}
 
 static void ase_file_write_string(FILE* f, const std::string& string)
 {
@@ -706,28 +763,30 @@ static void ase_file_write_close_chunk(FILE* f, ASE_Chunk* chunk)
   fseek(f, chunk_end, SEEK_SET);
 }
 
-static std::shared_ptr<Palette> ase_file_read_color_chunk(FILE* f, const Palette& prevPal, frame_t frame)
+static std::shared_ptr<Palette> ase_file_read_color_chunk(AseReader& f, const Palette& prevPal, frame_t frame)
 {
   int i, c, r, g, b, packets, skip, size;
   auto pal = prevPal.clone();
   pal->setFrame(frame);
 
-  packets = fgetw(f); // Number of packets
+  packets = f.word(); // Number of packets
   skip = 0;
 
   // Read all packets
   for (i = 0; i < packets; i++)
   {
-    skip += fgetc(f);
-    size = fgetc(f);
+    skip += f.byte();
+    size = f.byte();
     if (!size)
       size = 256;
 
     for (c = skip; c < skip + size; c++)
     {
-      r = fgetc(f);
-      g = fgetc(f);
-      b = fgetc(f);
+      r = f.byte();
+      g = f.byte();
+      b = f.byte();
+      if (r > 63 || g > 63 || b > 63)
+        throw base::Exception("Invalid six-bit ASE palette color.");
       pal->setEntry(c, rgba(scale_6bits_to_8bits(r), scale_6bits_to_8bits(g), scale_6bits_to_8bits(b), 255));
     }
   }
@@ -735,28 +794,28 @@ static std::shared_ptr<Palette> ase_file_read_color_chunk(FILE* f, const Palette
   return pal;
 }
 
-static std::shared_ptr<Palette> ase_file_read_color2_chunk(FILE* f, const Palette& prevPal, frame_t frame)
+static std::shared_ptr<Palette> ase_file_read_color2_chunk(AseReader& f, const Palette& prevPal, frame_t frame)
 {
   int i, c, r, g, b, packets, skip, size;
   auto pal = prevPal.clone();
   pal->setFrame(frame);
 
-  packets = fgetw(f); // Number of packets
+  packets = f.word(); // Number of packets
   skip = 0;
 
   // Read all packets
   for (i = 0; i < packets; i++)
   {
-    skip += fgetc(f);
-    size = fgetc(f);
+    skip += f.byte();
+    size = f.byte();
     if (!size)
       size = 256;
 
     for (c = skip; c < skip + size; c++)
     {
-      r = fgetc(f);
-      g = fgetc(f);
-      b = fgetc(f);
+      r = f.byte();
+      g = f.byte();
+      b = f.byte();
       pal->setEntry(c, rgba(r, g, b, 255));
     }
   }
@@ -764,15 +823,15 @@ static std::shared_ptr<Palette> ase_file_read_color2_chunk(FILE* f, const Palett
   return pal;
 }
 
-static std::shared_ptr<Palette> ase_file_read_palette_chunk(FILE* f, const Palette& prevPal, frame_t frame)
+static std::shared_ptr<Palette> ase_file_read_palette_chunk(AseReader& f, const Palette& prevPal, frame_t frame)
 {
   auto pal = prevPal.clone();
   pal->setFrame(frame);
 
-  int newSize = fgetl(f);
-  int from = fgetl(f);
-  int to = fgetl(f);
-  ase_file_read_padding(f, 8);
+  int newSize = f.dword();
+  int from = f.dword();
+  int to = f.dword();
+  f.skip(8);
 
   // newSize/from/to are raw 32-bit fields with no format-level upper bound.
   // Palette::setEntry() below is bounds-checked so this loop can't corrupt
@@ -793,16 +852,16 @@ static std::shared_ptr<Palette> ase_file_read_palette_chunk(FILE* f, const Palet
 
   for (int c = from; c <= to; ++c)
   {
-    int flags = fgetw(f);
-    int r = fgetc(f);
-    int g = fgetc(f);
-    int b = fgetc(f);
-    int a = fgetc(f);
+    int flags = f.word();
+    int r = f.byte();
+    int g = f.byte();
+    int b = f.byte();
+    int a = f.byte();
     pal->setEntry(c, rgba(r, g, b, a));
 
     // Skip name
     if (flags & ASE_PALETTE_FLAG_HAS_NAME)
-      ase_file_read_string(f); // Ignore color entry name
+      f.string(); // Ignore color entry name
   }
 
   return pal;
@@ -847,44 +906,44 @@ static void ase_file_write_palette_chunk(FILE* f, ASE_FrameHeader* frame_header,
   }
 }
 
-static Layer* ase_file_read_layer_chunk(FILE* f, ASE_Header* header, Sprite* sprite, Layer** previous_layer,
+static Layer* ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite* sprite, Layer** previous_layer,
                                         int* current_level)
 {
   std::string name;
-  Layer* layer = nullptr;
+  std::unique_ptr<Layer> layer;
   /* read chunk data */
   int flags;
   int layer_type;
   int child_level;
 
-  flags = fgetw(f);
-  layer_type = fgetw(f);
-  child_level = fgetw(f);
-  fgetw(f);                 // default width
-  fgetw(f);                 // default height
-  int blendmode = fgetw(f); // blend mode
-  int opacity = fgetc(f);   // opacity
+  flags = f.word();
+  layer_type = f.word();
+  child_level = f.word();
+  f.word();                 // default width
+  f.word();                 // default height
+  int blendmode = f.word(); // blend mode
+  int opacity = f.byte();   // opacity
 
-  ase_file_read_padding(f, 3);
-  name = ase_file_read_string(f);
+  f.skip(3);
+  name = f.string();
 
   // Image layer
   if (layer_type == 0)
   {
-    layer = new LayerImage(sprite);
+    layer = std::make_unique<LayerImage>(sprite);
 
     // Only transparent layers can have blend mode and opacity
     if (!(flags & ASE_LAYER_FLAG_BACKGROUND))
     {
-      static_cast<LayerImage*>(layer)->setBlendMode((BlendMode)blendmode);
+      static_cast<LayerImage*>(layer.get())->setBlendMode((BlendMode)blendmode);
       if (header->flags & ASE_FILE_FLAG_LAYER_WITH_OPACITY)
-        static_cast<LayerImage*>(layer)->setOpacity(opacity);
+        static_cast<LayerImage*>(layer.get())->setOpacity(opacity);
     }
   }
   // Layer set
   else if (layer_type == 1)
   {
-    layer = new LayerFolder(sprite);
+    layer = std::make_unique<LayerFolder>(sprite);
   }
 
   if (layer)
@@ -917,13 +976,13 @@ static Layer* ase_file_read_layer_chunk(FILE* f, ASE_Header* header, Sprite* spr
       parent = sprite->folder();
     }
 
-    parent->addLayer(layer);
+    parent->addLayer(layer.get());
 
-    *previous_layer = layer;
+    *previous_layer = layer.get();
     *current_level = child_level;
   }
 
-  return layer;
+  return layer.release();
 }
 
 static void ase_file_write_layer_chunk(FILE* f, ASE_FrameHeader* frame_header, const Layer* layer)
@@ -969,7 +1028,7 @@ static void ase_file_write_layer_chunk(FILE* f, ASE_FrameHeader* frame_header, c
 template <typename ImageTraits> class PixelIO
 {
 public:
-  typename ImageTraits::pixel_t read_pixel(FILE* f);
+  typename ImageTraits::pixel_t read_pixel(AseReader& f);
   void write_pixel(FILE* f, typename ImageTraits::pixel_t c);
   void read_scanline(typename ImageTraits::address_t address, int w, uint8_t* buffer);
   void write_scanline(typename ImageTraits::address_t address, int w, uint8_t* buffer);
@@ -980,12 +1039,12 @@ template <> class PixelIO<RgbTraits>
   int r, g, b, a;
 
 public:
-  RgbTraits::pixel_t read_pixel(FILE* f)
+  RgbTraits::pixel_t read_pixel(AseReader& f)
   {
-    r = fgetc(f);
-    g = fgetc(f);
-    b = fgetc(f);
-    a = fgetc(f);
+    r = f.byte();
+    g = f.byte();
+    b = f.byte();
+    a = f.byte();
     return rgba(r, g, b, a);
   }
   void write_pixel(FILE* f, RgbTraits::pixel_t c)
@@ -1024,10 +1083,10 @@ template <> class PixelIO<GrayscaleTraits>
   int k, a;
 
 public:
-  GrayscaleTraits::pixel_t read_pixel(FILE* f)
+  GrayscaleTraits::pixel_t read_pixel(AseReader& f)
   {
-    k = fgetc(f);
-    a = fgetc(f);
+    k = f.byte();
+    a = f.byte();
     return graya(k, a);
   }
   void write_pixel(FILE* f, GrayscaleTraits::pixel_t c)
@@ -1058,7 +1117,7 @@ public:
 template <> class PixelIO<IndexedTraits>
 {
 public:
-  IndexedTraits::pixel_t read_pixel(FILE* f) { return fgetc(f); }
+  IndexedTraits::pixel_t read_pixel(AseReader& f) { return f.byte(); }
   void write_pixel(FILE* f, IndexedTraits::pixel_t c) { fputc(c, f); }
   void read_scanline(IndexedTraits::address_t address, int w, uint8_t* buffer) { memcpy(address, buffer, w); }
   void write_scanline(IndexedTraits::address_t address, int w, uint8_t* buffer) { memcpy(buffer, address, w); }
@@ -1068,17 +1127,31 @@ public:
 // Raw Image
 //////////////////////////////////////////////////////////////////////
 
-template <typename ImageTraits> static void read_raw_image(FILE* f, Image* image, FileOp* fop, ASE_Header* header)
+static size_t ase_image_bytes(int w, int h, PixelFormat format)
+{
+  const size_t bytes_per_pixel = format == IMAGE_RGB ? 4 : (format == IMAGE_GRAYSCALE ? 2 : 1);
+  const size_t max = std::numeric_limits<size_t>::max();
+  if (static_cast<size_t>(w) > max / bytes_per_pixel)
+    throw base::Exception("ASE image row size overflow.");
+  const size_t row_size = static_cast<size_t>(w) * bytes_per_pixel;
+  if (static_cast<size_t>(h) > max / row_size)
+    throw base::Exception("ASE image size overflow.");
+  return row_size * static_cast<size_t>(h);
+}
+
+template <typename ImageTraits> static void read_raw_image(AseReader& f, Image* image, FileOp* fop, ASE_Header* header)
 {
   PixelIO<ImageTraits> pixel_io;
   int x, y;
 
   for (y = 0; y < image->height(); y++)
   {
+    if (fop->isStop())
+      throw base::Exception("ASE loading cancelled.");
     for (x = 0; x < image->width(); x++)
       put_pixel_fast<ImageTraits>(image, x, y, pixel_io.read_pixel(f));
 
-    fop->setProgress((float)ftell(f) / (float)header->size);
+    fop->setProgress((float)f.position() / (float)header->size);
   }
 }
 
@@ -1097,97 +1170,64 @@ template <typename ImageTraits> static void write_raw_image(FILE* f, const Image
 //////////////////////////////////////////////////////////////////////
 
 template <typename ImageTraits>
-static void read_compressed_image(FILE* f, Image* image, size_t chunk_end, FileOp* fop, ASE_Header* header)
+static void read_compressed_image(AseReader& f, Image* image, FileOp* fop, ASE_Header* header)
 {
+  z_stream stream{};
+  if (inflateInit(&stream) != Z_OK)
+    throw base::Exception("Cannot initialize ASE image decompression.");
+  struct InflateGuard
+  {
+    z_stream* stream;
+    ~InflateGuard() { inflateEnd(stream); }
+  } guard{&stream};
+
   PixelIO<ImageTraits> pixel_io;
-  z_stream zstream;
-  int y, err;
-
-  zstream.zalloc = (alloc_func)0;
-  zstream.zfree = (free_func)0;
-  zstream.opaque = (voidpf)0;
-
-  err = inflateInit(&zstream);
-  if (err != Z_OK)
-    throw base::Exception("ZLib error %d in inflateInit().", err);
-
-  std::vector<uint8_t> scanline(ImageTraits::getRowStrideBytes(image->width()));
-  std::vector<uint8_t> uncompressed(static_cast<long>(image->height()) *
-                                    ImageTraits::getRowStrideBytes(image->width()));
-  std::vector<uint8_t> compressed(4096);
-  int uncompressed_offset = 0;
-
-  while (true)
+  std::array<uint8_t, 4096> input;
+  std::vector<uint8_t> row(ImageTraits::getRowStrideBytes(image->width()));
+  size_t row_offset = 0;
+  int y = 0;
+  uint8_t overflow;
+  for (;;)
   {
-    size_t input_bytes;
-
-    // chunk_size (hence chunk_end) is attacker-controlled and can
-    // understate the bytes the cel header itself already consumed - if
-    // ftell() has already passed chunk_end, `chunk_end - ftell(f)` below
-    // would wrap around (unsigned - larger value) into a huge input_bytes,
-    // reading the rest of the file into a fixed 4096-byte buffer (see
-    // issue #219). Bail out first instead.
-    if (static_cast<long>(chunk_end) <= ftell(f))
-      break;
-
-    if (ftell(f) + compressed.size() > chunk_end)
+    if (fop->isStop())
+      throw base::Exception("ASE loading cancelled.");
+    if (stream.avail_in == 0 && f.remaining() > 0)
     {
-      input_bytes = chunk_end - ftell(f); // Remaining bytes
-      ASSERT(input_bytes < compressed.size());
-
-      if (input_bytes == 0)
-        break; // Done, we consumed all chunk
+      const size_t count = std::min(f.remaining(), input.size());
+      f.read(input.data(), count);
+      stream.next_in = input.data();
+      stream.avail_in = static_cast<uInt>(count);
     }
-    else
-      input_bytes = compressed.size();
 
-    size_t bytes_read = fread(&compressed[0], 1, input_bytes, f);
-    // A chunk_size that overstates the bytes actually left in the file
-    // (attacker-controlled) would otherwise spin forever here: once ftell()
-    // stops advancing at real EOF, input_bytes never reaches 0 even though
-    // fread() keeps returning 0 bytes every iteration. Bail out instead.
-    if (bytes_read == 0)
-      break;
-    zstream.next_in = reinterpret_cast<Bytef*>(&compressed[0]);
-    zstream.avail_in = bytes_read;
-
-    do
+    // After the final row, allow only the stream trailer, never more pixels.
+    stream.next_out = y < image->height() ? row.data() + row_offset : &overflow;
+    stream.avail_out = y < image->height() ? static_cast<uInt>(row.size() - row_offset) : 1;
+    const uInt before_in = stream.avail_in;
+    const uInt before_out = stream.avail_out;
+    const int result = inflate(&stream, Z_NO_FLUSH);
+    if (result != Z_OK && result != Z_STREAM_END && result != Z_BUF_ERROR)
+      throw base::Exception("Invalid compressed ASE image.");
+    const size_t produced = before_out - stream.avail_out;
+    if (y == image->height() && produced != 0)
+      throw base::Exception("Compressed ASE image exceeds its dimensions.");
+    row_offset += produced;
+    if (y < image->height() && row_offset == row.size())
     {
-      zstream.next_out = reinterpret_cast<Bytef*>(&scanline[0]);
-      zstream.avail_out = scanline.size();
-
-      err = inflate(&zstream, Z_NO_FLUSH);
-      if (err != Z_OK && err != Z_STREAM_END && err != Z_BUF_ERROR)
-        throw base::Exception("ZLib error %d in inflate().", err);
-
-      size_t uncompressed_bytes = scanline.size() - zstream.avail_out;
-      if (uncompressed_bytes > 0)
-      {
-        if (uncompressed_offset + uncompressed_bytes > uncompressed.size())
-          throw base::Exception("Bad compressed image.");
-
-        std::copy(scanline.begin(), scanline.begin() + uncompressed_bytes, uncompressed.begin() + uncompressed_offset);
-
-        uncompressed_offset += uncompressed_bytes;
-      }
-    } while (zstream.avail_out == 0);
-
-    fop->setProgress((float)ftell(f) / (float)header->size);
+      auto address = reinterpret_cast<typename ImageTraits::address_t>(image->getPixelAddress(0, y));
+      pixel_io.read_scanline(address, image->width(), row.data());
+      ++y;
+      row_offset = 0;
+    }
+    if (result == Z_STREAM_END)
+    {
+      if (y != image->height() || row_offset != 0)
+        throw base::Exception("Compressed ASE image has missing pixels.");
+      return;
+    }
+    if (before_in == stream.avail_in && produced == 0)
+      throw base::Exception("Incomplete compressed ASE image.");
+    fop->setProgress(static_cast<double>(f.position()) / header->size);
   }
-
-  uncompressed_offset = 0;
-  for (y = 0; y < image->height(); y++)
-  {
-    typename ImageTraits::address_t address = (typename ImageTraits::address_t)image->getPixelAddress(0, y);
-
-    pixel_io.read_scanline(address, image->width(), &uncompressed[uncompressed_offset]);
-
-    uncompressed_offset += ImageTraits::getRowStrideBytes(image->width());
-  }
-
-  err = inflateEnd(&zstream);
-  if (err != Z_OK)
-    throw base::Exception("ZLib error %d in inflateEnd().", err);
 }
 
 template <typename ImageTraits> static void write_compressed_image(FILE* f, const Image* image)
@@ -1244,18 +1284,18 @@ template <typename ImageTraits> static void write_compressed_image(FILE* f, cons
 // Cel Chunk
 //////////////////////////////////////////////////////////////////////
 
-static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame, PixelFormat pixelFormat, FileOp* fop,
-                                    ASE_Header* header, size_t chunk_end)
+static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, frame_t frame, PixelFormat pixelFormat, FileOp* fop,
+                                    ASE_Header* header)
 {
   /* read chunk data */
-  LayerIndex layer_index = LayerIndex(fgetw(f));
-  int x = ((short)fgetw(f));
-  int y = ((short)fgetw(f));
-  int opacity = fgetc(f);
-  int cel_type = fgetw(f);
+  LayerIndex layer_index = LayerIndex(f.word());
+  int x = ((short)f.word());
+  int y = ((short)f.word());
+  int opacity = f.byte();
+  int cel_type = f.word();
   Layer* layer;
 
-  ase_file_read_padding(f, 7);
+  f.skip(7);
 
   layer = sprite->indexToLayer(layer_index);
   if (!layer)
@@ -1280,11 +1320,14 @@ static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame, Pixe
   case ASE_FILE_RAW_CEL:
   {
     // Read width and height
-    int w = fgetw(f);
-    int h = fgetw(f);
+    int w = f.word();
+    int h = f.word();
 
-    if (w > 0 && h > 0 && w <= kMaxFileImageDimension && h <= kMaxFileImageDimension)
+    if (w > kMaxFileImageDimension || h > kMaxFileImageDimension)
+      throw base::Exception("ASE cel dimensions exceed the supported limit.");
+    if (w > 0 && h > 0)
     {
+      f.require(ase_image_bytes(w, h, pixelFormat));
       ImageRef image(Image::create(pixelFormat, w, h));
 
       // Read pixel data
@@ -1314,7 +1357,7 @@ static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame, Pixe
   case ASE_FILE_LINK_CEL:
   {
     // Read link position
-    frame_t link_frame = frame_t(fgetw(f));
+    frame_t link_frame = frame_t(f.word());
     if (auto link = layer->cel(link_frame))
     {
       // There were a beta version that allow to the user specify
@@ -1344,37 +1387,31 @@ static Cel* ase_file_read_cel_chunk(FILE* f, Sprite* sprite, frame_t frame, Pixe
   case ASE_FILE_COMPRESSED_CEL:
   {
     // Read width and height
-    int w = fgetw(f);
-    int h = fgetw(f);
+    int w = f.word();
+    int h = f.word();
 
-    if (w > 0 && h > 0 && w <= kMaxFileImageDimension && h <= kMaxFileImageDimension)
+    if (w > kMaxFileImageDimension || h > kMaxFileImageDimension)
+      throw base::Exception("ASE cel dimensions exceed the supported limit.");
+    if (w > 0 && h > 0)
     {
+      ase_image_bytes(w, h, pixelFormat);
+      f.require(2); // A zlib stream must at least contain its header.
       ImageRef image(Image::create(pixelFormat, w, h));
 
-      // Try to read pixel data
-      try
+      switch (image->pixelFormat())
       {
-        switch (image->pixelFormat())
-        {
 
-        case IMAGE_RGB:
-          read_compressed_image<RgbTraits>(f, image.get(), chunk_end, fop, header);
-          break;
+      case IMAGE_RGB:
+        read_compressed_image<RgbTraits>(f, image.get(), fop, header);
+        break;
 
-        case IMAGE_GRAYSCALE:
-          read_compressed_image<GrayscaleTraits>(f, image.get(), chunk_end, fop, header);
-          break;
+      case IMAGE_GRAYSCALE:
+        read_compressed_image<GrayscaleTraits>(f, image.get(), fop, header);
+        break;
 
-        case IMAGE_INDEXED:
-          read_compressed_image<IndexedTraits>(f, image.get(), chunk_end, fop, header);
-          break;
-        }
-      }
-      // OK, in case of error we can show the problem, but continue
-      // loading more cels.
-      catch (const std::exception& e)
-      {
-        fop->setError(e.what());
+      case IMAGE_INDEXED:
+        read_compressed_image<IndexedTraits>(f, image.get(), fop, header);
+        break;
       }
 
       cel = std::make_shared<Cel>(frame, image);
@@ -1489,23 +1526,23 @@ static void ase_file_write_cel_chunk(FILE* f, ASE_FrameHeader* frame_header, con
   }
 }
 
-static Mask* ase_file_read_mask_chunk(FILE* f)
+static Mask* ase_file_read_mask_chunk(AseReader& f)
 {
   int c, u, v, byte;
-  Mask* mask;
   // Read chunk data
-  int x = fgetw(f);
-  int y = fgetw(f);
-  int w = fgetw(f);
-  int h = fgetw(f);
+  int x = f.word();
+  int y = f.word();
+  int w = f.word();
+  int h = f.word();
 
-  ase_file_read_padding(f, 8);
-  std::string name = ase_file_read_string(f);
+  f.skip(8);
+  std::string name = f.string();
 
   if (w > kMaxFileImageDimension || h > kMaxFileImageDimension)
     return nullptr;
 
-  mask = new Mask();
+  f.require(((static_cast<size_t>(w) + 7) / 8) * static_cast<size_t>(h));
+  auto mask = std::make_unique<Mask>();
   mask->setName(name.c_str());
   mask->replace(gfx::Rect(x, y, w, h));
 
@@ -1513,12 +1550,12 @@ static Mask* ase_file_read_mask_chunk(FILE* f)
   for (v = 0; v < h; v++)
     for (u = 0; u < (w + 7) / 8; u++)
     {
-      byte = fgetc(f);
-      for (c = 0; c < 8; c++)
+      byte = f.byte();
+      for (c = 0; c < 8 && u * 8 + c < w; c++)
         put_pixel(mask->bitmap(), u * 8 + c, v, byte & (1 << (7 - c)));
     }
 
-  return mask;
+  return mask.release();
 }
 
 #if 0
@@ -1550,38 +1587,40 @@ static void ase_file_write_mask_chunk(FILE* f, ASE_FrameHeader* frame_header, Ma
 }
 #endif
 
-static void ase_file_read_frame_tags_chunk(FILE* f, FrameTags* frameTags)
+static void ase_file_read_frame_tags_chunk(AseReader& f, FrameTags* frameTags)
 {
-  size_t tags = fgetw(f);
+  const unsigned tags = f.word();
+  f.skip(8);
+  if (tags > f.remaining() / 19)
+    throw base::Exception("Invalid ASE frame tag count.");
 
-  fgetl(f); // 8 reserved bytes
-  fgetl(f);
-
-  for (size_t c = 0; c < tags; ++c)
+  for (unsigned c = 0; c < tags; ++c)
   {
-    frame_t from = fgetw(f);
-    frame_t to = fgetw(f);
-    int aniDir = fgetc(f);
+    f.require(19);
+    frame_t from = f.word();
+    frame_t to = f.word();
+    int aniDir = f.byte();
     if (aniDir != int(AniDir::FORWARD) && aniDir != int(AniDir::REVERSE) && aniDir != int(AniDir::PING_PONG))
     {
       aniDir = int(AniDir::FORWARD);
     }
 
-    fgetl(f); // 8 reserved bytes
-    fgetl(f);
+    f.dword(); // 8 reserved bytes
+    f.dword();
 
-    int r = fgetc(f);
-    int g = fgetc(f);
-    int b = fgetc(f);
-    fgetc(f); // Skip
+    int r = f.byte();
+    int g = f.byte();
+    int b = f.byte();
+    f.byte(); // Skip
 
-    std::string name = ase_file_read_string(f);
+    const std::string name = f.string();
 
-    FrameTag* tag = new FrameTag(from, to);
+    auto tag = std::make_unique<FrameTag>(from, to);
     tag->setColor(doc::rgba(r, g, b, 255));
     tag->setName(name);
     tag->setAniDir((AniDir)aniDir);
-    frameTags->add(tag);
+    frameTags->add(tag.get());
+    tag.release();
   }
 }
 
@@ -1612,22 +1651,22 @@ static void ase_file_write_frame_tags_chunk(FILE* f, ASE_FrameHeader* frame_head
   }
 }
 
-static void ase_file_read_user_data_chunk(FILE* f, UserData* userData)
+static void ase_file_read_user_data_chunk(AseReader& f, UserData* userData)
 {
-  size_t flags = fgetl(f);
+  size_t flags = f.dword();
 
   if (flags & ASE_USER_DATA_FLAG_HAS_TEXT)
   {
-    std::string text = ase_file_read_string(f);
+    std::string text = f.string();
     userData->setText(text);
   }
 
   if (flags & ASE_USER_DATA_FLAG_HAS_COLOR)
   {
-    int r = fgetc(f);
-    int g = fgetc(f);
-    int b = fgetc(f);
-    int a = fgetc(f);
+    int r = f.byte();
+    int g = f.byte();
+    int b = f.byte();
+    int a = f.byte();
     userData->setColor(doc::rgba(r, g, b, a));
   }
 }
