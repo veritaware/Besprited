@@ -61,6 +61,30 @@ void writeWholeFile(const std::string& path, const std::vector<uint8_t>& data)
   out.write(reinterpret_cast<const char*>(data.data()), data.size());
 }
 
+// Removes the test file even when a failed ASSERT_* returns early.
+struct TempFile
+{
+  const char* path;
+  explicit TempFile(const char* path)
+    : path(path)
+  {
+  }
+  ~TempFile() { std::remove(path); }
+};
+
+// Offset of the first chunk of the given type in the first frame.
+std::size_t findChunk(const std::vector<uint8_t>& bytes, uint16_t type)
+{
+  std::size_t offset = 144;
+  while (offset + 6 <= bytes.size())
+  {
+    if (getU16LE(bytes, offset + 4) == type)
+      return offset;
+    offset += getU32LE(bytes, offset);
+  }
+  return 0;
+}
+
 // Creates a 1x1 image layer holding "color" at frame 0 and appends it to
 // "parent" (which may be the sprite's root folder or a group folder).
 doc::LayerImage* addImageLayer(doc::Sprite* sprite, doc::LayerFolder* parent, const std::string& name,
@@ -111,6 +135,7 @@ TEST(AseFormat, ColorProfileChunkIsToleratedNotTreatedAsAnUnsupportedChunkWarnin
   const int w = 3, h = 2;
 
   doc::Document* doc = ctx.documents().add(w, h, doc::ColorMode::RGB);
+  const TempFile tmp("ase_color_profile_test.ase");
   doc->setFilename("ase_color_profile_test.ase");
   Layer* layer = doc->sprite()->folder()->getFirstLayer();
   ASSERT_TRUE(layer != nullptr);
@@ -187,6 +212,7 @@ TEST(AseFormat, AnActuallyUnrecognizedChunkTypeIsNotSilentlyTolerated)
 
   app::Context ctx;
   doc::Document* doc = ctx.documents().add(2, 2, doc::ColorMode::RGB);
+  const TempFile tmp("ase_unknown_chunk_test.ase");
   doc->setFilename("ase_unknown_chunk_test.ase");
   Layer* layer = doc->sprite()->folder()->getFirstLayer();
   Image* image = layer->cel(frame_t(0))->image();
@@ -264,6 +290,7 @@ TEST(AseFormat, ModeratelyLargeImageRoundTripsWithoutCorruption)
   const int w = 2000, h = 2000;
 
   doc::Document* doc = ctx.documents().add(w, h, doc::ColorMode::INDEXED, 4);
+  const TempFile tmp("ase_large_image_test.ase");
   doc->setFilename("ase_large_image_test.ase");
   Layer* layer = doc->sprite()->folder()->getFirstLayer();
   ASSERT_TRUE(layer != nullptr);
@@ -306,6 +333,7 @@ TEST(AseFormat, LayerGroupsAreFlattenedToTopLevelLayersOnLoad)
 
   app::Context ctx;
   doc::Document* doc = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  const TempFile tmp("ase_layer_groups_test.ase");
   doc->setFilename("ase_layer_groups_test.ase");
 
   doc::Sprite* sprite = doc->sprite();
@@ -374,6 +402,7 @@ TEST(AseFormat, FileWithoutGroupsIsUntouchedByFlattening)
 
   app::Context ctx;
   doc::Document* doc = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  const TempFile tmp("ase_no_groups_test.ase");
   doc->setFilename("ase_no_groups_test.ase");
 
   doc::Sprite* sprite = doc->sprite();
@@ -418,6 +447,7 @@ TEST(AseFormat, DeeplyNestedGroupDropIsReparentedToRootNotCrashing)
 
   app::Context ctx;
   doc::Document* doc = ctx.documents().add(1, 1, doc::ColorMode::RGB);
+  const TempFile tmp("ase_deep_nested_groups_test.ase");
   doc->setFilename("ase_deep_nested_groups_test.ase");
 
   doc::Sprite* sprite = doc->sprite();
@@ -480,7 +510,8 @@ TEST_P(AseChunkCount, LoadsTheLastCel)
 {
   std::unique_ptr<she::System> sys(she::create_system());
   app::Context ctx;
-  const char* filename = "ase_chunk_count_test.ase";
+  const TempFile tmp("ase_chunk_count_test.ase");
+  const char* filename = tmp.path;
   auto* document = ctx.documents().add(1, 1, doc::ColorMode::RGB);
   document->setFilename(filename);
   document->sprite()->setFrameDuration(doc::frame_t(0), 123);
@@ -494,6 +525,7 @@ TEST_P(AseChunkCount, LoadsTheLastCel)
   auto bytes = readWholeFile(filename);
   ASSERT_GE(bytes.size(), 144u);
   const uint32_t originalCount = getU16LE(bytes, 134);
+  ASSERT_GT(originalCount, 0u); // the {0, false, true} case writes count - 1
   const auto param = GetParam();
   const uint32_t count = param.chunks ? param.chunks : originalCount;
   ASSERT_GE(count, originalCount);
@@ -525,7 +557,6 @@ TEST_P(AseChunkCount, LoadsTheLastCel)
   EXPECT_EQ(color, doc::get_pixel(cel->image(), 0, 0));
   loaded->close();
   delete loaded;
-  std::remove(filename);
 }
 
 INSTANTIATE_TEST_SUITE_P(FrameHeader, AseChunkCount,
@@ -535,7 +566,8 @@ INSTANTIATE_TEST_SUITE_P(FrameHeader, AseChunkCount,
 TEST(AseFormat, WritesExtendedChunkCountAboveWordLimit)
 {
   app::Context ctx;
-  const char* filename = "ase_extended_write_test.ase";
+  const TempFile tmp("ase_extended_write_test.ase");
+  const char* filename = tmp.path;
   auto* document = ctx.documents().add(1, 1, doc::ColorMode::RGB);
   document->setFilename(filename);
   auto* sprite = document->sprite();
@@ -572,5 +604,131 @@ TEST(AseFormat, WritesExtendedChunkCountAboveWordLimit)
   EXPECT_EQ(0xffff, getU16LE(bytes, 134));
   EXPECT_EQ(0, getU16LE(bytes, 138));
   EXPECT_EQ(count, getU32LE(bytes, 140));
-  std::remove(filename);
+
+  std::unique_ptr<she::System> sys(she::create_system());
+  auto* loaded = load_document(&ctx, filename);
+  ASSERT_NE(nullptr, loaded);
+  EXPECT_EQ(32768, int(loaded->sprite()->countLayers()));
+  auto* lastLayer = loaded->sprite()->folder()->getLastLayer();
+  ASSERT_NE(nullptr, lastLayer);
+  EXPECT_EQ("metadata", lastLayer->userData().text());
+  loaded->close();
+  delete loaded;
+}
+
+namespace
+{
+
+// Saves a single-frame sprite with one 4x3 cel per color, then lets
+// "patch" corrupt the bytes before they're loaded back.
+template <typename Patch>
+app::Document* loadPatched(app::Context& ctx, const char* filename, const std::vector<doc::color_t>& colors,
+                           Patch patch)
+{
+  auto* document = ctx.documents().add(4, 3, doc::ColorMode::RGB);
+  document->setFilename(filename);
+  auto* sprite = document->sprite();
+  doc::put_pixel(sprite->folder()->getFirstLayer()->cel(doc::frame_t(0))->image(), 0, 0, colors[0]);
+  for (std::size_t i = 1; i < colors.size(); ++i)
+    addImageLayer(sprite, sprite->folder(), "layer", colors[i]);
+  if (save_document(&ctx, document) != 0)
+    return nullptr;
+  document->close();
+  delete document;
+
+  auto bytes = readWholeFile(filename);
+  patch(bytes);
+  writeWholeFile(filename, bytes);
+  return load_document(&ctx, filename);
+}
+
+doc::color_t pixelOf(app::Document* document, int layerIndex)
+{
+  auto* layer = document->sprite()->indexToLayer(doc::LayerIndex(layerIndex));
+  auto cel = layer ? layer->cel(doc::frame_t(0)) : nullptr;
+  return cel ? doc::get_pixel(cel->image(), 0, 0) : 0;
+}
+
+} // namespace
+
+TEST(AseFormat, ImpossibleChunkCountStopsAtTheFrameEnd)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+  app::Context ctx;
+  const TempFile tmp("ase_impossible_count_test.ase");
+  const auto color = doc::rgba(10, 20, 30, 255);
+  auto* loaded = loadPatched(ctx, tmp.path, {color},
+                             [](std::vector<uint8_t>& bytes)
+                             {
+                               putU16LE(bytes, 134, 0xffff);
+                               putU32LE(bytes, 140, 0xffffffff);
+                             });
+  ASSERT_NE(nullptr, loaded);
+  EXPECT_EQ(color, pixelOf(loaded, 0));
+  loaded->close();
+  delete loaded;
+}
+
+TEST(AseFormat, TruncatedFrameHeaderKeepsTheFramesBeforeIt)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+  app::Context ctx;
+  const TempFile tmp("ase_truncated_frame_test.ase");
+  const auto color = doc::rgba(40, 50, 60, 255);
+  auto* loaded = loadPatched(ctx, tmp.path, {color},
+                             [](std::vector<uint8_t>& bytes)
+                             {
+                               // Claim a second frame whose header is cut off after 8 bytes.
+                               putU16LE(bytes, 6, 2);
+                               bytes.insert(bytes.end(), 8, 0xff);
+                               putU32LE(bytes, 0, uint32_t(bytes.size()));
+                             });
+  ASSERT_NE(nullptr, loaded);
+  EXPECT_EQ(color, pixelOf(loaded, 0));
+  loaded->close();
+  delete loaded;
+}
+
+TEST(AseFormat, CorruptCompressedCelDoesNotLoseOtherCels)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+  app::Context ctx;
+  const TempFile tmp("ase_corrupt_cel_test.ase");
+  const auto color = doc::rgba(70, 80, 90, 255);
+  auto* loaded = loadPatched(ctx, tmp.path, {doc::rgba(1, 2, 3, 255), color},
+                             [](std::vector<uint8_t>& bytes)
+                             {
+                               const std::size_t cel = findChunk(bytes, 0x2005);
+                               ASSERT_NE(0u, cel);
+                               ASSERT_EQ(2, getU16LE(bytes, cel + 13)); // compressed cel
+                               bytes[cel + 26] = 0xff;                  // invalid zlib header
+                             });
+  ASSERT_NE(nullptr, loaded);
+  EXPECT_EQ(color, pixelOf(loaded, 1));
+  loaded->close();
+  delete loaded;
+}
+
+TEST(AseFormat, CompressedCelWithoutZlibTrailerLoads)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+  app::Context ctx;
+  const TempFile tmp("ase_no_trailer_test.ase");
+  const auto color = doc::rgba(100, 110, 120, 255);
+  auto* loaded = loadPatched(ctx, tmp.path, {color},
+                             [](std::vector<uint8_t>& bytes)
+                             {
+                               const std::size_t cel = findChunk(bytes, 0x2005);
+                               ASSERT_NE(0u, cel);
+                               const uint32_t size = getU32LE(bytes, cel);
+                               // Drop the adler32 checksum at the end of the zlib stream.
+                               bytes.erase(bytes.begin() + cel + size - 4, bytes.begin() + cel + size);
+                               putU32LE(bytes, cel, size - 4);
+                               putU32LE(bytes, 128, getU32LE(bytes, 128) - 4);
+                               putU32LE(bytes, 0, uint32_t(bytes.size()));
+                             });
+  ASSERT_NE(nullptr, loaded);
+  EXPECT_EQ(color, pixelOf(loaded, 0));
+  loaded->close();
+  delete loaded;
 }

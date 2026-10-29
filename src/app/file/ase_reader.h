@@ -79,7 +79,6 @@ public:
 
   void skip(size_t size)
   {
-    require(size);
     uint8_t buffer[256];
     while (size)
     {

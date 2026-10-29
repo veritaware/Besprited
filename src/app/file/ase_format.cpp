@@ -24,9 +24,9 @@
 #include "ui/alert.h"
 #include "zlib.h"
 
+#include <algorithm>
 #include <array>
 #include <cstdio>
-#include <limits>
 #include <memory>
 
 #define ASE_FILE_MAGIC 0xA5E0
@@ -243,24 +243,19 @@ bool AseFormat::onLoad(FileOp* fop)
 
     // Read frame header
     ASE_FrameHeader frame_header;
+    // Without a valid frame header the next frame can't be located; keep the frames read so far.
     if (frame_pos < 0 || frame_pos > file_end || file_end - frame_pos < 16 ||
         !ase_file_read_frame_header(f, &frame_header))
     {
-      fop->setError("Truncated ASE frame header\n");
-      return false;
+      fop->setError("Truncated ASE frame header in frame %d\n", (int)frame);
+      break;
     }
     if (frame_header.size < 16 || frame_header.size > static_cast<unsigned long>(file_end - frame_pos))
     {
-      fop->setError("Invalid ASE frame size\n");
-      return false;
+      fop->setError("Invalid ASE frame size in frame %d\n", (int)frame);
+      break;
     }
     const long frame_end = frame_pos + frame_header.size;
-    // Even empty chunks need six bytes; reject impossible counts before decoding.
-    if (frame_header.chunks > (frame_header.size - 16) / 6)
-    {
-      fop->setError("Invalid ASE frame chunk count\n");
-      return false;
-    }
 
     // Correct frame type
     if (frame_header.magic == ASE_FILE_FRAME_MAGIC)
@@ -269,17 +264,17 @@ bool AseFormat::onLoad(FileOp* fop)
       if (frame_header.duration > 0)
         sprite->setFrameDuration(frame, frame_header.duration);
 
-      // Read chunks
+      // Read chunks. Every chunk takes at least 6 bytes of the frame, so a
+      // bogus count can't run past the frame's data.
       for (uint32_t c = 0; c < frame_header.chunks; c++)
       {
-        /* start chunk position */
         if (fop->isStop())
-          return false;
+          break;
         const long chunk_pos = ftell(f);
         if (chunk_pos < 0 || chunk_pos > frame_end || frame_end - chunk_pos < 6 || feof(f) || ferror(f))
         {
-          fop->setError("Truncated ASE chunk header\n");
-          return false;
+          fop->setError("Truncated ASE chunk header in frame %d\n", (int)frame);
+          break;
         }
         fop->setProgress((float)chunk_pos / (float)header.size);
 
@@ -288,8 +283,8 @@ bool AseFormat::onLoad(FileOp* fop)
         const int chunk_type = fgetw(f);
         if (feof(f) || ferror(f) || chunk_size < 6 || chunk_size > static_cast<unsigned long>(frame_end - chunk_pos))
         {
-          fop->setError("Invalid ASE chunk size\n");
-          return false;
+          fop->setError("Invalid ASE chunk size in frame %d\n", (int)frame);
+          break;
         }
         const long chunk_end = chunk_pos + chunk_size;
 
@@ -385,18 +380,18 @@ bool AseFormat::onLoad(FileOp* fop)
             break;
           }
         }
+        // A bad chunk only loses itself; the chunk size still locates the next one.
         catch (const std::exception& e)
         {
-          fop->setError("Error reading ASE chunk: %s\n", e.what());
-          return false;
+          if (fop->isStop())
+            break;
+          fop->setError("Warning: error reading chunk in frame %d: %s\n", (int)frame, e.what());
         }
 
-        const long chunk_read_end = ftell(f);
-        if (feof(f) || ferror(f) || chunk_read_end < 0 || chunk_read_end > chunk_end ||
-            fseek(f, chunk_end, SEEK_SET) != 0)
+        if (fseek(f, chunk_end, SEEK_SET) != 0)
         {
-          fop->setError("Error reading ASE chunk\n");
-          return false;
+          fop->setError("Error seeking to ASE chunk end in frame %d\n", (int)frame);
+          break;
         }
       }
     }
@@ -404,8 +399,8 @@ bool AseFormat::onLoad(FileOp* fop)
     // Skip frame size
     if (fseek(f, frame_end, SEEK_SET) != 0)
     {
-      fop->setError("Error seeking to ASE frame end\n");
-      return false;
+      fop->setError("Error seeking to ASE frame end in frame %d\n", (int)frame);
+      break;
     }
 
     // Just one frame?
@@ -732,8 +727,6 @@ static void ase_file_write_padding(FILE* f, int bytes)
     fputc(0, f);
 }
 
-
-
 static void ase_file_write_string(FILE* f, const std::string& string)
 {
   fputw(string.size(), f);
@@ -782,11 +775,9 @@ static std::shared_ptr<Palette> ase_file_read_color_chunk(AseReader& f, const Pa
 
     for (c = skip; c < skip + size; c++)
     {
-      r = f.byte();
-      g = f.byte();
-      b = f.byte();
-      if (r > 63 || g > 63 || b > 63)
-        throw base::Exception("Invalid six-bit ASE palette color.");
+      r = std::min<int>(f.byte(), 63);
+      g = std::min<int>(f.byte(), 63);
+      b = std::min<int>(f.byte(), 63);
       pal->setEntry(c, rgba(scale_6bits_to_8bits(r), scale_6bits_to_8bits(g), scale_6bits_to_8bits(b), 255));
     }
   }
@@ -1127,18 +1118,6 @@ public:
 // Raw Image
 //////////////////////////////////////////////////////////////////////
 
-static size_t ase_image_bytes(int w, int h, PixelFormat format)
-{
-  const size_t bytes_per_pixel = format == IMAGE_RGB ? 4 : (format == IMAGE_GRAYSCALE ? 2 : 1);
-  const size_t max = std::numeric_limits<size_t>::max();
-  if (static_cast<size_t>(w) > max / bytes_per_pixel)
-    throw base::Exception("ASE image row size overflow.");
-  const size_t row_size = static_cast<size_t>(w) * bytes_per_pixel;
-  if (static_cast<size_t>(h) > max / row_size)
-    throw base::Exception("ASE image size overflow.");
-  return row_size * static_cast<size_t>(h);
-}
-
 template <typename ImageTraits> static void read_raw_image(AseReader& f, Image* image, FileOp* fop, ASE_Header* header)
 {
   PixelIO<ImageTraits> pixel_io;
@@ -1146,12 +1125,14 @@ template <typename ImageTraits> static void read_raw_image(AseReader& f, Image* 
 
   for (y = 0; y < image->height(); y++)
   {
-    if (fop->isStop())
-      throw base::Exception("ASE loading cancelled.");
+    if ((y & 63) == 0)
+    {
+      if (fop->isStop())
+        throw base::Exception("ASE loading cancelled.");
+      fop->setProgress((float)f.position() / (float)header->size);
+    }
     for (x = 0; x < image->width(); x++)
       put_pixel_fast<ImageTraits>(image, x, y, pixel_io.read_pixel(f));
-
-    fop->setProgress((float)f.position() / (float)header->size);
   }
 }
 
@@ -1185,48 +1166,41 @@ static void read_compressed_image(AseReader& f, Image* image, FileOp* fop, ASE_H
   std::array<uint8_t, 4096> input;
   std::vector<uint8_t> row(ImageTraits::getRowStrideBytes(image->width()));
   size_t row_offset = 0;
-  int y = 0;
-  uint8_t overflow;
-  for (;;)
+  // Stop once every row is decoded: bytes past the image (including a
+  // missing or damaged zlib trailer) are skipped with the rest of the chunk.
+  for (int y = 0; y < image->height();)
   {
-    if (fop->isStop())
-      throw base::Exception("ASE loading cancelled.");
-    if (stream.avail_in == 0 && f.remaining() > 0)
+    if (stream.avail_in == 0)
     {
+      if (f.remaining() == 0)
+        throw base::Exception("Incomplete compressed ASE image.");
+      if (fop->isStop())
+        throw base::Exception("ASE loading cancelled.");
+      fop->setProgress((float)f.position() / (float)header->size);
+
       const size_t count = std::min(f.remaining(), input.size());
       f.read(input.data(), count);
       stream.next_in = input.data();
       stream.avail_in = static_cast<uInt>(count);
     }
 
-    // After the final row, allow only the stream trailer, never more pixels.
-    stream.next_out = y < image->height() ? row.data() + row_offset : &overflow;
-    stream.avail_out = y < image->height() ? static_cast<uInt>(row.size() - row_offset) : 1;
+    stream.next_out = row.data() + row_offset;
+    stream.avail_out = static_cast<uInt>(row.size() - row_offset);
     const uInt before_in = stream.avail_in;
-    const uInt before_out = stream.avail_out;
     const int result = inflate(&stream, Z_NO_FLUSH);
     if (result != Z_OK && result != Z_STREAM_END && result != Z_BUF_ERROR)
       throw base::Exception("Invalid compressed ASE image.");
-    const size_t produced = before_out - stream.avail_out;
-    if (y == image->height() && produced != 0)
-      throw base::Exception("Compressed ASE image exceeds its dimensions.");
+    const size_t produced = row.size() - row_offset - stream.avail_out;
     row_offset += produced;
-    if (y < image->height() && row_offset == row.size())
+    if (row_offset == row.size())
     {
       auto address = reinterpret_cast<typename ImageTraits::address_t>(image->getPixelAddress(0, y));
       pixel_io.read_scanline(address, image->width(), row.data());
       ++y;
       row_offset = 0;
     }
-    if (result == Z_STREAM_END)
-    {
-      if (y != image->height() || row_offset != 0)
-        throw base::Exception("Compressed ASE image has missing pixels.");
-      return;
-    }
-    if (before_in == stream.avail_in && produced == 0)
-      throw base::Exception("Incomplete compressed ASE image.");
-    fop->setProgress(static_cast<double>(f.position()) / header->size);
+    else if (result == Z_STREAM_END || (before_in == stream.avail_in && produced == 0))
+      throw base::Exception("Compressed ASE image has missing pixels.");
   }
 }
 
@@ -1323,11 +1297,10 @@ static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, frame_t frame,
     int w = f.word();
     int h = f.word();
 
-    if (w > kMaxFileImageDimension || h > kMaxFileImageDimension)
-      throw base::Exception("ASE cel dimensions exceed the supported limit.");
-    if (w > 0 && h > 0)
+    if (w > 0 && h > 0 && w <= kMaxFileImageDimension && h <= kMaxFileImageDimension)
     {
-      f.require(ase_image_bytes(w, h, pixelFormat));
+      const size_t bytes_per_pixel = pixelFormat == IMAGE_RGB ? 4 : (pixelFormat == IMAGE_GRAYSCALE ? 2 : 1);
+      f.require(size_t(w) * size_t(h) * bytes_per_pixel);
       ImageRef image(Image::create(pixelFormat, w, h));
 
       // Read pixel data
@@ -1390,28 +1363,37 @@ static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, frame_t frame,
     int w = f.word();
     int h = f.word();
 
-    if (w > kMaxFileImageDimension || h > kMaxFileImageDimension)
-      throw base::Exception("ASE cel dimensions exceed the supported limit.");
-    if (w > 0 && h > 0)
+    if (w > 0 && h > 0 && w <= kMaxFileImageDimension && h <= kMaxFileImageDimension)
     {
-      ase_image_bytes(w, h, pixelFormat);
       f.require(2); // A zlib stream must at least contain its header.
       ImageRef image(Image::create(pixelFormat, w, h));
 
-      switch (image->pixelFormat())
+      // A damaged stream keeps the rows decoded so far (the rest stay clear)
+      // and doesn't stop loading the other cels.
+      clear_image(image.get(), 0);
+      try
       {
+        switch (image->pixelFormat())
+        {
 
-      case IMAGE_RGB:
-        read_compressed_image<RgbTraits>(f, image.get(), fop, header);
-        break;
+        case IMAGE_RGB:
+          read_compressed_image<RgbTraits>(f, image.get(), fop, header);
+          break;
 
-      case IMAGE_GRAYSCALE:
-        read_compressed_image<GrayscaleTraits>(f, image.get(), fop, header);
-        break;
+        case IMAGE_GRAYSCALE:
+          read_compressed_image<GrayscaleTraits>(f, image.get(), fop, header);
+          break;
 
-      case IMAGE_INDEXED:
-        read_compressed_image<IndexedTraits>(f, image.get(), fop, header);
-        break;
+        case IMAGE_INDEXED:
+          read_compressed_image<IndexedTraits>(f, image.get(), fop, header);
+          break;
+        }
+      }
+      catch (const std::exception& e)
+      {
+        if (fop->isStop())
+          throw;
+        fop->setError("Warning: %s\n", e.what());
       }
 
       cel = std::make_shared<Cel>(frame, image);
@@ -1596,7 +1578,6 @@ static void ase_file_read_frame_tags_chunk(AseReader& f, FrameTags* frameTags)
 
   for (unsigned c = 0; c < tags; ++c)
   {
-    f.require(19);
     frame_t from = f.word();
     frame_t to = f.word();
     int aniDir = f.byte();
