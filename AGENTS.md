@@ -152,6 +152,9 @@ and `test/app/script_api_tests.cpp` (app API level).
   (e.g. `Assisted-by: Claude Sonnet 5.5 <noreply@anthropic.com>`, **do not use** `Co-Authored-by:`).
   See `AI_USAGE.md` for the full policy — unreviewed/low-quality AI output is grounds for immediate PR
   rejection.
+- **Formatting before committing:** run `git clang-format trunk` (clang-format 23.x, see
+  `CONTRIBUTING.md`) on your changes and commit the result. It only touches the lines you changed; never
+  reformat whole files. The `Clang Format Check` CI workflow fails the PR otherwise.
 - **Code review before committing:** after generating or modifying code, an agent must run a code review of
   the changes (e.g. the `/code-review` skill, or a review subagent) **before** committing, and fix or
   explicitly report the findings. Use the most capable model available for the review. This does not replace

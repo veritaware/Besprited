@@ -27,9 +27,9 @@ Before opening new issues and contributing any code to the project, read our
   ```
   Add or update tests for the behaviour you change where possible. Unit tests live in `test/`, mirroring
   the `src/` layout, and every `*_tests.cpp` file becomes its own test executable.
-- Code is formatted with clang-format using the repository's [`.clang-format`](.clang-format). Please
-  format only the lines you changed (e.g. with `git clang-format`) rather than whole files, so diffs stay
-  reviewable. The codebase is formatted with clang-format 23.x; older versions (e.g. 16.x) format some
+- Code **must** be formatted with clang-format using the repository's [`.clang-format`](.clang-format);
+  the CI check fails otherwise. Run `git clang-format <base-branch>` before committing to format only the
+  lines you changed rather than whole files, so diffs stay reviewable. The codebase is formatted with clang-format 23.x; older versions (e.g. 16.x) format some
   constructs differently, so use a matching version to avoid unrelated churn.
 
   To format automatically on each commit, enable the bundled pre-commit hook once per clone:
@@ -40,7 +40,7 @@ Before opening new issues and contributing any code to the project, read our
   and re-stages the result; it refuses to run if a file it needs to change also has unstaged edits. Use
   `git commit --no-verify` to skip it.
 
-  A `Clang Format Check` CI workflow checks the lines changed by a pull request with the same pinned
+  A `Clang Format Check` CI workflow (required to pass) checks the lines changed by a pull request with the same pinned
   clang-format 23.x release (installed from PyPI, so it doesn't depend on the runner's packages).
 
 ## Copyright headers
