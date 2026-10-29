@@ -66,7 +66,7 @@ SDL3Display::SDL3Display(int width, int height, int scale)
   instance()->gfx(
       [&]
       {
-        m_window = SDL_CreateWindow("", width, height, SDL_WINDOW_RESIZABLE);
+        m_window = SDL_CreateWindow("", width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
         if (!m_window)
           throw DisplayCreationException(SDL_GetError());
 
@@ -74,7 +74,7 @@ SDL3Display::SDL3Display(int width, int height, int scale)
           m_renderer = SDL_CreateRenderer(m_window, nullptr);
 
         sdl::windowIdToDisplay[static_cast<int>(SDL_GetWindowID(m_window))] = this;
-        SDL_GetWindowSize(m_window, &width, &height);
+        SDL_GetWindowSizeInPixels(m_window, &width, &height);
         m_width = width;
         m_height = height;
 
@@ -129,16 +129,6 @@ int SDL3Display::height() const
   return m_height;
 }
 
-void SDL3Display::setWidth(int newWidth)
-{
-  m_width = newWidth;
-}
-
-void SDL3Display::setHeight(int newHeight)
-{
-  m_height = newHeight;
-}
-
 int SDL3Display::originalWidth() const
 {
   return m_restoredWidth > 0 ? m_restoredWidth : width();
@@ -172,6 +162,24 @@ void SDL3Display::setScale(int scale)
 
   m_scale = scale;
   recreateSurface();
+}
+
+bool SDL3Display::updatePixelSize()
+{
+  int w = 0, h = 0;
+  SDL_GetWindowSizeInPixels(m_window, &w, &h);
+  if (w == m_width && h == m_height)
+    return false;
+  m_width = w;
+  m_height = h;
+  recreateSurface();
+  return true;
+}
+
+float SDL3Display::pixelDensity() const
+{
+  const float density = SDL_GetWindowPixelDensity(m_window);
+  return density > 0.0f ? density : 1.0f;
 }
 
 void SDL3Display::recreateSurface()
@@ -316,7 +324,8 @@ bool SDL3Display::setNativeMouseCursor(NativeCursor cursor)
 
 void SDL3Display::setMousePosition(const gfx::Point& position)
 {
-  SDL_WarpMouseInWindow(m_window, m_scale * position.x, m_scale * position.y);
+  const float density = pixelDensity();
+  SDL_WarpMouseInWindow(m_window, m_scale * position.x / density, m_scale * position.y / density);
 }
 
 void SDL3Display::captureMouse()

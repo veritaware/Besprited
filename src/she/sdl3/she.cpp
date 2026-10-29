@@ -33,6 +33,8 @@
 #include "she/logger.h"
 
 #include <SDL3/SDL.h>
+
+#include <cmath>
 #include <SDL3_image/SDL_image.h>
 
 #include <cstdlib>
@@ -235,6 +237,16 @@ static bool display_has_mouse = false;
 namespace she
 {
 
+namespace
+{
+// SDL reports window points; the surface is in physical pixels / UI scale.
+gfx::Point toSurfacePoint(float x, float y)
+{
+  const float k = unique_display->pixelDensity() / unique_display->scale();
+  return {static_cast<int>(std::floor(x * k)), static_cast<int>(std::floor(y * k))};
+}
+} // namespace
+
 void log(const std::string&)
 {
   // TODO(#73)
@@ -320,9 +332,6 @@ public:
         forceFlip();
         continue;
 
-      case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
-        continue;
-
       case SDL_EVENT_WINDOW_MAXIMIZED:
         sdl::isMaximized = true;
         sdl::isMinimized = false;
@@ -341,15 +350,18 @@ public:
         std::cout << "Restored" << "\n";
         continue;
 
+      // The surface is sized in physical pixels, so a point-size resize, a
+      // pixel-size change and an output scale change all re-read the same size.
       case SDL_EVENT_WINDOW_RESIZED:
+      case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+      case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
       {
         auto it = sdl::windowIdToDisplay.find(static_cast<int>(sdlEvent.window.windowID));
         if (it == sdl::windowIdToDisplay.end())
           continue;
         auto display = it->second;
-        display->setWidth(sdlEvent.window.data1);
-        display->setHeight(sdlEvent.window.data2);
-        display->recreateSurface();
+        if (!display->updatePixelSize())
+          continue;
         event.setType(Event::ResizeDisplay);
         event.setDisplay(display);
         return;
@@ -384,7 +396,6 @@ public:
       case SDL_EVENT_WINDOW_HIT_TEST:
       case SDL_EVENT_WINDOW_ICCPROF_CHANGED:
       case SDL_EVENT_WINDOW_DISPLAY_CHANGED:
-      case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
       case SDL_EVENT_WINDOW_SAFE_AREA_CHANGED:
       case SDL_EVENT_WINDOW_OCCLUDED:
       case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
@@ -420,8 +431,7 @@ public:
 
         event.setType(Event::MouseMove);
         event.setModifiers(getSheModifiers());
-        event.setPosition({static_cast<int>(sdlEvent.motion.x / unique_display->scale()),
-                           static_cast<int>(sdlEvent.motion.y / unique_display->scale())});
+        event.setPosition(toSurfacePoint(sdlEvent.motion.x, sdlEvent.motion.y));
 
         {
           const int hasFingerEvent =
@@ -486,8 +496,7 @@ public:
         {
           float x, y;
           SDL_GetMouseState(&x, &y);
-          event.setPosition(
-              {static_cast<int>(x / unique_display->scale()), static_cast<int>(y / unique_display->scale())});
+          event.setPosition(toSurfacePoint(x, y));
         }
         return;
 
@@ -496,8 +505,7 @@ public:
       {
         auto type = sdlEvent.type == SDL_EVENT_MOUSE_BUTTON_DOWN ? Event::MouseDown : Event::MouseUp;
         event.setType(type);
-        event.setPosition({static_cast<int>(sdlEvent.button.x / unique_display->scale()),
-                           static_cast<int>(sdlEvent.button.y / unique_display->scale())});
+        event.setPosition(toSurfacePoint(sdlEvent.button.x, sdlEvent.button.y));
         event.setButton(mouseButtonMapping[sdlEvent.button.button]);
         event.setModifiers(getSheModifiers());
 
@@ -927,7 +935,12 @@ void set_input_rect(const gfx::Rect& rect)
     SDL_StopTextInput(window);
     return;
   }
-  const SDL_Rect sdlRect{.x = rect.x, .y = rect.y, .w = rect.w, .h = rect.h};
+  // Surface pixels / UI scale -> window points.
+  const float k = static_cast<float>(unique_display->scale()) / unique_display->pixelDensity();
+  const SDL_Rect sdlRect{.x = static_cast<int>(rect.x * k),
+                         .y = static_cast<int>(rect.y * k),
+                         .w = static_cast<int>(rect.w * k),
+                         .h = static_cast<int>(rect.h * k)};
   SDL_SetTextInputArea(window, &sdlRect, 0);
   SDL_StartTextInput(window);
 }

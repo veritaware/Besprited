@@ -33,8 +33,6 @@ public:
   bool setIcon(Surface*) override;
   [[nodiscard]] int width() const override;
   [[nodiscard]] int height() const override;
-  void setWidth(int);
-  void setHeight(int);
   [[nodiscard]] int originalWidth() const override;
   [[nodiscard]] int originalHeight() const override;
   void setOriginalWidth(int width);
@@ -42,6 +40,10 @@ public:
   [[nodiscard]] int scale() const override;
   void setScale(int scale) override;
   void recreateSurface();
+  // Re-reads the window size in physical pixels; true if it changed.
+  bool updatePixelSize();
+  // Window points -> physical pixels (>1 on HiDPI outputs).
+  [[nodiscard]] float pixelDensity() const;
   Surface* getSurface() override;
   void flip(const gfx::Rect& bounds) override;
   void maximize() override;
