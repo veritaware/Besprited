@@ -58,8 +58,8 @@ struct Offer
       return;
     pngEncoded = true;
 
-    SurfacePtr surface{SDL_CreateSurfaceFrom(image.width, image.height, SDL_PIXELFORMAT_RGBA32, image.rgba.data(),
-                                             image.width * 4)};
+    SurfacePtr surface{
+        SDL_CreateSurfaceFrom(image.width, image.height, SDL_PIXELFORMAT_RGBA32, image.rgba.data(), image.width * 4)};
     if (!surface)
       return;
 
@@ -70,7 +70,7 @@ struct Offer
     {
       const auto size = static_cast<size_t>(SDL_TellIO(io));
       const auto* mem = static_cast<const uint8_t*>(
-        SDL_GetPointerProperty(SDL_GetIOProperties(io), SDL_PROP_IOSTREAM_DYNAMIC_MEMORY_POINTER, nullptr));
+          SDL_GetPointerProperty(SDL_GetIOProperties(io), SDL_PROP_IOSTREAM_DYNAMIC_MEMORY_POINTER, nullptr));
       if (mem)
         png.assign(mem, mem + size);
     }
