@@ -16,6 +16,7 @@
 #include "doc/image.h"
 #include "doc/image_impl.h"
 #include "doc/image_io.h"
+#include "doc/mask.h"
 #include "doc/mask_io.h"
 #include "doc/palette_io.h"
 #include "gfx/size.h"
