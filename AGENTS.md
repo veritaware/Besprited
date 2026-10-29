@@ -152,6 +152,10 @@ and `test/app/script_api_tests.cpp` (app API level).
   (e.g. `Assisted-by: Claude Sonnet 5.5 <noreply@anthropic.com>`, **do not use** `Co-Authored-by:`).
   See `AI_USAGE.md` for the full policy — unreviewed/low-quality AI output is grounds for immediate PR
   rejection.
+- **Code review before committing:** after generating or modifying code, an agent must run a code review of
+  the changes (e.g. the `/code-review` skill, or a review subagent) **before** committing, and fix or
+  explicitly report the findings. Use the most capable model available for the review. This does not replace
+  the human review required above.
 - **Copyright headers:** for every `.h`/`.hpp`/`.c`/`.cpp`/`.xml`/`CMakeLists.txt` file you modify, check
   the copyright header in the first ~10 lines and update/add the Besprited/Veritaware line to cover the
   current year, e.g. `// Besprited | Copyright (C) 2026 Veritaware` (check `src/app/app.cpp`, `data/gui.xml`,
