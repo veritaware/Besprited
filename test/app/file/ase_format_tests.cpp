@@ -6,6 +6,7 @@
 
 #include "tests.h"
 
+#include "app/cmd/set_palette.h"
 #include "app/context.h"
 #include "app/document.h"
 #include "app/file/file.h"
@@ -731,4 +732,157 @@ TEST(AseFormat, CompressedCelWithoutZlibTrailerLoads)
   EXPECT_EQ(color, pixelOf(loaded, 0));
   loaded->close();
   delete loaded;
+}
+
+TEST(AseFormat, PaletteEntryNamesRoundTrip)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+
+  app::Context ctx;
+  doc::Document* doc = ctx.documents().add(2, 2, doc::ColorMode::INDEXED, 4);
+  const TempFile tmp("ase_palette_names_test.ase");
+  doc->setFilename(tmp.path);
+
+  auto pal = doc::Palette::create(4);
+  pal->setEntry(1, doc::rgba(10, 20, 30, 255));
+  pal->setEntryName(1, "Sky");
+  pal->setEntryName(3, "Grass");
+  doc->sprite()->setPalette(*pal, true);
+
+  ASSERT_EQ(0, save_document(&ctx, doc));
+  doc->close();
+  delete doc;
+
+  app::Document* loaded = load_document(&ctx, tmp.path);
+  ASSERT_NE(nullptr, loaded);
+  const doc::Palette* lp = loaded->sprite()->palette(0);
+  EXPECT_EQ("", lp->entryName(0));
+  EXPECT_EQ("Sky", lp->entryName(1));
+  EXPECT_EQ("", lp->entryName(2));
+  EXPECT_EQ("Grass", lp->entryName(3));
+  EXPECT_EQ(doc::rgba(10, 20, 30, 255), lp->entry(1));
+
+  auto other = doc::Palette::create(4);
+  EXPECT_NE(0, other->countDiff(*lp, nullptr, nullptr, true));
+
+  loaded->close();
+  delete loaded;
+}
+
+TEST(AseFormat, PaletteEntryNamesRoundTripAcrossFrames)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+
+  app::Context ctx;
+  doc::Document* doc = ctx.documents().add(2, 2, doc::ColorMode::INDEXED, 4);
+  const TempFile tmp("ase_palette_names_frames_test.ase");
+  doc->setFilename(tmp.path);
+  doc->sprite()->setTotalFrames(doc::frame_t(2));
+
+  auto pal0 = doc::Palette::create(4);
+  pal0->setEntryName(0, "Base");
+  pal0->setEntryName(2, "Old");
+  doc->sprite()->setPalette(*pal0, true);
+
+  // Frame 1 differs from frame 0 only in names.
+  auto pal1 = pal0->clone();
+  pal1->setFrame(1);
+  pal1->setEntryName(2, "New");
+  pal1->setEntryName(3, "Extra");
+  doc->sprite()->setPalette(*pal1, true);
+
+  ASSERT_EQ(0, save_document(&ctx, doc));
+  doc->close();
+  delete doc;
+
+  app::Document* loaded = load_document(&ctx, tmp.path);
+  ASSERT_NE(nullptr, loaded);
+  const doc::Palette* lp0 = loaded->sprite()->palette(0);
+  const doc::Palette* lp1 = loaded->sprite()->palette(1);
+  EXPECT_EQ("Base", lp0->entryName(0));
+  EXPECT_EQ("Old", lp0->entryName(2));
+  EXPECT_EQ("", lp0->entryName(3));
+  EXPECT_EQ("Base", lp1->entryName(0));
+  EXPECT_EQ("New", lp1->entryName(2));
+  EXPECT_EQ("Extra", lp1->entryName(3));
+
+  loaded->close();
+  delete loaded;
+}
+
+TEST(Palette, SetPaletteCmdUndoRedoRestoresEntryNames)
+{
+  std::unique_ptr<she::System> sys(she::create_system());
+
+  app::Context ctx;
+  doc::Document* doc = ctx.documents().add(2, 2, doc::ColorMode::INDEXED, 4);
+  doc::Sprite* sprite = doc->sprite();
+
+  auto before = sprite->palette(0)->clone();
+  before->setEntryName(1, "Keep");
+  before->setEntryName(2, "Before");
+  sprite->setPalette(*before, true);
+
+  // Names-only change on 2, rename + color change on 3.
+  auto after = before->clone();
+  after->setEntryName(2, "After");
+  after->setEntry(3, doc::rgba(1, 2, 3, 255));
+  after->setEntryName(3, "Added");
+
+  app::cmd::SetPalette cmd(sprite, doc::frame_t(0), *after);
+  cmd.execute(&ctx);
+  EXPECT_EQ("Keep", sprite->palette(0)->entryName(1));
+  EXPECT_EQ("After", sprite->palette(0)->entryName(2));
+  EXPECT_EQ("Added", sprite->palette(0)->entryName(3));
+
+  cmd.undo();
+  EXPECT_EQ("Keep", sprite->palette(0)->entryName(1));
+  EXPECT_EQ("Before", sprite->palette(0)->entryName(2));
+  EXPECT_EQ("", sprite->palette(0)->entryName(3));
+
+  cmd.redo();
+  EXPECT_EQ("After", sprite->palette(0)->entryName(2));
+  EXPECT_EQ("Added", sprite->palette(0)->entryName(3));
+
+  doc->close();
+  delete doc;
+}
+
+TEST(Palette, ResizeKeepsNamesAligned)
+{
+  auto pal = doc::Palette::create(2);
+  pal->setEntryName(1, "B");
+  pal->resize(4);
+  pal->setEntryName(3, "D");
+  EXPECT_EQ("B", pal->entryName(1));
+  EXPECT_EQ("D", pal->entryName(3));
+  pal->resize(1);
+  EXPECT_EQ("", pal->entryName(1));
+  EXPECT_FALSE(pal->hasNames());
+}
+
+TEST(Palette, EntryNameIsClampedWithoutSplittingUtf8)
+{
+  auto pal = doc::Palette::create(2);
+  std::string name;
+  for (int i = 0; i < 200; ++i)
+    name += "\xC5\x82"; // 2-byte "l with stroke"
+  pal->setEntryName(0, name);
+  const std::string& got = pal->entryName(0);
+  EXPECT_LE(got.size(), doc::Palette::kMaxEntryNameLen);
+  EXPECT_EQ(0u, got.size() % 2);
+  EXPECT_EQ(name.substr(0, got.size()), got);
+}
+
+TEST(Palette, CopyEntryFromCarriesName)
+{
+  auto src = doc::Palette::create(2);
+  src->setEntry(1, doc::rgba(9, 8, 7, 255));
+  src->setEntryName(1, "Src");
+  auto dst = doc::Palette::create(3);
+  dst->setEntryName(2, "Stale");
+  dst->copyEntryFrom(2, *src, 1);
+  EXPECT_EQ("Src", dst->entryName(2));
+  EXPECT_EQ(doc::rgba(9, 8, 7, 255), dst->entry(2));
+  EXPECT_EQ(0, dst->countDiff(*dst->clone(), nullptr, nullptr, true));
 }

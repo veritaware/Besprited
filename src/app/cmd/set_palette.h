@@ -12,6 +12,7 @@
 #include "doc/color.h"
 #include "doc/frame.h"
 
+#include <string>
 #include <vector>
 
 namespace doc
@@ -35,16 +36,29 @@ protected:
   void onUndo() override;
   [[nodiscard]] size_t onMemSize() const override
   {
-    return sizeof(*this) + sizeof(color_t) * (m_oldColors.size() + m_newColors.size());
+    return sizeof(*this) + sizeof(color_t) * (m_oldColors.size() + m_newColors.size()) +
+           sizeof(std::string) * (m_oldNames.size() + m_newNames.size()) + namesMemSize();
   }
 
 private:
+  size_t namesMemSize() const
+  {
+    size_t n = 0;
+    for (const auto& s : m_oldNames)
+      n += s.capacity();
+    for (const auto& s : m_newNames)
+      n += s.capacity();
+    return n;
+  }
+
   frame_t m_frame;
   int m_from, m_to;
   int m_oldNColors;
   int m_newNColors;
   std::vector<color_t> m_oldColors;
   std::vector<color_t> m_newColors;
+  std::vector<std::string> m_oldNames;
+  std::vector<std::string> m_newNames;
 };
 
 } // namespace app::cmd

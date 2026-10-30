@@ -311,7 +311,7 @@ bool AseFormat::onLoad(FileOp* fop)
             Palette* prevPal = sprite->palette(frame);
             auto pal = ase_file_read_palette_chunk(reader, *prevPal, frame);
 
-            if (prevPal->countDiff(*pal, nullptr, nullptr) > 0)
+            if (prevPal->countDiff(*pal, nullptr, nullptr, true) > 0)
               sprite->setPalette(*pal, true);
 
             ignore_old_color_chunks = true;
@@ -465,7 +465,7 @@ bool AseFormat::onSave(FileOp* fop)
   bool require_new_palette_chunk = false;
   for (auto& pal : sprite->getPalettes())
   {
-    if (pal->size() != 256 || pal->hasAlpha())
+    if (pal->size() != 256 || pal->hasAlpha() || pal->hasNames())
     {
       require_new_palette_chunk = true;
       break;
@@ -485,7 +485,7 @@ bool AseFormat::onSave(FileOp* fop)
     // is the first frame or did the palette change?
     auto pal = sprite->palette(frame);
     int palFrom = 0, palTo = pal->size() - 1;
-    if ((frame == 0 || sprite->palette(frame - 1)->countDiff(*pal, &palFrom, &palTo) > 0))
+    if ((frame == 0 || sprite->palette(frame - 1)->countDiff(*pal, &palFrom, &palTo, true) > 0))
     {
       // Write new palette chunk
       if (require_new_palette_chunk)
@@ -850,9 +850,10 @@ static std::shared_ptr<Palette> ase_file_read_palette_chunk(AseReader& f, const 
     int a = f.byte();
     pal->setEntry(c, rgba(r, g, b, a));
 
-    // Skip name
+    std::string name;
     if (flags & ASE_PALETTE_FLAG_HAS_NAME)
-      f.string(); // Ignore color entry name
+      name = f.string();
+    pal->setEntryName(c, name);
   }
 
   return pal;
@@ -889,11 +890,14 @@ static void ase_file_write_palette_chunk(FILE* f, ASE_FrameHeader* frame_header,
   for (int c = from; c <= to; ++c)
   {
     color_t color = pal->getEntry(c);
-    fputw(0, f); // Entry flags (without name)
+    const std::string& name = pal->entryName(c);
+    fputw(name.empty() ? 0 : ASE_PALETTE_FLAG_HAS_NAME, f);
     fputc(rgba_getr(color), f);
     fputc(rgba_getg(color), f);
     fputc(rgba_getb(color), f);
     fputc(rgba_geta(color), f);
+    if (!name.empty())
+      ase_file_write_string(f, name);
   }
 }
 

@@ -66,9 +66,19 @@ public:
   void setEntry(int i, color_t color);
   void addEntry(color_t color);
 
+  // Optional per-entry name; empty when the entry is unnamed.
+  const std::string& entryName(int i) const;
+  void setEntryName(int i, const std::string& name); // Clamped to kMaxEntryNameLen bytes.
+  // Copies color and name of src[srcIndex] into entry i.
+  void copyEntryFrom(int i, const Palette& src, int srcIndex);
+
+  static constexpr size_t kMaxEntryNameLen = 255;
+  bool hasNames() const;
+
   void copyColorsTo(Palette& dst) const;
 
-  int countDiff(const Palette& other, int* from, int* to) const;
+  // Compares colors, and also entry names when withNames is true.
+  int countDiff(const Palette& other, int* from, int* to, bool withNames = false) const;
 
   bool operator==(const Palette& other) const { return (countDiff(other, nullptr, nullptr) == 0); }
 
@@ -88,6 +98,7 @@ public:
 private:
   frame_t m_frame{};
   std::vector<color_t> m_colors;
+  std::vector<std::string> m_names; // Empty, or the same size as m_colors.
   int m_modifications{};
   std::string m_filename; // If the palette is associated with a file.
 };
