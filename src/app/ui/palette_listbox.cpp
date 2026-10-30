@@ -33,14 +33,16 @@ class PaletteListItem : public ListItem
 {
 public:
   PaletteListItem(std::shared_ptr<doc::Palette> palette, const std::string& name)
-    : ListItem(name)
+    : ListItem(palette && !palette->name().empty() ? palette->name() : name)
     , m_palette(palette)
+    , m_fileName(name)
   {
   }
 
   std::shared_ptr<doc::Palette> palette() { return m_palette; }
 
-  const std::string& name() { return text(); }
+  // Resource (file) name, which can differ from the displayed palette name.
+  const std::string& name() { return m_fileName; }
 
 protected:
   bool onProcessMessage(ui::Message* msg) override
@@ -125,6 +127,7 @@ protected:
 
 private:
   std::shared_ptr<doc::Palette> m_palette;
+  std::string m_fileName;
 };
 
 class PaletteListBox::LoadingItem : public ListItem
