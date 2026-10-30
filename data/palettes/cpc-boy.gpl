@@ -1,9 +1,9 @@
 GIMP Palette
-#
-# by Arne Niklas Jansson
-# http://androidarts.com/palette/16pal.htm
-# Inspired by the Armstrad CPC palette with a Gameboy screen gradient added.
-#
+#Palette Name: CPC Boy
+#Description: Inspired by the Amstrad CPC palette with a Game Boy screen gradient added.
+#Author: Arne Niklas Jansson
+#URL: http://androidarts.com/palette/16pal.htm
+#Colors: 32
   0   0   0	Untitled
  27  27 118	Untitled
  54  54 216	Untitled

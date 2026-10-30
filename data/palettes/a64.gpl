@@ -1,9 +1,9 @@
 GIMP Palette
-#
-# by Arne Niklas Jansson
-# http://androidarts.com/palette/16pal.htm
-# Based on the c64 palette
-#
+#Palette Name: A64
+#Description: Based on the C64 palette.
+#Author: Arne Niklas Jansson
+#URL: http://androidarts.com/palette/16pal.htm
+#Colors: 16
   0   0   0	Untitled
  49  58 145	Untitled
  76  52  53	Untitled

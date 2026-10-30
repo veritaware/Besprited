@@ -1,9 +1,9 @@
 GIMP Palette
 Name: Web Safe Colors
 Columns: 6
-#
-# ColorZilla Web Safe Colors palette
-#
+#Palette Name: Web Safe Colors
+#Description: ColorZilla Web Safe Colors palette.
+#Colors: 216
 255 255 255	Untitled
 255 255 204	Untitled
 255 255 153	Untitled

@@ -1,8 +1,8 @@
 GIMP Palette
-#
-# https://commons.wikimedia.org/wiki/User:Psychonaut/ipalette.sh
-# VGA 13h standard palette
-#
+#Palette Name: VGA Mode 13h
+#Description: VGA 13h standard palette.
+#URL: https://commons.wikimedia.org/wiki/User:Psychonaut/ipalette.sh
+#Colors: 256
   0   0   0	Untitled
   0   0 170	Untitled
   0 170   0	Untitled

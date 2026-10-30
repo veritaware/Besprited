@@ -1,7 +1,8 @@
 GIMP Palette
-#
-# ZX Spectrum
-#
+#Palette Name: ZX Spectrum
+#Author: Sinclair Research
+#URL: https://en.wikipedia.org/wiki/ZX_Spectrum_graphic_modes
+#Colors: 16
   0   0   0	Black
   0   0 192	Basic Blue
 192   0   0	Basic Red

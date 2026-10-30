@@ -1,9 +1,9 @@
 GIMP Palette
-#
-# by Arne Niklas Jansson
-# http://androidarts.com/palette/16pal.htm
-# Japanese Machine Palette, inspired by the MSX.
-#
+#Palette Name: JMP
+#Description: Japanese Machine Palette, inspired by the MSX.
+#Author: Arne Niklas Jansson
+#URL: http://androidarts.com/palette/16pal.htm
+#Colors: 16
   0   0   0	Untitled
  25  16  40	Untitled
  70 175  69	Untitled

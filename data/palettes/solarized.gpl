@@ -1,7 +1,10 @@
 GIMP Palette
 Name: Solarized
 Columns: 16
-#
+#Palette Name: Solarized
+#Author: Ethan Schoonover
+#URL: https://ethanschoonover.com/solarized/
+#Colors: 16
   0  43  54	solarized-base03
   7  54  66	solarized-base02
  88 110 117	solarized-base01

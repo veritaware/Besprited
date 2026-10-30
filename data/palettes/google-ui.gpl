@@ -1,5 +1,9 @@
 GIMP Palette
-#
+#Palette Name: Google UI
+#Description: Material Design colors.
+#Author: Google
+#URL: https://m2.material.io/design/color/the-color-system.html
+#Colors: 154
 246 153 136	Red_200
 243 108  96	Red_300
 232  78  64	Red_400
