@@ -41,6 +41,12 @@ public:
   std::string filename() const { return m_filename; }
   void setFilename(const std::string& filename) { m_filename = filename; }
 
+  // Optional palette metadata (e.g. from a .gpl header).
+  const std::string& name() const { return m_name; }
+  void setName(const std::string& name) { m_name = name; }
+  const std::string& author() const { return m_author; }
+  void setAuthor(const std::string& author) { m_author = author; }
+
   int getModifications() const { return m_modifications; }
 
   // Return true if the palette has alpha != 255 in some entry
@@ -100,6 +106,8 @@ private:
   std::vector<color_t> m_colors;
   std::vector<std::string> m_names; // Empty, or the same size as m_colors.
   int m_modifications{};
+  std::string m_name;
+  std::string m_author;
   std::string m_filename; // If the palette is associated with a file.
 };
 

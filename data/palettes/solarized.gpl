@@ -5,19 +5,19 @@ Columns: 16
 #Author: Ethan Schoonover
 #URL: https://ethanschoonover.com/solarized/
 #Colors: 16
-  0  43  54	solarized-base03
-  7  54  66	solarized-base02
- 88 110 117	solarized-base01
-101 123 131	solarized-base00
-131 148 150	solarized-base0
-147 161 161	solarized-base1
-238 232 213	solarized-base2
-253 246 227	solarized-base3
-181 137   0	solarized-yellow
-203  75  22	solarized-orange
-220  50  47	solarized-red
-211  54 130	solarized-magenta
-108 113 196	solarized-violet
- 38 139 210	solarized-blue
- 42 161 152	solarized-cyan
-133 153   0	solarized-green
+  0  43  54	Solarized Base03
+  7  54  66	Solarized Base02
+ 88 110 117	Solarized Base01
+101 123 131	Solarized Base00
+131 148 150	Solarized Base0
+147 161 161	Solarized Base1
+238 232 213	Solarized Base2
+253 246 227	Solarized Base3
+181 137   0	Solarized Yellow
+203  75  22	Solarized Orange
+220  50  47	Solarized Red
+211  54 130	Solarized Magenta
+108 113 196	Solarized Violet
+ 38 139 210	Solarized Blue
+ 42 161 152	Solarized Cyan
+133 153   0	Solarized Green

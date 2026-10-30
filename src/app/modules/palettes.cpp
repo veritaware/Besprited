@@ -162,7 +162,7 @@ bool set_current_palette(const Palette* _palette, bool forced)
   bool ret = false;
 
   // Have changes
-  if (forced || palette->countDiff(*ase_current_palette, nullptr, nullptr) > 0)
+  if (forced || palette->countDiff(*ase_current_palette, nullptr, nullptr, true) > 0)
   {
     // Copy current palette
     palette->copyColorsTo(*ase_current_palette);

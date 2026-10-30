@@ -36,12 +36,16 @@ Palette::Palette(const Palette& palette)
   m_frame = palette.m_frame;
   m_colors = palette.m_colors;
   m_names = palette.m_names;
+  m_name = palette.m_name;
+  m_author = palette.m_author;
 }
 
 std::shared_ptr<Palette> Palette::remap(const Remap& remap)
 {
   auto palette = create(size());
   palette->setFrame(m_frame);
+  palette->m_name = m_name;
+  palette->m_author = m_author;
   for (int i = 0; i < size(); ++i)
   {
     palette->setEntry(remap[i], getEntry(i));
@@ -149,6 +153,8 @@ void Palette::copyColorsTo(Palette& dst) const
 {
   dst.m_colors = m_colors;
   dst.m_names = m_names;
+  dst.m_name = m_name;
+  dst.m_author = m_author;
   ++dst.m_modifications;
 }
 
@@ -183,6 +189,15 @@ int Palette::countDiff(const Palette& other, int* from, int* to, bool withNames)
       *from = min;
     if (to)
       *to = max - 1;
+  }
+
+  // Palette name/author count as a change of the first entry, so range-based
+  // callers (SetPalette, .ase writer) still see something to apply.
+  if (withNames && (m_name != other.m_name || m_author != other.m_author))
+  {
+    ++diff;
+    if (min > 0 && from && *from < 0)
+      *from = *to = 0;
   }
 
   return diff;

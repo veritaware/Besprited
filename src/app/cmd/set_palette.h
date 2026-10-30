@@ -57,6 +57,7 @@ private:
   int m_newNColors;
   std::vector<color_t> m_oldColors;
   std::vector<color_t> m_newColors;
+  std::string m_oldName, m_newName, m_oldAuthor, m_newAuthor;
   std::vector<std::string> m_oldNames;
   std::vector<std::string> m_newNames;
 };

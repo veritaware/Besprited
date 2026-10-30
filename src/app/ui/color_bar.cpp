@@ -130,6 +130,7 @@ ColorBar::ColorBar(int align)
   : Box(align)
   , m_buttons(int(PalButton::MAX))
   , m_splitter(Splitter::ByPercentage, VERTICAL)
+  , m_paletteInfo("")
   , m_paletteView(true, PaletteView::FgBgColors, this, Preferences::instance().colorBar.boxSize() * guiscale())
   , m_remapButton("Remap")
   , m_selector(ColorSelector::NONE)
@@ -170,6 +171,12 @@ ColorBar::ColorBar(int align)
 
   m_remapButton.setVisible(false);
 
+  // Fixed height and zero width hint, so long names don't widen the bar.
+  m_paletteInfo.setText("A");
+  m_paletteInfo.setSizeHint(0, m_paletteInfo.sizeHint().h);
+  m_paletteInfo.setText("");
+  m_paletteInfo.setVisible(false);
+  m_palettePlaceholder.addChild(&m_paletteInfo);
   m_palettePlaceholder.addChild(&m_scrollableView);
   m_palettePlaceholder.addChild(&m_remapButton);
   m_splitter.setId("palette_spectrum_splitter");
@@ -399,6 +406,24 @@ void ColorBar::onAppPaletteChange()
 
   updateWarningIcon(m_fgColor.getColor(), m_fgWarningIcon);
   updateWarningIcon(m_bgColor.getColor(), m_bgWarningIcon);
+  updatePaletteInfo();
+}
+
+// Shows "Name by Author" above the palette when the palette carries them.
+void ColorBar::updatePaletteInfo()
+{
+  const doc::Palette* pal = get_current_palette();
+  std::string text = pal->name();
+  if (!pal->author().empty())
+    text += (text.empty() ? "by " : " by ") + pal->author();
+
+  const bool changed = (m_paletteInfo.text() != text || m_paletteInfo.isVisible() == text.empty());
+  if (!changed)
+    return;
+
+  m_paletteInfo.setText(text);
+  m_paletteInfo.setVisible(!text.empty());
+  layout();
 }
 
 void ColorBar::onFocusPaletteView()

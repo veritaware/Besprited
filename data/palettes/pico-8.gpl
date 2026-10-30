@@ -3,19 +3,19 @@ GIMP Palette
 #Author: Joseph White
 #URL: http://www.pico-8.com/
 #Colors: 16
-  0   0   0	black
- 29  43  83	dark_blue
-126  37  83	dark_purple
-  0 135  81	dark_green
-171  82  54	brown
- 95  87  79	dark_gray
-194 195 199	light_gray
-255 241 232	white
-255   0  77	red
-255 163   0	orange
-255 240  36	yellow
-  0 231  86	green
- 41 173 255	blue
-131 118 156	indigo
-255 119 168	pink
-255 204 170	peach
+  0   0   0	Black
+ 29  43  83	Dark Blue
+126  37  83	Dark Purple
+  0 135  81	Dark Green
+171  82  54	Brown
+ 95  87  79	Dark Gray
+194 195 199	Light Gray
+255 241 232	White
+255   0  77	Red
+255 163   0	Orange
+255 240  36	Yellow
+  0 231  86	Green
+ 41 173 255	Blue
+131 118 156	Indigo
+255 119 168	Pink
+255 204 170	Peach

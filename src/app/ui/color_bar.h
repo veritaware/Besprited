@@ -21,6 +21,7 @@
 #include "doc/sort_palette.h"
 #include "ui/box.h"
 #include "ui/button.h"
+#include "ui/label.h"
 #include "ui/splitter.h"
 #include "ui/tooltips.h"
 #include "ui/view.h"
@@ -133,6 +134,7 @@ private:
   void setPalette(const doc::Palette& newPalette, const std::string& actionText);
   void setTransparentIndex(int index);
   void updateWarningIcon(const app::Color& color, ui::Button* warningIcon);
+  void updatePaletteInfo();
   static void fixColorIndex(ColorButton& color);
 
   class ScrollableView : public ui::View
@@ -151,6 +153,7 @@ private:
   std::unique_ptr<PalettePopup> m_palettePopup;
   ui::Splitter m_splitter;
   ui::VBox m_palettePlaceholder;
+  ui::Label m_paletteInfo;
   ui::VBox m_selectorPlaceholder;
   ScrollableView m_scrollableView;
   PaletteView m_paletteView;
