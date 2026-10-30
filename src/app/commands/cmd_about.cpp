@@ -6,6 +6,7 @@
 // it under the terms of the GNU General Public License version 2 as
 // published by the Free Software Foundation.
 
+#include "ui/separator.h"
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -43,20 +44,18 @@ void AboutCommand::onExecute(Context* context)
   title->setI18N();
   Label* subtitle = new Label("Animated sprite editor & pixel art tool");
   subtitle->setI18N();
-  Separator* authors_separator1 = new Separator("Authors:", HORIZONTAL | TOP);
-  authors_separator1->setI18N();
-  Separator* authors_separator2 = new Separator("", HORIZONTAL);
-  authors_separator2->setI18N();
-  Label* author1 = new LinkLabel("http://davidcapello.com/", "David Capello");
-  author1->setI18N();
-  Label* author1_desc = new Label("- Lead developer, graphics & maintainer");
-  author1_desc->setI18N();
-  Label* author2 = new LinkLabel("http://ilkke.blogspot.com/", "Ilija Melentijevic");
-  author2->setI18N();
-  Label* author2_desc = new Label("- Default skin & graphics introduced in v0.8");
-  author2_desc->setI18N();
-  Label* author3 = new LinkLabel(WEBSITE_CONTRIBUTORS, "Contributors");
-  author3->setI18N();
+
+  Separator* license_separator = new Separator("Licensing:", HORIZONTAL | TOP);
+  license_separator->setI18N();
+
+  Label* license_desc = new Label("This software is released under the GPL-2.0 license.");
+  license_desc->setI18N();
+  Label* license_link = new LinkLabel(
+      "https://raw.githubusercontent.com/veritaware/Besprited/refs/heads/trunk/LICENSE.txt", "Full license text");
+  license_link->setI18N();
+  Label* contributors = new LinkLabel(WEBSITE_CONTRIBUTORS, "Contributors");
+  contributors->setI18N();
+
   Box* bottom_box1 = new Box(HORIZONTAL);
   Box* bottom_box2 = new Box(HORIZONTAL);
   Box* bottom_box3 = new Box(HORIZONTAL);
@@ -67,13 +66,11 @@ void AboutCommand::onExecute(Context* context)
 
   grid->addChildInCell(title, 2, 1, 0);
   grid->addChildInCell(subtitle, 2, 1, 0);
-  grid->addChildInCell(authors_separator1, 2, 1, 0);
-  grid->addChildInCell(author1, 1, 1, 0);
-  grid->addChildInCell(author1_desc, 1, 1, 0);
-  grid->addChildInCell(author2, 1, 1, 0);
-  grid->addChildInCell(author2_desc, 1, 1, 0);
-  grid->addChildInCell(author3, 2, 1, 0);
-  grid->addChildInCell(authors_separator2, 2, 1, 0);
+  grid->addChildInCell(license_separator, 2, 1, 0);
+  grid->addChildInCell(license_desc, 2, 1, 0);
+  grid->addChildInCell(license_link, 1, 1, 0);
+  grid->addChildInCell(contributors, 1, 1, 0);
+  grid->addChildInCell(new Separator("", HORIZONTAL | TOP), 2, 1, 0);
   grid->addChildInCell(copyright, 2, 1, 0);
   grid->addChildInCell(website, 2, 1, 0);
   grid->addChildInCell(bottom_box1, 2, 1, 0);

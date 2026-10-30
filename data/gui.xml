@@ -816,22 +816,19 @@
           <param name="path" value="https://github.com/Veritaware/Besprited#readme" />
         </item>
         <separator />
-        <item command="Launch" text="Quick &amp;Reference">
+        <!--<item command="Launch" text="Quick &amp;Reference">
           <param name="type" value="url" />
-          <!-- TODO: Update to Besprited wiki when available -->
           <param name="path" value="https://github.com/LibreSprite/libresprite.github.io/wiki/Know-your-workspace" />
         </item>
         <item command="Launch" text="Documentation">
           <param name="type" value="url" />
-          <!-- TODO: Update to Besprited wiki when available -->
           <param name="path" value="https://github.com/LibreSprite/libresprite.github.io/wiki" />
         </item>
         <item command="Launch" text="Tutorial">
           <param name="type" value="url" />
-          <!-- TODO: Update to Besprited wiki when available -->
           <param name="path" value="https://github.com/LibreSprite/libresprite.github.io/wiki" />
         </item>
-        <separator />
+        <separator />-->
         <item command="Launch" text="Release Notes">
           <param name="type" value="url" />
           <param name="path" value="/releases/" />
@@ -839,7 +836,7 @@
         <separator />
         <item command="Launch" text="&amp;Donate">
           <param name="type" value="url" />
-          <param name="path" value="https://liberapay.com/LibreSprite" />
+          <param name="path" value="https://ko-fi.com/veritaware" />
         </item>
         <item command="About" text="&amp;About" />
       </menu>
