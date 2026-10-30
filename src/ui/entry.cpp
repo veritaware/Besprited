@@ -13,10 +13,11 @@
 
 #include "base/bind.h"
 #include "base/string.h"
-#include "clip/clip.h"
 #include "evalmath/evalmath.h"
+#include "she/clipboard.h"
 #include "she/font.h"
 #include "she/keys.h"
+#include "she/system.h"
 #include "ui/manager.h"
 #include "ui/menu.h"
 #include "ui/message.h"
@@ -733,7 +734,7 @@ void Entry::executeCmd(EntryCmd cmd, int unicodeChar, bool shift_pressed)
       if (cmd == EntryCmd::Cut)
       {
         std::wstring selected = text.substr(selbeg, selend - selbeg + 1);
-        clip::set_text(base::to_utf8(selected));
+        she::instance()->clipboard()->setText(base::to_utf8(selected));
       }
 
       // remove text
@@ -754,7 +755,7 @@ void Entry::executeCmd(EntryCmd cmd, int unicodeChar, bool shift_pressed)
   case EntryCmd::Paste:
   {
     std::string clipboard;
-    if (clip::get_text(clipboard))
+    if (she::instance()->clipboard()->getText(clipboard))
     {
       // delete the entire selection
       if (selbeg >= 0)
@@ -783,7 +784,7 @@ void Entry::executeCmd(EntryCmd cmd, int unicodeChar, bool shift_pressed)
     if (selbeg >= 0)
     {
       std::wstring selected = text.substr(selbeg, selend - selbeg + 1);
-      clip::set_text(base::to_utf8(selected));
+      she::instance()->clipboard()->setText(base::to_utf8(selected));
     }
     break;
 

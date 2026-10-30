@@ -27,6 +27,7 @@
 #include "base/concurrent_queue.h"
 #include "base/exception.h"
 #include "base/string.h"
+#include "she/sdl3/sdl3_clipboard.h"
 #include "she/sdl3/sdl3_display.h"
 #include "she/sdl3/sdl3_surface.h"
 #include "she/common/system.h"
@@ -688,6 +689,8 @@ class SDL3System : public CommonSystem
 public:
   SDL3System() { g_instance = this; }
 
+  Clipboard* clipboard() override { return &m_clipboard; }
+
   ~SDL3System() override
   {
     shutdown = true;
@@ -698,6 +701,7 @@ public:
     g_instance = nullptr;
   }
 
+  SDL3Clipboard m_clipboard;
   bool shutdown{false};
   std::thread mainThread;
   std::thread::id mainThreadId;

@@ -14,6 +14,7 @@
 #include "base/concurrent_queue.h"
 #include "base/exception.h"
 #include "base/string.h"
+#include "she/sdl2/sdl2_clipboard.h"
 #include "she/sdl2/sdl2_display.h"
 #include "she/sdl2/sdl2_surface.h"
 #include "she/common/system.h"
@@ -713,6 +714,8 @@ class SDL2System : public CommonSystem
 public:
   SDL2System() { g_instance = this; }
 
+  Clipboard* clipboard() override { return &m_clipboard; }
+
   ~SDL2System() override
   {
     shutdown = true;
@@ -724,6 +727,7 @@ public:
     g_instance = nullptr;
   }
 
+  SDL2Clipboard m_clipboard;
   bool shutdown{false};
   std::thread mainThread;
   std::thread::id mainThreadId;
