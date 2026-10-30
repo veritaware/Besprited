@@ -218,7 +218,7 @@ void PaletteView::clearSelection()
   for (int i = 0; i < palette->size(); ++i)
   {
     if (!m_selectedEntries[i])
-      newPalette->setEntry(remap[i], palette->getEntry(i));
+      newPalette->copyEntryFrom(remap[i], *palette, i);
   }
 
   m_currentEntry = m_selectedEntries.firstPick();
@@ -776,12 +776,12 @@ void PaletteView::dropColors(int beforeIndex)
 
     newPalette->resize(palette->size() + picks);
     for (int i = 0; i < palette->size(); ++i)
-      newPalette->setEntry(remap[i], palette->getEntry(i));
+      newPalette->copyEntryFrom(remap[i], *palette, i);
 
     for (int i = 0, j = 0; i < palette->size(); ++i)
     {
       if (m_selectedEntries[i])
-        newPalette->setEntry(beforeIndex + (j++), palette->getEntry(i));
+        newPalette->copyEntryFrom(beforeIndex + (j++), *palette, i);
     }
 
     for (int i = 0, j = 0; i < palette->size(); ++i)
@@ -808,7 +808,7 @@ void PaletteView::dropColors(int beforeIndex)
     auto oldSelectedCopies = m_selectedEntries;
     for (int i = 0; i < palette->size(); ++i)
     {
-      newPalette->setEntry(remap[i], palette->getEntry(i));
+      newPalette->copyEntryFrom(remap[i], *palette, i);
       m_selectedEntries[remap[i]] = oldSelectedCopies[i];
     }
 
@@ -987,7 +987,7 @@ void PaletteView::setNewPalette(const doc::Palette& oldPalette, const doc::Palet
                                 PaletteViewModification mod)
 {
   // No differences
-  if (!newPalette.countDiff(oldPalette, nullptr, nullptr))
+  if (!newPalette.countDiff(oldPalette, nullptr, nullptr, true))
     return;
 
   if (m_delegate)

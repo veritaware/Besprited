@@ -35,6 +35,7 @@ Palette::Palette(const Palette& palette)
 {
   m_frame = palette.m_frame;
   m_colors = palette.m_colors;
+  m_names = palette.m_names;
 }
 
 std::shared_ptr<Palette> Palette::remap(const Remap& remap)
@@ -42,7 +43,10 @@ std::shared_ptr<Palette> Palette::remap(const Remap& remap)
   auto palette = create(size());
   palette->setFrame(m_frame);
   for (int i = 0; i < size(); ++i)
+  {
     palette->setEntry(remap[i], getEntry(i));
+    palette->setEntryName(remap[i], entryName(i));
+  }
   return palette;
 }
 
@@ -59,6 +63,8 @@ void Palette::resize(int ncolors)
   ASSERT(ncolors >= 0);
 
   m_colors.resize(std::max(ncolors, 0), doc::rgba(0, 0, 0, 255));
+  if (!m_names.empty())
+    m_names.resize(m_colors.size());
   ++m_modifications;
 }
 
@@ -96,13 +102,57 @@ void Palette::setEntry(int i, color_t color)
   ++m_modifications;
 }
 
+const std::string& Palette::entryName(int i) const
+{
+  static const std::string empty;
+  if (i < 0 || i >= (int)m_names.size())
+    return empty;
+  return m_names[i];
+}
+
+void Palette::setEntryName(int i, const std::string& name)
+{
+  if (i < 0 || i >= size())
+    return;
+
+  // Don't cut a UTF-8 sequence in half.
+  size_t len = std::min(name.size(), kMaxEntryNameLen);
+  if (len < name.size())
+    while (len > 0 && (static_cast<unsigned char>(name[len]) & 0xC0) == 0x80)
+      --len;
+  const std::string clamped = name.substr(0, len);
+
+  if (m_names.empty())
+  {
+    if (clamped.empty())
+      return;
+    m_names.resize(m_colors.size());
+  }
+  if (m_names[i] == clamped)
+    return;
+  m_names[i] = clamped;
+  ++m_modifications;
+}
+
+void Palette::copyEntryFrom(int i, const Palette& src, int srcIndex)
+{
+  setEntry(i, src.getEntry(srcIndex));
+  setEntryName(i, src.entryName(srcIndex));
+}
+
+bool Palette::hasNames() const
+{
+  return std::any_of(m_names.begin(), m_names.end(), [](const std::string& n) { return !n.empty(); });
+}
+
 void Palette::copyColorsTo(Palette& dst) const
 {
   dst.m_colors = m_colors;
+  dst.m_names = m_names;
   ++dst.m_modifications;
 }
 
-int Palette::countDiff(const Palette& other, int* from, int* to) const
+int Palette::countDiff(const Palette& other, int* from, int* to, bool withNames) const
 {
   int c, diff = 0;
   const int min = MIN(this->m_colors.size(), other.m_colors.size());
@@ -116,7 +166,7 @@ int Palette::countDiff(const Palette& other, int* from, int* to) const
   // Compare palettes
   for (c = 0; c < min; ++c)
   {
-    if (this->m_colors[c] != other.m_colors[c])
+    if (this->m_colors[c] != other.m_colors[c] || (withNames && entryName(c) != other.entryName(c)))
     {
       if (from && *from < 0)
         *from = c;

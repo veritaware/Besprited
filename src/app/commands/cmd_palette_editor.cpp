@@ -734,7 +734,7 @@ void PaletteEntryEditor::updateCurrentSpritePalette(const char* operationName)
       // Check differences between current sprite palette and current system
       // palette
       from = to = -1;
-      currentSpritePalette->countDiff(*newPalette, &from, &to);
+      currentSpritePalette->countDiff(*newPalette, &from, &to, true);
 
       if (from >= 0 && to >= from)
       {

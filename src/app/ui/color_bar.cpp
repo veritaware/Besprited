@@ -669,7 +669,7 @@ void ColorBar::setPalette(const doc::Palette& newPalette, const std::string& act
     ContextWriter writer(UIContext::instance(), 500);
     Sprite* sprite = writer.sprite();
     frame_t frame = writer.frame();
-    if (sprite && newPalette.countDiff(*sprite->palette(frame), nullptr, nullptr))
+    if (sprite && newPalette.countDiff(*sprite->palette(frame), nullptr, nullptr, true))
     {
       Transaction transaction(writer.context(), actionText, ModifyDocument);
       transaction.execute(new cmd::SetPalette(sprite, frame, newPalette));
@@ -745,9 +745,12 @@ void ColorBar::onPaletteViewPasteColors(const Palette* fromPal, const doc::Palet
     if (state)
     {
       if (j < newPalette->size())
-        newPalette->setEntry(j, fromPal->getEntry(i));
+        newPalette->copyEntryFrom(j, *fromPal, i);
       else
+      {
         newPalette->addEntry(fromPal->getEntry(i));
+        newPalette->setEntryName(newPalette->size() - 1, fromPal->entryName(i));
+      }
 
       for (++j; j < to.size(); ++j)
         if (to[j])
@@ -908,7 +911,7 @@ void ColorBar::onSortBy(SortPaletteBy channel)
   {
     if (state)
     {
-      selectedPalette->setEntry(j, palette->getEntry(i));
+      selectedPalette->copyEntryFrom(j, *palette, i);
       mapToOriginal[j] = i;
       ++j;
     }
