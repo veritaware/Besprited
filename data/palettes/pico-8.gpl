@@ -1,8 +1,8 @@
 GIMP Palette
-#
-# by Joseph White
-# http://www.pico-8.com/
-#
+#Palette Name: PICO-8
+#Author: Joseph White
+#URL: http://www.pico-8.com/
+#Colors: 16
   0   0   0	black
  29  43  83	dark_blue
 126  37  83	dark_purple

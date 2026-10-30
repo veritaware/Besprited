@@ -1,6 +1,9 @@
 GIMP Palette
 Name: Monokai
-#
+#Palette Name: Monokai
+#Author: Wimer Hazenberg
+#URL: https://monokai.nl/
+#Colors: 12
 0   0   0   Blank
 27  29	30  Black
 39  40  32  Darker-brown

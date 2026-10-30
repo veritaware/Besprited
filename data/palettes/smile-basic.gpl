@@ -1,7 +1,7 @@
 GIMP Palette
-#
-# SmileBASIC: http://smilebasic.com/en/reference/#constant
-#
+#Palette Name: SmileBASIC
+#URL: http://smilebasic.com/en/reference/#constant
+#Colors: 18
   0 248 248	AQUA
   0   0   0	BLACK
   0   0 255	BLUE

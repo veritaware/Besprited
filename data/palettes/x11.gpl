@@ -1,6 +1,9 @@
 GIMP Palette
 Name: X11
-#
+#Palette Name: X11
+#Author: X Consortium
+#URL: https://en.wikipedia.org/wiki/X11_color_names
+#Colors: 138
 0	0	0	Blank
 255	250	250	snow
 248	248	255	GhostWhite
