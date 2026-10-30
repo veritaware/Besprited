@@ -15,6 +15,7 @@
 #include "app/ui/skin/skin_theme.h"
 #include "base/bind.h"
 #include "doc/palette.h"
+#include "she/font.h"
 #include "ui/graphics.h"
 #include "ui/listitem.h"
 #include "ui/message.h"
@@ -101,9 +102,23 @@ protected:
       g->putPixel(dotsColor, box.x + 6 * guiscale(), ellipsisY);
     }
 
-    // and draw the name
-    g->drawString(text(), fgcolor, gfx::ColorNone,
-                  gfx::Point(bounds.x + leftPadding, bounds.y + bounds.h / 2 - g->measureUIString(text()).h / 2));
+    // and draw the name, with the author (if any) right-aligned in the mini font
+    const int textY = bounds.y + bounds.h / 2 - g->measureUIString(text()).h / 2;
+    g->drawString(text(), fgcolor, gfx::ColorNone, gfx::Point(bounds.x + leftPadding, textY));
+
+    if (!palette->author().empty())
+    {
+      auto miniFont = theme->getMiniFont();
+      const std::string author = "by " + palette->author();
+      const int authorX = bounds.x2() - leftPadding - miniFont->textLength(author);
+      const int nameEnd = bounds.x + leftPadding + g->measureUIString(text()).w + 4 * guiscale();
+      if (authorX > nameEnd) // skip when it would overlap the name
+      {
+        g->setFont(miniFont);
+        g->drawString(author, isSelected() ? fgcolor : dotsColor, gfx::ColorNone,
+                      gfx::Point(authorX, bounds.y + bounds.h / 2 - miniFont->height() / 2));
+      }
+    }
   }
 
   void onSizeHint(SizeHintEvent& ev) override { ev.setSizeHint(gfx::Size(0, (2 + 16 + 2) * guiscale())); }

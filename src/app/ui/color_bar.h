@@ -153,7 +153,9 @@ private:
   std::unique_ptr<PalettePopup> m_palettePopup;
   ui::Splitter m_splitter;
   ui::VBox m_palettePlaceholder;
-  ui::Label m_paletteInfo;
+  class InfoLabel;
+  std::unique_ptr<InfoLabel> m_paletteName;
+  std::unique_ptr<InfoLabel> m_paletteAuthor;
   ui::VBox m_selectorPlaceholder;
   ScrollableView m_scrollableView;
   PaletteView m_paletteView;

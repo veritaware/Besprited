@@ -60,6 +60,7 @@
 #include "ui/message.h"
 #include "ui/paint_event.h"
 #include "ui/separator.h"
+#include "ui/size_hint_event.h"
 #include "ui/system.h"
 
 #include <cstring>
@@ -78,6 +79,24 @@ enum class PalButton
 
 using namespace app::skin;
 using namespace ui;
+
+// Palette name/author label: zero width hint, so long text doesn't widen the bar.
+class ColorBar::InfoLabel : public ui::Label
+{
+public:
+  InfoLabel()
+    : ui::Label("")
+  {
+    setup_mini_font(this);
+  }
+
+protected:
+  void onSizeHint(ui::SizeHintEvent& ev) override
+  {
+    ui::Label::onSizeHint(ev);
+    ev.setSizeHint(gfx::Size(0, ev.sizeHint().h));
+  }
+};
 
 class ColorBar::WarningIcon : public StyledButton
 {
@@ -130,7 +149,6 @@ ColorBar::ColorBar(int align)
   : Box(align)
   , m_buttons(int(PalButton::MAX))
   , m_splitter(Splitter::ByPercentage, VERTICAL)
-  , m_paletteInfo("")
   , m_paletteView(true, PaletteView::FgBgColors, this, Preferences::instance().colorBar.boxSize() * guiscale())
   , m_remapButton("Remap")
   , m_selector(ColorSelector::NONE)
@@ -171,12 +189,12 @@ ColorBar::ColorBar(int align)
 
   m_remapButton.setVisible(false);
 
-  // Fixed height and zero width hint, so long names don't widen the bar.
-  m_paletteInfo.setText("A");
-  m_paletteInfo.setSizeHint(0, m_paletteInfo.sizeHint().h);
-  m_paletteInfo.setText("");
-  m_paletteInfo.setVisible(false);
-  m_palettePlaceholder.addChild(&m_paletteInfo);
+  m_paletteName = std::make_unique<InfoLabel>();
+  m_paletteAuthor = std::make_unique<InfoLabel>();
+  m_paletteName->setVisible(false);
+  m_paletteAuthor->setVisible(false);
+  m_palettePlaceholder.addChild(m_paletteName.get());
+  m_palettePlaceholder.addChild(m_paletteAuthor.get());
   m_palettePlaceholder.addChild(&m_scrollableView);
   m_palettePlaceholder.addChild(&m_remapButton);
   m_splitter.setId("palette_spectrum_splitter");
@@ -409,20 +427,19 @@ void ColorBar::onAppPaletteChange()
   updatePaletteInfo();
 }
 
-// Shows "Name by Author" above the palette when the palette carries them.
+// Shows the palette name and "by Author" on two lines above the palette.
 void ColorBar::updatePaletteInfo()
 {
   const doc::Palette* pal = get_current_palette();
-  std::string text = pal->name();
-  if (!pal->author().empty())
-    text += (text.empty() ? "by " : " by ") + pal->author();
+  const std::string author = pal->author().empty() ? std::string() : "by " + pal->author();
 
-  const bool changed = (m_paletteInfo.text() != text || m_paletteInfo.isVisible() == text.empty());
-  if (!changed)
+  if (m_paletteName->text() == pal->name() && m_paletteAuthor->text() == author)
     return;
 
-  m_paletteInfo.setText(text);
-  m_paletteInfo.setVisible(!text.empty());
+  m_paletteName->setText(pal->name());
+  m_paletteAuthor->setText(author);
+  m_paletteName->setVisible(!pal->name().empty());
+  m_paletteAuthor->setVisible(!author.empty());
   layout();
 }
 
