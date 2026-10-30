@@ -60,6 +60,7 @@
 #include "ui/message.h"
 #include "ui/paint_event.h"
 #include "ui/separator.h"
+#include "ui/init_theme_event.h"
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
 
@@ -88,6 +89,7 @@ public:
     : ui::Label("")
   {
     setup_mini_font(this);
+    setBorder(gfx::Border(0)); // onInitTheme() isn't dispatched from the base ctor
   }
 
 protected:
@@ -95,6 +97,23 @@ protected:
   {
     ui::Label::onSizeHint(ev);
     ev.setSizeHint(gfx::Size(0, ev.sizeHint().h));
+  }
+
+  void onInitTheme(ui::InitThemeEvent& ev) override
+  {
+    ui::Label::onInitTheme(ev);
+    setBorder(gfx::Border(0)); // Tight lines, no theme label padding
+  }
+};
+
+// Stacks the name/author lines without spacing (reapplied on theme changes).
+class ColorBar::InfoBox : public ui::VBox
+{
+protected:
+  void onInitTheme(ui::InitThemeEvent& ev) override
+  {
+    ui::VBox::onInitTheme(ev);
+    noBorderNoChildSpacing();
   }
 };
 
@@ -193,8 +212,12 @@ ColorBar::ColorBar(int align)
   m_paletteAuthor = std::make_unique<InfoLabel>();
   m_paletteName->setVisible(false);
   m_paletteAuthor->setVisible(false);
-  m_palettePlaceholder.addChild(m_paletteName.get());
-  m_palettePlaceholder.addChild(m_paletteAuthor.get());
+  m_paletteInfo = std::make_unique<InfoBox>();
+  m_paletteInfo->noBorderNoChildSpacing();
+  m_paletteInfo->addChild(m_paletteName.get());
+  m_paletteInfo->addChild(m_paletteAuthor.get());
+  m_paletteInfo->setVisible(false);
+  m_palettePlaceholder.addChild(m_paletteInfo.get());
   m_palettePlaceholder.addChild(&m_scrollableView);
   m_palettePlaceholder.addChild(&m_remapButton);
   m_splitter.setId("palette_spectrum_splitter");
@@ -440,6 +463,7 @@ void ColorBar::updatePaletteInfo()
   m_paletteAuthor->setText(author);
   m_paletteName->setVisible(!pal->name().empty());
   m_paletteAuthor->setVisible(!author.empty());
+  m_paletteInfo->setVisible(!pal->name().empty() || !author.empty());
   layout();
 }
 

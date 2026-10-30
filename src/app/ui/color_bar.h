@@ -154,6 +154,8 @@ private:
   ui::Splitter m_splitter;
   ui::VBox m_palettePlaceholder;
   class InfoLabel;
+  class InfoBox;
+  std::unique_ptr<InfoBox> m_paletteInfo;
   std::unique_ptr<InfoLabel> m_paletteName;
   std::unique_ptr<InfoLabel> m_paletteAuthor;
   ui::VBox m_selectorPlaceholder;
