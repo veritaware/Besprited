@@ -241,8 +241,10 @@ std::string Color::toHumanReadableString(PixelFormat pixelFormat, HumanReadableS
       if (i >= 0 && i < (int)get_current_palette()->size())
       {
         uint32_t _c = get_current_palette()->getEntry(i);
-        result << "Index " << i << " (RGB " << (int)rgba_getr(_c) << " " << (int)rgba_getg(_c) << " "
-               << (int)rgba_getb(_c) << ")";
+        result << "Index " << i;
+        if (const std::string& name = get_current_palette()->entryName(i); !name.empty())
+          result << ": " << name;
+        result << " (RGB " << (int)rgba_getr(_c) << " " << (int)rgba_getg(_c) << " " << (int)rgba_getb(_c) << ")";
       }
       else
       {

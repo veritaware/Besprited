@@ -2,21 +2,21 @@ GIMP Palette
 #Palette Name: SmileBASIC
 #URL: http://smilebasic.com/en/reference/#constant
 #Colors: 18
-  0 248 248	AQUA
-  0   0   0	BLACK
-  0   0 255	BLUE
-  0   0 248	CYAN
-248   0 248	FUCHSIA
-128 128 128	GRAY
-  0 128   0	GREEN
-  0 248   0	LIME
-248   0 248	MAGENTA
-128   0   0	MAROON
-  0   0 128	NAVY
-128 128   0	OLIVE
-128   0 128	PURPLE
-248   0   0	RED
-192 192 192	SILVER
-  0 128 128	TEAL
-248 248 248	WHITE
-248 248   0	YELLOW
+  0 248 248	Aqua
+  0   0   0	Black
+  0   0 255	Blue
+  0   0 248	Cyan
+248   0 248	Fuchsia
+128 128 128	Gray
+  0 128   0	Green
+  0 248   0	Lime
+248   0 248	Magenta
+128   0   0	Maroon
+  0   0 128	Navy
+128 128   0	Olive
+128   0 128	Purple
+248   0   0	Red
+192 192 192	Silver
+  0 128 128	Teal
+248 248 248	White
+248 248   0	Yellow

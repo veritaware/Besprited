@@ -26,6 +26,10 @@ SetPalette::SetPalette(const Sprite* sprite, const frame_t frame, const Palette&
 {
   const Palette* curPalette = sprite->palette(frame);
 
+  m_oldName = curPalette->name();
+  m_newName = newPalette.name();
+  m_oldAuthor = curPalette->author();
+  m_newAuthor = newPalette.author();
   m_oldNColors = curPalette->size();
   m_newNColors = newPalette.size();
 
@@ -71,6 +75,8 @@ void SetPalette::onExecute()
   const Sprite* sprite = this->sprite();
   Palette* palette = sprite->palette(m_frame);
   palette->resize(m_newNColors);
+  palette->setName(m_newName);
+  palette->setAuthor(m_newAuthor);
 
   for (int i = 0; i < static_cast<int>(m_newColors.size()); ++i)
   {
@@ -86,6 +92,8 @@ void SetPalette::onUndo()
   const Sprite* sprite = this->sprite();
   Palette* palette = sprite->palette(m_frame);
   palette->resize(m_oldNColors);
+  palette->setName(m_oldName);
+  palette->setAuthor(m_oldAuthor);
 
   for (int i = 0; i < static_cast<int>(m_oldColors.size()); ++i)
   {

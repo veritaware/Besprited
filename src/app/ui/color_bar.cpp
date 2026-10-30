@@ -60,6 +60,8 @@
 #include "ui/message.h"
 #include "ui/paint_event.h"
 #include "ui/separator.h"
+#include "ui/init_theme_event.h"
+#include "ui/size_hint_event.h"
 #include "ui/system.h"
 
 #include <cstring>
@@ -78,6 +80,42 @@ enum class PalButton
 
 using namespace app::skin;
 using namespace ui;
+
+// Palette name/author label: zero width hint, so long text doesn't widen the bar.
+class ColorBar::InfoLabel : public ui::Label
+{
+public:
+  InfoLabel()
+    : ui::Label("")
+  {
+    setup_mini_font(this);
+    setBorder(gfx::Border(0)); // onInitTheme() isn't dispatched from the base ctor
+  }
+
+protected:
+  void onSizeHint(ui::SizeHintEvent& ev) override
+  {
+    ui::Label::onSizeHint(ev);
+    ev.setSizeHint(gfx::Size(0, ev.sizeHint().h));
+  }
+
+  void onInitTheme(ui::InitThemeEvent& ev) override
+  {
+    ui::Label::onInitTheme(ev);
+    setBorder(gfx::Border(0)); // Tight lines, no theme label padding
+  }
+};
+
+// Stacks the name/author lines without spacing (reapplied on theme changes).
+class ColorBar::InfoBox : public ui::VBox
+{
+protected:
+  void onInitTheme(ui::InitThemeEvent& ev) override
+  {
+    ui::VBox::onInitTheme(ev);
+    noBorderNoChildSpacing();
+  }
+};
 
 class ColorBar::WarningIcon : public StyledButton
 {
@@ -170,6 +208,16 @@ ColorBar::ColorBar(int align)
 
   m_remapButton.setVisible(false);
 
+  m_paletteName = std::make_unique<InfoLabel>();
+  m_paletteAuthor = std::make_unique<InfoLabel>();
+  m_paletteName->setVisible(false);
+  m_paletteAuthor->setVisible(false);
+  m_paletteInfo = std::make_unique<InfoBox>();
+  m_paletteInfo->noBorderNoChildSpacing();
+  m_paletteInfo->addChild(m_paletteName.get());
+  m_paletteInfo->addChild(m_paletteAuthor.get());
+  m_paletteInfo->setVisible(false);
+  m_palettePlaceholder.addChild(m_paletteInfo.get());
   m_palettePlaceholder.addChild(&m_scrollableView);
   m_palettePlaceholder.addChild(&m_remapButton);
   m_splitter.setId("palette_spectrum_splitter");
@@ -399,6 +447,24 @@ void ColorBar::onAppPaletteChange()
 
   updateWarningIcon(m_fgColor.getColor(), m_fgWarningIcon);
   updateWarningIcon(m_bgColor.getColor(), m_bgWarningIcon);
+  updatePaletteInfo();
+}
+
+// Shows the palette name and "by Author" on two lines above the palette.
+void ColorBar::updatePaletteInfo()
+{
+  const doc::Palette* pal = get_current_palette();
+  const std::string author = pal->author().empty() ? std::string() : "by " + pal->author();
+
+  if (m_paletteName->text() == pal->name() && m_paletteAuthor->text() == author)
+    return;
+
+  m_paletteName->setText(pal->name());
+  m_paletteAuthor->setText(author);
+  m_paletteName->setVisible(!pal->name().empty());
+  m_paletteAuthor->setVisible(!author.empty());
+  m_paletteInfo->setVisible(!pal->name().empty() || !author.empty());
+  layout();
 }
 
 void ColorBar::onFocusPaletteView()

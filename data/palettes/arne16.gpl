@@ -3,19 +3,19 @@ GIMP Palette
 #Author: Arne Niklas Jansson
 #URL: http://androidarts.com/palette/16pal.htm
 #Colors: 16
-  0   0   0	black, void
-157 157 157	grey, gray, ash
-255 255 255	white, blind
-190  38  51	red, bloodred
-224 111 139	pink, pigmeat
- 73  60  43	dbrown, darkbrown, oldpoop
-164 100  34	brown, newpoop
-235 137  49	orange, blaze
-247 226 107	yellow, zornskin
- 47  72  78	green, leafgreen
- 68 137  26	dgreen, darkgreen, shadegreen
-163 206  39	green, lightgreen, slimegreen
- 27  38  50	nblue, nightblue
-  0  87 132	dblue, darkblue, seablue, oceanblue
- 49 162 242	blue, skyblue
-178 220 239	lblue, lightblue, cloudblue
+  0   0   0	Black
+157 157 157	Gray
+255 255 255	White
+190  38  51	Red
+224 111 139	Pink
+ 73  60  43	Dark Brown
+164 100  34	Brown
+235 137  49	Orange
+247 226 107	Yellow
+ 47  72  78	Leaf Green
+ 68 137  26	Dark Green
+163 206  39	Light Green
+ 27  38  50	Night Blue
+  0  87 132	Dark Blue
+ 49 162 242	Sky Blue
+178 220 239	Light Blue

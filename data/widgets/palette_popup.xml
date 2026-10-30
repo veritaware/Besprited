@@ -1,5 +1,6 @@
-<!-- LibreSprite -->
-<!-- Copyright (C) 2014 by David Capello -->
+<!-- Aseprite    | Copyright (C) 2014 David Capello -->
+<!-- LibreSprite | Copyright (C) 2021 LibreSprite contributors -->
+<!-- Besprited   | Copyright (C) 2026 Veritaware -->
 <gui>
   <vbox id="palette_popup">
     <label text="Available Palettes:" />
@@ -7,7 +8,7 @@
     <hbox>
       <button id="load_pal" text="Load" width="80" />
       <hbox expansive="true" />
-      <button id="open_folder" text="Open Folder" width="60" />
+      <button id="open_folder" text="Open Folder" width="80" />
     </hbox>
   </vbox>
 </gui>
