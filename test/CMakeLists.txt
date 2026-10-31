@@ -81,7 +81,8 @@ function(find_tests dir)
 
   # The module libraries have interdependencies that are not all expressed as
   # transitive link deps, so let the linker rescan the whole set.
-  if(deps)
+  # Apple's linker has no archive ordering, so it needs (and lacks) no group.
+  if(deps AND NOT APPLE)
     set(deps "$<LINK_GROUP:RESCAN,${deps}>")
   endif()
 

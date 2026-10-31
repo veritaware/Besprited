@@ -20,6 +20,7 @@
 #include "app/file/file.h"
 #include "app/file_selector.h"
 #include "app/modules/editors.h"
+#include "app/modules/i18n.h"
 #include "app/pref/preferences.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/status_bar.h"
@@ -669,8 +670,8 @@ private:
 
   void onFileNamesChange()
   {
-    imageFilename()->setText("Select File: " + base::get_file_name(m_filename));
-    dataFilename()->setText("Select File: " + base::get_file_name(m_dataFilename));
+    imageFilename()->setText(app::i18n("Select File") + ": " + base::get_file_name(m_filename));
+    dataFilename()->setText(app::i18n("Select File") + ": " + base::get_file_name(m_dataFilename));
     resize();
   }
 

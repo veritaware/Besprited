@@ -16,6 +16,7 @@
 #include "app/console.h"
 #include "app/context.h"
 #include "app/file_selector.h"
+#include "app/modules/i18n.h"
 #include "app/modules/editors.h"
 #include "app/pref/preferences.h"
 #include "app/ui/drop_down_button.h"
@@ -85,7 +86,7 @@ public:
 private:
   void updateFontFaceButton()
   {
-    fontFace()->mainButton()->setTextf("Select Font: %s", base::get_file_title(m_face).c_str());
+    fontFace()->mainButton()->setText(app::i18n("Select Font") + ": " + base::get_file_title(m_face));
   }
 
   void onSelectFontFile()

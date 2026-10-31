@@ -405,6 +405,7 @@ protected:
   virtual bool onEvalAcceptable(double /*value*/) const { return true; }
 
 private:
+  void translateText();
   // Shared back end of textInt()/textDouble().
   double evalText() const;
 
@@ -417,7 +418,7 @@ private:
   int m_flags;        // Special boolean properties (see flags in ui/base.h)
   Theme* m_theme;     // Widget's theme
   std::string m_text; // Widget text
-  std::string m_i18n; // Text before translation
+  std::string m_i18n; // Translation key (only until the next setText)
 
   // Set by textInt()/textDouble(), so a widget can tell whether anything
   // reads it as a number. Mutable because both are const getters.

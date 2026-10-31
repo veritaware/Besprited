@@ -58,6 +58,7 @@
 #include "ui/theme.h"
 #include "ui/timer.h"
 #include "ui/tooltips.h"
+#include "ui/translator.h"
 #include "ui/view.h"
 #include "ui/viewport.h"
 #include "ui/widget.h"

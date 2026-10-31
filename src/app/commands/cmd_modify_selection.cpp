@@ -15,6 +15,7 @@
 #include "app/context_access.h"
 #include "app/document.h"
 #include "app/modules/gui.h"
+#include "app/modules/i18n.h"
 #include "app/pref/preferences.h"
 #include "app/transaction.h"
 #include "base/convert_to.h"
@@ -104,7 +105,7 @@ void ModifySelectionCommand::onExecute(Context* context)
 
     window.setText(getActionName() + " Selection");
     if (m_modifier == Border)
-      window.byLabel()->setText("Width:");
+      window.byLabel()->setText(app::i18n("Width:"));
     else
       window.byLabel()->setText(getActionName() + " By:");
 

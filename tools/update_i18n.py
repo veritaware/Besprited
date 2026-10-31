@@ -15,6 +15,10 @@ def is_pure_numeric(value: str) -> bool:
     return value.isdigit()
 
 
+# Loaded as ui::Entry widgets, which the loader never translates
+EDITABLE_TAGS = {"entry", "numberentry", "search"}
+
+
 class I18nExtractor:
     """Extracts i18n strings from C++ and XML files. Literals that contain only digits are ignored."""
 
@@ -49,7 +53,7 @@ class I18nExtractor:
 
                 # Find direct string literals
                 for match in direct_pattern.finditer(content):
-                    string_literal = match.group(1)
+                    string_literal = match.group(2)
                     # Unescape the string
                     unescaped = string_literal.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t')
                     if unescaped.strip() and not is_pure_numeric(unescaped):
@@ -83,6 +87,8 @@ class I18nExtractor:
 
                 # Find all elements with text attribute
                 for elem in root.iter():
+                    if elem.get('i18n') == 'false' or elem.tag in EDITABLE_TAGS:
+                        continue
                     text_attr = elem.get('text')
                     if text_attr and text_attr.strip():
                         # Strip '&' characters as they are removed by Widget::setI18N()
