@@ -28,7 +28,7 @@
                 <listitem text="Chinese" value="zh" />
                 <listitem text="French" value="fr" />
                 <listitem text="German" value="de" />
-                <listitem text="Hindi" value="hi" />
+                <!-- Hindi (hi) and Arabic (ar) disabled: no shaping/bidi support or font yet -->
                 <listitem text="Indonesian" value="id" />
                 <listitem text="Italian" value="it" />
                 <listitem text="Japanese" value="jp" />
