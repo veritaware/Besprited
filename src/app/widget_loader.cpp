@@ -42,6 +42,20 @@ namespace app
 using namespace ui;
 using namespace app::skin;
 
+namespace
+{
+
+// User-editable widgets and elements marked i18n="false" keep their text as is.
+bool isTranslatable(const tinyxml2::XMLElement* elem, const Widget* widget)
+{
+  const char* i18n = elem->Attribute("i18n");
+  if (i18n && strcmp(i18n, "false") == 0)
+    return false;
+  return !dynamic_cast<const Entry*>(widget);
+}
+
+} // namespace
+
 static int convert_align_value_to_flags(const char* value);
 static int int_attr(const tinyxml2::XMLElement* elem, const char* attribute_name, int default_value);
 
@@ -418,7 +432,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
     {
       const char* text = elem->Attribute("text");
       widget = new Separator(text ? text : "", align);
-      if (text)
+      if (text && isTranslatable(elem, widget))
         widget->setI18N(text);
     }
     else
@@ -464,7 +478,8 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
       else
         widget = new Window(Window::WithoutTitleBar);
 
-      widget->setI18N();
+      if (isTranslatable(elem, widget))
+        widget->setI18N();
     }
   }
   else if (elem_name == "colorpicker")
@@ -477,8 +492,12 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
     if (!widget)
     {
       const char* text = elem->Attribute("text");
-      widget = new DropDownButton(text);
-      widget->setI18N(text);
+      auto* dropDown = new DropDownButton(text);
+      widget = dropDown;
+      if (text && isTranslatable(elem, widget))
+        widget->setI18N(text);
+      else if (text)
+        dropDown->mainButton()->setText(text); // Button ctor already translated it
     }
   }
   else if (elem_name == "buttonset")
@@ -519,7 +538,8 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
       if (text)
       {
         item->setText(text);
-        item->setI18N();
+        if (isTranslatable(elem, item))
+          item->setI18N();
       }
 
       buttonset->addItem(item, hspan, vspan);
@@ -605,7 +625,8 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(const tinyxml2::XMLElement
   if (text)
   {
     widget->setText(text);
-    widget->setI18N();
+    if (isTranslatable(elem, widget))
+      widget->setI18N();
   }
 
   if (tooltip && root)

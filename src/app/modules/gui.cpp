@@ -164,6 +164,9 @@ int guessUiScale(int screenH, int fallbackH)
 // Initializes GUI.
 int init_module_gui()
 {
+  ui::setTranslator([](std::string_view key, std::string_view fallback)
+                    { return app::i18n(std::string(key), std::string(fallback)); });
+
   bool maximized = false;
   std::string lastError = "Unknown error";
   bool gpuAccel = Preferences::instance().general.gpuAcceleration();

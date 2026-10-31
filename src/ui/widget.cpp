@@ -14,7 +14,6 @@
 
 #include "ui/widget.h"
 
-#include "app/modules/i18n.h"
 #include "base/memory.h"
 #include "base/string.h"
 #include "she/display.h"
@@ -28,6 +27,7 @@
 #include "ui/manager.h"
 #include "ui/message.h"
 #include "ui/move_region.h"
+#include "ui/translator.h"
 #include "ui/paint_event.h"
 #include "ui/resize_event.h"
 #include "ui/save_layout_event.h"
@@ -209,6 +209,8 @@ int Widget::textLength() const
 
 void Widget::setText(const std::string& text)
 {
+  // Program text wins over any translation key set by setI18N()
+  m_i18n.clear();
   setTextQuiet(text);
   onSetText();
 }
@@ -237,7 +239,7 @@ void Widget::setI18N()
 {
   m_i18n = m_text;
   std::erase(m_i18n, '&');
-  setText(m_text);
+  translateText();
 }
 
 void Widget::setI18N(std::string_view i18n)
@@ -246,12 +248,19 @@ void Widget::setI18N(std::string_view i18n)
     return;
   m_i18n = i18n;
   std::erase(m_i18n, '&');
-  setText(m_text);
+  translateText();
+}
+
+void Widget::translateText()
+{
+  m_text = translate(m_i18n, m_text);
+  enableFlags(HAS_TEXT);
+  onSetText();
 }
 
 void Widget::setTextQuiet(const std::string& text)
 {
-  m_text = m_i18n.empty() ? text : app::i18n(m_i18n, text);
+  m_text = text;
   enableFlags(HAS_TEXT);
 }
 
