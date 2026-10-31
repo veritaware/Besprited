@@ -203,7 +203,9 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
 bool StateWithWheelBehavior::onTouchMagnify(Editor* editor, ui::TouchMessage* msg)
 {
   render::Zoom zoom = editor->zoom();
-  zoom = render::Zoom::fromScale(zoom.internalScale() + zoom.internalScale() * msg->magnification());
+  // The internal scale accumulates small pinches while the displayed zoom
+  // snaps to the zoom table.
+  zoom = render::Zoom::fromScale(zoom.internalScale() * std::max(0.01, 1.0 + msg->magnification()));
 
   setZoom(editor, zoom, msg->position());
   return true;

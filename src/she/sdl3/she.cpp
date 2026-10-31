@@ -493,13 +493,55 @@ public:
       case SDL_EVENT_MOUSE_WHEEL:
         event.setType(Event::MouseWheel);
         event.setModifiers(getSheModifiers());
-        event.setWheelDelta({-sdlEvent.wheel.integer_x, -sdlEvent.wheel.integer_y});
         {
           float x, y;
           SDL_GetMouseState(&x, &y);
           event.setPosition(toSurfacePoint(x, y));
         }
+        // Fractional deltas come from touch-like devices (trackpads, magic
+        // mice); SDL reports them scaled down by 10 relative to pixels.
+        if (sdlEvent.wheel.x != float(sdlEvent.wheel.integer_x) || sdlEvent.wheel.y != float(sdlEvent.wheel.integer_y))
+        {
+          static float remX = 0.0f, remY = 0.0f;
+          remX += -sdlEvent.wheel.x * 10.0f;
+          remY += -sdlEvent.wheel.y * 10.0f;
+          const int dx = int(remX), dy = int(remY);
+          remX -= float(dx);
+          remY -= float(dy);
+          if (dx == 0 && dy == 0)
+          {
+            event.setType(Event::None);
+            continue;
+          }
+          event.setWheelDelta({dx, dy});
+          event.setPreciseWheel(true);
+          event.setPointerType(PointerType::Multitouch);
+        }
+        else
+        {
+          event.setWheelDelta({-sdlEvent.wheel.integer_x, -sdlEvent.wheel.integer_y});
+          event.setPreciseWheel(false);
+          event.setPointerType(PointerType::Mouse);
+        }
         return;
+
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+      case SDL_EVENT_PINCH_UPDATE:
+      {
+        event.setType(Event::TouchMagnify);
+        event.setModifiers(getSheModifiers());
+        event.setMagnification(sdlEvent.pinch.scale - 1.0f);
+        event.setPointerType(PointerType::Multitouch);
+        float x, y;
+        SDL_GetMouseState(&x, &y);
+        event.setPosition(toSurfacePoint(x, y));
+        return;
+      }
+
+      case SDL_EVENT_PINCH_BEGIN:
+      case SDL_EVENT_PINCH_END:
+        continue;
+#endif
 
       case SDL_EVENT_MOUSE_BUTTON_UP:
       case SDL_EVENT_MOUSE_BUTTON_DOWN:
