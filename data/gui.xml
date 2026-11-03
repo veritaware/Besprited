@@ -507,6 +507,16 @@
       <!-- Modifiers for two-or-more-points tools -->
       <key action="MoveOrigin" shortcut="Space" />
 
+      <!-- Mouse wheel modifiers: the wheel direction/axis is not part of
+           the shortcut, an empty shortcut means "no modifier" -->
+      <key action="WheelScrollV" shortcut="" />
+      <key action="WheelScrollH" shortcut="Shift" />
+      <key action="WheelZoom" shortcut="Ctrl" mac="Cmd" />
+      <key action="WheelFrame" shortcut="Ctrl+Shift" mac="Cmd+Shift" />
+      <key action="WheelFgColor" shortcut="Alt" />
+      <key action="WheelBgColor" shortcut="Alt+Shift" />
+      <key action="WheelBrushSize" shortcut="Ctrl+Alt" mac="Cmd+Alt" />
+
       <!-- Without default shortcuts -->
       <key action="LeftMouseButton" />
       <key action="RightMouseButton" />

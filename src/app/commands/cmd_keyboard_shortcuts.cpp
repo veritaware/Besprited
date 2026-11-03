@@ -14,6 +14,7 @@
 #include "app/context.h"
 #include "app/file_selector.h"
 #include "app/modules/gui.h"
+#include "app/pref/preferences.h"
 #include "app/resource_finder.h"
 #include "app/tools/tool.h"
 #include "app/ui/app_menuitem.h"
@@ -45,6 +46,14 @@ using namespace ui;
 using namespace skin;
 
 static int g_sep, g_sep2;
+
+// An empty accelerator is only meaningful for the mouse wheel ("no modifier").
+static std::string accelText(const Key* key, const Accelerator& accel)
+{
+  if (accel.isEmpty() && key && key->keycontext() == KeyContext::MouseWheel)
+    return "(no modifier)";
+  return accel.toString();
+}
 
 class KeyItem : public ListItem
 {
@@ -131,7 +140,7 @@ private:
     if (window.isModified())
     {
       m_key->disableAccel(origAccel);
-      if (!window.accel().isEmpty())
+      if (!window.accel().isEmpty() || m_key->keycontext() == KeyContext::MouseWheel)
         m_key->add(window.accel(), KeySource::UserDefined);
     }
 
@@ -148,7 +157,7 @@ private:
     if (Alert::show("Warning"
                     "<<Do you really want to delete '%s' keyboard shortcut?"
                     "||&Yes||&No",
-                    accel.toString().c_str()) != 1)
+                    accelText(m_key, accel).c_str()) != 1)
       return;
 
     m_key->disableAccel(accel);
@@ -236,7 +245,7 @@ private:
       {
         if (i != m_hotAccel || !m_changeButton)
         {
-          g->drawString(accel.toString(), fg, bg, gfx::Point(bounds.x + g_sep, y + 2 * guiscale()));
+          g->drawString(accelText(m_key, accel), fg, bg, gfx::Point(bounds.x + g_sep, y + 2 * guiscale()));
         }
 
         y += dh;
@@ -276,7 +285,7 @@ private:
       for (int i = 0; i < maxi; ++i, y += dh)
       {
         int w = Graphics::measureUIStringLength(
-            (accels && i < (int)accels->size() ? (*accels)[i].toString().c_str() : ""), font().get());
+            (accels && i < (int)accels->size() ? accelText(m_key, (*accels)[i]).c_str() : ""), font().get());
         gfx::Rect itemBounds(bounds.x + g_sep, y, w, dh);
         itemBounds = itemBounds.enlarge(gfx::Border(4 * guiscale(), 0, 6 * guiscale(), 1 * guiscale()));
 
@@ -301,7 +310,7 @@ private:
 
             m_changeButton->setBgColor(gfx::ColorNone);
             m_changeButton->setBounds(itemBounds);
-            m_changeButton->setText((*accels)[i].toString());
+            m_changeButton->setText(accelText(m_key, (*accels)[i]));
 
             const char* label = "x";
             m_deleteButton->setBgColor(gfx::ColorNone);
@@ -413,12 +422,18 @@ public:
     section()->addChild(new ListItem("Commands"));
     section()->addChild(new ListItem("Tools"));
     section()->addChild(new ListItem("Action Modifiers"));
+    section()->addChild(new ListItem("Mouse Wheel"));
 
     search()->Change.connect(base::Bind<void>(&KeyboardShortcutsWindow::onSearchChange, this));
     section()->Change.connect(base::Bind<void>(&KeyboardShortcutsWindow::onSectionChange, this));
     importButton()->Click.connect(base::Bind<void>(&KeyboardShortcutsWindow::onImport, this));
     exportButton()->Click.connect(base::Bind<void>(&KeyboardShortcutsWindow::onExport, this));
     resetButton()->Click.connect(base::Bind<void>(&KeyboardShortcutsWindow::onReset, this));
+
+    auto& editorPref = Preferences::instance().editor;
+    invertWheelBrushSize()->setSelected(editorPref.invertWheelBrushSize());
+    invertHorizontalScroll()->setSelected(editorPref.invertHorizontalScroll());
+    invertVerticalScroll()->setSelected(editorPref.invertVerticalScroll());
 
     fillAllLists();
 
@@ -427,6 +442,14 @@ public:
       search()->setText(searchText);
       onSearchChange();
     }
+  }
+
+  void saveWheelPrefs()
+  {
+    auto& editorPref = Preferences::instance().editor;
+    editorPref.invertWheelBrushSize(invertWheelBrushSize()->isSelected());
+    editorPref.invertHorizontalScroll(invertHorizontalScroll()->isSelected());
+    editorPref.invertVerticalScroll(invertVerticalScroll()->isSelected());
   }
 
   void restoreKeys()
@@ -450,6 +473,8 @@ private:
       tools()->removeChild(tools()->lastChild());
     while (actions()->lastChild())
       actions()->removeChild(actions()->lastChild());
+    while (wheel()->lastChild())
+      wheel()->removeChild(wheel()->lastChild());
 
     for (KeyItem* keyItem : m_allKeyItems)
     {
@@ -506,7 +531,7 @@ private:
         break;
       }
       case KeyType::Action:
-        listBox = this->actions();
+        listBox = key->keycontext() == KeyContext::MouseWheel ? this->wheel() : this->actions();
         break;
       }
 
@@ -534,7 +559,7 @@ private:
     std::vector<std::string> parts;
     base::split_string(base::string_to_lower(search), parts, " ");
 
-    ListBox* listBoxes[] = {menus(), commands(), tools(), actions()};
+    ListBox* listBoxes[] = {menus(), commands(), tools(), actions(), wheel()};
     int sectionIdx = 0; // index 0 is menus
     for (auto listBox : listBoxes)
     {
@@ -607,6 +632,8 @@ private:
     commandsView()->setVisible(section == 1);
     toolsView()->setVisible(section == 2);
     actionsView()->setVisible(section == 3);
+    wheelView()->setVisible(section == 4);
+    wheelPage()->setVisible(section == 4);
     layout();
   }
 
@@ -719,6 +746,7 @@ void KeyboardShortcutsCommand::onExecute(Context* context)
       std::string fn = rf.getFirstOrCreateDefault();
       KeyboardShortcuts::instance()->exportFile(fn);
     }
+    window.saveWheelPrefs();
   }
   else
   {

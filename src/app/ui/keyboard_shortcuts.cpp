@@ -50,6 +50,13 @@ static struct
     {"MoveOrigin", "Move Origin", app::KeyAction::MoveOrigin},
     {"SquareAspect", "Square Aspect", app::KeyAction::SquareAspect},
     {"DrawFromCenter", "Draw From Center", app::KeyAction::DrawFromCenter},
+    {"WheelBrushSize", "Change Brush Size", app::KeyAction::WheelBrushSize},
+    {"WheelFrame", "Change Frame", app::KeyAction::WheelFrame},
+    {"WheelBgColor", "Change Background Color", app::KeyAction::WheelBgColor},
+    {"WheelFgColor", "Change Foreground Color", app::KeyAction::WheelFgColor},
+    {"WheelScrollH", "Scroll Horizontally", app::KeyAction::WheelScrollH},
+    {"WheelScrollV", "Scroll Vertically", app::KeyAction::WheelScrollV},
+    {"WheelZoom", "Zoom", app::KeyAction::WheelZoom},
     {"LeftMouseButton", "Trigger Left Mouse Button", app::KeyAction::LeftMouseButton},
     {"RightMouseButton", "Trigger Right Mouse Button", app::KeyAction::RightMouseButton},
     {nullptr, nullptr, app::KeyAction::None}};
@@ -177,6 +184,15 @@ Key::Key(KeyAction action)
   case KeyAction::SquareAspect:
   case KeyAction::DrawFromCenter:
     m_keycontext = KeyContext::ShapeTool;
+    break;
+  case KeyAction::WheelBrushSize:
+  case KeyAction::WheelFrame:
+  case KeyAction::WheelBgColor:
+  case KeyAction::WheelFgColor:
+  case KeyAction::WheelScrollH:
+  case KeyAction::WheelScrollV:
+  case KeyAction::WheelZoom:
+    m_keycontext = KeyContext::MouseWheel;
     break;
   case KeyAction::LeftMouseButton:
     m_keycontext = KeyContext::Any;
@@ -651,6 +667,9 @@ void KeyboardShortcuts::exportAccel(tinyxml2::XMLElement& parent, Key* key, cons
     case KeyContext::ShapeTool:
       keycontextStr = "ShapeTool";
       break;
+    case KeyContext::MouseWheel:
+      keycontextStr = "MouseWheel";
+      break;
     }
 
     if (keycontextStr)
@@ -839,6 +858,25 @@ KeyAction KeyboardShortcuts::getCurrentActionModifiers(KeyContext context)
   }
 
   return flags;
+}
+
+KeyAction KeyboardShortcuts::getWheelAction(ui::KeyModifiers modifiers)
+{
+  constexpr int kMask = kKeyShiftModifier | kKeyCtrlModifier | kKeyAltModifier | kKeyCmdModifier | kKeyWinModifier;
+  const int mods = int(modifiers) & kMask;
+
+  for (Key* key : m_keys)
+  {
+    if (key->type() != KeyType::Action || key->keycontext() != KeyContext::MouseWheel)
+      continue;
+
+    for (const Accelerator& accel : key->accels())
+    {
+      if (accel.scancode() == kKeyNil && accel.unicodeChar() == 0 && (int(accel.modifiers()) & kMask) == mods)
+        return key->action();
+    }
+  }
+  return KeyAction::None;
 }
 
 } // namespace app

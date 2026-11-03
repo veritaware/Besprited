@@ -134,12 +134,6 @@ public:
     if (m_pref.editor.zoomFromCenterWithKeys())
       zoomFromCenterWithKeys()->setSelected(true);
 
-    if (m_pref.editor.invertHorizontalScroll())
-      invertHorizontalScroll()->setSelected(true);
-
-    if (m_pref.editor.invertVerticalScroll())
-      invertVerticalScroll()->setSelected(true);
-
     if (m_pref.selection.autoOpaque())
       autoOpaque()->setSelected(true);
 
@@ -194,16 +188,6 @@ public:
     rightClickBehavior()->addItem("Erase");
     rightClickBehavior()->addItem("Scroll");
     rightClickBehavior()->setSelectedItemIndex((int)m_pref.editor.rightClickMode());
-
-    // Zoom with Scroll Wheel
-    wheelZoom()->setSelected(m_pref.editor.zoomWithWheel());
-
-    // Zoom sliding two fingers
-#if __APPLE__
-    slideZoom()->setSelected(m_pref.editor.zoomWithSlide());
-#else
-    slideZoom()->setVisible(false);
-#endif
 
     // Checked background size
     checkedBgSize()->addItem("16x16");
@@ -301,13 +285,7 @@ public:
 
     m_pref.editor.zoomFromCenterWithWheel(zoomFromCenterWithWheel()->isSelected());
     m_pref.editor.zoomFromCenterWithKeys(zoomFromCenterWithKeys()->isSelected());
-    m_pref.editor.invertHorizontalScroll(invertHorizontalScroll()->isSelected());
-    m_pref.editor.invertVerticalScroll(invertVerticalScroll()->isSelected());
     m_pref.editor.showScrollbars(showScrollbars()->isSelected());
-    m_pref.editor.zoomWithWheel(wheelZoom()->isSelected());
-#if __APPLE__
-    m_pref.editor.zoomWithSlide(slideZoom()->isSelected());
-#endif
     m_pref.editor.rightClickMode(static_cast<app::gen::RightClickMode>(rightClickBehavior()->getSelectedItemIndex()));
     m_pref.editor.cursorColor(m_cursorColor->getColor());
     m_pref.editor.brushPreview(static_cast<app::gen::BrushPreview>(brushPreview()->getSelectedItemIndex()));

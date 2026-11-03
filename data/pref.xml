@@ -119,12 +119,11 @@
       <option id="allow_nonlinear_history" type="bool" default="false" />
     </section>
     <section id="editor" text="Editor">
-      <option id="zoom_with_wheel" type="bool" default="true" migrate="Options.ZoomWithMouseWheel" />
-      <option id="zoom_with_slide" type="bool" default="false" />
       <option id="zoom_from_center_with_wheel" type="bool" default="false" />
       <option id="zoom_from_center_with_keys" type="bool" default="false" />
       <option id="invert_horizontal_scroll" type="bool" default="false" />
       <option id="invert_vertical_scroll" type="bool" default="false" />
+      <option id="invert_wheel_brush_size" type="bool" default="false" />
       <option id="show_scrollbars" type="bool" default="true" migrate="Options.ShowScrollbars" />
       <option id="right_click_mode" type="RightClickMode" default="RightClickMode::PAINT_BGCOLOR" migrate="Options.RightClickMode" />
       <option id="auto_select_layer" type="bool" default="false" migrate="Options.AutoSelectLayer" />
