@@ -1,5 +1,5 @@
-<!-- LibreSprite -->
-<!-- Copyright (C) 2001-2015 by David Capello -->
+<!-- Aseprite  | Copyright (C) 2001-2015 David Capello -->
+<!-- Besprited | Copyright (C) 2026      Veritaware -->
 <gui>
   <window id="keyboard_shortcuts" text="Keyboard Shortcuts">
     <vbox>
@@ -30,6 +30,14 @@
           <view id="actions_view" expansive="true">
             <listbox id="actions" />
           </view>
+          <vbox id="wheel_page" expansive="true">
+            <view id="wheel_view" expansive="true">
+              <listbox id="wheel" />
+            </view>
+            <check text="Invert mouse wheel direction when changing brush size" id="invert_wheel_brush_size" />
+            <check text="Invert horizontal panning direction" id="invert_horizontal_scroll" />
+            <check text="Invert vertical panning direction" id="invert_vertical_scroll" />
+          </vbox>
         </vbox>
       </hbox>
       <hbox>

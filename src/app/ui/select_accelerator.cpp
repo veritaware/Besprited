@@ -83,6 +83,7 @@ protected:
 SelectAccelerator::SelectAccelerator(const ui::Accelerator& accel, KeyContext keyContext)
   : m_keyField(new KeyField(accel))
   , m_keyContext(keyContext)
+  , m_origAccel(accel)
   , m_accel(accel)
   , m_modified(false)
 {
@@ -144,6 +145,10 @@ void SelectAccelerator::onClear()
 
 void SelectAccelerator::onOK()
 {
+  // The mouse wheel has no key, only modifiers.
+  if (m_keyContext == KeyContext::MouseWheel)
+    m_accel = Accelerator(KeyModifiers(m_accel.modifiers() & ~kKeySpaceModifier), kKeyNil, 0);
+
   m_modified = (m_origAccel != m_accel);
   closeWindow(nullptr);
 }

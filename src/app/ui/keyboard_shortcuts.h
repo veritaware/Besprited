@@ -42,6 +42,7 @@ enum class KeyContext
   MoveTool,
   FreehandTool,
   ShapeTool,
+  MouseWheel,
 };
 
 enum class KeySource
@@ -77,6 +78,14 @@ enum class KeyAction
   SquareAspect = 0x00001000,
   DrawFromCenter = 0x00002000,
   ScaleFromCenter = 0x00004000,
+  // Mouse wheel modifiers (KeyContext::MouseWheel)
+  WheelBrushSize = 0x00008000,
+  WheelFrame = 0x00010000,
+  WheelBgColor = 0x00020000,
+  WheelFgColor = 0x00040000,
+  WheelScrollH = 0x00080000,
+  WheelScrollV = 0x00100000,
+  WheelZoom = 0x00200000,
 };
 
 inline KeyAction operator&(KeyAction a, KeyAction b)
@@ -173,6 +182,8 @@ public:
   bool getCommandFromKeyMessage(ui::Message* msg, Command** command, Params* params);
   tools::Tool* getCurrentQuicktool(tools::Tool* currentTool);
   KeyAction getCurrentActionModifiers(KeyContext context);
+  // Returns the mouse wheel action bound to exactly these modifiers.
+  KeyAction getWheelAction(ui::KeyModifiers modifiers);
 
 private:
   KeyboardShortcuts();

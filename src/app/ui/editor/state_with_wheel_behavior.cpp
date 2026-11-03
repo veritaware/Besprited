@@ -13,140 +13,86 @@
 
 #include "app/app.h"
 #include "app/commands/commands.h"
+#include "app/commands/params.h"
 #include "app/modules/palettes.h"
 #include "app/pref/preferences.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/keyboard_shortcuts.h"
 #include "app/ui_context.h"
 #include "doc/palette.h"
 #include "ui/message.h"
 #include "ui/theme.h"
+
+#include <algorithm>
 
 namespace app
 {
 
 using namespace ui;
 
-enum WHEEL_ACTION
-{
-  WHEEL_NONE,
-  WHEEL_ZOOM,
-  WHEEL_VSCROLL,
-  WHEEL_HSCROLL,
-  WHEEL_FG,
-  WHEEL_BG,
-  WHEEL_FRAME
-};
-
 bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
 {
-  gfx::Point delta = msg->wheelDelta();
-  double dz = delta.x + delta.y;
-  WHEEL_ACTION wheelAction = WHEEL_NONE;
-  bool scrollBigSteps = false;
+  using Action = KeyAction;
 
-  // Alt+mouse wheel changes the fg/bg colors
-  if (msg->altPressed())
+  gfx::Point delta = msg->wheelDelta();
+  // With a modifier the wheel acts on a single axis, so horizontal and
+  // vertical scrolling behave the same.
+  double dz = delta.x + delta.y;
+  const bool noModifiers = (msg->modifiers() & (kKeyShiftModifier | kKeyCtrlModifier | kKeyAltModifier |
+                                                kKeyCmdModifier | kKeyWinModifier)) == 0;
+  const Action wheelAction = KeyboardShortcuts::instance()->getWheelAction(msg->modifiers());
+
+  auto stepColor = [dz](const app::Color& color, auto setColor)
   {
-    if (msg->shiftPressed())
-      wheelAction = WHEEL_BG;
-    else
-      wheelAction = WHEEL_FG;
-  }
-  // Normal behavior: mouse wheel zooms If the message is from a
-  // precise wheel i.e. a trackpad/touch-like device, we scroll by
-  // default.
-  else if (Preferences::instance().editor.zoomWithWheel() && !msg->preciseWheel())
-  {
-    if (msg->ctrlPressed())
-      wheelAction = WHEEL_FRAME;
-    else if (delta.x != 0 || msg->shiftPressed())
-      wheelAction = WHEEL_HSCROLL;
-    else
-      wheelAction = WHEEL_ZOOM;
-  }
-  // Zoom sliding two fingers
-  else if (Preferences::instance().editor.zoomWithSlide() && msg->preciseWheel())
-  {
-    if (msg->ctrlPressed())
-      wheelAction = WHEEL_FRAME;
-    else if (std::abs(delta.x) > std::abs(delta.y))
-    {
-      delta.y = 0;
-      dz = delta.x;
-      wheelAction = WHEEL_HSCROLL;
-    }
-    else if (msg->shiftPressed())
-    {
-      delta.x = 0;
-      dz = delta.y;
-      wheelAction = WHEEL_VSCROLL;
-    }
-    else
-    {
-      delta.x = 0;
-      dz = delta.y;
-      wheelAction = WHEEL_ZOOM;
-    }
-  }
-  // For laptops, it's convenient to that Ctrl+wheel zoom (because
-  // it's the "pinch" gesture).
-  else
-  {
-    if (msg->ctrlPressed())
-      wheelAction = WHEEL_ZOOM;
-    else if (delta.x != 0 || msg->shiftPressed())
-      wheelAction = WHEEL_HSCROLL;
-    else
-      wheelAction = WHEEL_VSCROLL;
-  }
+    int lastIndex = get_current_palette()->size() - 1;
+    int newIndex = MID(0, color.getIndex() + int(dz), lastIndex);
+    setColor(app::Color::fromIndex(newIndex));
+  };
 
   switch (wheelAction)
   {
 
-  case WHEEL_NONE:
-    // Do nothing
+  case Action::WheelFgColor:
+    stepColor(ColorBar::instance()->getFgColor(), [](const app::Color& c) { ColorBar::instance()->setFgColor(c); });
     break;
 
-  case WHEEL_FG:
-  {
-    int lastIndex = get_current_palette()->size() - 1;
-    int newIndex = ColorBar::instance()->getFgColor().getIndex() + int(dz);
-    newIndex = MID(0, newIndex, lastIndex);
-    ColorBar::instance()->setFgColor(app::Color::fromIndex(newIndex));
-  }
-  break;
+  case Action::WheelBgColor:
+    stepColor(ColorBar::instance()->getBgColor(), [](const app::Color& c) { ColorBar::instance()->setBgColor(c); });
+    break;
 
-  case WHEEL_BG:
+  case Action::WheelBrushSize:
   {
-    int lastIndex = get_current_palette()->size() - 1;
-    int newIndex = ColorBar::instance()->getBgColor().getIndex() + int(dz);
-    newIndex = MID(0, newIndex, lastIndex);
-    ColorBar::instance()->setBgColor(app::Color::fromIndex(newIndex));
+    // Wheel up has a negative delta: by default it grows the brush.
+    if (!Preferences::instance().editor.invertWheelBrushSize())
+      dz = -dz;
+    if (int(dz) == 0)
+      break;
+    Command* command = CommandsModule::instance()->getCommandByName(CommandId::ChangeBrush);
+    if (command)
+    {
+      Params params;
+      params.set("change", dz > 0 ? "increment-size" : "decrement-size");
+      UIContext::instance()->executeCommand(command, params);
+    }
+    break;
   }
-  break;
 
-  case WHEEL_FRAME:
+  case Action::WheelFrame:
   {
     Command* command = CommandsModule::instance()->getCommandByName((dz < 0.0) ? CommandId::GotoNextFrame
                                                                                : CommandId::GotoPreviousFrame);
     if (command)
       UIContext::instance()->executeCommand(command);
+    break;
   }
-  break;
 
-  case WHEEL_ZOOM:
+  case Action::WheelZoom:
   {
     render::Zoom zoom = editor->zoom();
 
     if (msg->preciseWheel())
-    {
-      dz /= 1.5;
-      if (dz < -1.0)
-        dz = -1.0;
-      else if (dz > 1.0)
-        dz = 1.0;
-    }
+      dz = std::clamp(dz / 1.5, -1.0, 1.0);
 
     zoom = render::Zoom::fromLinearScale(zoom.linearScale() - int(dz));
 
@@ -154,47 +100,36 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
     break;
   }
 
-  case WHEEL_HSCROLL:
-  case WHEEL_VSCROLL:
+  case Action::WheelScrollH:
+  case Action::WheelScrollV:
   {
     View* view = View::getView(editor);
     gfx::Point scroll = view->viewScroll();
 
+    // Without modifiers both wheel axes pan their own direction.
+    if (wheelAction == Action::WheelScrollH)
+      delta = gfx::Point(int(dz), 0);
+    else if (!noModifiers)
+      delta = gfx::Point(0, int(dz));
+
     if (!msg->preciseWheel())
     {
       gfx::Rect vp = view->viewportBounds();
-
-      if (wheelAction == WHEEL_HSCROLL)
-      {
-        delta.x = int(dz * vp.w);
-      }
-      else
-      {
-        delta.y = int(dz * vp.h);
-      }
-
-      if (scrollBigSteps)
-      {
-        delta /= 2;
-      }
-      else
-      {
-        delta /= 10;
-      }
+      delta.x = delta.x * vp.w / 10;
+      delta.y = delta.y * vp.h / 10;
     }
 
     if (Preferences::instance().editor.invertHorizontalScroll())
-    {
       delta.x = -delta.x;
-    }
     if (Preferences::instance().editor.invertVerticalScroll())
-    {
       delta.y = -delta.y;
-    }
 
     editor->setEditorScroll(scroll + delta);
     break;
   }
+
+  default:
+    break;
   }
 
   return true;
