@@ -94,9 +94,13 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
     if (msg->preciseWheel())
       dz = std::clamp(dz / 1.5, -1.0, 1.0);
 
-    zoom = render::Zoom::fromLinearScale(zoom.linearScale() - int(dz));
+    const render::Zoom newZoom = render::Zoom::fromLinearScale(zoom.linearScale() - int(dz));
 
-    setZoom(editor, zoom, msg->position());
+    // Already at the min/max zoom: skip the costly reposition and redraw.
+    if (newZoom == zoom)
+      break;
+
+    setZoom(editor, newZoom, msg->position());
     break;
   }
 
@@ -138,11 +142,25 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
 bool StateWithWheelBehavior::onTouchMagnify(Editor* editor, ui::TouchMessage* msg)
 {
   render::Zoom zoom = editor->zoom();
-  // The internal scale accumulates small pinches while the displayed zoom
-  // snaps to the zoom table.
-  zoom = render::Zoom::fromScale(zoom.internalScale() * std::max(0.01, 1.0 + msg->magnification()));
 
-  setZoom(editor, zoom, msg->position());
+  // The internal scale accumulates small pinches while the displayed zoom
+  // snaps to the zoom table. It is clamped so a pinch can't overshoot the
+  // limits.
+  const double minScale = render::Zoom::fromLinearScale(0).scale();
+  const double maxScale = render::Zoom::fromLinearScale(render::Zoom::linearValues() - 1).scale();
+  const double scale =
+      std::clamp(zoom.internalScale() * std::max(0.01, 1.0 + msg->magnification()), minScale, maxScale);
+  const render::Zoom newZoom = render::Zoom::fromScale(scale);
+
+  // Snapped zoom unchanged (e.g. at a limit): just keep the internal
+  // scale updated, without the reposition and redraw.
+  if (newZoom == zoom)
+  {
+    editor->setZoom(newZoom);
+    return true;
+  }
+
+  setZoom(editor, newZoom, msg->position());
   return true;
 }
 
