@@ -966,40 +966,50 @@ void ColorBar::onSortBy(SortPaletteBy channel)
   m_paletteView.getSelectedEntries(entries);
 
   entries.pickAllIfNeeded();
-  int n = entries.picks();
 
-  // Create a "subpalette" with selected entries only.
-  auto palette = get_current_palette()->clone();
-  auto selectedPalette = Palette::create(n);
-  std::vector<int> mapToOriginal(n); // Maps index from selectedPalette -> palette
-  int i = 0, j = 0;
-  for (bool state : entries)
+  // The transparent entry is not sorted: it goes to the first selected slot.
+  int transparentIdx = -1;
+  if (doc::Sprite* sprite = UIContext::instance()->activeSite().sprite();
+      sprite && sprite->pixelFormat() == IMAGE_INDEXED)
   {
-    if (state)
-    {
-      selectedPalette->copyEntryFrom(j, *palette, i);
-      mapToOriginal[j] = i;
-      ++j;
-    }
-    ++i;
+    const int t = sprite->transparentColor();
+    if (t >= 0 && t < entries.size() && entries[t])
+      transparentIdx = t;
   }
 
-  // Create a remap to sort the selected entries with the given color
+  // Create a "subpalette" with the sortable selected entries only.
+  auto palette = get_current_palette()->clone();
+  std::vector<int> slots;         // Selected indexes of the palette
+  std::vector<int> mapToOriginal; // Maps index from selectedPalette -> palette
+  for (int i = 0; i < entries.size(); ++i)
+  {
+    if (!entries[i])
+      continue;
+    slots.push_back(i);
+    if (i != transparentIdx)
+      mapToOriginal.push_back(i);
+  }
+  if (mapToOriginal.empty())
+    return;
+
+  auto selectedPalette = Palette::create(mapToOriginal.size());
+  for (int j = 0; j < (int)mapToOriginal.size(); ++j)
+    selectedPalette->copyEntryFrom(j, *palette, mapToOriginal[j]);
+
+  // Create a remap to sort the entries with the given color
   // component/channel.
   Remap remap = doc::sort_palette(selectedPalette.get(), channel, m_ascending);
 
   // Create a bigger new remap for the original palette (with all
   // entries, selected and deselected).
   Remap remapOrig(palette->size());
-  i = j = 0;
-  for (bool state : entries)
-  {
-    if (state)
-      remapOrig.map(i, mapToOriginal[remap[j++]]);
-    else
-      remapOrig.map(i, i);
-    ++i;
-  }
+  for (int i = 0; i < palette->size(); ++i)
+    remapOrig.map(i, i);
+  const int skip = (transparentIdx >= 0 ? 1 : 0);
+  if (skip)
+    remapOrig.map(transparentIdx, slots[0]);
+  for (int j = 0; j < (int)mapToOriginal.size(); ++j)
+    remapOrig.map(mapToOriginal[j], slots[skip + remap[j]]);
 
   // Create a new palette and apply the remap. This is the final new
   // palette for the sprite.

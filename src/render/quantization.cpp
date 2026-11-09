@@ -75,7 +75,8 @@ std::shared_ptr<Palette> create_palette_from_sprite(const Sprite* sprite, frame_
 
   // Generate an optimized palette
   optimizer.calculate(*palette,
-                      // Transparent color is needed if we have transparent layers
+                      // Reserve the transparent slot, except for background-only
+                      // sprites where it is never used.
                       (sprite->backgroundLayer() && sprite->countLayers() == 1 ? -1 : sprite->transparentColor()),
                       delegate);
 
@@ -425,7 +426,7 @@ void PaletteOptimizer::calculate(Palette& palette, int maskIndex, PaletteOptimiz
     palette.applyRemap(remap);
 
     if (maskIndex < palette.size())
-      palette.setEntry(maskIndex, rgba(0, 0, 0, 255));
+      palette.setEntry(maskIndex, rgba(0, 0, 0, 0));
   }
   else
     palette.resize(MAX(1, usedColors));
