@@ -75,9 +75,10 @@ std::shared_ptr<Palette> create_palette_from_sprite(const Sprite* sprite, frame_
 
   // Generate an optimized palette
   optimizer.calculate(*palette,
-                      // Always reserve the transparent slot, so no opaque color
-                      // is taken for it (e.g. when layers are added later).
-                      sprite->transparentColor(), delegate);
+                      // Reserve the transparent slot, except for background-only
+                      // sprites where it is never used.
+                      (sprite->backgroundLayer() && sprite->countLayers() == 1 ? -1 : sprite->transparentColor()),
+                      delegate);
 
   return palette;
 }
