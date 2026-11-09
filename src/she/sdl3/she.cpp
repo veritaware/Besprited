@@ -525,7 +525,7 @@ public:
         }
         return;
 
-#if SDL_VERSION_ATLEAST(3, 4, 0)
+#if SDL_MAJOR_VERSION > 3 || (SDL_MAJOR_VERSION == 3 && SDL_MINOR_VERSION >= 4)
       case SDL_EVENT_PINCH_UPDATE:
       {
         event.setType(Event::TouchMagnify);
