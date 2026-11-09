@@ -101,6 +101,11 @@ public:
 
   void applyRemap(const Remap& remap);
 
+  // Puts a fully transparent entry at index 0, shifting the others. Moves
+  // an existing one if present, else inserts one (dropping the last entry
+  // when the palette already has maxColors). Returns false if unchanged.
+  bool ensureTransparentFirst(int maxColors = 256);
+
 private:
   frame_t m_frame{};
   std::vector<color_t> m_colors;

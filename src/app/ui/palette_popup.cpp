@@ -73,7 +73,7 @@ void PalettePopup::onLoadPal()
 
   SetPaletteCommand* cmd =
       static_cast<SetPaletteCommand*>(CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
-  cmd->setPalette(palette);
+  cmd->setPalette(palette, true);
   UIContext::instance()->executeCommand(cmd);
 }
 

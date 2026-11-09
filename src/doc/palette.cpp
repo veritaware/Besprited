@@ -353,4 +353,46 @@ void Palette::applyRemap(const Remap& remap)
     setEntry(remap[i], original.getEntry(i));
 }
 
+bool Palette::ensureTransparentFirst(const int maxColors)
+{
+  const int n = size();
+  if (n == 0)
+    return false;
+
+  int found = -1;
+  for (int i = 0; i < n; ++i)
+  {
+    if (rgba_geta(m_colors[i]) == 0)
+    {
+      found = i;
+      break;
+    }
+  }
+  if (found == 0)
+    return false;
+
+  std::vector<color_t> colors;
+  std::vector<std::string> names;
+  const bool withNames = !m_names.empty();
+  colors.reserve(n + 1);
+
+  colors.push_back(found >= 0 ? m_colors[found] : rgba(0, 0, 0, 0));
+  if (withNames)
+    names.push_back(found >= 0 ? m_names[found] : std::string());
+
+  for (int i = 0; i < n; ++i)
+  {
+    if (i == found || int(colors.size()) >= std::max(maxColors, 1))
+      continue;
+    colors.push_back(m_colors[i]);
+    if (withNames)
+      names.push_back(m_names[i]);
+  }
+
+  m_colors = std::move(colors);
+  m_names = std::move(names);
+  ++m_modifications;
+  return true;
+}
+
 } // namespace doc
