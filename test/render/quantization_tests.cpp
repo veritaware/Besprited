@@ -119,3 +119,38 @@ TEST(Quantization, RgbToGray)
   EXPECT_EQ(128, rgb_to_gray(128, 128, 128, GrayscaleMethod::LUMA_709));
   EXPECT_EQ(128, rgb_to_gray(128, 128, 128, GrayscaleMethod::HSV_VALUE));
 }
+
+TEST(Quantization, PaletteOptimizerReservesTransparentSlot)
+{
+  ImageRef img(Image::create(IMAGE_RGB, 3, 1));
+  put_pixel(img.get(), 0, 0, rgba(10, 20, 30, 255)); // First pixel is solid
+  put_pixel(img.get(), 1, 0, rgba(200, 100, 50, 255));
+  put_pixel(img.get(), 2, 0, rgba(0, 0, 0, 0));
+
+  PaletteOptimizer optimizer;
+  optimizer.feedWithImage(img.get(), true);
+
+  const auto palette = Palette::create(256);
+  optimizer.calculate(*palette, 0, nullptr);
+
+  ASSERT_EQ(3, palette->size());
+  EXPECT_EQ(rgba(0, 0, 0, 0), palette->getEntry(0));
+  EXPECT_NE(palette->getEntry(1), palette->getEntry(2));
+  for (const color_t expected : {rgba(10, 20, 30, 255), rgba(200, 100, 50, 255)})
+    EXPECT_TRUE(palette->getEntry(1) == expected || palette->getEntry(2) == expected);
+}
+
+TEST(Quantization, PaletteOptimizerWithoutMaskIndexKeepsFirstSlotFree)
+{
+  ImageRef img(Image::create(IMAGE_RGB, 1, 1));
+  put_pixel(img.get(), 0, 0, rgba(10, 20, 30, 255));
+
+  PaletteOptimizer optimizer;
+  optimizer.feedWithImage(img.get(), true);
+
+  const auto palette = Palette::create(256);
+  optimizer.calculate(*palette, -1, nullptr);
+
+  ASSERT_EQ(1, palette->size());
+  EXPECT_EQ(rgba(10, 20, 30, 255), palette->getEntry(0));
+}

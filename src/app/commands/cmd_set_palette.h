@@ -28,13 +28,21 @@ public:
 
   SetPaletteCommand();
 
-  void setPalette(const doc::Palette* palette) { m_palette = palette; }
+  // With resetTransparentIndex the palette gets a transparent first entry
+  // (see Palette::ensureTransparentFirst) and an indexed sprite's
+  // transparent index becomes 0. Applies to the next execution only.
+  void setPalette(const doc::Palette* palette, bool resetTransparentIndex = false)
+  {
+    m_palette = palette;
+    m_resetTransparentIndex = resetTransparentIndex;
+  }
 
 protected:
   void onExecute(Context* context) override;
 
 private:
   const doc::Palette* m_palette;
+  bool m_resetTransparentIndex = false;
 };
 
 } // namespace app

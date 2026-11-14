@@ -48,3 +48,54 @@ TEST(Palette, SetEntryAcceptsInRangeIndex)
   EXPECT_EQ(c, pal->getEntry(1));
   EXPECT_EQ(mods + 1, pal->getModifications());
 }
+
+TEST(Palette, EnsureTransparentFirstInsertsAndShifts)
+{
+  auto pal = Palette::create(2);
+  pal->setEntry(0, rgba(1, 2, 3, 255));
+  pal->setEntry(1, rgba(4, 5, 6, 255));
+  pal->setEntryName(1, "second");
+
+  EXPECT_TRUE(pal->ensureTransparentFirst());
+  ASSERT_EQ(3, pal->size());
+  EXPECT_EQ(rgba(0, 0, 0, 0), pal->getEntry(0));
+  EXPECT_EQ(rgba(1, 2, 3, 255), pal->getEntry(1));
+  EXPECT_EQ(rgba(4, 5, 6, 255), pal->getEntry(2));
+  EXPECT_EQ("second", pal->entryName(2));
+}
+
+TEST(Palette, EnsureTransparentFirstMovesExisting)
+{
+  auto pal = Palette::create(3);
+  pal->setEntry(0, rgba(1, 2, 3, 255));
+  pal->setEntry(1, rgba(9, 9, 9, 0));
+  pal->setEntry(2, rgba(4, 5, 6, 255));
+
+  EXPECT_TRUE(pal->ensureTransparentFirst());
+  ASSERT_EQ(3, pal->size());
+  EXPECT_EQ(rgba(9, 9, 9, 0), pal->getEntry(0));
+  EXPECT_EQ(rgba(1, 2, 3, 255), pal->getEntry(1));
+  EXPECT_EQ(rgba(4, 5, 6, 255), pal->getEntry(2));
+}
+
+TEST(Palette, EnsureTransparentFirstNoopWhenAlreadyFirst)
+{
+  auto pal = Palette::create(2);
+  pal->setEntry(0, rgba(0, 0, 0, 0));
+  pal->setEntry(1, rgba(4, 5, 6, 255));
+  EXPECT_FALSE(pal->ensureTransparentFirst());
+  EXPECT_EQ(rgba(4, 5, 6, 255), pal->getEntry(1));
+}
+
+TEST(Palette, EnsureTransparentFirstRespectsMaxColors)
+{
+  auto pal = Palette::create(256);
+  for (int i = 0; i < 256; ++i)
+    pal->setEntry(i, rgba(i, 0, 0, 255));
+
+  EXPECT_TRUE(pal->ensureTransparentFirst());
+  ASSERT_EQ(256, pal->size());
+  EXPECT_EQ(rgba(0, 0, 0, 0), pal->getEntry(0));
+  EXPECT_EQ(rgba(0, 0, 0, 255), pal->getEntry(1));
+  EXPECT_EQ(rgba(254, 0, 0, 255), pal->getEntry(255));
+}

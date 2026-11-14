@@ -76,7 +76,7 @@ void LoadPaletteCommand::onExecute(Context* context)
     else
     {
       auto cmd = static_cast<SetPaletteCommand*>(CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
-      cmd->setPalette(palette.get());
+      cmd->setPalette(palette.get(), true);
       context->executeCommand(cmd);
     }
   }
