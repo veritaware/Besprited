@@ -111,7 +111,6 @@
       <option id="data_recovery" type="bool" default="true" />
       <option id="data_recovery_period" type="int" default="2" />
       <option id="show_full_path" type="bool" default="true" />
-      <option id="grayscale_method" type="GrayscaleMethod" default="GrayscaleMethod::LUMA_709" />
     </section>
     <section id="undo" text="Undo">
       <option id="size_limit" type="int" default="64" />
@@ -126,6 +125,7 @@
       <option id="invert_wheel_brush_size" type="bool" default="false" />
       <option id="show_scrollbars" type="bool" default="true" migrate="Options.ShowScrollbars" />
       <option id="right_click_mode" type="RightClickMode" default="RightClickMode::PAINT_BGCOLOR" migrate="Options.RightClickMode" />
+      <option id="grayscale_method" type="GrayscaleMethod" default="GrayscaleMethod::LUMA_709" />
       <option id="auto_select_layer" type="bool" default="false" migrate="Options.AutoSelectLayer" />
       <option id="cursor_color" type="app::Color" default="app::Color::fromMask()" migrate="Tools.CursorColor" />
       <option id="brush_preview" type="BrushPreview" default="BrushPreview::FULL" />

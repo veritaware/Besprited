@@ -123,7 +123,7 @@ public:
     if (m_pref.general.showFullPath())
       showFullPath()->setSelected(true);
 
-    grayscaleMethod()->setSelectedItemIndex((int)m_pref.general.grayscaleMethod());
+    grayscaleMethod()->setSelectedItemIndex((int)m_pref.editor.grayscaleMethod());
 
     dataRecoveryPeriod()->setSelectedItemIndex(
         dataRecoveryPeriod()->findItemIndexByValue(base::convert_to<std::string>(m_pref.general.dataRecoveryPeriod())));
@@ -265,7 +265,6 @@ public:
     m_pref.general.autoshowTimeline(autotimeline()->isSelected());
     m_pref.general.rewindOnStop(rewindOnStop()->isSelected());
     m_pref.general.showFullPath(showFullPath()->isSelected());
-    m_pref.general.grayscaleMethod(static_cast<app::gen::GrayscaleMethod>(grayscaleMethod()->getSelectedItemIndex()));
 
     bool expandOnMouseover = expandMenubarOnMouseover()->isSelected();
     m_pref.general.expandMenubarOnMouseover(expandOnMouseover);
@@ -287,6 +286,7 @@ public:
     m_pref.editor.zoomFromCenterWithKeys(zoomFromCenterWithKeys()->isSelected());
     m_pref.editor.showScrollbars(showScrollbars()->isSelected());
     m_pref.editor.rightClickMode(static_cast<app::gen::RightClickMode>(rightClickBehavior()->getSelectedItemIndex()));
+    m_pref.editor.grayscaleMethod(static_cast<app::gen::GrayscaleMethod>(grayscaleMethod()->getSelectedItemIndex()));
     m_pref.editor.cursorColor(m_cursorColor->getColor());
     m_pref.editor.brushPreview(static_cast<app::gen::BrushPreview>(brushPreview()->getSelectedItemIndex()));
     m_pref.selection.autoOpaque(autoOpaque()->isSelected());

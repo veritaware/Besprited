@@ -25,9 +25,9 @@ namespace app
 
 render::GrayscaleMethod color_utils::grayscale_method()
 {
-  return Preferences::instance().general.grayscaleMethod() == gen::GrayscaleMethod::HSV_VALUE
-           ? render::GrayscaleMethod::HSV_VALUE
-           : render::GrayscaleMethod::LUMA_709;
+  return Preferences::instance().editor.grayscaleMethod() == gen::GrayscaleMethod::HSV_VALUE
+             ? render::GrayscaleMethod::HSV_VALUE
+             : render::GrayscaleMethod::LUMA_709;
 }
 
 gfx::Color color_utils::blackandwhite(gfx::Color color)
