@@ -13,6 +13,8 @@
 #include "app/cmd/add_cel.h"
 #include "app/cmd/replace_image.h"
 #include "app/cmd/set_cel_position.h"
+#include "app/cmd/set_layer_blend_mode.h"
+#include "app/cmd/set_layer_opacity.h"
 #include "app/cmd/unlink_cel.h"
 #include "app/commands/command.h"
 #include "app/context_access.h"
@@ -74,6 +76,20 @@ void MergeDownLayerCommand::onExecute(Context* context)
   LayerImage* src_layer = static_cast<LayerImage*>(writer.layer());
   Layer* dst_layer = src_layer->getPrevious();
 
+  // Merging onto an empty layer just moves the source down:
+  // let the destination take over its blending so layers underneath keep blending the same way.
+  // A partially filled destination can't: its own cels would change,
+  // so source cels copied into its empty frames take the destination's blending.
+  LayerImage* dst_image_layer = dst_layer->isImage() ? static_cast<LayerImage*>(dst_layer) : nullptr;
+  const bool inherit_src_blending =
+      dst_image_layer && dst_image_layer->isTransparent() && dst_image_layer->getCelsCount() == 0;
+
+  if (inherit_src_blending)
+  {
+    transaction.execute(new cmd::SetLayerBlendMode(dst_image_layer, src_layer->blendMode()));
+    transaction.execute(new cmd::SetLayerOpacity(dst_image_layer, src_layer->opacity()));
+  }
+
   for (frame_t frpos = 0; frpos < sprite->totalFrames(); ++frpos)
   {
     // Get frames
@@ -95,8 +111,8 @@ void MergeDownLayerCommand::onExecute(Context* context)
     if (src_image)
     {
       int t;
-      int opacity;
-      opacity = MUL_UN8(src_cel->opacity(), src_layer->opacity(), t);
+      // Inherited layer opacity must not be baked into the cel too.
+      int opacity = inherit_src_blending ? src_cel->opacity() : MUL_UN8(src_cel->opacity(), src_layer->opacity(), t);
 
       // No destination image
       if (!dst_image)
