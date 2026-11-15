@@ -76,14 +76,10 @@ Download the disk image for your Mac's architecture —
 `besprited-v<version>-macos-intel.dmg` for Intel — and double-click the
 `.dmg` to mount it.
 
-In the Finder window that opens, choose `Go` → `Applications` from the menu
-bar to open your Applications folder alongside it.
+A classic "drag to install" window will appear — click and drag the
+`besprited` app onto the Applications folder.
 
-![Finder Go menu with Applications selected](docs/install_mac_1.jpg)
-
-Drag the `besprited` app onto the Applications folder.
-
-![Dragging besprited.app into Applications](docs/install_mac_2.jpg)
+![Dragging besprited.app into Applications](docs/install_mac_1.jpg)
 
 Apple Developer signing certificates are a paid subscription, and this project
 isn't funded well enough to justify one, so the app is self-signed by our
@@ -97,9 +93,15 @@ cd /Applications
 sudo xattr -dr com.apple.quarantine besprited.app
 ```
 
-![Removing the quarantine attribute in Terminal](docs/install_mac_3.jpg)
+This requires an administrator account. Enter your user password when
+prompted (the terminal won't show any `*` placeholder characters as you type —
+this is normal).
 
-Besprited will now launch from Spotlight or Launchpad like any other app.
+![Removing the quarantine attribute in Terminal](docs/install_mac_2.jpg)
+
+Besprited will now launch from Spotlight (or Launchpad) like any other app.
+
+![Besprited in the Spotlight menu](docs/install_mac_3.jpg)
 
 ## Linux
 
