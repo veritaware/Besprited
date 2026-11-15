@@ -13,6 +13,7 @@
 
 #include "render/render.h"
 
+#include "doc/blend_mode.h"
 #include "doc/cel.h"
 #include "doc/context.h"
 #include "doc/document.h"
@@ -20,6 +21,9 @@
 #include "doc/layer.h"
 #include "doc/palette.h"
 #include "doc/primitives.h"
+#include "doc/sprite.h"
+
+#include <memory>
 
 using namespace doc;
 using namespace render;
@@ -128,6 +132,88 @@ TEST(Render, DefaultBackgroundModeWithNonzeroTransparentIndex)
   color_t c1 = doc->sprite()->palette(0)->entry(1);
   EXPECT_NE(0, c1);
   EXPECT_2X2_PIXELS(dst.get(), 0, 0, 0, c1); // RGB transparent
+}
+
+// Indexed-to-indexed compositing (flatten/merge down) must honor the layer blend mode.
+TEST(Render, IndexedBlendModes)
+{
+  Context ctx;
+  Document* doc = ctx.documents().add(2, 1, ColorMode::INDEXED);
+  Sprite* sprite = doc->sprite();
+
+  // Tiny palette: index 0 is transparent, multiply(200, 128) is exactly index 3.
+  Palette* pal = sprite->palette(frame_t(0));
+  pal->resize(4);
+  pal->setEntry(1, rgba(200, 200, 200, 255));
+  pal->setEntry(2, rgba(128, 128, 128, 255));
+  pal->setEntry(3, rgba(100, 100, 100, 255));
+
+  // Bottom layer: content on the left pixel, nothing on the right one.
+  Image* bottom = sprite->layer(0)->cel(frame_t(0))->image();
+  clear_image(bottom, sprite->transparentColor());
+  put_pixel(bottom, 0, 0, 1);
+
+  // Top layer: covers both pixels.
+  LayerImage* top = new LayerImage(sprite);
+  sprite->folder()->addLayer(top);
+  ImageRef topImage(Image::create(IMAGE_INDEXED, 2, 1));
+  topImage->setMaskColor(sprite->transparentColor());
+  clear_image(topImage.get(), 2);
+  top->addCel(std::make_shared<Cel>(frame_t(0), topImage));
+
+  std::unique_ptr<Image> dst(Image::create(IMAGE_INDEXED, 2, 1));
+  dst->setMaskColor(sprite->transparentColor());
+
+  Render render;
+  render.setBgType(BgType::NONE);
+
+  // Normal blending is still a plain copy of the source indexes.
+  top->setBlendMode(BlendMode::NORMAL);
+  clear_image(dst.get(), sprite->transparentColor());
+  render.renderSprite(dst.get(), sprite, frame_t(0));
+  EXPECT_EQ(2, get_pixel(dst.get(), 0, 0));
+  EXPECT_EQ(2, get_pixel(dst.get(), 1, 0));
+
+  // Multiply is computed through the palette; without a backdrop it falls back to Normal.
+  top->setBlendMode(BlendMode::MULTIPLY);
+  clear_image(dst.get(), sprite->transparentColor());
+  render.renderSprite(dst.get(), sprite, frame_t(0));
+  EXPECT_EQ(3, get_pixel(dst.get(), 0, 0));
+  EXPECT_EQ(2, get_pixel(dst.get(), 1, 0));
+}
+
+// Over an empty backdrop the source index must survive even with a near-duplicate
+// palette entry before it and a partial opacity.
+TEST(Render, IndexedBlendOverEmptyBackdrop)
+{
+  Context ctx;
+  Document* doc = ctx.documents().add(1, 1, ColorMode::INDEXED);
+  Sprite* sprite = doc->sprite();
+
+  Palette* pal = sprite->palette(frame_t(0));
+  pal->resize(3);
+  pal->setEntry(1, rgba(130, 130, 130, 255));
+  pal->setEntry(2, rgba(128, 128, 128, 255));
+
+  clear_image(sprite->layer(0)->cel(frame_t(0))->image(), sprite->transparentColor());
+
+  LayerImage* top = new LayerImage(sprite);
+  sprite->folder()->addLayer(top);
+  ImageRef topImage(Image::create(IMAGE_INDEXED, 1, 1));
+  topImage->setMaskColor(sprite->transparentColor());
+  clear_image(topImage.get(), 2);
+  top->addCel(std::make_shared<Cel>(frame_t(0), topImage));
+  top->setBlendMode(BlendMode::MULTIPLY);
+  top->setOpacity(128);
+
+  std::unique_ptr<Image> dst(Image::create(IMAGE_INDEXED, 1, 1));
+  dst->setMaskColor(sprite->transparentColor());
+  clear_image(dst.get(), sprite->transparentColor());
+
+  Render render;
+  render.setBgType(BgType::NONE);
+  render.renderSprite(dst.get(), sprite, frame_t(0));
+  EXPECT_EQ(2, get_pixel(dst.get(), 0, 0));
 }
 
 TEST(Render, CheckedBackground)

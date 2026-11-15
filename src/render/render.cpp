@@ -12,11 +12,15 @@
 #include "render/render.h"
 
 #include "base/base.h"
+#include "doc/blend_funcs.h"
 #include "doc/blend_internals.h"
 #include "doc/blend_mode.h"
+#include "doc/color.h"
 #include "doc/doc.h"
 #include "doc/handle_anidir.h"
 #include "doc/image_impl.h"
+#include "doc/image_traits.h"
+#include "doc/palette.h"
 #include "gfx/clip.h"
 #include "gfx/region.h"
 
@@ -110,29 +114,39 @@ public:
 
 template <> class BlenderHelper<IndexedTraits, IndexedTraits>
 {
+  const Palette* m_pal;
   BlendMode m_blendMode;
+  BlendFunc m_blendFunc;
   color_t m_mask_color;
 
 public:
   BlenderHelper(const Image* src, const Palette* pal, BlendMode blendMode)
   {
+    m_pal = pal;
     m_blendMode = blendMode;
+    m_blendFunc = RgbTraits::get_blender(blendMode);
     m_mask_color = src->maskColor();
   }
   inline IndexedTraits::pixel_t operator()(const IndexedTraits::pixel_t& dst, const IndexedTraits::pixel_t& src,
                                            int opacity)
   {
     if (m_blendMode == BlendMode::SRC)
-    {
       return src;
-    }
-    else
-    {
-      if (src != m_mask_color)
-        return src;
-      else
-        return dst;
-    }
+
+    if (src == m_mask_color)
+      return dst;
+
+    // Nothing to blend with (or Normal blending): plain index copy.
+    if (dst == m_mask_color || m_blendMode == BlendMode::NORMAL || !m_pal || !m_blendFunc)
+      return src;
+
+    // Blend in RGB through the palette and map back to the closest entry.
+    const color_t blended = (*m_blendFunc)(m_pal->getEntry(dst), m_pal->getEntry(src), opacity);
+    if (rgba_geta(blended) == 0)
+      return m_mask_color;
+
+    return m_pal->findBestfit(rgba_getr(blended), rgba_getg(blended), rgba_getb(blended), rgba_geta(blended),
+                              m_mask_color);
   }
 };
 

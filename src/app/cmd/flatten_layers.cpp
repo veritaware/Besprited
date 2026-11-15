@@ -18,6 +18,7 @@
 #include "app/cmd/remove_layer.h"
 #include "app/cmd/unlink_cel.h"
 #include "app/document.h"
+#include "doc/blend_mode.h"
 #include "doc/cel.h"
 #include "doc/layer.h"
 #include "doc/primitives.h"
@@ -37,17 +38,20 @@ void FlattenLayers::onExecute()
   Sprite* sprite = this->sprite();
   const auto* doc = dynamic_cast<Document*>(sprite->document());
 
-  // Create a temporary image.
+  // Temporary image; indexed images need the mask color to tell empty pixels.
   const ImageRef image(Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
+  image->setMaskColor(sprite->transparentColor());
 
   // The layer onto which everything will be flattened.
   LayerImage* flatLayer = sprite->backgroundLayer();
   color_t bgcolor; // The background color to use for flatLayer.
+  bool ontoBackground;
 
   if (flatLayer && flatLayer->isVisible())
   {
     // There exists a visible background layer, so we will flatten onto that.
     bgcolor = doc->bgColor(flatLayer);
+    ontoBackground = true;
   }
   else
   {
@@ -57,8 +61,16 @@ void FlattenLayers::onExecute()
     executeAndAdd(new AddLayer(sprite->folder(), flatLayer, nullptr));
     executeAndAdd(new SetLayerName(flatLayer, "Flattened"));
     bgcolor = sprite->transparentColor();
+    ontoBackground = false;
   }
 
+  // Buffer to put the background color behind the rendered frame (background layer only).
+  ImageRef bgImage;
+  if (ontoBackground)
+  {
+    bgImage.reset(Image::create(sprite->pixelFormat(), sprite->width(), sprite->height()));
+    bgImage->setMaskColor(sprite->transparentColor());
+  }
   render::Render render;
   render.setBgType(render::BgType::NONE);
 
@@ -66,8 +78,17 @@ void FlattenLayers::onExecute()
   for (frame_t frame(0); frame < sprite->totalFrames(); ++frame)
   {
     // Clear the image and render this frame.
-    clear_image(image.get(), bgcolor);
+    clear_image(image.get(), sprite->transparentColor());
     render.renderSprite(image.get(), sprite, frame);
+
+    // Drop the background color behind the rendered frame.
+    Image* flatImage = image.get();
+    if (bgImage)
+    {
+      clear_image(bgImage.get(), bgcolor);
+      render::composite_image(bgImage.get(), image.get(), sprite->palette(frame), 0, 0, 255, BlendMode::NORMAL);
+      flatImage = bgImage.get();
+    }
 
     // TODO Keep cel links when possible
 
@@ -81,11 +102,11 @@ void FlattenLayers::onExecute()
       cel_image = cel->imageRef();
       ASSERT(cel_image);
 
-      executeAndAdd(new CopyRect(cel_image.get(), image.get(), gfx::Clip(0, 0, image->bounds())));
+      executeAndAdd(new CopyRect(cel_image.get(), flatImage, gfx::Clip(0, 0, flatImage->bounds())));
     }
     else
     {
-      cel_image.reset(Image::createCopy(image.get()));
+      cel_image.reset(Image::createCopy(flatImage));
       cel = std::make_shared<Cel>(frame, cel_image);
       flatLayer->addCel(cel);
     }
