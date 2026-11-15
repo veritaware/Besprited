@@ -12,6 +12,7 @@
   * [Windows details](#windows-details)
   * [MacOS details](#macos-details)
   * [Android details](#android-details)
+* [Generating icons](#generating-icons)
 * [Installing](#installing)
 * [Building distributable packages](#building-distributable-packages)
 * [Static Code Analysis](#static-code-analysis)
@@ -121,6 +122,26 @@ so follow the appropriate instructions above. Once that is done, download
 https://github.com/LibreSprite/ls-android-deps as android/ in the Besprited
 directory. Now you can open the android subdirectory in Android Studio and build
 Besprited for Android.
+
+## Generating icons
+
+The application icons are not stored in every size/format. They are derived from the
+16x16 pixel-art sources in `packaging/desktop/icons/` (nearest-neighbour scaling), and
+the generated files are git-ignored. This needs [ImageMagick](https://imagemagick.org)
+(`magick`), plus [icoutils](https://www.nongnu.org/icoutils/) (`icotool`) for Windows.
+The scripts can be run from any directory:
+
+* **Windows** — required before building (the resource file and installer use the
+  result). Run in the MSYS2 UCRT64 shell (`pacman -S mingw-w64-ucrt-x86_64-imagemagick mingw-w64-ucrt-x86_64-icoutils`):
+
+      sh packaging/desktop/icons/generate_ico.sh   # writes data/icons/besprited.ico and doc.ico
+
+* **Linux** — required before configuring with `-DWITH_DESKTOP_INTEGRATION=ON` or running
+  `packaging/linux/package_linux.sh`:
+
+      sh packaging/desktop/icons/generate_hicolor.sh   # writes packaging/desktop/icons/hicolor/<size>/apps/besprited.png
+
+* **macOS** — `packaging/macos/package_macos.sh` generates the `.icns` itself (needs `imagemagick`).
 
 ## Installing
 

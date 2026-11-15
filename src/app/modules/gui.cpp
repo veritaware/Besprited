@@ -139,7 +139,7 @@ static bool create_main_display(bool gpuAccel, bool& maximized, std::string& las
       Preferences::instance().general.screenScale(main_display->scale());
 
     ResourceFinder rf;
-    rf.includeDataDir("icons/ase64.png");
+    rf.includeDataDir("icons/besprited128.png");
     if (rf.findFirst())
       main_display->setIcon(she::instance()->loadRgbaSurface(rf.filename().c_str()));
 

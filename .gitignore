@@ -12,6 +12,10 @@
 *.res
 *.vs
 
+# --- Generated icons (see packaging/desktop/icons/)
+/data/icons/*.ico
+/packaging/desktop/icons/hicolor/
+
 # --- CMake output
 build
 

@@ -26,17 +26,17 @@ jobs:
       run: |
         TAG=$(git describe --exact-match --tags 2>/dev/null) || true
         if [ -n "$TAG" ]; then
-          echo "has_tag=true" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+          echo "has_tag=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
         else
-          echo "has_tag=false" >> $GITHUB_OUTPUT
+          echo "has_tag=false" >> "$GITHUB_OUTPUT"
         fi
     - name: Get short commit hash
       id: commit
       run: |
         SHORT_HASH=$(git rev-parse --short HEAD)
-        echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
+        echo "short_hash=$SHORT_HASH" >> "$GITHUB_OUTPUT"
     - name: Prepare release version
       run: |
         sed -i '' "s/\"local build\"/\"${{ steps.commit.outputs.short_hash }}\"/g" src/config.h
@@ -51,7 +51,7 @@ jobs:
         # macos-latest runner images come with this tap pre-added; Homebrew's
         # tap-trust check then warns on every brew invocation since it's untrusted.
         brew untap aws/tap || true
-        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
+        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler imagemagick
         pip3 install --break-system-packages dmgbuild
         echo "Building and Installing GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
@@ -94,16 +94,13 @@ jobs:
     - name: Generate .icns file
       run: |
         mkdir besprited.iconset
-        sips -z 16 16     data/icons/ase64.png --out besprited.iconset/icon_16x16.png
-        sips -z 32 32     data/icons/ase64.png --out besprited.iconset/icon_16x16@2x.png
-        sips -z 32 32     data/icons/ase64.png --out besprited.iconset/icon_32x32.png
-        sips -z 64 64     data/icons/ase64.png --out besprited.iconset/icon_32x32@2x.png
-        sips -z 128 128   data/icons/ase64.png --out besprited.iconset/icon_128x128.png
-        sips -z 256 256   data/icons/ase64.png --out besprited.iconset/icon_128x128@2x.png
-        sips -z 256 256   data/icons/ase64.png --out besprited.iconset/icon_256x256.png
-        sips -z 512 512   data/icons/ase64.png --out besprited.iconset/icon_256x256@2x.png
-        sips -z 512 512   data/icons/ase64.png --out besprited.iconset/icon_512x512.png
-        sips -z 1024 1024 data/icons/ase64.png --out besprited.iconset/icon_512x512@2x.png
+        for spec in 16:icon_16x16 32:icon_16x16@2x 32:icon_32x32 64:icon_32x32@2x \
+                    128:icon_128x128 256:icon_128x128@2x 256:icon_256x256 512:icon_256x256@2x \
+                    512:icon_512x512 1024:icon_512x512@2x; do
+          size=${spec%%:*}
+          name=${spec#*:}
+          magick packaging/desktop/icons/besprited16.png -filter Point -resize "${size}x${size}" "besprited.iconset/${name}.png"
+        done
         iconutil -c icns -o besprited.icns besprited.iconset
         rm -R besprited.iconset
     - name: Create Apple Bundle
@@ -177,9 +174,9 @@ jobs:
         dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           mv besprited.dmg "besprited-${{ steps.check_tag.outputs.tag }}-macos-silicon.dmg"
-          echo "dmg=besprited-${{ steps.check_tag.outputs.tag }}-macos-silicon.dmg" >> $GITHUB_OUTPUT
+          echo "dmg=besprited-${{ steps.check_tag.outputs.tag }}-macos-silicon.dmg" >> "$GITHUB_OUTPUT"
         else
-          echo "dmg=besprited.dmg" >> $GITHUB_OUTPUT
+          echo "dmg=besprited.dmg" >> "$GITHUB_OUTPUT"
         fi
       id: dmg
     - name: Upload Artifacts
@@ -216,17 +213,17 @@ jobs:
       run: |
         TAG=$(git describe --exact-match --tags 2>/dev/null) || true
         if [ -n "$TAG" ]; then
-          echo "has_tag=true" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+          echo "has_tag=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
         else
-          echo "has_tag=false" >> $GITHUB_OUTPUT
+          echo "has_tag=false" >> "$GITHUB_OUTPUT"
         fi
     - name: Get short commit hash
       id: commit
       run: |
         SHORT_HASH=$(git rev-parse --short HEAD)
-        echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
+        echo "short_hash=$SHORT_HASH" >> "$GITHUB_OUTPUT"
     - name: Prepare release version
       run: |
         sed -i '' "s/\"local build\"/\"${{ steps.commit.outputs.short_hash }}\"/g" src/config.h
@@ -241,7 +238,7 @@ jobs:
         # macos-latest runner images come with this tap pre-added; Homebrew's
         # tap-trust check then warns on every brew invocation since it's untrusted.
         brew untap aws/tap || true
-        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler
+        brew install autoconf automake libtool gnutls freetype jpeg webp pixman sdl3 sdl3_image tinyxml2 libarchive ninja zlib xmlto dylibbundler imagemagick
         pip3 install --break-system-packages dmgbuild
         echo "Building and Installing GifLib"
         export CFLAGS="-Wno-implicit-function-declaration"
@@ -284,16 +281,13 @@ jobs:
     - name: Generate .icns file
       run: |
         mkdir besprited.iconset
-        sips -z 16 16     data/icons/ase64.png --out besprited.iconset/icon_16x16.png
-        sips -z 32 32     data/icons/ase64.png --out besprited.iconset/icon_16x16@2x.png
-        sips -z 32 32     data/icons/ase64.png --out besprited.iconset/icon_32x32.png
-        sips -z 64 64     data/icons/ase64.png --out besprited.iconset/icon_32x32@2x.png
-        sips -z 128 128   data/icons/ase64.png --out besprited.iconset/icon_128x128.png
-        sips -z 256 256   data/icons/ase64.png --out besprited.iconset/icon_128x128@2x.png
-        sips -z 256 256   data/icons/ase64.png --out besprited.iconset/icon_256x256.png
-        sips -z 512 512   data/icons/ase64.png --out besprited.iconset/icon_256x256@2x.png
-        sips -z 512 512   data/icons/ase64.png --out besprited.iconset/icon_512x512.png
-        sips -z 1024 1024 data/icons/ase64.png --out besprited.iconset/icon_512x512@2x.png
+        for spec in 16:icon_16x16 32:icon_16x16@2x 32:icon_32x32 64:icon_32x32@2x \
+                    128:icon_128x128 256:icon_128x128@2x 256:icon_256x256 512:icon_256x256@2x \
+                    512:icon_512x512 1024:icon_512x512@2x; do
+          size=${spec%%:*}
+          name=${spec#*:}
+          magick packaging/desktop/icons/besprited16.png -filter Point -resize "${size}x${size}" "besprited.iconset/${name}.png"
+        done
         iconutil -c icns -o besprited.icns besprited.iconset
         rm -R besprited.iconset
     - name: Create Apple Bundle
@@ -367,9 +361,9 @@ jobs:
         dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           mv besprited.dmg "besprited-${{ steps.check_tag.outputs.tag }}-macos-intel.dmg"
-          echo "dmg=besprited-${{ steps.check_tag.outputs.tag }}-macos-intel.dmg" >> $GITHUB_OUTPUT
+          echo "dmg=besprited-${{ steps.check_tag.outputs.tag }}-macos-intel.dmg" >> "$GITHUB_OUTPUT"
         else
-          echo "dmg=besprited.dmg" >> $GITHUB_OUTPUT
+          echo "dmg=besprited.dmg" >> "$GITHUB_OUTPUT"
         fi
       id: dmg
     - name: Upload Artifacts

@@ -45,6 +45,8 @@ jobs:
           mingw-w64-ucrt-x86_64-tinyxml2
           mingw-w64-ucrt-x86_64-zlib
           mingw-w64-ucrt-x86_64-libarchive
+          mingw-w64-ucrt-x86_64-imagemagick
+          mingw-w64-ucrt-x86_64-icoutils
     - uses: actions/checkout@v7
       with:
         submodules: 'true'
@@ -54,22 +56,25 @@ jobs:
       run: |
         TAG=$(git describe --exact-match --tags 2>/dev/null) || true
         if [ -n "$TAG" ]; then
-          echo "has_tag=true" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+          echo "has_tag=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
         else
-          echo "has_tag=false" >> $GITHUB_OUTPUT
+          echo "has_tag=false" >> "$GITHUB_OUTPUT"
         fi
     - name: Get short commit hash
       id: commit
       shell: bash
       run: |
         SHORT_HASH=$(git rev-parse --short HEAD)
-        echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
+        echo "short_hash=$SHORT_HASH" >> "$GITHUB_OUTPUT"
     - name: Update config.h with commit hash
       shell: bash
       run: |
         sed -i 's/#define COMMIT  "local build"/#define COMMIT  "${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+    - name: Generate .ico files
+      shell: msys2 {0}
+      run: sh packaging/desktop/icons/generate_ico.sh
     - name: Generate Makefiles
       shell: msys2 {0}
       run: |
@@ -102,7 +107,7 @@ jobs:
       run: |
         ZIP="besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.zip"
         (cd build/bin && 7z a -tzip -bso0 "$GITHUB_WORKSPACE/$ZIP" .)
-        echo "zip=$ZIP" >> $GITHUB_OUTPUT
+        echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
       id: portable
     - name: Build the installer
       if: steps.check_tag.outputs.has_tag == 'true'
