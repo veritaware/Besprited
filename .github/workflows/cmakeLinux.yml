@@ -120,6 +120,82 @@ jobs:
           ${{ steps.tarball.outputs.tarball }}|linux-tarball
           ${{ steps.appimage.outputs.appimage }}|linux-appimage
 
+  # arm64 ships only as an AppImage (no .deb/.rpm/tarball). butler-push is
+  # linux-amd64 only, so the itch.io upload is skipped here.
+  build-arm64:
+    name: Build AppImage (arm64)
+    runs-on: ubuntu-26.04-arm
+    if: ${{ !contains(github.event.head_commit.message, 'NO_SW_CHANGE') && !contains(github.event.pull_request.body, 'NO_SW_CHANGE') }}
+    steps:
+    - uses: actions/checkout@v7
+      with:
+          submodules: 'true'
+    - name: Install build dependencies
+      uses: ./.github/actions/install-deps
+    - name: Check for git tag
+      id: check_tag
+      run: |
+        TAG=$(git describe --exact-match --tags 2>/dev/null) || true
+        if [ -n "$TAG" ]; then
+          echo "has_tag=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+        else
+          echo "has_tag=false" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Get short commit hash
+      id: commit
+      run: |
+        SHORT_HASH=$(git rev-parse --short HEAD)
+        echo "short_hash=$SHORT_HASH" >> "$GITHUB_OUTPUT"
+    - name: Update config.h with commit hash
+      run: |
+        sed -i 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+    - name: Generate hicolor icons
+      run: sh packaging/desktop/icons/generate_hicolor.sh
+    - name: Generate Makefiles
+      run: |
+        mkdir build
+        if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DRELEASE_TAG=ON \
+            -DRELEASE_VERSION="${{ steps.check_tag.outputs.version }}" -DWITH_DESKTOP_INTEGRATION=ON
+        else
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DWITH_DESKTOP_INTEGRATION=ON
+        fi
+    - name: Build the binaries
+      run: |
+        ninja -C build besprited
+        rm build/bin/gen
+    - name: Package the AppImage
+      run: |
+        export ARCH="$(uname -m)"
+        if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
+          sh packaging/linux/package_linux.sh "${{ steps.check_tag.outputs.tag }}"
+          mv build/bin/Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage* .
+          echo "appimage=Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage" >> "$GITHUB_OUTPUT"
+        else
+          sh packaging/linux/package_linux.sh
+          mv "build/bin/Besprited-anylinux-$ARCH.AppImage" .
+          echo "appimage=Besprited-anylinux-$ARCH.AppImage" >> "$GITHUB_OUTPUT"
+        fi
+      id: appimage
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v7
+      with:
+        name: ${{ steps.check_tag.outputs.has_tag == 'true' && format('besprited-{0}-linux-aarch64', steps.check_tag.outputs.tag) || 'besprited-linux-aarch64' }}
+        path: |
+          ${{ steps.appimage.outputs.appimage }}
+          ${{ steps.appimage.outputs.appimage }}.zsync
+        if-no-files-found: error
+    - name: Attach AppImage to the release
+      if: ${{ steps.check_tag.outputs.has_tag == 'true' }}
+      uses: softprops/action-gh-release@v3
+      with:
+        files: |
+          ${{ steps.appimage.outputs.appimage }}
+          ${{ steps.appimage.outputs.appimage }}.zsync
+        fail_on_unmatched_files: true
+
   # A .deb links against whatever library SONAMEs its build distro ships and
   # dpkg-shlibdeps pins the matching package names, so a single .deb can't span
   # releases (e.g. libtinyxml2-10 vs -11, libjpeg.so.8 vs .so.62). Build one per
