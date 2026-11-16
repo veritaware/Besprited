@@ -8,15 +8,17 @@
 #endif
 
 #include "base/fstream_path.h"
-#include "base/trim_string.h"
 #include "doc/color.h"
 #include "doc/palette.h"
+#include "doc/file/text_palette_file.h"
 
+#include <charconv>
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <memory>
 #include <string>
+#include <system_error>
 
 namespace doc::file
 {
@@ -24,67 +26,43 @@ namespace doc::file
 namespace
 {
 
-int hex_digit(char c)
-{
-  if (c >= '0' && c <= '9')
-    return c - '0';
-  if (c >= 'a' && c <= 'f')
-    return c - 'a' + 10;
-  if (c >= 'A' && c <= 'F')
-    return c - 'A' + 10;
-  return -1;
-}
-
 bool parse_hex_color(const std::string& text, uint32_t& value)
 {
   if (text.size() != 8)
     return false;
-  value = 0;
-  for (char c : text)
-  {
-    const int digit = hex_digit(c);
-    if (digit < 0)
-      return false;
-    value = (value << 4) | static_cast<uint32_t>(digit);
-  }
-  return true;
+  const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), value, 16);
+  return error == std::errc() && end == text.data() + text.size();
 }
 
 } // namespace
 
 std::shared_ptr<Palette> load_paintnet_file(const char* filename)
 {
-  std::ifstream f(FSTREAM_PATH(filename), std::ios::binary);
-  if (!f)
-    return {};
-
   auto pal = Palette::create(0);
-  std::string line;
-  bool first = true;
-  while (std::getline(f, line))
-  {
-    if (first && line.compare(0, 3, "\xEF\xBB\xBF") == 0)
-      line.erase(0, 3);
-    first = false;
+  const bool read = text_palette_file::read_lines(
+      filename,
+      [&](const std::string& text)
+      {
+        if (text.empty() || text.front() == ';')
+          return true;
 
-    std::string text;
-    base::trim_string(line, text);
-    if (text.empty() || text.front() == ';')
-      continue;
+        uint32_t argb;
+        if (!parse_hex_color(text, argb))
+          return false;
+        pal->addEntry(rgba((argb >> 16) & 0xff, (argb >> 8) & 0xff, argb & 0xff, (argb >> 24) & 0xff));
+        return true;
+      });
 
-    uint32_t argb;
-    if (!parse_hex_color(text, argb))
-      return {};
-    pal->addEntry(rgba((argb >> 16) & 0xff, (argb >> 8) & 0xff, argb & 0xff, (argb >> 24) & 0xff));
-  }
-
-  if (f.bad() || pal->size() == 0)
+  if (!read || pal->size() == 0)
     return {};
   return pal;
 }
 
 bool save_paintnet_file(const Palette& pal, const char* filename)
 {
+  if (pal.size() == 0)
+    return false;
+
   std::ofstream f(FSTREAM_PATH(filename), std::ios::binary);
   if (!f)
     return false;

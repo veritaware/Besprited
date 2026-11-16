@@ -19,8 +19,11 @@
 #include "base/fs.h"
 #include "base/path.h"
 #include "base/string.h"
+#include "doc/color.h"
 #include "doc/palette.h"
 #include "ui/alert.h"
+
+#include <cstdint>
 
 namespace app
 {
@@ -68,6 +71,34 @@ void SavePaletteCommand::onExecute(Context* context)
   }
 
   const std::string ext = base::string_to_lower(base::get_file_extension(filename));
+  if (ext == "act")
+  {
+    if (palette->size() > 256)
+    {
+      Alert::show("Error<<Adobe Color Table palettes support at most 256 colors.||&Close");
+      return;
+    }
+
+    int transparentEntries = 0;
+    bool partiallyTransparent = false;
+    for (int i = 0; i < palette->size(); ++i)
+    {
+      const uint8_t alpha = rgba_geta(palette->entry(i));
+      partiallyTransparent |= alpha != 0 && alpha != 255;
+      transparentEntries += alpha == 0;
+    }
+    if (partiallyTransparent)
+    {
+      Alert::show("Error<<Adobe Color Table palettes do not support partial transparency.||&Close");
+      return;
+    }
+    if (transparentEntries > 1)
+    {
+      Alert::show("Error<<Adobe Color Table palettes support only one transparent color.||&Close");
+      return;
+    }
+  }
+
   if (ext == "txt" && palette->size() > 96 &&
       Alert::show("Warning"
                   "<<Paint.NET palettes are limited to 96 colors. This palette has %d; some entries may be ignored."

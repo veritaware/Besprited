@@ -50,17 +50,14 @@ std::string get_writable_palette_extensions()
   return buf;
 }
 
-std::shared_ptr<Palette> load_palette(const char* filename, int* actTransparentIndex)
+std::shared_ptr<Palette> load_palette(const char* filename)
 {
-  if (actTransparentIndex)
-    *actTransparentIndex = -1;
-
   std::string ext = base::string_to_lower(base::get_file_extension(filename));
   std::shared_ptr<Palette> pal;
 
   if (ext == "act")
   {
-    pal = doc::file::load_act_file(filename, actTransparentIndex);
+    pal = doc::file::load_act_file(filename);
   }
   else if (ext == "hex")
   {

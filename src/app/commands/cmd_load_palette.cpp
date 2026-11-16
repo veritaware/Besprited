@@ -71,22 +71,16 @@ void LoadPaletteCommand::onExecute(Context* context)
 
   if (!filename.empty())
   {
-    int actTransparentIndex = -1;
-    auto palette = load_palette(filename.c_str(), &actTransparentIndex);
+    auto palette = load_palette(filename.c_str());
     if (!palette)
     {
       Alert::show("Error<<Loading palette file||&Close");
     }
     else
     {
-      if (actTransparentIndex >= 0 && context->activeDocument() &&
-          context->activeDocument()->sprite()->pixelFormat() == IMAGE_INDEXED)
-      {
-        const color_t color = palette->entry(actTransparentIndex);
-        palette->setEntry(actTransparentIndex, rgba(rgba_getr(color), rgba_getg(color), rgba_getb(color), 0));
-      }
-
       auto cmd = static_cast<SetPaletteCommand*>(CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
+      // ACT transparency is stored as palette alpha; indexed sprites use the
+      // transparent-first palette entry as their separate mask index.
       cmd->setPalette(palette.get(), true);
       context->executeCommand(cmd);
     }

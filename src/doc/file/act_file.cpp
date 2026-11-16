@@ -39,16 +39,15 @@ void write_be16(std::ostream& out, uint16_t value)
 
 } // namespace
 
-std::shared_ptr<Palette> load_act_file(const char* filename, int* transparentIndexOut)
+std::shared_ptr<Palette> load_act_file(const char* filename)
 {
-  if (transparentIndexOut)
-    *transparentIndexOut = -1;
-
   std::ifstream f(FSTREAM_PATH(filename), std::ios::binary);
   if (!f)
     return {};
 
   const std::vector<uint8_t> bytes((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+  // Accept only footerless 768-byte tables or 772-byte tables with metadata.
+  // Shorter footerless files are deliberately rejected; a footer count of 0 means 256.
   if (f.bad() || (bytes.size() != kActColorBytes && bytes.size() != kActColorBytes + 4))
     return {};
 
@@ -67,10 +66,8 @@ std::shared_ptr<Palette> load_act_file(const char* filename, int* transparentInd
   for (int i = 0; i < count; ++i)
   {
     const size_t offset = static_cast<size_t>(i) * 3;
-    pal->setEntry(i, rgba(bytes[offset], bytes[offset + 1], bytes[offset + 2], 255));
+    pal->setEntry(i, rgba(bytes[offset], bytes[offset + 1], bytes[offset + 2], i == transparentIndex ? 0 : 255));
   }
-  if (transparentIndexOut && transparentIndex != kNoTransparentIndex)
-    *transparentIndexOut = transparentIndex;
   return pal;
 }
 

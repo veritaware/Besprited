@@ -14,7 +14,7 @@ class Palette;
 namespace file
 {
 
-std::shared_ptr<Palette> load_act_file(const char* filename, int* transparentIndex = nullptr);
+std::shared_ptr<Palette> load_act_file(const char* filename);
 bool save_act_file(const Palette& pal, const char* filename);
 
 } // namespace file

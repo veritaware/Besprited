@@ -8,15 +8,17 @@
 #endif
 
 #include "base/fstream_path.h"
-#include "base/trim_string.h"
 #include "doc/color.h"
 #include "doc/palette.h"
+#include "doc/file/text_palette_file.h"
 
+#include <charconv>
 #include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <memory>
 #include <string>
+#include <system_error>
 
 namespace doc::file
 {
@@ -24,74 +26,51 @@ namespace doc::file
 namespace
 {
 
-int hex_digit(char c)
-{
-  if (c >= '0' && c <= '9')
-    return c - '0';
-  if (c >= 'a' && c <= 'f')
-    return c - 'a' + 10;
-  if (c >= 'A' && c <= 'F')
-    return c - 'A' + 10;
-  return -1;
-}
-
 bool parse_hex(const std::string& text, unsigned int& value)
 {
-  value = 0;
-  for (char c : text)
-  {
-    const int digit = hex_digit(c);
-    if (digit < 0)
-      return false;
-    value = (value << 4) | static_cast<unsigned int>(digit);
-  }
-  return true;
+  const auto [end, error] = std::from_chars(text.data(), text.data() + text.size(), value, 16);
+  return error == std::errc() && end == text.data() + text.size();
 }
 
 } // namespace
 
 std::shared_ptr<Palette> load_hex_file(const char* filename)
 {
-  std::ifstream f(FSTREAM_PATH(filename), std::ios::binary);
-  if (!f)
-    return {};
-
   auto pal = Palette::create(0);
-  std::string line;
-  bool first = true;
-  while (std::getline(f, line))
-  {
-    if (first && line.compare(0, 3, "\xEF\xBB\xBF") == 0)
-      line.erase(0, 3);
-    first = false;
+  const bool read = text_palette_file::read_lines(
+      filename,
+      [&](const std::string& line)
+      {
+        std::string text = line;
+        if (text.empty())
+          return true;
+        if (text.front() == '#')
+          text.erase(0, 1);
 
-    std::string text;
-    base::trim_string(line, text);
-    if (text.empty())
-      continue;
-    if (text.front() == '#')
-      text.erase(0, 1);
+        if (text.size() != 6 && text.size() != 8)
+          return false;
 
-    if (text.size() != 6 && text.size() != 8)
-      return {};
+        unsigned int rgbOrRgba;
+        if (!parse_hex(text, rgbOrRgba))
+          return false;
+        const uint8_t r = static_cast<uint8_t>((rgbOrRgba >> (text.size() == 8 ? 24 : 16)) & 0xff);
+        const uint8_t g = static_cast<uint8_t>((rgbOrRgba >> (text.size() == 8 ? 16 : 8)) & 0xff);
+        const uint8_t b = static_cast<uint8_t>((rgbOrRgba >> (text.size() == 8 ? 8 : 0)) & 0xff);
+        const uint8_t alpha = text.size() == 8 ? static_cast<uint8_t>(rgbOrRgba & 0xff) : 255;
+        pal->addEntry(rgba(r, g, b, alpha));
+        return true;
+      });
 
-    unsigned int rgbOrRgba;
-    if (!parse_hex(text, rgbOrRgba))
-      return {};
-    const uint8_t r = static_cast<uint8_t>((rgbOrRgba >> (text.size() == 8 ? 24 : 16)) & 0xff);
-    const uint8_t g = static_cast<uint8_t>((rgbOrRgba >> (text.size() == 8 ? 16 : 8)) & 0xff);
-    const uint8_t b = static_cast<uint8_t>((rgbOrRgba >> (text.size() == 8 ? 8 : 0)) & 0xff);
-    const uint8_t alpha = text.size() == 8 ? static_cast<uint8_t>(rgbOrRgba & 0xff) : 255;
-    pal->addEntry(rgba(r, g, b, alpha));
-  }
-
-  if (f.bad() || pal->size() == 0)
+  if (!read || pal->size() == 0)
     return {};
   return pal;
 }
 
 bool save_hex_file(const Palette& pal, const char* filename)
 {
+  if (pal.size() == 0)
+    return false;
+
   std::ofstream f(FSTREAM_PATH(filename), std::ios::binary);
   if (!f)
     return false;
