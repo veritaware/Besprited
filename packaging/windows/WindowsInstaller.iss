@@ -41,11 +41,9 @@ ArchitecturesInstallIn64BitMode=x64
 
 [Languages]
 Name: "english";    MessagesFile: "compiler:Default.isl"
-Name: "arabic";     MessagesFile: "compiler:Languages\Arabic.isl"
 Name: "german";     MessagesFile: "compiler:Languages\German.isl"
 Name: "spanish";    MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "french";     MessagesFile: "compiler:Languages\French.isl"
-Name: "hindi";      MessagesFile: "..\iss\languages\Hindi.islu"
 Name: "indonesian"; MessagesFile: "..\iss\languages\Indonesian.isl"
 Name: "italian";    MessagesFile: "compiler:Languages\Italian.isl"
 Name: "japanese";   MessagesFile: "compiler:Languages\Japanese.isl"

@@ -158,7 +158,7 @@ int guessUiScale(int screenH, int fallbackH)
 {
   if (screenH <= 0)
     screenH = fallbackH;
-  return MID(1, 1 + (screenH >= 720) + (screenH >= 1200) + (screenH >= 1800), 4);
+  return MID(1, 1 + (screenH >= 1000) + (screenH >= 1800), 3);
 }
 
 // Initializes GUI.

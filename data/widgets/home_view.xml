@@ -4,7 +4,7 @@
 <gui>
   <vbox noborders="true" id="home_view" border="4" expansive="true">
     <vbox noborders="true" id="header_placeholder" childspacing="2">
-      <image file="splash.png" />
+      <image file="splash.png" scaled="true" />
       <hbox border="2" childspacing="6">
         <button id="new_file" text="New File..." minwidth="70" />
         <button id="open_file" text="Open File..." minwidth="70" />

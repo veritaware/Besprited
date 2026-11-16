@@ -124,6 +124,20 @@ jobs:
         name: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64-installer
         path: packaging/windows/besprited-*-windows-x86_64.exe
         if-no-files-found: error
+    - name: Build the MSIX package
+      if: steps.check_tag.outputs.has_tag == 'true'
+      shell: bash
+      run: |
+        bash packaging/windows/package_msix.sh \
+          "${{ steps.check_tag.outputs.version }}" build/bin \
+          "packaging/windows/besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64.msix"
+    - name: Upload MSIX package
+      if: steps.check_tag.outputs.has_tag == 'true'
+      uses: actions/upload-artifact@v7
+      with:
+        name: besprited-${{ steps.check_tag.outputs.tag }}-windows-x86_64-msix
+        path: packaging/windows/besprited-*-windows-x86_64.msix
+        if-no-files-found: error
     - name: Attach binaries to the release
       if: steps.check_tag.outputs.has_tag == 'true'
       uses: softprops/action-gh-release@v3
@@ -131,6 +145,7 @@ jobs:
         files: |
           ${{ steps.portable.outputs.zip }}
           packaging/windows/besprited-*-windows-x86_64.exe
+          packaging/windows/besprited-*-windows-x86_64.msix
         fail_on_unmatched_files: true
     - name: Push builds to itch.io
       if: steps.check_tag.outputs.has_tag == 'true'

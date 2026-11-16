@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2026 Veritaware -->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap3 rescap">
+
+  <!-- Version: four-part A.B.C.D, the last part must be 0 for Store submissions;
+       replace with the release version (e.g. 1.26.6.0) at packaging time. -->
+  <Identity
+    Name="24837Veritaware.Besprited"
+    Publisher="CN=9A19A9EE-ABBD-4DAA-A0D0-5C4827131D02"
+    Version="0.0.0.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>Besprited</DisplayName>
+    <PublisherDisplayName>Veritaware</PublisherDisplayName>
+    <Description>Animated sprite editor &amp; pixel art tool</Description>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+    <Resource Language="de" />
+    <Resource Language="es" />
+    <Resource Language="fr" />
+    <Resource Language="id" />
+    <Resource Language="it" />
+    <Resource Language="ja" />
+    <Resource Language="ko" />
+    <Resource Language="pl" />
+    <Resource Language="pt" />
+    <Resource Language="ru" />
+    <Resource Language="zh-cn" />
+  </Resources>
+
+  <Applications>
+    <Application Id="Besprited" Executable="besprited.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Besprited"
+        Description="Animated sprite editor &amp; pixel art tool"
+        BackgroundColor="#313244"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+
+      <Extensions>
+        <!-- <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="besprited-bes">
+            <uap:DisplayName>Besprited File</uap:DisplayName>
+            <uap:Logo>Assets\FileIcon.png</uap:Logo>
+            <uap:InfoTip>Besprited sprite</uap:InfoTip>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.bes</uap:FileType>
+              <uap:FileType>.besprited</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension> -->
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="besprited-ase">
+            <uap:DisplayName>Aseprite File</uap:DisplayName>
+            <uap:Logo>Assets\FileIcon.png</uap:Logo>
+            <uap:InfoTip>Aseprite sprite</uap:InfoTip>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.ase</uap:FileType>
+              <uap:FileType>.aseprite</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="besprited-flic">
+            <uap:DisplayName>FLIC File</uap:DisplayName>
+            <uap:Logo>Assets\FileIcon.png</uap:Logo>
+            <uap:InfoTip>FLIC animation</uap:InfoTip>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.flc</uap:FileType>
+              <uap:FileType>.fli</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>
