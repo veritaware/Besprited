@@ -1,6 +1,5 @@
 name: Bug report
 description: Report a bug you've encountered
-labels: ["🪲bug"]
 projects: ["veritaware/6"]
 assignees:
   - nidrax
