@@ -26,6 +26,7 @@
 #include "base/bind.h"
 #include "base/fs.h"
 #include "base/memory.h"
+#include "she/surface.h"
 #include "she/system.h"
 #include "ui/ui.h"
 
@@ -560,6 +561,8 @@ Widget* WidgetLoader::convertXmlElementToWidget(const tinyxml2::XMLElement* elem
       try
       {
         she::Surface* sur = she::instance()->loadRgbaSurface(rf.filename().c_str());
+        if (bool_attr_is_true(elem, "scaled"))
+          sur->applyScale(guiscale());
         widget = new ImageView(sur, 0, true);
       }
       catch (...)
