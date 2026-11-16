@@ -13,11 +13,14 @@
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
 #include "app/context.h"
+#include "app/document.h"
 #include "app/file/palette_file.h"
 #include "app/file_selector.h"
 #include "app/modules/palettes.h"
 #include "base/fs.h"
+#include "doc/color.h"
 #include "doc/palette.h"
+#include "doc/sprite.h"
 #include "ui/alert.h"
 
 #include <memory>
@@ -68,13 +71,21 @@ void LoadPaletteCommand::onExecute(Context* context)
 
   if (!filename.empty())
   {
-    auto palette = load_palette(filename.c_str());
+    int actTransparentIndex = -1;
+    auto palette = load_palette(filename.c_str(), &actTransparentIndex);
     if (!palette)
     {
       Alert::show("Error<<Loading palette file||&Close");
     }
     else
     {
+      if (actTransparentIndex >= 0 && context->activeDocument() &&
+          context->activeDocument()->sprite()->pixelFormat() == IMAGE_INDEXED)
+      {
+        const color_t color = palette->entry(actTransparentIndex);
+        palette->setEntry(actTransparentIndex, rgba(rgba_getr(color), rgba_getg(color), rgba_getb(color), 0));
+      }
+
       auto cmd = static_cast<SetPaletteCommand*>(CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
       cmd->setPalette(palette.get(), true);
       context->executeCommand(cmd);

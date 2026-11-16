@@ -18,6 +18,7 @@
 #include "app/modules/palettes.h"
 #include "base/fs.h"
 #include "base/path.h"
+#include "base/string.h"
 #include "doc/palette.h"
 #include "ui/alert.h"
 
@@ -65,6 +66,14 @@ void SavePaletteCommand::onExecute(Context* context)
     if (filename.empty())
       return;
   }
+
+  const std::string ext = base::string_to_lower(base::get_file_extension(filename));
+  if (ext == "txt" && palette->size() > 96 &&
+      Alert::show("Warning"
+                  "<<Paint.NET palettes are limited to 96 colors. This palette has %d; some entries may be ignored."
+                  "||&Save Anyway||&Cancel",
+                  palette->size()) != 1)
+    return;
 
   if (!save_palette(filename.c_str(), *palette,
                     16)) // TODO 16 should be configurable

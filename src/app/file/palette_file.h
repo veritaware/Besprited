@@ -20,7 +20,7 @@ namespace app
 std::string get_readable_palette_extensions();
 std::string get_writable_palette_extensions();
 
-std::shared_ptr<doc::Palette> load_palette(const char* filename);
+std::shared_ptr<doc::Palette> load_palette(const char* filename, int* actTransparentIndex = nullptr);
 bool save_palette(const char* filename, const doc::Palette& pal, int columns);
 
 } // namespace app
