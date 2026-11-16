@@ -5,6 +5,7 @@
 [**Download**](https://besprited.veritaware.com/download.html) ·
 [Website](https://besprited.veritaware.com/) ·
 [Installation guide](INSTALL.md) ·
+[Building instructions](BUILDING.md) ·
 [Release notes](https://github.com/veritaware/Besprited/releases) ·
 [Contributing](CONTRIBUTING.md)
 
@@ -76,9 +77,6 @@ or [`help wanted`](https://github.com/veritaware/Besprited/issues?q=is%3Aissue+i
 and say hi on [Discord](https://discord.gg/hTp5gPUUJT) if you have questions.
 Besprited takes part in [Hacktoberfest](https://hacktoberfest.com/); see the
 [Hacktoberfest section](CONTRIBUTING.md#hacktoberfest) of the contributing guidelines.
-
-## Compiling and building
-Follow the [Building the source](BUILDING.md) guide.
 
 ## Theming
 The app is compatible with LibreSprite themes you can find [here](https://libresprite.github.io/#!/resources).
