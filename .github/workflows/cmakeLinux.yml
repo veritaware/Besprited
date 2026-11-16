@@ -31,20 +31,22 @@ jobs:
       run: |
         TAG=$(git describe --exact-match --tags 2>/dev/null) || true
         if [ -n "$TAG" ]; then
-          echo "has_tag=true" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+          echo "has_tag=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
         else
-          echo "has_tag=false" >> $GITHUB_OUTPUT
+          echo "has_tag=false" >> "$GITHUB_OUTPUT"
         fi
     - name: Get short commit hash
       id: commit
       run: |
         SHORT_HASH=$(git rev-parse --short HEAD)
-        echo "short_hash=$SHORT_HASH" >> $GITHUB_OUTPUT
+        echo "short_hash=$SHORT_HASH" >> "$GITHUB_OUTPUT"
     - name: Update config.h with commit hash
       run: |
         sed -i 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+    - name: Generate hicolor icons
+      run: sh packaging/desktop/icons/generate_hicolor.sh
     - name: Generate Makefiles
       run: |
         mkdir build
@@ -67,8 +69,8 @@ jobs:
           VERSION="${{ steps.commit.outputs.short_hash }}"
         fi
         sh packaging/linux/package_linux_tarball.sh "$VERSION"
-        mv build/besprited-$VERSION-linux-$ARCH.tar.gz .
-        echo "tarball=besprited-$VERSION-linux-$ARCH.tar.gz" >> $GITHUB_OUTPUT
+        mv "build/besprited-$VERSION-linux-$ARCH.tar.gz" .
+        echo "tarball=besprited-$VERSION-linux-$ARCH.tar.gz" >> "$GITHUB_OUTPUT"
       id: tarball
     - name: Upload tarball artifact
       if: runner.arch == 'X64'
@@ -83,11 +85,11 @@ jobs:
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           sh packaging/linux/package_linux.sh "${{ steps.check_tag.outputs.tag }}"
           mv build/bin/Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage* .
-          echo "appimage=Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage" >> $GITHUB_OUTPUT
+          echo "appimage=Besprited-${{ steps.check_tag.outputs.tag }}-anylinux-$ARCH.AppImage" >> "$GITHUB_OUTPUT"
         else
           sh packaging/linux/package_linux.sh
-          mv build/bin/Besprited-anylinux-$ARCH.AppImage .
-          echo "appimage=Besprited-anylinux-$ARCH.AppImage" >> $GITHUB_OUTPUT
+          mv "build/bin/Besprited-anylinux-$ARCH.AppImage" .
+          echo "appimage=Besprited-anylinux-$ARCH.AppImage" >> "$GITHUB_OUTPUT"
         fi
       id: appimage
     - name: Upload artifacts
@@ -144,7 +146,7 @@ jobs:
         apt-get update
         apt-get install -y --no-install-recommends \
           g++ ninja-build git ca-certificates dpkg-dev file python3-pip \
-          curl unzip \
+          curl unzip imagemagick \
           libcurl4-gnutls-dev libfreetype-dev libgif-dev libjpeg-dev libpixman-1-dev \
           libpng-dev libsdl${{ matrix.sdl }}-dev libsdl${{ matrix.sdl }}-image-dev libtinyxml2-dev libnode-dev \
           zlib1g-dev libarchive-dev libx11-dev libxcursor-dev libxi-dev
@@ -157,9 +159,11 @@ jobs:
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - name: Get short commit hash
       id: commit
-      run: echo "short_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      run: echo "short_hash=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
     - name: Update config.h with commit hash
       run: sed -i 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+    - name: Generate hicolor icons
+      run: sh packaging/desktop/icons/generate_hicolor.sh
     - name: Configure
       run: |
         VERSION="${GITHUB_REF_NAME#v}"
@@ -180,7 +184,7 @@ jobs:
         mv "$(ls build/*.deb | head -n1)" "$NAMED"
         dpkg --info "$NAMED"
         echo "Depends: $(dpkg-deb -f "$NAMED" Depends)"
-        echo "deb=$NAMED" >> $GITHUB_OUTPUT
+        echo "deb=$NAMED" >> "$GITHUB_OUTPUT"
     - name: Upload .deb artifact
       uses: actions/upload-artifact@v7
       with:
@@ -211,7 +215,7 @@ jobs:
     steps:
     - name: Install build dependencies
       run: |
-        dnf install -y gcc-c++ cmake git ninja-build rpm-build curl unzip \
+        dnf install -y gcc-c++ cmake git ninja-build rpm-build curl unzip ImageMagick \
           libcurl-devel freetype-devel giflib-devel libjpeg-turbo-devel \
           pixman-devel libpng-devel SDL3-devel SDL3_image-devel tinyxml2-devel \
           zlib-devel nodejs-devel libarchive-devel libXi-devel libXcursor-devel
@@ -222,9 +226,11 @@ jobs:
       run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - name: Get short commit hash
       id: commit
-      run: echo "short_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      run: echo "short_hash=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
     - name: Update config.h with commit hash
       run: sed -i 's/"local build"/"${{ steps.commit.outputs.short_hash }}"/g' src/config.h
+    - name: Generate hicolor icons
+      run: sh packaging/desktop/icons/generate_hicolor.sh
     - name: Configure
       run: |
         VERSION="${GITHUB_REF_NAME#v}"
@@ -244,7 +250,7 @@ jobs:
         rpm -qip "$RPM"
         rpm -qlp "$RPM"
         mv "$RPM" .
-        echo "rpm=$(basename "$RPM")" >> $GITHUB_OUTPUT
+        echo "rpm=$(basename "$RPM")" >> "$GITHUB_OUTPUT"
     - name: Upload .rpm artifact
       uses: actions/upload-artifact@v7
       with:

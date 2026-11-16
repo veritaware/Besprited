@@ -1,5 +1,5 @@
-allegro_icon ICON data/icons/ase.ico
-0 ICON data/icons/ase.ico
+allegro_icon ICON data/icons/besprited.ico
+0 ICON data/icons/besprited.ico
 1 ICON data/icons/doc.ico
 
 1 VERSIONINFO
@@ -23,7 +23,7 @@ BEGIN
             VALUE "FileDescription", "Besprited - Animated sprites editor & pixel art tool"
             VALUE "FileVersion", "1,0,0,0"
             VALUE "InternalName", "besprited"
-            VALUE "LegalCopyright", "Copyright (C) 2001-2016 by David Capello, 2016-2023 Besprited contributors"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Veritaware"
             VALUE "OriginalFilename", "besprited.exe"
             VALUE "ProductName", "BESPRITED"
             VALUE "ProductVersion", "1,1,0,0"

@@ -3,16 +3,13 @@
 rm -rf bundle
 rm -f build/bin/clip_image_tests build/bin/clip_text_tests build/bin/clip_user_format_tests build/bin/gen
 mkdir besprited.iconset
-sips -z 16 16     data/icons/ase64.png --out besprited.iconset/icon_16x16.png
-sips -z 32 32     data/icons/ase64.png --out besprited.iconset/icon_16x16@2x.png
-sips -z 32 32     data/icons/ase64.png --out besprited.iconset/icon_32x32.png
-sips -z 64 64     data/icons/ase64.png --out besprited.iconset/icon_32x32@2x.png
-sips -z 128 128   data/icons/ase64.png --out besprited.iconset/icon_128x128.png
-sips -z 256 256   data/icons/ase64.png --out besprited.iconset/icon_128x128@2x.png
-sips -z 256 256   data/icons/ase64.png --out besprited.iconset/icon_256x256.png
-sips -z 512 512   data/icons/ase64.png --out besprited.iconset/icon_256x256@2x.png
-sips -z 512 512   data/icons/ase64.png --out besprited.iconset/icon_512x512.png
-sips -z 1024 1024 data/icons/ase64.png --out besprited.iconset/icon_512x512@2x.png
+for spec in 16:icon_16x16 32:icon_16x16@2x 32:icon_32x32 64:icon_32x32@2x \
+            128:icon_128x128 256:icon_128x128@2x 256:icon_256x256 512:icon_256x256@2x \
+            512:icon_512x512 1024:icon_512x512@2x; do
+  size=${spec%%:*}
+  name=${spec#*:}
+  magick packaging/desktop/icons/besprited16.png -filter Point -resize "${size}x${size}" "besprited.iconset/${name}.png"
+done
 iconutil -c icns -o besprited.icns besprited.iconset
 rm -R besprited.iconset
 mkdir bundle/

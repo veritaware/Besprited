@@ -1,20 +1,18 @@
-<!-- Aseprite    | Copyright (C) 2001-2015  David Capello -->
-<!-- LibreSprite | Copyright (C) 2023       LibreSprite contributors -->
+<!-- Aseprite    | Copyright (C) 2001-2015 David Capello -->
+<!-- LibreSprite | Copyright (C) 2023      LibreSprite contributors -->
+<!-- Besprited   | Copyright (C) 2026      Veritaware -->
 <gui>
-  <vbox noborders="true" id="home_view" border="4" childspacing="2" expansive="true">
-    <hbox noborders="true" id="header_placeholder">
-      <vbox border="4" childspacing="4">
-        <image file="icons/ase48.png" align="center" />
-        <link id="new_file" text="New File..." style="workspace_link" />
-        <link id="open_file" text="Open File..." style="workspace_link" />
+  <vbox noborders="true" id="home_view" border="4" expansive="true">
+    <vbox noborders="true" id="header_placeholder" childspacing="2">
+      <image file="splash.png" />
+      <hbox border="2" childspacing="6">
+        <button id="new_file" text="New File..." minwidth="70" />
+        <button id="open_file" text="Open File..." minwidth="70" />
         <hbox noborders="true" id="recover_sprites_placeholder">
-          <link id="recover_sprites" text="Recover Lost Sprites..." style="workspace_link" />
+          <button id="recover_sprites" text="Recover Files..." minwidth="70" />
         </hbox>
-      </vbox>
-      <boxfiller />
-      <image file="splash.png" id="splash" align="center" expansive="true"/>
-      <boxfiller />
-    </hbox>
+      </hbox>
+    </vbox>
     <splitter horizontal="true" noborders="true" childspacing="2" expansive="true">
       <vbox id="files_placeholder">
         <label text="Recent files:" style="workspace_label" />
