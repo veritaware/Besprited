@@ -127,10 +127,16 @@ public:
     // script-controlled filename, an unrestricted target here is a script-
     // only RCE primitive (see issue #219). Restrict scripts to opening
     // actual web URLs.
+    //
+    // NOTE: this http/https-only limit is a Besprited security change that
+    // deliberately diverges from LibreSprite. It's also why launch() stays
+    // usable in sandboxed builds (MSIX, future Flatpak). If it's ever
+    // relaxed to anything besides http/https, that execution branch MUST be
+    // disabled (check base::launcher::is_available()), as it could then run
+    // programs.
     clazz.addMethod("launch") = [](AppObject&, const std::string& cmd) -> JSON::Value
     {
-      auto scheme = base::string_to_lower(base::split(cmd, ':')[0]);
-      if (scheme != "http" && scheme != "https")
+      if (!base::launcher::is_web_url(cmd))
         return JSON::Value{false};
       return base::launcher::open_file(cmd);
     };

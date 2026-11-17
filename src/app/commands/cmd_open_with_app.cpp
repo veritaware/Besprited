@@ -14,6 +14,7 @@
 #include "app/context_access.h"
 #include "app/document.h"
 #include "app/launcher.h"
+#include "base/launcher.h"
 
 namespace app
 {
@@ -35,6 +36,8 @@ OpenWithAppCommand::OpenWithAppCommand()
 
 bool OpenWithAppCommand::onEnabled(Context* context)
 {
+  if (!base::launcher::is_available())
+    return false;
   const ContextReader reader(context);
   return reader.document() && reader.document()->isAssociatedToFile();
 }

@@ -335,10 +335,9 @@ if(WIN32)
     kernel32 user32 gdi32 comdlg32 ole32 winmm
     shlwapi psapi wininet comctl32 dbghelp)
 
-  # Windows Vista is the minimum supported platform. The QuickJS
-  # scripting engine requires Vista+ Win32 threading APIs
-  # (InitOnceExecuteOnce, condition variables).
-  add_definitions(-D_WIN32_WINNT=0x0600 -DWINVER=0x0600)
+  # Windows 10 is the minimum supported platform (MSIX packaging also
+  # requires it, e.g. GetCurrentPackageFullName).
+  add_definitions(-D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00)
 
   # We need Unicode support
   add_definitions(-DUNICODE -D_UNICODE)

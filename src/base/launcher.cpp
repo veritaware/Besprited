@@ -58,6 +58,8 @@ int spawn_and_wait(const std::vector<std::string>& args)
 
 #ifdef _WIN32
 #include <windows.h>
+
+#include <appmodel.h>
 #ifndef SEE_MASK_DEFAULT
 #define SEE_MASK_DEFAULT 0x00000000
 #endif
@@ -104,6 +106,30 @@ static int win32_shell_execute(const wchar_t* verb, const wchar_t* file, const w
 
 namespace base::launcher
 {
+
+bool is_available()
+{
+#ifdef _WIN32
+  // Packaged (MSIX) processes have a package identity.
+  static const bool packaged = []
+  {
+    UINT32 len = 0;
+    return GetCurrentPackageFullName(&len, nullptr) == ERROR_INSUFFICIENT_BUFFER;
+  }();
+  return !packaged;
+#else
+  return true;
+#endif
+}
+
+bool is_web_url(const std::string& url)
+{
+  const auto colon = url.find(':');
+  if (colon == std::string::npos || colon + 1 >= url.size())
+    return false;
+  const auto scheme = base::string_to_lower(url.substr(0, colon));
+  return scheme == "http" || scheme == "https";
+}
 
 bool open_url(const std::string& url)
 {

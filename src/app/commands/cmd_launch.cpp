@@ -13,6 +13,7 @@
 #include "app/commands/params.h"
 #include "app/launcher.h"
 #include "base/fs.h"
+#include "base/launcher.h"
 
 namespace app
 {
@@ -23,6 +24,7 @@ public:
   LaunchCommand();
 
 protected:
+  bool onEnabled(Context* context) override;
   void onLoadParams(const Params& params) override;
   void onExecute(Context* context) override;
 
@@ -39,6 +41,13 @@ private:
 LaunchCommand::LaunchCommand()
   : Command("Launch", "Launch", CmdUIOnlyFlag)
 {
+}
+
+// Only web URLs are launched (never local files/programs), so the command is
+// also safe in sandboxed (MSIX) builds.
+bool LaunchCommand::onEnabled(Context*)
+{
+  return base::launcher::is_web_url(m_path);
 }
 
 void LaunchCommand::onLoadParams(const Params& params)
