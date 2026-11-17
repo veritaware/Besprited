@@ -213,7 +213,8 @@
           <check id="perm_fs_write" text="Write and delete files (fs.write)" tooltip="fs.writeFile, fs.copyFile, fs.deleteFile" />
           <check id="perm_net_fetch" text="Make network requests (net.fetch)" tooltip="fetch and storage.fetch" />
           <check id="perm_net_serve" text="Serve HTTP (net.serve)" tooltip="HTTPServer (listening on a port); static file serving also needs fs.read" />
-          <check id="perm_app_launch" text="Open files/URLs with the OS (app.launch)" tooltip="app.launch" />
+          <check id="perm_app_launch_url" text="Open web URLs (app.launch.url)" tooltip="app.launch with an http(s) URL" />
+          <check id="perm_app_launch_other" text="Open files or launch programs (app.launch.other)" tooltip="app.launch with a file/path, child_process, and commands that open files/folders; unavailable in sandboxed builds" />
           <hbox>
             <button id="remove_script_permission" text="Remove" width="60" />
           </hbox>

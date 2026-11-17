@@ -24,12 +24,14 @@ ScriptPermissionDialog::ScriptPermissionDialog(const std::string& scriptPath, co
   permFsWrite()->setVisible(missing.count(app::ScriptPermissions::kFsWrite));
   permNetFetch()->setVisible(missing.count(app::ScriptPermissions::kNetFetch));
   permNetServe()->setVisible(missing.count(app::ScriptPermissions::kNetServe));
-  permAppLaunch()->setVisible(missing.count(app::ScriptPermissions::kAppLaunch));
+  permAppLaunchUrl()->setVisible(missing.count(app::ScriptPermissions::kAppLaunchUrl));
+  permAppLaunchOther()->setVisible(missing.count(app::ScriptPermissions::kAppLaunchOther));
   permFsRead()->setSelected(missing.count(app::ScriptPermissions::kFsRead));
   permFsWrite()->setSelected(missing.count(app::ScriptPermissions::kFsWrite));
   permNetFetch()->setSelected(missing.count(app::ScriptPermissions::kNetFetch));
   permNetServe()->setSelected(missing.count(app::ScriptPermissions::kNetServe));
-  permAppLaunch()->setSelected(missing.count(app::ScriptPermissions::kAppLaunch));
+  permAppLaunchUrl()->setSelected(missing.count(app::ScriptPermissions::kAppLaunchUrl));
+  permAppLaunchOther()->setSelected(missing.count(app::ScriptPermissions::kAppLaunchOther));
 }
 
 bool ScriptPermissionDialog::show(const std::string& scriptPath, const std::set<std::string>& missing,
@@ -49,8 +51,11 @@ bool ScriptPermissionDialog::show(const std::string& scriptPath, const std::set<
     outGranted.insert(app::ScriptPermissions::kNetFetch);
   if (dialog.permNetServe()->isSelected())
     outGranted.insert(app::ScriptPermissions::kNetServe);
-  if (dialog.permAppLaunch()->isSelected())
-    outGranted.insert(app::ScriptPermissions::kAppLaunch);
+  if (dialog.permAppLaunchUrl()->isSelected())
+    outGranted.insert(app::ScriptPermissions::kAppLaunchUrl);
+  if (dialog.permAppLaunchOther()->isSelected() &&
+      app::ScriptPermissions::isAvailable(app::ScriptPermissions::kAppLaunchOther))
+    outGranted.insert(app::ScriptPermissions::kAppLaunchOther);
   return true;
 }
 

@@ -1,4 +1,3 @@
-///permission app.launch
 // LibreSprite
 // Copyright (C) 2024 LibreSprite contributors
 

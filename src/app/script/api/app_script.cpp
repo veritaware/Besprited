@@ -134,21 +134,16 @@ public:
     // App.launch() hands its argument to the OS's generic "open" handler
     // (ShellExecute/xdg-open/etc.), which - unlike a browser - will
     // directly execute local files/UNC paths and invoke arbitrary
-    // OS-registered URI-scheme handlers with no download/confirmation step.
-    // Combined with storage.save() writing script-controlled bytes to a
-    // script-controlled filename, an unrestricted target here is a script-
-    // only RCE primitive (see issue #219). Restrict scripts to opening
-    // actual web URLs.
-    //
-    // NOTE: this http/https-only limit is a Besprited security change that
-    // deliberately diverges from LibreSprite. It's also why launch() stays
-    // usable in sandboxed builds (MSIX, future Flatpak). If it's ever
-    // relaxed to anything besides http/https, that execution branch MUST be
-    // disabled (check base::launcher::is_available()), as it could then run
-    // programs.
+    // OS-registered URI-scheme handlers (see issue #219). So it is split
+    // in two permissions: http(s) URLs need only app.launch.url (usable in
+    // sandboxed builds: MSIX, Flathub), anything else needs
+    // app.launch.other, which is never available in sandboxed builds
+    // (ScriptPermissions::check() denies it when !is_available()).
     clazz.addMethod("launch") = [](AppObject&, const std::string& cmd) -> JSON::Value
     {
-      if (!base::launcher::is_web_url(cmd))
+      using P = app::ScriptPermissions;
+      const char* perm = base::launcher::is_web_url(cmd) ? P::kAppLaunchUrl : P::kAppLaunchOther;
+      if (cmd.empty() || !P::check(perm))
         return JSON::Value{false};
       return base::launcher::open_file(cmd);
     };

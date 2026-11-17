@@ -237,9 +237,9 @@ public:
         reject(cb, "child_process is not available in sandboxed builds");
         return JSON::Value{JSON::Special::Undefined};
       }
-      if (!app::ScriptPermissions::check(app::ScriptPermissions::kAppLaunch))
+      if (!app::ScriptPermissions::check(app::ScriptPermissions::kAppLaunchOther))
       {
-        reject(cb, app::ScriptPermissions::denyMessage(app::ScriptPermissions::kAppLaunch));
+        reject(cb, app::ScriptPermissions::denyMessage(app::ScriptPermissions::kAppLaunchOther));
         return JSON::Value{JSON::Special::Undefined};
       }
       std::vector<std::string> argv;
@@ -354,8 +354,8 @@ private:
     // Sandboxed builds (MSIX) must not start other programs.
     if (!base::launcher::is_available())
       throw std::runtime_error("child_process is not available in sandboxed builds");
-    if (!app::ScriptPermissions::check(app::ScriptPermissions::kAppLaunch))
-      throw std::runtime_error(app::ScriptPermissions::denyMessage(app::ScriptPermissions::kAppLaunch));
+    if (!app::ScriptPermissions::check(app::ScriptPermissions::kAppLaunchOther))
+      throw std::runtime_error(app::ScriptPermissions::denyMessage(app::ScriptPermissions::kAppLaunchOther));
   }
 
   static std::vector<std::string> parseArgs(JSON::Value& v)

@@ -12,6 +12,7 @@
 #include "app/script/script_permissions.h"
 
 #include "app/resource_finder.h"
+#include "base/launcher.h"
 #include "base/string.h"
 #include "base/trim_string.h"
 #include "delta/Interpreter.hpp"
@@ -29,7 +30,8 @@ const char* const ScriptPermissions::kFsRead = "fs.read";
 const char* const ScriptPermissions::kFsWrite = "fs.write";
 const char* const ScriptPermissions::kNetFetch = "net.fetch";
 const char* const ScriptPermissions::kNetServe = "net.serve";
-const char* const ScriptPermissions::kAppLaunch = "app.launch";
+const char* const ScriptPermissions::kAppLaunchUrl = "app.launch.url";
+const char* const ScriptPermissions::kAppLaunchOther = "app.launch.other";
 
 namespace
 {
@@ -38,7 +40,20 @@ bool isKnown(const std::string& name)
 {
   return name == ScriptPermissions::kFsRead || name == ScriptPermissions::kFsWrite ||
          name == ScriptPermissions::kNetFetch || name == ScriptPermissions::kNetServe ||
-         name == ScriptPermissions::kAppLaunch;
+         name == ScriptPermissions::kAppLaunchUrl || name == ScriptPermissions::kAppLaunchOther;
+}
+
+// Adds a known, available permission; the legacy LibreSprite name
+// "app.launch" stands for both app.launch.url and app.launch.other.
+void insertPermission(std::set<std::string>& out, const std::string& name)
+{
+  if (name == "app.launch")
+  {
+    insertPermission(out, ScriptPermissions::kAppLaunchUrl);
+    insertPermission(out, ScriptPermissions::kAppLaunchOther);
+  }
+  else if (ScriptPermissions::isAvailable(name))
+    out.insert(name);
 }
 
 // The on-disk path of the grant records (user dir).
@@ -82,8 +97,8 @@ std::map<std::string, std::set<std::string>>& records()
         continue;
       std::set<std::string> perms;
       for (auto& entry : it->second.array())
-        if (entry.isString() && isKnown(entry.string()))
-          perms.insert(entry.string());
+        if (entry.isString() && (isKnown(entry.string()) || entry.string() == "app.launch"))
+          insertPermission(perms, entry.string());
       store[path] = std::move(perms);
     }
   }
@@ -136,6 +151,13 @@ bool ScriptPermissions::isKnownPermission(const std::string& name)
   return isKnown(name);
 }
 
+bool ScriptPermissions::isAvailable(const std::string& name)
+{
+  if (name == kAppLaunchOther)
+    return base::launcher::is_available();
+  return isKnown(name);
+}
+
 std::set<std::string> ScriptPermissions::parseRequested(const std::string& path)
 {
   std::set<std::string> result;
@@ -163,8 +185,7 @@ std::set<std::string> ScriptPermissions::parseRequested(const std::string& path)
     if (key != "permission")
       continue;
     for (auto& perm : parts)
-      if (isKnown(perm))
-        result.insert(perm);
+      insertPermission(result, perm);
   }
   return result;
 }
@@ -216,6 +237,8 @@ bool ScriptPermissions::check(const std::string& perm)
   auto* token = Interpreter::currentToken();
   if (!token)
     return false; // No active context: deny
+  if (!isAvailable(perm))
+    return false;
   if (token == kUnrestrictedToken)
     return true;
   return granted(std::string{static_cast<const char*>(token)}).count(perm) > 0;
