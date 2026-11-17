@@ -41,7 +41,7 @@ static const char* requiredPermission(const std::string& id)
       return P::kFsRead;
   for (const char* c : {"OpenWithApp", "OpenInFolder", "OpenScriptsFolder"})
     if (id == c)
-      return P::kAppLaunch;
+      return P::kAppLaunchOther;
   return nullptr;
 }
 

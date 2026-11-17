@@ -1543,9 +1543,21 @@ appear again the next time the script runs).
      `HTTPServer` (listening on a port). Serving files from
      `staticFilePath` additionally requires `fs.read`.
 
-   - `app.launch`:
-     `app.launch` (opens a file/URL with the operating system),
-     `child_process.spawn` and `child_process.exec` (launch processes).
+   - `app.launch.url`:
+     `app.launch` with an `http:`/`https:` URL (opens the default web
+     browser). Available in sandboxed builds (MSIX, Flathub).
+
+   - `app.launch.other`:
+     `app.launch` with any other target (opens a file/folder/scheme with
+     the operating system), `child_process.spawn` and
+     `child_process.exec` (launch processes), and the commands that open
+     files/folders with an external program. Never available in
+     sandboxed builds: scripts requesting it there are not asked, and
+     the calls are always denied.
+
+   The legacy LibreSprite name `app.launch` is still accepted in
+   `///permission` lines and means both `app.launch.url` and
+   `app.launch.other`.
 
 The `fs.getCurrentPath`, `fs.getExecutablePath` and `fs.getCachePath`
 functions are not gated.

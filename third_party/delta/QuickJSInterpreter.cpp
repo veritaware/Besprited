@@ -259,41 +259,50 @@ public:
         return m;
     }
 
-    static void rejectionTracker(JSContext* ctx, JSValueConst promise, JSValueConst reason, bool is_handled, void* opaque) {
-        auto& rejections = static_cast<QuickJSInterpreter*>(opaque)->unhandledRejections;
-        if (is_handled) {
-            for (auto it = rejections.begin(); it != rejections.end(); ++it) {
-                auto& [c, p, r] = *it;
-                if (JS_IsSameValue(ctx, p, promise)) {
-                    JS_FreeValue(c, p);
-                    JS_FreeValue(c, r);
-                    rejections.erase(it);
-                    break;
-                }
-            }
-            return;
+    static void rejectionTracker(JSContext* ctx, JSValueConst promise, JSValueConst reason, bool is_handled,
+                                 void* opaque)
+    {
+      auto& rejections = static_cast<QuickJSInterpreter*>(opaque)->unhandledRejections;
+      if (is_handled)
+      {
+        for (auto it = rejections.begin(); it != rejections.end(); ++it)
+        {
+          auto& [c, p, r] = *it;
+          if (JS_IsSameValue(ctx, p, promise))
+          {
+            JS_FreeValue(c, p);
+            JS_FreeValue(c, r);
+            rejections.erase(it);
+            break;
+          }
         }
-        for (auto& [c, p, r] : rejections) {
-            if (JS_IsSameValue(ctx, p, promise))
-                return;
-        }
-        rejections.emplace_back(ctx, JS_DupValue(ctx, promise), JS_DupValue(ctx, reason));
+        return;
+      }
+      for (auto& [c, p, r] : rejections)
+      {
+        if (JS_IsSameValue(ctx, p, promise))
+          return;
+      }
+      rejections.emplace_back(ctx, JS_DupValue(ctx, promise), JS_DupValue(ctx, reason));
     }
 
     // Reports and frees the buffered unhandled rejections.
-    void drainUnhandledRejections() {
-        for (auto& [c, p, r] : unhandledRejections) {
-            fprintf(stderr, "Possibly unhandled promise rejection: ");
-            const char* msg = JS_ToCString(c, r);
-            if (msg) {
-                fputs(msg, stderr);
-                JS_FreeCString(c, msg);
-            }
-            fputs("\n", stderr);
-            JS_FreeValue(c, p);
-            JS_FreeValue(c, r);
+    void drainUnhandledRejections()
+    {
+      for (auto& [c, p, r] : unhandledRejections)
+      {
+        fprintf(stderr, "Possibly unhandled promise rejection: ");
+        const char* msg = JS_ToCString(c, r);
+        if (msg)
+        {
+          fputs(msg, stderr);
+          JS_FreeCString(c, msg);
         }
-        unhandledRejections.clear();
+        fputs("\n", stderr);
+        JS_FreeValue(c, p);
+        JS_FreeValue(c, r);
+      }
+      unhandledRejections.clear();
     }
 
     ~QuickJSInterpreter() {
@@ -440,38 +449,34 @@ public:
         }
 
         if (JS_IsFunction(ctx, jsValue)) {
-            // Stamp the token active at marshal time: when the function is
-            // invoked later (timer fire, worker-result delivery, ...), its
-            // JS body runs under the token of the script that created it.
-            auto wrapper = [this, func = JSHandle{ctx, JS_DupValue(ctx, jsValue)},
-                            tok = Interpreter::currentToken()](const JSON::Array& args) -> JSON::Value {
-                auto ctx = this->ctx.get();
-                Interpreter::TokenGuard tokenGuard{tok};
-                std::vector<JSValue> argv;
-                std::vector<JSHandle> argh;
-                argv.reserve(args.size());
-                argh.reserve(args.size());
-                for (auto& arg : args) {
-                    argv.push_back(valueToJSValue(ctx, *(JSON::Value*)&arg));
-                    argh.emplace_back(ctx, argv.back());
-                }
-                JSHandle jsret{
-                    ctx,
-                    JS_Call(ctx, func.value, JS_NULL, argv.size(), argv.data())
-                };
-                JSON::Value ret{JSON::Special::Undefined};
-                std::unordered_map<void*, JSON::Value*> map;
-                JSValueToValue(jsret, ret, map);
-                clearQueue();
-                return ret;
-            };
+          // Stamp the token active at marshal time: when the function is
+          // invoked later (timer fire, worker-result delivery, ...), its
+          // JS body runs under the token of the script that created it.
+          auto wrapper = [this, func = JSHandle{ctx, JS_DupValue(ctx, jsValue)},
+                          tok = Interpreter::currentToken()](const JSON::Array& args) -> JSON::Value
+          {
+            auto ctx = this->ctx.get();
+            Interpreter::TokenGuard tokenGuard{tok};
+            std::vector<JSValue> argv;
+            std::vector<JSHandle> argh;
+            argv.reserve(args.size());
+            argh.reserve(args.size());
+            for (auto& arg : args)
+            {
+              argv.push_back(valueToJSValue(ctx, *(JSON::Value*)&arg));
+              argh.emplace_back(ctx, argv.back());
+            }
+            JSHandle jsret{ctx, JS_Call(ctx, func.value, JS_NULL, argv.size(), argv.data())};
+            JSON::Value ret{JSON::Special::Undefined};
+            std::unordered_map<void*, JSON::Value*> map;
+            JSValueToValue(jsret, ret, map);
+            clearQueue();
+            return ret;
+          };
 
-            value = JSON::FunctionRef {
-                std::move(wrapper),
-                JSHandle{ctx, JS_DupValue(ctx, jsValue)}
-            };
+          value = JSON::FunctionRef{std::move(wrapper), JSHandle{ctx, JS_DupValue(ctx, jsValue)}};
 
-            return;
+          return;
         }
 
         auto ptr = JS_VALUE_GET_PTR(jsValue);
@@ -854,20 +859,18 @@ public:
     }
 
     JSON::Value eval(const std::string& script, const std::string& path, EvalType type) override {
-        // The eval and the jobs it drains (js_std_loop) run under this
-        // interpreter's token.
-        Interpreter::TokenGuard tokenGuard{token};
-        int evalType = (type == EvalType::Module) ? JS_EVAL_TYPE_MODULE : JS_EVAL_TYPE_GLOBAL;
-        JSHandle result {
-            ctx.get(),
-            JS_Eval(ctx.get(), script.c_str(), script.size(), path.c_str(), evalType)
-        };
+      // The eval and the jobs it drains (js_std_loop) run under this
+      // interpreter's token.
+      Interpreter::TokenGuard tokenGuard{token};
+      int evalType = (type == EvalType::Module) ? JS_EVAL_TYPE_MODULE : JS_EVAL_TYPE_GLOBAL;
+      JSHandle result{ctx.get(), JS_Eval(ctx.get(), script.c_str(), script.size(), path.c_str(), evalType)};
 
-        // Synchronous error (e.g. compile failure).
-        if (JS_IsException(result)) {
-            JSHandle exc {ctx.get(), JS_GetException(ctx.get())};
-            throw std::runtime_error{errorToString(ctx.get(), exc)};
-        }
+      // Synchronous error (e.g. compile failure).
+      if (JS_IsException(result))
+      {
+        JSHandle exc{ctx.get(), JS_GetException(ctx.get())};
+        throw std::runtime_error{errorToString(ctx.get(), exc)};
+      }
 
         if (type == EvalType::Module) {
             // JS_Eval returns the module's promise; a top-level throw
@@ -917,12 +920,13 @@ public:
     }
 
     void tick() override {
-        // The jobs drained by js_std_loop run under this interpreter's
-        // token.
-        Interpreter::TokenGuard tokenGuard{token};
-        if (js_std_loop(ctx.get()) < 0) {
-            js_std_dump_error(ctx.get());
-        }
+      // The jobs drained by js_std_loop run under this interpreter's
+      // token.
+      Interpreter::TokenGuard tokenGuard{token};
+      if (js_std_loop(ctx.get()) < 0)
+      {
+        js_std_dump_error(ctx.get());
+      }
         drainUnhandledRejections();
         clearQueue();
     }

@@ -27,14 +27,17 @@ namespace app
 class ScriptPermissions
 {
 public:
-  static const char* const kFsRead;    // "fs.read"
-  static const char* const kFsWrite;   // "fs.write"
-  static const char* const kNetFetch;  // "net.fetch"
-  static const char* const kNetServe;  // "net.serve"
-  static const char* const kAppLaunch; // "app.launch"
+  static const char* const kFsRead;         // "fs.read"
+  static const char* const kFsWrite;        // "fs.write"
+  static const char* const kNetFetch;       // "net.fetch"
+  static const char* const kNetServe;       // "net.serve"
+  static const char* const kAppLaunchUrl;   // "app.launch.url": open http(s) URLs (works in sandboxes)
+  static const char* const kAppLaunchOther; // "app.launch.other": open other paths/start programs (never in sandboxes)
 
   // True if the name is one of the known permissions.
   static bool isKnownPermission(const std::string& name);
+  // False for permissions that cannot be granted in this build (kAppLaunchOther in sandboxed builds).
+  static bool isAvailable(const std::string& name);
 
   // Parses the "///permission" lines of a script header (the leading
   // "///" block). Unknown names are ignored.

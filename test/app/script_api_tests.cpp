@@ -12,9 +12,12 @@
 #include "app/document.h"
 #include "app/script/app_scripting.h"
 #include "app/script/api/script_api_common.h"
+#include "app/script/script_permissions.h"
 #include "app/ui_context.h"
+#include "base/launcher.h"
 #include "delta/Extension.hpp"
 #include "delta/JSON.hpp"
+#include "delta/Interpreter.hpp"
 #include "di.hpp"
 #include "doc/cel.h"
 #include "doc/color.h"
@@ -27,6 +30,8 @@
 #include "she/system.h"
 
 #include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -263,18 +268,18 @@ TEST_F(AppScriptApiTest, CloseFileCloseAllFilesAndExitAreNotScriptReachable)
   EXPECT_EQ("undefined,undefined,undefined,function", captured().string());
 }
 
-TEST_F(AppScriptApiTest, AppLaunchRejectsNonHttpSchemes)
+TEST_F(AppScriptApiTest, AppLaunchRequiresPermissionForUrlsAndOtherTargets)
 {
-  // Unrestricted, this reaches base::launcher::open_file() with a
-  // script-controlled target - a script-only RCE primitive when combined
-  // with storage.save() (see issue #219). Deliberately not testing an
-  // accepted http(s) target here: that would actually invoke the OS
-  // launcher (spawn a browser/xdg-open), which isn't safe to do from a
-  // headless CI test.
+  // A script holding no grants must not reach base::launcher::open_file()
+  // with any target - a script-only RCE primitive when combined with
+  // storage.save() (see issue #219). Accepted targets aren't tested: that
+  // would actually invoke the OS launcher, unsafe from a headless CI test.
+  Interpreter::TokenGuard guard(app::ScriptPermissions::tokenFor("script_api_tests_no_grants"));
   ASSERT_TRUE(eval("native.capture([app.launch('javascript:1'), "
+                   "app.launch('https://example.com'), "
                    "app.launch('/tmp/should-not-be-touched'), "
                    "app.launch('')].join(','));"));
-  EXPECT_EQ("false,false,false", captured().string());
+  EXPECT_EQ("false,false,false,false", captured().string());
 }
 
 TEST_F(AppScriptApiTest, ImageGetPixelPutPixelRoundTrip)
@@ -397,4 +402,19 @@ TEST_F(AppScriptApiTest, TimersFireFromTick)
       break;
   }
   EXPECT_TRUE(captured().boolean());
+}
+
+TEST(ScriptPermissionsTest, LegacyAppLaunchMeansUrlAndOther)
+{
+  auto path = (std::filesystem::temp_directory_path() / "legacy_app_launch_test.js").string();
+  {
+    std::ofstream f(path);
+    f << "///permission app.launch\n///permission fs.read\n";
+  }
+  auto perms = app::ScriptPermissions::parseRequested(path);
+  std::filesystem::remove(path);
+  EXPECT_TRUE(perms.count(app::ScriptPermissions::kAppLaunchUrl));
+  EXPECT_EQ(base::launcher::is_available(), perms.count(app::ScriptPermissions::kAppLaunchOther) > 0);
+  EXPECT_TRUE(perms.count(app::ScriptPermissions::kFsRead));
+  EXPECT_FALSE(perms.count("app.launch"));
 }
