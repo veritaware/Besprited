@@ -13,11 +13,14 @@
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
 #include "app/context.h"
+#include "app/document.h"
 #include "app/file/palette_file.h"
 #include "app/file_selector.h"
 #include "app/modules/palettes.h"
 #include "base/fs.h"
+#include "doc/color.h"
 #include "doc/palette.h"
+#include "doc/sprite.h"
 #include "ui/alert.h"
 
 #include <memory>
@@ -76,6 +79,8 @@ void LoadPaletteCommand::onExecute(Context* context)
     else
     {
       auto cmd = static_cast<SetPaletteCommand*>(CommandsModule::instance()->getCommandByName(CommandId::SetPalette));
+      // ACT transparency is stored as palette alpha; indexed sprites use the
+      // transparent-first palette entry as their separate mask index.
       cmd->setPalette(palette.get(), true);
       context->executeCommand(cmd);
     }

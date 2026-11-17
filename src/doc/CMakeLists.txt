@@ -31,9 +31,12 @@ add_library(doc-lib
   document.cpp
   document_range.cpp
   documents.cpp
+  file/act_file.cpp
   file/col_file.cpp
   file/gpl_file.cpp
+  file/hex_file.cpp
   file/pal_file.cpp
+  file/paintnet_file.cpp
   frame_tag.cpp
   frame_tag_io.cpp
   frame_tags.cpp

@@ -171,6 +171,8 @@ find_tests(script delta)
 # she transitively, so this needs the full set too - see issue #226.
 find_tests(filters  ${MODULE_TEST_LIBS})
 find_tests(doc      ${MODULE_TEST_LIBS})
+target_compile_definitions(new_palette_format_tests PRIVATE
+  "BESPRITED_PALETTE_FIXTURE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/doc/fixtures\"")
 find_tests(render   ${MODULE_TEST_LIBS})
 find_tests(ui       ${MODULE_TEST_LIBS})
 find_tests(app/file  ${MODULE_TEST_LIBS})

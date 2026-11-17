@@ -16,10 +16,13 @@
 #include "app/file/file_formats_manager.h"
 #include "base/path.h"
 #include "base/string.h"
+#include "doc/file/act_file.h"
 #include "doc/cel.h"
+#include "doc/file/hex_file.h"
 #include "doc/file/col_file.h"
 #include "doc/file/gpl_file.h"
 #include "doc/file/pal_file.h"
+#include "doc/file/paintnet_file.h"
 #include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/palette.h"
@@ -36,14 +39,14 @@ using namespace doc;
 std::string get_readable_palette_extensions()
 {
   std::string buf = get_readable_extensions();
-  buf += ",col,gpl,pal";
+  buf += ",act,col,gpl,hex,pal,txt";
   return buf;
 }
 
 std::string get_writable_palette_extensions()
 {
   std::string buf = get_writable_extensions();
-  buf += ",col,gpl,pal";
+  buf += ",act,col,gpl,hex,pal,txt";
   return buf;
 }
 
@@ -52,7 +55,19 @@ std::shared_ptr<Palette> load_palette(const char* filename)
   std::string ext = base::string_to_lower(base::get_file_extension(filename));
   std::shared_ptr<Palette> pal;
 
-  if (ext == "col")
+  if (ext == "act")
+  {
+    pal = doc::file::load_act_file(filename);
+  }
+  else if (ext == "hex")
+  {
+    pal = doc::file::load_hex_file(filename);
+  }
+  else if (ext == "txt")
+  {
+    pal = doc::file::load_paintnet_file(filename);
+  }
+  else if (ext == "col")
   {
     pal = doc::file::load_col_file(filename);
   }
@@ -99,7 +114,19 @@ bool save_palette(const char* filename, const Palette& pal, int columns)
   std::string ext = base::string_to_lower(base::get_file_extension(filename));
   bool success = false;
 
-  if (ext == "col")
+  if (ext == "act")
+  {
+    success = doc::file::save_act_file(pal, filename);
+  }
+  else if (ext == "hex")
+  {
+    success = doc::file::save_hex_file(pal, filename);
+  }
+  else if (ext == "txt")
+  {
+    success = doc::file::save_paintnet_file(pal, filename);
+  }
+  else if (ext == "col")
   {
     success = doc::file::save_col_file(pal, filename);
   }
