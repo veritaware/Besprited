@@ -14,6 +14,13 @@ namespace base
 namespace launcher
 {
 
+// False when the app runs inside a sandbox that doesn't allow handing off
+// to other programs (an MSIX package); callers should disable the feature.
+bool is_available();
+
+// True for "http:" / "https:" URLs with a non-empty remainder.
+bool is_web_url(const std::string& url);
+
 bool open_url(const std::string& url);
 bool open_file(const std::string& file);
 bool open_folder(const std::string& file);
