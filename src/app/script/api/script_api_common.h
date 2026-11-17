@@ -21,11 +21,20 @@
 
 #pragma once
 
+#include "doc/cel.h"
+#include "doc/document.h"
+#include "doc/frame.h"
+#include "doc/layer.h"
 #include "doc/object.h"
+#include "doc/site.h"
 
+#include <map>
 #include <memory>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
+
+#include "doc/site.h"
 
 namespace script_api
 {
@@ -40,6 +49,61 @@ struct SelectionSite
 };
 struct PixelColorSite
 {
+};
+
+// Re-resolving site for the `Image` wrapper: holds the (document, layer,
+// frame) slot the image was taken from, by id, and re-resolves the
+// doc::Image* on every access. An image object replaced underneath (cel
+// trim, canvas resize) or a closed document therefore never dangles: the
+// accessors return null and the caller throws a catchable error.
+struct ImageSite
+{
+  doc::ObjectId documentId = 0;
+  doc::ObjectId layerId = 0;
+  doc::frame_t frame = 0;
+
+  explicit ImageSite(const doc::Site& site)
+    : documentId(site.document() ? site.document()->id() : 0)
+    , layerId(site.layer() ? site.layer()->id() : 0)
+    , frame(site.frame())
+  {
+  }
+
+  doc::Document* document() const { return doc::get<doc::Document>(documentId); }
+
+  std::shared_ptr<const doc::Cel> cel() const
+  {
+    if (auto* layer = doc::get<doc::Layer>(layerId))
+      return layer->cel(frame);
+    return nullptr;
+  }
+
+  doc::Image* image() const
+  {
+    auto c = cel();
+    return c ? c->image() : nullptr;
+  }
+
+  // Cached per (document, layer, frame) slot so the same slot always hands
+  // back the same ImageSite instance. The interpreter dedups JS wrappers by
+  // the native object's address, so this keeps `app.activeImage ===
+  // app.activeImage` true (see the matching note on wrap<T>() below).
+  static std::shared_ptr<ImageSite> wrap(const doc::Site& site)
+  {
+    static std::map<std::tuple<doc::ObjectId, doc::ObjectId, doc::frame_t>, std::weak_ptr<ImageSite>> cache;
+
+    auto site_ = std::make_shared<ImageSite>(site);
+    const auto key = std::make_tuple(site_->documentId, site_->layerId, site_->frame);
+    auto it = cache.find(key);
+    if (it != cache.end())
+    {
+      if (auto existing = it->second.lock())
+        return existing;
+      cache.erase(it);
+    }
+    cache.emplace(key, site_);
+    return site_;
+  }
 };
 
 // A handle into a doc::Object-derived instance, resolved by id rather than

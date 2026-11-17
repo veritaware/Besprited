@@ -12,6 +12,7 @@
 
 #include "app/file/file.h"
 
+#include "app/app.h"
 #include "app/console.h"
 #include "app/context.h"
 #include "app/document.h"
@@ -36,42 +37,59 @@
 
 #include <cstring>
 #include <cstdarg>
-#include <string_view>
 
 namespace app
 {
 
 using namespace base;
 
-std::string get_readable_extensions()
+namespace
+{
+
+// Collects the comma-separated extensions of every format, dropping a
+// token a previous format already listed (case-insensitive, the same
+// comparison the dispatch uses in getFileFormatByExtension) so the
+// dialog filter lists each extension once. Empty tokens (e.g. a format
+// with no extension) are skipped, as before.
+std::string collect_extensions(int flags)
 {
   std::string buf;
 
-  for (auto format : FileFormatsManager::instance()->support(FILE_SUPPORT_LOAD))
+  for (auto format : FileFormatsManager::instance()->support(flags))
   {
-    std::string_view extensions = format->extensions();
-    if (extensions.empty())
-      continue;
-    if (!buf.empty())
-      buf.push_back(',');
-    buf += extensions;
+    for (auto& ext : split(format->extensions(), ','))
+    {
+      if (ext.empty())
+        continue;
+
+      bool listed = false;
+      for (auto& prev : split(buf, ','))
+      {
+        if (utf8_icmp(prev, ext) == 0)
+          listed = true;
+      }
+      if (listed)
+        continue;
+
+      if (!buf.empty())
+        buf.push_back(',');
+      buf += ext;
+    }
   }
 
   return buf;
 }
 
+} // namespace
+
+std::string get_readable_extensions()
+{
+  return collect_extensions(FILE_SUPPORT_LOAD);
+}
+
 std::string get_writable_extensions()
 {
-  std::string buf;
-
-  for (auto format : FileFormatsManager::instance()->support(FILE_SUPPORT_SAVE))
-  {
-    if (!buf.empty())
-      buf.push_back(',');
-    buf += format->extensions();
-  }
-
-  return buf;
+  return collect_extensions(FILE_SUPPORT_SAVE);
 }
 
 Document* load_document(Context* context, const char* filename)
@@ -184,7 +202,7 @@ FileOp* FileOp::createLoadDocumentOperation(Context* context, const char* filena
       }
 
       /* TODO add a better dialog to edit file-names */
-      if ((fop->m_loadFlags & FILE_LOAD_SEQUENCE_ASK) && fop->m_context && fop->m_context->isUIAvailable() &&
+      if ((fop->m_loadFlags & FILE_LOAD_SEQUENCE_ASK) && fop->m_context && App::hasGui() &&
           fop->m_seq.filename_list.size() > 1)
       {
         /* really want load all files? */
@@ -358,8 +376,8 @@ FileOp* FileOp::createSaveDocumentOperation(const Context* context, const Docume
   // Show the confirmation alert
   if (!warnings.empty())
   {
-    // Interative
-    if (context && context->isUIAvailable())
+    // Interactive
+    if (context && App::hasGui())
     {
       warnings += "<<You can use \".ase\" format to keep all this information.";
 
@@ -463,7 +481,7 @@ FileOp* FileOp::createSaveDocumentOperation(const Context* context, const Docume
         fop->m_seq.filename_list.push_back(frame_fn);
       }
 
-      if (context && context->isUIAvailable() && fop->m_seq.filename_list.size() > 1 &&
+      if (context && App::hasGui() && fop->m_seq.filename_list.size() > 1 &&
           ui::Alert::show("Notice"
                           "<<Do you want to export the animation in %d files?"
                           "<<%s, %s..."

@@ -27,6 +27,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
   bool onChecked(Context* context) override;
   void onExecute(Context* context) override;
@@ -50,6 +51,13 @@ void TiledModeCommand::onLoadParams(const Params& params)
     m_mode = filters::TiledMode::X_AXIS;
   else if (mode == "y")
     m_mode = filters::TiledMode::Y_AXIS;
+}
+
+std::vector<CommandParamInfo> TiledModeCommand::onDescribeParams() const
+{
+  return {
+      {"axis", "both, x or y axis to tile; empty turns tiling off.", false, ""},
+  };
 }
 
 bool TiledModeCommand::onEnabled(Context* ctx)

@@ -71,6 +71,7 @@ AppOptions::AppOptions(int argc, const char* argv[])
   , m_filenameFormat(
         m_po.add("filename-format").requiresValue("<fmt>").description("Special format to generate filenames"))
   , m_script(m_po.add("script").requiresValue("<filename>").description("Execute a specific script"))
+  , m_set(m_po.add("set").requiresValue("<key=value>").description("Set a storage value for the --script run"))
   , m_listLayers(m_po.add("list-layers")
                      .description("List layers of the next given sprite\nor "
                                   "include layers in JSON data"))

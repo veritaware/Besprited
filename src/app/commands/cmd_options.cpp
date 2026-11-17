@@ -11,6 +11,7 @@
 #endif
 
 #include "app/app.h"
+#include "app/console.h"
 #include "app/modules/i18n.h"
 #include "app/commands/command.h"
 #include "app/context.h"
@@ -18,11 +19,13 @@
 #include "app/launcher.h"
 #include "app/pref/preferences.h"
 #include "app/resource_finder.h"
+#include "app/script/script_permissions.h"
 #include "app/send_crash.h"
 #include "app/ui/color_button.h"
 #include "base/bind.h"
 #include "base/convert_to.h"
 #include "base/fs.h"
+#include "base/log.h"
 #include "base/path.h"
 #include "doc/image.h"
 #include "render/render.h"
@@ -36,6 +39,7 @@ namespace app
 {
 
 static const char* kSectionThemeId = "section_theme";
+static const char* kSectionScriptPermissionsId = "section_script_permissions";
 
 using namespace ui;
 
@@ -234,6 +238,18 @@ public:
     selectTheme()->Click.connect(base::Bind<void>(&OptionsWindow::onSelectTheme, this));
     openThemeFolder()->Click.connect(base::Bind<void>(&OptionsWindow::onOpenThemeFolder, this));
 
+    // Script permissions
+    scriptPermissionsList()->Change.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionsSelection, this));
+    permFsRead()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
+    permFsWrite()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
+    permNetFetch()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
+    permNetServe()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
+    permAppLaunchUrl()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
+    permAppLaunchOther()->Click.connect(base::Bind<void>(&OptionsWindow::onScriptPermissionToggled, this));
+    permAppLaunchOther()->setVisible(ScriptPermissions::isAvailable(ScriptPermissions::kAppLaunchOther));
+    removeScriptPermission()->Click.connect(base::Bind<void>(&OptionsWindow::onRemoveScriptPermission, this));
+    updateScriptPermissionChecks();
+
     // Apply button
     buttonApply()->Click.connect(base::Bind<void>(&OptionsWindow::saveConfig, this));
 
@@ -370,6 +386,10 @@ private:
     // Load themes
     if (item->getValue() == kSectionThemeId)
       loadThemes();
+
+    // Load the script permission records
+    if (item->getValue() == kSectionScriptPermissionsId)
+      loadScriptPermissions();
   }
 
   void onChangeGridScope()
@@ -514,6 +534,77 @@ private:
       item->openFolder();
   }
 
+  void loadScriptPermissions()
+  {
+    // Records already loaded
+    if (scriptPermissionsList()->getItemsCount() > 0)
+      return;
+
+    for (auto& [path, perms] : ScriptPermissions::allRecords())
+    {
+      auto item = new ListItem(path);
+      item->setValue(path);
+      scriptPermissionsList()->addChild(item);
+    }
+    scriptPermissionsList()->layout();
+  }
+
+  void onScriptPermissionsSelection() { updateScriptPermissionChecks(); }
+
+  void updateScriptPermissionChecks()
+  {
+    auto* item = static_cast<ListItem*>(scriptPermissionsList()->getSelectedChild());
+    bool hasSelection = (item != nullptr);
+    std::set<std::string> perms;
+    if (hasSelection)
+      perms = ScriptPermissions::granted(item->getValue());
+
+    permFsRead()->setEnabled(hasSelection);
+    permFsWrite()->setEnabled(hasSelection);
+    permNetFetch()->setEnabled(hasSelection);
+    permNetServe()->setEnabled(hasSelection);
+    permAppLaunchUrl()->setEnabled(hasSelection);
+    permAppLaunchOther()->setEnabled(hasSelection);
+    removeScriptPermission()->setEnabled(hasSelection);
+    permFsRead()->setSelected(perms.count(ScriptPermissions::kFsRead));
+    permFsWrite()->setSelected(perms.count(ScriptPermissions::kFsWrite));
+    permNetFetch()->setSelected(perms.count(ScriptPermissions::kNetFetch));
+    permNetServe()->setSelected(perms.count(ScriptPermissions::kNetServe));
+    permAppLaunchUrl()->setSelected(perms.count(ScriptPermissions::kAppLaunchUrl));
+    permAppLaunchOther()->setSelected(perms.count(ScriptPermissions::kAppLaunchOther));
+  }
+
+  void onScriptPermissionToggled()
+  {
+    auto* item = static_cast<ListItem*>(scriptPermissionsList()->getSelectedChild());
+    if (!item)
+      return;
+    std::set<std::string> perms;
+    if (permFsRead()->isSelected())
+      perms.insert(ScriptPermissions::kFsRead);
+    if (permFsWrite()->isSelected())
+      perms.insert(ScriptPermissions::kFsWrite);
+    if (permNetFetch()->isSelected())
+      perms.insert(ScriptPermissions::kNetFetch);
+    if (permNetServe()->isSelected())
+      perms.insert(ScriptPermissions::kNetServe);
+    if (permAppLaunchUrl()->isSelected())
+      perms.insert(ScriptPermissions::kAppLaunchUrl);
+    if (permAppLaunchOther()->isSelected() && ScriptPermissions::isAvailable(ScriptPermissions::kAppLaunchOther))
+      perms.insert(ScriptPermissions::kAppLaunchOther);
+    ScriptPermissions::setGranted(item->getValue(), perms);
+  }
+
+  void onRemoveScriptPermission()
+  {
+    auto* item = static_cast<ListItem*>(scriptPermissionsList()->getSelectedChild());
+    if (!item)
+      return;
+    ScriptPermissions::removeRecord(item->getValue());
+    scriptPermissionsList()->removeChild(item);
+    updateScriptPermissionChecks();
+  }
+
   void onCursorColorType()
   {
     switch (cursorColorType()->getSelectedItemIndex())
@@ -606,6 +697,15 @@ OptionsCommand::OptionsCommand()
 
 void OptionsCommand::onExecute(Context* context)
 {
+  // Interactive only: the dialog would block headless.
+  if (!App::instance()->isGui())
+  {
+    LOG("Options: not available in headless mode\n");
+    Console console(context);
+    console.printf("Options: not available in headless mode\n");
+    return;
+  }
+
   static int curSection = 0;
 
   OptionsWindow window(context, curSection);

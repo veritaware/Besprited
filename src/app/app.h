@@ -63,6 +63,12 @@ public:
   // Returns true if Aseprite is running with GUI available.
   bool isGui() const { return m_isGui; }
 
+  // Null-safe isGui(): false when there is no App (e.g. in unit tests).
+  static bool hasGui() { return m_instance && m_instance->m_isGui; }
+
+  // Returns true if the UI runs invisibly (batch/shell mode).
+  bool isHeadless() const { return m_isHeadless; }
+
   // Returns true if the application is running in portable mode.
   bool isPortable();
 
@@ -119,6 +125,7 @@ private:
   std::unique_ptr<LegacyModules> m_legacy;
   bool m_isGui;
   bool m_isShell;
+  bool m_isHeadless;
   std::unique_ptr<MainWindow> m_mainWindow;
   FileList m_files;
   std::unique_ptr<DocumentExporter> m_exporter;

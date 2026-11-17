@@ -165,6 +165,13 @@ protected:
       m_frame = 0;
   }
 
+  std::vector<CommandParamInfo> onDescribeParams() const override
+  {
+    return {
+        {"frame", "1-based frame to show. Empty or 0 opens the goto dialog.", false, ""},
+    };
+  }
+
   frame_t onGetFrame(Editor* editor) override
   {
     if (m_frame == 0)

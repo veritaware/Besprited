@@ -50,6 +50,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
   void onExecute(Context* context) override;
   std::string onGetFriendlyName() const override;
@@ -86,6 +87,15 @@ void ModifySelectionCommand::onLoadParams(const Params& params)
     m_brushType = doc::kCircleBrushType;
   else if (brush == "square")
     m_brushType = doc::kSquareBrushType;
+}
+
+std::vector<CommandParamInfo> ModifySelectionCommand::onDescribeParams() const
+{
+  return {
+      {"modifier", "border, expand or contract the selection.", false, "expand"},
+      {"quantity", "Pixels to modify; 0 opens the dialog.", false, "0"},
+      {"brush", "circle or square brush for the modifier.", false, "circle"},
+  };
 }
 
 bool ModifySelectionCommand::onEnabled(Context* context)

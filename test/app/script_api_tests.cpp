@@ -9,21 +9,34 @@
 
 #include "app/app.h"
 #include "app/commands/commands.h"
+#include "app/document.h"
 #include "app/script/app_scripting.h"
 #include "app/script/api/script_api_common.h"
+#include "app/script/script_permissions.h"
+#include "app/ui_context.h"
+#include "base/launcher.h"
 #include "delta/Extension.hpp"
 #include "delta/JSON.hpp"
+#include "delta/Interpreter.hpp"
 #include "di.hpp"
+#include "doc/cel.h"
 #include "doc/color.h"
+#include "doc/documents.h"
 #include "doc/image.h"
+#include "doc/layer.h"
 #include "doc/primitives.h"
+#include "doc/site.h"
+#include "doc/sprite.h"
 #include "she/system.h"
 
 #include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <cstring>
 #include <memory>
 #include <string>
 #include <thread>
+#include <vector>
 
 using app::AppScripting;
 
@@ -35,12 +48,13 @@ namespace
 // exactly like app's own api/*_script.cpp extensions:
 //   - "native.capture(x)" records whatever JS passes so the test can assert
 //     on it afterwards;
-//   - "native.image" hands a wrapped doc::Image (set by the test beforehand)
-//     to JS the same way app.activeImage does for the real active document.
+//   - "native.image" hands the Image wrapper for the slot set by the test
+//     beforehand (see AppScriptApiTest::useImage) to JS the same way
+//     app.activeImage does for the real active document.
 struct TestBridge
 {
   static inline JSON::Value captured;
-  static inline doc::Image* image = nullptr;
+  static inline doc::Site site;
 };
 
 class TestBridgeExtension : public Extension
@@ -54,7 +68,7 @@ public:
       return {};
     };
     addFunction("__testImage") = []() -> JSON::Value
-    { return JSON::makeNative(script_api::wrap<doc::Image>(TestBridge::image)); };
+    { return JSON::makeNative(script_api::ImageSite::wrap(TestBridge::site)); };
   }
 
   std::string init(const std::string& language, JSON::Value&) override
@@ -85,6 +99,9 @@ void ensureAppAndCommands()
   app->initializeCoreModulesForTesting();
   static app::CommandsModule* commands = new app::CommandsModule();
   (void)commands;
+  // The Image wrapper's writes are undoable and need the UI context.
+  static app::UIContext* uiContext = new app::UIContext();
+  (void)uiContext;
 }
 
 class AppScriptApiTest : public ::testing::Test
@@ -95,8 +112,45 @@ protected:
   void SetUp() override
   {
     TestBridge::captured = JSON::Value{JSON::Special::Undefined};
-    TestBridge::image = nullptr;
+    TestBridge::site = doc::Site();
   }
+
+  void TearDown() override
+  {
+    TestBridge::site = doc::Site();
+    for (auto* d : docs)
+      closeDoc(d);
+    docs.clear();
+  }
+
+  // Creates a w x h RGB document filled with `color`, points
+  // "native.image" at its first layer's cel at frame 0 and returns that
+  // image. The wrapper only holds ids, so the document is owned here.
+  doc::Image* useImage(int w, int h, doc::color_t color)
+  {
+    auto* d = static_cast<app::Document*>(app::UIContext::instance()->documents().add(w, h));
+    docs.push_back(d);
+    auto* layer = d->sprite()->folder()->getFirstLayer();
+    TestBridge::site.document(d);
+    TestBridge::site.sprite(d->sprite());
+    TestBridge::site.layer(layer);
+    TestBridge::site.frame(doc::frame_t(0));
+    doc::Image* img = TestBridge::site.image();
+    doc::clear_image(img, color);
+    return img;
+  }
+
+  // Frees a document the way closing it would; handles into it must throw.
+  void closeDoc(app::Document* d)
+  {
+    if (!d)
+      return;
+    app::UIContext::instance()->documents().remove(d);
+    delete d;
+    std::erase(docs, d);
+  }
+
+  std::vector<app::Document*> docs;
 
   // The engine is process-wide (one interpreter behind AppScripting); each
   // eval is a REPL-style script eval, so `var`s persist across calls.
@@ -214,25 +268,23 @@ TEST_F(AppScriptApiTest, CloseFileCloseAllFilesAndExitAreNotScriptReachable)
   EXPECT_EQ("undefined,undefined,undefined,function", captured().string());
 }
 
-TEST_F(AppScriptApiTest, AppLaunchRejectsNonHttpSchemes)
+TEST_F(AppScriptApiTest, AppLaunchRequiresPermissionForUrlsAndOtherTargets)
 {
-  // Unrestricted, this reaches base::launcher::open_file() with a
-  // script-controlled target - a script-only RCE primitive when combined
-  // with storage.save() (see issue #219). Deliberately not testing an
-  // accepted http(s) target here: that would actually invoke the OS
-  // launcher (spawn a browser/xdg-open), which isn't safe to do from a
-  // headless CI test.
+  // A script holding no grants must not reach base::launcher::open_file()
+  // with any target - a script-only RCE primitive when combined with
+  // storage.save() (see issue #219). Accepted targets aren't tested: that
+  // would actually invoke the OS launcher, unsafe from a headless CI test.
+  Interpreter::TokenGuard guard(app::ScriptPermissions::tokenFor("script_api_tests_no_grants"));
   ASSERT_TRUE(eval("native.capture([app.launch('javascript:1'), "
+                   "app.launch('https://example.com'), "
                    "app.launch('/tmp/should-not-be-touched'), "
                    "app.launch('')].join(','));"));
-  EXPECT_EQ("false,false,false", captured().string());
+  EXPECT_EQ("false,false,false,false", captured().string());
 }
 
 TEST_F(AppScriptApiTest, ImageGetPixelPutPixelRoundTrip)
 {
-  std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 4, 4));
-  doc::clear_image(img.get(), 0);
-  TestBridge::image = img.get();
+  useImage(4, 4, 0);
 
   ASSERT_TRUE(eval("native.image.putPixel(1, 1, app.pixelColor.rgba(5, 6, 7, 255));"
                    "native.capture(native.image.getPixel(1, 1));"));
@@ -244,34 +296,32 @@ TEST_F(AppScriptApiTest, ImageGetPixelPutPixelRoundTrip)
 
 TEST_F(AppScriptApiTest, ImagePutImageDataRejectsAWronglySizedBufferWithoutCorruptingTheImage)
 {
-  std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 4, 4));
-  doc::clear_image(img.get(), doc::rgba(1, 2, 3, 4));
-  TestBridge::image = img.get();
+  auto* img = useImage(4, 4, doc::rgba(1, 2, 3, 4));
 
   // A 1-byte buffer can never match a 4x4 RGBA image's byte size - the
   // size-mismatch guard in ImageExtension's putImageData() must reject it
   // and leave every pixel exactly as it was.
   ASSERT_TRUE(eval("native.image.putImageData(new Uint8Array(1));"));
 
+  img = TestBridge::site.image();
   EXPECT_EQ(doc::rgba(1, 2, 3, 4), img->getPixel(0, 0));
   EXPECT_EQ(doc::rgba(1, 2, 3, 4), img->getPixel(3, 3));
 }
 
 TEST_F(AppScriptApiTest, ImageGetImageDataThenPutImageDataRoundTripsEveryPixel)
 {
-  std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 2, 2));
+  auto* img = useImage(2, 2, 0);
   img->putPixel(0, 0, doc::rgba(1, 2, 3, 255));
   img->putPixel(1, 0, doc::rgba(4, 5, 6, 255));
   img->putPixel(0, 1, doc::rgba(7, 8, 9, 255));
   img->putPixel(1, 1, doc::rgba(10, 11, 12, 255));
-  TestBridge::image = img.get();
 
   // Correctly-sized data must be accepted: round trip through JS, then
   // clear the image natively and write the captured bytes straight back.
   ASSERT_TRUE(eval("native.capture(native.image.getImageData());"));
   ASSERT_TRUE(captured().isByteArray());
 
-  doc::clear_image(img.get(), 0);
+  doc::clear_image(img, 0);
   auto& bytes = captured().byteArray();
   ASSERT_EQ(std::size_t(img->getRowStrideSize() * img->height()), bytes.size());
   std::memcpy(img->getPixelAddress(0, 0), bytes.data(), bytes.size());
@@ -294,9 +344,7 @@ TEST_F(AppScriptApiTest, ImageGetPNGDataReturnsABase64PngDataUri)
   // a she::System (see tests.h), so this needs its own, scoped to this test.
   std::unique_ptr<she::System> sys(she::create_system());
 
-  std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 2, 2));
-  doc::clear_image(img.get(), doc::rgba(9, 9, 9, 255));
-  TestBridge::image = img.get();
+  useImage(2, 2, doc::rgba(9, 9, 9, 255));
 
   ASSERT_TRUE(eval("native.capture(native.image.getPNGData());"));
 
@@ -311,11 +359,10 @@ TEST_F(AppScriptApiTest, WrappedImageHandlesWithTheSameIdCompareEqual)
 {
   // The interpreter dedups JS wrappers by the address of the wrapped native
   // object (see QuickJSInterpreter's `wrappers` map), so ScriptRef's
-  // per-ObjectId cache (script_api::wrap) must hand back the same
+  // per-slot cache (ImageSite::wrap) must hand back the same
   // ScriptRef<doc::Image> instance both times for identity to hold - see
   // issue #232.
-  std::unique_ptr<doc::Image> img(doc::Image::create(doc::IMAGE_RGB, 2, 2));
-  TestBridge::image = img.get();
+  useImage(2, 2, 0);
 
   ASSERT_TRUE(eval("native.capture(native.image === native.image);"));
   EXPECT_TRUE(captured().boolean());
@@ -326,17 +373,15 @@ TEST_F(AppScriptApiTest, StaleImageHandleThrowsInsteadOfCrashingAfterFree)
   // document.close() now actually frees the underlying Document/Sprite/
   // Layer/Image graph (issue #232), which can leave a script holding a
   // handle into memory that no longer exists (grabbed before the close).
-  // Simulate that here directly: free the doc::Image out from under a JS
+  // Simulate that here directly: free the whole document out from under a JS
   // handle that already resolved it once, the same way DocumentDestroyer
   // frees objects a script may still reference.
-  auto* img = doc::Image::create(doc::IMAGE_RGB, 2, 2);
-  doc::clear_image(img, 0);
-  TestBridge::image = img;
+  useImage(2, 2, 0);
 
   ASSERT_TRUE(eval("var stale = native.image;"));
 
-  delete img;
-  TestBridge::image = nullptr;
+  closeDoc(docs.back());
+  TestBridge::site = doc::Site();
 
   EXPECT_FALSE(eval("stale.getPixel(0, 0);")) << "a handle into a freed object must throw a catchable error, not "
                                                  "dereference freed memory";
@@ -357,4 +402,19 @@ TEST_F(AppScriptApiTest, TimersFireFromTick)
       break;
   }
   EXPECT_TRUE(captured().boolean());
+}
+
+TEST(ScriptPermissionsTest, LegacyAppLaunchMeansUrlAndOther)
+{
+  auto path = (std::filesystem::temp_directory_path() / "legacy_app_launch_test.js").string();
+  {
+    std::ofstream f(path);
+    f << "///permission app.launch\n///permission fs.read\n";
+  }
+  auto perms = app::ScriptPermissions::parseRequested(path);
+  std::filesystem::remove(path);
+  EXPECT_TRUE(perms.count(app::ScriptPermissions::kAppLaunchUrl));
+  EXPECT_EQ(base::launcher::is_available(), perms.count(app::ScriptPermissions::kAppLaunchOther) > 0);
+  EXPECT_TRUE(perms.count(app::ScriptPermissions::kFsRead));
+  EXPECT_FALSE(perms.count("app.launch"));
 }

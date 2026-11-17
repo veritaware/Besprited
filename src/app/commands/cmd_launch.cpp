@@ -26,6 +26,7 @@ public:
 protected:
   bool onEnabled(Context* context) override;
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   void onExecute(Context* context) override;
 
 private:
@@ -58,6 +59,13 @@ void LaunchCommand::onLoadParams(const Params& params)
   {
     m_path = WEBSITE + m_path.substr(1);
   }
+}
+
+std::vector<CommandParamInfo> LaunchCommand::onDescribeParams() const
+{
+  return {
+      {"path", "URL to open; a leading / is resolved against the site.", false, ""},
+  };
 }
 
 void LaunchCommand::onExecute(Context* context)

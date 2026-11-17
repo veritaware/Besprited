@@ -18,6 +18,7 @@ set(QJS_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(quickjs)
 
 add_subdirectory(delta)
+add_subdirectory(httplib)
 
 # Disable observable tests
 set(OBSERVABLE_TESTS OFF CACHE BOOL "Compile observable tests")

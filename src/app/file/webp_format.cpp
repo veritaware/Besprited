@@ -386,8 +386,8 @@ base::SharedPtr<FormatOptions> WebPFormat::onGetFormatOptions(FileOp* fop)
   if (!webp_options)
     webp_options.reset(new WebPOptions);
 
-  // Non-interactive mode
-  if (!fop->context() || !fop->context()->isUIAvailable())
+  // Non-interactive mode (headless runs have a UI but no human)
+  if (!fop->context() || !App::hasGui())
     return webp_options;
 
   try

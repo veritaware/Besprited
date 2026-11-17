@@ -900,14 +900,28 @@ public:
   std::vector<uint8_t> encodeSurfaceAsPNG(Surface* s) override
   {
     auto surface = static_cast<SDL3Surface*>(s);
-    std::vector<uint8_t> data;
-    data.resize(surface->width() * surface->height() * 4 + 1024);
-    const std::shared_ptr<SDL_IOStream> rops{SDL_IOFromMem(data.data(), data.size()),
-                                             [](auto* rops) { SDL_CloseIO(rops); }};
-    if (!IMG_SavePNG_IO(static_cast<SDL_Surface*>(surface->nativeHandle()), rops.get(), false))
+    // The stream grows as needed, so the output size is uncapped. A chunk
+    // near the raw image size keeps reallocs to a few even for big images.
+    Sint64 chunk = surface->width() * (Sint64)surface->height() * 2;
+    if (chunk < 1024)
+      chunk = 1024;
+    const std::shared_ptr<SDL_IOStream> rops{SDL_IOFromDynamicMem(), [](auto* rops) { SDL_CloseIO(rops); }};
+    if (!rops)
       return {};
-    data.resize(SDL_TellIO(rops.get()));
-    return data;
+    auto props = SDL_GetIOProperties(rops.get());
+    SDL_SetNumberProperty(props, SDL_PROP_IOSTREAM_DYNAMIC_CHUNKSIZE_NUMBER, chunk);
+    if (!IMG_SavePNG_IO(static_cast<SDL_Surface*>(surface->nativeHandle()), rops.get(), false))
+    {
+      std::string msg = std::string{"Failed to encode PNG: "} + SDL_GetError();
+      if (g_instance && g_instance->logger())
+        g_instance->logger()->logError(msg.c_str());
+      return {};
+    }
+    auto* mem = SDL_GetPointerProperty(props, SDL_PROP_IOSTREAM_DYNAMIC_MEMORY_POINTER, nullptr);
+    Sint64 size = SDL_TellIO(rops.get());
+    if (!mem || size <= 0)
+      return {};
+    return std::vector<uint8_t>(static_cast<uint8_t*>(mem), static_cast<uint8_t*>(mem) + (size_t)size);
   }
 
   Surface* loadSurface(const char* filename) override
@@ -1003,6 +1017,17 @@ extern int app_main(int argc, char* argv[]);
 
 int main(const int argc, char* argv[])
 {
+  // --batch and --shell never start the UI; use SDL's dummy video driver
+  // so no real display is needed. Keep a user-set SDL_VIDEODRIVER value.
+  for (int i = 1; i < argc; ++i)
+  {
+    if (SDL_strcmp(argv[i], "--batch") == 0 || SDL_strcmp(argv[i], "-b") == 0 || SDL_strcmp(argv[i], "--shell") == 0)
+    {
+      SDL_setenv_unsafe("SDL_VIDEODRIVER", "dummy", 0);
+      break;
+    }
+  }
+
 #ifdef SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR
   SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
 #endif

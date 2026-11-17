@@ -9,10 +9,12 @@
 #include "config.h"
 #endif
 
+#include "app/app.h"
 #include "app/color.h"
 #include "app/ui/color_button.h"
 #include "base/bind.h"
 #include "app/commands/command.h"
+#include "app/commands/params.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/commands/filters/filter_window.h"
 #include "app/context.h"
@@ -48,13 +50,32 @@ public:
   InvertColorCommand();
 
 protected:
+  void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
   void onExecute(Context* context) override;
+
+private:
+  bool m_useUI;
 };
 
 InvertColorCommand::InvertColorCommand()
   : Command("InvertColor", "Invert Color", CmdRecordableFlag)
+  , m_useUI(true)
 {
+}
+
+void InvertColorCommand::onLoadParams(const Params& params)
+{
+  std::string useUI = params.get("use-ui");
+  m_useUI = (useUI.empty() || (useUI == "true"));
+}
+
+std::vector<CommandParamInfo> InvertColorCommand::onDescribeParams() const
+{
+  return {
+      {"use-ui", "Show the invert color dialog (true or false).", false, "true"},
+  };
 }
 
 bool InvertColorCommand::onEnabled(Context* context)
@@ -67,6 +88,14 @@ void InvertColorCommand::onExecute(Context* context)
   InvertColorFilter filter;
   FilterManagerImpl filterMgr(context, &filter);
   filterMgr.setTarget(TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL | TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL);
+
+  // Apply directly (no dialog) when use-ui is false or we run headless.
+  if (!m_useUI || !App::instance()->isGui())
+  {
+    filterMgr.applyToTarget();
+    update_screen_for_document(filterMgr.document());
+    return;
+  }
 
   InvertColorWindow window(filterMgr);
   window.doModal();
