@@ -91,38 +91,44 @@ SDL2Display::SDL2Display(int width, int height, int scale)
 
         SDL_ShowCursor(SDL_DISABLE);
 
-        bool tabletSupport{};
+        // The dummy video driver has no window system: skip the tablet
+        // init (it would read uninitialized window manager info and
+        // print errors to the batch output).
+        if (SDL_strcmp(SDL_GetCurrentVideoDriver(), "dummy") != 0)
+        {
+          bool tabletSupport{};
 
 #ifdef EASYTAB_H
-        SDL_SysWMinfo wmInfo;
-        SDL_VERSION(&wmInfo.version);
-        SDL_GetWindowWMInfo(m_window, &wmInfo);
+          SDL_SysWMinfo wmInfo;
+          SDL_VERSION(&wmInfo.version);
+          SDL_GetWindowWMInfo(m_window, &wmInfo);
 #if defined(_WIN32)
-        {
-          auto error = EasyTab_Load(wmInfo.info.win.window);
-          tabletSupport = error == EASYTAB_OK;
-          if (!tabletSupport)
           {
+            auto error = EasyTab_Load(wmInfo.info.win.window);
+            tabletSupport = error == EASYTAB_OK;
+            if (!tabletSupport)
+            {
+              std::cout << "EasyTab error: " << error << "\n";
+            }
+          }
+#elif defined(__linux__) && !defined(ANDROID)
+          if (wmInfo.subsystem == SDL_SYSWM_X11)
+          {
+            auto error = EasyTab_Load(wmInfo.info.x11.display, wmInfo.info.x11.window);
+            tabletSupport = error == EASYTAB_OK;
+            SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
             std::cout << "EasyTab error: " << error << "\n";
           }
-        }
-#elif defined(__linux__) && !defined(ANDROID)
-        if (wmInfo.subsystem == SDL_SYSWM_X11)
-        {
-          auto error = EasyTab_Load(wmInfo.info.x11.display, wmInfo.info.x11.window);
-          tabletSupport = error == EASYTAB_OK;
-          SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-          std::cout << "EasyTab error: " << error << "\n";
-        }
-        else
-        {
-          std::cout << "Unsupported wm subsystem for tablets" << "\n";
-        }
+          else
+          {
+            std::cout << "Unsupported wm subsystem for tablets" << "\n";
+          }
 #endif
 #elif __APPLE__
-        tabletSupport = osx_tablet::init();
+          tabletSupport = osx_tablet::init();
 #endif
-        std::cout << "Tablet support: " << (tabletSupport ? "OK" : "FAILED") << "\n";
+          std::cout << "Tablet support: " << (tabletSupport ? "OK" : "FAILED") << "\n";
+        }
       },
       true);
 

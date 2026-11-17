@@ -26,6 +26,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onChecked(Context* context) override;
   void onExecute(Context* context) override;
   std::string onGetFriendlyName() const override;
@@ -54,6 +55,13 @@ void SetInkTypeCommand::onLoadParams(const Params& params)
     m_type = tools::InkType::SHADING;
   else
     m_type = tools::InkType::DEFAULT;
+}
+
+std::vector<CommandParamInfo> SetInkTypeCommand::onDescribeParams() const
+{
+  return {
+      {"type", "simple, alpha-compositing, copy-color, lock-alpha or shading.", false, ""},
+  };
 }
 
 bool SetInkTypeCommand::onChecked(Context* context)

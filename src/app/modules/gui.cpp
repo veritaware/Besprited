@@ -84,6 +84,10 @@ static she::Display* main_display = nullptr;
 static CustomizedGuiManager* manager = nullptr;
 static Theme* gui_theme = nullptr;
 
+// GUI mode (a real display, not the dummy driver's): captured in
+// init_module_gui because App::instance() is null during the module exit.
+static bool gui_mode = false;
+
 static ui::Timer* defered_invalid_timer = nullptr;
 static gfx::Region defered_invalid_region;
 
@@ -169,7 +173,11 @@ int init_module_gui()
 
   bool maximized = false;
   std::string lastError = "Unknown error";
+  gui_mode = App::instance()->isGui();
+  // Headless runs use the dummy video driver: no GPU renderer.
   bool gpuAccel = Preferences::instance().general.gpuAcceleration();
+  if (!gui_mode)
+    gpuAccel = false;
 
   if (!create_main_display(gpuAccel, maximized, lastError))
   {
@@ -204,15 +212,24 @@ int init_module_gui()
     auto uiScale = Preferences::instance().experimental.uiScale();
     if (uiScale < 1)
     {
+      if (gui_mode)
+      {
 #ifdef EMSCRIPTEN
-      uiScale = 2;
+        uiScale = 2;
 #else
       // The initial window is only a small fallback size, so prefer the
       // real desktop height and only fall back to the window height when
       // it's unavailable.
       uiScale = guessUiScale(she::instance()->desktopSize().h, ui::display_h());
 #endif
-      Preferences::instance().experimental.uiScale(uiScale);
+        Preferences::instance().experimental.uiScale(uiScale);
+      }
+      else
+      {
+        // Headless: the dummy driver's size is not the desktop's,
+        // so do not guess (or persist) a scale.
+        uiScale = 1;
+      }
     }
     gui_theme->setScale(uiScale);
   }
@@ -253,6 +270,10 @@ static void load_gui_config(int& w, int& h, bool& maximized, std::string& window
 
 static void save_gui_config()
 {
+  // Headless runs must not persist the dummy display's hardcoded size.
+  if (!gui_mode)
+    return;
+
   she::Display* display = manager->getDisplay();
   if (display)
   {
@@ -275,8 +296,7 @@ void update_screen_for_document(const Document* document)
     if (set_current_palette(nullptr, false))
     {
       // If the palette changes, refresh the whole screen.
-      if (manager)
-        manager->invalidate();
+      manager->invalidate();
     }
   }
   // With a document.
@@ -570,6 +590,12 @@ std::string CustomizedGuiManager::loadLayout(Widget* widget)
 void CustomizedGuiManager::saveLayout(Widget* widget, const std::string& str)
 {
   if (widget->window() == nullptr)
+    return;
+
+  // Headless runs must not persist window layouts to the config file.
+  // (gui_mode, not App::instance()->isGui(): App is already gone when
+  // a kCloseMessage is dispatched during the module exit.)
+  if (!gui_mode)
     return;
 
   std::string windowId = widget->window()->id();

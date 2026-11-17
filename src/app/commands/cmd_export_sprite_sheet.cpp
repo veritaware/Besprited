@@ -846,6 +846,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
   void onExecute(Context* context) override;
 
@@ -872,6 +873,14 @@ void ExportSpriteSheetCommand::onLoadParams(const Params& params)
     m_askOverwrite = true;
 }
 
+std::vector<CommandParamInfo> ExportSpriteSheetCommand::onDescribeParams() const
+{
+  return {
+      {"ui", "Show the export dialog (1 or 0).", false, "1"},
+      {"ask-overwrite", "Ask before overwriting the output files (1 or 0).", false, "1"},
+  };
+}
+
 bool ExportSpriteSheetCommand::onEnabled(Context* context)
 {
   return context->checkFlags(ContextFlags::ActiveDocumentIsWritable);
@@ -884,7 +893,7 @@ void ExportSpriteSheetCommand::onExecute(Context* context)
   DocumentPreferences& docPref(Preferences::instance().document(document));
   bool askOverwrite = m_askOverwrite;
 
-  if (m_useUI && context->isUIAvailable())
+  if (m_useUI && App::instance()->isGui())
   {
     ExportSpriteSheetWindow window(document, sprite, docPref);
     window.openWindowInForeground();
@@ -943,7 +952,7 @@ void ExportSpriteSheetCommand::onExecute(Context* context)
   bool listLayers = docPref.spriteSheet.listLayers();
   bool listFrameTags = docPref.spriteSheet.listFrameTags();
 
-  if (context->isUIAvailable() && askOverwrite)
+  if (App::instance()->isGui() && askOverwrite)
   {
     if (!ask_overwrite(true, filename, true, dataFilename))
       return; // Do not overwrite

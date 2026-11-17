@@ -409,8 +409,8 @@ base::SharedPtr<FormatOptions> JpegFormat::onGetFormatOptions(FileOp* fop)
   if (!jpeg_options)
     jpeg_options.reset(new JpegOptions);
 
-  // Non-interactive mode
-  if (!fop->context() || !fop->context()->isUIAvailable())
+  // Non-interactive mode (headless runs have a UI but no human)
+  if (!fop->context() || !App::hasGui())
     return jpeg_options;
 
   try

@@ -50,6 +50,9 @@ public:
   // distpatched through jmanager_dispatch_messages().
   bool generateMessages();
   void dispatchMessages();
+  // Dispatches the queued messages without flipping the display
+  // (the headless pump does this; see AppScripting::runHeadlessPump).
+  void pumpQueue();
   void enqueueMessage(Message* msg);
 
   void addToGarbage(Widget* widget);
@@ -128,7 +131,6 @@ private:
   void handleTouchMagnify(const gfx::Point& mousePos, const KeyModifiers modifiers, const double magnification);
   void handleWindowZOrder();
 
-  void pumpQueue();
   static void removeWidgetFromRecipients(Widget* widget, Message* msg);
   static bool someParentIsFocusStop(Widget* widget);
   static Widget* findMagneticWidget(Widget* widget);

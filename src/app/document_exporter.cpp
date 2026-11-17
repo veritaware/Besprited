@@ -12,6 +12,7 @@
 
 #include "app/document_exporter.h"
 
+#include "app/app.h"
 #include "app/cmd/set_pixel_format.h"
 #include "app/console.h"
 #include "app/document.h"
@@ -485,8 +486,8 @@ Document* DocumentExporter::exportSheet()
   std::streambuf* osbuf = nullptr;
   if (m_dataFilename.empty())
   {
-    // Redirect to stdout if we are running in batch mode
-    if (!UIContext::instance()->isUIAvailable())
+    // Redirect to stdout when there is no interactive UI
+    if (!App::instance()->isGui())
       osbuf = std::cout.rdbuf();
   }
   else

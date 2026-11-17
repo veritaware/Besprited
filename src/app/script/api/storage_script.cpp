@@ -9,32 +9,32 @@
 #include "delta/JSON.hpp"
 #include "di.hpp"
 
-#include "app/res/http.h"
 #include "app/resource_finder.h"
+#include "app/script/api/http_internal.h"
 #include "app/script/app_scripting.h"
 #include "app/script/api/storage_internal.h"
+#include "app/script/script_permissions.h"
 #include "base/base64.h"
 #include "base/exception.h"
 #include "base/file_handle.h"
 #include "base/fs.h"
-#include "base/path.h"
+#include "base/string.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <iostream>
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace
 {
 
-// Empty domain -> the script's own basename, not its full path: getFileName()
-// is absolute, and scripts normally run out of Besprited's own user scripts
-// dir, so using the full path here would re-append that same dir onto itself
-// once joined with includeUserDir() below.
+// Empty domain -> the default storage domain (the current script BASENAME,
+// script::defaultStorageDomain, shared with the entry/intentry widgets).
 std::string normalizeDomain(const std::string& domain)
 {
-  return domain.empty() ? base::get_file_name(app::AppScripting::getFileName()) : domain;
+  return domain.empty() ? script::defaultStorageDomain() : domain;
 }
 
 // The on-disk path for a key/domain (user dir, created if missing).
@@ -44,6 +44,15 @@ std::string storagePath(const std::string& key, const std::string& domain)
 {
   if (base::has_path_traversal(key) || base::has_path_traversal(domain))
     throw base::Exception("Invalid storage key/domain.");
+  // Storage files live flat in the user dir: no sub-directories (e.g. the
+  // user scripts dir), and never the files that hold app state or grants.
+  const auto isSeparator = [](char c) { return c == '/' || c == '\\'; };
+  if (std::any_of(key.begin(), key.end(), isSeparator) || std::any_of(domain.begin(), domain.end(), isSeparator))
+    throw base::Exception("Invalid storage key/domain.");
+  const auto leaf = base::string_to_lower(domain + "." + key);
+  for (const char* reserved : {"script_permissions.json", "besprited.ini", "libresprite.ini", "aseprite.ini"})
+    if (leaf == reserved)
+      throw base::Exception("Invalid storage key/domain.");
   app::ResourceFinder rf;
   rf.includeUserDir((domain + "." + key).c_str());
   return rf.getFirstOrCreateDefault();
@@ -100,6 +109,9 @@ public:
     addFunction("__storageLoad") = [](const std::string& key, const std::string& domainV) -> JSON::Value
     {
       auto domain = normalizeDomain(domainV);
+      // A --set value wins over the saved value: keep the in-memory one.
+      if (script::isCliStorage(key, domain))
+        return JSON::Value{true};
       try
       {
         auto path = storagePath(key, domain);
@@ -136,22 +148,29 @@ public:
     };
 
     // storage.fetch(url, key, [domain, header, value, ...]) -> undefined.
-    // Async: seeds the key with "", performs app::HTTP::fetch, and on
-    // completion stores the body + `<key>_status` and raises `<key>_fetch`.
-    // A "POST" header key sets the request body instead of a header.
+    // Async: seeds the key with "", performs the request on a worker
+    // thread, and on completion stores the body + `<key>_status` and
+    // raises `<key>_fetch`. A "POST" header key sets the request body
+    // instead of a header.
     addVarArgFunction("__storageFetch") = [](JSON::Array& args) -> JSON::Value
     {
       if (args.size() < 2)
         return JSON::Value{JSON::Special::Undefined};
+      // storage.fetch performs a network request: gate it like fetch.
+      if (!app::ScriptPermissions::check(app::ScriptPermissions::kNetFetch))
+      {
+        app::AppScripting::consolePrint(app::ScriptPermissions::denyMessage(app::ScriptPermissions::kNetFetch));
+        return JSON::Value{JSON::Special::Undefined};
+      }
       auto url = args[0].toString();
       auto key = args[1].toString();
       auto domain = normalizeDomain(args.size() >= 3 ? args[2].toString() : "");
       auto fileName = app::AppScripting::getFileName();
       script::setStorage(JSON::Value{std::string{}}, key, domain);
 
-      std::unordered_map<std::string, std::string> headers;
+      std::map<std::string, std::string> headers;
       std::string body;
-      const std::string* post = nullptr;
+      bool isPost = false;
       for (std::size_t i = 3; i + 1 < args.size(); i += 2)
       {
         auto hkey = args[i].toString();
@@ -159,7 +178,7 @@ public:
         if (hkey == "POST")
         {
           body = hval;
-          post = &body;
+          isPost = true;
         }
         else
         {
@@ -167,15 +186,16 @@ public:
         }
       }
 
-      app::HTTP::fetch(url, post, headers,
-                       [key, domain, fileName](app::HTTP::Result&& result)
-                       {
-                         script::setStorage(JSON::Value{result.body}, key, domain);
-                         script::setStorage(JSON::Value{static_cast<double>(result.status)}, key + "_status", domain);
-                         JSON::Value event;
-                         event.push_back(key + "_fetch");
-                         app::AppScripting::raiseEvent(fileName, event);
-                       });
+      script::httpFetch(url, isPost ? "POST" : "", body, false, headers,
+                        [key, domain, fileName](script::HttpResult&& res)
+                        {
+                          auto status = res.error ? 0 : res.status;
+                          script::setStorage(JSON::Value{res.error ? std::string{} : std::move(res.body)}, key, domain);
+                          script::setStorage(JSON::Value{(double)status}, key + "_status", domain);
+                          JSON::Value event;
+                          event.push_back(key + "_fetch");
+                          app::AppScripting::raiseEvent(fileName, event);
+                        });
       return JSON::Value{JSON::Special::Undefined};
     };
   }

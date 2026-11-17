@@ -11,6 +11,7 @@
 
 #include <Foundation/Foundation.h>
 
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -30,12 +31,16 @@ std::string get_lib_app_support_path()
 
 std::vector<std::string> get_font_paths()
 {
-    return {
+    std::vector<std::string> dirs = {
         "/System/Library/Fonts/Supplemental",
         "/System/Library/Fonts",
-        "/Library/Fonts",
-        "~/Library/Fonts"
+        "/Library/Fonts"
     };
+    // The user fonts dir (a literal "~" cannot be opened).
+    const char* home = getenv("HOME");
+    if (home)
+        dirs.push_back(std::string(home) + "/Library/Fonts");
+    return dirs;
 }
 
 } // namespace base

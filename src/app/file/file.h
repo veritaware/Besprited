@@ -86,6 +86,7 @@ public:
   const std::string& filename() const { return m_filename; }
   Context* context() const { return m_context; }
   Document* document() const { return m_document; }
+  FileFormat* format() const { return m_format; }
   Document* releaseDocument()
   {
     Document* doc = m_document;

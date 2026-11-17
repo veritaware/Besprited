@@ -37,6 +37,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   void onExecute(Context* context) override;
 
 private:
@@ -51,6 +52,13 @@ SavePaletteCommand::SavePaletteCommand()
 void SavePaletteCommand::onLoadParams(const Params& params)
 {
   m_preset = params.get("preset");
+}
+
+std::vector<CommandParamInfo> SavePaletteCommand::onDescribeParams() const
+{
+  return {
+      {"preset", "Preset palette name to save to. Empty opens the file dialog.", false, ""},
+  };
 }
 
 void SavePaletteCommand::onExecute(Context* context)

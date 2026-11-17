@@ -53,22 +53,22 @@ instead of the SDL3 ones and configure with `-DUSE_SDL2_BACKEND=on`.
 
 Debian/Ubuntu/Mint:
 
-    sudo apt-get install g++ cmake git libcurl4-gnutls-dev libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl3-dev libsdl3-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev
+    sudo apt-get install g++ cmake git libfreetype6-dev libgif-dev libgtest-dev libjpeg-dev libpixman-1-dev libpng-dev libsdl3-dev libsdl3-image-dev libtinyxml2-dev libnode-dev ninja-build zlib1g-dev libarchive-dev libssl-dev
 
 Fedora:
 
-    sudo dnf install g++ cmake git libcurl-devel freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL3-devel SDL3_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel libXi-devel
+    sudo dnf install g++ cmake git freetype-devel giflib-devel gtest-devel libjpeg-devel pixman-devel libpng-devel SDL3-devel SDL3_image-devel tinyxml2-devel zlib-devel ninja-build nodejs-devel libarchive-devel openssl-devel libXi-devel
 
 Arch Linux:
 
-    sudo pacman -Syu base-devel cmake ninja git sdl3 sdl3_image tinyxml2 freetype2 curl giflib gtest libjpeg-turbo pixman libpng zlib nodejs libarchive
+    sudo pacman -Syu base-devel cmake ninja git sdl3 sdl3_image tinyxml2 freetype2 giflib gtest libjpeg-turbo pixman libpng zlib nodejs libarchive openssl
     
 
 ### Windows dependencies
 
 To install the required dependencies with msys2, run the following in the MSYS2 UCRT64 shell:
 
-    pacman -S base-devel mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-nodejs mingw-w64-ucrt-x86_64-curl mingw-w64-ucrt-x86_64-freetype mingw-w64-ucrt-x86_64-giflib mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libwebp mingw-w64-ucrt-x86_64-pixman mingw-w64-ucrt-x86_64-sdl3 mingw-w64-ucrt-x86_64-sdl3-image mingw-w64-ucrt-x86_64-tinyxml2 mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-libarchive
+    pacman -S base-devel mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-make mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-nodejs mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-freetype mingw-w64-ucrt-x86_64-giflib mingw-w64-ucrt-x86_64-libjpeg-turbo mingw-w64-ucrt-x86_64-libpng mingw-w64-ucrt-x86_64-libwebp mingw-w64-ucrt-x86_64-pixman mingw-w64-ucrt-x86_64-sdl3 mingw-w64-ucrt-x86_64-sdl3-image mingw-w64-ucrt-x86_64-tinyxml2 mingw-w64-ucrt-x86_64-zlib mingw-w64-ucrt-x86_64-libarchive
 
 ### MacOS dependencies
 
