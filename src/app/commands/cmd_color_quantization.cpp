@@ -50,6 +50,15 @@ private:
   int m_colors;
   bool m_alpha;
   bool m_hasAlpha; // true when the alpha param is given
+
+  void executeWithoutDialog(Context* context);
+
+  void reset()
+  {
+    m_colors = 0;
+    m_alpha = false;
+    m_hasAlpha = false;
+  }
 };
 
 class ColorQuantizationJob : public Job,
@@ -69,9 +78,7 @@ private:
   {
     render::create_palette_from_sprite(m_sprite, 0, m_sprite->lastFrame(), m_withAlpha, &m_palette, this);
   }
-
   bool onPaletteOptimizerContinue() override { return !isCanceled(); }
-
   void onPaletteOptimizerProgress(double progress) override { jobProgress(progress); }
 
   Sprite* m_sprite;
@@ -79,19 +86,46 @@ private:
   Palette& m_palette;
 };
 
+namespace
+{
+
+// Runs the quantization job; returns nullptr if canceled.
+std::shared_ptr<Palette> quantize_sprite(Sprite* sprite, frame_t frame, bool withAlpha, int ncolors)
+{
+  auto palette = Palette::create(ncolors);
+  palette->setFrame(frame);
+  ColorQuantizationJob job(sprite, withAlpha, *palette);
+  job.startJob();
+  job.waitJob();
+  return job.isCanceled() ? nullptr : palette;
+}
+
+// Applies the palette to the sprite as an undoable change.
+void commit_palette(Sprite* sprite, frame_t frame, const Palette* curPalette, Palette* newPalette)
+{
+  if (*curPalette == *newPalette)
+    return;
+
+  ContextWriter writer(UIContext::instance(), 500);
+  Transaction transaction(writer.context(), "Color Quantization", ModifyDocument);
+  transaction.execute(new cmd::SetPalette(sprite, frame, *newPalette));
+  transaction.commit();
+
+  set_current_palette(newPalette, false);
+  ui::Manager::getDefault()->invalidate();
+}
+
+} // namespace
+
 ColorQuantizationCommand::ColorQuantizationCommand()
   : Command("ColorQuantization", "Create Palette from Current Sprite (Color Quantization)", CmdRecordableFlag)
 {
-  m_colors = 0;
-  m_alpha = false;
-  m_hasAlpha = false;
+  reset();
 }
 
 void ColorQuantizationCommand::onLoadParams(const Params& params)
 {
-  m_colors = 0;
-  m_alpha = false;
-  m_hasAlpha = false;
+  reset();
   if (params.has_param("colors"))
     m_colors = params.get_as<int>("colors");
   if (params.has_param("alpha"))
@@ -114,6 +148,26 @@ bool ColorQuantizationCommand::onEnabled(Context* context)
   return context->checkFlags(ContextFlags::ActiveDocumentIsWritable);
 }
 
+void ColorQuantizationCommand::executeWithoutDialog(Context* context)
+{
+  Sprite* sprite;
+  frame_t frame;
+  Palette* curPalette;
+  {
+    ContextReader reader(context);
+    Site site = context->activeSite();
+    sprite = site.sprite();
+    frame = site.frame();
+    curPalette = sprite->palette(frame);
+  }
+
+  bool withAlpha = m_hasAlpha ? m_alpha : App::instance()->preferences().quantization.withAlpha();
+
+  auto tmpPalette = quantize_sprite(sprite, frame, withAlpha, m_colors);
+  if (tmpPalette)
+    commit_palette(sprite, frame, curPalette, tmpPalette.get());
+}
+
 void ColorQuantizationCommand::onExecute(Context* context)
 {
   try
@@ -121,40 +175,7 @@ void ColorQuantizationCommand::onExecute(Context* context)
     // With the colors param, run the "new palette" path without the dialog.
     if (m_colors > 0)
     {
-      Sprite* sprite;
-      frame_t frame;
-      Palette* curPalette;
-      {
-        ContextReader reader(context);
-        Site site = context->activeSite();
-        sprite = site.sprite();
-        frame = site.frame();
-        curPalette = sprite->palette(frame);
-      }
-
-      bool withAlpha = m_hasAlpha ? m_alpha : App::instance()->preferences().quantization.withAlpha();
-
-      PalettePicks entries(m_colors);
-      entries.all();
-
-      auto tmpPalette = Palette::create(entries.picks());
-      tmpPalette->setFrame(frame);
-      ColorQuantizationJob job(sprite, withAlpha, *tmpPalette);
-      job.startJob();
-      job.waitJob();
-      if (job.isCanceled())
-        return;
-
-      if (*curPalette != *tmpPalette)
-      {
-        ContextWriter writer(UIContext::instance(), 500);
-        Transaction transaction(writer.context(), "Color Quantization", ModifyDocument);
-        transaction.execute(new cmd::SetPalette(sprite, frame, *tmpPalette));
-        transaction.commit();
-
-        set_current_palette(tmpPalette.get(), false);
-        ui::Manager::getDefault()->invalidate();
-      }
+      executeWithoutDialog(context);
       return;
     }
 
@@ -217,12 +238,8 @@ void ColorQuantizationCommand::onExecute(Context* context)
     if (entries.picks() == 0)
       return;
 
-    auto tmpPalette = Palette::create(entries.picks());
-    tmpPalette->setFrame(frame);
-    ColorQuantizationJob job(sprite, withAlpha, *tmpPalette);
-    job.startJob();
-    job.waitJob();
-    if (job.isCanceled())
+    auto tmpPalette = quantize_sprite(sprite, frame, withAlpha, entries.picks());
+    if (!tmpPalette)
       return;
 
     auto newPalette = createPal ? tmpPalette.get() : get_current_palette();
@@ -241,16 +258,7 @@ void ColorQuantizationCommand::onExecute(Context* context)
       ++i;
     }
 
-    if (*curPalette != *newPalette)
-    {
-      ContextWriter writer(UIContext::instance(), 500);
-      Transaction transaction(writer.context(), "Color Quantization", ModifyDocument);
-      transaction.execute(new cmd::SetPalette(sprite, frame, *newPalette));
-      transaction.commit();
-
-      set_current_palette(newPalette, false);
-      ui::Manager::getDefault()->invalidate();
-    }
+    commit_palette(sprite, frame, curPalette, newPalette);
   }
   catch (base::Exception& e)
   {
