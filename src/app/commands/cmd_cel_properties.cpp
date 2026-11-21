@@ -315,9 +315,11 @@ protected:
   void onExecute(Context* context) override;
 
 private:
-  // Property params: with opacity or user-data the changes are applied to
-  // the target cel in one transaction without the window.
-  bool m_hasParams;
+  void applyParamsToCel(const Context* context);
+  // Whether opacity or user-data params were given;
+  // if so, they are applied to the target cel in one transaction, without the window.
+  bool hasCelParams() const { return m_hasOpacity || m_hasUserData; }
+
   bool m_hasOpacity;
   int m_opacity;
   bool m_hasUserData;
@@ -348,7 +350,6 @@ static Layer* find_layer_by_name(Layer* folder, const std::string& name)
 CelPropertiesCommand::CelPropertiesCommand()
   : Command("CelProperties", "Cel Properties", CmdUIOnlyFlag)
 {
-  m_hasParams = false;
   m_hasOpacity = false;
   m_opacity = 255;
   m_hasUserData = false;
@@ -357,7 +358,6 @@ CelPropertiesCommand::CelPropertiesCommand()
 
 void CelPropertiesCommand::onLoadParams(const Params& params)
 {
-  m_hasParams = false;
   m_hasOpacity = false;
   m_hasUserData = false;
   m_layer = "";
@@ -379,9 +379,7 @@ void CelPropertiesCommand::onLoadParams(const Params& params)
 
   std::string frame = params.get("frame");
   if (!frame.empty())
-    m_frame = strtol(frame.c_str(), NULL, 10);
-
-  m_hasParams = m_hasOpacity || m_hasUserData;
+    m_frame = strtol(frame.c_str(), nullptr, 10);
 }
 
 std::vector<CommandParamInfo> CelPropertiesCommand::onDescribeParams() const
@@ -399,75 +397,78 @@ bool CelPropertiesCommand::onEnabled(Context* context)
   return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::ActiveLayerIsImage);
 }
 
-void CelPropertiesCommand::onExecute(Context* context)
+void CelPropertiesCommand::applyParamsToCel(const Context* context)
 {
   ContextReader reader(context);
 
-  // With the property params, apply them to the target cel without the
-  // window.
-  if (m_hasParams)
+  Sprite* sprite = reader.sprite();
+
+  // Target layer: by name, then by index; fallback the active layer.
+  Layer* layer = reader.layer();
+  if (!m_layer.empty())
   {
-    Sprite* sprite = reader.sprite();
-
-    // Target layer: by name, then by index; fallback the active layer.
-    Layer* layer = reader.layer();
-    if (!m_layer.empty())
+    layer = find_layer_by_name(sprite->folder(), m_layer);
+    if (!layer)
     {
-      layer = find_layer_by_name(sprite->folder(), m_layer);
-      if (!layer)
-      {
-        char* end = NULL;
-        long index = strtol(m_layer.c_str(), &end, 10);
-        if (end && *end == '\0' && index >= 0)
-          layer = sprite->layer((int)index);
-      }
-      if (!layer)
-        throw std::runtime_error("CelProperties: layer not found: '" + m_layer + "'");
+      char* end = nullptr;
+      long index = strtol(m_layer.c_str(), &end, 10);
+      if (end && *end == '\0' && index >= 0)
+        layer = sprite->layer((int)index);
+    }
+    if (!layer)
+      throw std::runtime_error("CelProperties: layer not found: '" + m_layer + "'");
+  }
+
+  LayerImage* image = dynamic_cast<LayerImage*>(layer);
+  if (!image)
+    throw std::runtime_error("CelProperties: the target layer is not an image layer");
+
+  // Target frame (1-based, like GotoFrame); fallback the active frame.
+  frame_t frame = reader.frame();
+  if (m_frame != 0)
+    frame = MID(0, m_frame - 1, sprite->lastFrame());
+
+  std::shared_ptr<Cel> cel = image->cel(frame);
+  if (!cel)
+    throw std::runtime_error("CelProperties: no cel in layer '" + image->name() + "' at frame " +
+                             std::to_string(frame + 1));
+
+  doc::UserData newUserData = cel->data()->userData();
+  if (m_hasUserData)
+    newUserData.setText(m_userData);
+
+  // The background layer is always opaque, like the window.
+  bool changeOpacity = m_hasOpacity && !image->isBackground() && (cel->opacity() != m_opacity);
+  bool changeUserData = m_hasUserData && (cel->data()->userData() != newUserData);
+
+  if (changeOpacity || changeUserData)
+  {
+    ContextWriter writer(reader);
+    Transaction transaction(writer.context(), "Set Cel Properties");
+
+    if (changeOpacity)
+      transaction.execute(new cmd::SetCelOpacity(cel, m_opacity));
+
+    if (changeUserData)
+    {
+      transaction.execute(new cmd::SetUserData(cel->data(), newUserData));
+
+      // Redraw timeline because the cel's user data/color
+      // might have changed.
+      if (App::instance()->timeline())
+        App::instance()->timeline()->invalidate();
     }
 
-    LayerImage* image = dynamic_cast<LayerImage*>(layer);
-    if (!image)
-      throw std::runtime_error("CelProperties: the target layer is not an image layer");
+    transaction.commit();
+    update_screen_for_document(writer.document());
+  }
+}
 
-    // Target frame (1-based, like GotoFrame); fallback the active frame.
-    frame_t frame = reader.frame();
-    if (m_frame != 0)
-      frame = MID(0, m_frame - 1, sprite->lastFrame());
-
-    std::shared_ptr<Cel> cel = image->cel(frame);
-    if (!cel)
-      throw std::runtime_error("CelProperties: no cel in layer '" + image->name() + "' at frame " +
-                               std::to_string(frame + 1));
-
-    doc::UserData newUserData = cel->data()->userData();
-    if (m_hasUserData)
-      newUserData.setText(m_userData);
-
-    // The background layer is always opaque, like the window.
-    bool changeOpacity = m_hasOpacity && !image->isBackground() && (cel->opacity() != m_opacity);
-    bool changeUserData = m_hasUserData && (cel->data()->userData() != newUserData);
-
-    if (changeOpacity || changeUserData)
-    {
-      ContextWriter writer(reader);
-      Transaction transaction(writer.context(), "Set Cel Properties");
-
-      if (changeOpacity)
-        transaction.execute(new cmd::SetCelOpacity(cel, m_opacity));
-
-      if (changeUserData)
-      {
-        transaction.execute(new cmd::SetUserData(cel->data(), newUserData));
-
-        // Redraw timeline because the cel's user data/color
-        // might have changed.
-        if (App::instance()->timeline())
-          App::instance()->timeline()->invalidate();
-      }
-
-      transaction.commit();
-      update_screen_for_document(writer.document());
-    }
+void CelPropertiesCommand::onExecute(Context* context)
+{
+  if (hasCelParams())
+  {
+    applyParamsToCel(context);
     return;
   }
 
@@ -483,6 +484,7 @@ void CelPropertiesCommand::onExecute(Context* context)
   if (!g_window)
     g_window = new CelPropertiesWindow;
 
+  ContextReader reader(context);
   g_window->setCel(reader.document(), reader.cel());
   g_window->openWindow();
 
