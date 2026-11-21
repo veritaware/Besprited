@@ -12,6 +12,7 @@
 #include "app/cmd/set_pixel.h"
 
 #include "base/debug.h"
+#include "base/arithmetic.h"
 #include "doc/image.h"
 
 namespace app
@@ -21,30 +22,33 @@ namespace cmd
 
 SetPixel::SetPixel(Image* image, int x, int y, color_t color)
   : WithImage(image)
-  , m_pos(x, y)
-  , m_oldColor(image->getPixel(x, y))
-  , m_newColor(color)
 {
-  ASSERT(m_pos.x >= 0 && m_pos.x < image->width());
-  ASSERT(m_pos.y >= 0 && m_pos.y < image->height());
+  ASSERT(base::in_range(x, 0, image->width(), base::RangeBound::RightOpen));
+  ASSERT(base::in_range(y, 0, image->height(), base::RangeBound::RightOpen));
+  m_pos = gfx::Point(x, y);
+  m_oldColor = image->getPixel(x, y);
+  m_newColor = color;
+}
+
+void SetPixel::putPixel(color_t color)
+{
+  this->image()->putPixel(m_pos.x, m_pos.y, color);
+  this->image()->incrementVersion();
 }
 
 void SetPixel::onExecute()
 {
-  this->image()->putPixel(m_pos.x, m_pos.y, m_newColor);
-  this->image()->incrementVersion();
+  putPixel(m_newColor);
 }
 
 void SetPixel::onUndo()
 {
-  this->image()->putPixel(m_pos.x, m_pos.y, m_oldColor);
-  this->image()->incrementVersion();
+  putPixel(m_oldColor);
 }
 
 void SetPixel::onRedo()
 {
-  this->image()->putPixel(m_pos.x, m_pos.y, m_newColor);
-  this->image()->incrementVersion();
+  putPixel(m_newColor);
 }
 
 } // namespace cmd

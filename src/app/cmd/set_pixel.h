@@ -28,6 +28,7 @@ public:
   SetPixel(Image* image, int x, int y, color_t color);
 
 protected:
+  void putPixel(color_t);
   void onExecute() override;
   void onUndo() override;
   void onRedo() override;
