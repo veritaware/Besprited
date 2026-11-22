@@ -764,5 +764,8 @@
  "colors or less": "ألوان أو أقل",
  "explaining what you was doing when the program crashed.": "شرح ما كنت تفعله عندما تعطل البرنامج.",
  "https://github.com/Veritaware/Besprited/issues": "https://github.com/Veritaware/Besprited/issues",
- "to a bug report on:": "إلى تقرير عن خطأ في:"
+ "not available in headless mode": "غير متاح في الوضع بدون واجهة",
+ "text and font params are required in headless mode": "معلمات النص والخط مطلوبة في الوضع بدون واجهة",
+ "to a bug report on:": "إلى تقرير عن خطأ في:",
+ "width and height params are required in headless mode": "معلمات العرض والارتفاع مطلوبة في الوضع بدون واجهة"
 }

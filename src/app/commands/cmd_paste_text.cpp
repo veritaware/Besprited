@@ -311,13 +311,8 @@ void PasteTextCommand::onExecute(Context* ctx)
   }
 
   // The dialog would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("PasteText: text and font params are required in headless mode\n");
-    Console console(ctx);
-    console.printf("PasteText: text and font params are required in headless mode\n");
+  if (failIfHeadless(app::i18n("text and font params are required in headless mode")))
     return;
-  }
 
   PasteTextWindow window(pref.textTool.fontFace(), pref.textTool.fontSize(), pref.textTool.antialias(),
                          pref.colorBar.fgColor());

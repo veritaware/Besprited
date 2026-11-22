@@ -20,6 +20,7 @@
 #include "app/document_api.h"
 #include "app/modules/editors.h"
 #include "app/modules/gui.h"
+#include "app/modules/i18n.h"
 #include "app/modules/palettes.h"
 #include "app/pref/preferences.h"
 #include "app/transaction.h"
@@ -420,13 +421,8 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
   }
 
   // Interactive only: the window would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("ImportSpriteSheet: width and height params are required in headless mode\n");
-    Console console(context);
-    console.printf("ImportSpriteSheet: width and height params are required in headless mode\n");
+  if (failIfHeadless(app::i18n("width and height params are required in headless mode")))
     return;
-  }
 
   ImportSpriteSheetWindow window(context);
 

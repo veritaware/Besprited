@@ -9,10 +9,13 @@
 #include "config.h"
 #endif
 
+#include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/modules/i18n.h"
+
+#include <format>
 
 namespace app
 {
@@ -113,6 +116,19 @@ void Command::onExecute(Context* context)
 std::string Command::onGetFriendlyName() const
 {
   return m_friendlyName;
+}
+
+bool Command::failIfHeadless(const std::string& reason) const
+{
+  if (App::instance()->isGui())
+    return false;
+
+  const std::string msg =
+      std::format("{}: {}\n", m_id, reason.empty() ? app::i18n("not available in headless mode") : reason);
+  LOG("%s", msg.c_str());
+  Console console;
+  console.printf("%s", msg.c_str());
+  return true;
 }
 
 } // namespace app

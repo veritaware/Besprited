@@ -167,13 +167,8 @@ void GridSettingsCommand::onExecute(Context* context)
   }
 
   // Interactive only: the dialog would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("GridSettings: not available in headless mode\n");
-    Console console(context);
-    console.printf("GridSettings: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   std::unique_ptr<Window> window(app::load_widget<Window>("grid_settings.xml", "grid_settings"));
   Widget* button_ok = app::find_widget<Widget>(window.get(), "ok");

@@ -764,5 +764,8 @@
  "colors or less": "색상 또는 그 이하",
  "explaining what you was doing when the program crashed.": "프로그램이 충돌했을 때 무슨 작업을 하고 있었는지 설명해 주세요.",
  "https://github.com/Veritaware/Besprited/issues": "https://github.com/Veritaware/Besprited/issues",
- "to a bug report on:": "버그 신고 관련:"
+ "not available in headless mode": "헤드리스 모드에서는 사용할 수 없습니다",
+ "text and font params are required in headless mode": "헤드리스 모드에서는 text 및 font 매개변수가 필요합니다",
+ "to a bug report on:": "버그 신고 관련:",
+ "width and height params are required in headless mode": "헤드리스 모드에서는 width 및 height 매개변수가 필요합니다"
 }

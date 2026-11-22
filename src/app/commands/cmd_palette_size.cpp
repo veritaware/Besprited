@@ -85,13 +85,8 @@ void PaletteSizeCommand::onExecute(Context* context)
   }
 
   // The dialog would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("PaletteSize: not available in headless mode\n");
-    Console console(context);
-    console.printf("PaletteSize: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   ContextWriter writer(context);
   Sprite* sprite = writer.sprite();

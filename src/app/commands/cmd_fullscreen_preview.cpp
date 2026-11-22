@@ -274,13 +274,8 @@ bool FullscreenPreviewCommand::onEnabled(Context* context)
 void FullscreenPreviewCommand::onExecute(Context* context)
 {
   // Interactive only: the preview window would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("FullscreenPreview: not available in headless mode\n");
-    Console console(context);
-    console.printf("FullscreenPreview: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   Editor* editor = current_editor;
 

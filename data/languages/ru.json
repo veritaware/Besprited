@@ -764,5 +764,8 @@
  "colors or less": "цветов или меньше",
  "explaining what you was doing when the program crashed.": "объясняя, что вы делали, когда программа упала.",
  "https://github.com/Veritaware/Besprited/issues": "https://github.com/Veritaware/Besprited/issues",
- "to a bug report on:": "к отчёту об ошибке на:"
+ "not available in headless mode": "недоступно в режиме headless",
+ "text and font params are required in headless mode": "параметры text и font обязательны в режиме headless",
+ "to a bug report on:": "к отчёту об ошибке на:",
+ "width and height params are required in headless mode": "параметры width и height обязательны в режиме headless"
 }

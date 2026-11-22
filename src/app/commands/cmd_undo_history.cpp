@@ -253,13 +253,8 @@ UndoHistoryCommand::UndoHistoryCommand()
 void UndoHistoryCommand::onExecute(Context* ctx)
 {
   // Interactive only: the history panel has no use headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("UndoHistory: not available in headless mode\n");
-    Console console(ctx);
-    console.printf("UndoHistory: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   if (!g_window)
     g_window = new UndoHistoryWindow(ctx);

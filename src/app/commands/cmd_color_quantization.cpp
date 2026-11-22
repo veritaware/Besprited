@@ -180,13 +180,8 @@ void ColorQuantizationCommand::onExecute(Context* context)
     }
 
     // The dialog would block headless.
-    if (!App::instance()->isGui())
-    {
-      LOG("ColorQuantization: not available in headless mode\n");
-      Console console(context);
-      console.printf("ColorQuantization: not available in headless mode\n");
+    if (failIfHeadless())
       return;
-    }
 
     app::gen::PaletteFromSprite window;
     PalettePicks entries;

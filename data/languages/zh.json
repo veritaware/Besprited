@@ -764,5 +764,8 @@
  "colors or less": "颜色或更少",
  "explaining what you was doing when the program crashed.": "解释一下程序崩溃时你正在做什么。",
  "https://github.com/Veritaware/Besprited/issues": "https://github.com/Veritaware/Besprited/issues",
- "to a bug report on:": "提交一份错误报告："
+ "not available in headless mode": "在无界面模式下不可用",
+ "text and font params are required in headless mode": "无界面模式下需要 text 和 font 参数",
+ "to a bug report on:": "提交一份错误报告：",
+ "width and height params are required in headless mode": "无界面模式下需要 width 和 height 参数"
 }

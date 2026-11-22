@@ -175,13 +175,8 @@ void FrameTagPropertiesCommand::onExecute(Context* context)
   }
 
   // The dialog would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("FrameTagProperties: not available in headless mode\n");
-    Console console(context);
-    console.printf("FrameTagProperties: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   FrameTagWindow window(sprite, foundTag);
   if (!window.show())

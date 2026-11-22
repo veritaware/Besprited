@@ -41,13 +41,8 @@ AboutCommand::AboutCommand()
 void AboutCommand::onExecute(Context* context)
 {
   // Interactive only: the dialog would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("About: not available in headless mode\n");
-    Console console(context);
-    console.printf("About: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   std::unique_ptr<Window> window(new Window(Window::WithTitleBar, "About " PACKAGE));
   Box* box1 = new Box(VERTICAL);

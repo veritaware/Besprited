@@ -139,13 +139,8 @@ void MaskByColorCommand::onExecute(Context* context)
   }
 
   // The dialog would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("MaskByColor: not available in headless mode\n");
-    Console console(context);
-    console.printf("MaskByColor: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   Box *box1, *box2, *box3, *box4;
   Widget* label_color;

@@ -101,13 +101,8 @@ void DuplicateSpriteCommand::onExecute(Context* context)
   }
 
   // Interactive only: the window would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("DuplicateSprite: not available in headless mode\n");
-    Console console;
-    console.printf("DuplicateSprite: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   // Load the window widget
   app::gen::DuplicateSprite window;

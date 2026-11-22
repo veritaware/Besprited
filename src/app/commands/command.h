@@ -67,6 +67,8 @@ protected:
   virtual bool onChecked(Context* context);
   virtual void onExecute(Context* context);
   virtual std::string onGetFriendlyName() const;
+  // Reports and returns true when running headless.
+  bool failIfHeadless(const std::string& reason = std::string()) const;
 
 private:
   std::string m_id;

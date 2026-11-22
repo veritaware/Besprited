@@ -764,5 +764,8 @@
  "colors or less": "रंग या उससे कम",
  "explaining what you was doing when the program crashed.": "यह बताएं कि प्रोग्राम क्रैश होने के समय आप क्या कर रहे थे।",
  "https://github.com/Veritaware/Besprited/issues": "https://github.com/Veritaware/Besprited/issues",
- "to a bug report on:": "इस विषय पर बग रिपोर्ट के लिए:"
+ "not available in headless mode": "हेडलेस मोड में उपलब्ध नहीं है",
+ "text and font params are required in headless mode": "हेडलेस मोड में text और font पैरामीटर आवश्यक हैं",
+ "to a bug report on:": "इस विषय पर बग रिपोर्ट के लिए:",
+ "width and height params are required in headless mode": "हेडलेस मोड में width और height पैरामीटर आवश्यक हैं"
 }

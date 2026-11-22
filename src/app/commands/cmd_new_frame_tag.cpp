@@ -120,13 +120,8 @@ void NewFrameTagCommand::onExecute(Context* context)
   {
     // Without a name the tag is created from the dialog, which would
     // block headless.
-    if (!App::instance()->isGui())
-    {
-      LOG("NewFrameTag: not available in headless mode\n");
-      Console console(context);
-      console.printf("NewFrameTag: not available in headless mode\n");
+    if (failIfHeadless())
       return;
-    }
 
     FrameTagWindow window(sprite, frameTag.get());
     if (!window.show())

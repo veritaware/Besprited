@@ -737,5 +737,8 @@
  "colors or less": "色数以下",
  "explaining what you was doing when the program crashed.": "プログラムがクラッシュしたときに何をしていたかを説明します。",
  "https://github.com/Veritaware/Besprited/issues": "https://github.com/Veritaware/Besprited/issues",
- "to a bug report on:": "バグレポート:"
+ "not available in headless mode": "ヘッドレスモードでは利用できません",
+ "text and font params are required in headless mode": "ヘッドレスモードでは text と font パラメータが必要です",
+ "to a bug report on:": "バグレポート:",
+ "width and height params are required in headless mode": "ヘッドレスモードでは width と height パラメータが必要です"
 }

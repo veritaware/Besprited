@@ -44,13 +44,8 @@ AdvancedModeCommand::AdvancedModeCommand()
 void AdvancedModeCommand::onExecute(Context* context)
 {
   // Interactive only: the warning dialog would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("AdvancedMode: not available in headless mode\n");
-    Console console(context);
-    console.printf("AdvancedMode: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   // Switch advanced mode.
   MainWindow* mainWindow = App::instance()->mainWindow();

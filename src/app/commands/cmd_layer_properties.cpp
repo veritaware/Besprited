@@ -499,13 +499,8 @@ void LayerPropertiesCommand::onExecute(Context* context)
   }
 
   // The window would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("LayerProperties: not available in headless mode\n");
-    Console console(context);
-    console.printf("LayerProperties: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   LayerImage* imageLayer = static_cast<LayerImage*>(layer);
 

@@ -733,13 +733,8 @@ void KeyboardShortcutsCommand::onExecute(Context* context)
 {
   // Interactive only: the dialog would block headless. The import/export
   // file selectors are only reachable from the window.
-  if (!App::instance()->isGui())
-  {
-    LOG("KeyboardShortcuts: not available in headless mode\n");
-    Console console(context);
-    console.printf("KeyboardShortcuts: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   // Here we copy the m_search field because
   // KeyboardShortcutsWindow::fillAllLists() modifies this same

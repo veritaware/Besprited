@@ -105,13 +105,8 @@ void SpritePropertiesCommand::onExecute(Context* context)
   }
 
   // The dialog is read-only info; it would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("SpriteProperties: not available in headless mode\n");
-    Console console(context);
-    console.printf("SpriteProperties: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   std::string imgtype_text;
   char buf[256];

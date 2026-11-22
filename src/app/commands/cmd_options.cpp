@@ -698,13 +698,8 @@ OptionsCommand::OptionsCommand()
 void OptionsCommand::onExecute(Context* context)
 {
   // Interactive only: the dialog would block headless.
-  if (!App::instance()->isGui())
-  {
-    LOG("Options: not available in headless mode\n");
-    Console console(context);
-    console.printf("Options: not available in headless mode\n");
+  if (failIfHeadless())
     return;
-  }
 
   static int curSection = 0;
 

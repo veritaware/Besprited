@@ -762,5 +762,8 @@
  "colors or less": "warna atau kurang",
  "explaining what you was doing when the program crashed.": "Jelaskan apa yang Anda lakukan saat program mengalami crash.",
  "https://github.com/Veritaware/Besprited/issues": "https://github.com/Veritaware/Besprited/issues",
- "to a bug report on:": "untuk laporan bug pada:"
+ "not available in headless mode": "tidak tersedia dalam mode headless",
+ "text and font params are required in headless mode": "parameter text dan font wajib diisi dalam mode headless",
+ "to a bug report on:": "untuk laporan bug pada:",
+ "width and height params are required in headless mode": "parameter width dan height wajib diisi dalam mode headless"
 }
