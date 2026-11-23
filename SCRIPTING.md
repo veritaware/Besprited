@@ -275,7 +275,10 @@ site no longer has an image, every method throws.
 
 `putPixel`, `putImageData` and `clear` are raw, format-dependent writes and
 are undoable: each call is one undo step (`command.Undo` reverts it), and a
-loop wrapped in `app.transaction(fn)` commits as one undo step. For drawing
+loop wrapped in `app.transaction(fn)` commits as one undo step. Always wrap
+per-pixel loops in `app.transaction(fn)`: otherwise every `putPixel` adds an
+undo entry and switches the active document, which is slow and floods the
+undo history. For drawing
 (blending, brushes, shapes) use `app.tools`. The bulk idiom is
 `getImageData()` -> mutate the array in JS -> `putImageData(data)` (one undo
 step). A write into a non-active document's image makes that document active

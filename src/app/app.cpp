@@ -828,6 +828,21 @@ App::~App()
     // the Timer registry before ~Manager runs Timer::checkNoTimers().
     app::AppScripting::shutdown();
 
+    // Safety net if run() was interrupted by an exception: mirror its
+    // teardown (documents, then main window) while App::instance() is valid.
+    if (m_modules)
+    {
+      const doc::Documents& docs = m_modules->m_ui_context.documents();
+      while (!docs.empty())
+      {
+        doc::Document* doc = docs.back();
+        doc->close();
+        delete doc;
+      }
+      if (isGui() || isHeadless())
+        m_mainWindow.reset(nullptr);
+    }
+
     // Delete file formats.
     FileFormatsManager::destroyInstance();
 
@@ -843,20 +858,6 @@ App::~App()
     // Destroy the loaded gui.xml data.
     delete KeyboardShortcuts::instance();
     delete GuiXml::instance();
-
-    // Safety net if run() was interrupted by an exception: mirror its
-    // teardown (documents, then main window) while App::instance() is valid.
-    {
-      const doc::Documents& docs = m_modules->m_ui_context.documents();
-      while (!docs.empty())
-      {
-        doc::Document* doc = docs.back();
-        doc->close();
-        delete doc;
-      }
-      if (isGui() || isHeadless())
-        m_mainWindow.reset(nullptr);
-    }
 
     m_instance = nullptr;
   }

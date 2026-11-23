@@ -147,7 +147,7 @@ static bool save_document_in_background(const Context* context, const Document* 
     return false;
   }
 
-  if (context->isUIAvailable())
+  if (context->isUIAvailable() && App::instance()->isGui())
   {
     App::instance()->recentFiles()->addRecentFile(document->filename().c_str());
     if (mark_as_saved)

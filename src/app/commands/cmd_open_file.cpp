@@ -198,7 +198,7 @@ void OpenFileCommand::onExecute(Context* context)
         Document* document = fop->document();
         if (document)
         {
-          if (context->isUIAvailable())
+          if (context->isUIAvailable() && App::instance()->isGui())
             App::instance()->recentFiles()->addRecentFile(fop->filename().c_str());
 
           document->setContext(context);
@@ -211,7 +211,7 @@ void OpenFileCommand::onExecute(Context* context)
       // so we can remove it from the recent-file list
       if (unrecent)
       {
-        if (context->isUIAvailable())
+        if (context->isUIAvailable() && App::instance()->isGui())
           App::instance()->recentFiles()->removeRecentFile(m_filename.c_str());
       }
     }

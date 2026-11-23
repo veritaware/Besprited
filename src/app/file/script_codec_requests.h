@@ -58,10 +58,10 @@ public:
     return {id, std::move(future)};
   }
 
-  // Settles the request with the codec's reply (main thread only).
+  // Settles the request with the codec's reply.
   static bool resolve(int id, JSON::Value value) { return settle(id, std::move(value)); }
 
-  // Settles the request as a failure with a message (main thread only).
+  // Settles the request as a failure with a message.
   static bool fail(int id, const std::string& message)
   {
     JSON::Value err;
@@ -131,7 +131,7 @@ private:
     return instance;
   }
 
-  // Settles the request with a value and erases it (main thread only).
+  // Settles the request with a value and erases it.
   static bool settle(int id, JSON::Value value)
   {
     std::promise<JSON::Value> promise;

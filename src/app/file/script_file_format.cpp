@@ -117,16 +117,23 @@ std::string_view saveFormatName(doc::PixelFormat format)
   }
 }
 
-// An integral-range number from a codec reply; false for non-numbers,
-// NaN and out-of-range values (so the int cast is well defined).
-bool getInt(JSON::Value& v, double lo, double hi, int& out)
+// A number within [lo, hi] (false for non-numbers and NaN); no cast is made,
+// so the range may exceed int.
+bool isNumberInRange(JSON::Value& v, double lo, double hi)
 {
   if (!v.isNumber())
     return false;
   const double n = v.number();
-  if (!(n >= lo && n <= hi))
+  return n >= lo && n <= hi;
+}
+
+// An integral-range number from a codec reply; false for non-numbers,
+// NaN and out-of-range values (so the int cast is well defined).
+bool getInt(JSON::Value& v, double lo, double hi, int& out)
+{
+  if (!isNumberInRange(v, lo, hi))
     return false;
-  out = (int)n;
+  out = (int)v.number();
   return true;
 }
 
@@ -360,7 +367,7 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
     const doc::PixelFormat pf = docFormat(*ff);
     if (i == 0)
       pixelFormat = pf;
-    else if (pf != pixelFormat || (pf == doc::IMAGE_RGB && ff->hasAlpha != formats[0]->hasAlpha))
+    else if (pf != pixelFormat)
     {
       fop->setError("format codec: frames have different pixel formats\n");
       return false;
@@ -380,7 +387,6 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
 
     if (pf == doc::IMAGE_INDEXED)
     {
-      size_t paletteSize = 256;
       if (d.contains("palette"))
       {
         if (!d["palette"].isArray() || d["palette"].array().empty() || d["palette"].array().size() > 256)
@@ -388,11 +394,9 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
           fop->setError("format codec: frame %d: bad palette\n", (int)i + 1);
           return false;
         }
-        paletteSize = d["palette"].array().size();
         for (auto& entry : d["palette"].array())
         {
-          int unused;
-          if (!getInt(entry, 0, 4294967295.0, unused))
+          if (!isNumberInRange(entry, 0, 4294967295.0))
           {
             fop->setError("format codec: frame %d: bad palette entry\n", (int)i + 1);
             return false;
@@ -402,7 +406,7 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
       if (d.contains("transparentIndex"))
       {
         int ti = 0;
-        if (!getInt(d["transparentIndex"], 0, (double)paletteSize - 1, ti))
+        if (!getInt(d["transparentIndex"], 0, 255, ti))
         {
           fop->setError("format codec: frame %d: bad transparent index\n", (int)i + 1);
           return false;
