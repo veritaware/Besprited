@@ -25,8 +25,9 @@ namespace app
 // ScriptFileFormat creates a request and raises the codec event
 // (worker thread in GUI, main thread in headless). The script's codec
 // replies through the "file" API (file.onLoad/onSave/onLoadError/
-// onSaveError) or the watchdog expires the request; both reply paths
-// run on the main thread, so a request is settled at most once.
+// onSaveError) or the watchdog expires the request. Settling is
+// idempotent under the mutex: the first reply wins, later ones return
+// false.
 class ScriptCodecRequests
 {
 public:
@@ -73,7 +74,7 @@ public:
   {
     base::scoped_lock lock(impl().mutex);
     auto it = impl().requests.find(id);
-    if (it == impl().requests.end() || it->second.resolved)
+    if (it == impl().requests.end())
       return false;
     it->second.deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(kWatchdogMillis);
     return true;
@@ -87,7 +88,7 @@ public:
     {
       base::scoped_lock lock(impl().mutex);
       for (auto& [id, req] : impl().requests)
-        if (!req.resolved && req.deadline <= now)
+        if (req.deadline <= now)
           expired.push_back(id);
     }
     for (auto id : expired)
@@ -104,8 +105,7 @@ public:
     {
       base::scoped_lock lock(impl().mutex);
       for (auto& [id, req] : impl().requests)
-        if (!req.resolved)
-          ids.push_back(id);
+        ids.push_back(id);
     }
     for (auto id : ids)
       fail(id, "app is shutting down");
@@ -116,7 +116,6 @@ private:
   {
     std::promise<JSON::Value> promise;
     std::chrono::steady_clock::time_point deadline;
-    bool resolved = false;
   };
 
   struct Impl
@@ -135,13 +134,16 @@ private:
   // Settles the request with a value and erases it (main thread only).
   static bool settle(int id, JSON::Value value)
   {
-    base::scoped_lock lock(impl().mutex);
-    auto it = impl().requests.find(id);
-    if (it == impl().requests.end() || it->second.resolved)
-      return false;
-    it->second.resolved = true;
-    it->second.promise.set_value(std::move(value));
-    impl().requests.erase(it);
+    std::promise<JSON::Value> promise;
+    {
+      base::scoped_lock lock(impl().mutex);
+      auto it = impl().requests.find(id);
+      if (it == impl().requests.end())
+        return false;
+      promise = std::move(it->second.promise);
+      impl().requests.erase(it);
+    }
+    promise.set_value(std::move(value));
     return true;
   }
 };
