@@ -31,6 +31,7 @@
 #include "doc/sprite.h"
 #include "ui/ui.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <memory>
 
@@ -43,20 +44,10 @@ namespace app
 // extension first.
 static bool hasScriptLoader(const std::string& filename)
 {
-  std::string extension = base::string_to_lower(base::get_file_extension(filename));
-  for (auto format : FileFormatsManager::instance()->support(FILE_SUPPORT_LOAD))
-  {
-    for (auto& supported : base::split(format->extensions(), ','))
-    {
-      if (supported == extension)
-      {
-        if (dynamic_cast<ScriptFileFormat*>(format))
-          return true;
-        break;
-      }
-    }
-  }
-  return false;
+  const std::string extension = base::string_to_lower(base::get_file_extension(filename));
+
+  return std::ranges::any_of(FileFormatsManager::instance()->support(FILE_SUPPORT_LOAD), [&](FileFormat* format)
+                             { return dynamic_cast<ScriptFileFormat*>(format) && format->hasExtension(extension); });
 }
 
 class OpenFileCommand : public Command

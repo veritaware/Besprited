@@ -657,18 +657,11 @@ void FileOp::operateLoad(IFileOpProgress* progress)
   for (auto format : FileFormatsManager::instance()->support(FILE_SUPPORT_LOAD))
   {
     int priority = format->loadPriority();
-    bool extensionMatches = false;
-    for (auto& supported : base::split(format->extensions(), ','))
+    if (format->hasExtension(extension))
     {
-      if (supported == extension)
-      {
-        priority += 10;
-        extensionMatches = true;
-        break;
-      }
-    }
-    if (extensionMatches)
+      priority += 10;
       matched.push_back(std::make_pair(format, priority));
+    }
     loaders.push_back(std::make_pair(format, priority));
   }
 

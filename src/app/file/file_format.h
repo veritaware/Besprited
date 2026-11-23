@@ -12,6 +12,7 @@
 #include "base/shared_ptr.h"
 #include "app/file/format_options.h"
 
+#include <string>
 #include <vector>
 
 #define FILE_SUPPORT_LOAD 0x00000001
@@ -48,6 +49,9 @@ public:
 
   const char* name() const;       // File format name
   const char* extensions() const; // Extensions (e.g. "jpeg,jpg")
+  // True if the non-empty "extension" (no dot) is one of extensions(),
+  // compared case-insensitively.
+  bool hasExtension(const std::string& extension) const;
   bool load(FileOp* fop);
   bool save(FileOp* fop);
 

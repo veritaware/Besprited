@@ -12,6 +12,7 @@
 
 #include "app/file/file_format.h"
 #include "app/file/format_options.h"
+#include "base/string.h"
 
 #include <algorithm>
 
@@ -34,6 +35,15 @@ const char* FileFormat::name() const
 const char* FileFormat::extensions() const
 {
   return onGetExtensions();
+}
+
+bool FileFormat::hasExtension(const std::string& extension) const
+{
+  if (extension.empty())
+    return false;
+
+  const auto tokens = base::split(extensions(), ',');
+  return std::ranges::any_of(tokens, [&](const std::string& ext) { return base::utf8_icmp(ext, extension) == 0; });
 }
 
 bool FileFormat::load(FileOp* fop)
