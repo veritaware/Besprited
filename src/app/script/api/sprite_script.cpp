@@ -62,6 +62,8 @@ public:
 
     clazz.addGetter("layerCount") = [](SpriteSite&) -> JSON::Value { return (double)activeSprite()->countLayers(); };
 
+    clazz.addGetter("totalFrames") = [](SpriteSite&) -> JSON::Value { return (double)activeSprite()->totalFrames(); };
+
     clazz.addGetter("filename") = [](SpriteSite&) -> JSON::Value
     { return std::string{activeSprite()->document()->filename()}; };
 

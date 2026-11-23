@@ -42,6 +42,8 @@
 #include "gfx/region.h"
 #include "render/render.h"
 
+#include <cmath>
+
 namespace app
 {
 

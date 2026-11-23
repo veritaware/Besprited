@@ -37,6 +37,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
   void onExecute(Context* context) override;
   std::string onGetFriendlyName() const override;
@@ -68,6 +69,14 @@ void ZoomCommand::onLoadParams(const Params& params)
     m_zoom = render::Zoom::fromScale(std::strtod(percentage.c_str(), nullptr) / 100.0);
     m_action = Set;
   }
+}
+
+std::vector<CommandParamInfo> ZoomCommand::onDescribeParams() const
+{
+  return {
+      {"action", "in, out or set.", false, ""},
+      {"percentage", "Zoom percentage (for example 400). Implies action=set.", false, ""},
+  };
 }
 
 bool ZoomCommand::onEnabled(Context* context)

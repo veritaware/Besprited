@@ -11,9 +11,12 @@
 #include "config.h"
 #endif
 
+#include "app/app.h"
 #include "app/commands/command.h"
+#include "app/console.h"
 #include "app/modules/gui.h"
 #include "base/bind.h"
+#include "base/log.h"
 #include "ui/ui.h"
 
 namespace app
@@ -37,6 +40,15 @@ AboutCommand::AboutCommand()
 
 void AboutCommand::onExecute(Context* context)
 {
+  // Interactive only: the dialog would block headless.
+  if (!App::instance()->isGui())
+  {
+    LOG("About: not available in headless mode\n");
+    Console console(context);
+    console.printf("About: not available in headless mode\n");
+    return;
+  }
+
   std::unique_ptr<Window> window(new Window(Window::WithTitleBar, "About " PACKAGE));
   Box* box1 = new Box(VERTICAL);
   Grid* grid = new Grid(2, false);

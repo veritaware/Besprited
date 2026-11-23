@@ -36,6 +36,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* ctx) override;
   void onExecute(Context* ctx) override;
   std::string onGetFriendlyName() const override;
@@ -58,6 +59,13 @@ void SelectTileCommand::onLoadParams(const Params& params)
     m_mode = gen::SelectionMode::SUBTRACT;
   else
     m_mode = gen::SelectionMode::DEFAULT;
+}
+
+std::vector<CommandParamInfo> SelectTileCommand::onDescribeParams() const
+{
+  return {
+      {"mode", "add or subtract the tile from the selection; default selects only the tile.", false, ""},
+  };
 }
 
 bool SelectTileCommand::onEnabled(Context* ctx)

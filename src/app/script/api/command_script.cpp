@@ -13,6 +13,8 @@
 #include "di.hpp"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/script/script_permissions.h"
+#include "app/script/app_scripting.h"
 #include "app/commands/params.h"
 #include "app/ui_context.h"
 #include "app/script/api/script_api_common.h"
@@ -24,6 +26,24 @@ class CommandObject
 public:
   app::Params params;
 };
+
+// The permission a script needs to run a command that reads or writes files
+// or starts programs (nullptr: no extra permission).
+static const char* requiredPermission(const std::string& id)
+{
+  using P = app::ScriptPermissions;
+  for (const char* c : {"SaveFile", "SaveFileAs", "SaveFileCopyAs", "ExportSpriteSheet", "RepeatLastExport", "SaveMask",
+                        "SavePalette", "InstallScript"})
+    if (id == c)
+      return P::kFsWrite;
+  for (const char* c : {"OpenFile", "LoadMask", "LoadPalette", "ImportSpriteSheet", "RunScript"})
+    if (id == c)
+      return P::kFsRead;
+  for (const char* c : {"OpenWithApp", "OpenInFolder", "OpenScriptsFolder"})
+    if (id == c)
+      return P::kAppLaunch;
+  return nullptr;
+}
 
 class CommandExtension : public Extension
 {
@@ -46,6 +66,31 @@ public:
     {
       self.params.clear();
       return JSON::makeNative(script_api::wrapNonOwning(&self));
+    };
+
+    // info(name) -> {name, friendlyName, params: [{name, description,
+    // required, default?}]}, or null when no command has that id.
+    cls.addMethod("info") = [](CommandObject&, const std::string& name) -> JSON::Value
+    {
+      app::Command* cmd = app::CommandsModule::instance()->getCommandByName(name.c_str());
+      if (!cmd)
+        return JSON::Value{JSON::Special::Null};
+      JSON::Value rsp;
+      auto& obj = rsp.object();
+      obj["name"] = cmd->id();
+      obj["friendlyName"] = cmd->friendlyName();
+      auto& arr = obj["params"].array();
+      for (const auto& p : cmd->describeParams())
+      {
+        arr.push_back({});
+        auto& entry = arr.back().object();
+        entry["name"] = p.name;
+        entry["description"] = p.description;
+        entry["required"] = p.required;
+        if (!p.defaultValue.empty())
+          entry["default"] = p.defaultValue;
+      }
+      return rsp;
     };
 
     // One method per registered command, named by the command id - except
@@ -71,9 +116,23 @@ public:
 
       cls.addMethod(cmd->id()) = [cmd](CommandObject& self, JSON::Value& mapArg) -> JSON::Value
       {
+        // Commands that touch files or start programs go through the same
+        // script permissions as the dedicated fs/app APIs.
+        if (const char* perm = requiredPermission(cmd->id()))
+        {
+          if (!app::ScriptPermissions::check(perm))
+          {
+            app::AppScripting::consolePrint(app::ScriptPermissions::denyMessage(perm));
+            return JSON::Value{0.0};
+          }
+        }
         app::UIContext* ctx = app::UIContext::instance();
         if (!ctx)
           return JSON::Value{0.0};
+        // Refresh the cached context flags before the pre-check: they are
+        // only updated by executeCommand() and the GUI menu paths, so in
+        // headless runs they may be stale and reject valid commands.
+        ctx->updateFlags();
         if (!cmd->isEnabled(ctx))
           return JSON::Value{0.0};
         if (mapArg.isObject())

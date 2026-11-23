@@ -244,8 +244,6 @@ include_directories(${GIF_INCLUDE_DIRS})
 find_package(JPEG REQUIRED)
 include_directories(${JPEG_INCLUDE_DIRS})
 
-find_package(CURL REQUIRED)
-include_directories(${CURL_INCLUDE_DIRS})
 endif()
 # simpleini
 include_directories(${SIMPLEINI_DIR})
@@ -335,8 +333,8 @@ if(WIN32)
     kernel32 user32 gdi32 comdlg32 ole32 winmm
     shlwapi psapi wininet comctl32 dbghelp)
 
-  # Windows 10 is the minimum supported platform (MSIX packaging also
-  # requires it, e.g. GetCurrentPackageFullName).
+  # Windows 10 is the minimum supported platform (MSIX packaging and
+  # cpp-httplib both require it, e.g. GetCurrentPackageFullName).
   add_definitions(-D_WIN32_WINNT=0x0A00 -DWINVER=0x0A00)
 
   # We need Unicode support

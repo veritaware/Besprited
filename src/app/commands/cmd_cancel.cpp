@@ -33,6 +33,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   void onExecute(Context* context) override;
 
 private:
@@ -51,6 +52,13 @@ void CancelCommand::onLoadParams(const Params& params)
     m_type = NoOp;
   else if (type == "all")
     m_type = All;
+}
+
+std::vector<CommandParamInfo> CancelCommand::onDescribeParams() const
+{
+  return {
+      {"type", "noop does nothing; all cancels the current operation.", false, "noop"},
+  };
 }
 
 void CancelCommand::onExecute(Context* context)

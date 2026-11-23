@@ -24,6 +24,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   bool onEnabled(Context* context) override;
 
   bool saveAsDialog(Context* context, const char* dlgTitle, FileSelectorDelegate* delegate = nullptr);

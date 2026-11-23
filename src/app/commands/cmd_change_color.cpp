@@ -42,6 +42,7 @@ public:
 
 protected:
   void onLoadParams(const Params& params) override;
+  std::vector<CommandParamInfo> onDescribeParams() const override;
   void onExecute(Context* context) override;
   std::string onGetFriendlyName() const override;
 };
@@ -66,6 +67,14 @@ void ChangeColorCommand::onLoadParams(const Params& params)
     m_change = IncrementIndex;
   else if (change == "decrement-index")
     m_change = DecrementIndex;
+}
+
+std::vector<CommandParamInfo> ChangeColorCommand::onDescribeParams() const
+{
+  return {
+      {"target", "foreground or background color to change.", false, "foreground"},
+      {"change", "increment-index or decrement-index the palette index.", false, ""},
+  };
 }
 
 void ChangeColorCommand::onExecute(Context* context)

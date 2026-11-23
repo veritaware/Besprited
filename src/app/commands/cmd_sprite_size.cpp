@@ -10,6 +10,7 @@
 #include "config.h"
 #endif
 
+#include "app/app.h"
 #include "app/commands/cmd_sprite_size.h"
 #include "app/commands/command.h"
 #include "app/commands/params.h"
@@ -304,6 +305,16 @@ void SpriteSizeCommand::onLoadParams(const Params& params)
     m_resizeMethod = doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR;
 }
 
+std::vector<CommandParamInfo> SpriteSizeCommand::onDescribeParams() const
+{
+  return {
+      {"use-ui", "Show the sprite size dialog (true or false).", false, "true"},
+      {"width", "New width in pixels. Empty keeps the current width.", false, ""},
+      {"height", "New height in pixels. Empty keeps the current height.", false, ""},
+      {"resize-method", "Resize algorithm: nearest-neighbor, bilinear or rotsprite.", false, "nearest-neighbor"},
+  };
+}
+
 bool SpriteSizeCommand::onEnabled(Context* context)
 {
   return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
@@ -317,7 +328,7 @@ void SpriteSizeCommand::onExecute(Context* context)
   int new_height = (m_height ? m_height : int(sprite->height() * m_scaleY));
   ResizeMethod resize_method = m_resizeMethod;
 
-  if (m_useUI && context->isUIAvailable())
+  if (m_useUI && App::instance()->isGui())
   {
     SpriteSizeWindow window(context, new_width, new_height);
     window.remapWindow();
