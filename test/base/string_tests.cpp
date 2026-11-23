@@ -19,6 +19,15 @@ bool all(int)
   return true;
 }
 
+TEST(String, Join)
+{
+  EXPECT_EQ("", join({}, ","));
+  EXPECT_EQ("a", join({"a"}, ","));
+  EXPECT_EQ("a,,b", join({"a", "", "b"}, ","));
+  EXPECT_EQ(",", join({"", ""}, ","));
+  EXPECT_EQ("a, b", join(split("a,b", ','), ", "));
+}
+
 TEST(String, Utf8Conversion)
 {
   std::string a = "\xE6\xBC\xA2\xE5\xAD\x97"; // 漢字

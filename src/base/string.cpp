@@ -36,6 +36,18 @@ std::vector<std::string> split(const std::string& original, char delimiter)
   return output;
 }
 
+std::string join(const std::vector<std::string>& parts, const std::string& separator)
+{
+  std::string output;
+  for (size_t i = 0; i < parts.size(); ++i)
+  {
+    if (i > 0)
+      output += separator;
+    output += parts[i];
+  }
+  return output;
+}
+
 std::string string_to_lower(const std::string& original)
 {
   std::wstring result(from_utf8(original));

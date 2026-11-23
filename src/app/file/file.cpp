@@ -35,8 +35,10 @@
 #include "render/render.h"
 #include "ui/alert.h"
 
+#include <algorithm>
 #include <cstring>
 #include <cstdarg>
+#include <vector>
 
 namespace app
 {
@@ -46,14 +48,11 @@ using namespace base;
 namespace
 {
 
-// Collects the comma-separated extensions of every format, dropping a
-// token a previous format already listed (case-insensitive, the same
-// comparison the dispatch uses in getFileFormatByExtension) so the
-// dialog filter lists each extension once. Empty tokens (e.g. a format
-// with no extension) are skipped, as before.
+// Comma-separated extensions of all formats, listing each one once
+// (case-insensitive, like getFileFormatByExtension()).
 std::string collect_extensions(int flags)
 {
-  std::string buf;
+  std::vector<std::string> exts;
 
   for (auto format : FileFormatsManager::instance()->support(flags))
   {
@@ -62,22 +61,12 @@ std::string collect_extensions(int flags)
       if (ext.empty())
         continue;
 
-      bool listed = false;
-      for (auto& prev : split(buf, ','))
-      {
-        if (utf8_icmp(prev, ext) == 0)
-          listed = true;
-      }
-      if (listed)
-        continue;
-
-      if (!buf.empty())
-        buf.push_back(',');
-      buf += ext;
+      if (std::ranges::none_of(exts, [&](const std::string& prev) { return utf8_icmp(prev, ext) == 0; }))
+        exts.push_back(ext);
     }
   }
 
-  return buf;
+  return join(exts, ",");
 }
 
 } // namespace
