@@ -34,6 +34,7 @@
 #include <future>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace app
@@ -53,57 +54,80 @@ constexpr int kMaxScriptCodecFrames = 10000;
 // stop flag covers the rest; this is the last resort.
 constexpr std::chrono::minutes kReplyBackstop{5};
 
-// The descriptor bytes per pixel for a load format string (-1 when
-// unknown): the size of the data the codec sends, not the doc format
-// ("RGB" is 3 bytes, expanded to RGBA on load; "GRAYA" is 2, expanded
-// to RGBA).
-int loadBytesPerPixel(const std::string& format)
+// Descriptor format names. RGB and GRAYA expand to IMAGE_RGB on load
+// (doc has no 3-byte RGB or gray+alpha format); GRAY is save-only.
+constexpr std::string_view kFormatIndexed = "INDEXED";
+constexpr std::string_view kFormatRgb = "RGB";
+constexpr std::string_view kFormatRgba = "RGBA";
+constexpr std::string_view kFormatGraya = "GRAYA";
+constexpr std::string_view kFormatGray = "GRAY";
+
+enum class FrameKind
 {
-  if (format == "INDEXED")
-    return 1;
-  if (format == "RGB")
-    return 3;
-  if (format == "RGBA")
-    return 4;
-  if (format == "GRAYA")
-    return 2;
-  return -1;
+  Indexed,
+  Rgb,
+  Rgba,
+  Graya
+};
+
+// A format accepted on load.
+struct FrameFormat
+{
+  FrameKind kind;
+  std::string_view name;
+  int bytesPerPixel; // size of the data the codec sends
+  bool hasAlpha;     // unused for Indexed (decided by transparentIndex)
+};
+
+constexpr FrameFormat kLoadFormats[] = {
+    {FrameKind::Indexed, kFormatIndexed, 1, false},
+    {FrameKind::Rgb, kFormatRgb, 3, false},
+    {FrameKind::Rgba, kFormatRgba, 4, true},
+    {FrameKind::Graya, kFormatGraya, 2, true},
+};
+
+// nullptr if the name is unknown.
+const FrameFormat* findLoadFormat(const std::string& name)
+{
+  for (const auto& f : kLoadFormats)
+    if (f.name == name)
+      return &f;
+  return nullptr;
 }
 
-// Maps a load format string to a doc::PixelFormat. "RGB" and "GRAYA"
-// expand to IMAGE_RGB (lossless): doc has no 3-byte RGB and no
-// gray+alpha format, and the alpha of a GRAYA frame must not be
-// dropped.
-bool loadFormatToPixelFormat(const std::string& format, doc::PixelFormat& out)
+doc::PixelFormat docFormat(const FrameFormat& f)
 {
-  if (format == "RGBA" || format == "RGB" || format == "GRAYA")
-  {
-    out = doc::IMAGE_RGB;
-    return true;
-  }
-  if (format == "INDEXED")
-  {
-    out = doc::IMAGE_INDEXED;
-    return true;
-  }
-  return false;
+  return f.kind == FrameKind::Indexed ? doc::IMAGE_INDEXED : doc::IMAGE_RGB;
 }
 
-// The descriptor format string for a pre-rendered frame (save): the
-// sprite's native pixel format (IMAGE_BITMAP expands to RGBA below).
-const char* saveFormatString(doc::PixelFormat format)
+// The descriptor format name for a pre-rendered frame (save): the
+// sprite's native pixel format (IMAGE_BITMAP expands to RGBA).
+std::string_view saveFormatName(doc::PixelFormat format)
 {
   switch (format)
   {
   case doc::IMAGE_INDEXED:
-    return "INDEXED";
+    return kFormatIndexed;
   case doc::IMAGE_GRAYSCALE:
-    return "GRAY";
+    return kFormatGray;
   case doc::IMAGE_RGB:
   case doc::IMAGE_BITMAP:
   default:
-    return "RGBA";
+    return kFormatRgba;
   }
+}
+
+// An integral-range number from a codec reply; false for non-numbers,
+// NaN and out-of-range values (so the int cast is well defined).
+bool getInt(JSON::Value& v, double lo, double hi, int& out)
+{
+  if (!v.isNumber())
+    return false;
+  const double n = v.number();
+  if (!(n >= lo && n <= hi))
+    return false;
+  out = (int)n;
+  return true;
 }
 
 // A codec reply that failed (the "file" error API or the watchdog).
@@ -294,6 +318,7 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
   int w = 0, h = 0;
   doc::PixelFormat pixelFormat = doc::IMAGE_RGB;
   bool indexedTransparent = false;
+  std::vector<const FrameFormat*> formats;
   for (size_t i = 0; i < frames.size(); ++i)
   {
     auto& frame = frames[i];
@@ -308,11 +333,10 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
       fop->setError("format codec: frame %d: missing width/height\n", (int)i + 1);
       return false;
     }
-    int fw = (int)d["width"].number();
-    int fh = (int)d["height"].number();
-    if (fw <= 0 || fh <= 0 || fw > kMaxFileImageDimension || fh > kMaxFileImageDimension)
+    int fw = 0, fh = 0;
+    if (!getInt(d["width"], 1, kMaxFileImageDimension, fw) || !getInt(d["height"], 1, kMaxFileImageDimension, fh))
     {
-      fop->setError("format codec: bad frame dimensions (%dx%d)\n", fw, fh);
+      fop->setError("format codec: frame %d: bad frame dimensions\n", (int)i + 1);
       return false;
     }
     if (i == 0)
@@ -326,27 +350,29 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
       return false;
     }
 
-    const std::string format = d.contains("format") ? d["format"].string() : "";
-    doc::PixelFormat pf;
-    if (loadBytesPerPixel(format) < 0 || !loadFormatToPixelFormat(format, pf))
+    const std::string formatName = d.contains("format") ? d["format"].string() : "";
+    const FrameFormat* ff = findLoadFormat(formatName);
+    if (!ff)
     {
-      fop->setError("format codec: unknown frame format \"%s\"\n", format.c_str());
+      fop->setError("format codec: unknown frame format \"%s\"\n", formatName.c_str());
       return false;
     }
+    const doc::PixelFormat pf = docFormat(*ff);
     if (i == 0)
       pixelFormat = pf;
-    else if (pf != pixelFormat)
+    else if (pf != pixelFormat || (pf == doc::IMAGE_RGB && ff->hasAlpha != formats[0]->hasAlpha))
     {
       fop->setError("format codec: frames have different pixel formats\n");
       return false;
     }
+    formats.push_back(ff);
 
     if (!d.contains("data") || !d["data"].isByteArray())
     {
       fop->setError("format codec: frame %d: missing pixel data\n", (int)i + 1);
       return false;
     }
-    if (d["data"].byteArray().size() != (size_t)fw * (size_t)fh * (size_t)loadBytesPerPixel(format))
+    if (d["data"].byteArray().size() != (size_t)fw * (size_t)fh * (size_t)ff->bytesPerPixel)
     {
       fop->setError("format codec: frame %d: data size mismatch\n", (int)i + 1);
       return false;
@@ -354,6 +380,7 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
 
     if (pf == doc::IMAGE_INDEXED)
     {
+      size_t paletteSize = 256;
       if (d.contains("palette"))
       {
         if (!d["palette"].isArray() || d["palette"].array().empty() || d["palette"].array().size() > 256)
@@ -361,16 +388,21 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
           fop->setError("format codec: frame %d: bad palette\n", (int)i + 1);
           return false;
         }
+        paletteSize = d["palette"].array().size();
+        for (auto& entry : d["palette"].array())
+        {
+          int unused;
+          if (!getInt(entry, 0, 4294967295.0, unused))
+          {
+            fop->setError("format codec: frame %d: bad palette entry\n", (int)i + 1);
+            return false;
+          }
+        }
       }
       if (d.contains("transparentIndex"))
       {
-        if (!d["transparentIndex"].isNumber())
-        {
-          fop->setError("format codec: frame %d: bad transparent index\n", (int)i + 1);
-          return false;
-        }
-        int ti = (int)d["transparentIndex"].number();
-        if (ti < 0 || ti >= 256)
+        int ti = 0;
+        if (!getInt(d["transparentIndex"], 0, (double)paletteSize - 1, ti))
         {
           fop->setError("format codec: frame %d: bad transparent index\n", (int)i + 1);
           return false;
@@ -382,15 +414,14 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
 
   // Build the document (the direct-load pattern of the FLI/GIF
   // loaders: one sprite, one layer, one cel per frame).
-  Sprite* sprite = new Sprite(pixelFormat, w, h, 256);
-  LayerImage* layer = new LayerImage(sprite);
+  std::unique_ptr<Sprite> sprite(new Sprite(pixelFormat, w, h, 256));
+  LayerImage* layer = new LayerImage(sprite.get());
   sprite->folder()->addLayer(layer);
   sprite->setTotalFrames((frame_t)frames.size());
 
   // A frame without alpha becomes an opaque background layer (the
   // sequence-load semantics of FileOp::operateLoadTryFormat).
-  bool hasAlpha =
-      (pixelFormat == doc::IMAGE_INDEXED) ? indexedTransparent : frames[0].object()["format"].string() != "RGB";
+  bool hasAlpha = (pixelFormat == doc::IMAGE_INDEXED) ? indexedTransparent : formats[0]->hasAlpha;
   if (!hasAlpha)
     layer->configureAsBackground();
 
@@ -398,19 +429,19 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
   for (size_t i = 0; i < frames.size(); ++i)
   {
     auto& d = frames[i].object();
-    const std::string format = d["format"].string();
+    const FrameKind kind = formats[i]->kind;
     auto& bytes = d["data"].byteArray();
 
     ImageRef image(Image::create(pixelFormat, w, h));
     int stride = image->getRowStrideSize();
     uint8_t* dst = image->getPixelAddress(0, 0);
     const uint8_t* src = bytes.data();
-    if (pixelFormat == doc::IMAGE_INDEXED || format == "RGBA")
+    if (pixelFormat == doc::IMAGE_INDEXED || kind == FrameKind::Rgba)
     {
       for (int y = 0; y < h; ++y)
         std::memcpy(dst + (size_t)y * stride, src + (size_t)y * w * bps, (size_t)w * bps);
     }
-    else if (format == "RGB")
+    else if (kind == FrameKind::Rgb)
     {
       for (int y = 0; y < h; ++y)
       {
@@ -421,7 +452,7 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
       }
     }
     else
-    { // "GRAYA"
+    { // FrameKind::Graya
       for (int y = 0; y < h; ++y)
       {
         uint32_t* row = (uint32_t*)(dst + (size_t)y * stride);
@@ -451,7 +482,7 @@ bool ScriptFileFormat::onLoad(FileOp* fop)
     fop->setProgress((double)(i + 1) / (double)frames.size());
   }
 
-  fop->createDocument(sprite);
+  fop->createDocument(sprite.release());
   return true;
 }
 
@@ -482,7 +513,7 @@ bool ScriptFileFormat::onSave(FileOp* fop)
     if (format == doc::IMAGE_BITMAP)
     {
       // 1-bit: expand to RGBA (0/255, alpha 255)
-      d["format"] = std::string("RGBA");
+      d["format"] = std::string(kFormatRgba);
       bytes.resize((size_t)w * (size_t)h * 4);
       for (int y = 0; y < h; ++y)
         for (int x = 0; x < w; ++x)
@@ -497,7 +528,7 @@ bool ScriptFileFormat::onSave(FileOp* fop)
     }
     else
     {
-      d["format"] = std::string(saveFormatString(format));
+      d["format"] = std::string(saveFormatName(format));
       if (format == doc::IMAGE_GRAYSCALE)
       {
         // 2-byte pixels (value + alpha): GRAY keeps the value byte
