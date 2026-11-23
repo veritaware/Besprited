@@ -1,7 +1,8 @@
 # [class Sprite]
 ## Properties:
    - `palette`: read-only. Returns the sprite's palette.
-   - `selection`: Placeholder. Do not use.
+   - `selection`: read-only. Returns the document's Selection (the same
+     object as the global `selection`).
    - `height`: read+write. Returns and sets the height of the sprite.
    - `width`: read+write. Returns and sets the width of the sprite.
    - `filename`: read-only. Returns the file name of the sprite.
@@ -1305,6 +1306,10 @@ The value is persisted to storage (keyed by the widget id) and raises the
    - `deselect()`:
      returns: Nothing
      Clears the selection.
+
+   Like the GUI selection commands, `select`, `selectAll` and `deselect`
+   are undoable but do not mark the document as modified. Each uses its
+   own transaction, even inside `app.transaction`.
 
    - `lasso(points, options)`:
      - points: Required. An array of `[x, y]` in sprite coordinates

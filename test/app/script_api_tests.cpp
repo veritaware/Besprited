@@ -282,6 +282,41 @@ TEST_F(AppScriptApiTest, AppLaunchRequiresPermissionForUrlsAndOtherTargets)
   EXPECT_EQ("false,false,false,false", captured().string());
 }
 
+TEST_F(AppScriptApiTest, SelectionGlobalSelectsAndDeselectsWithoutDirtyingTheDocument)
+{
+  useImage(8, 8, 0);
+  auto* d = docs.back();
+  app::UIContext::instance()->setActiveDocument(d);
+  const bool modifiedBefore = d->isModified();
+
+  ASSERT_TRUE(eval("selection.select(1, 2, 3, 4);"
+                   "var b = selection.bounds;"
+                   "native.capture([b.x, b.y, b.width, b.height].join(','));"));
+  EXPECT_EQ("1,2,3,4", captured().string());
+  EXPECT_TRUE(d->isMaskVisible());
+
+  ASSERT_TRUE(eval("selection.selectAll();"
+                   "var b = selection.bounds;"
+                   "native.capture([b.x, b.y, b.width, b.height].join(','));"));
+  EXPECT_EQ("0,0,8,8", captured().string());
+
+  ASSERT_TRUE(eval("selection.deselect(); native.capture(selection.bounds === null);"));
+  EXPECT_TRUE(captured().boolean());
+  EXPECT_FALSE(d->isMaskVisible());
+
+  EXPECT_EQ(modifiedBefore, d->isModified());
+}
+
+TEST_F(AppScriptApiTest, SpriteSelectionIsTheSelectionObject)
+{
+  useImage(8, 8, 0);
+  app::UIContext::instance()->setActiveDocument(docs.back());
+
+  ASSERT_TRUE(eval("app.activeSprite.selection.select(0, 0, 2, 2);"
+                   "native.capture(selection.bounds.width);"));
+  EXPECT_EQ(2, captured().number());
+}
+
 TEST_F(AppScriptApiTest, ImageGetPixelPutPixelRoundTrip)
 {
   useImage(4, 4, 0);
