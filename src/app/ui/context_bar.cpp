@@ -10,6 +10,7 @@
 #include "config.h"
 #endif
 
+#include "app/commands/param_names.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/context_bar_fields.h"
 
@@ -1500,7 +1501,7 @@ private:
         []
         {
           Params params;
-          params.set("target", "center");
+          params.set(param::kTarget, "center");
           UIContext::instance()->executeCommand(CommandsModule::instance()->getCommandByName(CommandId::ResetSymmetry),
                                                 params);
         });
@@ -1508,7 +1509,7 @@ private:
         []
         {
           Params params;
-          params.set("target", "view");
+          params.set(param::kTarget, "view");
           UIContext::instance()->executeCommand(CommandsModule::instance()->getCommandByName(CommandId::ResetSymmetry),
                                                 params);
         });
@@ -1548,7 +1549,7 @@ protected:
     case 0:
     {
       Params params;
-      params.set("percentage", "100");
+      params.set(param::kPercentage, "100");
       UIContext::instance()->executeCommand(CommandsModule::instance()->getCommandByName(CommandId::Zoom), params);
       UIContext::instance()->executeCommand(CommandId::ScrollCenter);
       break;

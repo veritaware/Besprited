@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/cmd/set_palette.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context.h"
@@ -126,11 +127,11 @@ ColorQuantizationCommand::ColorQuantizationCommand()
 void ColorQuantizationCommand::onLoadParams(const Params& params)
 {
   reset();
-  if (params.has_param("colors"))
-    m_colors = params.get_as<int>("colors");
-  if (params.has_param("alpha"))
+  if (params.has_param(param::kColors))
+    m_colors = params.get_as<int>(param::kColors);
+  if (params.has_param(param::kAlpha))
   {
-    m_alpha = (params.get("alpha") == "true");
+    m_alpha = (params.get(param::kAlpha) == "true");
     m_hasAlpha = true;
   }
 }
@@ -138,8 +139,8 @@ void ColorQuantizationCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> ColorQuantizationCommand::onDescribeParams() const
 {
   return {
-      {"colors", "Size of the new quantized palette. With this, runs without the dialog.", false, ""},
-      {"alpha", "Keep the alpha channel in the palette (true or false).", false, ""},
+      {param::kColors, "Size of the new quantized palette. With this, runs without the dialog.", false, ""},
+      {param::kAlpha, "Keep the alpha channel in the palette (true or false).", false, ""},
   };
 }
 

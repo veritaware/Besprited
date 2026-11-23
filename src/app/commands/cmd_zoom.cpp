@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/modules/editors.h"
 #include "app/pref/preferences.h"
@@ -55,7 +56,7 @@ ZoomCommand::ZoomCommand()
 
 void ZoomCommand::onLoadParams(const Params& params)
 {
-  std::string action = params.get("action");
+  std::string action = params.get(param::kAction);
   if (action == "in")
     m_action = In;
   else if (action == "out")
@@ -63,7 +64,7 @@ void ZoomCommand::onLoadParams(const Params& params)
   else if (action == "set")
     m_action = Set;
 
-  std::string percentage = params.get("percentage");
+  std::string percentage = params.get(param::kPercentage);
   if (!percentage.empty())
   {
     m_zoom = render::Zoom::fromScale(std::strtod(percentage.c_str(), nullptr) / 100.0);
@@ -75,7 +76,7 @@ std::vector<CommandParamInfo> ZoomCommand::onDescribeParams() const
 {
   return {
       {"action", "in, out or set.", false, ""},
-      {"percentage", "Zoom percentage (for example 400). Implies action=set.", false, ""},
+      {param::kPercentage, "Zoom percentage (for example 400). Implies action=set.", false, ""},
   };
 }
 

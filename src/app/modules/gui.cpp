@@ -13,6 +13,7 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/document.h"
@@ -434,7 +435,7 @@ bool CustomizedGuiManager::onProcessMessage(Message* msg)
       }
 
       // Load the file
-      params.set("filename", fn.c_str());
+      params.set(param::kFilename, fn.c_str());
       ctx->executeCommand(cmd, params);
     }
   }

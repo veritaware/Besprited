@@ -9,6 +9,7 @@
 #include "config.h"
 #endif
 
+#include "app/commands/param_names.h"
 #include "app/ui/timeline.h"
 
 #include "app/app.h"
@@ -764,7 +765,7 @@ bool Timeline::onProcessMessage(Message* msg)
         if (frameTag)
         {
           Params params;
-          params.set("id", base::convert_to<std::string>(frameTag->id()).c_str());
+          params.set(param::kId, base::convert_to<std::string>(frameTag->id()).c_str());
 
           // As the m_clk.frameTag can be deleted with
           // RemoveFrameTag command, we've to clean all references
@@ -833,7 +834,7 @@ bool Timeline::onProcessMessage(Message* msg)
     {
       Command* command = CommandsModule::instance()->getCommandByName(CommandId::FrameProperties);
       Params params;
-      params.set("frame", "current");
+      params.set(param::kFrame, "current");
 
       UIContext::instance()->executeCommand(command, params);
       return true;

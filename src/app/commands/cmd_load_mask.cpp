@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/cmd/set_mask.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/file_selector.h"
@@ -49,7 +50,7 @@ LoadMaskCommand::LoadMaskCommand()
 
 void LoadMaskCommand::onLoadParams(const Params& params)
 {
-  m_filename = params.get("filename");
+  m_filename = params.get(param::kFilename);
 }
 
 std::vector<CommandParamInfo> LoadMaskCommand::onDescribeParams() const

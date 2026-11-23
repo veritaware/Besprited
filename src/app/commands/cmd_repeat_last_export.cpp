@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/context_access.h"
@@ -50,7 +51,7 @@ void RepeatLastExportCommand::onExecute(Context* context)
     const Document* document(reader.document());
     DocumentPreferences& docPref = Preferences::instance().document(document);
 
-    params.set("ui", (docPref.spriteSheet.type() == app::SpriteSheetType::None ? "1" : "0"));
+    params.set(param::kUi, (docPref.spriteSheet.type() == app::SpriteSheetType::None ? "1" : "0"));
   }
 
   context->executeCommand(cmd, params);

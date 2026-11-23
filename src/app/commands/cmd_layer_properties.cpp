@@ -17,6 +17,7 @@
 #include "app/cmd/set_layer_opacity.h"
 #include "app/cmd/set_user_data.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -375,27 +376,27 @@ void LayerPropertiesCommand::onLoadParams(const Params& params)
   m_hasVisible = false;
   m_hasUserData = false;
 
-  if (params.has_param("name"))
+  if (params.has_param(param::kName))
   {
     m_hasName = true;
-    m_name = params.get("name");
+    m_name = params.get(param::kName);
   }
 
-  if (params.has_param("opacity"))
+  if (params.has_param(param::kOpacity))
   {
     m_hasOpacity = true;
-    m_opacity = MID(0, params.get_as<int>("opacity"), 255);
+    m_opacity = MID(0, params.get_as<int>(param::kOpacity), 255);
   }
 
-  if (params.has_param("blend-mode"))
+  if (params.has_param(param::kBlendMode))
   {
     m_hasBlendMode = true;
-    m_blendMode = blend_mode_from_string(params.get("blend-mode"));
+    m_blendMode = blend_mode_from_string(params.get(param::kBlendMode));
   }
 
-  if (params.has_param("visible"))
+  if (params.has_param(param::kVisible))
   {
-    std::string visible = params.get("visible");
+    std::string visible = params.get(param::kVisible);
     if (visible == "true")
       m_visible = true;
     else if (visible == "false")
@@ -405,10 +406,10 @@ void LayerPropertiesCommand::onLoadParams(const Params& params)
     m_hasVisible = true;
   }
 
-  if (params.has_param("user-data"))
+  if (params.has_param(param::kUserData))
   {
     m_hasUserData = true;
-    m_userData = params.get("user-data");
+    m_userData = params.get(param::kUserData);
   }
 
   m_hasParams = m_hasName || m_hasOpacity || m_hasBlendMode || m_hasVisible || m_hasUserData;
@@ -417,14 +418,14 @@ void LayerPropertiesCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> LayerPropertiesCommand::onDescribeParams() const
 {
   return {
-      {"name", "Layer name. With any property, applies without the window.", false, ""},
-      {"opacity", "Layer opacity, 0 to 255.", false, ""},
-      {"blend-mode",
+      {param::kName, "Layer name. With any property, applies without the window.", false, ""},
+      {param::kOpacity, "Layer opacity, 0 to 255.", false, ""},
+      {param::kBlendMode,
        "Layer blend mode: normal, multiply, screen, overlay, darken, lighten, color-dodge, color-burn, hard-light, "
        "soft-light, difference, exclusion, hue, saturation, color or luminosity.",
        false, ""},
-      {"visible", "Layer visibility: true or false.", false, ""},
-      {"user-data", "Layer user data text (keeps the current color).", false, ""},
+      {param::kVisible, "Layer visibility: true or false.", false, ""},
+      {param::kUserData, "Layer user data text (keeps the current color).", false, ""},
   };
 }
 

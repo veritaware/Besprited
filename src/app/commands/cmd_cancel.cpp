@@ -13,6 +13,7 @@
 
 #include "app/app.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/ui/input_chain.h"
@@ -47,7 +48,7 @@ CancelCommand::CancelCommand()
 
 void CancelCommand::onLoadParams(const Params& params)
 {
-  std::string type = params.get("type");
+  std::string type = params.get(param::kType);
   if (type == "noop")
     m_type = NoOp;
   else if (type == "all")

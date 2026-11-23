@@ -9,6 +9,7 @@
 #include "config.h"
 #endif
 
+#include "app/commands/param_names.h"
 #include "app/ui/recent_listbox.h"
 
 #include "app/app.h"
@@ -144,7 +145,7 @@ void RecentFilesListBox::onClick(const std::string& path)
 {
   Command* command = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
   Params params;
-  params.set("filename", path.c_str());
+  params.set(param::kFilename, path.c_str());
   UIContext::instance()->executeCommand(command, params);
 }
 
@@ -169,7 +170,7 @@ void RecentFoldersListBox::onClick(const std::string& path)
 {
   Command* command = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
   Params params;
-  params.set("folder", path.c_str());
+  params.set(param::kFolder, path.c_str());
   UIContext::instance()->executeCommand(command, params);
 }
 

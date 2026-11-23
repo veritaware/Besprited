@@ -10,6 +10,7 @@
 #endif
 
 #include "app/app.h"
+#include "app/commands/param_names.h"
 #include "app/modules/i18n.h"
 #include "app/cmd/clear_rect.h"
 #include "app/commands/command.h"
@@ -155,8 +156,8 @@ void NewBrushCommand::createBrush(const Site& site, const Mask* mask)
 
   // Get the shortcut for this brush and show it to the user
   Params params;
-  params.set("change", "custom");
-  params.set("slot", base::convert_to<std::string>(slot).c_str());
+  params.set(param::kChange, "custom");
+  params.set(param::kSlot, base::convert_to<std::string>(slot).c_str());
   Key* key = KeyboardShortcuts::instance()->command(CommandId::ChangeBrush, params);
   if (key && !key->accels().empty())
   {

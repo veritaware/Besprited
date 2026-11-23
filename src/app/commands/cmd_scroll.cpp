@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/modules/editors.h"
@@ -66,7 +67,7 @@ ScrollCommand::ScrollCommand()
 
 void ScrollCommand::onLoadParams(const Params& params)
 {
-  std::string direction = params.get("direction");
+  std::string direction = params.get(param::kDirection);
   if (direction == "left")
     m_direction = Left;
   else if (direction == "right")
@@ -76,7 +77,7 @@ void ScrollCommand::onLoadParams(const Params& params)
   else if (direction == "down")
     m_direction = Down;
 
-  std::string units = params.get("units");
+  std::string units = params.get(param::kUnits);
   if (units == "pixel")
     m_units = Pixel;
   else if (units == "tile-width")
@@ -94,7 +95,7 @@ void ScrollCommand::onLoadParams(const Params& params)
   else if (units == "viewport-height")
     m_units = ViewportHeight;
 
-  int quantity = params.get_as<int>("quantity");
+  int quantity = params.get_as<int>(param::kQuantity);
   m_quantity = std::max<int>(1, quantity);
 }
 
@@ -106,7 +107,7 @@ std::vector<CommandParamInfo> ScrollCommand::onDescribeParams() const
        "pixel, tile-width, tile-height, zoomed-pixel, zoomed-tile-width, zoomed-tile-height, viewport-width or "
        "viewport-height.",
        false, ""},
-      {"quantity", "Units to scroll; at least 1.", false, "1"},
+      {param::kQuantity, "Units to scroll; at least 1.", false, "1"},
   };
 }
 

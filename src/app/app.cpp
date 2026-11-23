@@ -17,6 +17,7 @@
 #include "app/commands/cmd_save_file.h"
 #include "app/commands/cmd_sprite_size.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/crash/data_recovery.h"
@@ -389,10 +390,10 @@ void App::initialize(const AppOptions& options)
                                      "Usage: --crop x,y,width,height\n"
                                      "E.g. --crop 0,0,32,32");
 
-          cropParams.set("x", parts[0].c_str());
-          cropParams.set("y", parts[1].c_str());
-          cropParams.set("width", parts[2].c_str());
-          cropParams.set("height", parts[3].c_str());
+          cropParams.set(param::kX, parts[0].c_str());
+          cropParams.set(param::kY, parts[1].c_str());
+          cropParams.set(param::kWidth, parts[2].c_str());
+          cropParams.set(param::kHeight, parts[3].c_str());
         }
         // --filename-format
         else if (opt == &options.filenameFormat())
@@ -470,8 +471,8 @@ void App::initialize(const AppOptions& options)
                   ctx->executeCommand(trimCommand);
 
                 Params params;
-                params.set("filename", fn.c_str());
-                params.set("filename-format", fmt.c_str());
+                params.set(param::kFilename, fn.c_str());
+                params.set(param::kFilenameFormat, fmt.c_str());
                 ctx->executeCommand(saveAsCommand, params);
 
                 if (trim)
@@ -505,8 +506,8 @@ void App::initialize(const AppOptions& options)
                 ctx->executeCommand(trimCommand);
 
               Params params;
-              params.set("filename", value.value().c_str());
-              params.set("filename-format", format.c_str());
+              params.set(param::kFilename, value.value().c_str());
+              params.set(param::kFilenameFormat, format.c_str());
               ctx->executeCommand(saveAsCommand, params);
 
               if (trim)
@@ -616,7 +617,7 @@ void App::initialize(const AppOptions& options)
 
         Command* openCommand = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
         Params params;
-        params.set("filename", filename.c_str());
+        params.set(param::kFilename, filename.c_str());
         ctx->executeCommand(openCommand, params);
 
         app::Document* doc = ctx->activeDocument();

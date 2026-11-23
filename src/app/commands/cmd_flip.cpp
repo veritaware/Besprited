@@ -16,6 +16,7 @@
 #include "app/cmd/flip_masked_cel.h"
 #include "app/cmd/set_mask_position.h"
 #include "app/cmd/trim_cel.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
@@ -46,10 +47,10 @@ FlipCommand::FlipCommand()
 
 void FlipCommand::onLoadParams(const Params& params)
 {
-  std::string target = params.get("target");
+  std::string target = params.get(param::kTarget);
   m_flipMask = (target == "mask");
 
-  std::string orientation = params.get("orientation");
+  std::string orientation = params.get(param::kOrientation);
   m_flipType = (orientation == "vertical" ? doc::algorithm::FlipVertical : doc::algorithm::FlipHorizontal);
 }
 

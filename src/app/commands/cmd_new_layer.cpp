@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
@@ -62,17 +63,17 @@ NewLayerCommand::NewLayerCommand()
 
 void NewLayerCommand::onLoadParams(const Params& params)
 {
-  m_ask = (params.get("ask") == "true");
-  m_top = (params.get("top") == "true");
-  m_name = params.get("name");
+  m_ask = (params.get(param::kAsk) == "true");
+  m_top = (params.get(param::kTop) == "true");
+  m_name = params.get(param::kName);
 }
 
 std::vector<CommandParamInfo> NewLayerCommand::onDescribeParams() const
 {
   return {
-      {"ask", "Ask the user for the layer name (true or false).", false, "false"},
-      {"top", "Create the layer on top; false inserts it above the active layer.", false, "false"},
-      {"name", "Layer name. Empty generates a \"Layer N\" name.", false, ""},
+      {param::kAsk, "Ask the user for the layer name (true or false).", false, "false"},
+      {param::kTop, "Create the layer on top; false inserts it above the active layer.", false, "false"},
+      {param::kName, "Layer name. Empty generates a \"Layer N\" name.", false, ""},
   };
 }
 

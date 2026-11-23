@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/tools/ink_type.h"
 #include "app/ui/context_bar.h"
@@ -42,7 +43,7 @@ SetInkTypeCommand::SetInkTypeCommand()
 
 void SetInkTypeCommand::onLoadParams(const Params& params)
 {
-  std::string typeStr = params.get("type");
+  std::string typeStr = params.get(param::kType);
   if (typeStr == "simple")
     m_type = tools::InkType::SIMPLE;
   else if (typeStr == "alpha-compositing")

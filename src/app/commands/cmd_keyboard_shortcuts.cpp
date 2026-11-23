@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/app_menus.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/console.h"
 #include "app/context.h"
 #include "app/file_selector.h"
@@ -719,13 +720,13 @@ KeyboardShortcutsCommand::KeyboardShortcutsCommand()
 
 void KeyboardShortcutsCommand::onLoadParams(const Params& params)
 {
-  m_search = params.get("search");
+  m_search = params.get(param::kSearch);
 }
 
 std::vector<CommandParamInfo> KeyboardShortcutsCommand::onDescribeParams() const
 {
   return {
-      {"search", "Text to prefill the search box.", false, ""},
+      {param::kSearch, "Text to prefill the search box.", false, ""},
   };
 }
 

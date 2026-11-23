@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
@@ -49,7 +50,7 @@ ChangePixelFormatCommand::ChangePixelFormatCommand()
 
 void ChangePixelFormatCommand::onLoadParams(const Params& params)
 {
-  std::string format = params.get("format");
+  std::string format = params.get(param::kFormat);
   if (format == "rgb")
     m_format = IMAGE_RGB;
   else if (format == "grayscale")
@@ -57,7 +58,7 @@ void ChangePixelFormatCommand::onLoadParams(const Params& params)
   else if (format == "indexed")
     m_format = IMAGE_INDEXED;
 
-  std::string dithering = params.get("dithering");
+  std::string dithering = params.get(param::kDithering);
   if (dithering == "ordered")
     m_dithering = DitheringMethod::ORDERED;
   else
@@ -67,8 +68,8 @@ void ChangePixelFormatCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> ChangePixelFormatCommand::onDescribeParams() const
 {
   return {
-      {"format", "Target pixel format: rgb, grayscale or indexed.", false, "rgb"},
-      {"dithering", "Dithering when converting to indexed: none or ordered.", false, "none"},
+      {param::kFormat, "Target pixel format: rgb, grayscale or indexed.", false, "rgb"},
+      {param::kDithering, "Dithering when converting to indexed: none or ordered.", false, "none"},
   };
 }
 

@@ -10,6 +10,7 @@
 #include "app/app_menus.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/file_system.h"
 #include "app/script/app_scripting.h"
@@ -42,7 +43,7 @@ void scanFolder(const std::string& scriptsDir, Command* cmd_run_script, Menu* pa
       continue;
     }
     auto cmd = isFolder ? nullptr : cmd_run_script;
-    params.set("filename", fullPath.c_str());
+    params.set(param::kFilename, fullPath.c_str());
     auto menuitem = new AppMenuItem(child->displayName().c_str(), cmd, params);
     parent->addChild(menuitem);
     if (isFolder)

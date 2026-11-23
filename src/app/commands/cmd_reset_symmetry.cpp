@@ -10,6 +10,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/modules/editors.h"
@@ -49,7 +50,7 @@ ResetSymmetryCommand::ResetSymmetryCommand()
 
 void ResetSymmetryCommand::onLoadParams(const Params& params)
 {
-  m_target = (params.get("target") == "view" ? Target::ViewCenter : Target::Center);
+  m_target = (params.get(param::kTarget) == "view" ? Target::ViewCenter : Target::Center);
 }
 
 std::vector<CommandParamInfo> ResetSymmetryCommand::onDescribeParams() const

@@ -11,6 +11,7 @@
 
 #include "app/commands/cmd_set_palette.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/file/palette_file.h"
@@ -51,13 +52,13 @@ SavePaletteCommand::SavePaletteCommand()
 
 void SavePaletteCommand::onLoadParams(const Params& params)
 {
-  m_preset = params.get("preset");
+  m_preset = params.get(param::kPreset);
 }
 
 std::vector<CommandParamInfo> SavePaletteCommand::onDescribeParams() const
 {
   return {
-      {"preset", "Preset palette name to save to. Empty opens the file dialog.", false, ""},
+      {param::kPreset, "Preset palette name to save to. Empty opens the file dialog.", false, ""},
   };
 }
 

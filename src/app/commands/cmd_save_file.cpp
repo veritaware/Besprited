@@ -14,6 +14,7 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -166,16 +167,16 @@ SaveFileBaseCommand::SaveFileBaseCommand(const char* short_name, const char* fri
 
 void SaveFileBaseCommand::onLoadParams(const Params& params)
 {
-  m_filename = params.get("filename");
-  m_filenameFormat = params.get("filename-format");
+  m_filename = params.get(param::kFilename);
+  m_filenameFormat = params.get(param::kFilenameFormat);
 }
 
 std::vector<CommandParamInfo> SaveFileBaseCommand::onDescribeParams() const
 {
   return {
-      {"filename", "File to save to. Empty saves in place or opens the save dialog.", false, ""},
-      {"filename-format", "Output filename format with {title}, {frame}, {path}, {extension} or {fullname} tokens.",
-       false, ""},
+      {param::kFilename, "File to save to. Empty saves in place or opens the save dialog.", false, ""},
+      {param::kFilenameFormat,
+       "Output filename format with {title}, {frame}, {path}, {extension} or {fullname} tokens.", false, ""},
   };
 }
 
@@ -248,10 +249,10 @@ bool SaveFileBaseCommand::saveAsDialog(Context* context, const char* dlgTitle, F
       if (width != newWidth || height != newHeight)
       {
         Params params;
-        params.set("use-ui", "false");
-        params.set("width", base::convert_to<std::string>(newWidth).c_str());
-        params.set("height", base::convert_to<std::string>(newHeight).c_str());
-        params.set("resize-method",
+        params.set(param::kUseUi, "false");
+        params.set(param::kWidth, base::convert_to<std::string>(newWidth).c_str());
+        params.set(param::kHeight, base::convert_to<std::string>(newHeight).c_str());
+        params.set(param::kResizeMethod,
                    "nearest-neighbor"); // TODO add algorithm in the UI?
         context->executeCommand(resizeCmd, params);
         undoResize = true;

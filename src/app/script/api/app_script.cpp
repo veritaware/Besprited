@@ -13,6 +13,7 @@
 #include "delta/Extension.hpp"
 #include "delta/JSON.hpp"
 #include "di.hpp"
+#include "app/commands/param_names.h"
 #include "app/script/api/script_api_common.h"
 #include "app/script/api/widget_script.h"
 
@@ -123,7 +124,7 @@ public:
       auto* oldDoc = ctx->activeDocument();
       auto* openCmd = app::CommandsModule::instance()->getCommandByName(app::CommandId::OpenFile);
       app::Params params;
-      params.set("filename", fn.c_str());
+      params.set(app::param::kFilename, fn.c_str());
       ctx->executeCommand(openCmd, params);
       auto* newDoc = ctx->activeDocument();
       if (newDoc == oldDoc)

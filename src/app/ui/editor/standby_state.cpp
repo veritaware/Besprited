@@ -10,6 +10,7 @@
 #include "config.h"
 #endif
 
+#include "app/commands/param_names.h"
 #include "app/ui/editor/standby_state.h"
 
 #include "app/app.h"
@@ -375,9 +376,9 @@ bool StandbyState::onDoubleClick(Editor* editor, MouseMessage* msg)
 
     Params params;
     if (int(editor->getToolLoopModifiers()) & int(tools::ToolLoopModifiers::kAddSelection))
-      params.set("mode", "add");
+      params.set(param::kMode, "add");
     else if (int(editor->getToolLoopModifiers()) & int(tools::ToolLoopModifiers::kSubtractSelection))
-      params.set("mode", "subtract");
+      params.set(param::kMode, "subtract");
 
     UIContext::instance()->executeCommand(selectTileCmd, params);
     return true;
@@ -592,7 +593,7 @@ void StandbyState::callEyedropper(Editor* editor)
   bool fg = (static_cast<tools::PickInk*>(clickedInk)->target() == tools::PickInk::Fg);
 
   Params params;
-  params.set("target", fg ? "foreground" : "background");
+  params.set(param::kTarget, fg ? "foreground" : "background");
 
   UIContext::instance()->executeCommand(eyedropper_cmd, params);
 }

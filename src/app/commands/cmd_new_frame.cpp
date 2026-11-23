@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -68,7 +69,7 @@ void NewFrameCommand::onLoadParams(const Params& params)
 {
   m_content = Content::DUPLICATE_FRAME;
 
-  std::string content = params.get("content");
+  std::string content = params.get(param::kContent);
   if (content == "current" || content == "frame")
     m_content = Content::DUPLICATE_FRAME;
   else if (content == "empty")
@@ -82,8 +83,9 @@ void NewFrameCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> NewFrameCommand::onDescribeParams() const
 {
   return {
-      {"content", "New frame content: current (duplicate the frame), empty, cel (duplicate the cels) or celblock.",
-       false, "current"},
+      {param::kContent,
+       "New frame content: current (duplicate the frame), empty, cel (duplicate the cels) or celblock.", false,
+       "current"},
   };
 }
 

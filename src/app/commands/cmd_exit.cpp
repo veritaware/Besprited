@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/context.h"
 #include "app/document.h"
 #include "app/ui/main_window.h"
@@ -48,7 +49,7 @@ void ExitCommand::onExecute(Context* ctx)
   {
     Command* closeAll = CommandsModule::instance()->getCommandByName(CommandId::CloseAllFiles);
     Params params;
-    params.set("quitting", "1");
+    params.set(param::kQuitting, "1");
     ctx->executeCommand(closeAll, params);
 
     // The user didn't save all documents (canceled the exit)

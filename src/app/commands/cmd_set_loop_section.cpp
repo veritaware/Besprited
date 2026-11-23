@@ -15,6 +15,7 @@
 #include "app/cmd/set_frame_tag_range.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/loop_tag.h"
@@ -57,7 +58,7 @@ SetLoopSectionCommand::SetLoopSectionCommand()
 
 void SetLoopSectionCommand::onLoadParams(const Params& params)
 {
-  std::string action = params.get("action");
+  std::string action = params.get(param::kAction);
   if (action == "on")
     m_action = Action::On;
   else if (action == "off")
@@ -65,8 +66,8 @@ void SetLoopSectionCommand::onLoadParams(const Params& params)
   else
     m_action = Action::Auto;
 
-  std::string begin = params.get("begin");
-  std::string end = params.get("end");
+  std::string begin = params.get(param::kBegin);
+  std::string end = params.get(param::kEnd);
 
   m_begin = frame_t(strtol(begin.c_str(), nullptr, 10));
   m_end = frame_t(strtol(end.c_str(), nullptr, 10));
@@ -76,8 +77,8 @@ std::vector<CommandParamInfo> SetLoopSectionCommand::onDescribeParams() const
 {
   return {
       {"action", "auto (use the timeline range), on or off.", false, "auto"},
-      {"begin", "Begin frame (0-based) for action=on.", false, ""},
-      {"end", "End frame (0-based) for action=on.", false, ""},
+      {param::kBegin, "Begin frame (0-based) for action=on.", false, ""},
+      {param::kEnd, "End frame (0-based) for action=on.", false, ""},
   };
 }
 

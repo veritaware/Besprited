@@ -11,6 +11,7 @@
 
 #include "app/cmd/set_mask.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document.h"
@@ -71,7 +72,7 @@ ModifySelectionCommand::ModifySelectionCommand()
 
 void ModifySelectionCommand::onLoadParams(const Params& params)
 {
-  const std::string modifier = params.get("modifier");
+  const std::string modifier = params.get(param::kModifier);
   if (modifier == "border")
     m_modifier = Border;
   else if (modifier == "expand")
@@ -79,10 +80,10 @@ void ModifySelectionCommand::onLoadParams(const Params& params)
   else if (modifier == "contract")
     m_modifier = Contract;
 
-  const int quantity = params.get_as<int>("quantity");
+  const int quantity = params.get_as<int>(param::kQuantity);
   m_quantity = std::max<int>(0, quantity);
 
-  const std::string brush = params.get("brush");
+  const std::string brush = params.get(param::kBrush);
   if (brush == "circle")
     m_brushType = doc::kCircleBrushType;
   else if (brush == "square")
@@ -93,7 +94,7 @@ std::vector<CommandParamInfo> ModifySelectionCommand::onDescribeParams() const
 {
   return {
       {"modifier", "border, expand or contract the selection.", false, "expand"},
-      {"quantity", "Pixels to modify; 0 opens the dialog.", false, "0"},
+      {param::kQuantity, "Pixels to modify; 0 opens the dialog.", false, "0"},
       {"brush", "circle or square brush for the modifier.", false, "circle"},
   };
 }

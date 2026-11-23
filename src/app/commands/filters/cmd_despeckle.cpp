@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/commands/filters/filter_window.h"
@@ -105,19 +106,19 @@ DespeckleCommand::DespeckleCommand()
 
 void DespeckleCommand::onLoadParams(const Params& params)
 {
-  std::string useUI = params.get("use-ui");
+  std::string useUI = params.get(param::kUseUi);
   m_useUI = (useUI.empty() || (useUI == "true"));
 
-  m_width = (params.has_param("width") ? params.get_as<int>("width") : 0);
-  m_height = (params.has_param("height") ? params.get_as<int>("height") : 0);
+  m_width = (params.has_param(param::kWidth) ? params.get_as<int>(param::kWidth) : 0);
+  m_height = (params.has_param(param::kHeight) ? params.get_as<int>(param::kHeight) : 0);
 }
 
 std::vector<CommandParamInfo> DespeckleCommand::onDescribeParams() const
 {
   return {
-      {"use-ui", "Show the despeckle dialog (true or false).", false, "true"},
-      {"width", "Kernel width in pixels. With this, runs without the dialog.", false, "3"},
-      {"height", "Kernel height in pixels. With this, runs without the dialog.", false, "3"},
+      {param::kUseUi, "Show the despeckle dialog (true or false).", false, "true"},
+      {param::kWidth, "Kernel width in pixels. With this, runs without the dialog.", false, "3"},
+      {param::kHeight, "Kernel height in pixels. With this, runs without the dialog.", false, "3"},
   };
 }
 

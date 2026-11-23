@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context.h"
@@ -111,30 +112,30 @@ void GridSettingsCommand::onLoadParams(const Params& params)
 {
   m_x = m_y = m_w = m_h = 0;
   m_hasX = m_hasY = m_hasBounds = false;
-  if (params.has_param("x"))
+  if (params.has_param(param::kX))
   {
-    m_x = params.get_as<int>("x");
+    m_x = params.get_as<int>(param::kX);
     m_hasX = true;
   }
-  if (params.has_param("y"))
+  if (params.has_param(param::kY))
   {
-    m_y = params.get_as<int>("y");
+    m_y = params.get_as<int>(param::kY);
     m_hasY = true;
   }
-  if (params.has_param("width"))
-    m_w = params.get_as<int>("width");
-  if (params.has_param("height"))
-    m_h = params.get_as<int>("height");
-  m_hasBounds = params.has_param("width") && params.has_param("height");
+  if (params.has_param(param::kWidth))
+    m_w = params.get_as<int>(param::kWidth);
+  if (params.has_param(param::kHeight))
+    m_h = params.get_as<int>(param::kHeight);
+  m_hasBounds = params.has_param(param::kWidth) && params.has_param(param::kHeight);
 }
 
 std::vector<CommandParamInfo> GridSettingsCommand::onDescribeParams() const
 {
   return {
-      {"x", "Grid origin x in pixels (optional).", false, ""},
-      {"y", "Grid origin y in pixels (optional).", false, ""},
-      {"width", "Grid width in pixels. With height, sets the grid bounds without the dialog.", false, ""},
-      {"height", "Grid height in pixels.", false, ""},
+      {param::kX, "Grid origin x in pixels (optional).", false, ""},
+      {param::kY, "Grid origin y in pixels (optional).", false, ""},
+      {param::kWidth, "Grid width in pixels. With height, sets the grid bounds without the dialog.", false, ""},
+      {param::kHeight, "Grid height in pixels.", false, ""},
   };
 }
 

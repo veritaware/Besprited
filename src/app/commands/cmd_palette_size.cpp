@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/cmd/set_palette.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -50,13 +51,13 @@ PaletteSizeCommand::PaletteSizeCommand()
 
 void PaletteSizeCommand::onLoadParams(const Params& params)
 {
-  m_size = params.get_as<int>("size");
+  m_size = params.get_as<int>(param::kSize);
 }
 
 std::vector<CommandParamInfo> PaletteSizeCommand::onDescribeParams() const
 {
   return {
-      {"size", "New palette size in colors. With this, resizes the palette without the dialog.", false, ""},
+      {param::kSize, "New palette size in colors. With this, resizes the palette without the dialog.", false, ""},
   };
 }
 

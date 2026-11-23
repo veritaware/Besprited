@@ -10,6 +10,7 @@
 #include "app_menus.h"
 #include "commands/command.h"
 #include "commands/commands.h"
+#include "commands/param_names.h"
 #include "commands/params.h"
 #include "ui/app_menuitem.h"
 #include "base/bind.h"
@@ -54,7 +55,7 @@ void RecentFilesMenu::rebuildRecentList()
     for (; it != end; ++it)
     {
       const char* filename = it->c_str();
-      params.set("filename", filename);
+      params.set(param::kFilename, filename);
 
       auto menuitem = new AppMenuItem(base::get_file_name(filename).c_str(), cmd_open_file, params);
       submenu->addChild(menuitem);

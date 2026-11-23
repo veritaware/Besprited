@@ -13,6 +13,7 @@
 #include "app/cmd/set_cel_opacity.h"
 #include "app/cmd/set_user_data.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -363,21 +364,21 @@ void CelPropertiesCommand::onLoadParams(const Params& params)
   m_layer = "";
   m_frame = 0;
 
-  if (params.has_param("opacity"))
+  if (params.has_param(param::kOpacity))
   {
     m_hasOpacity = true;
-    m_opacity = MID(0, params.get_as<int>("opacity"), 255);
+    m_opacity = MID(0, params.get_as<int>(param::kOpacity), 255);
   }
 
-  if (params.has_param("user-data"))
+  if (params.has_param(param::kUserData))
   {
     m_hasUserData = true;
-    m_userData = params.get("user-data");
+    m_userData = params.get(param::kUserData);
   }
 
-  m_layer = params.get("layer");
+  m_layer = params.get(param::kLayer);
 
-  std::string frame = params.get("frame");
+  std::string frame = params.get(param::kFrame);
   if (!frame.empty())
     m_frame = strtol(frame.c_str(), nullptr, 10);
 }
@@ -385,9 +386,9 @@ void CelPropertiesCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> CelPropertiesCommand::onDescribeParams() const
 {
   return {
-      {"opacity", "Cel opacity, 0 to 255. With opacity or user-data, applies without the window.", false, ""},
-      {"user-data", "Cel user data text (keeps the current color).", false, ""},
-      {"layer", "Target layer: the layer name, then the layer index. Empty: the active layer.", false, ""},
+      {param::kOpacity, "Cel opacity, 0 to 255. With opacity or user-data, applies without the window.", false, ""},
+      {param::kUserData, "Cel user data text (keeps the current color).", false, ""},
+      {param::kLayer, "Target layer: the layer name, then the layer index. Empty: the active layer.", false, ""},
       {"frame", "1-based target frame. Empty: the active frame.", false, ""},
   };
 }

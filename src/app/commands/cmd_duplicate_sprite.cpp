@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -55,15 +56,15 @@ DuplicateSpriteCommand::DuplicateSpriteCommand()
 
 void DuplicateSpriteCommand::onLoadParams(const Params& params)
 {
-  m_filename = params.get("filename");
-  m_flatten = params.get("flatten");
+  m_filename = params.get(param::kFilename);
+  m_flatten = params.get(param::kFlatten);
 }
 
 std::vector<CommandParamInfo> DuplicateSpriteCommand::onDescribeParams() const
 {
   return {
-      {"filename", "Destination name for the copy. Default: <title> Copy.<ext>.", false, ""},
-      {"flatten", "Flatten layers in the copy. \"true\" or \"false\". Default: false.", false, ""},
+      {param::kFilename, "Destination name for the copy. Default: <title> Copy.<ext>.", false, ""},
+      {param::kFlatten, "Flatten layers in the copy. \"true\" or \"false\". Default: false.", false, ""},
   };
 }
 

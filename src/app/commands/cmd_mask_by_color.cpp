@@ -14,6 +14,7 @@
 #include "app/color.h"
 #include "app/color_utils.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context.h"
@@ -89,20 +90,20 @@ void MaskByColorCommand::onLoadParams(const Params& params)
   m_color = app::Color::fromMask();
   m_tolerance = 0;
   m_hasColor = false;
-  if (params.has_param("color"))
+  if (params.has_param(param::kColor))
   {
-    m_color = app::Color::fromString(params.get("color"));
+    m_color = app::Color::fromString(params.get(param::kColor));
     m_hasColor = true;
   }
-  if (params.has_param("tolerance"))
-    m_tolerance = params.get_as<int>("tolerance");
+  if (params.has_param(param::kTolerance))
+    m_tolerance = params.get_as<int>(param::kTolerance);
 }
 
 std::vector<CommandParamInfo> MaskByColorCommand::onDescribeParams() const
 {
   return {
-      {"color", "Color to select, for example rgb{255,0,0,255}. With this, runs without the dialog.", false, ""},
-      {"tolerance", "Color tolerance, 0 to 255.", false, ""},
+      {param::kColor, "Color to select, for example rgb{255,0,0,255}. With this, runs without the dialog.", false, ""},
+      {param::kTolerance, "Color tolerance, 0 to 255.", false, ""},
   };
 }
 

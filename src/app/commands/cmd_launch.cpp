@@ -10,6 +10,7 @@
 #endif
 
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/launcher.h"
 #include "base/fs.h"
@@ -53,7 +54,7 @@ bool LaunchCommand::onEnabled(Context*)
 
 void LaunchCommand::onLoadParams(const Params& params)
 {
-  m_path = params.get("path");
+  m_path = params.get(param::kPath);
 
   if (m_type == Url && !m_path.empty() && m_path[0] == '/')
   {
@@ -64,7 +65,7 @@ void LaunchCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> LaunchCommand::onDescribeParams() const
 {
   return {
-      {"path", "URL to open; a leading / is resolved against the site.", false, ""},
+      {param::kPath, "URL to open; a leading / is resolved against the site.", false, ""},
   };
 }
 

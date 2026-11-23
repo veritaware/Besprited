@@ -13,6 +13,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/modules/palettes.h"
 #include "app/ui/color_bar.h"
@@ -56,13 +57,13 @@ ChangeColorCommand::ChangeColorCommand()
 
 void ChangeColorCommand::onLoadParams(const Params& params)
 {
-  std::string target = params.get("target");
+  std::string target = params.get(param::kTarget);
   if (target == "foreground")
     m_background = false;
   else if (target == "background")
     m_background = true;
 
-  std::string change = params.get("change");
+  std::string change = params.get(param::kChange);
   if (change == "increment-index")
     m_change = IncrementIndex;
   else if (change == "decrement-index")

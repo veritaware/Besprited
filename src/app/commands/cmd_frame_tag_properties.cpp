@@ -16,6 +16,7 @@
 #include "app/cmd/set_frame_tag_range.h"
 #include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -66,30 +67,30 @@ FrameTagPropertiesCommand::FrameTagPropertiesCommand()
 
 void FrameTagPropertiesCommand::onLoadParams(const Params& params)
 {
-  m_tagName = params.get("name");
+  m_tagName = params.get(param::kName);
 
-  std::string id = params.get("id");
+  std::string id = params.get(param::kId);
   if (!id.empty())
     m_tagId = ObjectId(base::convert_to<ObjectId>(id));
   else
     m_tagId = NullId;
 
-  m_newName = params.get("new-name");
+  m_newName = params.get(param::kNewName);
 
-  std::string from = params.get("from");
+  std::string from = params.get(param::kFrom);
   if (!from.empty())
     m_from = strtol(from.c_str(), NULL, 10);
   else
     m_from = 0;
 
-  std::string to = params.get("to");
+  std::string to = params.get(param::kTo);
   if (!to.empty())
     m_to = strtol(to.c_str(), NULL, 10);
   else
     m_to = 0;
 
-  m_color = params.get("color");
-  m_aniDir = params.get("ani-dir");
+  m_color = params.get(param::kColor);
+  m_aniDir = params.get(param::kAniDir);
 
   m_hasParams = !m_newName.empty() || m_from != 0 || m_to != 0 || !m_color.empty() || !m_aniDir.empty();
 }
@@ -97,13 +98,13 @@ void FrameTagPropertiesCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> FrameTagPropertiesCommand::onDescribeParams() const
 {
   return {
-      {"name", "Name of the tag to edit. Empty: the tag of the current frame.", false, ""},
-      {"id", "Object id of the tag to edit (overrides name).", false, ""},
-      {"new-name", "New name for the tag. Skips the dialog.", false, ""},
+      {param::kName, "Name of the tag to edit. Empty: the tag of the current frame.", false, ""},
+      {param::kId, "Object id of the tag to edit (overrides name).", false, ""},
+      {param::kNewName, "New name for the tag. Skips the dialog.", false, ""},
       {"from", "1-based first frame of the tag (inclusive).", false, ""},
       {"to", "1-based last frame of the tag (inclusive).", false, ""},
-      {"color", "Tag color, for example rgb{255,0,0,255}.", false, ""},
-      {"ani-dir", "Animation direction: forward, reverse or mirror.", false, "forward"},
+      {param::kColor, "Tag color, for example rgb{255,0,0,255}.", false, ""},
+      {param::kAniDir, "Animation direction: forward, reverse or mirror.", false, "forward"},
   };
 }
 

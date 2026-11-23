@@ -10,6 +10,7 @@
 #endif
 
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/loop_tag.h"
 #include "app/modules/editors.h"
@@ -158,7 +159,7 @@ public:
 protected:
   void onLoadParams(const Params& params) override
   {
-    std::string frame = params.get("frame");
+    std::string frame = params.get(param::kFrame);
     if (!frame.empty())
       m_frame = strtol(frame.c_str(), nullptr, 10);
     else

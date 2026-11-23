@@ -12,6 +12,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/pref/preferences.h"
@@ -44,7 +45,7 @@ void TiledModeCommand::onLoadParams(const Params& params)
 {
   m_mode = filters::TiledMode::NONE;
 
-  std::string mode = params.get("axis");
+  std::string mode = params.get(param::kAxis);
   if (mode == "both")
     m_mode = filters::TiledMode::BOTH;
   else if (mode == "x")

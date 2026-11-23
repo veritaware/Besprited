@@ -9,6 +9,7 @@
 #include "config.h"
 #endif
 
+#include "app/commands/param_names.h"
 #include "app/ui/brush_popup.h"
 
 #include "app/app.h"
@@ -126,15 +127,15 @@ private:
   void onClick() override
   {
     Params params;
-    params.set("change", "custom");
-    params.set("slot", base::convert_to<std::string>(m_slot).c_str());
+    params.set(param::kChange, "custom");
+    params.set(param::kSlot, base::convert_to<std::string>(m_slot).c_str());
     Command* cmd = CommandsModule::instance()->getCommandByName(CommandId::ChangeBrush);
     cmd->loadParams(params);
     std::string search = cmd->friendlyName();
     if (!search.empty())
     {
       params.clear();
-      params.set("search", search.c_str());
+      params.set(param::kSearch, search.c_str());
       cmd = CommandsModule::instance()->getCommandByName(CommandId::KeyboardShortcuts);
       ASSERT(cmd);
       if (cmd)
@@ -411,8 +412,8 @@ void BrushPopup::regenerate(const gfx::Rect& box)
     std::string shortcut;
     {
       Params params;
-      params.set("change", "custom");
-      params.set("slot", base::convert_to<std::string>(slot).c_str());
+      params.set(param::kChange, "custom");
+      params.set(param::kSlot, base::convert_to<std::string>(slot).c_str());
       Key* key = KeyboardShortcuts::instance()->command(CommandId::ChangeBrush, params);
       if (key && !key->accels().empty())
         shortcut = key->accels().front().toString();

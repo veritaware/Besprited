@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -48,7 +49,7 @@ SaveMaskCommand::SaveMaskCommand()
 
 void SaveMaskCommand::onLoadParams(const Params& params)
 {
-  m_filename = params.get("filename");
+  m_filename = params.get(param::kFilename);
 }
 
 std::vector<CommandParamInfo> SaveMaskCommand::onDescribeParams() const

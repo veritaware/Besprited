@@ -14,6 +14,7 @@
 #include "app/color.h"
 #include "app/commands/command.h"
 #include "app/color_utils.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context.h"
@@ -99,28 +100,28 @@ PasteTextCommand::PasteTextCommand()
 
 void PasteTextCommand::onLoadParams(const Params& params)
 {
-  m_text = params.get("text");
-  m_font = params.get("font");
+  m_text = params.get(param::kText);
+  m_font = params.get(param::kFont);
   m_size = 0;
   m_antialias = -1;
-  if (params.has_param("size"))
-    m_size = params.get_as<int>("size");
-  std::string antialias = params.get("antialias");
+  if (params.has_param(param::kSize))
+    m_size = params.get_as<int>(param::kSize);
+  std::string antialias = params.get(param::kAntialias);
   if (antialias == "true")
     m_antialias = 1;
   else if (antialias == "false")
     m_antialias = 0;
-  m_color = params.get("color");
+  m_color = params.get(param::kColor);
 }
 
 std::vector<CommandParamInfo> PasteTextCommand::onDescribeParams() const
 {
   return {
-      {"text", "Text to insert. With font, inserts without the dialog.", false, ""},
-      {"font", "Path to a .ttf or .otf font file. With text, inserts without the dialog.", false, ""},
-      {"size", "Font size in points. Uses the text tool preference when empty.", false, ""},
-      {"antialias", "Antialiasing: true or false. Uses the text tool preference when empty.", false, ""},
-      {"color", "Text color, for example rgb{255,0,0,255}. Uses the foreground color when empty.", false, ""},
+      {param::kText, "Text to insert. With font, inserts without the dialog.", false, ""},
+      {param::kFont, "Path to a .ttf or .otf font file. With text, inserts without the dialog.", false, ""},
+      {param::kSize, "Font size in points. Uses the text tool preference when empty.", false, ""},
+      {param::kAntialias, "Antialiasing: true or false. Uses the text tool preference when empty.", false, ""},
+      {param::kColor, "Text color, for example rgb{255,0,0,255}. Uses the foreground color when empty.", false, ""},
   };
 }
 

@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -62,9 +63,9 @@ void SpritePropertiesCommand::onLoadParams(const Params& params)
 {
   m_transparentColor = -1;
   m_hasParams = false;
-  if (params.has_param("transparent-color"))
+  if (params.has_param(param::kTransparentColor))
   {
-    m_transparentColor = params.get_as<int>("transparent-color");
+    m_transparentColor = params.get_as<int>(param::kTransparentColor);
     m_hasParams = true;
   }
 }
@@ -72,8 +73,8 @@ void SpritePropertiesCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> SpritePropertiesCommand::onDescribeParams() const
 {
   return {
-      {"transparent-color", "Index of the new transparent color (indexed sprites). Sets it without the dialog.", false,
-       ""},
+      {param::kTransparentColor, "Index of the new transparent color (indexed sprites). Sets it without the dialog.",
+       false, ""},
   };
 }
 

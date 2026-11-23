@@ -8,6 +8,7 @@
 #include "delta/Extension.hpp"
 #include "delta/JSON.hpp"
 #include "di.hpp"
+#include "app/commands/param_names.h"
 #include "app/script/api/script_api_common.h"
 
 #include "app/cmd/set_sprite_size.h"
@@ -137,7 +138,7 @@ public:
       app::Params params;
       if (asCopy)
       {
-        params.set("filename", fileName.c_str());
+        params.set(app::param::kFilename, fileName.c_str());
       }
       else if (!fileName.empty())
       {

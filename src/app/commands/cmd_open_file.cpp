@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/document.h"
@@ -116,15 +117,15 @@ OpenFileCommand::OpenFileCommand()
 
 void OpenFileCommand::onLoadParams(const Params& params)
 {
-  m_filename = params.get("filename");
-  m_folder = params.get("folder"); // Initial folder
+  m_filename = params.get(param::kFilename);
+  m_folder = params.get(param::kFolder); // Initial folder
 }
 
 std::vector<CommandParamInfo> OpenFileCommand::onDescribeParams() const
 {
   return {
-      {"filename", "File to open. Empty opens the file dialog.", false, ""},
-      {"folder", "Initial folder for the file dialog.", false, ""},
+      {param::kFilename, "File to open. Empty opens the file dialog.", false, ""},
+      {param::kFolder, "Initial folder for the file dialog.", false, ""},
   };
 }
 

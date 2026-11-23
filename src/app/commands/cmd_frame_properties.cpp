@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
@@ -59,7 +60,7 @@ FramePropertiesCommand::FramePropertiesCommand()
 
 void FramePropertiesCommand::onLoadParams(const Params& params)
 {
-  std::string frame = params.get("frame");
+  std::string frame = params.get(param::kFrame);
   if (frame == "all")
   {
     m_target = ALL_FRAMES;

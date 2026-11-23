@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context.h"
@@ -108,7 +109,7 @@ protected:
     Document* oldActiveDocument = m_context->activeDocument();
     Command* openFile = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
     Params params;
-    params.set("filename", "");
+    params.set(param::kFilename, "");
     openFile->loadParams(params);
     openFile->execute(m_context);
 
@@ -316,19 +317,19 @@ ImportSpriteSheetCommand::ImportSpriteSheetCommand()
 
 void ImportSpriteSheetCommand::onLoadParams(const Params& params)
 {
-  m_filename = params.get("filename");
+  m_filename = params.get(param::kFilename);
 
   m_x = m_y = m_width = m_height = 0;
-  if (params.has_param("x"))
-    m_x = params.get_as<int>("x");
-  if (params.has_param("y"))
-    m_y = params.get_as<int>("y");
-  if (params.has_param("width"))
-    m_width = params.get_as<int>("width");
-  if (params.has_param("height"))
-    m_height = params.get_as<int>("height");
+  if (params.has_param(param::kX))
+    m_x = params.get_as<int>(param::kX);
+  if (params.has_param(param::kY))
+    m_y = params.get_as<int>(param::kY);
+  if (params.has_param(param::kWidth))
+    m_width = params.get_as<int>(param::kWidth);
+  if (params.has_param(param::kHeight))
+    m_height = params.get_as<int>(param::kHeight);
 
-  std::string sheet_type = params.get("sheet-type");
+  std::string sheet_type = params.get(param::kSheetType);
   if (sheet_type == "horizontal")
     m_sheetType = (int)SpriteSheetType::Horizontal;
   else if (sheet_type == "vertical")
@@ -340,7 +341,7 @@ void ImportSpriteSheetCommand::onLoadParams(const Params& params)
   else
     m_sheetType = -1;
 
-  std::string partial_tiles = params.get("partial-tiles");
+  std::string partial_tiles = params.get(param::kPartialTiles);
   if (partial_tiles == "true")
     m_partialTiles = 1;
   else if (partial_tiles == "false")
@@ -352,15 +353,15 @@ void ImportSpriteSheetCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> ImportSpriteSheetCommand::onDescribeParams() const
 {
   return {
-      {"filename", "Sheet file to open. Empty uses the current document.", false, ""},
-      {"x", "Tile x coordinate in the sheet.", false, "0"},
-      {"y", "Tile y coordinate in the sheet.", false, "0"},
-      {"width", "Tile width in pixels. With height, imports without the dialog.", false, ""},
-      {"height", "Tile height in pixels. With width, imports without the dialog.", false, ""},
-      {"sheet-type", "Tile layout: horizontal, vertical, rows or columns. Uses the document preference when empty.",
-       false, ""},
-      {"partial-tiles", "Import tiles cut by the sprite edges: true or false. Uses the document preference when empty.",
-       false, ""},
+      {param::kFilename, "Sheet file to open. Empty uses the current document.", false, ""},
+      {param::kX, "Tile x coordinate in the sheet.", false, "0"},
+      {param::kY, "Tile y coordinate in the sheet.", false, "0"},
+      {param::kWidth, "Tile width in pixels. With height, imports without the dialog.", false, ""},
+      {param::kHeight, "Tile height in pixels. With width, imports without the dialog.", false, ""},
+      {param::kSheetType,
+       "Tile layout: horizontal, vertical, rows or columns. Uses the document preference when empty.", false, ""},
+      {param::kPartialTiles,
+       "Import tiles cut by the sprite edges: true or false. Uses the document preference when empty.", false, ""},
   };
 }
 
@@ -377,7 +378,7 @@ void ImportSpriteSheetCommand::onExecute(Context* context)
       // Open the sheet through the OpenFile command (like app.open).
       Command* openFile = CommandsModule::instance()->getCommandByName(CommandId::OpenFile);
       Params params;
-      params.set("filename", m_filename.c_str());
+      params.set(param::kFilename, m_filename.c_str());
       context->executeCommand(openFile, params);
 
       // The sheet was not opened (e.g. the file does not exist).

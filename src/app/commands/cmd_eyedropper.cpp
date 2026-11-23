@@ -14,6 +14,7 @@
 #include "app/color_picker.h"
 #include "app/commands/cmd_eyedropper.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/modules/editors.h"
 #include "app/pref/preferences.h"
@@ -117,7 +118,7 @@ void EyedropperCommand::pickSample(const doc::Site& site, const gfx::Point& pixe
 
 void EyedropperCommand::onLoadParams(const Params& params)
 {
-  std::string target = params.get("target");
+  std::string target = params.get(param::kTarget);
   if (target == "foreground")
     m_background = false;
   else if (target == "background")

@@ -13,6 +13,7 @@
 #include "app/cmd/add_frame_tag.h"
 #include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context.h"
@@ -58,34 +59,34 @@ NewFrameTagCommand::NewFrameTagCommand()
 
 void NewFrameTagCommand::onLoadParams(const Params& params)
 {
-  m_name = params.get("name");
+  m_name = params.get(param::kName);
 
-  std::string from = params.get("from");
+  std::string from = params.get(param::kFrom);
   if (!from.empty())
     m_from = strtol(from.c_str(), NULL, 10);
   else
     m_from = 0;
 
-  std::string to = params.get("to");
+  std::string to = params.get(param::kTo);
   if (!to.empty())
     m_to = strtol(to.c_str(), NULL, 10);
   else
     m_to = 0;
 
-  m_color = params.get("color");
-  m_aniDir = params.get("ani-dir");
+  m_color = params.get(param::kColor);
+  m_aniDir = params.get(param::kAniDir);
 }
 
 std::vector<CommandParamInfo> NewFrameTagCommand::onDescribeParams() const
 {
   return {
-      {"name", "Name of the new tag. Empty opens the dialog.", false, ""},
+      {param::kName, "Name of the new tag. Empty opens the dialog.", false, ""},
       {"from", "1-based first frame of the tag (inclusive). Default: the timeline range, else the current frame.",
        false, ""},
       {"to", "1-based last frame of the tag (inclusive). Default: the timeline range, else the current frame.", false,
        ""},
-      {"color", "Tag color, for example rgb{255,0,0,255}.", false, ""},
-      {"ani-dir", "Animation direction: forward, reverse or mirror.", false, "forward"},
+      {param::kColor, "Tag color, for example rgb{255,0,0,255}.", false, ""},
+      {param::kAniDir, "Animation direction: forward, reverse or mirror.", false, "forward"},
   };
 }
 

@@ -13,6 +13,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/pref/preferences.h"
@@ -59,7 +60,7 @@ ChangeBrushCommand::ChangeBrushCommand()
 
 void ChangeBrushCommand::onLoadParams(const Params& params)
 {
-  std::string change = params.get("change");
+  std::string change = params.get(param::kChange);
   if (change == "increment-size")
     m_change = IncrementSize;
   else if (change == "decrement-size")
@@ -72,7 +73,7 @@ void ChangeBrushCommand::onLoadParams(const Params& params)
     m_change = CustomBrush;
 
   if (m_change == CustomBrush)
-    m_slot = params.get_as<int>("slot");
+    m_slot = params.get_as<int>(param::kSlot);
   else
     m_slot = 0;
 }
@@ -81,7 +82,7 @@ std::vector<CommandParamInfo> ChangeBrushCommand::onDescribeParams() const
 {
   return {
       {"change", "increment-size, decrement-size, increment-angle, decrement-angle or custom.", false, ""},
-      {"slot", "Brush slot to pick when change is custom.", false, ""},
+      {param::kSlot, "Brush slot to pick when change is custom.", false, ""},
   };
 }
 

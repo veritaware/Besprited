@@ -15,6 +15,7 @@
 #include "app/color.h"
 #include "app/color_utils.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/commands/filters/filter_window.h"
@@ -151,29 +152,29 @@ ReplaceColorCommand::ReplaceColorCommand()
 
 void ReplaceColorCommand::onLoadParams(const Params& params)
 {
-  std::string useUI = params.get("use-ui");
+  std::string useUI = params.get(param::kUseUi);
   m_useUI = (useUI.empty() || (useUI == "true"));
 
-  m_hasFrom = params.has_param("from");
+  m_hasFrom = params.has_param(param::kFrom);
   if (m_hasFrom)
-    m_from = app::Color::fromString(params.get("from"));
+    m_from = app::Color::fromString(params.get(param::kFrom));
 
-  m_hasTo = params.has_param("to");
+  m_hasTo = params.has_param(param::kTo);
   if (m_hasTo)
-    m_to = app::Color::fromString(params.get("to"));
+    m_to = app::Color::fromString(params.get(param::kTo));
 
-  m_hasTolerance = params.has_param("tolerance");
+  m_hasTolerance = params.has_param(param::kTolerance);
   if (m_hasTolerance)
-    m_tolerance = params.get_as<int>("tolerance");
+    m_tolerance = params.get_as<int>(param::kTolerance);
 }
 
 std::vector<CommandParamInfo> ReplaceColorCommand::onDescribeParams() const
 {
   return {
-      {"use-ui", "Show the replace color dialog (true or false).", false, "true"},
-      {"from", "Color to replace, for example rgb{255,0,0,255}. With this, runs without the dialog.", false, ""},
-      {"to", "Replacement color, for example rgb{0,0,255,255}.", false, ""},
-      {"tolerance", "Color tolerance, 0 to 255.", false, "0"},
+      {param::kUseUi, "Show the replace color dialog (true or false).", false, "true"},
+      {param::kFrom, "Color to replace, for example rgb{255,0,0,255}. With this, runs without the dialog.", false, ""},
+      {param::kTo, "Replacement color, for example rgb{0,0,255,255}.", false, ""},
+      {param::kTolerance, "Color tolerance, 0 to 255.", false, "0"},
   };
 }
 

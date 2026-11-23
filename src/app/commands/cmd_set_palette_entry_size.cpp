@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/ui/color_bar.h"
 
@@ -39,14 +40,14 @@ SetPaletteEntrySizeCommand::SetPaletteEntrySizeCommand()
 
 void SetPaletteEntrySizeCommand::onLoadParams(const Params& params)
 {
-  if (params.has_param("size"))
-    m_size = params.get_as<int>("size");
+  if (params.has_param(param::kSize))
+    m_size = params.get_as<int>(param::kSize);
 }
 
 std::vector<CommandParamInfo> SetPaletteEntrySizeCommand::onDescribeParams() const
 {
   return {
-      {"size", "Palette entry size in pixels.", false, "7"},
+      {param::kSize, "Palette entry size in pixels.", false, "7"},
   };
 }
 

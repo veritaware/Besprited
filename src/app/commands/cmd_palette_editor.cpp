@@ -15,6 +15,7 @@
 #include "app/color.h"
 #include "app/color_utils.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context_access.h"
@@ -165,25 +166,25 @@ PaletteEditorCommand::PaletteEditorCommand()
 
 void PaletteEditorCommand::onLoadParams(const Params& params)
 {
-  std::string target = params.get("target");
+  std::string target = params.get(param::kTarget);
   if (target == "foreground")
     m_background = false;
   else if (target == "background")
     m_background = true;
 
-  std::string open_str = params.get("open");
+  std::string open_str = params.get(param::kOpen);
   if (open_str == "true")
     m_open = true;
   else
     m_open = false;
 
-  std::string close_str = params.get("close");
+  std::string close_str = params.get(param::kClose);
   if (close_str == "true")
     m_close = true;
   else
     m_close = false;
 
-  std::string switch_str = params.get("switch");
+  std::string switch_str = params.get(param::kSwitch);
   if (switch_str == "true")
     m_switch = true;
   else

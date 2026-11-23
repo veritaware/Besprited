@@ -13,6 +13,7 @@
 #include "app/color.h"
 #include "app/color_utils.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/console.h"
 #include "app/document.h"
@@ -75,13 +76,13 @@ NewFileCommand::NewFileCommand()
 
 void NewFileCommand::onLoadParams(const Params& params)
 {
-  std::string width = params.get("width");
+  std::string width = params.get(param::kWidth);
   m_width = (width.empty() ? 0 : std::strtol(width.c_str(), NULL, 10));
 
-  std::string height = params.get("height");
+  std::string height = params.get(param::kHeight);
   m_height = (height.empty() ? 0 : std::strtol(height.c_str(), NULL, 10));
 
-  std::string color_mode = params.get("color-mode");
+  std::string color_mode = params.get(param::kColorMode);
   if (color_mode == "rgb")
     m_format = IMAGE_RGB;
   else if (color_mode == "grayscale")
@@ -91,7 +92,7 @@ void NewFileCommand::onLoadParams(const Params& params)
   else
     m_format = -1;
 
-  std::string background = params.get("background");
+  std::string background = params.get(param::kBackground);
   if (background == "transparent")
     m_background = 0;
   else if (background == "white")
@@ -105,11 +106,12 @@ void NewFileCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> NewFileCommand::onDescribeParams() const
 {
   return {
-      {"width", "Sprite width in pixels. With height, creates the sprite without the dialog.", false, ""},
-      {"height", "Sprite height in pixels. With width, creates the sprite without the dialog.", false, ""},
-      {"color-mode", "Pixel format: rgb, indexed or grayscale. Uses the New File preference when empty.", false, ""},
-      {"background", "Background color: transparent, white or black. Uses the New File preference when empty.", false,
+      {param::kWidth, "Sprite width in pixels. With height, creates the sprite without the dialog.", false, ""},
+      {param::kHeight, "Sprite height in pixels. With width, creates the sprite without the dialog.", false, ""},
+      {param::kColorMode, "Pixel format: rgb, indexed or grayscale. Uses the New File preference when empty.", false,
        ""},
+      {param::kBackground, "Background color: transparent, white or black. Uses the New File preference when empty.",
+       false, ""},
   };
 }
 

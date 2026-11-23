@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/ui/color_bar.h"
 
@@ -40,7 +41,7 @@ SetColorSelectorCommand::SetColorSelectorCommand()
 
 void SetColorSelectorCommand::onLoadParams(const Params& params)
 {
-  std::string type = params.get("type");
+  std::string type = params.get(param::kType);
 
   if (type == "spectrum")
   {

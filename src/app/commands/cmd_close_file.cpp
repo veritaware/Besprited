@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/context_access.h"
 #include "app/document_access.h"
 #include "app/modules/editors.h"
@@ -64,7 +65,7 @@ public:
   }
 
 protected:
-  void onLoadParams(const Params& params) override { m_quitting = params.get_as<bool>("quitting"); }
+  void onLoadParams(const Params& params) override { m_quitting = params.get_as<bool>(param::kQuitting); }
 
   std::vector<CommandParamInfo> onDescribeParams() const override
   {

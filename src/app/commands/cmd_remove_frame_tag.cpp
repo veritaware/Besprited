@@ -12,6 +12,7 @@
 #include "app/app.h"
 #include "app/cmd/remove_frame_tag.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/context_access.h"
@@ -48,9 +49,9 @@ RemoveFrameTagCommand::RemoveFrameTagCommand()
 
 void RemoveFrameTagCommand::onLoadParams(const Params& params)
 {
-  m_tagName = params.get("name");
+  m_tagName = params.get(param::kName);
 
-  std::string id = params.get("id");
+  std::string id = params.get(param::kId);
   if (!id.empty())
     m_tagId = ObjectId(base::convert_to<ObjectId>(id));
   else
@@ -60,8 +61,8 @@ void RemoveFrameTagCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> RemoveFrameTagCommand::onDescribeParams() const
 {
   return {
-      {"name", "Tag name to remove. Empty uses the tag id, or the inner tag of the current frame.", false, ""},
-      {"id", "Tag id to remove (when name is empty).", false, ""},
+      {param::kName, "Tag name to remove. Empty uses the tag id, or the inner tag of the current frame.", false, ""},
+      {param::kId, "Tag id to remove (when name is empty).", false, ""},
   };
 }
 

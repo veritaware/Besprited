@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_access.h"
@@ -513,7 +514,7 @@ public:
         int frame = textInt();
         if (frame > 0)
         {
-          params.set("frame", text().c_str());
+          params.set(param::kFrame, text().c_str());
           UIContext::instance()->executeCommand(cmd, params);
         }
         // Select the text again

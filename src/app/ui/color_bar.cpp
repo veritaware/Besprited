@@ -9,6 +9,7 @@
 #include "config.h"
 #endif
 
+#include "app/commands/param_names.h"
 #include "app/ui/color_bar.h"
 
 #include "app/app.h"
@@ -507,7 +508,7 @@ void ColorBar::onPaletteButtonClick()
   {
     Command* cmd_show_palette_editor = CommandsModule::instance()->getCommandByName(CommandId::PaletteEditor);
     Params params;
-    params.set("switch", "true");
+    params.set(param::kSwitch, "true");
 
     UIContext::instance()->executeCommand(cmd_show_palette_editor, params);
     break;
@@ -1117,8 +1118,8 @@ void ColorBar::onFixWarningClick(ColorButton* colorButton, ui::Button* warningIc
 {
   Command* command = CommandsModule::instance()->getCommandByName(CommandId::AddColor);
   Params params;
-  params.set("source", "color");
-  params.set("color", colorButton->getColor().toString().c_str());
+  params.set(param::kSource, "color");
+  params.set(param::kColor, colorButton->getColor().toString().c_str());
 
   UIContext::instance()->executeCommand(command, params);
 }

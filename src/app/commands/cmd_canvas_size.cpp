@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
@@ -326,24 +327,24 @@ void CanvasSizeCommand::onLoadParams(const Params& params)
 {
   m_left = m_right = m_top = m_bottom = 0;
   m_hasParams = false;
-  if (params.has_param("left"))
+  if (params.has_param(param::kLeft))
   {
-    m_left = params.get_as<int>("left");
+    m_left = params.get_as<int>(param::kLeft);
     m_hasParams = true;
   }
-  if (params.has_param("right"))
+  if (params.has_param(param::kRight))
   {
-    m_right = params.get_as<int>("right");
+    m_right = params.get_as<int>(param::kRight);
     m_hasParams = true;
   }
-  if (params.has_param("top"))
+  if (params.has_param(param::kTop))
   {
-    m_top = params.get_as<int>("top");
+    m_top = params.get_as<int>(param::kTop);
     m_hasParams = true;
   }
-  if (params.has_param("bottom"))
+  if (params.has_param(param::kBottom))
   {
-    m_bottom = params.get_as<int>("bottom");
+    m_bottom = params.get_as<int>(param::kBottom);
     m_hasParams = true;
   }
 }
@@ -351,10 +352,10 @@ void CanvasSizeCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> CanvasSizeCommand::onDescribeParams() const
 {
   return {
-      {"left", "Left border in pixels. With any border, resizes the canvas without the dialog.", false, ""},
-      {"right", "Right border in pixels.", false, ""},
-      {"top", "Top border in pixels.", false, ""},
-      {"bottom", "Bottom border in pixels.", false, ""},
+      {param::kLeft, "Left border in pixels. With any border, resizes the canvas without the dialog.", false, ""},
+      {param::kRight, "Right border in pixels.", false, ""},
+      {param::kTop, "Top border in pixels.", false, ""},
+      {param::kBottom, "Bottom border in pixels.", false, ""},
   };
 }
 

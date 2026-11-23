@@ -13,6 +13,7 @@
 #include "app/app.h"
 #include "app/commands/cmd_sprite_size.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/context_access.h"
@@ -272,10 +273,10 @@ SpriteSizeCommand::SpriteSizeCommand()
 
 void SpriteSizeCommand::onLoadParams(const Params& params)
 {
-  std::string useUI = params.get("use-ui");
+  std::string useUI = params.get(param::kUseUi);
   m_useUI = (useUI.empty() || (useUI == "true"));
 
-  std::string width = params.get("width");
+  std::string width = params.get(param::kWidth);
   if (!width.empty())
   {
     m_width = std::strtol(width.c_str(), nullptr, 10);
@@ -283,7 +284,7 @@ void SpriteSizeCommand::onLoadParams(const Params& params)
   else
     m_width = 0;
 
-  std::string height = params.get("height");
+  std::string height = params.get(param::kHeight);
   if (!height.empty())
   {
     m_height = std::strtol(height.c_str(), nullptr, 10);
@@ -291,7 +292,7 @@ void SpriteSizeCommand::onLoadParams(const Params& params)
   else
     m_height = 0;
 
-  std::string resize_method = params.get("resize-method");
+  std::string resize_method = params.get(param::kResizeMethod);
   if (!resize_method.empty())
   {
     if (resize_method == "bilinear")
@@ -308,10 +309,10 @@ void SpriteSizeCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> SpriteSizeCommand::onDescribeParams() const
 {
   return {
-      {"use-ui", "Show the sprite size dialog (true or false).", false, "true"},
-      {"width", "New width in pixels. Empty keeps the current width.", false, ""},
-      {"height", "New height in pixels. Empty keeps the current height.", false, ""},
-      {"resize-method", "Resize algorithm: nearest-neighbor, bilinear or rotsprite.", false, "nearest-neighbor"},
+      {param::kUseUi, "Show the sprite size dialog (true or false).", false, "true"},
+      {param::kWidth, "New width in pixels. Empty keeps the current width.", false, ""},
+      {param::kHeight, "New height in pixels. Empty keeps the current height.", false, ""},
+      {param::kResizeMethod, "Resize algorithm: nearest-neighbor, bilinear or rotsprite.", false, "nearest-neighbor"},
   };
 }
 

@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/cmd_rotate.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
@@ -168,12 +169,12 @@ RotateCommand::RotateCommand()
 
 void RotateCommand::onLoadParams(const Params& params)
 {
-  std::string target = params.get("target");
+  std::string target = params.get(param::kTarget);
   m_flipMask = (target == "mask");
 
-  if (params.has_param("angle"))
+  if (params.has_param(param::kAngle))
   {
-    m_angle = strtol(params.get("angle").c_str(), nullptr, 10);
+    m_angle = strtol(params.get(param::kAngle).c_str(), nullptr, 10);
   }
 }
 
@@ -181,7 +182,7 @@ std::vector<CommandParamInfo> RotateCommand::onDescribeParams() const
 {
   return {
       {"target", "mask rotates the selection; default rotates the sprite.", false, ""},
-      {"angle", "Rotation angle in degrees (90, 180 or -90).", false, ""},
+      {param::kAngle, "Rotation angle in degrees (90, 180 or -90).", false, ""},
   };
 }
 

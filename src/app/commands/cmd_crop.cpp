@@ -10,6 +10,7 @@
 #endif
 
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
 #include "app/modules/gui.h"
@@ -47,23 +48,23 @@ CropSpriteCommand::CropSpriteCommand()
 void CropSpriteCommand::onLoadParams(const Params& params)
 {
   m_bounds = gfx::Rect(0, 0, 0, 0);
-  if (params.has_param("x"))
-    m_bounds.x = params.get_as<int>("x");
-  if (params.has_param("y"))
-    m_bounds.y = params.get_as<int>("y");
-  if (params.has_param("width"))
-    m_bounds.w = params.get_as<int>("width");
-  if (params.has_param("height"))
-    m_bounds.h = params.get_as<int>("height");
+  if (params.has_param(param::kX))
+    m_bounds.x = params.get_as<int>(param::kX);
+  if (params.has_param(param::kY))
+    m_bounds.y = params.get_as<int>(param::kY);
+  if (params.has_param(param::kWidth))
+    m_bounds.w = params.get_as<int>(param::kWidth);
+  if (params.has_param(param::kHeight))
+    m_bounds.h = params.get_as<int>(param::kHeight);
 }
 
 std::vector<CommandParamInfo> CropSpriteCommand::onDescribeParams() const
 {
   return {
-      {"x", "Crop bounds x in pixels. Empty crops to the selection mask.", false, ""},
-      {"y", "Crop bounds y in pixels.", false, ""},
-      {"width", "Crop bounds width in pixels.", false, ""},
-      {"height", "Crop bounds height in pixels.", false, ""},
+      {param::kX, "Crop bounds x in pixels. Empty crops to the selection mask.", false, ""},
+      {param::kY, "Crop bounds y in pixels.", false, ""},
+      {param::kWidth, "Crop bounds width in pixels.", false, ""},
+      {param::kHeight, "Crop bounds height in pixels.", false, ""},
   };
 }
 

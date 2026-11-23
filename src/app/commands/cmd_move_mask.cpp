@@ -13,6 +13,7 @@
 #include "app/cmd/shift_masked_cel.h"
 #include "app/commands/cmd_move_mask.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
@@ -38,13 +39,13 @@ MoveMaskCommand::MoveMaskCommand()
 
 void MoveMaskCommand::onLoadParams(const Params& params)
 {
-  std::string target = params.get("target");
+  std::string target = params.get(param::kTarget);
   if (target == "boundaries")
     m_target = Boundaries;
   else if (target == "content")
     m_target = Content;
 
-  std::string direction = params.get("direction");
+  std::string direction = params.get(param::kDirection);
   if (direction == "left")
     m_direction = Left;
   else if (direction == "right")
@@ -54,7 +55,7 @@ void MoveMaskCommand::onLoadParams(const Params& params)
   else if (direction == "down")
     m_direction = Down;
 
-  std::string units = params.get("units");
+  std::string units = params.get(param::kUnits);
   if (units == "pixel")
     m_units = Pixel;
   else if (units == "tile-width")
@@ -72,11 +73,11 @@ void MoveMaskCommand::onLoadParams(const Params& params)
   else if (units == "viewport-height")
     m_units = ViewportHeight;
 
-  int quantity = params.get_as<int>("quantity");
+  int quantity = params.get_as<int>(param::kQuantity);
   m_quantity = std::max<int>(1, quantity);
 
-  if (params.has_param("wrap"))
-    m_wrap = params.get_as<bool>("wrap");
+  if (params.has_param(param::kWrap))
+    m_wrap = params.get_as<bool>(param::kWrap);
   else
     m_wrap = false;
 }

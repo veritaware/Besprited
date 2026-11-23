@@ -13,6 +13,7 @@
 #include "base/string.h"
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/context.h"
 #include "app/context_access.h"
 #include "app/document.h"
@@ -862,13 +863,13 @@ ExportSpriteSheetCommand::ExportSpriteSheetCommand()
 
 void ExportSpriteSheetCommand::onLoadParams(const Params& params)
 {
-  if (params.has_param("ui"))
-    m_useUI = params.get_as<bool>("ui");
+  if (params.has_param(param::kUi))
+    m_useUI = params.get_as<bool>(param::kUi);
   else
     m_useUI = true;
 
-  if (params.has_param("ask-overwrite"))
-    m_askOverwrite = params.get_as<bool>("ask-overwrite");
+  if (params.has_param(param::kAskOverwrite))
+    m_askOverwrite = params.get_as<bool>(param::kAskOverwrite);
   else
     m_askOverwrite = true;
 }
@@ -876,8 +877,8 @@ void ExportSpriteSheetCommand::onLoadParams(const Params& params)
 std::vector<CommandParamInfo> ExportSpriteSheetCommand::onDescribeParams() const
 {
   return {
-      {"ui", "Show the export dialog (1 or 0).", false, "1"},
-      {"ask-overwrite", "Ask before overwriting the output files (1 or 0).", false, "1"},
+      {param::kUi, "Show the export dialog (1 or 0).", false, "1"},
+      {param::kAskOverwrite, "Ask before overwriting the output files (1 or 0).", false, "1"},
   };
 }
 

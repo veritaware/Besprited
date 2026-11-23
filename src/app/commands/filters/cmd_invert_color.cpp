@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/color.h"
+#include "app/commands/param_names.h"
 #include "app/ui/color_button.h"
 #include "base/bind.h"
 #include "app/commands/command.h"
@@ -67,14 +68,14 @@ InvertColorCommand::InvertColorCommand()
 
 void InvertColorCommand::onLoadParams(const Params& params)
 {
-  std::string useUI = params.get("use-ui");
+  std::string useUI = params.get(param::kUseUi);
   m_useUI = (useUI.empty() || (useUI == "true"));
 }
 
 std::vector<CommandParamInfo> InvertColorCommand::onDescribeParams() const
 {
   return {
-      {"use-ui", "Show the invert color dialog (true or false).", false, "true"},
+      {param::kUseUi, "Show the invert color dialog (true or false).", false, "true"},
   };
 }
 

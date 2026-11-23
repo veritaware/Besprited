@@ -11,6 +11,7 @@
 
 #include "app/cmd/set_mask.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/context_access.h"
 #include "app/document.h"
 #include "app/modules/editors.h"
@@ -52,7 +53,7 @@ SelectTileCommand::SelectTileCommand()
 
 void SelectTileCommand::onLoadParams(const Params& params)
 {
-  std::string mode = params.get("mode");
+  std::string mode = params.get(param::kMode);
   if (mode == "add")
     m_mode = gen::SelectionMode::ADD;
   else if (mode == "subtract")

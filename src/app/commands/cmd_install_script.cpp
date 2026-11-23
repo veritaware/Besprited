@@ -13,6 +13,7 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
+#include "app/commands/param_names.h"
 #include "app/context.h"
 #include "app/document.h"
 #include "app/resource_finder.h"
@@ -55,13 +56,13 @@ InstallScriptCommand::InstallScriptCommand()
 
 void InstallScriptCommand::onLoadParams(const Params& params)
 {
-  m_filename = params.get("filename");
+  m_filename = params.get(param::kFilename);
 }
 
 std::vector<CommandParamInfo> InstallScriptCommand::onDescribeParams() const
 {
   return {
-      {"filename", "Script file to copy to the scripts folder.", true, ""},
+      {param::kFilename, "Script file to copy to the scripts folder.", true, ""},
   };
 }
 

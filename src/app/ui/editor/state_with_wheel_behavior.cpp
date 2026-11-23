@@ -9,6 +9,7 @@
 #include "config.h"
 #endif
 
+#include "app/commands/param_names.h"
 #include "app/ui/editor/state_with_wheel_behavior.h"
 
 #include "app/app.h"
@@ -72,7 +73,7 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
     if (command)
     {
       Params params;
-      params.set("change", dz > 0 ? "increment-size" : "decrement-size");
+      params.set(param::kChange, dz > 0 ? "increment-size" : "decrement-size");
       UIContext::instance()->executeCommand(command, params);
     }
     break;

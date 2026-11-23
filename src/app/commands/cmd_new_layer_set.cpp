@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/param_names.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/document_api.h"
@@ -50,13 +51,13 @@ NewLayerSetCommand::NewLayerSetCommand()
 
 void NewLayerSetCommand::onLoadParams(const Params& params)
 {
-  m_name = params.get("name");
+  m_name = params.get(param::kName);
 }
 
 std::vector<CommandParamInfo> NewLayerSetCommand::onDescribeParams() const
 {
   return {
-      {"name", "Name of the new folder. Empty opens the dialog (headless uses \"New Folder\").", false, ""},
+      {param::kName, "Name of the new folder. Empty opens the dialog (headless uses \"New Folder\").", false, ""},
   };
 }
 
