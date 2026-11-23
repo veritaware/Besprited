@@ -36,7 +36,12 @@
 #include "doc/user_data.h"
 #include "ui/ui.h"
 
+#include <algorithm>
+#include <array>
 #include <stdexcept>
+#include <string>
+#include <string_view>
+#include <utility>
 
 #include "layer_properties.xml.h"
 
@@ -72,47 +77,40 @@ private:
   std::string m_userData;
 };
 
-// Converts the blend-mode param to a BlendMode (the UI combo names).
+// Names of the blend-mode param (the UI combo names).
+static constexpr std::array<std::pair<std::string_view, doc::BlendMode>, 16> kBlendModes = {{
+    {"normal", doc::BlendMode::NORMAL},
+    {"multiply", doc::BlendMode::MULTIPLY},
+    {"screen", doc::BlendMode::SCREEN},
+    {"overlay", doc::BlendMode::OVERLAY},
+    {"darken", doc::BlendMode::DARKEN},
+    {"lighten", doc::BlendMode::LIGHTEN},
+    {"color-dodge", doc::BlendMode::COLOR_DODGE},
+    {"color-burn", doc::BlendMode::COLOR_BURN},
+    {"hard-light", doc::BlendMode::HARD_LIGHT},
+    {"soft-light", doc::BlendMode::SOFT_LIGHT},
+    {"difference", doc::BlendMode::DIFFERENCE},
+    {"exclusion", doc::BlendMode::EXCLUSION},
+    {"hue", doc::BlendMode::HSL_HUE},
+    {"saturation", doc::BlendMode::HSL_SATURATION},
+    {"color", doc::BlendMode::HSL_COLOR},
+    {"luminosity", doc::BlendMode::HSL_LUMINOSITY},
+}};
+
 static doc::BlendMode blend_mode_from_string(const std::string& s)
 {
-  if (s == "normal")
-    return doc::BlendMode::NORMAL;
-  if (s == "multiply")
-    return doc::BlendMode::MULTIPLY;
-  if (s == "screen")
-    return doc::BlendMode::SCREEN;
-  if (s == "overlay")
-    return doc::BlendMode::OVERLAY;
-  if (s == "darken")
-    return doc::BlendMode::DARKEN;
-  if (s == "lighten")
-    return doc::BlendMode::LIGHTEN;
-  if (s == "color-dodge")
-    return doc::BlendMode::COLOR_DODGE;
-  if (s == "color-burn")
-    return doc::BlendMode::COLOR_BURN;
-  if (s == "hard-light")
-    return doc::BlendMode::HARD_LIGHT;
-  if (s == "soft-light")
-    return doc::BlendMode::SOFT_LIGHT;
-  if (s == "difference")
-    return doc::BlendMode::DIFFERENCE;
-  if (s == "exclusion")
-    return doc::BlendMode::EXCLUSION;
-  if (s == "hue")
-    return doc::BlendMode::HSL_HUE;
-  if (s == "saturation")
-    return doc::BlendMode::HSL_SATURATION;
-  if (s == "color")
-    return doc::BlendMode::HSL_COLOR;
-  if (s == "luminosity")
-    return doc::BlendMode::HSL_LUMINOSITY;
+  auto it = std::ranges::find(kBlendModes, s, &decltype(kBlendModes)::value_type::first);
+  if (it != kBlendModes.end())
+    return it->second;
 
-  throw std::runtime_error("LayerProperties: invalid blend-mode '" + s +
-                           "' (expected one of: "
-                           "normal, multiply, screen, overlay, darken, lighten, color-dodge, "
-                           "color-burn, hard-light, soft-light, difference, exclusion, hue, "
-                           "saturation, color, luminosity)");
+  std::string expected;
+  for (const auto& [name, mode] : kBlendModes)
+  {
+    if (!expected.empty())
+      expected += ", ";
+    expected += name;
+  }
+  throw std::runtime_error("LayerProperties: invalid blend-mode '" + s + "' (expected one of: " + expected + ")");
 }
 
 class LayerPropertiesWindow;
