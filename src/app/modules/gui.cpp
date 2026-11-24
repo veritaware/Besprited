@@ -143,10 +143,12 @@ static bool create_main_display(bool gpuAccel, bool& maximized, std::string& las
     if (scale == 0)
       Preferences::instance().general.screenScale(main_display->scale());
 
+#if !(defined(__APPLE__) && defined(MACOS_APP_BUNDLE))
     ResourceFinder rf;
     rf.includeDataDir("icons/besprited128.png");
     if (rf.findFirst())
       main_display->setIcon(she::instance()->loadRgbaSurface(rf.filename().c_str()));
+#endif
 
     if (!windowLayout.empty())
     {
@@ -218,10 +220,10 @@ int init_module_gui()
 #ifdef EMSCRIPTEN
         uiScale = 2;
 #else
-      // The initial window is only a small fallback size, so prefer the
-      // real desktop height and only fall back to the window height when
-      // it's unavailable.
-      uiScale = guessUiScale(she::instance()->desktopSize().h, ui::display_h());
+        // The initial window is only a small fallback size, so prefer the
+        // real desktop height and only fall back to the window height when
+        // it's unavailable.
+        uiScale = guessUiScale(she::instance()->desktopSize().h, ui::display_h());
 #endif
         Preferences::instance().experimental.uiScale(uiScale);
       }

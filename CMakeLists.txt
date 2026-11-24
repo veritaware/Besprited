@@ -133,6 +133,13 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 # Put libraries into "lib".
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
+# macOS release builds ship an .app bundle with an .icns icon; local builds
+# have no bundle, so they load the window icon from the data dir instead.
+option(MACOS_APP_BUNDLE "Building for an .app bundle with an .icns icon (macOS)" OFF)
+if(MACOS_APP_BUNDLE)
+  add_definitions(-DMACOS_APP_BUNDLE)
+endif()
+
 # Release builds from a git tag: the version is supplied by the workflow
 # (the tag is the single source of truth).
 option(RELEASE_TAG "Building a release from a git tag" OFF)

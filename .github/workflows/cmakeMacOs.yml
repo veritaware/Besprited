@@ -74,6 +74,7 @@ jobs:
         mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DMACOS_APP_BUNDLE=ON \
             -DRELEASE_TAG=ON \
             -DRELEASE_VERSION="${{ steps.check_tag.outputs.version }}" \
             -DCMAKE_OSX_ARCHITECTURES=arm64 \
@@ -81,6 +82,7 @@ jobs:
             -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
         else
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DMACOS_APP_BUNDLE=ON \
             -DCMAKE_OSX_ARCHITECTURES=arm64 \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3 \
             -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
@@ -261,6 +263,7 @@ jobs:
         mkdir build
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DMACOS_APP_BUNDLE=ON \
             -DRELEASE_TAG=ON \
             -DRELEASE_VERSION="${{ steps.check_tag.outputs.version }}" \
             -DCMAKE_OSX_ARCHITECTURES=x86_64 \
@@ -268,6 +271,7 @@ jobs:
             -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
         else
           cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DMACOS_APP_BUNDLE=ON \
             -DCMAKE_OSX_ARCHITECTURES=x86_64 \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=13.3 \
             -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
