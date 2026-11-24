@@ -79,7 +79,8 @@ Download the disk image for your Mac's architecture —
 A classic "drag to install" window will appear — click and drag the
 `Besprited` app onto the Applications folder.
 
-![Dragging Besprited.app into Applications](docs/install_mac_1.jpg)
+![Besprited install DMG finder window](docs/install_mac_1.jpg)
+![Dragging Besprited.app into Applications](docs/install_mac_1b.jpg)
 
 Apple Developer signing certificates are a paid subscription, and this project
 isn't funded well enough to justify one, so the app is self-signed by our
