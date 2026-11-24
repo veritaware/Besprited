@@ -21,6 +21,11 @@ mkdir bundle/besprited.app/Contents/Resources
 cp ./build/bin/besprited ./bundle/besprited.app/Contents/MacOS/
 cp -r ./build/bin/data/ ./bundle/besprited.app/Contents/Resources/data/
 cp ./besprited.icns ./bundle/besprited.app/Contents/Resources/
+# Liquid Glass icon (macOS 26+, defines the icon background); .icns stays as fallback
+xcrun actool packaging/macos/icon_apple.icon --compile ./bundle/besprited.app/Contents/Resources \
+  --output-format human-readable-text --notices --warnings --errors \
+  --output-partial-info-plist /dev/null --app-icon icon_apple \
+  --platform macosx --minimum-deployment-target 26.0
 cp ./desktop/Info.plist ./bundle/besprited.app/Contents/
 chmod +x ./bundle/besprited.app/Contents/MacOS/besprited
 dylibbundler -od -b -ns -x ./bundle/besprited.app/Contents/MacOS/besprited -d ./bundle/besprited.app/Contents/libs/
