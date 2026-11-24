@@ -26,7 +26,7 @@ xcrun actool packaging/macos/icon_apple.icon --compile ./bundle/besprited.app/Co
   --output-format human-readable-text --notices --warnings --errors \
   --output-partial-info-plist /dev/null --app-icon icon_apple \
   --platform macosx --minimum-deployment-target 26.0
-cp ./desktop/Info.plist ./bundle/besprited.app/Contents/
+cp ./packaging/macos/Info.plist ./bundle/besprited.app/Contents/
 chmod +x ./bundle/besprited.app/Contents/MacOS/besprited
 dylibbundler -od -b -ns -x ./bundle/besprited.app/Contents/MacOS/besprited -d ./bundle/besprited.app/Contents/libs/
 

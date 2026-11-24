@@ -116,6 +116,12 @@ jobs:
         cp build/bin/besprited bundle/besprited.app/Contents/MacOS/
         cp -r build/bin/data/ bundle/besprited.app/Contents/Resources/data/
         cp besprited.icns bundle/besprited.app/Contents/Resources/
+        # Liquid Glass icon (needs Xcode 26+); older runners fall back to the .icns
+        xcrun actool packaging/macos/icon_apple.icon --compile bundle/besprited.app/Contents/Resources \
+          --output-format human-readable-text --notices --warnings --errors \
+          --output-partial-info-plist /dev/null --app-icon icon_apple \
+          --platform macosx --minimum-deployment-target 26.0 || echo "::warning::actool failed, using .icns icon only"
+        ls bundle/besprited.app/Contents/Resources/Assets.car || true
         cp packaging/macos/Info.plist bundle/besprited.app/Contents/
         chmod +x bundle/besprited.app/Contents/MacOS/besprited
     - name: Put in Dylibs
@@ -305,6 +311,12 @@ jobs:
         cp build/bin/besprited bundle/besprited.app/Contents/MacOS/
         cp -r build/bin/data/ bundle/besprited.app/Contents/Resources/data/
         cp besprited.icns bundle/besprited.app/Contents/Resources/
+        # Liquid Glass icon (needs Xcode 26+); older runners fall back to the .icns
+        xcrun actool packaging/macos/icon_apple.icon --compile bundle/besprited.app/Contents/Resources \
+          --output-format human-readable-text --notices --warnings --errors \
+          --output-partial-info-plist /dev/null --app-icon icon_apple \
+          --platform macosx --minimum-deployment-target 26.0 || echo "::warning::actool failed, using .icns icon only"
+        ls bundle/besprited.app/Contents/Resources/Assets.car || true
         cp packaging/macos/Info.plist bundle/besprited.app/Contents/
         chmod +x bundle/besprited.app/Contents/MacOS/besprited
     - name: Put in Dylibs
