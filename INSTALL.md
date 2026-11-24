@@ -31,15 +31,17 @@ Two downloads are published for each release:
 
 Run the installer and follow the wizard. It:
 
+* lets you choose the setup application language
 * lets you choose the install location (defaults to a per-user directory, so no
   administrator rights are required),
 * creates a Start Menu entry and, unless you opt out, a desktop shortcut,
 * registers the `.ase` file association,
 * can be removed later from *Settings → Apps* (or *Add/Remove Programs*).
 
-![Installer destination-location page](docs/install_win_1.jpg)
-
-![Installer additional-tasks page with the desktop-shortcut option](docs/install_win_2.jpg)
+![Installer language selection page](docs/install_win_1.jpg)
+![Installer destination-location page](docs/install_win_2.jpg)
+![Installer additional-tasks page with the desktop-shortcut option](docs/install_win_3.jpg)
+![Launched application with the shortcut visible on the desktop](docs/install_win_4.jpg)
 
 ### Portable archive
 
