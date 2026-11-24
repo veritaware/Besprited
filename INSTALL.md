@@ -138,7 +138,8 @@ launcher, move it somewhere stable such as `$HOME/.local/bin` or
 daemon, which register desktop entries automatically, or create one by hand
 (see [below](#creating-a-desktop-entry-by-hand)).
 
-![Besprited in the application launcher](docs/install_linux_launcher.jpg)
+![Besprited in the application launcher](docs/install_linux_1.jpg)
+![Besprited in the GNOME overview](docs/install_linux_2.jpg)
 
 ### Native packages (.deb / .rpm)
 
