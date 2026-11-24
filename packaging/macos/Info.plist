@@ -23,6 +23,9 @@
  	<key>CFBundleIconFile</key>
 	<string>besprited.icns</string>
 
+	<key>CFBundleIconName</key>
+	<string>icon_apple</string>
+
   <key>CFBundlePackageType</key>
 	<string>APPL</string>
 
