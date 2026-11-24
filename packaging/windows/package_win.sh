@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # --- Configuration ---
-EXE="${1:-build/bin/besprited.exe}"
+EXE="${1:-build/bin/Besprited.exe}"
 DEST_DIR="$(dirname "$EXE")"
 
 # Ensure executable exists

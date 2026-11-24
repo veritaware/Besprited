@@ -44,13 +44,13 @@ Run the installer and follow the wizard. It:
 ### Portable archive
 
 Extract the ZIP anywhere you like — a USB stick, a folder in your home
-directory, wherever is convenient. The archive contains `besprited.exe`
+directory, wherever is convenient. The archive contains `Besprited.exe`
 together with the DLLs it needs, all in one flat directory; there is no
-nested `bin\` folder and nothing to configure. Double-click `besprited.exe`
+nested `bin\` folder and nothing to configure. Double-click `Besprited.exe`
 to run it.
 
 To get a Start Menu / desktop shortcut with the portable copy, right-click
-`besprited.exe`, choose *Send to → Desktop (create shortcut)*, or use the
+`Besprited.exe`, choose *Send to → Desktop (create shortcut)*, or use the
 installer instead.
 
 ### I get a "Windows protected your PC" pop-up when trying to run the application. Is it a virus?
@@ -77,9 +77,9 @@ Download the disk image for your Mac's architecture —
 `.dmg` to mount it.
 
 A classic "drag to install" window will appear — click and drag the
-`besprited` app onto the Applications folder.
+`Besprited` app onto the Applications folder.
 
-![Dragging besprited.app into Applications](docs/install_mac_1.jpg)
+![Dragging Besprited.app into Applications](docs/install_mac_1.jpg)
 
 Apple Developer signing certificates are a paid subscription, and this project
 isn't funded well enough to justify one, so the app is self-signed by our
@@ -90,7 +90,7 @@ Open Terminal and run:
 
 ```
 cd /Applications
-sudo xattr -dr com.apple.quarantine besprited.app
+sudo xattr -dr com.apple.quarantine Besprited.app
 ```
 
 This requires an administrator account. Enter your user password when

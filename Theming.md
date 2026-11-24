@@ -25,7 +25,7 @@ Well, most of the available themes can be found [here](https://libresprite.githu
 
 ## How to Install?
 
-Simple, download the .zip archive, extract and copy to the /data/skins part of the directory where besprited.exe is.
+Simple, download the .zip archive, extract and copy to the /data/skins part of the directory where Besprited.exe is.
 
 Then open Besprited, go to Edit, Preferences and go to the Theme tab.
 

@@ -38,7 +38,7 @@ MSIX_VERSION="$(map_version "$VERSION_IN")" || {
 }
 echo "MSIX version: $MSIX_VERSION"
 
-[[ -f "$BIN_DIR/besprited.exe" ]] || { echo "ERROR: $BIN_DIR/besprited.exe not found" >&2; exit 1; }
+[[ -f "$BIN_DIR/Besprited.exe" ]] || { echo "ERROR: $BIN_DIR/Besprited.exe not found" >&2; exit 1; }
 [[ -d "$BIN_DIR/data" ]] || { echo "ERROR: $BIN_DIR/data not found" >&2; exit 1; }
 
 # Locate makeappx.exe (Windows SDK) unless already in PATH.
@@ -51,7 +51,7 @@ fi
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
-cp "$BIN_DIR/besprited.exe" "$STAGE/"
+cp "$BIN_DIR/Besprited.exe" "$STAGE/"
 cp "$BIN_DIR"/*.dll "$STAGE/"
 cp -r "$BIN_DIR/data" "$STAGE/data"
 

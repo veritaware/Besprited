@@ -108,45 +108,45 @@ jobs:
     - name: Create Apple Bundle
       run: |
         mkdir bundle/
-        mkdir bundle/besprited.app
-        mkdir bundle/besprited.app/Contents
-        mkdir bundle/besprited.app/Contents/libs
-        mkdir bundle/besprited.app/Contents/MacOS
-        mkdir bundle/besprited.app/Contents/Resources
-        cp build/bin/besprited bundle/besprited.app/Contents/MacOS/
-        cp -r build/bin/data/ bundle/besprited.app/Contents/Resources/data/
-        cp besprited.icns bundle/besprited.app/Contents/Resources/
+        mkdir bundle/Besprited.app
+        mkdir bundle/Besprited.app/Contents
+        mkdir bundle/Besprited.app/Contents/libs
+        mkdir bundle/Besprited.app/Contents/MacOS
+        mkdir bundle/Besprited.app/Contents/Resources
+        cp build/bin/Besprited bundle/Besprited.app/Contents/MacOS/
+        cp -r build/bin/data/ bundle/Besprited.app/Contents/Resources/data/
+        cp besprited.icns bundle/Besprited.app/Contents/Resources/
         # Liquid Glass icon (needs Xcode 26+); older runners fall back to the .icns
-        xcrun actool packaging/macos/icon_apple.icon --compile bundle/besprited.app/Contents/Resources \
+        xcrun actool packaging/macos/icon_apple.icon --compile bundle/Besprited.app/Contents/Resources \
           --output-format human-readable-text --notices --warnings --errors \
           --output-partial-info-plist /dev/null --app-icon icon_apple \
           --platform macosx --minimum-deployment-target 26.0 || echo "::warning::actool failed, using .icns icon only"
-        ls bundle/besprited.app/Contents/Resources/Assets.car || true
-        cp packaging/macos/Info.plist bundle/besprited.app/Contents/
-        chmod +x bundle/besprited.app/Contents/MacOS/besprited
+        ls bundle/Besprited.app/Contents/Resources/Assets.car || true
+        cp packaging/macos/Info.plist bundle/Besprited.app/Contents/
+        chmod +x bundle/Besprited.app/Contents/MacOS/Besprited
     - name: Put in Dylibs
       run: |
-        dylibbundler -od -b -ns -x bundle/besprited.app/Contents/MacOS/besprited -d bundle/besprited.app/Contents/libs/
+        dylibbundler -od -b -ns -x bundle/Besprited.app/Contents/MacOS/Besprited -d bundle/Besprited.app/Contents/libs/
         echo "Manually bundling libSDL3.dylib..."
         # dylibbundler may skip libSDL3 (e.g. when it is loaded indirectly rather than
         # via LC_LOAD_DYLIB), so make sure it is bundled explicitly.
-        cp -L "$(brew --prefix sdl3)/lib/libSDL3.dylib" bundle/besprited.app/Contents/libs/libSDL3.dylib
-        install_name_tool -id "@rpath/libSDL3.dylib" bundle/besprited.app/Contents/libs/libSDL3.dylib
+        cp -L "$(brew --prefix sdl3)/lib/libSDL3.dylib" bundle/Besprited.app/Contents/libs/libSDL3.dylib
+        install_name_tool -id "@rpath/libSDL3.dylib" bundle/Besprited.app/Contents/libs/libSDL3.dylib
         echo "RPATH entries after dylibbundler:"
-        otool -l bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
+        otool -l bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
         echo "Cleaning up RPATH entries from main executable..."
-        otool -l bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq | while read -r rpath; do
+        otool -l bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq | while read -r rpath; do
             if [ ! -z "$rpath" ]; then
                 echo "Removing RPATH: $rpath"
-                install_name_tool -delete_rpath "$rpath" bundle/besprited.app/Contents/MacOS/besprited 2>/dev/null || echo "Could not remove $rpath (may not exist)"
+                install_name_tool -delete_rpath "$rpath" bundle/Besprited.app/Contents/MacOS/Besprited 2>/dev/null || echo "Could not remove $rpath (may not exist)"
             fi
         done
         echo "Adding single RPATH: @executable_path/../libs/"
-        install_name_tool -add_rpath "@executable_path/../libs/" bundle/besprited.app/Contents/MacOS/besprited 2>/dev/null || echo "RPATH may already exist"
+        install_name_tool -add_rpath "@executable_path/../libs/" bundle/Besprited.app/Contents/MacOS/Besprited 2>/dev/null || echo "RPATH may already exist"
         echo "Final RPATH entries:"
-        otool -l bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
+        otool -l bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
         echo "Cleaning RPATH entries from all bundled libraries:"
-        find bundle/besprited.app/Contents/libs -name "*.dylib" -type f | while read -r dylib; do
+        find bundle/Besprited.app/Contents/libs -name "*.dylib" -type f | while read -r dylib; do
             echo "Processing: $(basename "$dylib")"
             otool -l "$dylib" | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq | while read -r rpath; do
                 if [ ! -z "$rpath" ]; then
@@ -159,7 +159,7 @@ jobs:
     - name: Sign the Binaries
       run: |
         # Remove all existing signatures before re-signing
-        find bundle/besprited.app -type f \( -name "*.dylib" -o -name "besprited" \) -exec codesign --remove-signature {} \; 2>/dev/null || true
+        find bundle/Besprited.app -type f \( -name "*.dylib" -o -name "Besprited" \) -exec codesign --remove-signature {} \; 2>/dev/null || true
 
         # Ad-hoc sign without hardened runtime (--options=runtime triggers CS_RUNTIME which
         # causes macOS 27's code signing monitor to enforce strict page-level validation on
@@ -167,19 +167,19 @@ jobs:
         # fail. Without CS_RUNTIME, library validation is not kernel-enforced and all dylibs
         # load freely. This also allows V8's JIT, which requires writable+executable memory
         # that hardened runtime blocks.)
-        find bundle/besprited.app/Contents/libs -name "*.dylib" | while read -r dylib; do
+        find bundle/Besprited.app/Contents/libs -name "*.dylib" | while read -r dylib; do
           echo "Signing: $dylib"
           codesign --force -s - "$dylib" && echo "✓ $dylib" || echo "✗ $dylib"
         done
 
-        codesign --force -s - bundle/besprited.app/Contents/MacOS/besprited && \
+        codesign --force -s - bundle/Besprited.app/Contents/MacOS/Besprited && \
           echo "Besprited contents signed successfully" || echo "Failed to sign Besprited contents"
 
-        codesign --force -s - bundle/besprited.app && \
+        codesign --force -s - bundle/Besprited.app && \
           echo "Besprited app signed successfully" || echo "Failed to sign Besprited app"
     - name: Create the DMG
       run: |
-        dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+        dmgbuild --detach-retries 5 -Dapp=bundle/Besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           mv besprited.dmg "besprited-${{ steps.check_tag.outputs.tag }}-macos-silicon.dmg"
           echo "dmg=besprited-${{ steps.check_tag.outputs.tag }}-macos-silicon.dmg" >> "$GITHUB_OUTPUT"
@@ -303,45 +303,45 @@ jobs:
     - name: Create Apple Bundle
       run: |
         mkdir bundle/
-        mkdir bundle/besprited.app
-        mkdir bundle/besprited.app/Contents
-        mkdir bundle/besprited.app/Contents/libs
-        mkdir bundle/besprited.app/Contents/MacOS
-        mkdir bundle/besprited.app/Contents/Resources
-        cp build/bin/besprited bundle/besprited.app/Contents/MacOS/
-        cp -r build/bin/data/ bundle/besprited.app/Contents/Resources/data/
-        cp besprited.icns bundle/besprited.app/Contents/Resources/
+        mkdir bundle/Besprited.app
+        mkdir bundle/Besprited.app/Contents
+        mkdir bundle/Besprited.app/Contents/libs
+        mkdir bundle/Besprited.app/Contents/MacOS
+        mkdir bundle/Besprited.app/Contents/Resources
+        cp build/bin/Besprited bundle/Besprited.app/Contents/MacOS/
+        cp -r build/bin/data/ bundle/Besprited.app/Contents/Resources/data/
+        cp besprited.icns bundle/Besprited.app/Contents/Resources/
         # Liquid Glass icon (needs Xcode 26+); older runners fall back to the .icns
-        xcrun actool packaging/macos/icon_apple.icon --compile bundle/besprited.app/Contents/Resources \
+        xcrun actool packaging/macos/icon_apple.icon --compile bundle/Besprited.app/Contents/Resources \
           --output-format human-readable-text --notices --warnings --errors \
           --output-partial-info-plist /dev/null --app-icon icon_apple \
           --platform macosx --minimum-deployment-target 26.0 || echo "::warning::actool failed, using .icns icon only"
-        ls bundle/besprited.app/Contents/Resources/Assets.car || true
-        cp packaging/macos/Info.plist bundle/besprited.app/Contents/
-        chmod +x bundle/besprited.app/Contents/MacOS/besprited
+        ls bundle/Besprited.app/Contents/Resources/Assets.car || true
+        cp packaging/macos/Info.plist bundle/Besprited.app/Contents/
+        chmod +x bundle/Besprited.app/Contents/MacOS/Besprited
     - name: Put in Dylibs
       run: |
-        dylibbundler -od -b -ns -x bundle/besprited.app/Contents/MacOS/besprited -d bundle/besprited.app/Contents/libs/
+        dylibbundler -od -b -ns -x bundle/Besprited.app/Contents/MacOS/Besprited -d bundle/Besprited.app/Contents/libs/
         echo "Manually bundling libSDL3.dylib..."
         # dylibbundler may skip libSDL3 (e.g. when it is loaded indirectly rather than
         # via LC_LOAD_DYLIB), so make sure it is bundled explicitly.
-        cp -L "$(brew --prefix sdl3)/lib/libSDL3.dylib" bundle/besprited.app/Contents/libs/libSDL3.dylib
-        install_name_tool -id "@rpath/libSDL3.dylib" bundle/besprited.app/Contents/libs/libSDL3.dylib
+        cp -L "$(brew --prefix sdl3)/lib/libSDL3.dylib" bundle/Besprited.app/Contents/libs/libSDL3.dylib
+        install_name_tool -id "@rpath/libSDL3.dylib" bundle/Besprited.app/Contents/libs/libSDL3.dylib
         echo "RPATH entries after dylibbundler:"
-        otool -l bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
+        otool -l bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
         echo "Cleaning up RPATH entries from main executable..."
-        otool -l bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq | while read -r rpath; do
+        otool -l bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq | while read -r rpath; do
             if [ ! -z "$rpath" ]; then
                 echo "Removing RPATH: $rpath"
-                install_name_tool -delete_rpath "$rpath" bundle/besprited.app/Contents/MacOS/besprited 2>/dev/null || echo "Could not remove $rpath (may not exist)"
+                install_name_tool -delete_rpath "$rpath" bundle/Besprited.app/Contents/MacOS/Besprited 2>/dev/null || echo "Could not remove $rpath (may not exist)"
             fi
         done
         echo "Adding single RPATH: @executable_path/../libs/"
-        install_name_tool -add_rpath "@executable_path/../libs/" bundle/besprited.app/Contents/MacOS/besprited 2>/dev/null || echo "RPATH may already exist"
+        install_name_tool -add_rpath "@executable_path/../libs/" bundle/Besprited.app/Contents/MacOS/Besprited 2>/dev/null || echo "RPATH may already exist"
         echo "Final RPATH entries:"
-        otool -l bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
+        otool -l bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH || echo "No RPATH entries found"
         echo "Cleaning RPATH entries from all bundled libraries:"
-        find bundle/besprited.app/Contents/libs -name "*.dylib" -type f | while read -r dylib; do
+        find bundle/Besprited.app/Contents/libs -name "*.dylib" -type f | while read -r dylib; do
             echo "Processing: $(basename "$dylib")"
             otool -l "$dylib" | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq | while read -r rpath; do
                 if [ ! -z "$rpath" ]; then
@@ -354,7 +354,7 @@ jobs:
     - name: Sign the Binaries
       run: |
         # Remove all existing signatures before re-signing
-        find bundle/besprited.app -type f \( -name "*.dylib" -o -name "besprited" \) -exec codesign --remove-signature {} \; 2>/dev/null || true
+        find bundle/Besprited.app -type f \( -name "*.dylib" -o -name "Besprited" \) -exec codesign --remove-signature {} \; 2>/dev/null || true
 
         # Ad-hoc sign without hardened runtime (--options=runtime triggers CS_RUNTIME which
         # causes macOS 27's code signing monitor to enforce strict page-level validation on
@@ -362,19 +362,19 @@ jobs:
         # fail. Without CS_RUNTIME, library validation is not kernel-enforced and all dylibs
         # load freely. This also allows V8's JIT, which requires writable+executable memory
         # that hardened runtime blocks.)
-        find bundle/besprited.app/Contents/libs -name "*.dylib" | while read -r dylib; do
+        find bundle/Besprited.app/Contents/libs -name "*.dylib" | while read -r dylib; do
           echo "Signing: $dylib"
           codesign --force -s - "$dylib" && echo "✓ $dylib" || echo "✗ $dylib"
         done
 
-        codesign --force -s - bundle/besprited.app/Contents/MacOS/besprited && \
+        codesign --force -s - bundle/Besprited.app/Contents/MacOS/Besprited && \
           echo "Besprited contents signed successfully" || echo "Failed to sign Besprited contents"
 
-        codesign --force -s - bundle/besprited.app && \
+        codesign --force -s - bundle/Besprited.app && \
           echo "Besprited app signed successfully" || echo "Failed to sign Besprited app"
     - name: Create the DMG
       run: |
-        dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+        dmgbuild --detach-retries 5 -Dapp=bundle/Besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
         if [ "${{ steps.check_tag.outputs.has_tag }}" = "true" ]; then
           mv besprited.dmg "besprited-${{ steps.check_tag.outputs.tag }}-macos-intel.dmg"
           echo "dmg=besprited-${{ steps.check_tag.outputs.tag }}-macos-intel.dmg" >> "$GITHUB_OUTPUT"

@@ -18,7 +18,7 @@
 	<string>com.veritaware.besprited</string>
 
 	<key>CFBundleExecutable</key>
-	<string>besprited</string>
+	<string>Besprited</string>
 
  	<key>CFBundleIconFile</key>
 	<string>besprited.icns</string>

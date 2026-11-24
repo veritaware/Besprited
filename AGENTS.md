@@ -26,7 +26,8 @@ cmake -G Ninja -DENABLE_TESTS=on ..
 ninja besprited
 ```
 
-- `besprited` is the main target (also aliased as `libresprite` for backward compatibility).
+- `besprited` is the main target (also aliased as `libresprite` for backward compatibility). The
+  executable it produces is named `Besprited` on Windows and macOS, `besprited` elsewhere.
 - Build type defaults to `RelWithDebInfo`; other types: `Debug`, `Release`, `Profile` (a custom profiling
   build type set up in the root `CMakeLists.txt`).
 - Key CMake options (see root `CMakeLists.txt`): `ENABLE_TESTS`, `WITH_WEBP_SUPPORT`,

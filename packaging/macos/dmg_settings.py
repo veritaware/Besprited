@@ -1,14 +1,14 @@
 # dmgbuild settings for the Besprited "drag to install" DMG.
 #
 # Usage:
-#   dmgbuild -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+#   dmgbuild -Dapp=bundle/Besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
 #
-# `app` defaults to bundle/besprited.app so this also works when invoked
+# `app` defaults to bundle/Besprited.app so this also works when invoked
 # without -D from the repo root (e.g. via packaging/package_macos.sh).
 
 import os.path
 
-application = defines.get('app', 'bundle/besprited.app')
+application = defines.get('app', 'bundle/Besprited.app')
 appname = os.path.basename(application)
 
 format = 'UDZO'

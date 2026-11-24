@@ -93,8 +93,8 @@ jobs:
         # Building only the 'besprited' target already keeps gen.exe, qjs/qjsc
         # and the *_tests binaries out of build/bin; this is a defensive sweep so
         # nothing but the editor can end up in the portable ZIP or the installer.
-        find build/bin -maxdepth 1 -type f -name '*.exe' ! -name 'besprited.exe' -delete
-        node packaging/windows/package_win.js build/bin/besprited.exe
+        find build/bin -maxdepth 1 -type f -name '*.exe' ! -name 'Besprited.exe' -delete
+        node packaging/windows/package_win.js build/bin/Besprited.exe
     - name: Upload portable archive
       uses: actions/upload-artifact@v7
       with:

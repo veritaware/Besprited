@@ -22,9 +22,9 @@ BEGIN
             VALUE "Comments", "https://github.com/veritaware/Besprited"
             VALUE "FileDescription", "Besprited - Animated sprites editor & pixel art tool"
             VALUE "FileVersion", "1,0,0,0"
-            VALUE "InternalName", "besprited"
+            VALUE "InternalName", "Besprited"
             VALUE "LegalCopyright", "Copyright (C) 2026 Veritaware"
-            VALUE "OriginalFilename", "besprited.exe"
+            VALUE "OriginalFilename", "Besprited.exe"
             VALUE "ProductName", "BESPRITED"
             VALUE "ProductVersion", "1,1,0,0"
         END

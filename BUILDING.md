@@ -91,6 +91,9 @@ The `build` directory will contain the results of the compilation process.
 If you want to build a fresh copy of Besprited, remove the `build` directory
 and recompile.
 
+The executable is `bin/Besprited` (`Besprited.exe`) on Windows and macOS, and
+`bin/besprited` elsewhere. The build target is `besprited` everywhere.
+
 ### Linux details
 
 To compile Besprited, run the following commands:
@@ -189,7 +192,7 @@ self-signs it and wraps it in a styled drag-to-install disk image (needs
 
 ### Windows
 
-`packaging/windows/package_win.js` copies the runtime DLLs next to `besprited.exe`;
+`packaging/windows/package_win.js` copies the runtime DLLs next to `Besprited.exe`;
 the portable archive is just those files zipped up. The installer is built
 from `packaging/windows/WindowsInstaller.iss` with [Inno Setup](https://jrsoftware.org/isinfo.php):
 

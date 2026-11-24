@@ -42,7 +42,7 @@
   </Resources>
 
   <Applications>
-    <Application Id="Besprited" Executable="besprited.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="Besprited" Executable="Besprited.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="Besprited"
         Description="Animated sprite editor &amp; pixel art tool"

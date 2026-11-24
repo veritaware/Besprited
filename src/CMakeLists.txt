@@ -158,6 +158,11 @@ endif()
 
 add_dependencies(besprited copy_data)
 
+# Capitalized executable name, except where lowercase is the convention
+if((WIN32 OR APPLE) AND NOT GEN_ONLY)
+  set_target_properties(besprited PROPERTIES OUTPUT_NAME Besprited)
+endif()
+
 # Add libresprite as an alias target for backward compatibility
 add_custom_target(libresprite DEPENDS besprited)
 

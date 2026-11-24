@@ -7,7 +7,7 @@
 #endif
 #define MyAppPublisher "Veritaware"
 #define MyAppURL "https://besprited.veritaware.com"
-#define MyAppExeName "besprited.exe"
+#define MyAppExeName "Besprited.exe"
 #define MyAppAssocName MyAppName + " File"
 #define MyAppAssocExt ".ase"
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt

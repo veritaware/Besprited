@@ -13,76 +13,76 @@ done
 iconutil -c icns -o besprited.icns besprited.iconset
 rm -R besprited.iconset
 mkdir bundle/
-mkdir bundle/besprited.app
-mkdir bundle/besprited.app/Contents
-mkdir bundle/besprited.app/Contents/libs
-mkdir bundle/besprited.app/Contents/MacOS
-mkdir bundle/besprited.app/Contents/Resources
-cp ./build/bin/besprited ./bundle/besprited.app/Contents/MacOS/
-cp -r ./build/bin/data/ ./bundle/besprited.app/Contents/Resources/data/
-cp ./besprited.icns ./bundle/besprited.app/Contents/Resources/
+mkdir bundle/Besprited.app
+mkdir bundle/Besprited.app/Contents
+mkdir bundle/Besprited.app/Contents/libs
+mkdir bundle/Besprited.app/Contents/MacOS
+mkdir bundle/Besprited.app/Contents/Resources
+cp ./build/bin/Besprited ./bundle/Besprited.app/Contents/MacOS/
+cp -r ./build/bin/data/ ./bundle/Besprited.app/Contents/Resources/data/
+cp ./besprited.icns ./bundle/Besprited.app/Contents/Resources/
 # Liquid Glass icon (macOS 26+, defines the icon background); .icns stays as fallback
-xcrun actool packaging/macos/icon_apple.icon --compile ./bundle/besprited.app/Contents/Resources \
+xcrun actool packaging/macos/icon_apple.icon --compile ./bundle/Besprited.app/Contents/Resources \
   --output-format human-readable-text --notices --warnings --errors \
   --output-partial-info-plist /dev/null --app-icon icon_apple \
   --platform macosx --minimum-deployment-target 26.0
-cp ./packaging/macos/Info.plist ./bundle/besprited.app/Contents/
-chmod +x ./bundle/besprited.app/Contents/MacOS/besprited
-dylibbundler -od -b -ns -x ./bundle/besprited.app/Contents/MacOS/besprited -d ./bundle/besprited.app/Contents/libs/
+cp ./packaging/macos/Info.plist ./bundle/Besprited.app/Contents/
+chmod +x ./bundle/Besprited.app/Contents/MacOS/Besprited
+dylibbundler -od -b -ns -x ./bundle/Besprited.app/Contents/MacOS/Besprited -d ./bundle/Besprited.app/Contents/libs/
 
 # Check current RPATH entries after dylibbundler
 echo "RPATH entries after dylibbundler:"
-otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH
+otool -l ./bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH
 
 # Clean up any duplicate RPATH entries from the main executable
 # Use otool to check current RPATHs and remove duplicates
-CURRENT_RPATHS=$(otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
+CURRENT_RPATHS=$(otool -l ./bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
 echo "Found RPATH entries: $CURRENT_RPATHS"
 for rpath in $CURRENT_RPATHS; do
     echo "Removing RPATH: $rpath"
-    install_name_tool -delete_rpath "$rpath" ./bundle/besprited.app/Contents/MacOS/besprited 2>/dev/null || true
+    install_name_tool -delete_rpath "$rpath" ./bundle/Besprited.app/Contents/MacOS/Besprited 2>/dev/null || true
 done
 
 # Add our RPATH cleanly
 echo "Adding single RPATH: @executable_path/../libs/"
-install_name_tool -add_rpath "@executable_path/../libs/" ./bundle/besprited.app/Contents/MacOS/besprited 2>/dev/null || true
+install_name_tool -add_rpath "@executable_path/../libs/" ./bundle/Besprited.app/Contents/MacOS/Besprited 2>/dev/null || true
 
 # Verify final RPATH
 echo "Final RPATH entries:"
-otool -l ./bundle/besprited.app/Contents/MacOS/besprited | grep -A2 LC_RPATH
+otool -l ./bundle/Besprited.app/Contents/MacOS/Besprited | grep -A2 LC_RPATH
 
 # Debug: List what libraries we have
 echo "Libraries found:"
-ls -la ./bundle/besprited.app/Contents/libs/ || echo "No libs directory found"
+ls -la ./bundle/Besprited.app/Contents/libs/ || echo "No libs directory found"
 
 # Check RPATH entries in V8 libraries specifically
 echo "Checking V8 library RPATH entries:"
-if [ -f "./bundle/besprited.app/Contents/libs/libv8_libbase.dylib" ]; then
+if [ -f "./bundle/Besprited.app/Contents/libs/libv8_libbase.dylib" ]; then
     echo "libv8_libbase.dylib RPATH entries:"
-    otool -l ./bundle/besprited.app/Contents/libs/libv8_libbase.dylib | grep -A2 LC_RPATH || echo "No RPATH entries found"
+    otool -l ./bundle/Besprited.app/Contents/libs/libv8_libbase.dylib | grep -A2 LC_RPATH || echo "No RPATH entries found"
 
     # Clean up any RPATH entries in libv8_libbase.dylib
-    V8BASE_RPATHS=$(otool -l ./bundle/besprited.app/Contents/libs/libv8_libbase.dylib | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
+    V8BASE_RPATHS=$(otool -l ./bundle/Besprited.app/Contents/libs/libv8_libbase.dylib | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
     for rpath in $V8BASE_RPATHS; do
         echo "Removing RPATH from libv8_libbase.dylib: $rpath"
-        install_name_tool -delete_rpath "$rpath" ./bundle/besprited.app/Contents/libs/libv8_libbase.dylib 2>/dev/null || true
+        install_name_tool -delete_rpath "$rpath" ./bundle/Besprited.app/Contents/libs/libv8_libbase.dylib 2>/dev/null || true
     done
 fi
-if [ -f "./bundle/besprited.app/Contents/libs/libv8.dylib" ]; then
+if [ -f "./bundle/Besprited.app/Contents/libs/libv8.dylib" ]; then
     echo "libv8.dylib RPATH entries:"
-    otool -l ./bundle/besprited.app/Contents/libs/libv8.dylib | grep -A2 LC_RPATH || echo "No RPATH entries found"
+    otool -l ./bundle/Besprited.app/Contents/libs/libv8.dylib | grep -A2 LC_RPATH || echo "No RPATH entries found"
 
     # Clean up any RPATH entries in libv8.dylib
-    V8_RPATHS=$(otool -l ./bundle/besprited.app/Contents/libs/libv8.dylib | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
+    V8_RPATHS=$(otool -l ./bundle/Besprited.app/Contents/libs/libv8.dylib | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
     for rpath in $V8_RPATHS; do
         echo "Removing RPATH from libv8.dylib: $rpath"
-        install_name_tool -delete_rpath "$rpath" ./bundle/besprited.app/Contents/libs/libv8.dylib 2>/dev/null || true
+        install_name_tool -delete_rpath "$rpath" ./bundle/Besprited.app/Contents/libs/libv8.dylib 2>/dev/null || true
     done
 fi
 
 # Clean up RPATH entries in ALL bundled libraries to be thorough
 echo "Cleaning RPATH entries from all bundled libraries:"
-for dylib in ./bundle/besprited.app/Contents/libs/*.dylib; do
+for dylib in ./bundle/Besprited.app/Contents/libs/*.dylib; do
     if [ -f "$dylib" ]; then
         LIB_RPATHS=$(otool -l "$dylib" | grep -A2 LC_RPATH | grep path | awk '{print $2}' | sort | uniq)
         if [ ! -z "$LIB_RPATHS" ]; then
@@ -95,7 +95,7 @@ for dylib in ./bundle/besprited.app/Contents/libs/*.dylib; do
 done
 
 # Remove all existing signatures before re-signing
-find ./bundle/besprited.app -type f \( -name "*.dylib" -o -name "besprited" \) -exec codesign --remove-signature {} \; 2>/dev/null || true
+find ./bundle/Besprited.app -type f \( -name "*.dylib" -o -name "Besprited" \) -exec codesign --remove-signature {} \; 2>/dev/null || true
 
 # Ad-hoc sign without hardened runtime (--options=runtime triggers CS_RUNTIME which causes
 # macOS 27's code signing monitor to enforce strict page-level validation on every loaded
@@ -103,18 +103,18 @@ find ./bundle/besprited.app -type f \( -name "*.dylib" -o -name "besprited" \) -
 # CS_RUNTIME, library validation is not kernel-enforced and all dylibs load freely.
 # This also allows V8's JIT, which requires writable+executable memory that hardened
 # runtime blocks.)
-find ./bundle/besprited.app/Contents/libs -name "*.dylib" | while read -r dylib; do
+find ./bundle/Besprited.app/Contents/libs -name "*.dylib" | while read -r dylib; do
     echo "Signing: $dylib"
     codesign --force -s - "$dylib" && echo "✓ $dylib" || echo "✗ $dylib"
 done
 
-codesign --force -s - ./bundle/besprited.app/Contents/MacOS/besprited && \
-    echo "✓ Signed: besprited" || echo "✗ Failed: besprited"
+codesign --force -s - ./bundle/Besprited.app/Contents/MacOS/Besprited && \
+    echo "✓ Signed: Besprited" || echo "✗ Failed: Besprited"
 
-codesign --force -s - ./bundle/besprited.app && \
-    echo "✓ Signed: besprited.app" || echo "✗ Failed: besprited.app"
+codesign --force -s - ./bundle/Besprited.app && \
+    echo "✓ Signed: Besprited.app" || echo "✗ Failed: Besprited.app"
 rm besprited.icns
 
 # Styled "drag to install" DMG (background image, Applications shortcut).
 # Requires dmgbuild: pip3 install dmgbuild
-dmgbuild --detach-retries 5 -Dapp=bundle/besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
+dmgbuild --detach-retries 5 -Dapp=bundle/Besprited.app -s packaging/macos/dmg_settings.py "Besprited" besprited.dmg
