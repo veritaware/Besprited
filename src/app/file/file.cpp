@@ -672,6 +672,7 @@ void FileOp::operateLoad(IFileOpProgress* progress)
     // Get the format through the extension of the filename
     m_format = format.first;
     m_error.clear();
+    m_warnings.clear();
 
     printf("Using loader for format %s\n", m_format->extensions());
     if (!m_seq.filename_list.empty())
@@ -966,6 +967,14 @@ void FileOp::setError(const char* format, ...)
     scoped_lock lock(m_mutex);
     m_error += buf_error;
   }
+}
+
+void FileOp::addWarning(const std::string& warning)
+{
+  scoped_lock lock(m_mutex);
+  // Report each problem once.
+  if (std::find(m_warnings.begin(), m_warnings.end(), warning) == m_warnings.end())
+    m_warnings.push_back(warning);
 }
 
 void FileOp::setProgress(double progress)

@@ -11,10 +11,12 @@
 #endif
 
 #include "app/app.h"
+#include "app/console.h"
 #include "app/context.h"
 #include "app/document.h"
 #include "app/file/file.h"
 #include "app/file/ase_reader.h"
+#include "app/file/ase_tilemap.h"
 #include "app/file/file_format.h"
 #include "app/file/format_options.h"
 #include "base/cfile.h"
@@ -29,6 +31,8 @@
 #include <array>
 #include <cstdio>
 #include <memory>
+#include <optional>
+#include <vector>
 
 #define ASE_FILE_MAGIC 0xA5E0
 #define ASE_FILE_FRAME_MAGIC 0xF1FA
@@ -57,12 +61,17 @@
 #define ASE_FILE_RAW_CEL 0
 #define ASE_FILE_LINK_CEL 1
 #define ASE_FILE_COMPRESSED_CEL 2
+#define ASE_FILE_TILEMAP_CEL 3
 
 #define ASE_LAYER_FLAG_VISIBLE 1
 #define ASE_LAYER_FLAG_EDITABLE 2
 #define ASE_LAYER_FLAG_LOCK_MOVEMENT 4
 #define ASE_LAYER_FLAG_BACKGROUND 8
 #define ASE_LAYER_FLAG_PREFER_LINKED_CELS 16
+
+#define ASE_LAYER_IMAGE 0
+#define ASE_LAYER_GROUP 1
+#define ASE_LAYER_TILEMAP 2
 
 #define ASE_PALETTE_FLAG_HAS_NAME 1
 
@@ -73,6 +82,9 @@ namespace app
 {
 
 using namespace base;
+
+static const char* const kTilemapsConvertedWarning =
+    "Tilemap layers were converted to regular layers; saving will store them as pixels.";
 
 struct ASE_Header
 {
@@ -107,6 +119,14 @@ struct ASE_Chunk
   int start;
 };
 
+// A layer chunk. Cel chunks refer to layers by their order in the file.
+struct ASE_Layer
+{
+  Layer* layer = nullptr;
+  std::optional<uint32_t> tileset; // Set for tilemap layers
+  bool unsupported = false;
+};
+
 static bool ase_file_read_header(FILE* f, ASE_Header* header);
 static void ase_file_prepare_header(FILE* f, ASE_Header* header, const Sprite* sprite);
 static void ase_file_write_header(FILE* f, ASE_Header* header);
@@ -131,10 +151,11 @@ static std::shared_ptr<Palette> ase_file_read_color2_chunk(AseReader& f, const P
 static std::shared_ptr<Palette> ase_file_read_palette_chunk(AseReader& f, const Palette& prevPal, frame_t frame);
 static void ase_file_write_color2_chunk(FILE* f, ASE_FrameHeader* frame_header, const Palette* pal);
 static void ase_file_write_palette_chunk(FILE* f, ASE_FrameHeader* frame_header, const Palette* pal, int from, int to);
-static Layer* ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite* sprite, Layer** previous_layer,
-                                        int* current_level);
+static ASE_Layer ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite* sprite, Layer** previous_layer,
+                                           int* current_level);
 static void ase_file_write_layer_chunk(FILE* f, ASE_FrameHeader* frame_header, const Layer* layer);
-static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, frame_t frame, PixelFormat pixelFormat, FileOp* fop,
+static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, const std::vector<ASE_Layer>& layers,
+                                    AseTilemaps& tilemaps, frame_t frame, PixelFormat pixelFormat, FileOp* fop,
                                     ASE_Header* header);
 static void ase_file_write_cel_chunk(FILE* f, ASE_FrameHeader* frame_header, const Cel* cel, const LayerImage* layer,
                                      const Sprite* sprite);
@@ -234,6 +255,9 @@ bool AseFormat::onLoad(FileOp* fop)
   Layer* last_layer = sprite->folder();
   WithUserData* last_object_with_user_data = nullptr;
   int current_level = -1;
+  std::vector<ASE_Layer> layers; // In file order
+  AseTilemaps tilemaps;
+  bool has_tilemap_layers = false;
 
   // Read frame by frame to end-of-file
   for (frame_t frame(0); frame < sprite->totalFrames(); ++frame)
@@ -321,14 +345,23 @@ bool AseFormat::onLoad(FileOp* fop)
 
           case ASE_FILE_CHUNK_LAYER:
           {
-            last_object_with_user_data =
-                ase_file_read_layer_chunk(reader, &header, sprite.get(), &last_layer, &current_level);
+            // The entry is added first, so a bad chunk keeps its index.
+            layers.emplace_back();
+            last_object_with_user_data = nullptr;
+            layers.back() = ase_file_read_layer_chunk(reader, &header, sprite.get(), &last_layer, &current_level);
+            last_object_with_user_data = layers.back().layer;
+            if (layers.back().tileset)
+              has_tilemap_layers = true;
+            if (layers.back().unsupported)
+              fop->addWarning("Some layers have an unsupported type and were skipped.");
             break;
           }
 
           case ASE_FILE_CHUNK_CEL:
           {
-            Cel* cel = ase_file_read_cel_chunk(reader, sprite.get(), frame, sprite->pixelFormat(), fop, &header);
+            last_object_with_user_data = nullptr;
+            Cel* cel = ase_file_read_cel_chunk(reader, sprite.get(), layers, tilemaps, frame, sprite->pixelFormat(),
+                                               fop, &header);
             if (cel)
             {
               last_object_with_user_data = cel->data();
@@ -351,6 +384,8 @@ bool AseFormat::onLoad(FileOp* fop)
             break;
 
           case ASE_FILE_CHUNK_TAGS:
+            // The user data chunks which follow belong to the tags.
+            last_object_with_user_data = nullptr;
             ase_file_read_frame_tags_chunk(reader, &sprite->frameTags());
             break;
 
@@ -372,10 +407,29 @@ bool AseFormat::onLoad(FileOp* fop)
             break;
           }
 
+          case ASE_FILE_CHUNK_TILESET:
+            // The user data chunks which follow belong to the tileset.
+            last_object_with_user_data = nullptr;
+            tilemaps.readTileset(reader, sprite.get());
+            break;
+
+          case ASE_FILE_CHUNK_SLICES:
+          case ASE_FILE_CHUNK_SLICE:
+            // Not supported; neither is their user data.
+            last_object_with_user_data = nullptr;
+            break;
+
+          case ASE_FILE_CHUNK_CEL_EXTRA:
+          case ASE_FILE_CHUNK_EXTERNAL_FILE:
+            // Not supported
+            break;
+
           default:
+            last_object_with_user_data = nullptr;
             if (!warned_unknown_chunk)
             {
-              fop->setError("Warning: Unsupported chunk type %d (skipping; further warnings suppressed)\n", chunk_type);
+              fop->addWarning("Unsupported chunks were skipped (first one of type " + std::to_string(chunk_type) +
+                              ").");
               warned_unknown_chunk = true;
             }
             break;
@@ -411,6 +465,10 @@ bool AseFormat::onLoad(FileOp* fop)
     if (fop->isStop())
       break;
   }
+
+  tilemaps.rasterize(fop, sprite.get());
+  if (has_tilemap_layers)
+    fop->addWarning(kTilemapsConvertedWarning);
 
   fop->createDocument(sprite.get());
   // cppcheck-suppress ignoredReturnValue ; releasing ownership is the
@@ -448,6 +506,22 @@ bool AseFormat::onPostLoad(FileOp* fop)
       return false;
     }
     ase_ungroup_all(folder);
+  }
+
+  // A null context means nobody asked for this file (e.g. a thumbnail).
+  if (fop->context() && !fop->warnings().empty())
+  {
+    Console console(fop->context());
+    std::string lines;
+    bool tilemaps = false;
+    for (const std::string& warning : fop->warnings())
+    {
+      console.warning("%s: %s", base::get_file_name(fop->filename()).c_str(), warning.c_str());
+      lines += "<<" + warning;
+      tilemaps = tilemaps || warning == kTilemapsConvertedWarning;
+    }
+    if (tilemaps && App::hasGui())
+      ui::Alert::show("Warning<<%s%s||&OK", base::get_file_name(fop->filename()).c_str(), lines.c_str());
   }
   return true;
 }
@@ -902,8 +976,8 @@ static void ase_file_write_palette_chunk(FILE* f, ASE_FrameHeader* frame_header,
   }
 }
 
-static Layer* ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite* sprite, Layer** previous_layer,
-                                        int* current_level)
+static ASE_Layer ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite* sprite, Layer** previous_layer,
+                                           int* current_level)
 {
   std::string name;
   std::unique_ptr<Layer> layer;
@@ -923,8 +997,12 @@ static Layer* ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite
   f.skip(3);
   name = f.string();
 
-  // Image layer
-  if (layer_type == 0)
+  ASE_Layer result;
+  if (layer_type == ASE_LAYER_TILEMAP)
+    result.tileset = f.dword();
+
+  // Image layer (tilemap layers are converted to image layers)
+  if (layer_type == ASE_LAYER_IMAGE || layer_type == ASE_LAYER_TILEMAP)
   {
     layer = std::make_unique<LayerImage>(sprite);
 
@@ -937,9 +1015,13 @@ static Layer* ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite
     }
   }
   // Layer set
-  else if (layer_type == 1)
+  else if (layer_type == ASE_LAYER_GROUP)
   {
     layer = std::make_unique<LayerFolder>(sprite);
+  }
+  else
+  {
+    result.unsupported = true;
   }
 
   if (layer)
@@ -978,7 +1060,8 @@ static Layer* ase_file_read_layer_chunk(AseReader& f, ASE_Header* header, Sprite
     *current_level = child_level;
   }
 
-  return layer.release();
+  result.layer = layer.release();
+  return result;
 }
 
 static void ase_file_write_layer_chunk(FILE* f, ASE_FrameHeader* frame_header, const Layer* layer)
@@ -1263,20 +1346,22 @@ template <typename ImageTraits> static void write_compressed_image(FILE* f, cons
 // Cel Chunk
 //////////////////////////////////////////////////////////////////////
 
-static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, frame_t frame, PixelFormat pixelFormat, FileOp* fop,
+static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, const std::vector<ASE_Layer>& layers,
+                                    AseTilemaps& tilemaps, frame_t frame, PixelFormat pixelFormat, FileOp* fop,
                                     ASE_Header* header)
 {
   /* read chunk data */
-  LayerIndex layer_index = LayerIndex(f.word());
+  const size_t layer_index = f.word();
   int x = ((short)f.word());
   int y = ((short)f.word());
   int opacity = f.byte();
   int cel_type = f.word();
-  Layer* layer;
-
   f.skip(7);
 
-  layer = sprite->indexToLayer(layer_index);
+  if (layer_index < layers.size() && layers[layer_index].unsupported)
+    return nullptr;
+
+  Layer* layer = layer_index < layers.size() ? layers[layer_index].layer : nullptr;
   if (!layer)
   {
     fop->setError("Frame %d didn't found layer with index %d\n", (int)frame, (int)layer_index);
@@ -1349,6 +1434,7 @@ static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, frame_t frame,
       else
       {
         cel = Cel::createCopy(link);
+        tilemaps.addCopy(link.get(), cel.get());
         cel->setFrame(frame);
         cel->setPosition(x, y);
         cel->setOpacity(opacity);
@@ -1405,6 +1491,18 @@ static Cel* ase_file_read_cel_chunk(AseReader& f, Sprite* sprite, frame_t frame,
       cel->setPosition(x, y);
       cel->setOpacity(opacity);
     }
+    break;
+  }
+
+  case ASE_FILE_TILEMAP_CEL:
+  {
+    const std::optional<uint32_t>& tileset = layers[layer_index].tileset;
+    if (!tileset)
+      throw base::Exception("Tilemap cel in a layer which is not a tilemap.");
+
+    cel = tilemaps.readCel(f, frame, *tileset, sprite);
+    cel->setPosition(x, y);
+    cel->setOpacity(opacity);
     break;
   }
   }

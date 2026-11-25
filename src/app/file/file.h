@@ -124,6 +124,10 @@ public:
   void setError(const char* error, ...);
   bool hasError() const { return !m_error.empty(); }
 
+  // Non-fatal load problems; unlike errors, they don't make the load fail.
+  void addWarning(const std::string& warning);
+  const std::vector<std::string>& warnings() const { return m_warnings; }
+
   double progress() const;
   void setProgress(double progress);
 
@@ -145,6 +149,7 @@ private:
   double m_progress;           // Progress (1.0 is ready).
   IFileOpProgress* m_progressInterface;
   std::string m_error; // Error string.
+  std::vector<std::string> m_warnings;
   bool m_done;         // True if the operation finished.
   bool m_stop;         // Force the break of the operation.
   bool m_oneframe;     // Load just one frame (in formats
