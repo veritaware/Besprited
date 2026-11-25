@@ -214,17 +214,10 @@ TEST(AseFormat, ColorProfileChunkIsToleratedNotTreatedAsAnUnsupportedChunkWarnin
   delete loaded;
 }
 
-TEST(AseFormat, AnActuallyUnrecognizedChunkTypeIsNotSilentlyTolerated)
+TEST(AseFormat, AnUnrecognizedChunkTypeDoesNotCrashTheLoader)
 {
-  // Contrast against the color-profile test above: a genuinely unknown
-  // chunk type (0xffff, never assigned) hits the `default:` branch in
-  // AseFormat::onLoad, which records a message via fop->setError() -
-  // unlike the color-profile chunk's dedicated, error-free handling. That
-  // makes operateLoadTryFormat()'s `&& m_error.empty()` check fail, so
-  // this AseFormat attempt is treated as a failure and the loader falls
-  // back to the next-priority format (SheFormat), which needs a live
-  // she::instance() - unlike every other test in this file, which never
-  // reach that fallback.
+  // A genuinely unknown chunk type (0xffff, never assigned) hits the
+  // `default:` branch in AseFormat::onLoad, which skips it with a warning.
   std::unique_ptr<she::System> sys(she::create_system());
 
   app::Context ctx;
@@ -258,15 +251,10 @@ TEST(AseFormat, AnActuallyUnrecognizedChunkTypeIsNotSilentlyTolerated)
 
   writeWholeFile("ase_unknown_chunk_test.ase", bytes);
 
-  // The point of this test is that this must not crash the loader,
-  // regardless of which format ends up handling it (or whether every
-  // fallback ultimately fails and load_document() returns null).
   app::Document* loaded = load_document(&ctx, "ase_unknown_chunk_test.ase");
-  if (loaded)
-  {
-    loaded->close();
-    delete loaded;
-  }
+  ASSERT_NE(nullptr, loaded);
+  loaded->close();
+  delete loaded;
 }
 
 TEST(AseFormat, OversizedCelDimensionsDoNotOverflowTheDecompressionBufferSize)
@@ -716,8 +704,8 @@ TEST(AseFormat, RepeatedUnknownChunksHaveBoundedDiagnostics)
   ASSERT_NE(nullptr, operation);
   operation->operate();
   operation->done();
-  EXPECT_TRUE(operation->hasError());
-  EXPECT_LT(operation->error().size(), 4096u);
+  EXPECT_FALSE(operation->hasError()) << operation->error();
+  EXPECT_EQ(1u, operation->warnings().size());
   ASSERT_NE(nullptr, operation->document()); // Unknown chunks remain skippable.
   operation->document()->close();
   delete operation->document();
